@@ -1,13 +1,15 @@
+import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
+import FileReader from '../../../src/readers/fileReader';
 import { expect, test } from 'bun:test';
 
 import { readFile } from 'fs/promises';
 
 test('empty dbf', async () => {
-  const data = new DataView((await readFile('tests/readers/fixtures/empty.dbf')).buffer);
+  const data = new BufferReader((await readFile('tests/readers/fixtures/empty.dbf')).buffer);
   const dbf = new DataBaseFile(data, 'utf-8');
 
-  expect(dbf.header).toEqual({
+  expect(dbf.getHeader()).toEqual({
     lastUpdated: new Date('2016-03-21T00:00:00.000Z'),
     records: 2,
     headerLen: 33,
@@ -18,10 +20,10 @@ test('empty dbf', async () => {
 });
 
 test('codepage dbf', async () => {
-  const data = new DataView((await readFile('tests/readers/fixtures/codepage.dbf')).buffer);
+  const data = new BufferReader((await readFile('tests/readers/fixtures/codepage.dbf')).buffer);
   const dbf = new DataBaseFile(data, 'utf-8');
 
-  expect(dbf.header).toEqual({
+  expect(dbf.getHeader()).toEqual({
     lastUpdated: new Date('1995-08-26T00:00:00.000Z'),
     records: 2,
     headerLen: 65,
@@ -32,10 +34,10 @@ test('codepage dbf', async () => {
 });
 
 test('utf dbf', async () => {
-  const data = new DataView((await readFile('tests/readers/fixtures/utf.dbf')).buffer);
+  const data = new BufferReader((await readFile('tests/readers/fixtures/utf.dbf')).buffer);
   const dbf = new DataBaseFile(data, 'utf-8');
 
-  expect(dbf.header).toEqual({
+  expect(dbf.getHeader()).toEqual({
     lastUpdated: new Date('1995-08-26T00:00:00.000Z'),
     records: 2,
     headerLen: 65,
@@ -46,17 +48,17 @@ test('utf dbf', async () => {
 });
 
 test('watershed dbf', async () => {
-  const data = new DataView((await readFile('tests/readers/fixtures/watershed.dbf')).buffer);
+  const data = new BufferReader((await readFile('tests/readers/fixtures/watershed.dbf')).buffer);
   const dbf = new DataBaseFile(data, 'utf-8');
 
-  expect(dbf.header).toEqual({
+  expect(dbf.getHeader()).toEqual({
     lastUpdated: new Date('2013-10-20T00:00:00.000Z'),
     records: 33,
     headerLen: 193,
     recLen: 104,
   });
 
-  expect(dbf.properties).toEqual([
+  expect(dbf.getAllProperties()).toEqual([
     {
       DWM_NAME: 'BUZZARDS BAY',
       DWM_CODE: '95',
@@ -292,18 +294,16 @@ test('watershed dbf', async () => {
 });
 
 test('watershed-specialCharacters dbf', async () => {
-  const data = new DataView(
-    (await readFile('tests/readers/fixtures/watershed-specialCharacters.dbf')).buffer,
-  );
+  const data = new FileReader('tests/readers/fixtures/watershed-specialCharacters.dbf');
   const dbf = new DataBaseFile(data, 'utf-8');
 
-  expect(dbf.header).toEqual({
+  expect(dbf.getHeader()).toEqual({
     lastUpdated: new Date('2013-10-20T00:00:00.000Z'),
     records: 33,
     headerLen: 193,
     recLen: 104,
   });
-  expect(dbf.properties).toEqual([
+  expect(dbf.getAllProperties()).toEqual([
     {
       DWM_NAME: 'BUZZARDS BAY',
       DWM_CODE: '95',

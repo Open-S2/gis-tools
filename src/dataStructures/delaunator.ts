@@ -1,4 +1,4 @@
-import { incirclefast, orient2d } from '../../geometry/predicates';
+import { incirclefast, orient2d } from '../geometry/predicates';
 
 const EPSILON = Math.pow(2, -52);
 

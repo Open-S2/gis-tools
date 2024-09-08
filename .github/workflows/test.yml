@@ -1,12 +1,6 @@
 name: test-workflow
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: push
 
 jobs:
   test:
@@ -24,7 +18,7 @@ jobs:
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: 1.1.8
+        bun-version: 1.1.26
 
     - name: Install dependencies
       run: bun install
@@ -37,6 +31,9 @@ jobs:
       with:
         toolchain: stable
         override: true
+    
+    - name: Install Rustfmt
+      run: rustup component add rustfmt
 
     - name: Install Clippy
       run: rustup component add clippy
@@ -49,6 +46,10 @@ jobs:
       run: cargo build
       shell: bash
 
+    - name: Check Formatting
+      run: cargo fmt -- --check
+      shell: bash
+
     - name: Run Rust tests
-      run: cargo test
+      run: cargo test --lib
       shell: bash
