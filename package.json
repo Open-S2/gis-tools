@@ -1,0 +1,88 @@
+{
+  "name": "s2-tools",
+  "version": "0.1.0",
+  "description": "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.",
+  "type": "module",
+  "keywords": [
+    "tesselate",
+    "mesh",
+    "triangle mesh",
+    "S2"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "directories": {
+    "lib": "dist"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typescript": {
+    "main": "src/index.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint+build+test+docs+test:cov": "bun run lint && bun run build && bun run test && bun run docs && bun run test:cov",
+    "lint": "eslint src test",
+    "lint:fix": "bun run lint -- --fix",
+    "prettier": "bunx prettier src tests tools benchmarks --check",
+    "prettier:fix": "bunx prettier -- --write",
+    "format": "bunx prettier:fix && bun run lint:fix",
+    "build": "bun run build:rust && bun run build:ts",
+    "build:ts": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc && bun run build.ts",
+    "build:rust": "bun build:rust:cargo && bun build:rust:optimize && bun build:rust:strip",
+    "build:rust:cargo": "cargo build --target wasm32-unknown-unknown --release --workspace --package rust-uint64",
+    "build:rust:optimize": "wasm-opt -Oz -o target/wasm32-unknown-unknown/release/optimized.wasm target/wasm32-unknown-unknown/release/uint64.wasm",
+    "build:rust:strip": "wasm-strip target/wasm32-unknown-unknown/release/optimized.wasm",
+    "build:zig": "bun build:zig:bin && bun build:zig:optimize && bun build:zig:strip",
+    "build:zig:bin": "zig build",
+    "build:zig:optimize": "wasm-opt -Oz -o zig-out/bin/optimized-uint64.wasm zig-out/bin/uint64.wasm",
+    "build:zig:strip": "wasm-strip zig-out/bin/optimized-uint64.wasm",
+    "types:bundle": "bun run types:build && node scripts/types.mjs",
+    "prepublishOnly": "bun run lint+build+test+docs+test:cov",
+    "package-check": "package-check",
+    "test:dev": "bun test --watch --coverage",
+    "test": "bun test",
+    "test:coverage": "bun run test --coverage",
+    "test:cov": "bun run tools/buildCoverage.ts",
+    "docs": "typedoc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Open-S2/s2-tools.git"
+  },
+  "author": "Craig OConnor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Open-S2/s2-tools/issues"
+  },
+  "homepage": "https://github.com/Open-S2/s2-tools#readme",
+  "devDependencies": {
+    "@skypack/package-check": "^0.2.2",
+    "@types/bun": "^1.1.8",
+    "@types/node": "^22.5.4",
+    "@types/pbf": "^3.0.5",
+    "@types/single-line-log": "^1.1.2",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsdoc": "^50.2.2",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-tsdoc": "^0.3.0",
+    "polygon-clipping": "^0.15.7",
+    "prettier": "^3.3.3",
+    "typedoc": "^0.26.6",
+    "typedoc-plugin-coverage": "^3.3.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.4.0"
+  },
+  "dependencies": {
+    "earclip": "^1.1.0",
+    "gen-readlines": "^1.0.1",
+    "open-vector-tile": "^1.2.0",
+    "s2-tilejson": "^1.6.0",
+    "s2json-spec": "^1.5.5",
+    "single-line-log": "^1.1.2"
+  }
+}

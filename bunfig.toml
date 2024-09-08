@@ -1,0 +1,16 @@
+[test]
+
+# preload options
+# preload = []
+
+# root directory
+root = "./tests"
+
+# always enable coverage
+# windows tests fails when using coverage
+coverage = true
+
+# new
+coverageReporter = ["text", "lcov"]  # default ["text"]
+# coverageReporter = ["lcov"]  # default ["text"]
+coverageDir = "./coverage"  # default "coverage"

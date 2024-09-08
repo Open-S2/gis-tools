@@ -1,0 +1,15 @@
+[package]
+name = "geometry"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/OpenS2/s2-tools/rust/geometry"
+license = "MIT"
+categories = ["no-std", "algorithms"]
+
+[dependencies]
+libm = "0.2.5"
+
+[lib]
+name = "geometry"
+path = "src/lib.rs"
+bench = true

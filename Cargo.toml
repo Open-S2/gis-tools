@@ -1,0 +1,56 @@
+[workspace]
+resolver = "2"
+members = [
+    "rust/geometry",
+    "rust/s2cell",
+    "rust/uint64"
+]
+
+default-members = [
+  "rust/geometry"
+]
+
+[workspace.package]
+name = "s2-tools"
+version = "1.0.0"
+edition = "2021"
+authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
+description = "Triangle mesh designed to be fast, efficient, and sphere capable."
+documentation = "https://docs.rs/s2-tools"
+homepage = "https://github.com/OpenS2/s2-tools"
+repository = "https://github.com/OpenS2/s2-tools"
+readme = "README.md"
+categories = ["no-std", "algorithms"]
+keywords = ["tools", "s2", "gis", "low-cost-code"]
+license = "MIT"
+# Include only specific files and directories
+# include = ["/ovtile", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
+exclude = [
+    "/assets",
+    "/benchmarks",
+    "/docs",
+    "/test",
+    "/tools",
+    "/src",
+    ".github",
+    ".helix"
+]
+
+# [lib]
+# crate-type = ["cdylib"]
+# name = "rust"
+# path = "rust/lib.rs"
+# bench = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# [dependencies]
+
+# [dev-dependencies]
+
+# [features]
+# default = ["std"]
+# std = []
+
+# [profile.bench]
+# opt-level = 3

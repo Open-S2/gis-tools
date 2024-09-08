@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+option java_package = "crosby.binary";
+package OSMPBF;
+
+//protoc --java_out=../.. fileformat.proto
+
+
+//
+//  STORAGE LAYER: Storing primitives.
+//
+
+/* A file contains an sequence of fileblock headers, each prefixed by
+their length in network byte order, followed by a data block
+containing the actual data. Types starting with a "_" are reserved.
+*/
+
+message BlobHeader {
+  required string type = 1;
+  optional bytes indexdata = 2;
+  required int32 datasize = 3;
+}
+
+message Blob {
+  optional int32 raw_size = 2; // When compressed, the uncompressed size
+
+  oneof data {
+    bytes raw = 1; // No compression
+
+    // Possible compressed versions of the data.
+    bytes zlib_data = 3;
+
+    // For LZMA compressed data (optional)
+    bytes lzma_data = 4;
+
+    // Formerly used for bzip2 compressed data. Deprecated in 2010.
+    bytes OBSOLETE_bzip2_data = 5 [deprecated=true]; // Don't reuse this tag number.
+
+    // For LZ4 compressed data (optional)
+    bytes lz4_data = 6;
+
+    // For ZSTD compressed data (optional)
+    bytes zstd_data = 7;
+  }
+}
