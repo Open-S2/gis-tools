@@ -11,3 +11,4 @@ zig-cache/
 zig-out/
 experiments/
 zig/
+coverage/
