@@ -20,10 +20,10 @@ export class BufferReader extends DataView implements Reader {
   /**
    * @param begin - beginning of the slice
    * @param end - end of the slice. If not provided, the end of the data is used
-   * @returns - a Uint8Array of the slice
+   * @returns - a DataView of the slice
    */
-  slice(begin: number, end: number): Uint8Array {
-    return new Uint8Array(
+  slice(begin: number, end: number): DataView {
+    return new DataView(
       this.buffer.slice(this.byteOffset + begin, this.byteOffset + (end ?? this.byteLength)),
     );
   }

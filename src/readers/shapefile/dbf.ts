@@ -168,7 +168,7 @@ export default class DataBaseFile {
    * @param data - a Uint8Array input
    * @returns - a string
    */
-  #decode(data: Uint8Array): string {
+  #decode(data: DataView): string {
     const { textDecoder } = this;
     const out =
       textDecoder.decode(data, {

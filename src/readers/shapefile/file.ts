@@ -11,9 +11,7 @@ import { exists, readFile } from 'fs/promises';
 export * from './dbf';
 export * from './shp';
 
-/**
- *
- */
+/** A description of what relevant files exist and where */
 export interface Definition {
   /** The path to the .shp file */
   shp: string;
@@ -54,14 +52,15 @@ export async function fromPath(input: string) {
 }
 
 /**
- * @param def
+ * Build a Shapefile from a Definition
+ * @param def - a description of the data to parse
+ * @returns - a Shapefile
  */
 export async function fromDefinition(def: Definition): Promise<Shapefile> {
   const { shp, dbf, cpg } = def; // TODO: prj
   const encoding = cpg ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
-  const dbfBuffer = dbf !== undefined ? new FileReader(dbf) : undefined;
-  const databaseFile = dbfBuffer !== undefined ? new DataBaseFile(dbfBuffer, encoding) : undefined;
+  const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
+  const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
   // TODO: Projection
-  const shpBuffer = new DataView((await readFile(shp)).buffer);
-  return new Shapefile(shpBuffer, undefined, databaseFile);
+  return new Shapefile(new FileReader(shp), undefined, databaseFile);
 }

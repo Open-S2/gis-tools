@@ -54,13 +54,13 @@ export type S2CellId = bigint;
 /** CONSTANTS */
 const LOOKUP_POS: S2CellId[] = [];
 const LOOKUP_IJ: S2CellId[] = [];
-const FACE_BITS = 3n;
-const NUM_FACES = 6n;
-const K_MAX_LEVEL = 30;
-const MAX_LEVEL = 30n;
-const POS_BITS = 61n;
-const K_WRAP_OFFSET = 13835058055282163712n;
-const K_MAX_SIZE = 1073741824;
+export const FACE_BITS = 3n;
+export const NUM_FACES = 6n;
+export const K_MAX_LEVEL = 30;
+export const MAX_LEVEL = 30n;
+export const POS_BITS = 61n;
+export const K_WRAP_OFFSET = 13835058055282163712n;
+export const K_MAX_SIZE = 1073741824;
 
 /** INITIALIZATION */
 for (let i = 0; i < 4; i++) initLookupCell(0, 0, 0, i, 0, i);

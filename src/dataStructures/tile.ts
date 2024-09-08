@@ -1,6 +1,6 @@
-import { convert } from './convert';
-import { simplify } from '.';
-import { splitTile } from './clip';
+import { convert } from '../geometry/convert';
+import { simplify } from '../geometry';
+import { splitTile } from '../geometry/clip';
 import {
   contains,
   fromFace,
@@ -9,7 +9,7 @@ import {
   level,
   parent as parentID,
   toFaceIJ,
-} from './id';
+} from '../geometry/id';
 
 import type {
   Face,
@@ -18,7 +18,7 @@ import type {
   VectorFeatures,
   VectorGeometry,
   VectorPoint,
-} from '.';
+} from '../geometry';
 
 /** Tile Class to contain the tile information for splitting or simplifying */
 export class Tile {

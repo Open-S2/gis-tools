@@ -25,7 +25,7 @@ export default class FileReader implements Reader {
    */
   getBigInt64(byteOffset: number, littleEndian: boolean = false): bigint {
     const slice = this.slice(byteOffset, byteOffset + 8);
-    return new DataView(slice.buffer).getBigInt64(0, littleEndian);
+    return slice.getBigInt64(0, littleEndian);
   }
 
   /**
@@ -36,7 +36,7 @@ export default class FileReader implements Reader {
    */
   getBigUint64(byteOffset: number, littleEndian: boolean = false): bigint {
     const slice = this.slice(byteOffset, byteOffset + 8);
-    return new DataView(slice.buffer).getBigUint64(0, littleEndian);
+    return slice.getBigUint64(0, littleEndian);
   }
 
   /**
@@ -47,7 +47,7 @@ export default class FileReader implements Reader {
    */
   getFloat32(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
-    return new DataView(slice.buffer).getFloat32(0, littleEndian);
+    return slice.getFloat32(0, littleEndian);
   }
 
   /**
@@ -58,7 +58,7 @@ export default class FileReader implements Reader {
    */
   getFloat64(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 8);
-    return new DataView(slice.buffer).getFloat64(0, littleEndian);
+    return slice.getFloat64(0, littleEndian);
   }
 
   /**
@@ -69,7 +69,7 @@ export default class FileReader implements Reader {
    */
   getInt16(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 2);
-    return new DataView(slice.buffer).getInt16(0, littleEndian);
+    return slice.getInt16(0, littleEndian);
   }
 
   /**
@@ -80,7 +80,7 @@ export default class FileReader implements Reader {
    */
   getInt32(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
-    return new DataView(slice.buffer).getInt32(0, littleEndian);
+    return slice.getInt32(0, littleEndian);
   }
 
   /**
@@ -90,7 +90,7 @@ export default class FileReader implements Reader {
    */
   getInt8(byteOffset: number): number {
     const slice = this.slice(byteOffset, byteOffset + 1);
-    return new DataView(slice.buffer).getInt8(0);
+    return slice.getInt8(0);
   }
 
   /**
@@ -101,7 +101,7 @@ export default class FileReader implements Reader {
    */
   getUint16(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 2);
-    return new DataView(slice.buffer).getUint16(0, littleEndian);
+    return slice.getUint16(0, littleEndian);
   }
 
   /**
@@ -112,7 +112,7 @@ export default class FileReader implements Reader {
    */
   getUint32(byteOffset: number, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
-    return new DataView(slice.buffer).getUint32(0, littleEndian);
+    return slice.getUint32(0, littleEndian);
   }
 
   /**
@@ -122,16 +122,16 @@ export default class FileReader implements Reader {
    */
   getUint8(byteOffset: number): number {
     const slice = this.slice(byteOffset, byteOffset + 1);
-    return slice[0];
+    return slice.getUint8(0);
   }
 
   /**
-   * Get a slice of the file data as Uint8Array
+   * Get a slice of the file data as DataView
    * @param begin - Beginning of the slice
    * @param end - End of the slice. If not provided, the end of the data is used
-   * @returns - The data as a Uint8Array
+   * @returns - The data as a DataView
    */
-  slice(begin: number, end: number): Uint8Array {
+  slice(begin: number, end: number): DataView {
     if (begin < 0 || end > this.byteLength || begin >= end) {
       throw new RangeError('Invalid slice range');
     }
@@ -139,8 +139,7 @@ export default class FileReader implements Reader {
     const buffer = Buffer.alloc(sliceLength);
     readSync(this.#fileHandle, buffer, 0, sliceLength, begin);
 
-    // Return the data as a Uint8Array
-    return new Uint8Array(buffer);
+    return new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
   }
 
   /**

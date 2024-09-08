@@ -1,4 +1,4 @@
-import type { BBox, Geometry, VectorGeometry } from './geometry.spec';
+import type { BBOX, Geometry, VectorGeometry } from './geometry.spec';
 import type { MValue, Properties } from 's2json-spec';
 
 export * from './s2';
@@ -6,7 +6,7 @@ export * from './wm';
 export * from './bbox';
 export * from './id';
 export * from './simplify';
-export * from './tile';
+export * from '../dataStructures/tile';
 export * from './util';
 
 export * from './geometry.spec';
@@ -37,7 +37,7 @@ export interface BaseFeatureCollection<T = FeatureCollectionType, F = Features> 
   type: T;
   features: F[];
   attributions?: Attributions;
-  bbox?: BBox;
+  bbox?: BBOX;
 }
 /** WG FeatureCollection */
 export type FeatureCollection = BaseFeatureCollection<'FeatureCollection', Feature | VectorFeature>;

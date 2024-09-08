@@ -1,4 +1,3 @@
-import { toS2Point } from '../ll';
 import { degToRad, radToDeg } from '../util';
 
 import type { LonLat } from '../ll';
@@ -234,7 +233,14 @@ export function xyzToLonLat(xyz: Point3D): LonLat {
  * @returns - Point3D
  */
 export function lonLatToXYZ(lon: number, lat: number): Point3D {
-  return toS2Point([lon, lat]);
+  const { sin, cos } = Math;
+  lon = degToRad(lon);
+  lat = degToRad(lat);
+  return [
+    cos(lat) * cos(lon), // x
+    cos(lat) * sin(lon), // y
+    sin(lat), // z
+  ];
 }
 
 /**

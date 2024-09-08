@@ -1,9 +1,12 @@
 // Implements https://www.esri.com/content/dam/esrisites/sitecore-archive/Files/Pdfs/library/whitepapers/pdfs/shapefile.pdf
+import { extendBBox } from 's2-tools/geometry';
 
 import type DataBaseFile from './dbf';
 import type { ProjectionTransform } from 's2-tools/proj4/projections';
+import type { Reader } from '..';
 import type {
-  BBox,
+  BBOX,
+  BBox3D,
   FeatureCollection,
   VectorFeature,
   VectorGeometry,
@@ -18,47 +21,46 @@ import type {
   VectorPolygonGeometry,
 } from 's2-tools/geometry';
 
-/**
- *
- */
+/** A Shapefile Header describing the internal data */
 export interface SHPHeader {
   length: number;
   version: number;
   shpCode: number;
-  bbox: BBox;
+  bbox: BBox3D;
 }
 
-/**
- *
- */
+/** A Shapefile Row explaining how to read the feature */
 export interface SHPRow {
   id: number;
-  index: number;
   len: number;
   type: number;
   data: DataView;
 }
 
-/**
- *
- */
+/** The Shapefile Reader */
 export default class Shapefile {
-  header!: SHPHeader;
-  rows!: SHPRow[];
+  #header!: SHPHeader;
+  rows: SHPRow[] = [];
   /**
-   * @param buffer
-   * @param trans
-   * @param transform
-   * @param dbf
+   * @param reader - the input data structure to parse
+   * @param dbf - the dbf file
+   * @param transform - transform mechanics if they exist
    */
   constructor(
-    public buffer: DataView,
-    public transform?: ProjectionTransform,
+    public reader: Reader,
     public dbf?: DataBaseFile,
+    public transform?: ProjectionTransform,
   ) {
-    this.buffer = buffer;
     this.#parseHeader();
     this.#getRows();
+  }
+
+  /**
+   * Return a shallow copy of the header data
+   * @returns - a shallow copy of the header data
+   */
+  getHeader(): SHPHeader {
+    return { ...this.#header };
   }
 
   /**
@@ -69,7 +71,7 @@ export default class Shapefile {
     const featureCollection: FeatureCollection = {
       type: 'FeatureCollection',
       features: [],
-      bbox: this.header.bbox,
+      bbox: this.#header.bbox,
     };
 
     for (const feature of this.iterate()) {
@@ -90,37 +92,33 @@ export default class Shapefile {
     }
   }
 
-  /**
-   *
-   */
+  /** Internal parse for the header */
   #parseHeader() {
-    const view = this.buffer;
-    this.header = {
-      length: view.getInt32(6 << 2) << 1,
-      version: view.getInt32(7 << 2, true),
-      shpCode: view.getInt32(8 << 2, true),
+    const { reader } = this;
+    this.#header = {
+      length: reader.getInt32(6 << 2) << 1,
+      version: reader.getInt32(7 << 2, true),
+      shpCode: reader.getInt32(8 << 2, true),
       bbox: [
-        view.getFloat64(9 << 2, true),
-        view.getFloat64(11 << 2, true),
-        view.getFloat64(13 << 2, true),
-        view.getFloat64(15 << 2, true),
+        reader.getFloat64(9 << 2, true),
+        reader.getFloat64(11 << 2, true),
+        reader.getFloat64(13 << 2, true),
+        reader.getFloat64(15 << 2, true),
+        reader.getFloat64(17 << 2, true),
+        reader.getFloat64(19 << 2, true),
       ],
     };
-    if (this.header.shpCode > 20) {
-      this.header.shpCode -= 20;
+    if (this.#header.shpCode > 20) {
+      this.#header.shpCode -= 20;
     }
   }
 
-  /**
-   *
-   */
+  /** Internal parser to build all the row data */
   #getRows() {
-    let index = 0;
     let offset = 100;
-    const len = this.buffer.byteLength - 8;
+    const len = this.reader.byteLength - 8;
     while (offset <= len) {
-      const current = this.#getRow(offset, index);
-      index++;
+      const current = this.#getRow(offset);
       if (current === undefined) {
         break;
       }
@@ -134,48 +132,47 @@ export default class Shapefile {
 
   /**
    * @param offset - offset of the row
-   * @param index - index of the row
    * @returns - the row if it exists
    */
-  #getRow(offset: number, index: number): undefined | SHPRow {
-    const id = this.buffer.getInt32(offset);
-    const len = this.buffer.getInt32(offset + 4) << 1;
+  #getRow(offset: number): undefined | SHPRow {
+    const { reader } = this;
+    const id = reader.getInt32(offset);
+    const len = reader.getInt32(offset + 4) << 1;
     if (len === 0) {
-      return { id, index, len: 0, data: new DataView(new ArrayBuffer(0)), type: 0 };
+      return { id, len: 0, data: new DataView(new ArrayBuffer(0)), type: 0 };
     }
-    if (offset + len + 8 > this.buffer.byteLength) {
+    if (offset + len + 8 > reader.byteLength) {
       return;
     }
     return {
       id,
-      index,
       len,
-      data: new DataView(this.buffer.buffer, this.buffer.byteOffset + offset + 12, len - 4),
-      type: this.buffer.getInt32(offset + 8, true),
+      data: reader.slice(offset + 12, offset + 12 + len - 4),
+      type: reader.getInt32(offset + 8, true),
     };
   }
 
   /**
-   * @param row
+   * @param row - the row to parse
+   * @returns - the parsed feature
    */
   #parseRow(row: SHPRow): VectorFeature | undefined {
-    const { id, index, type, data } = row;
+    const { id, type, data } = row;
     const geometry = this.#parseGeometry(type, data);
     if (geometry === undefined) return;
 
     return {
       id,
       type: 'VectorFeature',
-      properties: this.dbf?.getProperties(index) ?? {},
+      properties: this.dbf?.getProperties(id - 1) ?? {},
       geometry,
     };
   }
 
   /**
-   * @param type
-   * @param offset
-   * @param data
-   * @param length
+   * @param type - the shape type
+   * @param data - the shape data to parse
+   * @returns - the parsed geometry if its valid
    */
   #parseGeometry(type: number, data: DataView): undefined | VectorGeometry {
     const is3D = type === 11 || type === 13 || type === 15 || type === 18;
@@ -183,7 +180,7 @@ export default class Shapefile {
       return {
         type: 'Point',
         is3D,
-        coordinates: this.#parsePoint(data, 0, is3D),
+        coordinates: this.#parsePoint(data, 0, is3D ? 16 : undefined),
       };
     } else if (type === 8 || type === 18) {
       return this.#parseMultiPoint(data, is3D);
@@ -194,58 +191,69 @@ export default class Shapefile {
   }
 
   /**
-   * @param data
-   * @param offset
-   * @param is3D
+   * @param data - the raw data to decode
+   * @param offset - the offset of the point to decode
+   * @param offset3D - if provided, the offset of the Z value
+   * @returns - the decoded point
    */
-  #parsePoint(data: DataView, offset: number, is3D = false): VectorPoint {
+  #parsePoint(data: DataView, offset: number, offset3D?: number): VectorPoint {
     const point: VectorPoint = {
       x: data.getFloat64(offset, true),
       y: data.getFloat64(offset + 8, true),
-      z: is3D ? data.getFloat64(offset + 16, true) : undefined,
+      z: offset3D ? data.getFloat64(offset3D, true) : undefined,
     };
     return this.transform?.inverse(point) ?? point;
   }
 
   /**
-   * @param offset
-   * @param length
-   * @param data
-   * @param is3D
+   * @param data - the raw data to decode
+   * @param is3D - is the shape a 3D shape
+   * @returns - the decoded point or multi-point
    */
   #parseMultiPoint(
     data: DataView,
     is3D = false,
   ): undefined | VectorPointGeometry | VectorMultiPointGeometry {
-    const size = data.getInt32(32, true);
-    if (size === 0) return;
+    const numPoints = data.getInt32(32, true);
+    if (numPoints === 0) return;
     let offset = 0;
+    let zOffset = 36 + 16 * numPoints;
     // grab the min-max
     const mins = this.#parsePoint(data, offset);
     const maxs = this.#parsePoint(data, offset + 16);
     offset += 36;
-
-    const coordinates: VectorMultiPoint = [];
-    let done = 0;
-    while (done < size) {
-      coordinates.push(this.#parsePoint(data, offset, is3D));
-      offset += 16;
-      if (is3D) offset += 8;
-      done++;
+    let bbox: BBOX = [mins.x, mins.y, maxs.x, maxs.y, 0, 0];
+    if (is3D) {
+      bbox[4] = data.getFloat64(zOffset, true);
+      bbox[5] = data.getFloat64(zOffset + 8, true);
+      zOffset += 16;
     }
 
-    if (size === 1) {
+    const coordinates: VectorMultiPoint = [];
+    let index = 0;
+    while (index < numPoints) {
+      const point = this.#parsePoint(data, offset, is3D ? zOffset : undefined);
+      coordinates.push(point);
+      offset += 16;
+      if (is3D) {
+        zOffset += 8;
+        bbox = extendBBox(bbox, point);
+      }
+      index++;
+    }
+
+    if (numPoints === 1) {
       return { type: 'Point', is3D, coordinates: coordinates[0] };
     } else {
-      return { type: 'MultiPoint', is3D, coordinates, bbox: [mins.x, mins.y, maxs.x, maxs.y] };
+      return { type: 'MultiPoint', is3D, coordinates, bbox };
     }
   }
 
   /**
-   * @param offset
-   * @param data
-   * @param isPoly
-   * @param is3D
+   * @param data - the raw data to decode
+   * @param isPoly - is the shape a polygon or line(s)
+   * @param is3D - is the shape a 3D shape
+   * @returns - the decoded point or multi-point
    */
   #parseMultiLine(
     data: DataView,
@@ -256,11 +264,17 @@ export default class Shapefile {
     const numPoints = data.getInt32(36, true); // the total number of points in the polygon.
     if (numPoints === 0 || numParts === 0) return;
     let offset = 0;
+    let zOffset = 40 + 4 * numParts + 16 * numPoints;
     // grab the min-max
     const mins = this.#parsePoint(data, offset);
     const maxs = this.#parsePoint(data, offset + 16);
-    const bbox: BBox = [mins.x, mins.y, maxs.x, maxs.y];
+    let bbox: BBOX = [mins.x, mins.y, maxs.x, maxs.y, 0, 0];
     offset += 40;
+    if (is3D) {
+      bbox[4] = data.getFloat64(zOffset, true);
+      bbox[5] = data.getFloat64(zOffset + 8, true);
+      zOffset += 16;
+    }
 
     // build parts
     const parts: number[] = [];
@@ -274,13 +288,19 @@ export default class Shapefile {
     // build coordinates
     let index = 0;
     const coordinates: VectorMultiLineString = [];
-    for (const part of parts) {
+    // for (const part of parts) {
+    for (let i = 0; i < numParts; i++) {
+      const partEnd = parts[i + 1] ?? numPoints;
       // build a line for part
       const line: VectorLineString = [];
-      while (index < part) {
-        line.push(this.#parsePoint(data, offset, is3D));
+      while (index < partEnd) {
+        const point = this.#parsePoint(data, offset, is3D ? zOffset : undefined);
+        line.push(point);
         offset += 16;
-        if (is3D) offset += 8;
+        if (is3D) {
+          zOffset += 8;
+          bbox = extendBBox(bbox, point);
+        }
         index++;
       }
       coordinates.push(line);

@@ -1,3 +1,4 @@
+import { lonLatToXYZ } from '../s2/coords';
 import { Point, Point3D } from '../geometry.spec';
 import { degToRad, radToDeg } from '../util';
 
@@ -23,11 +24,7 @@ export type LonLat = Point;
  * @returns - equivalent unit-length vector 3D point
  */
 export function toS2Point(ll: LonLat): Point3D {
-  const { cos, sin } = Math;
-  const [theta, phi] = ll;
-  const cosphi = cos(phi);
-
-  return [cos(theta) * cosphi, sin(theta) * cosphi, sin(phi)];
+  return lonLatToXYZ(ll[0], ll[1]);
 }
 
 /**

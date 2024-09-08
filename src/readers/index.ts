@@ -17,5 +17,5 @@ export interface Reader {
   getUint32: (byteOffset: number, littleEndian?: boolean) => number;
   getUint8: (byteOffset: number) => number;
   // Methods
-  slice: (begin: number, end: number) => Uint8Array;
+  slice: (begin: number, end: number) => DataView;
 }

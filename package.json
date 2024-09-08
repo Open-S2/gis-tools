@@ -40,6 +40,7 @@
     "build:zig:bin": "zig build",
     "build:zig:optimize": "wasm-opt -Oz -o zig-out/bin/optimized-uint64.wasm zig-out/bin/uint64.wasm",
     "build:zig:strip": "wasm-strip zig-out/bin/optimized-uint64.wasm",
+    "cleanCoverage": "rm -rf coverage && mkdir coverage",
     "types:bundle": "bun run types:build && node scripts/types.mjs",
     "prepublishOnly": "bun run lint+build+test+docs+test:cov",
     "package-check": "package-check",

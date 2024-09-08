@@ -536,4 +536,6 @@ test('watershed-specialCharacters dbf', async () => {
       SHAPE_LEN: 55533.0776528,
     },
   ]);
+
+  data.close();
 });

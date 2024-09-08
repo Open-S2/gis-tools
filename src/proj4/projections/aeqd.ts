@@ -10,6 +10,7 @@ import type { VectorPoint } from 's2json-spec';
 export class AzimuthalEquidistantProjection extends ProjectionTransform {
   name = 'Azimuthal_Equidistant';
   names = [this.name, 'aeqd'];
+  // AzimuthalEquidistantProjection specific variables
   sin_p12: number;
   cos_p12: number;
   /**
