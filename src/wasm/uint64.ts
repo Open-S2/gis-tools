@@ -1,6 +1,7 @@
+import { base64ToArrayBuffer } from '../util/base64';
 import wasmBase64 from './uint64.wasm';
 
-import { S2Point, fromST } from '../geometry';
+import { S2Point, fromS2Point as fromS2, fromST } from '../geometry';
 
 import type { Face, Point3D, S2CellId } from '../geometry';
 
@@ -80,7 +81,8 @@ export default class Uint64CellGenerator {
    * @returns - an Uint64Cell with the appropriate id and functions
    */
   fromS2Point(point: Point3D): Uint64Cell {
-    // TODO:
+    const id = fromS2(point);
+    return this.fromBigInt(id);
   }
 
   /**
@@ -91,7 +93,7 @@ export default class Uint64CellGenerator {
   fromBigInt(id: S2CellId): Uint64Cell {
     const low = Number(id & 0xffffffffn);
     const high = Number(id >> 32n);
-    return this.#fromLowHigh(low, high);
+    return this.fromLowHigh(low, high);
   }
 
   /**
@@ -100,7 +102,7 @@ export default class Uint64CellGenerator {
    * @param high - high 32 bits
    * @returns - an Uint64Cell with the appropriate id and functions
    */
-  #fromLowHigh(low: number, high: number): Uint64Cell {
+  fromLowHigh(low: number, high: number): Uint64Cell {
     const _fromLowHigh = this.instance.exports.from_low_high as WasmFromLowHigh;
     const _comparitor = this.instance.exports.compare_uint64 as WasmUint64Comparitor;
     const id = _fromLowHigh(low, high);
@@ -120,18 +122,4 @@ export default class Uint64CellGenerator {
 
     return cell;
   }
-}
-
-/**
- * pollyfill for string to array buffer
- * @param base64 - base64 encoded string
- * @returns converted ArrayBuffer of the string data
- */
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
-
-  return bytes.buffer as ArrayBuffer;
 }

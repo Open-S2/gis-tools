@@ -29,7 +29,6 @@ export interface DBFRow {
 export default class DataBaseFile {
   #header!: DBFHeader;
   #rows: DBFRow[];
-  textDecoder: TextDecoder;
 
   /**
    * @param reader - the input data structure to parse
@@ -37,10 +36,9 @@ export default class DataBaseFile {
    */
   constructor(
     public reader: Reader,
-    encoding = 'utf-8',
+    encoding?: string,
   ) {
-    // @ts-expect-error - linting bug
-    this.textDecoder = new TextDecoder(encoding);
+    if (encoding !== undefined) reader.setStringEncoding(encoding);
     this.#parseHeader();
     this.#rows = this.#parseRowHeader();
   }
@@ -104,7 +102,7 @@ export default class DataBaseFile {
     let offset = 32;
     while (offset < len) {
       res.push({
-        name: this.#decode(reader.slice(offset, offset + 11)),
+        name: reader.parseString(offset, 11),
         dataType: String.fromCharCode(reader.getUint8(offset + 11)),
         len: reader.getUint8(offset + 16),
         decimal: reader.getUint8(offset + 17),
@@ -143,9 +141,8 @@ export default class DataBaseFile {
    */
   #parseValue(offset: number, len: number, type: string) {
     const { reader } = this;
-    const data = reader.slice(offset, offset + len);
+    const textData = reader.parseString(offset, len);
 
-    const textData = this.#decode(data);
     switch (type) {
       case 'N':
       case 'F':
@@ -154,7 +151,7 @@ export default class DataBaseFile {
       case 'D':
         return new Date(
           parseFloat(textData.slice(0, 4)),
-          parseInt(textData.slice(4, 6), 10) - 1,
+          parseInt(textData.slice(4, 6)) - 1,
           parseFloat(textData.slice(6, 8)),
         ).getUTCDate();
       case 'L':
@@ -162,18 +159,5 @@ export default class DataBaseFile {
       default:
         return textData;
     }
-  }
-
-  /**
-   * @param data - a Uint8Array input
-   * @returns - a string
-   */
-  #decode(data: DataView): string {
-    const { textDecoder } = this;
-    const out =
-      textDecoder.decode(data, {
-        stream: true,
-      }) + textDecoder.decode();
-    return out.replace(/\0/g, '').trim();
   }
 }

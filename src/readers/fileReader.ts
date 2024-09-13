@@ -1,4 +1,4 @@
-import { closeSync, openSync, readSync, statSync } from 'fs'; // for random access
+import { closeSync, openSync, readSync, statSync } from 'fs';
 
 import type { Reader } from '.';
 
@@ -7,6 +7,7 @@ export default class FileReader implements Reader {
   #fileHandle: number;
   byteOffset: number = 0;
   byteLength: number;
+  textDecoder = new TextDecoder('utf-8');
 
   /**
    * @param file - The path to the file
@@ -140,6 +141,23 @@ export default class FileReader implements Reader {
     readSync(this.#fileHandle, buffer, 0, sliceLength, begin);
 
     return new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  }
+
+  /**  @param encoding - update the text decoder's encoding */
+  setStringEncoding(encoding: string) {
+    this.textDecoder = new TextDecoder(encoding);
+  }
+
+  /**
+   * @param byteOffset - Start of the string
+   * @param byteLength - Length of the string
+   * @returns - The string
+   */
+  parseString(byteOffset: number, byteLength: number): string {
+    const { textDecoder } = this;
+    const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
+    const out = textDecoder.decode(data, { stream: true }) + textDecoder.decode();
+    return out.replace(/\0/g, '').trim();
   }
 
   /**

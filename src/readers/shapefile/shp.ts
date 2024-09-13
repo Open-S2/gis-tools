@@ -2,8 +2,8 @@
 import { extendBBox } from 's2-tools/geometry';
 
 import type DataBaseFile from './dbf';
-import type { ProjectionTransform } from 's2-tools/proj4/projections';
 import type { Reader } from '..';
+import type { Transformer } from 's2-tools/proj4';
 import type {
   BBOX,
   BBox3D,
@@ -40,7 +40,7 @@ export interface SHPRow {
 /** The Shapefile Reader */
 export default class Shapefile {
   #header!: SHPHeader;
-  rows: SHPRow[] = [];
+  rows: number[] = [];
   /**
    * @param reader - the input data structure to parse
    * @param dbf - the dbf file
@@ -49,7 +49,7 @@ export default class Shapefile {
   constructor(
     public reader: Reader,
     public dbf?: DataBaseFile,
-    public transform?: ProjectionTransform,
+    public transform?: Transformer,
   ) {
     this.#parseHeader();
     this.#getRows();
@@ -86,8 +86,8 @@ export default class Shapefile {
    * @yields {VectorFeature}
    */
   *iterate(): IterableIterator<VectorFeature> {
-    for (const row of this.rows) {
-      const feature = this.#parseRow(row);
+    for (let i = 0; i < this.rows.length; i++) {
+      const feature = this.#parseRow(this.rows[i], i);
       if (feature !== undefined) yield feature;
     }
   }
@@ -113,20 +113,17 @@ export default class Shapefile {
     }
   }
 
-  /** Internal parser to build all the row data */
+  /** Internal parser to build all the row offsets */
   #getRows() {
+    const { reader, rows } = this;
     let offset = 100;
-    const len = this.reader.byteLength - 8;
+    const len = reader.byteLength - 8;
     while (offset <= len) {
-      const current = this.#getRow(offset);
-      if (current === undefined) {
-        break;
-      }
-      offset += 8;
-      offset += current.len;
-      if (current.type !== 0) {
-        this.rows.push(current);
-      }
+      const offsetLength = reader.getInt32(offset + 4) << 1;
+      const type = reader.getInt32(offset + 8, true);
+      if (offsetLength === 0) break;
+      if (type !== 0) rows.push(offset);
+      offset += 8 + offsetLength;
     }
   }
 
@@ -138,12 +135,7 @@ export default class Shapefile {
     const { reader } = this;
     const id = reader.getInt32(offset);
     const len = reader.getInt32(offset + 4) << 1;
-    if (len === 0) {
-      return { id, len: 0, data: new DataView(new ArrayBuffer(0)), type: 0 };
-    }
-    if (offset + len + 8 > reader.byteLength) {
-      return;
-    }
+    if (len === 0 || offset + len + 8 > reader.byteLength) return;
     return {
       id,
       len,
@@ -153,10 +145,13 @@ export default class Shapefile {
   }
 
   /**
-   * @param row - the row to parse
+   * @param rowOffset - the row to get and parse
+   * @param index - the index of the feature
    * @returns - the parsed feature
    */
-  #parseRow(row: SHPRow): VectorFeature | undefined {
+  #parseRow(rowOffset: number, index: number): VectorFeature | undefined {
+    const row = this.#getRow(rowOffset);
+    if (row === undefined) return;
     const { id, type, data } = row;
     const geometry = this.#parseGeometry(type, data);
     if (geometry === undefined) return;
@@ -164,7 +159,7 @@ export default class Shapefile {
     return {
       id,
       type: 'VectorFeature',
-      properties: this.dbf?.getProperties(id - 1) ?? {},
+      properties: this.dbf?.getProperties(index) ?? {},
       geometry,
     };
   }
@@ -202,7 +197,7 @@ export default class Shapefile {
       y: data.getFloat64(offset + 8, true),
       z: offset3D ? data.getFloat64(offset3D, true) : undefined,
     };
-    return this.transform?.inverse(point) ?? point;
+    return this.transform?.forward(point) ?? point;
   }
 
   /**
@@ -288,7 +283,6 @@ export default class Shapefile {
     // build coordinates
     let index = 0;
     const coordinates: VectorMultiLineString = [];
-    // for (const part of parts) {
     for (let i = 0; i < numParts; i++) {
       const partEnd = parts[i + 1] ?? numPoints;
       // build a line for part

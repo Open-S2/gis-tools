@@ -1,6 +1,7 @@
 import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
 import FileReader from '../../../src/readers/fileReader';
+import MMapReader from '../../../src/readers/mmapReader';
 import { expect, test } from 'bun:test';
 
 import { readFile } from 'fs/promises';
@@ -48,7 +49,7 @@ test('utf dbf', async () => {
 });
 
 test('watershed dbf', async () => {
-  const data = new BufferReader((await readFile('tests/readers/fixtures/watershed.dbf')).buffer);
+  const data = new MMapReader('tests/readers/fixtures/watershed.dbf');
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({

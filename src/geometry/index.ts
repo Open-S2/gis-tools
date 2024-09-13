@@ -40,10 +40,13 @@ export interface BaseFeatureCollection<T = FeatureCollectionType, F = Features> 
   bbox?: BBOX;
 }
 /** WG FeatureCollection */
-export type FeatureCollection = BaseFeatureCollection<'FeatureCollection', Feature | VectorFeature>;
+export type FeatureCollection<M = Record<string, unknown>> = BaseFeatureCollection<
+  'FeatureCollection',
+  Feature<M> | VectorFeature<M>
+>;
 /** S2 FeatureCollection */
-export interface S2FeatureCollection
-  extends BaseFeatureCollection<'S2FeatureCollection', S2Feature> {
+export interface S2FeatureCollection<M = Record<string, unknown>>
+  extends BaseFeatureCollection<'S2FeatureCollection', S2Feature<M>> {
   faces: Face[];
 }
 
@@ -56,29 +59,34 @@ export interface BaseFeature<
   T = FeatureType,
   P extends Properties = Properties,
   G = Geometry<MValue> | VectorGeometry,
+  M = Record<string, unknown>,
 > {
   type: T;
   id?: number;
   face?: Face;
   properties: P;
   geometry: G;
-  metadata?: Record<string, unknown>;
+  metadata?: M;
 }
 /** WG Feature */
 export type Feature<
+  M = Record<string, unknown>,
   P extends Properties = Properties,
-  M extends MValue = MValue,
-  G = Geometry<M>,
-> = BaseFeature<'Feature', P, G>;
+  D extends MValue = MValue,
+  G = Geometry<D>,
+> = BaseFeature<'Feature', P, G, M>;
 /** WG Vector Feature */
-export type VectorFeature<P extends Properties = Properties, G = VectorGeometry> = BaseFeature<
-  'VectorFeature',
-  P,
-  G
->;
+export type VectorFeature<
+  M = Record<string, unknown>,
+  P extends Properties = Properties,
+  G = VectorGeometry,
+> = BaseFeature<'VectorFeature', P, G, M>;
 /** S2 Feature */
-export interface S2Feature<P extends Properties = Properties, G = VectorGeometry>
-  extends BaseFeature<'S2Feature', P, G> {
+export interface S2Feature<
+  M = Record<string, unknown>,
+  P extends Properties = Properties,
+  G = VectorGeometry,
+> extends BaseFeature<'S2Feature', P, G, M> {
   face: Face;
 }
 

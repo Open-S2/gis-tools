@@ -9,8 +9,10 @@ export type Format = 'deflate' | 'deflate-raw' | 'gzip';
  */
 export async function decompressStream(
   uint8Array: Uint8Array,
-  format: Format = 'gzip',
+  format?: Format,
 ): Promise<Uint8Array> {
+  if (format === undefined)
+    format = uint8Array[0] === 0x1f && uint8Array[1] === 0x8b ? 'gzip' : 'deflate';
   // Create a DecompressionStream for 'gzip'
   const decompressionStream = new DecompressionStream(format);
   // Convert the Uint8Array to a readable stream

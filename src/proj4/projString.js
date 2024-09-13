@@ -1,7 +1,7 @@
 import {D2R} from './constants/values';
 import PrimeMeridian from './constants/PrimeMeridian';
 import units from './constants/units';
-import match from './match';
+import match from './util/match';
 
 export default function(defData) {
   var self = {};

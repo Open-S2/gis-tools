@@ -18,4 +18,6 @@ export interface Reader {
   getUint8: (byteOffset: number) => number;
   // Methods
   slice: (begin: number, end: number) => DataView;
+  setStringEncoding: (encoding: string) => void;
+  parseString: (byteOffset: number, byteLength: number) => string;
 }

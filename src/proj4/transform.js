@@ -1,5 +1,5 @@
-import {D2R, R2D, PJD_3PARAM, PJD_7PARAM, PJD_GRIDSHIFT} from './constants/values';
-import datum_transform from '../constants/datum_transform';
+import {D2R, R2D, PJD_3PARAM, PJD_7PARAM, PJD_GRIDSHIFT} from './constants';
+import datum_transform from '../constants/datum';
 import proj from './Proj';
 import toPoint from './common/toPoint';
 import { sanityCheck } from './Point';
@@ -33,7 +33,7 @@ export default function transform(source, dest, point, enforceAxis) {
   }
   // DGR, 2010/11/12
   if (enforceAxis && source.axis !== 'enu') {
-    point = adjust_axis(source, false, point);
+    point = adjustAxis(source, false, point);
   }
   // Transform source points to long/lat, if they aren't already.
   if (source.projName === 'longlat') {
@@ -95,7 +95,7 @@ export default function transform(source, dest, point, enforceAxis) {
 
   // DGR, 2010/11/12
   if (enforceAxis && dest.axis !== 'enu') {
-    return adjust_axis(dest, true, point);
+    return adjustAxis(dest, true, point);
   }
 
   if (point && !hasZ) {
@@ -104,7 +104,7 @@ export default function transform(source, dest, point, enforceAxis) {
   return point;
 }
 
-export function adjust_axis(crs, denorm, point) {
+export function adjustAxis(crs, denorm, point) {
   var xin = point.x,
     yin = point.y,
     zin = point.z || 0.0;

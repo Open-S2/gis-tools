@@ -1,7 +1,7 @@
 import defs from './defs';
 import wkt from 'wkt-parser';
 import projStr from './projString';
-import match from './match';
+import match from './util/match';
 function testObj(code){
   return typeof code === 'string';
 }
@@ -10,7 +10,7 @@ function testDef(code){
 }
 var codeWords = ['PROJECTEDCRS', 'PROJCRS', 'GEOGCS','GEOCCS','PROJCS','LOCAL_CS', 'GEODCRS', 'GEODETICCRS', 'GEODETICDATUM', 'ENGCRS', 'ENGINEERINGCRS'];
 function testWKT(code){
-  return codeWords.some(function (word) {
+  return codeWords.some((word) => {
     return code.indexOf(word) > -1;
   });
 }

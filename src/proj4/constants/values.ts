@@ -1,3 +1,4 @@
+/* eslint-disable no-loss-of-precision */
 export const PJD_3PARAM = 1;
 export const PJD_7PARAM = 2;
 export const PJD_GRIDSHIFT = 3;

@@ -1,10 +1,9 @@
 import parseCode from './parseCode';
-import extend from './extend';
 import projections from './projections';
-import {sphere as dc_sphere, eccentricity as dc_eccentricity} from './deriveConstants';
+import {sphere as dc_sphere, eccentricity as dc_eccentricity} from './constants/derives';
 import Datum from './constants/Datum';
 import datum from './datum';
-import match from './match';
+import match from './util/match';
 import {getNadgrids} from "./nadgrid";
 
 function Projection(srsCode,callback) {
@@ -72,3 +71,19 @@ function Projection(srsCode,callback) {
 Projection.projections = projections;
 Projection.projections.start();
 export default Projection;
+
+
+function extend (destination, source) {
+  destination = destination || {};
+  var value, property;
+  if (!source) {
+    return destination;
+  }
+  for (property in source) {
+    value = source[property];
+    if (value !== undefined) {
+      destination[property] = value;
+    }
+  }
+  return destination;
+}

@@ -156,4 +156,3 @@ export default {
     inverse: inverse,
     names: names,
 };
-

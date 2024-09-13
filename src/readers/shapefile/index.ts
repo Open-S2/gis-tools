@@ -1,8 +1,7 @@
 import { BufferReader } from '..';
 import DataBaseFile from './dbf';
 import Shapefile from './shp';
-
-// import proj4 from 'proj4';
+import { Transformer } from 's2-tools/proj4';
 
 export * from './dbf';
 export * from './shp';

@@ -1,12 +1,8 @@
-// import fetcher from './fetch';
-
 import DataBaseFile from './dbf';
 import FileReader from '../fileReader';
 import Shapefile from './shp';
+import { Transformer } from 's2-tools/proj4';
 import { exists, readFile } from 'fs/promises';
-
-// import proj4 from 'proj4';
-// import unzip from './unzip';
 
 export * from './dbf';
 export * from './shp';
@@ -57,10 +53,11 @@ export async function fromPath(input: string) {
  * @returns - a Shapefile
  */
 export async function fromDefinition(def: Definition): Promise<Shapefile> {
-  const { shp, dbf, cpg } = def; // TODO: prj
+  const { shp, dbf, prj, cpg } = def;
   const encoding = cpg ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
+  const transform = prj ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
   const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
-  // TODO: Projection
-  return new Shapefile(new FileReader(shp), undefined, databaseFile);
+
+  return new Shapefile(new FileReader(shp), databaseFile, transform);
 }

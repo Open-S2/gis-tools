@@ -1,6 +1,7 @@
 import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
 import FileReader from '../../../src/readers/fileReader';
+import MMapReader from '../../../src/readers/mmapReader';
 import ShapeFile from '../../../src/readers/shapefile/shp';
 import { expect, test } from 'bun:test';
 
@@ -102,9 +103,7 @@ test('utf shp - file', async () => {
 });
 
 test('multipointz shp', async () => {
-  const data = new BufferReader(
-    (await readFile('tests/readers/fixtures/export_multipointz.shp')).buffer,
-  );
+  const data = new MMapReader('tests/readers/fixtures/export_multipointz.shp');
   const shp = new ShapeFile(data);
 
   expect(shp.getHeader()).toEqual({
