@@ -4,7 +4,7 @@ import { Pbf as Protobuf } from 'open-vector-tile';
 import { Blob, BlobHeader } from './blob';
 
 import type { InfoBlock } from './info';
-import type { KVStore } from 's2-tools/db';
+import type { KVStore } from 's2-tools/dataStore';
 import type { OSMHeader } from './headerBlock';
 import type { Reader } from '../index';
 import type { VectorFeature, VectorLineString, VectorPoint } from 's2-tools/geometry';
@@ -119,8 +119,8 @@ export class OSMReader {
    */
   upgradeWaysToAreas: boolean;
 
-  nodes: KVStore<VectorPoint> = new Map<number, VectorPoint>();
-  ways: KVStore<VectorLineString> = new Map<number, VectorLineString>();
+  nodes: KVStore<number, VectorPoint> = new Map<number, VectorPoint>();
+  ways: KVStore<number, VectorLineString> = new Map<number, VectorLineString>();
   #offset = 0;
 
   /**

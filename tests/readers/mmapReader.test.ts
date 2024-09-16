@@ -2,7 +2,7 @@ import MMapReader from '../../src/readers/mmapReader';
 import { expect, test } from 'bun:test';
 
 test('MMapReader', () => {
-  const reader = new MMapReader('tests/readers/fixtures/dv.bin');
+  const reader = new MMapReader(`${__dirname}/fixtures/dv.bin`);
   reader.setStringEncoding('utf-8');
 
   let offset = 0;

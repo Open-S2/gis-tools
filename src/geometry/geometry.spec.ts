@@ -52,7 +52,7 @@ export type LineString = Point[];
 /** Definition of a MultiLineString */
 export type MultiLineString = LineString[];
 /** Definition of a Polygon */
-export type Polygon = Point[][];
+export type Polygon = LineString[];
 /** Definition of a MultiPolygon */
 export type MultiPolygon = Polygon[];
 /** Definition of a 3D Point. May represent WebMercator Lon-Lat or S2Geometry S-T with a z-value */
@@ -204,11 +204,11 @@ export type MultiPolygon3DGeometry<M extends MValue = MValue> = BaseGeometry<
 /// Vector Types
 
 /** Definition of a Vector Point */
-export interface VectorPoint {
+export interface VectorPoint<M extends MValue = MValue> {
   x: number;
   y: number;
   z?: number;
-  m?: MValue;
+  m?: M;
   // t for tolerance. A tmp value used for simplification
   t?: number;
 }

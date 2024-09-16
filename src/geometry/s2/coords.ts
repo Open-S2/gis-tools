@@ -410,14 +410,6 @@ export function getUNorm(face: Face, u: number): Point3D {
  * @returns - the 3D vector normal relative to the v
  */
 export function getVNorm(face: Face, v: number): Point3D {
-  // switch (face) {
-  //     0 => return S2Point.Init(-v, 0.0, 1.0),
-  //     1 => return S2Point.Init(0.0, -v, 1.0),
-  //     2 => return S2Point.Init(0.0, -1.0, -v),
-  //     3 => return S2Point.Init(v, -1.0, 0.0),
-  //     4 => return S2Point.Init(1.0, v, 0.0),
-  //     else => return S2Point.Init(1.0, 0.0, v),
-  // }
   if (face === 0) return [-v, 0.0, 1.0];
   if (face === 1) return [0.0, -v, 1.0];
   if (face === 2) return [0.0, -1.0, -v];

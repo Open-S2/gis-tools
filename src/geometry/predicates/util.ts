@@ -107,12 +107,12 @@ export function sum_three(
   c: number[] | Float64Array,
   tmp: number[] | Float64Array,
   out: number[] | Float64Array,
-) {
+): number {
   return sum(sum(alen, a, blen, b, tmp), tmp, clen, c, out);
 }
 
-// scale_expansion_zeroelim routine from oritinal code
 /**
+ * scale_expansion_zeroelim routine from oritinal code
  * @param elen
  * @param e
  * @param b
@@ -165,14 +165,14 @@ export function scale(
   return hindex;
 }
 
-/**
- * @param elen
- * @param e
- */
-export function negate(elen: number, e: number[] | Float64Array): number {
-  for (let i = 0; i < elen; i++) e[i] = -e[i];
-  return elen;
-}
+// /**
+//  * @param elen
+//  * @param e
+//  */
+// export function negate(elen: number, e: number[] | Float64Array): number {
+//   for (let i = 0; i < elen; i++) e[i] = -e[i];
+//   return elen;
+// }
 
 /**
  * @param elen

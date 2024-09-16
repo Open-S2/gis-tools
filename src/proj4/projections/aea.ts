@@ -1,9 +1,9 @@
 import { EPSLN } from '../constants';
-import { WGS84Projection } from '.';
+import { ProjectionBase } from './base';
 import { adjustLon, asinz, msfnz, qsfnz } from '../common';
 
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, atan2, asin, log } = Math;
 
@@ -40,9 +40,12 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, log } = Math;
  * - `x0`
  * - `y0`
  *
+ * ## References
+ * - https://en.wikipedia.org/wiki/Albers_projection
+ *
  * ![Albers Conic Equal Area Projection](https://github.com/OSGeo/PROJ/blob/38dd7c2446f3500a43f0257f5a4833d6aa5aab0b/docs/source/operations/projections/images/aea.png?raw=true)
  */
-export class AlbersConicEqualArea extends WGS84Projection implements ProjectionTransformDefinition {
+export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Albers_Conic_Equal_Area';
   names = [this.name, 'Albers', 'aea'];
   // AlbersConicEqualArea specific variables
@@ -63,9 +66,12 @@ export class AlbersConicEqualArea extends WGS84Projection implements ProjectionT
   c = 0;
   rh = 0;
 
-  /** Preps an Albers Conic Equal Area projection */
-  constructor() {
-    super();
+  /**
+   * Preps an Albers Conic Equal Area projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
     if (abs(this.lat1 + this.lat2) < EPSLN) {
       throw new Error('cass:pj_init_aea: lat1 == lat2');
     }

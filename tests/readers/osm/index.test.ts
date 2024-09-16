@@ -3,7 +3,7 @@ import { OSMReader } from '../../../src/readers/osm';
 import { expect, test } from 'bun:test';
 
 test('parse basic case', async () => {
-  const fileReader = new FileReader('tests/readers/fixtures/test.pbf');
+  const fileReader = new FileReader(`${__dirname}/fixtures/test.pbf`);
 
   const reader = new OSMReader(fileReader, { removeEmptyNodes: false });
   const header = await reader.getHeader();

@@ -6,10 +6,12 @@ import {
   children,
   childrenIJ,
   contains,
+  containsS2Point,
   distance,
   face,
   fromDistance,
   fromFace,
+  fromFacePosLevel,
   fromIJ,
   fromIJSame,
   fromIJWrap,
@@ -17,6 +19,11 @@ import {
   fromS2Point,
   fromST,
   fromUV,
+  getBoundUV,
+  getEdges,
+  getEdgesRaw,
+  getVertices,
+  getVerticesRaw,
   intersects,
   isFace,
   isLeaf,
@@ -38,6 +45,9 @@ import {
   vertexNeighbors,
 } from '../../src/geometry/id';
 import { describe, expect, it } from 'bun:test';
+
+// Helpers
+import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
 
 describe('boundsST', () => {
   it('should return the bounds for a given id and level', () => {
@@ -145,6 +155,24 @@ describe('fromFace', () => {
     expect(fromFace(3)).toBe(8070450532247928832n);
     expect(fromFace(4)).toBe(10376293541461622784n);
     expect(fromFace(5)).toBe(12682136550675316736n);
+  });
+});
+
+describe('fromFacePosLevel', () => {
+  it('should return the cell id for a given face, position, and level', () => {
+    expect(fromFacePosLevel(0, 0n, 0)).toBe(1152921504606846976n);
+    expect(fromFacePosLevel(1, 0n, 0)).toBe(3458764513820540928n);
+    expect(fromFacePosLevel(2, 0n, 0)).toBe(5764607523034234880n);
+    expect(fromFacePosLevel(3, 0n, 0)).toBe(8070450532247928832n);
+    expect(fromFacePosLevel(4, 0n, 0)).toBe(10376293541461622784n);
+    expect(fromFacePosLevel(5, 0n, 0)).toBe(12682136550675316736n);
+  });
+
+  it('zoom 1', () => {
+    expect(fromFacePosLevel(0, 0n, 1)).toBe(288230376151711744n);
+    expect(fromFacePosLevel(0, 1n, 1)).toBe(288230376151711744n);
+    expect(fromFacePosLevel(0, 2n, 1)).toBe(288230376151711744n);
+    expect(fromFacePosLevel(0, 3n, 1)).toBe(288230376151711744n);
   });
 });
 
@@ -389,4 +417,91 @@ describe('vertexNeighbors', () => {
 describe('toFaceIJ', () => {
   const id = toFaceIJ(0n);
   expect(id).toEqual([0, 0, 0, 0]);
+});
+
+describe('containsS2Point', () => {
+  const face0 = fromFace(0);
+  const point = pointFromLonLat(0, 0);
+  const point2 = pointFromLonLat(-160, 70);
+  expect(containsS2Point(face0, point)).toBe(true);
+  expect(containsS2Point(face0, point2)).toBe(false);
+});
+
+describe('getBoundUV', () => {
+  expect(getBoundUV(fromFace(0))).toEqual([-1, 1, -1, 1]);
+  expect(getBoundUV(fromFace(1))).toEqual([-1, 1, -1, 1]);
+
+  const [a, b, c, d] = children(fromFace(0));
+  expect(getBoundUV(a)).toEqual([-1, 0, -1, 0]);
+  expect(getBoundUV(b)).toEqual([-1, 0, 0, 1]);
+  expect(getBoundUV(c)).toEqual([0, 1, 0, 1]);
+  expect(getBoundUV(d)).toEqual([0, 1, -1, 0]);
+});
+
+describe('getEdgesRaw', () => {
+  expect(getEdgesRaw(fromFace(0))).toEqual([
+    [1, 0, 1],
+    [1, -1, 0],
+    [1, -0, -1],
+    [1, 1, -0],
+  ]);
+
+  const level10 = fromIJ(0, 10, 20, 10);
+  expect(getEdgesRaw(level10)).toEqual([
+    [0.94842529296875, 0, 1],
+    [-0.9715080261230469, -1, 0],
+    [-0.9458732604980469, -0, -1],
+    [0.9740854899088541, 1, -0],
+  ]);
+});
+
+describe('getEdges', () => {
+  expect(getEdges(fromFace(0))).toEqual([
+    [0.7071067811865475, 0, 0.7071067811865475],
+    [0.7071067811865475, -0.7071067811865475, 0],
+    [0.7071067811865475, -0, -0.7071067811865475],
+    [0.7071067811865475, 0.7071067811865475, -0],
+  ]);
+
+  const level10 = fromIJ(0, 10, 20, 10);
+  expect(getEdges(level10)).toEqual([
+    [0.6881486685943737, 0, 0.7255697140260132],
+    [-0.696815003909965, -0.7172508977519342, 0],
+    [-0.6871719848800082, -0, -0.7264947785057162],
+    [0.6977642240401561, 0.7163275002745871, -0],
+  ]);
+});
+
+describe('getVerticesRaw', () => {
+  expect(getVerticesRaw(fromFace(0))).toEqual([
+    [1, -1, -1],
+    [1, 1, -1],
+    [1, 1, 1],
+    [1, -1, 1],
+  ]);
+
+  const level10 = fromIJ(0, 10, 20, 10);
+  expect(getVerticesRaw(level10)).toEqual([
+    [1, -0.9740854899088541, -0.94842529296875],
+    [1, -0.9715080261230469, -0.94842529296875],
+    [1, -0.9715080261230469, -0.9458732604980469],
+    [1, -0.9740854899088541, -0.9458732604980469],
+  ]);
+});
+
+describe('getVertices', () => {
+  expect(getVertices(fromFace(0))).toEqual([
+    [0.5773502691896258, -0.5773502691896258, -0.5773502691896258],
+    [0.5773502691896258, 0.5773502691896258, -0.5773502691896258],
+    [0.5773502691896258, 0.5773502691896258, 0.5773502691896258],
+    [0.5773502691896258, -0.5773502691896258, 0.5773502691896258],
+  ]);
+
+  const level10 = fromIJ(0, 10, 20, 10);
+  expect(getVertices(level10)).toEqual([
+    [0.5925201015153633, -0.5771652333654366, -0.5619610508695819],
+    [0.5930423748666049, -0.5761454270139794, -0.5624563881257431],
+    [0.593547171020095, -0.576635840528651, -0.5614203979121691],
+    [0.5930235640377648, -0.5776556489032209, -0.5609251320685729],
+  ]);
 });

@@ -1,10 +1,10 @@
 import { HALF_PI } from '../constants';
-import { WGS84Projection } from '.';
+import { ProjectionBase } from './base';
 import { adjustLat, adjustLon, hypot, pjEnfn, pjInvMlfn, pjMlfn } from '../common';
 
 import type { En } from '../common';
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const EPS10 = 1e-10;
 const { abs, sin, cos, sqrt, atan2, tan } = Math;
@@ -43,10 +43,7 @@ const { abs, sin, cos, sqrt, atan2, tan } = Math;
  *
  * ![Bonne (Werner lat_1=90) Projection](https://github.com/OSGeo/PROJ/blob/38dd7c2446f3500a43f0257f5a4833d6aa5aab0b/docs/source/operations/projections/images/bonne.png?raw=true)
  */
-export class BonneWernerProjection
-  extends WGS84Projection
-  implements ProjectionTransformDefinition
-{
+export class BonneWerner extends ProjectionBase implements ProjectionTransform {
   name = 'Bonne (Werner lat_1=90)';
   names = [this.name, 'bonne'];
   // BonneWernerProjection specific variables
@@ -56,9 +53,12 @@ export class BonneWernerProjection
   am1: number = 0;
   cphi1: number = 0;
 
-  /** Preps an Albers Conic Equal Area projection */
-  constructor() {
-    super();
+  /**
+   * Preps an Albers Conic Equal Area projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
     let c;
 
     this.phi1 = this.lat1;

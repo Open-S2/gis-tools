@@ -1,13 +1,15 @@
 import { incirclefast, orient2d } from '../geometry/predicates';
 
+import type { Point, VectorPoint } from 's2-tools/geometry';
+
 const EPSILON = Math.pow(2, -52);
 
 /** An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points. */
 export default class Delaunator {
   edgeStack = new Array(512);
   coords: number[];
-  #triangles: number[];
-  #halfedges: number[];
+  triangles: number[] = [];
+  halfedges: number[];
   #hashSize: number;
   #hullPrev: number[];
   #hullNext: number[];
@@ -20,9 +22,7 @@ export default class Delaunator {
   #cx = 0;
   #cy = 0;
 
-  hull!: number[];
-  triangles!: number[];
-  halfedges!: number[];
+  hull: number[] = [];
 
   trianglesLen = 0;
 
@@ -37,8 +37,8 @@ export default class Delaunator {
 
     // arrays that will store the triangulation graph
     const maxTriangles = Math.max(2 * n - 5, 0);
-    this.#triangles = new Array(maxTriangles * 3);
-    this.#halfedges = new Array(maxTriangles * 3);
+    this.triangles = new Array(maxTriangles * 3);
+    this.halfedges = new Array(maxTriangles * 3);
 
     // temporary arrays for tracking the edges of the advancing convex hull
     this.#hashSize = Math.ceil(Math.sqrt(n));
@@ -55,23 +55,34 @@ export default class Delaunator {
   }
 
   /**
-   * @param points - flattened array of x,y points. e.g. [x1, y1, x2, y2, ...]
-   * @param getX - function to pull in x values for each point
-   * @param getY - function to pull in y values for each point
+   * @param points - flattened array of x,y points. e.g. [[x1, y1], [x2, y2], ...]
    * @returns - a Delaunator class to do Delaunay triangulation
    */
-  static from(
-    points: [x: number, y: number][],
-    getX = defaultGetX,
-    getY = defaultGetY,
-  ): Delaunator {
+  static fromPoints(points: Point[]): Delaunator {
     const n = points.length;
     const coords = new Array(n * 2);
 
     for (let i = 0; i < n; i++) {
-      const p = points[i];
-      coords[2 * i] = getX(p);
-      coords[2 * i + 1] = getY(p);
+      const [x, y] = points[i];
+      coords[2 * i] = x;
+      coords[2 * i + 1] = y;
+    }
+
+    return new Delaunator(coords);
+  }
+
+  /**
+   * @param points - flattened array of x,y vector points. e.g. [{ x1, y1 }, { x2, y2 }, ...]
+   * @returns - a Delaunator class to do Delaunay triangulation
+   */
+  static fromVectorPoints(points: VectorPoint[]): Delaunator {
+    const n = points.length;
+    const coords = new Array(n * 2);
+
+    for (let i = 0; i < n; i++) {
+      const { x, y } = points[i];
+      coords[2 * i] = x;
+      coords[2 * i + 1] = y;
     }
 
     return new Delaunator(coords);
@@ -303,8 +314,8 @@ export default class Delaunator {
     }
 
     // trim typed triangle mesh arrays
-    this.triangles = this.#triangles.slice(0, this.trianglesLen);
-    this.#halfedges = this.#halfedges.slice(0, this.trianglesLen);
+    this.triangles = this.triangles.slice(0, this.trianglesLen);
+    this.halfedges = this.halfedges.slice(0, this.trianglesLen);
   }
 
   /**
@@ -322,8 +333,8 @@ export default class Delaunator {
    */
   #legalize(a: number): number {
     const { coords } = this;
-    const triangles = this.#triangles;
-    const halfedges = this.#halfedges;
+    const triangles = this.triangles;
+    const halfedges = this.halfedges;
 
     let i = 0;
     let ar = 0;
@@ -419,8 +430,8 @@ export default class Delaunator {
    * @param b - index of next triangle vertex
    */
   #link(a: number, b: number): void {
-    this.#halfedges[a] = b;
-    if (b !== -1) this.#halfedges[b] = a;
+    this.halfedges[a] = b;
+    if (b !== -1) this.halfedges[b] = a;
   }
 
   /**
@@ -436,9 +447,9 @@ export default class Delaunator {
   #addTriangle(i0: number, i1: number, i2: number, a: number, b: number, c: number): number {
     const t = this.trianglesLen;
 
-    this.#triangles[t] = i0;
-    this.#triangles[t + 1] = i1;
-    this.#triangles[t + 2] = i2;
+    this.triangles[t] = i0;
+    this.triangles[t + 1] = i1;
+    this.triangles[t + 2] = i2;
 
     this.#link(t, a);
     this.#link(t + 1, b);
@@ -594,19 +605,4 @@ function swap(arr: number[], i: number, j: number): void {
   const tmp = arr[i];
   arr[i] = arr[j];
   arr[j] = tmp;
-}
-
-/**
- * @param p - point: [x, y]
- * @returns - x
- */
-function defaultGetX(p: [x: number, y: number]): number {
-  return p[0];
-}
-/**
- * @param p - point: [x, y]
- * @returns - y
- */
-function defaultGetY(p: [x: number, y: number]): number {
-  return p[1];
 }

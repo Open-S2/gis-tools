@@ -122,7 +122,7 @@ export function fromS2Points(a: Point3D, b: Point3D): S1Angle {
  * @param b - The second lon-lat pair
  * @returns - The angle between the two points in radians
  */
-export function fromLL(a: LonLat, b: LonLat): S1Angle {
+export function fromLonLat(a: LonLat, b: LonLat): S1Angle {
   return getDistance(a, b);
 }
 

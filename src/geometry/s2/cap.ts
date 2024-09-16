@@ -135,7 +135,7 @@ export function height<T>(cap: S2Cap<T>): number {
  * @param data - the data
  * @returns - the cap
  */
-export function FromS1Angle<T>(center: Point3D, radius: S1Angle, data: T): S2Cap<T> {
+export function fromS1Angle<T>(center: Point3D, radius: S1Angle, data: T): S2Cap<T> {
   return { center, radius: fromAngle(radius), data };
 }
 

@@ -1,30 +1,32 @@
+import ellipsoids from './ellipsoid';
 import { EPSLN, RA4, RA6, SIXTH } from './values';
-import ellipsoids, { WGS84 } from './ellipsoid';
 
 import type { Ellipsoid } from './ellipsoid';
 
 import match from '../util/match';
 
 /** Describes an ellipsoid's eccentricity */
-export interface Eccentricity {
-  es: number;
-  e: number;
-  ep2: number;
+export interface EccentricityParams {
+  a?: number;
+  b?: number;
+  es?: number;
+  e?: number;
+  ep2?: number;
+  rA?: number;
 }
 
 /**
- * @param ellipsoid - ellipsoid
- * @param RA - true if apply radius of curvature correction
- * @returns - eccentricity
+ * Derives an ellipsoid's eccentricity for an object
+ * @param el - ellipsoid object to modify
  */
-export function eccentricity(ellipsoid: Ellipsoid, RA = false): Eccentricity {
-  let { a } = ellipsoid;
-  const { b } = ellipsoid;
+export function deriveEccentricity(el: EccentricityParams): void {
+  let a = el.a ?? 0;
+  const b = el.b ?? 0;
   let a2 = a * a; // used in geocentric
   const b2 = b * b; // used in geocentric
   let es = (a2 - b2) / a2; // e ^ 2
   let e = 0;
-  if (RA) {
+  if (el.rA) {
     a *= 1 - es * (SIXTH + es * (RA4 + es * RA6));
     a2 = a * a;
     es = 0;
@@ -32,53 +34,44 @@ export function eccentricity(ellipsoid: Ellipsoid, RA = false): Eccentricity {
     e = Math.sqrt(es); // eccentricity
   }
   const ep2 = (a2 - b2) / b2; // used in geocentric
-  return { es: es, e: e, ep2: ep2 };
+
+  el.es = es;
+  el.e = e;
+  el.ep2 = ep2;
 }
 
 /** Describes a sphere's eccentricity and if it is a true sphere or not */
-export interface Sphere {
-  a: number;
-  b: number;
-  rf: number;
-  sphere: boolean;
+export interface SphereParams {
+  ellps?: string;
+  a?: number;
+  b?: number;
+  rf?: number;
+  sphere?: boolean;
 }
 
 /**
  * Builds a sphere with ellipsoid parameters
- * @param ellps - name of ellipsoid
- * @param a - semi-major axis
- * @param b - semi-minor axis
- * @param rf - inverse flattening
- * @param sphere - true if ellipsoid is a true sphere
- * @returns - Sphere with ellipsoid parameters
+ * @param obj - an object with/wihtout sphere properties and builds the sphere
  */
-export function sphere(
-  ellps?: string,
-  a?: number,
-  b?: number,
-  rf?: number,
-  sphere = false,
-): Sphere {
-  if (a === undefined) {
+export function deriveSphere(obj: SphereParams): void {
+  if (obj.a === undefined) {
     // do we have an ellipsoid?
-    let ellipse = match<Ellipsoid>(ellipsoids, ellps);
-    if (ellipse === undefined) ellipse = WGS84;
-    a = ellipse.a;
-    b = ellipse.b;
-    rf = ellipse.rf;
+    let ellipse = match<Ellipsoid>(ellipsoids, obj.ellps);
+    if (ellipse === undefined) ellipse = ellipsoids.WGS84;
+    obj.a = ellipse.a;
+    obj.b = ellipse.b;
+    obj.rf = ellipse.rf;
   }
-  if (rf && b === undefined) {
-    b = (1.0 - 1.0 / rf) * a;
+  if (obj.rf && obj.b === undefined) {
+    obj.b = (1.0 - 1.0 / obj.rf) * obj.a;
   } else {
-    b = a;
+    obj.b = obj.a;
   }
-  if (rf === undefined) {
-    rf = (a - b) / a;
+  if (obj.rf === undefined) {
+    obj.rf = (obj.a - obj.b) / obj.a;
   }
-  if (rf === 0 || Math.abs(a - b) < EPSLN) {
-    sphere = true;
-    b = a;
+  if (obj.rf === 0 || Math.abs(obj.a - obj.b) < EPSLN) {
+    obj.sphere = true;
+    obj.b = obj.a;
   }
-
-  return { a, b, rf, sphere };
 }

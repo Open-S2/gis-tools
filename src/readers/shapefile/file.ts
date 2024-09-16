@@ -2,6 +2,7 @@ import DataBaseFile from './dbf';
 import FileReader from '../fileReader';
 import Shapefile from './shp';
 import { Transformer } from 's2-tools/proj4';
+import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
 
 export * from './dbf';
@@ -31,7 +32,11 @@ export interface Definition {
  * @param input - the path to the .shp file or name without the extension
  * @returns - a Shapefile
  */
-export async function fromPath(input: string) {
+export async function fromPath(input: string): Promise<Shapefile> {
+  if (input.endsWith('.zip')) {
+    const gzipData = await readFile(input);
+    return fromGzip(gzipData.buffer);
+  }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;
   const dbf = `${path}.dbf`;

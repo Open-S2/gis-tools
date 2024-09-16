@@ -35,7 +35,7 @@
       "s2-tools": ["./src"],
       "s2-tools/*": ["./src/*"],
       "converters/*": ["./src/converters/*"],
-      "db/*": ["./src/db/*"],
+      "db/*": ["src/dataStore/*"],
       "geometry/*": ["./src/geometry/*"],
       "predicates/*": ["./src/predicates/*"],
       "readers/*": ["./src/readers/*"]

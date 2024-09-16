@@ -1,35 +1,26 @@
+import { concatUint8Arrays } from '.';
+
 /** The formats available to DecompressionStream */
 export type Format = 'deflate' | 'deflate-raw' | 'gzip';
 
 /**
  * A Browser compatible Gzip decompression function
- * @param uint8Array - the data to decompress
+ * @param bytes - the data to decompress
  * @param format - the format of the data. Defaults to 'gzip'
  * @returns - the decompressed data
  */
-export async function decompressStream(
-  uint8Array: Uint8Array,
-  format?: Format,
-): Promise<Uint8Array> {
-  if (format === undefined)
-    format = uint8Array[0] === 0x1f && uint8Array[1] === 0x8b ? 'gzip' : 'deflate';
-  // Create a DecompressionStream for 'gzip'
-  const decompressionStream = new DecompressionStream(format);
-  // Convert the Uint8Array to a readable stream
-  const uint8ArrayStream = new ReadableStream({
-    /**  @param controller - the controller for the stream */
-    start(controller) {
-      controller.enqueue(uint8Array);
-      controller.close();
-    },
-  });
-  // Pipe the readable stream through the decompression stream
-  const decompressedStream = uint8ArrayStream.pipeThrough(decompressionStream);
-  // Get the decompressed data as an ArrayBuffer
-  const decompressedAB = await new Response(decompressedStream).arrayBuffer();
+export async function decompressStream(bytes: Uint8Array, format?: Format): Promise<Uint8Array> {
+  if (format === undefined) format = bytes[0] === 0x1f && bytes[1] === 0x8b ? 'gzip' : 'deflate';
+  // Convert the bytes to a stream.
+  const stream = new Blob([bytes]).stream();
 
-  // Convert the ArrayBuffer to a Uint8Array and return
-  return new Uint8Array(decompressedAB, 0, decompressedAB.byteLength);
+  // Create a decompressed stream.
+  const decompressedStream = stream.pipeThrough(new DecompressionStream(format));
+  // Read all the bytes from this stream.
+  const chunks = [];
+  for await (const chunk of decompressedStream) chunks.push(chunk);
+
+  return await concatUint8Arrays(chunks);
 }
 
 /**

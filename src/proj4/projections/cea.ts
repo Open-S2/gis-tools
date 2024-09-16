@@ -1,8 +1,8 @@
-import { WGS84Projection } from '.';
+import { ProjectionBase } from './base';
 import { adjustLon, iqsfnz, msfnz, qsfnz } from '../common';
 
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { sin, cos, asin } = Math;
 
@@ -58,17 +58,18 @@ const { sin, cos, asin } = Math;
  *
  * ![Equal Area Cylindrical Projection](./images/cea.png)
  */
-export class CylindricalEqualAreaProjection
-  extends WGS84Projection
-  implements ProjectionTransformDefinition
-{
+export class CylindricalEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Equal_Area_Cylindrical';
   names = [this.name, 'cea'];
   // Equal Area Cylindrical specific variables
+  declare k0: number;
 
-  /** Preps an Equal Area Cylindrical projection */
-  constructor() {
-    super();
+  /**
+   * Preps an Equal Area Cylindrical projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
     if (this.sphere === undefined) {
       this.k0 = msfnz(this.e, sin(this.latTs), cos(this.latTs));
     }

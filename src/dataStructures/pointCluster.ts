@@ -12,7 +12,7 @@ import {
 } from '../geometry/s2/point';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Face, Point3D, Projection, S2CellId } from '../geometry';
+import type { Face, Point3D, Projection, Properties, S2CellId } from '../geometry';
 
 /** Options for point clustering */
 export interface ClusterOptions {
@@ -29,21 +29,21 @@ export interface ClusterOptions {
 }
 
 /** A cluster is a storage device to maintain groups of information in a cluster */
-export class Cluster<T> {
+export class Cluster {
   visited: boolean = false;
   sum: number = 1;
 
   /**
    * @param ref - the reference data
    */
-  constructor(public ref: T) {}
+  constructor(public ref: Properties) {}
 
   /**
    * @param ref - the reference data
    * @param sum - the sum of points
    * @returns - a new cluster
    */
-  static fromSum<T>(ref: T, sum: number): Cluster<T> {
+  static fromSum(ref: Properties, sum: number): Cluster {
     const cluster = new Cluster(ref);
     cluster.sum = sum;
     return cluster;
@@ -51,17 +51,17 @@ export class Cluster<T> {
 }
 
 /** Compare two data items, return true to merge data */
-export type Comparitor<T> = (a: T, b: T) => boolean;
+export type Comparitor = (a: Properties, b: Properties) => boolean;
 
 /** A cluster store to index points at each zoom level */
-export default class PointCluster<T> {
+export default class PointCluster {
   projection: Projection;
   layerName: string;
   minzoom: number;
   maxzoom: number;
   radius: number;
   // { [zoom]: Index }
-  indexes = new Map<number, PointIndex<Cluster<T>>>();
+  indexes = new Map<number, PointIndex<Cluster>>();
 
   /** @param options - cluster options on how to build the cluster */
   constructor(options?: ClusterOptions) {
@@ -71,7 +71,7 @@ export default class PointCluster<T> {
     this.maxzoom = Math.min(options?.maxzoom ?? 16, 29);
     this.radius = options?.radius ?? 40;
     for (let zoom = this.minzoom; zoom <= this.maxzoom; zoom++) {
-      this.indexes.set(zoom, new PointIndex<Cluster<T>>());
+      this.indexes.set(zoom, new PointIndex<Cluster>());
     }
   }
 
@@ -80,7 +80,7 @@ export default class PointCluster<T> {
    * @param point - the point to add
    * @param data - the data associated with the point
    */
-  insert(point: Point3D, data: T): void {
+  insert(point: Point3D, data: Properties): void {
     const maxzoomIndex = this.indexes.get(this.maxzoom);
     maxzoomIndex?.insert(point, new Cluster(data));
   }
@@ -91,7 +91,7 @@ export default class PointCluster<T> {
    * @param lat - latitude in degrees
    * @param data - the data associated with the point
    */
-  insertLonLat(lon: number, lat: number, data: T): void {
+  insertLonLat(lon: number, lat: number, data: Properties): void {
     this.insert(fromLonLat(lon, lat), data);
   }
 
@@ -101,7 +101,7 @@ export default class PointCluster<T> {
    * @param t - the t coordinate
    * @param data - the data associated with the point
    */
-  insertFaceST(face: Face, s: number, t: number, data: T): void {
+  insertFaceST(face: Face, s: number, t: number, data: Properties): void {
     this.insert(fromST(face, s, t), data);
   }
 
@@ -109,10 +109,10 @@ export default class PointCluster<T> {
    * Build the clusters when done adding points
    * @param cmp_ - custom compare function
    */
-  buildClusters(cmp_?: Comparitor<T>): void {
+  buildClusters(cmp_?: Comparitor): void {
     const { minzoom, maxzoom } = this;
     // const cmp = cmp_ orelse defaultCmp;
-    const cmp: Comparitor<T> = cmp_ ?? ((_a: T, _b: T) => true);
+    const cmp: Comparitor = cmp_ ?? ((_a: Properties, _b: Properties) => true);
     for (let zoom = maxzoom; zoom > minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
       const queryIndex = this.indexes.get(zoom - 1);
@@ -129,9 +129,9 @@ export default class PointCluster<T> {
    */
   #cluster(
     zoom: number,
-    queryIndex: PointIndex<Cluster<T>>,
-    currIndex: PointIndex<Cluster<T>>,
-    cmp: Comparitor<T>,
+    queryIndex: PointIndex<Cluster>,
+    currIndex: PointIndex<Cluster>,
+    cmp: Comparitor,
   ): void {
     const radius = this.#getLevelRadius(zoom);
     for (const clusterPoint of queryIndex.iterate()) {
@@ -163,7 +163,7 @@ export default class PointCluster<T> {
    * @param id - the cell id
    * @returns - the data within the range of the tile id
    */
-  getCellData(id: S2CellId): undefined | Point<Cluster<T>>[] {
+  getCellData(id: S2CellId): undefined | Point<Cluster>[] {
     const { minzoom, maxzoom, indexes } = this;
     const zoom = level(id);
     if (zoom < minzoom) return;
@@ -188,8 +188,8 @@ export default class PointCluster<T> {
         {
           type: 'VectorFeature',
           face,
-          geometry: { is3D: false, type: 'Point', coordinates: { x: s, y: t } },
-          properties: { ...ref, __sum: sum },
+          geometry: { is3D: false, type: 'Point', coordinates: { x: s, y: t, m: { sum } } },
+          properties: ref,
         },
         this.layerName,
       );

@@ -4,8 +4,6 @@
 [ ] - - INPUTS: all S2JSON types as `s2jsonld` files
 [ ] - - Store: folders/files, PMTiles
 [ ] - - FORMATS: ZXY, FZXY
-[ ] - readers
-[ ] - - OSM pbfs
 [ ] - Point Cluster (S2 and WM)
 [ ] - Point Index
 [ ] - polylabel

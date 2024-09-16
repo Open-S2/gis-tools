@@ -4,10 +4,8 @@ import FileReader from '../../../src/readers/fileReader';
 import MMapReader from '../../../src/readers/mmapReader';
 import { expect, test } from 'bun:test';
 
-import { readFile } from 'fs/promises';
-
 test('empty dbf', async () => {
-  const data = new BufferReader((await readFile('tests/readers/fixtures/empty.dbf')).buffer);
+  const data = new BufferReader(await Bun.file(`${__dirname}/fixtures/empty.dbf`).arrayBuffer());
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({
@@ -21,7 +19,7 @@ test('empty dbf', async () => {
 });
 
 test('codepage dbf', async () => {
-  const data = new BufferReader((await readFile('tests/readers/fixtures/codepage.dbf')).buffer);
+  const data = new BufferReader(await Bun.file(`${__dirname}/fixtures/codepage.dbf`).arrayBuffer());
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({
@@ -35,7 +33,7 @@ test('codepage dbf', async () => {
 });
 
 test('utf dbf', async () => {
-  const data = new BufferReader((await readFile('tests/readers/fixtures/utf.dbf')).buffer);
+  const data = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.dbf`).arrayBuffer());
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({
@@ -49,7 +47,7 @@ test('utf dbf', async () => {
 });
 
 test('watershed dbf', async () => {
-  const data = new MMapReader('tests/readers/fixtures/watershed.dbf');
+  const data = new MMapReader(`${__dirname}/fixtures/watershed.dbf`);
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({
@@ -295,7 +293,7 @@ test('watershed dbf', async () => {
 });
 
 test('watershed-specialCharacters dbf', async () => {
-  const data = new FileReader('tests/readers/fixtures/watershed-specialCharacters.dbf');
+  const data = new FileReader(`${__dirname}/fixtures/watershed-specialCharacters.dbf`);
   const dbf = new DataBaseFile(data, 'utf-8');
 
   expect(dbf.getHeader()).toEqual({

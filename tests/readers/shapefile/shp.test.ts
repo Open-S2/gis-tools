@@ -2,13 +2,13 @@ import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
 import FileReader from '../../../src/readers/fileReader';
 import MMapReader from '../../../src/readers/mmapReader';
-import ShapeFile from '../../../src/readers/shapefile/shp';
+import { buildServer } from '../../server';
+// import { fromPath } from '../../../src/readers/shapefile/file';
+import { ShapeFile, fromGzip, fromURL } from '../../../src/readers/shapefile';
 import { expect, test } from 'bun:test';
 
-import { readFile } from 'fs/promises';
-
 test('utf shp', async () => {
-  const data = new BufferReader((await readFile('tests/readers/fixtures/utf.shp')).buffer);
+  const data = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.shp`).arrayBuffer());
   const shp = new ShapeFile(data);
 
   expect(shp.getHeader()).toEqual({
@@ -48,8 +48,8 @@ test('utf shp', async () => {
 });
 
 test('utf shp with dbf', async () => {
-  const shpData = new BufferReader((await readFile('tests/readers/fixtures/utf.shp')).buffer);
-  const dbfData = new BufferReader((await readFile('tests/readers/fixtures/utf.dbf')).buffer);
+  const shpData = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.shp`).arrayBuffer());
+  const dbfData = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.dbf`).arrayBuffer());
   const dbf = new DataBaseFile(dbfData, 'utf-8');
   const shp = new ShapeFile(shpData, dbf);
 
@@ -90,7 +90,7 @@ test('utf shp with dbf', async () => {
 });
 
 test('utf shp - file', async () => {
-  const data = new FileReader('tests/readers/fixtures/utf.shp');
+  const data = new FileReader(`${__dirname}/fixtures/utf.shp`);
   const shp = new ShapeFile(data);
 
   expect(shp.getHeader()).toEqual({
@@ -103,7 +103,7 @@ test('utf shp - file', async () => {
 });
 
 test('multipointz shp', async () => {
-  const data = new MMapReader('tests/readers/fixtures/export_multipointz.shp');
+  const data = new MMapReader(`${__dirname}/fixtures/export_multipointz.shp`);
   const shp = new ShapeFile(data);
 
   expect(shp.getHeader()).toEqual({
@@ -140,7 +140,7 @@ test('multipointz shp', async () => {
 
 test('polylinez shp', async () => {
   const data = new BufferReader(
-    (await readFile('tests/readers/fixtures/export_polylinez.shp')).buffer,
+    await Bun.file(`${__dirname}/fixtures/export_polylinez.shp`).arrayBuffer(),
   );
   const shp = new ShapeFile(data);
 
@@ -182,3 +182,130 @@ test('polylinez shp', async () => {
     type: 'FeatureCollection',
   });
 });
+
+test('fromGzip', async () => {
+  const data = await Bun.file(`${__dirname}/fixtures/utf.zip`).arrayBuffer();
+  const shp = await fromGzip(data);
+
+  expect(shp.getHeader()).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    length: 156,
+    shpCode: 1,
+    version: 1000,
+  });
+
+  const featureCollection = shp.getFeatureCollection();
+  expect(featureCollection).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    features: [
+      {
+        geometry: {
+          coordinates: { x: -108.6328125, y: 41.244772343082076 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 1,
+        properties: { field: '💩' },
+        type: 'VectorFeature',
+      },
+      {
+        geometry: {
+          coordinates: { x: -108.97956848144531, y: 41.253032440653186 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 2,
+        properties: { field: 'Hněvošický háj' },
+        type: 'VectorFeature',
+      },
+    ],
+    type: 'FeatureCollection',
+  });
+});
+
+test('fromURL', async () => {
+  const server = buildServer();
+  const shp = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.zip`);
+  const shp2 = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.shp`);
+  server.stop();
+
+  expect(shp.getHeader()).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    length: 156,
+    shpCode: 1,
+    version: 1000,
+  });
+  expect(shp2.getHeader()).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    length: 156,
+    shpCode: 1,
+    version: 1000,
+  });
+
+  const featureCollection = shp.getFeatureCollection();
+  expect(featureCollection).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    features: [
+      {
+        geometry: {
+          coordinates: { x: -108.6328125, y: 41.244772343082076 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 1,
+        properties: { field: '💩' },
+        type: 'VectorFeature',
+      },
+      {
+        geometry: {
+          coordinates: { x: -108.97956848144531, y: 41.253032440653186 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 2,
+        properties: { field: 'Hněvošický háj' },
+        type: 'VectorFeature',
+      },
+    ],
+    type: 'FeatureCollection',
+  });
+
+  const featureCollection2 = shp2.getFeatureCollection();
+  expect(featureCollection2).toEqual({
+    bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+    features: [
+      {
+        geometry: {
+          coordinates: { x: -108.6328125, y: 41.244772343082076 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 1,
+        properties: {},
+        type: 'VectorFeature',
+      },
+      {
+        geometry: {
+          coordinates: { x: -108.97956848144531, y: 41.253032440653186 },
+          is3D: false,
+          type: 'Point',
+        },
+        id: 2,
+        properties: {},
+        type: 'VectorFeature',
+      },
+    ],
+    type: 'FeatureCollection',
+  });
+});
+
+// TODO: FINISH TRANSFORM THEN ADD THIS BACK
+// test('fromPath', async () => {
+//   const shp = await fromPath(`${__dirname}/../fixtures/utf.shp`);
+//   expect(shp.getHeader()).toEqual({
+//     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
+//     length: 156,
+//     shpCode: 1,
+//     version: 1000,
+//   });
+// });

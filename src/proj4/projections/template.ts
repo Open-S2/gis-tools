@@ -1,23 +1,26 @@
 import { EPSLN } from '../constants';
-import { WGS84Projection } from '.';
+import { ProjectionBase } from '.';
 import { adjustLat, adjustLon } from '../common';
 
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, atan2, asin, log } = Math;
 
 /**
  *
  */
-export class XXXXXXXXXXXX extends WGS84Projection implements ProjectionTransformDefinition {
+export class XXXXXXXXXXXX extends ProjectionBase implements ProjectionTransform {
   name = 'XXXXXXXXXXXX';
   names = [this.name, 'XXXXXXXXXXXX', 'XXXXXXXXXXXX'];
   // XXXXXXXXXXXX specific variables
 
-  /** Preps an XXXXXXXXXXXX projection */
-  constructor() {
-    super();
+  /**
+   * Preps an XXXXXXXXXXXX projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
   }
 
   /**

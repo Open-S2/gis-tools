@@ -1,9 +1,9 @@
-import { WGS84Projection } from '.';
+import { ProjectionBase } from './base';
 import { EPSLN, HALF_PI } from '../constants';
 import { adjustLon, asinz, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../common';
 
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;
 
@@ -43,19 +43,19 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;
  *
  * ![Azimuthal Equidistant Projection](https://github.com/OSGeo/PROJ/blob/38dd7c2446f3500a43f0257f5a4833d6aa5aab0b/docs/source/operations/projections/images/aeqd.png?raw=true)
  */
-export class AzimuthalEquidistantProjection
-  extends WGS84Projection
-  implements ProjectionTransformDefinition
-{
+export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTransform {
   name = 'Azimuthal_Equidistant';
-  names = [this.name, 'aeqd'];
-  // AzimuthalEquidistantProjection specific variables
+  static names = [this.name, 'aeqd'];
+  // AzimuthalEquidistant specific variables
   sin_p12 = 0;
   cos_p12 = 0;
 
-  /** Preps an Albers Conic Equal Area projection */
-  constructor() {
-    super();
+  /**
+   * Preps an Albers Conic Equal Area projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
     this.sin_p12 = sin(this.lat0);
     this.cos_p12 = cos(this.lat0);
   }

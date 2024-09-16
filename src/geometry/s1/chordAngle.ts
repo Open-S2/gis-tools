@@ -203,7 +203,7 @@ export function fastUpperBoundFrom(angle: S1Angle): S1ChordAngle {
  * @returns - true if the ChordAngle is special.
  */
 export function isSpecial(cAngle: S1ChordAngle): boolean {
-  return cAngle < 0 || cAngle == Infinity;
+  return cAngle < 0 || cAngle === Infinity;
 }
 
 /**

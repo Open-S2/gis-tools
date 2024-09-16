@@ -2,7 +2,8 @@ import FileReader from '../../src/readers/fileReader';
 import { expect, test } from 'bun:test';
 
 test('FileReader', () => {
-  const reader = new FileReader('tests/readers/fixtures/dv.bin');
+  const reader = new FileReader(`${__dirname}/fixtures/dv.bin`);
+  reader.setStringEncoding('utf-8');
 
   let offset = 0;
   expect(reader.getUint8(offset)).toBe(255);

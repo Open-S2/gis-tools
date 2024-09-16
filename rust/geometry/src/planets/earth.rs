@@ -102,7 +102,7 @@ pub fn steradians_to_square_meters(steradians: f64) -> f64 {
 // pub fn meters_to_longitude_radians(meters: f64, latitude_radians: f64) -> f64 {
 //     let scalar = cos(latitude_radians);
 //     if (scalar == 0) { return std.math.pi * 2; }
-    
+
 //     min(metersToRadians(meters) / scalar, std.math.pi * 2)
 // }
 // pub fn km_to_longitude_radians(km: f64, latitude_radians: f64) -> f64 {

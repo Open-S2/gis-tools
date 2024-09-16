@@ -334,7 +334,7 @@ export function invert(xyz: Point3D): Point3D {
 }
 
 /**
- * dot returns the standard dot product of v and ov.
+ * dot returns the standard dot product of a and b.
  * @param a - The first XYZ Point
  * @param b - The second XYZ Point
  * @returns - The dot product of the two XYZ Points
@@ -344,6 +344,7 @@ export function dot(a: Point3D, b: Point3D): number {
 }
 
 /**
+ * Get the corss product of two XYZ Points
  * @param a - The first XYZ Point
  * @param b - The second XYZ Point
  * @returns - The cross product of the two XYZ Points

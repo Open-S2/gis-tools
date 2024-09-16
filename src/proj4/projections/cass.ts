@@ -1,9 +1,9 @@
-import { WGS84Projection } from '.';
+import { ProjectionBase } from './base';
 import { EPSLN, HALF_PI } from '../constants';
 import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../common';
 
-import type { ProjectionTransformDefinition } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, sin, cos, asin, atan2, tan, pow } = Math;
 
@@ -46,10 +46,7 @@ const { abs, sin, cos, asin, atan2, tan, pow } = Math;
  *
  * ![Cassini (Cassini-Soldner)](./images/cass.png)
  */
-export class CassiniSoldnerProjection
-  extends WGS84Projection
-  implements ProjectionTransformDefinition
-{
+export class CassiniSoldner extends ProjectionBase implements ProjectionTransform {
   name = 'Cassini_Soldner';
   names = [this.name, 'Cassini', 'cass'];
   e0: number = 0;
@@ -58,10 +55,13 @@ export class CassiniSoldnerProjection
   e3: number = 0;
   ml0: number = 0;
 
-  /** Preps an Cassini Soldner projection */
-  constructor() {
-    super();
-    if (this.sphere === undefined) {
+  /**
+   * Preps an Cassini Soldner projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
+    if (!this.sphere) {
       this.e0 = e0fn(this.es);
       this.e1 = e1fn(this.es);
       this.e2 = e2fn(this.es);

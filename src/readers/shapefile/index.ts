@@ -1,19 +1,38 @@
 import { BufferReader } from '..';
 import DataBaseFile from './dbf';
-import Shapefile from './shp';
+import ShapeFile from './shp';
 import { Transformer } from 's2-tools/proj4';
+import { iterItems } from 's2-tools/util';
 
-export * from './dbf';
-export * from './shp';
+export { default as DataBaseFile } from './dbf';
+export { default as ShapeFile } from './shp';
+
+export type * from './dbf';
+export type * from './shp';
 
 /**
  * Assumes the input is pointing to shapefile data.
  * @param input - raw buffer of gzipped data (folder of shp, dbf, prj, and/or cpg)
  * @returns - a Shapefile
  */
-export function fromGzip(input: ArrayBufferLike): undefined | Shapefile {
-  // TODO: UNGZIP HERE
-  return undefined;
+export async function fromGzip(input: ArrayBufferLike): Promise<ShapeFile> {
+  // TODO: BUILD TRANSFORM!!!!!!!
+  let encoding = 'utf8';
+  const transform: Transformer | undefined = undefined;
+  let dbfReader: DataBaseFile | undefined = undefined;
+  let shpData: Uint8Array | undefined = undefined;
+  for (const item of iterItems(new Uint8Array(input))) {
+    if (item.filename.endsWith('cpg')) {
+      encoding = new TextDecoder('utf8').decode(await item.read());
+    } else if (item.filename.endsWith('dbf')) {
+      const data = await item.read();
+      dbfReader = new DataBaseFile(new BufferReader(data.buffer), encoding);
+    } else if (item.filename.endsWith('shp')) {
+      shpData = await item.read();
+    }
+  }
+  if (shpData === undefined) throw new Error('Shapefile not found');
+  return new ShapeFile(new BufferReader(shpData.buffer), dbfReader, transform);
 }
 
 /**
@@ -21,16 +40,10 @@ export function fromGzip(input: ArrayBufferLike): undefined | Shapefile {
  * @param url - the url to the shapefile
  * @returns - a Shapefile
  */
-export async function fromURL(url: string): Promise<undefined | Shapefile> {
-  const { isGziped, data } = await fetchShapefile(url);
-  if (isGziped) return fromGzip(data);
-  return new Shapefile(new BufferReader(data));
-}
-
-/** Returned data from fetching a shapefile */
-interface FetchResponse {
-  data: ArrayBufferLike;
-  isGziped: boolean;
+export async function fromURL(url: string): Promise<ShapeFile> {
+  const data = await fetchShapefile(url);
+  if (url.endsWith('.zip')) return fromGzip(data);
+  return new ShapeFile(new BufferReader(data));
 }
 
 /**
@@ -38,15 +51,13 @@ interface FetchResponse {
  * @param url - the url to the shapefile
  * @returns - raw data of a shapefile OR a gzipped folder that may include the dbf, prj, and/or cpg
  */
-async function fetchShapefile(url: string): Promise<FetchResponse> {
+async function fetchShapefile(url: string): Promise<ArrayBufferLike> {
   return fetch(url)
     .then(async (res) => {
-      const encoding = res.headers.get('encoding');
-      if (res.status === 200)
-        return { data: await res.arrayBuffer(), isGziped: encoding === 'gzip' };
-      else throw new Error(`failed to fetch data from ${url}`);
+      if (!res.ok) throw new Error(`Failed to fetch data from ${url}`);
+      return await res.arrayBuffer();
     })
     .catch((err) => {
-      throw new Error(`failed to fetch data from ${url}: ${err}`);
+      throw new Error(`Failed to fetch data from ${url}: ${err}`);
     });
 }

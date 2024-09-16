@@ -1,4 +1,6 @@
-import { degToRad, radToDeg } from 'geometry/util';
+import { degToRad, radToDeg } from '../geometry';
+
+import type { VectorPoint } from '../geometry';
 
 /**
  * Represents an orthodrome, which is the shortest path between two points on a sphere.
@@ -41,13 +43,15 @@ export default class Orthodrome {
    * @param t - distance along the orthodrome to find
    * @returns [lon, lat]
    */
-  intermediatePoint(t: number): [lon: number, lat: number] {
+  intermediatePoint(t: number): VectorPoint {
     const { lon1, lon2, lat1, lat2, dist } = this;
     const { sin, cos, atan2, sqrt } = Math;
 
     // check corner cases first
-    if (t === 0) return [radToDeg(lon1), radToDeg(lat1)];
-    else if (t === 1) return [radToDeg(lon2), radToDeg(lat2)];
+    if (t === 0) return { x: radToDeg(lon1), y: radToDeg(lat1) };
+    else if (t === 1) return { x: radToDeg(lon2), y: radToDeg(lat2) };
+    // check if points are equal
+    else if (lon1 === lon2 && lat1 === lat2) return { x: radToDeg(lon1), y: radToDeg(lat1) };
 
     const A = sin((1 - t) * dist) / sin(dist);
     const B = sin(t * dist) / sin(dist);
@@ -59,7 +63,7 @@ export default class Orthodrome {
     const lat = atan2(z, sqrt(x * x + y * y));
     const lon = atan2(y, x);
 
-    return [radToDeg(lon), radToDeg(lat)];
+    return { x: radToDeg(lon), y: radToDeg(lat) };
   }
 
   /**

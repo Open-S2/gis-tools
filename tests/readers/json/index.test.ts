@@ -8,7 +8,7 @@ import {
 import { expect, test } from 'bun:test';
 
 test('BufferJSONReader - string', async () => {
-  const file = await Bun.file('tests/readers/fixtures/points.geojson').arrayBuffer();
+  const file = await Bun.file(`${__dirname}/fixtures/points.geojson`).arrayBuffer();
   const buffer = Buffer.from(file);
   const reader = new BufferJSONReader(buffer.toString('utf-8'));
   const data = [...reader.iterate()];
@@ -32,7 +32,7 @@ test('BufferJSONReader - string', async () => {
 });
 
 test('BufferJSONReader - object', async () => {
-  const json = await Bun.file('tests/readers/fixtures/points.geojson').json();
+  const json = await Bun.file(`${__dirname}/fixtures/points.geojson`).json();
   const reader = new BufferJSONReader(json);
   const data = [...reader.iterate()];
   expect(data).toEqual([
@@ -55,7 +55,7 @@ test('BufferJSONReader - object', async () => {
 });
 
 test('NewLineDelimitedJSONReader - BufferReader', async () => {
-  const fileBuf = await Bun.file('tests/readers/fixtures/points.geojsonld').arrayBuffer();
+  const fileBuf = await Bun.file(`${__dirname}/fixtures/points.geojsonld`).arrayBuffer();
   const bufReader = new BufferReader(fileBuf);
   const ldReader = new NewLineDelimitedJSONReader(bufReader);
   const data = [...ldReader.iterate()];
@@ -79,7 +79,7 @@ test('NewLineDelimitedJSONReader - BufferReader', async () => {
 });
 
 test('NewLineDelimitedJSONReader - FileReader', async () => {
-  const fileReader = new FileReader('tests/readers/fixtures/points.geojsonld');
+  const fileReader = new FileReader(`${__dirname}/fixtures/points.geojsonld`);
   const ldReader = new NewLineDelimitedJSONReader(fileReader);
   const data = [...ldReader.iterate()];
   fileReader.close();
@@ -103,7 +103,7 @@ test('NewLineDelimitedJSONReader - FileReader', async () => {
 });
 
 test('JSONReader - BufferReader', async () => {
-  const fileBuf = await Bun.file('tests/readers/fixtures/points.geojson').arrayBuffer();
+  const fileBuf = await Bun.file(`${__dirname}/fixtures/points.geojson`).arrayBuffer();
   const bufReader = new BufferReader(fileBuf);
   const reader = new JSONReader(bufReader);
   const data = [...reader.iterate()];
@@ -127,7 +127,7 @@ test('JSONReader - BufferReader', async () => {
 });
 
 test('JSONReader - BufferReader (forced "large" read)', async () => {
-  const fileBuf = await Bun.file('tests/readers/fixtures/points.geojson').arrayBuffer();
+  const fileBuf = await Bun.file(`${__dirname}/fixtures/points.geojson`).arrayBuffer();
   const bufReader = new BufferReader(fileBuf);
   const reader = new JSONReader(bufReader, 1);
   const data = [...reader.iterate()];
@@ -151,7 +151,7 @@ test('JSONReader - BufferReader (forced "large" read)', async () => {
 });
 
 test('JSONReader - FileReader', async () => {
-  const fileReader = new FileReader('tests/readers/fixtures/points.geojson');
+  const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
   const reader = new JSONReader(fileReader);
   const data = [...reader.iterate()];
   fileReader.close();
@@ -175,7 +175,7 @@ test('JSONReader - FileReader', async () => {
 });
 
 test('JSONReader - BufferReader', async () => {
-  const fileBuf = await Bun.file('tests/readers/fixtures/point-feature.geojson').arrayBuffer();
+  const fileBuf = await Bun.file(`${__dirname}/fixtures/point-feature.geojson`).arrayBuffer();
   const bufReader = new BufferReader(fileBuf);
   const reader = new JSONReader(bufReader);
   const data = [...reader.iterate()];
