@@ -58,8 +58,9 @@ export function extendBBox(bbox: BBOX | undefined, point: VectorPoint): BBOX {
  * @param b2 - the second bounding box
  * @returns - the merged bounding box
  */
-export function mergeBBoxes(b1: BBOX, b2: BBOX): BBOX {
+export function mergeBBoxes(b1: BBOX | undefined, b2: BBOX): BBOX {
   const { min, max } = Math;
+  if (b1 === undefined) b1 = [...b2];
   b1[0] = min(b1[0] ?? b2[0], b2[0]);
   b1[1] = min(b1[1] ?? b2[1], b2[1]);
   b1[2] = max(b1[2] ?? b2[2], b2[2]);

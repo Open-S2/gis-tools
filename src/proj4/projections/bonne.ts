@@ -45,7 +45,7 @@ const { abs, sin, cos, sqrt, atan2, tan } = Math;
  */
 export class BonneWerner extends ProjectionBase implements ProjectionTransform {
   name = 'Bonne (Werner lat_1=90)';
-  names = [this.name, 'bonne'];
+  static names = ['Bonne (Werner lat_1=90)', 'bonne_werner', 'bonne'];
   // BonneWernerProjection specific variables
   phi1 = 0;
   en: En = [0, 0, 0, 0, 0];
@@ -65,7 +65,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
     if (abs(this.phi1) < EPS10) {
       throw new Error('Invalid latitude');
     }
-    if (this.es) {
+    if (this.ep2 !== Infinity) {
       this.en = pjEnfn(this.es);
       this.m1 = pjMlfn(this.phi1, (this.am1 = sin(this.phi1)), (c = cos(this.phi1)), this.en);
       this.am1 = c / (sqrt(1 - this.es * this.am1 * this.am1) * this.am1);

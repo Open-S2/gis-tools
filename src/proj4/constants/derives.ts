@@ -12,7 +12,7 @@ export interface EccentricityParams {
   es?: number;
   e?: number;
   ep2?: number;
-  rA?: number;
+  rA?: boolean;
 }
 
 /**
@@ -62,15 +62,13 @@ export function deriveSphere(obj: SphereParams): void {
     obj.b = ellipse.b;
     obj.rf = ellipse.rf;
   }
-  if (obj.rf && obj.b === undefined) {
+  if (obj.rf && !obj.b) {
     obj.b = (1.0 - 1.0 / obj.rf) * obj.a;
-  } else {
-    obj.b = obj.a;
   }
-  if (obj.rf === undefined) {
+  if (obj.rf === undefined && obj.b) {
     obj.rf = (obj.a - obj.b) / obj.a;
   }
-  if (obj.rf === 0 || Math.abs(obj.a - obj.b) < EPSLN) {
+  if (obj.rf === 0 || (obj.b && Math.abs(obj.a - obj.b) < EPSLN)) {
     obj.sphere = true;
     obj.b = obj.a;
   }

@@ -7,7 +7,7 @@ export var SRS_WGS84_SEMIMAJOR = 6378137.0;  // only used in grid shift transfor
 export var SRS_WGS84_SEMIMINOR = 6356752.314;  // only used in grid shift transforms
 export var SRS_WGS84_ESQUARED = 0.0066943799901413165; // only used in grid shift transforms
 export var SEC_TO_RAD = 4.84813681109535993589914102357e-6;
-export var HALF_PI = Math.PI/2;
+export var HALF_PI = Math.PI / 2;
 // ellipoid pj_set_ell.c
 export var SIXTH = 0.1666666666666666667;
 /* 1/6 */

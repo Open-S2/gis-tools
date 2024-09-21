@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- pycsw 1.10.0 -->
+<csw:GetRecordByIdResponse xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:apiso="http://www.opengis.net/cat/csw/apiso/1.0" xmlns:gml="http://www.opengis.net/gml" xmlns:dif="http://gcmd.gsfc.nasa.gov/Aboutus/xml/dif/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:ogc="http://www.opengis.net/ogc" xmlns:fgdc="http://www.opengis.net/cat/csw/csdgm" xmlns:inspire_ds="http://inspire.ec.europa.eu/schemas/inspire_ds/1.0" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:os="http://a9.com/-/spec/opensearch/1.1/" xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:wrs="http://www.opengis.net/cat/wrs/1.0" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"><gmd:MD_Metadata xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://www.isotc211.org/2005/gmd/gmd.xsd">
+   <gmd:fileIdentifier>
+     <gco:CharacterString>84576d7e-139b-11e7-b551-0200c0a8050e</gco:CharacterString>
+   </gmd:fileIdentifier>
+   <gmd:language>
+     <gco:CharacterString>ita</gco:CharacterString>
+   </gmd:language>
+   <gmd:characterSet>
+     <gmd:MD_CharacterSetCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8">utf8</gmd:MD_CharacterSetCode>
+   </gmd:characterSet>
+   <gmd:hierarchyLevel>
+    <gmd:MD_ScopeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset">dataset</gmd:MD_ScopeCode>
+   </gmd:hierarchyLevel>
+   <gmd:contact>
+     <gmd:CI_ResponsibleParty>
+       <gmd:individualName gco:nilReason="missing">
+
+       </gmd:individualName>
+       <gmd:organisationName>
+          <gco:CharacterString>Servizio Osservatorio Agenti Fisici - ARPAV</gco:CharacterString>
+       </gmd:organisationName>
+       <gmd:positionName gco:nilReason="missing">
+
+       </gmd:positionName>
+       <gmd:contactInfo>
+         <gmd:CI_Contact>
+           <gmd:phone>
+             <gmd:CI_Telephone>
+               <gmd:voice gco:nilReason="missing">
+
+               </gmd:voice>
+               <gmd:facsimile gco:nilReason="missing">
+
+               </gmd:facsimile>
+             </gmd:CI_Telephone>
+           </gmd:phone>
+           <gmd:address>
+             <gmd:CI_Address>
+               <gmd:deliveryPoint gco:nilReason="missing">
+
+               </gmd:deliveryPoint>
+               <gmd:city gco:nilReason="missing">
+
+               </gmd:city>
+               <gmd:administrativeArea gco:nilReason="missing">
+
+               </gmd:administrativeArea>
+               <gmd:postalCode gco:nilReason="missing">
+
+               </gmd:postalCode>
+               <gmd:country gco:nilReason="missing">
+
+               </gmd:country>
+               <gmd:electronicMailAddress>
+                 <gco:CharacterString>soaf@arpa.veneto.it</gco:CharacterString>
+               </gmd:electronicMailAddress>
+             </gmd:CI_Address>
+           </gmd:address>
+
+         </gmd:CI_Contact>
+       </gmd:contactInfo>
+       <gmd:role>
+         <gmd:CI_RoleCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode>
+       </gmd:role>
+     </gmd:CI_ResponsibleParty>
+   </gmd:contact>
+   <gmd:dateStamp>
+     <gco:DateTime>2017-03-28T07:30:26Z</gco:DateTime>
+   </gmd:dateStamp>
+   <gmd:metadataStandardName>
+     <gco:CharacterString>ISO 19115:2003 - Geographic information - Metadata</gco:CharacterString>
+   </gmd:metadataStandardName>
+   <gmd:metadataStandardVersion>
+     <gco:CharacterString>ISO 19115:2003</gco:CharacterString>
+   </gmd:metadataStandardVersion>
+   <gmd:spatialRepresentationInfo/>
+   <gmd:referenceSystemInfo>
+     <gmd:MD_ReferenceSystem>
+       <gmd:referenceSystemIdentifier>
+         <gmd:RS_Identifier>
+           <gmd:code>
+             <gco:CharacterString>4326</gco:CharacterString>
+           </gmd:code>
+           <gmd:codeSpace>
+             <gco:CharacterString>EPSG</gco:CharacterString>
+           </gmd:codeSpace>
+           <gmd:version>
+             <gco:CharacterString>6.11</gco:CharacterString>
+           </gmd:version>
+         </gmd:RS_Identifier>
+       </gmd:referenceSystemIdentifier>
+     </gmd:MD_ReferenceSystem>
+   </gmd:referenceSystemInfo>
+   <gmd:identificationInfo>
+     <gmd:MD_DataIdentification>
+       <gmd:citation>
+         <gmd:CI_Citation>
+           <gmd:title>
+             <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID</gco:CharacterString>
+           </gmd:title>
+           <gmd:date>
+             <gmd:CI_Date>
+               <gmd:date>
+                 <gco:DateTime>2017-04-03T04:47:00Z</gco:DateTime>
+               </gmd:date>
+               <gmd:dateType>
+                 <gmd:CI_DateTypeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+               </gmd:dateType>
+             </gmd:CI_Date>
+           </gmd:date>
+           <gmd:edition gco:nilReason="missing">
+
+           </gmd:edition>
+           <gmd:presentationForm>
+             <gmd:CI_PresentationFormCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_PresentationFormCode" codeListValue="mapDigital">mapDigital</gmd:CI_PresentationFormCode>
+           </gmd:presentationForm>
+         </gmd:CI_Citation>
+       </gmd:citation>
+       <gmd:abstract>
+         <gco:CharacterString>Valori dell'Atlante Mondiale della brillanza del cielo, per l'area della regione veneto, in mcd/m&#178; (GRID).</gco:CharacterString>
+       </gmd:abstract>
+       <gmd:purpose>
+             <gco:CharacterString>I dati costituiscono una stima modellistica dei valori di brillanza del cielo notturno, utilizzabile in particolare per l'individuazione delle aree su cui effettuare i controlli in campo.</gco:CharacterString>
+       </gmd:purpose>
+       <gmd:status>
+         <gmd:MD_ProgressCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ProgressCode" codeListValue="completed">completed</gmd:MD_ProgressCode>
+       </gmd:status>
+
+       <gmd:graphicOverview>
+         <gmd:MD_BrowseGraphic>
+           <gmd:fileName>
+             <gco:CharacterString>http://geomap.arpa.veneto.it/uploaded/thumbs/layer-84576d7e-139b-11e7-b551-0200c0a8050e-thumb.png</gco:CharacterString>
+           </gmd:fileName>
+           <gmd:fileDescription>
+             <gco:CharacterString>Thumbnail for 'Veneto Atlas of artificial night sky brightness - GRID'</gco:CharacterString>
+           </gmd:fileDescription>
+           <gmd:fileType>
+             <gco:CharacterString>image/png</gco:CharacterString>
+           </gmd:fileType>
+         </gmd:MD_BrowseGraphic>
+       </gmd:graphicOverview>
+       <gmd:resourceFormat>
+         <gmd:MD_Format>
+           <gmd:name>
+
+             <gco:CharacterString>ESRI Shapefile</gco:CharacterString>
+
+           </gmd:name>
+           <gmd:version>
+             <gco:CharacterString>1.0</gco:CharacterString>
+           </gmd:version>
+         </gmd:MD_Format>
+       </gmd:resourceFormat>
+
+
+       <gmd:descriptiveKeywords>
+         <gmd:MD_Keywords>
+           <gmd:keyword>
+             <gco:CharacterString>Italy</gco:CharacterString>
+           </gmd:keyword>
+           <gmd:type>
+              <gmd:MD_KeywordTypeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_KeywordTypeCode" codeListValue="place">place</gmd:MD_KeywordTypeCode>
+            </gmd:type>
+         </gmd:MD_Keywords>
+       </gmd:descriptiveKeywords>
+
+
+
+       <gmd:resourceConstraints>
+         <gmd:MD_LegalConstraints>
+           <gmd:useConstraints>
+             <gmd:MD_RestrictionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="license">license</gmd:MD_RestrictionCode>
+           </gmd:useConstraints>
+           <gmd:otherConstraints>
+             <gco:CharacterString>Creative Commons Attribution-NonCommercial (CC BY-NC 4.0): Creative Commons Attribution-NonCommercial 4.0 International (https://creativecommons.org/licenses/by-nc/4.0/)</gco:CharacterString>
+           </gmd:otherConstraints>
+         </gmd:MD_LegalConstraints>
+       </gmd:resourceConstraints>
+
+       <gmd:resourceConstraints>
+         <gmd:MD_LegalConstraints>
+           <gmd:useConstraints>
+              <gmd:MD_RestrictionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue=""/>
+           </gmd:useConstraints>
+           <gmd:otherConstraints>
+             <gco:CharacterString/>
+           </gmd:otherConstraints>
+         </gmd:MD_LegalConstraints>
+       </gmd:resourceConstraints>
+       <gmd:spatialRepresentationType>
+         <gmd:MD_SpatialRepresentationTypeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_SpatialRepresentationTypeCode" codeListValue="grid">grid</gmd:MD_SpatialRepresentationTypeCode>
+       </gmd:spatialRepresentationType>
+       <gmd:language>
+         <gco:CharacterString>ita</gco:CharacterString>
+       </gmd:language>
+       <gmd:characterSet>
+         <gmd:MD_CharacterSetCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8">utf8</gmd:MD_CharacterSetCode>
+       </gmd:characterSet>
+       <gmd:topicCategory>
+
+         <gmd:MD_TopicCategoryCode>agentifisici</gmd:MD_TopicCategoryCode>
+
+       </gmd:topicCategory>
+       <gmd:extent>
+         <gmd:EX_Extent>
+           <gmd:geographicElement>
+             <gmd:EX_GeographicBoundingBox>
+               <gmd:westBoundLongitude>
+                 <gco:Decimal>10.2822923743907</gco:Decimal>
+               </gmd:westBoundLongitude>
+               <gmd:eastBoundLongitude>
+                 <gco:Decimal>13.3486486092171</gco:Decimal>
+               </gmd:eastBoundLongitude>
+               <gmd:southBoundLatitude>
+                 <gco:Decimal>44.418521542726054</gco:Decimal>
+               </gmd:southBoundLatitude>
+               <gmd:northBoundLatitude>
+                 <gco:Decimal>47.15260827566466</gco:Decimal>
+               </gmd:northBoundLatitude>
+             </gmd:EX_GeographicBoundingBox>
+           </gmd:geographicElement>
+         </gmd:EX_Extent>
+       </gmd:extent>
+
+       <gmd:supplementalInformation>
+         <gco:CharacterString>http://advances.sciencemag.org/content/2/6/e1600377 </gco:CharacterString>
+       </gmd:supplementalInformation>
+     </gmd:MD_DataIdentification>
+   </gmd:identificationInfo>
+   <gmd:distributionInfo>
+     <gmd:MD_Distribution>
+       <gmd:transferOptions>
+         <gmd:MD_DigitalTransferOptions>
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                   <gmd:URL>http://geomap.arpa.veneto.it/layers/geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:description>
+                 <gco:CharacterString>Online link to the 'Veneto Atlas of artificial night sky brightness - GRID' description on GeoNode</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms?layers=geonode%3Aatlanteil&amp;width=616&amp;bbox=10.2822923743907%2C44.418521542726054%2C13.3486486092171%2C47.15260827566466&amp;service=WMS&amp;format=image%2Fjpeg&amp;srs=EPSG%3A4326&amp;request=GetMap&amp;height=550</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.jpg</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (JPEG Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms?layers=geonode%3Aatlanteil&amp;width=616&amp;bbox=10.2822923743907%2C44.418521542726054%2C13.3486486092171%2C47.15260827566466&amp;service=WMS&amp;format=application%2Fpdf&amp;srs=EPSG%3A4326&amp;request=GetMap&amp;height=550</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.pdf</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (PDF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms?layers=geonode%3Aatlanteil&amp;width=616&amp;bbox=10.2822923743907%2C44.418521542726054%2C13.3486486092171%2C47.15260827566466&amp;service=WMS&amp;format=image%2Fpng&amp;srs=EPSG%3A4326&amp;request=GetMap&amp;height=550</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.png</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (PNG Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms/kml?layers=geonode%3Aatlanteil&amp;mode=download</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.kml</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (KML Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms/kml?layers=geonode%3Aatlanteil&amp;mode=refresh</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.kml</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (View in Google Earth Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/gwc/service/gmaps?layers=geonode:atlanteil&amp;zoom={z}&amp;x={x}&amp;y={y}&amp;format=image/png8</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.tiles</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Tiles Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms/reflect?layers=geonode:atlanteil&amp;width=200&amp;height=150&amp;format=image/png8</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.png</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Remote Thumbnail Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/uploaded/thumbs/layer-84576d7e-139b-11e7-b551-0200c0a8050e-thumb.png</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.png</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Thumbnail Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wms?request=GetLegendGraphic&amp;format=image/png&amp;WIDTH=20&amp;HEIGHT=20&amp;LAYER=geonode:atlanteil&amp;legend_options=fontAntiAliasing:true;fontSize:12;forceLabels:on</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.png</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Legend Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=ArcGrid&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.956291513405647%2C13.674649470202153%2C44.39118067539667%2C47.17994914299405&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.ArcGrid</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (ArcGrid Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.956291513405647%2C13.674649470202153%2C44.39118067539667%2C47.17994914299405&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoPackage+%28mosaic%29&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.956291513405647%2C13.674649470202153%2C44.39118067539667%2C47.17994914299405&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoPackage (mosaic)</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoPackage (mosaic) Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=Gtopo30&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.956291513405647%2C13.674649470202153%2C44.39118067539667%2C47.17994914299405&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.Gtopo30</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Gtopo30 Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=ImageMosaic&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.956291513405647%2C13.674649470202153%2C44.39118067539667%2C47.17994914299405&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.ImageMosaic</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (ImageMosaic Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=ArcGrid&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.919107933837681%2C13.711833049770119%2C44.363292990720694%2C47.20783682767002&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.ArcGrid</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (ArcGrid Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.919107933837681%2C13.711833049770119%2C44.363292990720694%2C47.20783682767002&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoPackage+%28mosaic%29&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.919107933837681%2C13.711833049770119%2C44.363292990720694%2C47.20783682767002&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoPackage (mosaic)</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoPackage (mosaic) Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=Gtopo30&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.919107933837681%2C13.711833049770119%2C44.363292990720694%2C47.20783682767002&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.Gtopo30</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (Gtopo30 Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=ImageMosaic&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.919107933837681%2C13.711833049770119%2C44.363292990720694%2C47.20783682767002&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.ImageMosaic</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (ImageMosaic Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=10.2822923743907%2C13.3486486092171%2C44.418521542726054%2C47.15260827566466&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.881180682678357%2C13.749760300929443%2C44.3348475523512%2C47.23628226603952&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.842494886495844%2C13.788446097111956%2C44.30583320521431%2C47.2652966131764&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.80303537438968%2C13.82790560921812%2C44.27623857113469%2C47.294891247256025&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.762786672041393%2C13.868154311566407%2C44.24605204437348%2C47.32507777401724&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.721732995646143%2C13.909207987961658%2C44.21526178707704%2C47.355868031313676&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/wcs?crs=EPSG%3A4326&amp;service=WCS&amp;format=GeoTIFF&amp;request=GetCoverage&amp;height=329&amp;width=368&amp;version=1.0.0&amp;BBox=9.679858245722988%2C13.951082737884812%2C44.183855724634675%2C47.38727409375604&amp;Coverage=geonode%3Aatlanteil</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>atlanteil.GeoTIFF</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>Veneto Atlas of artificial night sky brightness - GRID (GeoTIFF Format)</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/geonode/wms</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>OGC:WMS</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>OGC:WMS geonode Service - Provides Layer: Veneto Atlas of artificial night sky brightness - GRID</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>OGC WMS: geonode Service Root Endpoint.  This service contains the Veneto Atlas of artificial night sky brightness - GRID layer.</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+           <gmd:onLine>
+             <gmd:CI_OnlineResource>
+               <gmd:linkage>
+                 <gmd:URL>http://geomap.arpa.veneto.it/geoserver/geonode/wcs</gmd:URL>
+               </gmd:linkage>
+               <gmd:protocol>
+                 <gco:CharacterString>OGC:WCS</gco:CharacterString>
+               </gmd:protocol>
+               <gmd:name>
+                 <gco:CharacterString>OGC:WCS geonode Service - Provides Layer: Veneto Atlas of artificial night sky brightness - GRID</gco:CharacterString>
+               </gmd:name>
+               <gmd:description>
+                 <gco:CharacterString>OGC WCS: geonode Service Root Endpoint.  This service contains the Veneto Atlas of artificial night sky brightness - GRID layer.</gco:CharacterString>
+               </gmd:description>
+             </gmd:CI_OnlineResource>
+           </gmd:onLine>
+
+         </gmd:MD_DigitalTransferOptions>
+       </gmd:transferOptions>
+     </gmd:MD_Distribution>
+   </gmd:distributionInfo>
+   <gmd:dataQualityInfo>
+     <gmd:DQ_DataQuality>
+       <gmd:scope>
+         <gmd:DQ_Scope>
+           <gmd:level>
+             <gmd:MD_ScopeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset">dataset</gmd:MD_ScopeCode>
+           </gmd:level>
+         </gmd:DQ_Scope>
+       </gmd:scope>
+       <gmd:lineage>
+         <gmd:LI_Lineage>
+           <gmd:statement><gco:CharacterString>I dati utilizzati per l'elaborazione provengono dal Falchi et al: "The new world atlas of artificial night sky brightness" (2016)</gco:CharacterString></gmd:statement>
+         </gmd:LI_Lineage>
+       </gmd:lineage>
+     </gmd:DQ_DataQuality>
+   </gmd:dataQualityInfo>
+ </gmd:MD_Metadata></csw:GetRecordByIdResponse>

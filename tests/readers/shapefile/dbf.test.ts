@@ -1,7 +1,7 @@
 import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
-import FileReader from '../../../src/readers/fileReader';
-import MMapReader from '../../../src/readers/mmapReader';
+import FileReader from '../../../src/readers/file';
+import MMapReader from '../../../src/readers/mmap';
 import { expect, test } from 'bun:test';
 
 test('empty dbf', async () => {

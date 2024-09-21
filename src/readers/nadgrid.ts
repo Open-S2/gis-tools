@@ -165,17 +165,22 @@ export class NadGrid {
         geometry: {
           type: 'MultiPoint',
           is3D: false,
+          // CVS => lonLat coords
           coordinates: nodes.map(({ longitudeShift, latitudeShift }) => {
             return { x: secondsToDegrees(longitudeShift), y: secondsToDegrees(latitudeShift) };
           }),
         },
         metadata: {
+          // ll => lowerLonLat
           lowerLonLat: {
             x: secondsToDegrees(subHeader.lowerLongitude),
             y: secondsToDegrees(subHeader.lowerLatitude),
           },
+          // del => lonLatInterval
           lonLatInterval: { x: subHeader.longitudeInterval, y: subHeader.latitudeInterval },
+          // lim => lonLatColumnCount
           lonLatColumnCount: { x: lonColumnCount, y: latColumnCount },
+          // count => count
           count: subHeader.gridNodeCount,
         },
       };

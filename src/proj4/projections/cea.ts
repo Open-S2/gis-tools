@@ -60,9 +60,9 @@ const { sin, cos, asin } = Math;
  */
 export class CylindricalEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Equal_Area_Cylindrical';
-  names = [this.name, 'cea'];
+  static names = ['Equal_Area_Cylindrical', 'cea'];
   // Equal Area Cylindrical specific variables
-  declare k0: number;
+  declare latTs: number;
 
   /**
    * Preps an Equal Area Cylindrical projection
@@ -70,7 +70,8 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
    */
   constructor(params?: ProjectionParams) {
     super(params);
-    if (this.sphere === undefined) {
+    if (this.latTs === undefined) this.latTs = 0;
+    if (!this.sphere) {
       this.k0 = msfnz(this.e, sin(this.latTs), cos(this.latTs));
     }
   }
@@ -78,9 +79,8 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
   /**
    * Equal Area Cylindrical forward equations--mapping lon-lat to x-y
    * @param p - lon-lat WGS84 point
-   * @returns - Equal Area Cylindrical point
    */
-  forward(p: VectorPoint): VectorPoint {
+  forward(p: VectorPoint): void {
     const lon = p.x;
     const lat = p.y;
     let x, y;
@@ -98,15 +98,13 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
 
     p.x = x;
     p.y = y;
-    return p;
   }
 
   /**
    * Equal Area Cylindrical inverse equations--mapping x-y to lon-lat
    * @param p - Equal Area Cylindrical point
-   * @returns - lon-lat WGS84 point
    */
-  inverse(p: VectorPoint): VectorPoint {
+  inverse(p: VectorPoint): void {
     p.x -= this.x0;
     p.y -= this.y0;
     let lon, lat;
@@ -121,6 +119,5 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
 
     p.x = lon;
     p.y = lat;
-    return p;
   }
 }

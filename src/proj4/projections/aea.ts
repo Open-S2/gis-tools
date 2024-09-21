@@ -47,7 +47,7 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, log } = Math;
  */
 export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Albers_Conic_Equal_Area';
-  names = [this.name, 'Albers', 'aea'];
+  static names = ['Albers_Conic_Equal_Area', 'Albers', 'aea'];
   // AlbersConicEqualArea specific variables
   ns0 = 0;
   temp = 0;
@@ -109,9 +109,8 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
   /**
    * Albers Conical Equal Area forward equations--mapping lon-lat to x-y
    * @param p - lon-lat WGS84 point
-   * @returns - an Albers Conic Equal Area point
    */
-  forward(p: VectorPoint): VectorPoint {
+  forward(p: VectorPoint): void {
     const lon = p.x;
     const lat = p.y;
 
@@ -125,15 +124,13 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
 
     p.x = x;
     p.y = y;
-    return p;
   }
 
   /**
    * Albers Conical Equal Area inverse equations--mapping x-y to lon-lat
    * @param p - Albers Conic Equal Area point
-   * @returns - lon-lat WGS84 point
    */
-  inverse(p: VectorPoint): VectorPoint {
+  inverse(p: VectorPoint): void {
     let rh1, qs, con, theta;
     let lat = 0;
 
@@ -160,7 +157,6 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
 
     p.x = adjustLon(theta / this.ns0 + this.long0);
     p.y = lat;
-    return p;
   }
 }
 

@@ -1,4 +1,4 @@
-import MMapReader from '../../src/readers/mmapReader';
+import MMapReader from '../../src/readers/mmap';
 import { expect, test } from 'bun:test';
 
 test('MMapReader', () => {

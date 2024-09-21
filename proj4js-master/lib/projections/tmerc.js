@@ -66,6 +66,7 @@ export function forward(p) {
     }
   }
   else {
+    console.log('ELSE', this.en, this.a, this.x0, this.k0, this.ep2, this.es, this.ml0, this.y0);
     var al = cos_phi * delta_lon;
     var als = Math.pow(al, 2);
     var c = this.ep2 * Math.pow(cos_phi, 2);

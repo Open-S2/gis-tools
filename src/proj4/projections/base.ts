@@ -1,12 +1,15 @@
-import { D2R, FT_TO_M, R2D } from '../constants';
+import { D2R, PJD_NODATUM, R2D } from '../constants';
 
+import type { DatumParams } from 's2-tools/readers/wkt';
 import type { ProjectionTransform } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
 
 /** Define the projection with all it's variable components */
 export interface ProjectionParams {
   name?: string;
-  datum?: string;
+  PROJECTION?: string;
+  datumCode?: string;
+  datumType?: number;
   srsCode?: string;
   long0?: number;
   long1?: number;
@@ -25,16 +28,20 @@ export interface ProjectionParams {
   k?: number;
   k0?: number;
   rf?: number;
-  rA?: number;
   rc?: number;
   es?: number;
   ep2?: number;
   alpha?: number;
   gamma?: number;
   zone?: number;
+  h?: number;
+  azi?: number;
+  tilt?: number;
+  sweep?: 'x' | 'y';
   rectifiedGridAngle?: number;
   utmSouth?: boolean;
-  datumParams?: number[];
+  datumParams?: DatumParams;
+  scaleFactor?: number;
   toMeter?: number;
   units?: string;
   fromGreenwich?: number;
@@ -44,13 +51,20 @@ export interface ProjectionParams {
   sphere?: boolean;
   ellps?: string;
   noDefs?: boolean;
+  noOff?: boolean;
+  noRot?: boolean;
+  rA?: boolean;
+  projName?: string;
 }
 
 /** Base class for all projections */
 export class ProjectionBase implements ProjectionTransform {
-  name: string = '';
+  name = 'longlat';
+  projName?: string;
   static names: string[] = ['longlat', 'identity'];
-  datum = 'none';
+  datumCode = 'none';
+  datumType = PJD_NODATUM;
+  datumParams: DatumParams = [0, 0, 0, 0, 0, 0, 0];
   srsCode = '';
   // these are all variables must have a default value across all projections
   lon0 = 0;
@@ -58,31 +72,28 @@ export class ProjectionBase implements ProjectionTransform {
   lon2 = 0;
   long0 = 0;
   long1 = 0;
-  longc = 0;
   lat0 = 0;
   lat1 = 0;
   lat2 = 0;
-  latTs = 0;
+  latTs?: number;
   a = 0;
   b = 0;
   e = 0;
-  R = 0;
   x0 = 0;
   y0 = 0;
   k?: number;
-  k0?: number;
+  k0 = 1;
   rf = 0;
-  rA = 0;
+  rA = false;
   rc?: number;
   es = 0;
   ep2 = 0;
   alpha?: number;
   gamma?: number;
-  zone = 0;
-  rectifiedGridAngle = 0;
+  zone?: number;
+  rectifiedGridAngle?: number;
   utmSouth = false;
-  datumParams: number[] = [];
-  toMeter = FT_TO_M;
+  toMeter?: number;
   units = 'ft';
   fromGreenwich = 0;
   approx = false;
@@ -93,33 +104,24 @@ export class ProjectionBase implements ProjectionTransform {
 
   /** @param params - projection specific parameters */
   constructor(params?: ProjectionParams) {
-    params = params ?? ({} as ProjectionParams);
     Object.assign(this, params ?? {});
-
-    // var nadgrids = getNadgrids(json.nadgrids);
-    // var datumObj = json.datum || datum(json.datumCode, json.datum_params, sphere_.a, sphere_.b, ecc.es, ecc.ep2,
-    //   nadgrids);
-    // // add in the datum object
-    // this.datum = datumObj;
   }
 
   /**
    * Forward projection from x-y to lon-lat. In this case, radians to degrees
    * @param p - Vector Point. This is a placeholder for a lon-lat WGS84 point
-   * @returns - the point itself
    */
-  forward(p: VectorPoint): VectorPoint {
-    const { x, y, z, m } = p;
-    return { x: x * R2D, y: y * R2D, z, m };
+  forward(p: VectorPoint): void {
+    p.x *= R2D;
+    p.y *= R2D;
   }
 
   /**
    * Inverse projection from lon-lat to x-y. In this case, degrees to radians
    * @param p - Vector Point. This is a placeholder for a lon-lat WGS84 point
-   * @returns - the point itself
    */
-  inverse(p: VectorPoint): VectorPoint {
-    const { x, y, z, m } = p;
-    return { x: x * D2R, y: y * D2R, z, m };
+  inverse(p: VectorPoint): void {
+    p.x *= D2R;
+    p.y *= D2R;
   }
 }

@@ -80,14 +80,14 @@ export class HeaderBlock {
    * @param pbf
    */
   readLayer(tag: number, header: HeaderBlock, pbf: Protobuf): void {
-    if (tag == 1) header.bbox = pbf.readMessage(header.bbox.readLayer, header.bbox);
-    else if (tag == 4) header.required_features.push(pbf.readString());
-    else if (tag == 5) header.optional_features.push(pbf.readString());
-    else if (tag == 16) header.writingprogram = pbf.readString();
-    else if (tag == 17) header.source = pbf.readString();
-    else if (tag == 32) header.osmosis_replication_timestamp = pbf.readVarint();
-    else if (tag == 33) header.osmosis_replication_sequence_number = pbf.readVarint();
-    else if (tag == 34) header.osmosis_replication_base_url = pbf.readString();
+    if (tag === 1) header.bbox = pbf.readMessage(header.bbox.readLayer, header.bbox);
+    else if (tag === 4) header.required_features.push(pbf.readString());
+    else if (tag === 5) header.optional_features.push(pbf.readString());
+    else if (tag === 16) header.writingprogram = pbf.readString();
+    else if (tag === 17) header.source = pbf.readString();
+    else if (tag === 32) header.osmosis_replication_timestamp = pbf.readVarint();
+    else if (tag === 33) header.osmosis_replication_sequence_number = pbf.readVarint();
+    else if (tag === 34) header.osmosis_replication_base_url = pbf.readString();
     else throw new Error('unknown tag ' + tag);
   }
 }
@@ -109,10 +109,10 @@ export class HeaderBBox {
    * @param pbf
    */
   readLayer(tag: number, bbox: HeaderBBox, pbf: Protobuf): void {
-    if (tag == 1) bbox.left = pbf.readVarint();
-    else if (tag == 2) bbox.right = pbf.readVarint();
-    else if (tag == 3) bbox.top = pbf.readVarint();
-    else if (tag == 4) bbox.bottom = pbf.readVarint();
+    if (tag === 1) bbox.left = pbf.readVarint();
+    else if (tag === 2) bbox.right = pbf.readVarint();
+    else if (tag === 3) bbox.top = pbf.readVarint();
+    else if (tag === 4) bbox.bottom = pbf.readVarint();
     else throw new Error('unknown tag ' + tag);
   }
 

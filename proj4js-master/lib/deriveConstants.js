@@ -22,7 +22,6 @@ export function eccentricity(a, b, rf, R_A) {
   };
 }
 export function sphere(a, b, rf, ellps, sphere) {
-  console.log('SPHERE INPUT', a, b, rf, ellps, sphere)
   if (!a) { // do we have an ellipsoid?
     var ellipse = match(Ellipsoid, ellps);
     if (!ellipse) {

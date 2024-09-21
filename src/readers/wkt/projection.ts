@@ -1,6 +1,7 @@
 import { degToRad } from '../../geometry';
 import { parseWKTObject } from '.';
 
+import type { ProjectionParams } from 's2-tools/proj4';
 import type { WKTObject, WKTValue } from '.';
 
 /**
@@ -69,7 +70,7 @@ export type DatumParams = [number, number, number, number, number, number, numbe
 /**
  *
  */
-export interface WKTCRS {
+export interface WKTCRS extends ProjectionParams {
   type?: string;
   name?: string;
   local?: boolean;
@@ -80,6 +81,7 @@ export interface WKTCRS {
   PROJCS?: Omit<WKTCRS, 'srsCode'>;
   VERT_CS?: VertCS;
   PROJECTION?: string;
+  rectified_grid_angle?: number;
   standard_parallel_1?: number;
   standard_parallel_2?: number;
   latitude_of_origin?: number;
@@ -90,11 +92,11 @@ export interface WKTCRS {
   false_northing?: number;
   AUTHORITY?: Authority;
   AXIS?: [string, string][];
-  projName?: string;
   units?: string;
   to_meter?: number;
   datumCode?: string;
   ellps?: string;
+  from_greenwich?: number;
   a?: number;
   b?: number;
   rf?: number;
@@ -102,6 +104,7 @@ export interface WKTCRS {
   y0?: number;
   k0?: number;
   lat_ts?: number;
+  latTS?: number;
   longc?: number;
   long0?: number;
   lat0?: number;
@@ -421,6 +424,8 @@ function updateProj(wkt: WKTCRS): void {
   remap(wkt, 'standard_parallel_1', 'Latitude of 1st standard parallel' as keyof WKTCRS);
   remap(wkt, 'standard_parallel_2', 'Standard_Parallel_2' as keyof WKTCRS);
   remap(wkt, 'standard_parallel_2', 'Latitude of 2nd standard parallel' as keyof WKTCRS);
+  remap(wkt, 'rectified_grid_angle', 'Rectified_Grid_Angle' as keyof WKTCRS);
+  remap(wkt, 'rectifiedGridAngle', 'rectified_grid_angle' as keyof WKTCRS);
   remap(wkt, 'false_easting', 'False_Easting' as keyof WKTCRS);
   remap(wkt, 'false_easting', 'easting' as keyof WKTCRS);
   remap(wkt, 'false_easting', 'Easting at false origin' as keyof WKTCRS);
@@ -435,7 +440,6 @@ function updateProj(wkt: WKTCRS): void {
   remap(wkt, 'latitude_of_origin', 'Latitude of natural origin' as keyof WKTCRS);
   remap(wkt, 'latitude_of_origin', 'Latitude of false origin' as keyof WKTCRS);
   remap(wkt, 'scale_factor', 'Scale_Factor' as keyof WKTCRS);
-  remap(wkt, 'k0', 'scale_factor');
   remap(wkt, 'latitude_of_center', 'Latitude_Of_Center' as keyof WKTCRS);
   remap(wkt, 'latitude_of_center', 'Latitude_of_center' as keyof WKTCRS);
   remap(wkt, 'lat0', 'latitude_of_center', degToRad);
@@ -451,6 +455,14 @@ function updateProj(wkt: WKTCRS): void {
   remap(wkt, 'lat2', 'standard_parallel_2', degToRad);
   remap(wkt, 'azimuth', 'Azimuth' as keyof WKTCRS);
   remap(wkt, 'alpha', 'azimuth', degToRad);
+  // uppercase all
+  remap(wkt, 'toMeter', 'to_meter');
+  remap(wkt, 'fromGreenwich', 'from_greenwich');
+  // latTS, datumParams, and scaleFactor
+  remap(wkt, 'latTs', 'lat_ts', degToRad);
+  remap(wkt, 'datumParams', 'datum_params');
+  remap(wkt, 'scaleFactor', 'scale_factor');
+  remap(wkt, 'k0', 'scaleFactor');
   // update long0 if applicable
   if (
     wkt.long0 === undefined &&
@@ -466,9 +478,9 @@ function updateProj(wkt: WKTCRS): void {
     ['Stereographic_South_Pole', 'Polar Stereographic (variant B)'].includes(wkt.projName ?? '')
   ) {
     wkt.lat0 = degToRad(wkt.lat1 > 0 ? 90 : -90);
-    wkt.lat_ts = wkt.lat1;
+    wkt.lat_ts = wkt.latTs = wkt.lat1;
   } else if (!wkt.lat_ts && wkt.lat0 && wkt.projName === 'Polar_Stereographic') {
-    wkt.lat_ts = wkt.lat0;
+    wkt.lat_ts = wkt.latTs = wkt.lat0;
     wkt.lat0 = degToRad(wkt.lat0 > 0 ? 90 : -90);
   }
 }

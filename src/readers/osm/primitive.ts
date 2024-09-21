@@ -157,7 +157,7 @@ export class StringTable {
    * @param pbf
    */
   #readLayer(tag: number, st: StringTable, pbf: Protobuf): void {
-    if (tag == 1) st.strings.push(pbf.readString());
+    if (tag === 1) st.strings.push(pbf.readString());
     else throw new Error(`unknown tag ${tag}`);
   }
 }
@@ -179,7 +179,7 @@ export class ChangeSet {
    * @param pbf
    */
   #readLayer(tag: number, cs: ChangeSet, pbf: Protobuf): void {
-    if (tag == 1) cs.id = pbf.readVarint();
+    if (tag === 1) cs.id = pbf.readVarint();
     else throw new Error(`unknown tag ${tag}`);
   }
 }

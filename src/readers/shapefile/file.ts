@@ -1,9 +1,11 @@
 import DataBaseFile from './dbf';
-import FileReader from '../fileReader';
+import FileReader from '../file';
 import Shapefile from './shp';
 import { Transformer } from 's2-tools/proj4';
 import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
+
+import type { ProjectionTransformDefinition } from 's2-tools/proj4';
 
 export * from './dbf';
 export * from './shp';
@@ -30,9 +32,13 @@ export interface Definition {
  * Assumes the input is pointing to a shapefile or name without the extension.
  * The algorithm will find the rest of the paths if they exist.
  * @param input - the path to the .shp file or name without the extension
+ * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @returns - a Shapefile
  */
-export async function fromPath(input: string): Promise<Shapefile> {
+export async function fromPath(
+  input: string,
+  defs?: ProjectionTransformDefinition[],
+): Promise<Shapefile> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
     return fromGzip(gzipData.buffer);
@@ -49,20 +55,28 @@ export async function fromPath(input: string): Promise<Shapefile> {
     prj: (await exists(prj)) ? prj : undefined,
     cpg: (await exists(cpg)) ? cpg : undefined,
   };
-  return fromDefinition(definition);
+  return fromDefinition(definition, defs);
 }
 
 /**
  * Build a Shapefile from a Definition
  * @param def - a description of the data to parse
+ * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @returns - a Shapefile
  */
-export async function fromDefinition(def: Definition): Promise<Shapefile> {
+export async function fromDefinition(
+  def: Definition,
+  defs?: ProjectionTransformDefinition[],
+): Promise<Shapefile> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
   const transform = prj ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
   const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
+
+  if (transform && defs) {
+    for (const def of defs) transform.insertDefinition(def);
+  }
 
   return new Shapefile(new FileReader(shp), databaseFile, transform);
 }

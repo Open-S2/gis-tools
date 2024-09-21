@@ -5,7 +5,7 @@ import tsfnz from '../common/tsfnz';
 import phi2z from '../common/phi2z';
 import {FORTPI, R2D, EPSLN, HALF_PI} from '../constants/values';
 export function init() {
-  console.log('INIIIIIIIIIIIIIIIIT', this)
+  // console.log('INIIIIIIIIIIIIIIIIT', this)
   var con = this.b / this.a;
   this.es = 1 - con * con;
   if(!('x0' in this)){
@@ -46,8 +46,6 @@ export function forward(p) {
     return null;
   }
 
-  console.log('FIIIIIIIIIIIIIIIIIRST 2', x, y, this);
-
   var x, y;
   if (Math.abs(Math.abs(lat) - HALF_PI) <= EPSLN) {
     return null;
@@ -76,8 +74,6 @@ export function inverse(p) {
   var x = p.x - this.x0;
   var y = p.y - this.y0;
   var lon, lat;
-
-  console.log('FIIIIIIIIIIIIIIIIIRST', x, y, this);
 
   if (this.sphere) {
     lat = HALF_PI - 2 * Math.atan(Math.exp(-y / (this.a * this.k0)));

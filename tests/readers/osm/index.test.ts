@@ -1,4 +1,4 @@
-import FileReader from '../../../src/readers/fileReader';
+import FileReader from '../../../src/readers/file';
 import { OSMReader } from '../../../src/readers/osm';
 import { expect, test } from 'bun:test';
 
@@ -17,7 +17,7 @@ test('parse basic case', async () => {
     source: undefined,
     writingprogram: undefined,
   });
-  const features = await Array.fromAsync(reader.iterate());
+  const features = await Array.fromAsync(reader);
 
   expect(features.length).toBe(8);
   expect(features).toEqual([

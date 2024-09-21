@@ -28,6 +28,7 @@ import tpers from './projections/tpers';
 import geos from './projections/geos';
 import eqearth from "./projections/eqearth";
 import bonne from "./projections/bonne";
+import gstmerc from "./projections/gstmerc";
 
 var projs = [
   tmerc,
@@ -59,7 +60,8 @@ var projs = [
   tpers,
   geos,
   eqearth,
-  bonne
+  bonne,
+  gstmerc
 ];
 
 export default function (proj4) {

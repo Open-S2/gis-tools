@@ -100,13 +100,18 @@ export interface S2Feature<
 export type Attributions = Record<string, string>;
 
 /** Either an S2 or WG FeatureCollection */
-export type FeatureCollections = FeatureCollection | S2FeatureCollection;
+export type FeatureCollections<M = Record<string, unknown>> =
+  | FeatureCollection<M>
+  | S2FeatureCollection<M>;
 
 /** Either an S2 or WG Feature */
-export type Features = Feature | VectorFeature | S2Feature;
+export type Features<M = Record<string, unknown>> = Feature<M> | VectorFeature<M> | S2Feature<M>;
 
 /** Any Vector Geometry type */
-export type VectorFeatures = VectorFeature | S2Feature;
+export type VectorFeatures<M = Record<string, unknown>> = VectorFeature<M> | S2Feature<M>;
 
 /** All major S2JSON types */
-export type JSONCollection = FeatureCollection | S2FeatureCollection | Features;
+export type JSONCollection<M = Record<string, unknown>> =
+  | FeatureCollection<M>
+  | S2FeatureCollection<M>
+  | Features<M>;

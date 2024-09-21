@@ -91,7 +91,12 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  */
 export class EquidistantCylindrical extends ProjectionBase implements ProjectionTransform {
   name = 'Equidistant Cylindrical (Plate Carre)';
-  names = [this.name, 'Equirectangular', 'Equidistant_Cylindrical', 'eqc'];
+  static names = [
+    'Equidistant Cylindrical (Plate Carre)',
+    'Equirectangular',
+    'Equidistant_Cylindrical',
+    'eqc',
+  ];
   // EquidistantCylindricalProjection specific variables
   rc: number;
 
@@ -114,27 +119,22 @@ export class EquidistantCylindrical extends ProjectionBase implements Projection
   /**
    * EquidistantCylindricalProjection forward equations--mapping lon-lat to x-y
    * @param p - lon-lat WGS84 point
-   * @returns - EquidistantCylindricalProjection point
    */
-  forward(p: VectorPoint): VectorPoint {
+  forward(p: VectorPoint): void {
     const { x: lon, y: lat } = p;
     const dlon = adjustLon(lon - this.long0);
     const dlat = adjustLat(lat - this.lat0);
     p.x = this.x0 + this.a * dlon * this.rc;
     p.y = this.y0 + this.a * dlat;
-
-    return p;
   }
 
   /**
    * EquidistantCylindricalProjection inverse equations--mapping x-y to lon-lat
    * @param p - EquidistantCylindricalProjection point
-   * @returns - lon-lat WGS84 point
    */
-  inverse(p: VectorPoint): VectorPoint {
+  inverse(p: VectorPoint): void {
     const { x, y } = p;
     p.x = adjustLon(this.long0 + (x - this.x0) / (this.a * this.rc));
     p.y = adjustLat(this.lat0 + (y - this.y0) / this.a);
-    return p;
   }
 }

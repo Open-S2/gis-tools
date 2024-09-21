@@ -1,5 +1,6 @@
 import { adjustLon } from './common';
 import {
+  DATUMS,
   HALF_PI,
   PJD_3PARAM,
   PJD_7PARAM,
@@ -13,85 +14,86 @@ import {
   SRS_WGS84_SEMIMINOR,
 } from './constants';
 
+import type { DatumParams } from 's2-tools/readers/wkt';
 import type { VectorPoint } from 's2-tools/geometry';
+import type { ProjectionParams, ProjectionTransform } from '.';
+
+const { abs, sin, cos, sqrt, atan2, atan, PI, floor } = Math;
 
 /**
- * @param datumCode
- * @param datum_params
- * @param a
- * @param b
- * @param es
- * @param ep2
- * @param nadgrids
+ * @param params - projection specific parameters to be adjusted
+ * @param nadgrids - nad grid data if applicable
  */
-export function buildDatum(datumCode, datum_params, a, b, es, ep2, nadgrids) {
-  const out = {};
-
-  if (datumCode === undefined || datumCode === 'none') {
-    out.datum_type = PJD_NODATUM;
+export function buildDatum(params: ProjectionParams): void {
+  if (params.datumCode === undefined || params.datumCode === 'none') {
+    params.datumType = PJD_NODATUM;
   } else {
-    out.datum_type = PJD_WGS84;
+    params.datumType = PJD_WGS84;
   }
 
-  if (datum_params) {
-    out.datum_params = datum_params.map(parseFloat);
-    if (out.datum_params[0] !== 0 || out.datum_params[1] !== 0 || out.datum_params[2] !== 0) {
-      out.datum_type = PJD_3PARAM;
+  // TODO: If datumParams is undefined, check against datum constants using datumCode
+  if (params.datumParams === undefined) {
+    const datum = DATUMS[params.datumCode?.toLowerCase() ?? ''];
+    if (datum !== undefined) {
+      // @ts-expect-error - this will be fixed in the next line
+      params.datumParams = datum.datumParams;
+      params.ellps = datum.ellipse;
     }
-    if (out.datum_params.length > 3) {
+  }
+
+  if (params.datumParams !== undefined) {
+    if (params.datumParams[0] !== 0 || params.datumParams[1] !== 0 || params.datumParams[2] !== 0) {
+      params.datumType = PJD_3PARAM;
+    }
+    if (params.datumParams.length > 3) {
       if (
-        out.datum_params[3] !== 0 ||
-        out.datum_params[4] !== 0 ||
-        out.datum_params[5] !== 0 ||
-        out.datum_params[6] !== 0
+        params.datumParams[3] !== 0 ||
+        params.datumParams[4] !== 0 ||
+        params.datumParams[5] !== 0 ||
+        params.datumParams[6] !== 0
       ) {
-        out.datum_type = PJD_7PARAM;
-        out.datum_params[3] *= SEC_TO_RAD;
-        out.datum_params[4] *= SEC_TO_RAD;
-        out.datum_params[5] *= SEC_TO_RAD;
-        out.datum_params[6] = out.datum_params[6] / 1000000.0 + 1.0;
+        params.datumType = PJD_7PARAM;
+        params.datumParams[3] *= SEC_TO_RAD;
+        params.datumParams[4] *= SEC_TO_RAD;
+        params.datumParams[5] *= SEC_TO_RAD;
+        params.datumParams[6] = params.datumParams[6] / 1000000.0 + 1.0;
       }
     }
   }
 
-  if (nadgrids) {
-    out.datum_type = PJD_GRIDSHIFT;
-    out.grids = nadgrids;
-  }
-  out.a = a; //datum object also uses these values
-  out.b = b;
-  out.es = es;
-  out.ep2 = ep2;
-
-  return out;
+  // TODO: Just upgrade datumType if grids exists in params
+  // if (params.nadgrids) {
+  //   params.datumType = PJD_GRIDSHIFT;
+  //   params.grids = params.nadgrids;
+  // }
 }
 
 /**
  * @param source
  * @param dest
  */
-export function compareDatums(source, dest) {
-  if (source.datum_type !== dest.datum_type) {
+export function compareDatums(source: ProjectionTransform, dest: ProjectionTransform): boolean {
+  if (source.datumType !== dest.datumType) {
     return false; // false, datums are not equal
-  } else if (source.a !== dest.a || Math.abs(source.es - dest.es) > 0.00000000005) {
+  } else if (source.a !== dest.a || abs(source.es - dest.es) > 0.00000000005) {
     // the tolerance for es is to ensure that GRS80 and WGS84
     // are considered identical
     return false;
-  } else if (source.datum_type === PJD_3PARAM) {
+  } else if (source.datumType === PJD_3PARAM) {
     return (
-      source.datum_params[0] === dest.datum_params[0] &&
-      source.datum_params[1] === dest.datum_params[1] &&
-      source.datum_params[2] === dest.datum_params[2]
+      source.datumParams[0] === dest.datumParams[0] &&
+      source.datumParams[1] === dest.datumParams[1] &&
+      source.datumParams[2] === dest.datumParams[2]
     );
-  } else if (source.datum_type === PJD_7PARAM) {
+  } else if (source.datumType === PJD_7PARAM) {
     return (
-      source.datum_params[0] === dest.datum_params[0] &&
-      source.datum_params[1] === dest.datum_params[1] &&
-      source.datum_params[2] === dest.datum_params[2] &&
-      source.datum_params[3] === dest.datum_params[3] &&
-      source.datum_params[4] === dest.datum_params[4] &&
-      source.datum_params[5] === dest.datum_params[5] &&
-      source.datum_params[6] === dest.datum_params[6]
+      source.datumParams[0] === dest.datumParams[0] &&
+      source.datumParams[1] === dest.datumParams[1] &&
+      source.datumParams[2] === dest.datumParams[2] &&
+      source.datumParams[3] === dest.datumParams[3] &&
+      source.datumParams[4] === dest.datumParams[4] &&
+      source.datumParams[5] === dest.datumParams[5] &&
+      source.datumParams[6] === dest.datumParams[6]
     );
   } else {
     return true; // datums are equal
@@ -112,69 +114,54 @@ export function compareDatums(source, dest) {
  *
  */
 /**
- * @param p
- * @param es
- * @param a
+ * @param p - lon-lat WGS84 point
+ * @param es - eccentricity
+ * @param a - semi-major axis
  */
-export function geodeticToGeocentric(p, es, a) {
+export function geodeticToGeocentric(p: VectorPoint, es: number, a: number): void {
   let Longitude = p.x;
   let Latitude = p.y;
   const Height = p.z ? p.z : 0; //Z value not always supplied
 
-  let Rn; /*  Earth radius at location  */
-  let Sin_Lat; /*  Math.sin(Latitude)  */
-  let Sin2_Lat; /*  Square of Math.sin(Latitude)  */
-  let Cos_Lat; /*  Math.cos(Latitude)  */
-
   /*
    ** Don't blow up if Latitude is just a little out of the value
    ** range as it may just be a rounding issue.  Also removed longitude
-   ** test, it should be wrapped by Math.cos() and Math.sin().  NFW for PROJ.4, Sep/2001.
+   ** test, it should be wrapped by cos() and sin().  NFW for PROJ.4, Sep/2001.
    */
   if (Latitude < -HALF_PI && Latitude > -1.001 * HALF_PI) {
     Latitude = -HALF_PI;
   } else if (Latitude > HALF_PI && Latitude < 1.001 * HALF_PI) {
     Latitude = HALF_PI;
   } else if (Latitude < -HALF_PI) {
-    /* Latitude out of range */
-    //..reportError('geocent:lat out of range:' + Latitude);
-    return { x: -Infinity, y: -Infinity, z: p.z };
+    throw new Error('geocent:lat out of range:' + Latitude);
   } else if (Latitude > HALF_PI) {
-    /* Latitude out of range */
-    return { x: Infinity, y: Infinity, z: p.z };
+    throw new Error('geocent:lat out of range:' + Latitude);
   }
 
-  if (Longitude > Math.PI) {
-    Longitude -= 2 * Math.PI;
-  }
-  Sin_Lat = Math.sin(Latitude);
-  Cos_Lat = Math.cos(Latitude);
-  Sin2_Lat = Sin_Lat * Sin_Lat;
-  Rn = a / Math.sqrt(1.0 - es * Sin2_Lat);
-  return {
-    x: (Rn + Height) * Cos_Lat * Math.cos(Longitude),
-    y: (Rn + Height) * Cos_Lat * Math.sin(Longitude),
-    z: (Rn * (1 - es) + Height) * Sin_Lat,
-  };
-} // cs_geodetic_to_geocentric()
+  if (Longitude > PI) Longitude -= 2 * PI;
+  const Sin_Lat = sin(Latitude); /*  sin(Latitude)  */
+  const Cos_Lat = cos(Latitude); /*  cos(Latitude)  */
+  const Sin2_Lat = Sin_Lat * Sin_Lat; /*  Square of sin(Latitude)  */
+  const Rn = a / sqrt(1.0 - es * Sin2_Lat); /*  Earth radius at location  */
+
+  p.x = (Rn + Height) * Cos_Lat * cos(Longitude);
+  p.y = (Rn + Height) * Cos_Lat * sin(Longitude);
+  p.z = (Rn * (1 - es) + Height) * Sin_Lat;
+}
 
 /**
- * @param p
- * @param es
- * @param a
- * @param b
+ * @param p - Geocentric point
+ * @param es - ellipsoid eccentricity
+ * @param a - ellipsoid semimajor axis
+ * @param b - ellipsoid semiminor axis
  */
-export function geocentricToGeodetic(p, es, a, b) {
+export function geocentricToGeodetic(p: VectorPoint, es: number, a: number, b: number): void {
   /* local defintions and variables */
   /* end-criterium of loop, accuracy of sin(Latitude) */
   const genau = 1e-12;
   const genau2 = genau * genau;
   const maxiter = 30;
 
-  let P; /* distance between semi-minor axis and location */
-  let RR; /* distance between center and location */
-  let CT; /* sin of geocentric latitude */
-  let ST; /* cos of geocentric latitude */
   let RX;
   let RK;
   let RN; /* Earth radius at location */
@@ -192,8 +179,8 @@ export function geocentricToGeodetic(p, es, a, b) {
   let Latitude;
   let Height;
 
-  P = Math.sqrt(X * X + Y * Y);
-  RR = Math.sqrt(X * X + Y * Y + Z * Z);
+  const P = sqrt(X * X + Y * Y); /* distance between semi-minor axis and location */
+  const RR = sqrt(X * X + Y * Y + Z * Z); /* distance between center and location */
 
   /*      special cases for latitude and longitude */
   if (P / a < genau) {
@@ -205,16 +192,12 @@ export function geocentricToGeodetic(p, es, a, b) {
     if (RR / a < genau) {
       Latitude = HALF_PI;
       Height = -b;
-      return {
-        x: p.x,
-        y: p.y,
-        z: p.z,
-      };
+      return;
     }
   } else {
     /*  ellipsoidal (geodetic) longitude
      *  interval: -PI < Longitude <= +PI */
-    Longitude = Math.atan2(Y, X);
+    Longitude = atan2(Y, X);
   }
 
   /* --------------------------------------------------------------
@@ -226,9 +209,9 @@ export function geocentricToGeodetic(p, es, a, b) {
    * 2*10**-7 arcsec.
    * --------------------------------------------------------------
    */
-  CT = Z / RR;
-  ST = P / RR;
-  RX = 1.0 / Math.sqrt(1.0 - es * (2.0 - es) * ST * ST);
+  const CT = Z / RR; /* sin of geocentric latitude */
+  const ST = P / RR; /* cos of geocentric latitude */
+  RX = 1.0 / sqrt(1.0 - es * (2.0 - es) * ST * ST);
   CPHI0 = ST * (1.0 - es) * RX;
   SPHI0 = CT * RX;
   iter = 0;
@@ -237,13 +220,13 @@ export function geocentricToGeodetic(p, es, a, b) {
    * until |sin(Latitude(iter)-Latitude(iter-1))| < genau */
   do {
     iter++;
-    RN = a / Math.sqrt(1.0 - es * SPHI0 * SPHI0);
+    RN = a / sqrt(1.0 - es * SPHI0 * SPHI0);
 
     /*  ellipsoidal (geodetic) height */
     Height = P * CPHI0 + Z * SPHI0 - RN * (1.0 - es * SPHI0 * SPHI0);
 
     RK = (es * RN) / (RN + Height);
-    RX = 1.0 / Math.sqrt(1.0 - RK * (2.0 - RK) * ST * ST);
+    RX = 1.0 / sqrt(1.0 - RK * (2.0 - RK) * ST * ST);
     CPHI = ST * (1.0 - RK) * RX;
     SPHI = CT * RX;
     SDPHI = SPHI * CPHI0 - CPHI * SPHI0;
@@ -252,127 +235,141 @@ export function geocentricToGeodetic(p, es, a, b) {
   } while (SDPHI * SDPHI > genau2 && iter < maxiter);
 
   /*      ellipsoidal (geodetic) latitude */
-  Latitude = Math.atan(SPHI / Math.abs(CPHI));
-  return {
-    x: Longitude,
-    y: Latitude,
-    z: Height,
-  };
-} // cs_geocentric_to_geodetic()
+  Latitude = atan(SPHI / abs(CPHI));
 
-/****************************************************************/
-// pj_geocentic_to_wgs84( p )
-//  p = point to transform in geocentric coordinates (x,y,z)
-
-/**
-     point object, nothing fancy, just allows values to be
-    passed back and forth by reference rather than by value.
-    Other point classes may be used as long as they have
-    x and y properties, which will get modified in the transform method.
- * @param p
- * @param datum_type
- * @param datum_params
- */
-export function geocentricToWgs84(p, datum_type, datum_params) {
-  if (datum_type === PJD_3PARAM) {
-    // if( x[io] === HUGE_VAL )
-    //    continue;
-    return {
-      x: p.x + datum_params[0],
-      y: p.y + datum_params[1],
-      z: p.z + datum_params[2],
-    };
-  } else if (datum_type === PJD_7PARAM) {
-    const Dx_BF = datum_params[0];
-    const Dy_BF = datum_params[1];
-    const Dz_BF = datum_params[2];
-    const Rx_BF = datum_params[3];
-    const Ry_BF = datum_params[4];
-    const Rz_BF = datum_params[5];
-    const M_BF = datum_params[6];
-    // if( x[io] === HUGE_VAL )
-    //    continue;
-    return {
-      x: M_BF * (p.x - Rz_BF * p.y + Ry_BF * p.z) + Dx_BF,
-      y: M_BF * (Rz_BF * p.x + p.y - Rx_BF * p.z) + Dy_BF,
-      z: M_BF * (-Ry_BF * p.x + Rx_BF * p.y + p.z) + Dz_BF,
-    };
-  }
-} // cs_geocentric_to_wgs84
-
-/****************************************************************/
-// pj_geocentic_from_wgs84()
-//  coordinate system definition,
-//  point to transform in geocentric coordinates (x,y,z)
-/**
- * @param p
- * @param datum_type
- * @param datum_params
- */
-export function geocentricFromWgs84(p, datum_type, datum_params) {
-  if (datum_type === PJD_3PARAM) {
-    //if( x[io] === HUGE_VAL )
-    //    continue;
-    return {
-      x: p.x - datum_params[0],
-      y: p.y - datum_params[1],
-      z: p.z - datum_params[2],
-    };
-  } else if (datum_type === PJD_7PARAM) {
-    const Dx_BF = datum_params[0];
-    const Dy_BF = datum_params[1];
-    const Dz_BF = datum_params[2];
-    const Rx_BF = datum_params[3];
-    const Ry_BF = datum_params[4];
-    const Rz_BF = datum_params[5];
-    const M_BF = datum_params[6];
-    const x_tmp = (p.x - Dx_BF) / M_BF;
-    const y_tmp = (p.y - Dy_BF) / M_BF;
-    const z_tmp = (p.z - Dz_BF) / M_BF;
-    //if( x[io] === HUGE_VAL )
-    //    continue;
-
-    return {
-      x: x_tmp + Rz_BF * y_tmp - Ry_BF * z_tmp,
-      y: -Rz_BF * x_tmp + y_tmp + Rx_BF * z_tmp,
-      z: Ry_BF * x_tmp - Rx_BF * y_tmp + z_tmp,
-    };
-  } //cs_geocentric_from_wgs84()
+  p.x = Longitude;
+  p.y = Latitude;
+  p.z = Height;
 }
 
 /**
- * @param type
+ * pj_geocentic_to_wgs84( p )
+ * p = point to transform in geocentric coordinates (x,y,z)
+ * point object, nothing fancy, just allows values to be
+ * passed back and forth by reference rather than by value.
+ * Other point classes may be used as long as they have
+ * x and y properties, which will get modified in the transform method.
+ * @param p - Geocentric point
+ * @param datumType - datum type
+ * @param datumParams - datum parameters
  */
-function checkParams(type) {
+export function geocentricToWgs84(
+  p: VectorPoint,
+  datumType: number,
+  datumParams: DatumParams,
+): void {
+  const z = p.z ?? 0;
+  if (datumType === PJD_3PARAM) {
+    // if( x[io] === HUGE_VAL )
+    //    continue;
+    p.x += datumParams[0];
+    p.y += datumParams[1];
+    p.z = z + datumParams[2];
+  } else if (datumType === PJD_7PARAM) {
+    const Dx_BF = datumParams[0];
+    const Dy_BF = datumParams[1];
+    const Dz_BF = datumParams[2];
+    const Rx_BF = datumParams[3];
+    const Ry_BF = datumParams[4];
+    const Rz_BF = datumParams[5];
+    const M_BF = datumParams[6];
+    // if( x[io] === HUGE_VAL )
+    //    continue;
+    p.x = M_BF * (p.x - Rz_BF * p.y + Ry_BF * z) + Dx_BF;
+    p.y = M_BF * (Rz_BF * p.x + p.y - Rx_BF * z) + Dy_BF;
+    p.z = M_BF * (-Ry_BF * p.x + Rx_BF * p.y + z) + Dz_BF;
+  } else {
+    throw new Error(`geocentricToWgs84: unknown datum type: ${datumType}`);
+  }
+}
+
+/**
+ * pj_geocentic_from_wgs84() coordinate system definition,
+ * point to transform in geocentric coordinates (x,y,z)
+ * @param p - lon-lat WGS84 point
+ * @param datumType - datum type
+ * @param datumParams - datum parameters
+ */
+export function geocentricFromWgs84(
+  p: VectorPoint,
+  datumType: number,
+  datumParams: DatumParams,
+): void {
+  const z = p.z ?? 0;
+  if (datumType === PJD_3PARAM) {
+    //if( x[io] === HUGE_VAL )
+    //    continue;
+    p.x -= datumParams[0];
+    p.y -= datumParams[1];
+    p.z = z - datumParams[2];
+  } else if (datumType === PJD_7PARAM) {
+    const Dx_BF = datumParams[0];
+    const Dy_BF = datumParams[1];
+    const Dz_BF = datumParams[2];
+    const Rx_BF = datumParams[3];
+    const Ry_BF = datumParams[4];
+    const Rz_BF = datumParams[5];
+    const M_BF = datumParams[6];
+    const x_tmp = (p.x - Dx_BF) / M_BF;
+    const y_tmp = (p.y - Dy_BF) / M_BF;
+    const z_tmp = (z - Dz_BF) / M_BF;
+    //if( x[io] === HUGE_VAL )
+    //    continue;
+    p.x = x_tmp + Rz_BF * y_tmp - Ry_BF * z_tmp;
+    p.y = -Rz_BF * x_tmp + y_tmp + Rx_BF * z_tmp;
+    p.z = Ry_BF * x_tmp - Rx_BF * y_tmp + z_tmp;
+  } else {
+    throw new Error(`geocentricToWgs84: unknown datum type: ${datumType}`);
+  }
+}
+
+/**
+ * @param type - datum type
+ * @returns - true if 1 or 2
+ */
+function checkParams(type: number): boolean {
   return type === PJD_3PARAM || type === PJD_7PARAM;
 }
 
 /**
  * @param source
  * @param dest
- * @param point
  */
-export default function (source, dest, point) {
-  // Short cut if the datums are identical.
-  if (compareDatums(source, dest)) {
-    return point; // in this case, zero is sucess,
-    // whereas cs_compare_datums returns 1 to indicate TRUE
-    // confusing, should fix this
-  }
+export function checkNotWGS(source: ProjectionTransform, dest: ProjectionTransform) {
+  return (
+    ((source.datumType === PJD_3PARAM ||
+      source.datumType === PJD_7PARAM ||
+      source.datumType === PJD_GRIDSHIFT) &&
+      dest.datumCode !== 'WGS84') ||
+    ((dest.datumType === PJD_3PARAM ||
+      dest.datumType === PJD_7PARAM ||
+      dest.datumType === PJD_GRIDSHIFT) &&
+      source.datumCode !== 'WGS84')
+  );
+}
 
+/**
+ * @param point - lon-lat WGS84 point to mutate
+ * @param source - source projection
+ * @param dest - destination projection
+ */
+export function datumTransform(
+  point: VectorPoint,
+  source: ProjectionTransform,
+  dest: ProjectionTransform,
+): void {
+  // Short cut if the datums are identical.
+  if (compareDatums(source, dest)) return;
   // Explicitly skip datum transform by setting 'datum=none' as parameter for either source or dest
-  if (source.datum_type === PJD_NODATUM || dest.datum_type === PJD_NODATUM) {
-    return point;
-  }
+  if (source.datumType === PJD_NODATUM || dest.datumType === PJD_NODATUM) return;
 
   // If this datum requires grid shifts, then apply it to geodetic coordinates.
   let source_a = source.a;
   let source_es = source.es;
-  if (source.datum_type === PJD_GRIDSHIFT) {
+  if (source.datumType === PJD_GRIDSHIFT) {
+    // source
     const gridShiftCode = applyGridShift(source, false, point);
-    if (gridShiftCode !== 0) {
-      return undefined;
-    }
+    if (gridShiftCode !== 0) return;
     source_a = SRS_WGS84_SEMIMAJOR;
     source_es = SRS_WGS84_ESQUARED;
   }
@@ -380,7 +377,7 @@ export default function (source, dest, point) {
   let dest_a = dest.a;
   let dest_b = dest.b;
   let dest_es = dest.es;
-  if (dest.datum_type === PJD_GRIDSHIFT) {
+  if (dest.datumType === PJD_GRIDSHIFT) {
     dest_a = SRS_WGS84_SEMIMAJOR;
     dest_b = SRS_WGS84_SEMIMINOR;
     dest_es = SRS_WGS84_ESQUARED;
@@ -390,31 +387,23 @@ export default function (source, dest, point) {
   if (
     source_es === dest_es &&
     source_a === dest_a &&
-    !checkParams(source.datum_type) &&
-    !checkParams(dest.datum_type)
-  ) {
-    return point;
-  }
+    !checkParams(source.datumType) &&
+    !checkParams(dest.datumType)
+  )
+    return;
 
   // Convert to geocentric coordinates.
-  point = geodeticToGeocentric(point, source_es, source_a);
+  geodeticToGeocentric(point, source_es, source_a);
   // Convert between datums
-  if (checkParams(source.datum_type)) {
-    point = geocentricToWgs84(point, source.datum_type, source.datum_params);
-  }
-  if (checkParams(dest.datum_type)) {
-    point = geocentricFromWgs84(point, dest.datum_type, dest.datum_params);
-  }
-  point = geocentricToGeodetic(point, dest_es, dest_a, dest_b);
+  if (checkParams(source.datumType)) geocentricToWgs84(point, source.datumType, source.datumParams);
+  if (checkParams(dest.datumType)) geocentricFromWgs84(point, dest.datumType, dest.datumParams);
+  // Convert back to geodetic coordinates.
+  geocentricToGeodetic(point, dest_es, dest_a, dest_b);
 
-  if (dest.datum_type === PJD_GRIDSHIFT) {
+  if (dest.datumType === PJD_GRIDSHIFT) {
     const destGridShiftResult = applyGridShift(dest, true, point);
-    if (destGridShiftResult !== 0) {
-      return undefined;
-    }
+    if (destGridShiftResult !== 0) return;
   }
-
-  return point;
 }
 
 /**
@@ -448,7 +437,7 @@ export function applyGridShift(source, inverse, point) {
     for (let j = 0, jj = subgrids.length; j < jj; j++) {
       const subgrid = subgrids[j];
       // skip tables that don't match our point at all
-      const epsilon = (Math.abs(subgrid.del[1]) + Math.abs(subgrid.del[0])) / 10000.0;
+      const epsilon = (abs(subgrid.del[1]) + abs(subgrid.del[0])) / 10000.0;
       const minX = subgrid.ll[0] - epsilon;
       const minY = subgrid.ll[1] - epsilon;
       const maxX = subgrid.ll[0] + (subgrid.lim[0] - 1) * subgrid.del[0] + epsilon;
@@ -485,7 +474,7 @@ function applySubgridShift(pin, inverse, ct) {
   const tb = { x: pin.x, y: pin.y };
   tb.x -= ct.ll[0];
   tb.y -= ct.ll[1];
-  tb.x = adjustLon(tb.x - Math.PI) + Math.PI;
+  tb.x = adjustLon(tb.x - PI) + PI;
   const t = nadInterpolate(tb, ct);
   if (inverse) {
     if (isNaN(t.x)) {
@@ -493,8 +482,8 @@ function applySubgridShift(pin, inverse, ct) {
     }
     t.x = tb.x - t.x;
     t.y = tb.y - t.y;
-    let i = 9,
-      tol = 1e-12;
+    let i = 9;
+    const tol = 1e-12;
     let dif, del;
     do {
       del = nadInterpolate(t, ct);
@@ -506,7 +495,7 @@ function applySubgridShift(pin, inverse, ct) {
       dif = { x: tb.x - (del.x + t.x), y: tb.y - (del.y + t.y) };
       t.x += dif.x;
       t.y += dif.y;
-    } while (i-- && Math.abs(dif.x) > tol && Math.abs(dif.y) > tol);
+    } while (i-- && abs(dif.x) > tol && abs(dif.y) > tol);
     if (i < 0) {
       throw new Error('Inverse grid shift iterator failed to converge.');
     }
@@ -527,7 +516,7 @@ function applySubgridShift(pin, inverse, ct) {
  */
 function nadInterpolate(pin: VectorPoint, ct): VectorPoint {
   const t = { x: pin.x / ct.del[0], y: pin.y / ct.del[1] };
-  const indx = { x: Math.floor(t.x), y: Math.floor(t.y) };
+  const indx = { x: floor(t.x), y: floor(t.y) };
   const frct = { x: t.x - 1.0 * indx.x, y: t.y - 1.0 * indx.y };
   const val = { x: NaN, y: NaN };
   let inx;

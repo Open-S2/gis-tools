@@ -177,7 +177,7 @@ export class DenseNodes {
       const keys: number[] = [];
       const vals: number[] = [];
       if (this.keysVals.length > 0) {
-        while (this.keysVals[j] != 0) {
+        while (this.keysVals[j] !== 0) {
           keys.push(this.keysVals[j]);
           vals.push(this.keysVals[j + 1]);
           j += 2;
@@ -199,11 +199,11 @@ export class DenseNodes {
   #readLayer(tag: number, denseNodes: DenseNodes, pbf: Protobuf): void {
     const { primitiveBlock: pb } = denseNodes;
 
-    if (tag == 1) denseNodes.ids = pbf.readPackedSVarint();
-    else if (tag == 5) denseNodes.denseinfo = new DenseInfo(pb, pbf);
-    else if (tag == 8) denseNodes.lats = pbf.readPackedSVarint();
-    else if (tag == 9) denseNodes.lons = pbf.readPackedSVarint();
-    else if (tag == 10) denseNodes.keysVals = pbf.readPackedVarint();
+    if (tag === 1) denseNodes.ids = pbf.readPackedSVarint();
+    else if (tag === 5) denseNodes.denseinfo = new DenseInfo(pb, pbf);
+    else if (tag === 8) denseNodes.lats = pbf.readPackedSVarint();
+    else if (tag === 9) denseNodes.lons = pbf.readPackedSVarint();
+    else if (tag === 10) denseNodes.keysVals = pbf.readPackedVarint();
     else throw new Error('unknown tag ' + tag);
   }
 }

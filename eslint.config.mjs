@@ -24,6 +24,11 @@ export default tseslint.config(
   jsdoc.configs['flat/recommended-typescript'],
   {
     rules: {
+      // ensure explicit comparisons
+      eqeqeq: ['error', 'always'],
+      'no-implicit-coercion': ['error', { boolean: false }],
+      'no-extra-boolean-cast': 'error',
+      'no-constant-condition': ['error', { checkLoops: false }],
       // console logs
       'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
       // https://github.com/gajus/eslint-plugin-jsdoc

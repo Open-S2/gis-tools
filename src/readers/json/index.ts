@@ -1,8 +1,8 @@
-import type { Reader } from '..';
+import type { FeatureIterator, Reader } from '..';
 import type { Features, JSONCollection } from 's2-tools/geometry';
 
 /** Standard Buffer Reader for (Geo|S2)JSON */
-export class BufferJSONReader {
+export class BufferJSONReader implements FeatureIterator {
   data: JSONCollection;
 
   /** @param data - the JSON data to parase */
@@ -18,7 +18,7 @@ export class BufferJSONReader {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {Features}
    */
-  *iterate(): Generator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
     const { type } = this.data;
 
     if (type === 'FeatureCollection') {
@@ -40,7 +40,7 @@ export class BufferJSONReader {
 }
 
 /** Parse (Geo|S2)JSON from a file that is in a newline-delimited format */
-export class NewLineDelimitedJSONReader {
+export class NewLineDelimitedJSONReader implements FeatureIterator {
   /** @param reader - the reader to parse from */
   constructor(public reader: Reader) {}
 
@@ -48,7 +48,7 @@ export class NewLineDelimitedJSONReader {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {Features}
    */
-  *iterate(): Generator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
     const { reader } = this;
     let cursor = 0;
     let offset = 0;
@@ -108,10 +108,10 @@ export class JSONReader {
    * Generator to iterate over each (Geo|S2)JSON object in the reader.
    * @yields {Features}
    */
-  *iterate(): Generator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
     if (this.#length <= this.#chunkSize) {
       const reader = new BufferJSONReader(this.reader.parseString(0, this.#length));
-      for (const feature of reader.iterate()) yield feature;
+      for await (const feature of reader) yield feature;
       return;
     }
     // buffer the first chunk

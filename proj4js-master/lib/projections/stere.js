@@ -19,10 +19,13 @@ export function init() {
   this.lat0 = this.lat0 || 0;
   this.long0 = this.long0 || 0;
 
+  console.log('BEGIN!!!!!!!!', this.k0)
+
   this.coslat0 = Math.cos(this.lat0);
   this.sinlat0 = Math.sin(this.lat0);
   if (this.sphere) {
     if (this.k0 === 1 && !isNaN(this.lat_ts) && Math.abs(this.coslat0) <= EPSLN) {
+      console.log('BEGIN CASE A!')
       this.k0 = 0.5 * (1 + sign(this.lat0) * Math.sin(this.lat_ts));
     }
   }
@@ -43,6 +46,7 @@ export function init() {
     if (this.k0 === 1 && !isNaN(this.lat_ts) && Math.abs(this.coslat0) <= EPSLN && Math.abs(Math.cos(this.lat_ts)) > EPSLN) {
       // When k0 is 1 (default value) and lat_ts is a vaild number and lat0 is at a pole and lat_ts is not at a pole
       // Recalculate k0 using formula 21-35 from p161 of Snyder, 1987
+      console.log('BEGIN CASE B!')
       this.k0 = 0.5 * this.cons * msfnz(this.e, Math.sin(this.lat_ts), Math.cos(this.lat_ts)) / tsfnz(this.e, this.con * this.lat_ts, this.con * Math.sin(this.lat_ts));
     }
     this.ms1 = msfnz(this.e, this.sinlat0, this.coslat0);
@@ -50,6 +54,7 @@ export function init() {
     this.cosX0 = Math.cos(this.X0);
     this.sinX0 = Math.sin(this.X0);
   }
+  console.log('HERHEHRHERHEHRHEHR A 2', this.k0);
 }
 
 // Stereographic forward equations--mapping lat,long to x,y

@@ -95,7 +95,7 @@ export class Way {
     if (
       (upgradeWaysToAreas &&
         this.#refs.length >= 4 &&
-        this.#refs[0] == this.#refs[this.#refs.length - 1]) ||
+        this.#refs[0] === this.#refs[this.#refs.length - 1]) ||
       this.hasKeyValue('area', 'yes')
     ) {
       return true;

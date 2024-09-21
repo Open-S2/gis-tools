@@ -48,7 +48,7 @@ const { abs, sin, cos, asin, atan2, tan, pow } = Math;
  */
 export class CassiniSoldner extends ProjectionBase implements ProjectionTransform {
   name = 'Cassini_Soldner';
-  names = [this.name, 'Cassini', 'cass'];
+  static names = ['Cassini_Soldner', 'Cassini', 'cass'];
   e0: number = 0;
   e1: number = 0;
   e2: number = 0;
@@ -73,9 +73,8 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
   /**
    * Cassini Soldner forward equations--mapping lon-lat to x-y
    * @param p - lon-lat WGS84 point
-   * @returns - a Cassini Soldner point
    */
-  forward(p: VectorPoint): VectorPoint {
+  forward(p: VectorPoint): void {
     let x, y;
     let lam = p.x;
     const phi = p.y;
@@ -101,15 +100,13 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
 
     p.x = x + this.x0;
     p.y = y + this.y0;
-    return p;
   }
 
   /**
    * Cassini Soldner inverse equations--mapping x-y to lon-lat
    * @param p - A Cassini Soldner point
-   * @returns - lon-lat WGS84 point
    */
-  inverse(p: VectorPoint): VectorPoint {
+  inverse(p: VectorPoint): void {
     p.x -= this.x0;
     p.y -= this.y0;
     const x = p.x / this.a;
@@ -130,7 +127,7 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
         if (y < 0) {
           p.y *= -1;
         }
-        return p;
+        return;
       }
       const nl1 = gN(this.a, this.e, sin(phi1));
 
@@ -144,6 +141,5 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
 
     p.x = adjustLon(lam + this.long0);
     p.y = adjustLat(phi);
-    return p;
   }
 }

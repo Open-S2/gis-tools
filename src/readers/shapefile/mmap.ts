@@ -1,5 +1,5 @@
 import DataBaseFile from './dbf';
-import MMapReader from '../mmapReader';
+import MMapReader from '../mmap';
 import Shapefile from './shp';
 import { Transformer } from 's2-tools/proj4';
 import { exists, readFile } from 'fs/promises';

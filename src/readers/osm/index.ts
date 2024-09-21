@@ -6,7 +6,7 @@ import { Blob, BlobHeader } from './blob';
 import type { InfoBlock } from './info';
 import type { KVStore } from 's2-tools/dataStore';
 import type { OSMHeader } from './headerBlock';
-import type { Reader } from '../index';
+import type { FeatureIterator, Reader } from '..';
 import type { VectorFeature, VectorLineString, VectorPoint } from 's2-tools/geometry';
 
 export type * from './blob';
@@ -101,7 +101,7 @@ export interface OsmReaderOptions {
 /**
  *
  */
-export class OSMReader {
+export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
   /** if true, remove nodes that have no tags [Default = true] */
   removeEmptyNodes: boolean;
   /** If provided, filters of the  */
@@ -142,7 +142,8 @@ export class OSMReader {
   /**
    *
    */
-  async *iterate(): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
+  // async *iterate(): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
     this.#offset = 0;
     // skip the header
     await this.#next();

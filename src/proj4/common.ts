@@ -379,8 +379,7 @@ export function phi2z(eccent: number, ts: number): number {
       return phi;
     }
   }
-  //console.log("phi2z has NoConvergence");
-  return -9999;
+  throw new Error('phi2z has NoConvergence');
 }
 
 /**

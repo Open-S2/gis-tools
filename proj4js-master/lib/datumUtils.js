@@ -72,6 +72,7 @@ export function geodeticToGeocentric(p, es, a) {
 } // cs_geodetic_to_geocentric()
 
 export function geocentricToGeodetic(p, es, a, b) {
+  console.log('geocentricToGeodetic', p, es, a, b)
   /* local defintions and variables */
   /* end-criterium of loop, accuracy of sin(Latitude) */
   var genau = 1e-12;
@@ -162,6 +163,7 @@ export function geocentricToGeodetic(p, es, a, b) {
 
   /*      ellipsoidal (geodetic) latitude */
   Latitude = Math.atan(SPHI / Math.abs(CPHI));
+  console.log('LATITUDE A 1', SPHI, CPHI, Latitude);
   return {
     x: Longitude,
     y: Latitude,

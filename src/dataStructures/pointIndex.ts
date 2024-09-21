@@ -8,7 +8,7 @@ import type { Uint64Cell } from '../wasm/uint64';
 import type { Point3D, S2CellId } from '../geometry';
 
 /** A point shape to be indexed */
-export class Point<T> {
+export class PointShape<T> {
   /**
    * @param cell - the cell that defines the point
    * @param point - the point to track current location
@@ -23,7 +23,7 @@ export class Point<T> {
 
 /** An index of cells with radius queries */
 export default class PointIndex<T> {
-  #store: Point<T>[] = [];
+  #store: PointShape<T>[] = [];
   #unsorted: boolean = false;
   cellGen = new Uint64CellGenerator();
 
@@ -33,26 +33,24 @@ export default class PointIndex<T> {
    */
   insert(point: Point3D, data: T): void {
     const cell = this.cellGen.fromS2Point(point);
-    this.#store.push(new Point(cell, point, data));
+    this.#store.push(new PointShape(cell, point, data));
     this.#unsorted = true;
   }
 
   /**
    * iterate through the points
-   * @yields a point in the index
+   * @returns an iterator
    */
-  *iterate(): IterableIterator<Point<T>> {
+  [Symbol.iterator](): IterableIterator<PointShape<T>> {
     this.#sort();
-    for (const point of this.#store) {
-      yield point;
-    }
+    return this.#store.values();
   }
 
   /**
    * add points from perhaps another index
    * @param points - array of the points to add
    */
-  insertPoints(points: Point<T>[]): void {
+  insertPoints(points: PointShape<T>[]): void {
     this.#store.push(...points);
     this.#unsorted = true;
   }
@@ -97,9 +95,9 @@ export default class PointIndex<T> {
    * @param high - the upper bound
    * @returns the points in the range
    */
-  searchRange(low: S2CellId, high: S2CellId): Point<T>[] {
+  searchRange(low: S2CellId, high: S2CellId): PointShape<T>[] {
     this.#sort();
-    const res: Point<T>[] = [];
+    const res: PointShape<T>[] = [];
     let lo = this.lowerBound(low);
     const hiID = this.cellGen.fromBigInt(high);
 
@@ -116,9 +114,9 @@ export default class PointIndex<T> {
    * @param radius - the search radius
    * @returns the points within the radius
    */
-  searchRadius(target: Point3D, radius: S1ChordAngle): Point<T>[] {
+  searchRadius(target: Point3D, radius: S1ChordAngle): PointShape<T>[] {
     this.#sort();
-    const res: Point<T>[] = [];
+    const res: PointShape<T>[] = [];
     if (radius < 0) return res;
     const cap = fromS1ChordAngle<undefined>(target, radius, undefined);
     for (const cell of getIntersectingCells(cap)) {

@@ -9,13 +9,38 @@ export function buildServer() {
      * @returns - a response of the file to the user
      */
     async fetch(req) {
-      // Extract the pathname from the request URL
       const { pathname } = new URL(req.url);
-      // Build the absolute file path based on the request
-      const file = Bun.file(`${__dirname}${pathname}`);
-      // If the file does not exist or is empty, return 404
+      const filePath = `${__dirname}${pathname}`;
+      const file = Bun.file(filePath);
+
       if (!file || file.size === 0) return new Response(null, { status: 404 });
-      // Return the file as the response
+
+      // Handle range request
+      const rangeHeader = req.headers.get('Range');
+      if (rangeHeader) {
+        const [unit, range] = rangeHeader.split('=');
+        if (unit === 'bytes') {
+          const [start, end] = range.split('-').map(Number);
+
+          const fileSize = file.size;
+          const endByte = end !== undefined ? Math.min(end, fileSize - 1) : fileSize - 1;
+          const rangeStart = Math.max(start, 0);
+
+          // Read the specified byte range from the file
+          const chunk = file.slice(rangeStart, endByte + 1);
+
+          return new Response(chunk, {
+            status: 206,
+            headers: {
+              'Content-Range': `bytes ${rangeStart}-${endByte}/${fileSize}`,
+              'Content-Length': String(endByte - rangeStart + 1),
+              'Accept-Ranges': 'bytes',
+            },
+          });
+        }
+      }
+
+      // If no range is requested, serve the whole file
       return new Response(file);
     },
   });

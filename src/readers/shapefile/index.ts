@@ -4,6 +4,8 @@ import ShapeFile from './shp';
 import { Transformer } from 's2-tools/proj4';
 import { iterItems } from 's2-tools/util';
 
+import type { ProjectionTransformDefinition } from 's2-tools/proj4';
+
 export { default as DataBaseFile } from './dbf';
 export { default as ShapeFile } from './shp';
 
@@ -13,12 +15,15 @@ export type * from './shp';
 /**
  * Assumes the input is pointing to shapefile data.
  * @param input - raw buffer of gzipped data (folder of shp, dbf, prj, and/or cpg)
+ * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @returns - a Shapefile
  */
-export async function fromGzip(input: ArrayBufferLike): Promise<ShapeFile> {
-  // TODO: BUILD TRANSFORM!!!!!!!
+export async function fromGzip(
+  input: ArrayBufferLike,
+  defs?: ProjectionTransformDefinition[],
+): Promise<ShapeFile> {
   let encoding = 'utf8';
-  const transform: Transformer | undefined = undefined;
+  let transform: Transformer | undefined = undefined;
   let dbfReader: DataBaseFile | undefined = undefined;
   let shpData: Uint8Array | undefined = undefined;
   for (const item of iterItems(new Uint8Array(input))) {
@@ -29,6 +34,12 @@ export async function fromGzip(input: ArrayBufferLike): Promise<ShapeFile> {
       dbfReader = new DataBaseFile(new BufferReader(data.buffer), encoding);
     } else if (item.filename.endsWith('shp')) {
       shpData = await item.read();
+    } else if (item.filename.endsWith('prj')) {
+      const data = await item.read();
+      transform = new Transformer(new TextDecoder('utf8').decode(data));
+      if (defs) {
+        for (const def of defs) transform.insertDefinition(def);
+      }
     }
   }
   if (shpData === undefined) throw new Error('Shapefile not found');

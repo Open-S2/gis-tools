@@ -4,6 +4,7 @@ import {EPSLN} from '../constants/values';
 var MAX_ITER = 20;
 
 export default function(arg, es, en) {
+  console.log('pjInvMlfn', arg, es, en);
   var k = 1 / (1 - es);
   var phi = arg;
   for (var i = MAX_ITER; i; --i) { /* rarely goes over 2 iterations */

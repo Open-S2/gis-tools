@@ -1,4 +1,4 @@
-export * from './datum';
+export * from './datums';
 export * from './derives';
 export * from './ellipsoid';
 export * from './primeMeridian';

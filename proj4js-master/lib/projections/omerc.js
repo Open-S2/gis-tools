@@ -41,6 +41,7 @@ export function init() {
   if (gam) {
     gamma = (this.rectified_grid_angle * D2R);
   }
+  console.log('GAMMA START', gamma)
   
   if (alp || gam) {
     lamc = this.longc;
@@ -117,6 +118,8 @@ export function init() {
     gamma0 = Math.atan(2 * Math.sin(this.B * adjust_lon(lam1 - this.lam0)) / (F - 1 / F));
     gamma = alpha_c = Math.asin(D * Math.sin(gamma0));
   }
+
+  console.log('gamma', gamma)
   
   this.singam = Math.sin(gamma0);
   this.cosgam = Math.cos(gamma0);

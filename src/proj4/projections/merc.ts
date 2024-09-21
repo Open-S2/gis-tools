@@ -114,14 +114,13 @@ const { abs, sin, cos, sqrt, log, tan, atan, exp } = Math;
 export class Mercator extends ProjectionBase implements ProjectionTransform {
   name = 'Mercator';
   static names = [
-    this.name,
+    'Mercator',
     'Popular Visualisation Pseudo Mercator',
     'Mercator_1SP',
     'Mercator_Auxiliary_Sphere',
     'merc',
   ];
   // Mercator specific variables
-  declare k0: number;
 
   /**
    * Preps an Mercator projection
@@ -152,9 +151,8 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
   /**
    * Mercator forward equations--mapping lon-lat to x-y
    * @param p - lon-lat WGS84 point
-   * @returns - Mercator point
    */
-  forward(p: VectorPoint): VectorPoint {
+  forward(p: VectorPoint): void {
     const { x: lon, y: lat } = p;
     // convert to radians
     // if (lat * R2D > 90 && lat * R2D < -90 && lon * R2D > 180 && lon * R2D < -180) {
@@ -176,16 +174,14 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
       }
       p.x = x;
       p.y = y;
-      return p;
     }
   }
 
   /**
    * Mercator inverse equations--mapping x-y to lon-lat
    * @param p - Mercator point
-   * @returns - lon-lat WGS84 point
    */
-  inverse(p: VectorPoint): VectorPoint {
+  inverse(p: VectorPoint): void {
     const x = p.x - this.x0;
     const y = p.y - this.y0;
     let lat: number;
@@ -201,7 +197,5 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
 
     p.x = lon;
     p.y = lat;
-
-    return p;
   }
 }

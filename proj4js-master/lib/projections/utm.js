@@ -10,7 +10,9 @@ export function init() {
     throw new Error('unknown utm zone');
   }
   this.lat0 = 0;
+  console.log('ZOME', this.zone, zone, this.long0);
   this.long0 =  ((6 * Math.abs(zone)) - 183) * D2R;
+  console.log('ZONE AFTER', this.zone, zone, this.long0);
   this.x0 = 500000;
   this.y0 = this.utmSouth ? 10000000 : 0;
   this.k0 = 0.9996;

@@ -2,7 +2,6 @@
 import { extendBBox } from 's2-tools/geometry';
 
 import type DataBaseFile from './dbf';
-import type { Reader } from '..';
 import type { Transformer } from 's2-tools/proj4';
 import type {
   BBOX,
@@ -20,6 +19,7 @@ import type {
   VectorPointGeometry,
   VectorPolygonGeometry,
 } from 's2-tools/geometry';
+import type { FeatureIterator, Reader } from '..';
 
 /** A Shapefile Header describing the internal data */
 export interface SHPHeader {
@@ -38,7 +38,7 @@ export interface SHPRow {
 }
 
 /** The Shapefile Reader */
-export default class Shapefile {
+export default class Shapefile implements FeatureIterator {
   #header!: SHPHeader;
   rows: number[] = [];
   /**
@@ -67,14 +67,14 @@ export default class Shapefile {
    * Return all the features in the shapefile
    * @returns - a collection of VectorFeatures
    */
-  getFeatureCollection(): FeatureCollection {
+  async getFeatureCollection(): Promise<FeatureCollection> {
     const featureCollection: FeatureCollection = {
       type: 'FeatureCollection',
       features: [],
       bbox: this.#header.bbox,
     };
 
-    for (const feature of this.iterate()) {
+    for await (const feature of this) {
       featureCollection.features.push(feature);
     }
 
@@ -85,7 +85,7 @@ export default class Shapefile {
    * Iterate over all features in the shapefile
    * @yields {VectorFeature}
    */
-  *iterate(): IterableIterator<VectorFeature> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature> {
     for (let i = 0; i < this.rows.length; i++) {
       const feature = this.#parseRow(this.rows[i], i);
       if (feature !== undefined) yield feature;

@@ -1,1 +1,8 @@
-export { default as S2CellGenerator } from './experimental/s2cell';
+export * from './converters';
+export * from './dataStore';
+export * from './dataStructures';
+export * from './geometry';
+export * from './proj4';
+export * from './readers';
+export * from './util';
+// export * from './writers';

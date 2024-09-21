@@ -15,6 +15,7 @@ export function init() {
   if (Math.abs(this.phi1) < EPS10) {
     throw new Error();
   }
+  console.log('BONNE INIT', this)
   if (this.es) {
     this.en = pj_enfn(this.es);
     this.m1 = pj_mlfn(this.phi1, this.am1 = Math.sin(this.phi1),

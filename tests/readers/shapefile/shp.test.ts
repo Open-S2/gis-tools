@@ -1,7 +1,7 @@
 import { BufferReader } from '../../../src/readers';
 import DataBaseFile from '../../../src/readers/shapefile/dbf';
-import FileReader from '../../../src/readers/fileReader';
-import MMapReader from '../../../src/readers/mmapReader';
+import FileReader from '../../../src/readers/file';
+import MMapReader from '../../../src/readers/mmap';
 import { buildServer } from '../../server';
 // import { fromPath } from '../../../src/readers/shapefile/file';
 import { ShapeFile, fromGzip, fromURL } from '../../../src/readers/shapefile';
@@ -18,7 +18,7 @@ test('utf shp', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
   expect(featureCollection).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
     features: [
@@ -60,7 +60,7 @@ test('utf shp with dbf', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
   expect(featureCollection).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
     features: [
@@ -113,7 +113,7 @@ test('multipointz shp', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
 
   expect(featureCollection).toEqual({
     type: 'FeatureCollection',
@@ -151,7 +151,7 @@ test('polylinez shp', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
 
   expect(featureCollection).toEqual({
     bbox: [-120, 38, -113, 45, 0, 0],
@@ -194,7 +194,7 @@ test('fromGzip', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
   expect(featureCollection).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
     features: [
@@ -242,7 +242,7 @@ test('fromURL', async () => {
     version: 1000,
   });
 
-  const featureCollection = shp.getFeatureCollection();
+  const featureCollection = await shp.getFeatureCollection();
   expect(featureCollection).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
     features: [
@@ -270,7 +270,7 @@ test('fromURL', async () => {
     type: 'FeatureCollection',
   });
 
-  const featureCollection2 = shp2.getFeatureCollection();
+  const featureCollection2 = await shp2.getFeatureCollection();
   expect(featureCollection2).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
     features: [

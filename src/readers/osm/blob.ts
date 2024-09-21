@@ -31,9 +31,9 @@ export class BlobHeader {
    * @param pbf
    */
   #readLayer(tag: number, blobHeader: BlobHeader, pbf: Protobuf): void {
-    if (tag == 1) blobHeader.type = pbf.readString();
-    else if (tag == 2) blobHeader.indexdata = pbf.readBytes();
-    else if (tag == 3) blobHeader.datasize = pbf.readVarint();
+    if (tag === 1) blobHeader.type = pbf.readString();
+    else if (tag === 2) blobHeader.indexdata = pbf.readBytes();
+    else if (tag === 3) blobHeader.datasize = pbf.readVarint();
     else throw new Error('unknown tag ' + tag);
   }
 }
@@ -60,18 +60,18 @@ export class Blob {
    */
   #readLayer(tag: number, blob: Blob, pbf: Protobuf): void {
     // no compression
-    if (tag == 1) blob.data = pbf.readBytes();
-    else if (tag == 2) blob.raw_size = pbf.readVarint();
+    if (tag === 1) blob.data = pbf.readBytes();
+    else if (tag === 2) blob.raw_size = pbf.readVarint();
     // ZLIB:
-    else if (tag == 3) blob.data = decompressStream(pbf.readBytes());
+    else if (tag === 3) blob.data = decompressStream(pbf.readBytes());
     // For LZMA compressed data (optional)
-    else if (tag == 4) blob.data = pbf.readBytes();
+    else if (tag === 4) blob.data = pbf.readBytes();
     // Formerly used for bzip2 compressed data. Deprecated in 2010.
-    else if (tag == 5) throw new Error('bzip2 not supported');
+    else if (tag === 5) throw new Error('bzip2 not supported');
     // For LZ4 compressed data (optional)
-    else if (tag == 6) blob.data = pbf.readBytes();
+    else if (tag === 6) blob.data = pbf.readBytes();
     // For ZSTD compressed data (optional)
-    else if (tag == 7) blob.data = pbf.readBytes();
+    else if (tag === 7) blob.data = pbf.readBytes();
     else throw new Error('unknown tag ' + tag);
   }
 }

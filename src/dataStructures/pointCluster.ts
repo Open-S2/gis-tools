@@ -1,5 +1,5 @@
 import { fromS2Points } from 's2-tools/geometry/s1/chordAngle';
-import PointIndex, { Point } from './pointIndex';
+import PointIndex, { PointShape as Point } from './pointIndex';
 import { Tile, fromFacePosLevel, getVertices, level, range } from '../geometry';
 import {
   addMut,
@@ -134,7 +134,7 @@ export default class PointCluster {
     cmp: Comparitor,
   ): void {
     const radius = this.#getLevelRadius(zoom);
-    for (const clusterPoint of queryIndex.iterate()) {
+    for (const clusterPoint of queryIndex) {
       const { point, data: clusterData } = clusterPoint;
       if (clusterData.visited) continue;
       clusterData.visited = true;

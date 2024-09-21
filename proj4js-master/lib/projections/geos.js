@@ -49,6 +49,7 @@ function forward(p) {
         v_z = r * Math.sin(lat);
 
         if (((this.radius_g - v_x) * v_x - v_y * v_y - v_z * v_z * this.radius_p_inv2) < 0.0) {
+            console.log('HEHREHREHRHERHEHRHERH ERRRROOOOOORRRRR!!!!!!!')
             p.x = Number.NaN;
             p.y = Number.NaN;
             return p;

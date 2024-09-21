@@ -140,5 +140,6 @@ export default function(defData) {
   if(typeof self.datumCode === 'string' && self.datumCode !== "WGS84"){
     self.datumCode = self.datumCode.toLowerCase();
   }
+
   return self;
 }

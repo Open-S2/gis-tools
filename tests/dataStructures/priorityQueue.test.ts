@@ -1,7 +1,7 @@
 import PriorityQueue from '../../src/dataStructures/priorityQueue';
 import { beforeAll, expect, test } from 'bun:test';
 
-import type { CompareFunction } from '../../src/dataStructures/priorityQueue';
+import type { PriorityCompare } from '../../src/dataStructures/priorityQueue';
 
 const data: number[] = [];
 let sorted: number[] = [];
@@ -64,7 +64,7 @@ test('handle object type', () => {
    * @param b - the second element
    * @returns - comparison result
    */
-  const comparitor: CompareFunction<StructTest> = (a: StructTest, b: StructTest): 0 | 1 | -1 =>
+  const comparitor: PriorityCompare<StructTest> = (a: StructTest, b: StructTest): 0 | 1 | -1 =>
     a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
   const queue = new PriorityQueue<StructTest>([], comparitor);
 

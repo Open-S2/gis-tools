@@ -12,7 +12,7 @@ function checkNotWGS(source, dest) {
 }
 
 export default function transform(source, dest, point, enforceAxis) {
-  // console.log('TRANFORM', source, dest, point, enforceAxis)
+  console.log('BEGIN TRANSFORM', source, dest, enforceAxis)
   var wgs84;
   if (Array.isArray(point)) {
     point = toPoint(point);
@@ -30,6 +30,7 @@ export default function transform(source, dest, point, enforceAxis) {
   // Workaround for datum shifts towgs84, if either source or destination projection is not wgs84
   if (source.datum && dest.datum && checkNotWGS(source, dest)) {
     wgs84 = new proj('WGS84');
+    console.log('THIS IS CALLED A')
     point = transform(source, wgs84, point, enforceAxis);
     source = wgs84;
   }
@@ -46,6 +47,7 @@ export default function transform(source, dest, point, enforceAxis) {
     };
   } else {
     if (source.to_meter) {
+      console.log('METER!', source.to_meter)
       point = {
         x: point.x * source.to_meter,
         y: point.y * source.to_meter,
@@ -56,6 +58,7 @@ export default function transform(source, dest, point, enforceAxis) {
     if (!point) {
       return;
     }
+    console.log('STEP 1: INVERSE A', point)
   }
   // Adjust for the prime meridian if necessary
   if (source.from_greenwich) {
@@ -67,6 +70,8 @@ export default function transform(source, dest, point, enforceAxis) {
   if (!point) {
     return;
   }
+
+  console.log('STEP 2: MID DATUM A', point);
 
   // Adjust for the prime meridian if necessary
   if (dest.from_greenwich) {
@@ -85,7 +90,9 @@ export default function transform(source, dest, point, enforceAxis) {
       z: point.z || 0
     };
   } else { // else project
+    // console.log('STEP 3: FORWARD A DEST: ', dest);
     point = dest.forward(point);
+    console.log('STEP 3: FORWARD A', point);
     if (dest.to_meter) {
       point = {
         x: point.x / dest.to_meter,
@@ -94,6 +101,7 @@ export default function transform(source, dest, point, enforceAxis) {
       };
     }
   }
+  console.log('STEP 4: METER A', point);
 
   // DGR, 2010/11/12
   if (enforceAxis && dest.axis !== 'enu') {

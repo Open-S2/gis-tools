@@ -290,7 +290,7 @@ function buildGeometry(members: WayMember[], nodes: NodeMember[]): undefined | R
  * @returns true if the points are equal
  */
 function equalPoints(a: VectorPoint, b: VectorPoint): boolean {
-  return a.x === b.x && a.y == b.y;
+  return a.x === b.x && a.y === b.y;
 }
 
 /**
@@ -305,7 +305,7 @@ function sortMembers(members: WayMember[]): void {
     const curFirstPoint = curWay[0];
     const curLastPoint = curWay[curWay.length - 1];
     // if current way is already self closing break
-    if (curFirstPoint == curLastPoint) break;
+    if (curFirstPoint === curLastPoint) break;
     for (let j = i + 1; j < members.length; j++) {
       const nextWay = members[j].way;
       const nextFirstPoint = nextWay[0];
@@ -327,7 +327,7 @@ function sortMembers(members: WayMember[]): void {
           nextWay.reverse();
         }
         // we want to move the found member to be next to the current member
-        if (i + 1 != j) {
+        if (i + 1 !== j) {
           const temp = members[i + 1];
           members[i + 1] = members[j];
           members[j] = temp;

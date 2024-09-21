@@ -2,15 +2,17 @@
 
 ## Readers I am interested in eventually supporting
 
-- [ ] CSV
+### XML BASED
+
 - [ ] KML & KMZ
-- [ ] XML
-- [ ] [flatgeobuf](https://flatgeobuf.org/) & flatbuffers
+- [ ] GML
+- [ ] GPX
+
+### OTHERS
+
 - [ ] GTFS
 - [ ] netCDF (currently only partially supported via nadgrid)
-- [ ] gpkg (Geopackage)
-- [ ] gml
 - [ ] gdb (in gzipped form)
-- [ ] TIFFs (.tif, .tiff, .dem )
+- [ ] TIFFs (.tif, .tiff, .dem)
 - [ ] Images (.png, .jpg, .gif)
 - [ ] LAS/LAZ

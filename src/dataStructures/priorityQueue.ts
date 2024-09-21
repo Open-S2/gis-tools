@@ -1,5 +1,5 @@
 /** How the comparison function needs to work */
-export type CompareFunction<T> = (a: T, b: T) => number;
+export type PriorityCompare<T> = (a: T, b: T) => number;
 
 /** A Priority Queue */
 export default class PriorityQueue<T = number> {
@@ -10,7 +10,7 @@ export default class PriorityQueue<T = number> {
    */
   constructor(
     private data: T[] = [],
-    private compare: CompareFunction<T> = (a: T, b: T): number => (a < b ? -1 : a > b ? 1 : 0),
+    private compare: PriorityCompare<T> = (a: T, b: T): number => (a < b ? -1 : a > b ? 1 : 0),
   ) {
     this.#length = data.length;
     if (this.#length > 0) {

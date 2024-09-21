@@ -5,7 +5,8 @@ export * from './projection';
 export type * from './projection';
 
 /**
- * @param str
+ * @param str - string to clean
+ * @returns - cleaned string
  */
 export function cleanString(str: string): string {
   return str

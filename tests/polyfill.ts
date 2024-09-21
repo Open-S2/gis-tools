@@ -38,22 +38,22 @@ const make = (ctx, handle) =>
     }),
   });
 
-// // @ts-expect-error - polyfill exception
-// globalThis.CompressionStream ??= class CompressionStream {
-//   /**
-//    * @param format - the format to use
-//    */
-//   constructor(format) {
-//     make(
-//       this,
-//       format === 'deflate'
-//         ? zlib.createDeflate()
-//         : format === 'gzip'
-//           ? zlib.createGzip()
-//           : zlib.createDeflateRaw(),
-//     );
-//   }
-// };
+// @ts-expect-error - polyfill exception
+globalThis.CompressionStream ??= class CompressionStream {
+  /**
+   * @param format - the format to use
+   */
+  constructor(format) {
+    make(
+      this,
+      format === 'deflate'
+        ? zlib.createDeflate()
+        : format === 'gzip'
+          ? zlib.createGzip()
+          : zlib.createDeflateRaw(),
+    );
+  }
+};
 
 // @ts-expect-error - polyfill exception
 globalThis.DecompressionStream ??= class DecompressionStream {

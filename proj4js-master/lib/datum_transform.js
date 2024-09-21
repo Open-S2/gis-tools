@@ -55,14 +55,19 @@ export default function(source, dest, point) {
 
   // Convert to geocentric coordinates.
   point = geodeticToGeocentric(point, source_es, source_a);
+  console.log('DATUM 1 A: ', point)
   // Convert between datums
+  console.log('source.datum_params', source.datum_params)
   if (checkParams(source.datum_type)) {
     point = geocentricToWgs84(point, source.datum_type, source.datum_params);
   }
+  console.log('DATUM 1 B: ', point)
   if (checkParams(dest.datum_type)) {
     point = geocentricFromWgs84(point, dest.datum_type, dest.datum_params);
   }
+  console.log('DATUM 1 C: ', point)
   point = geocentricToGeodetic(point, dest_es, dest_a, dest_b);
+  console.log('DATUM 1 D: ', point)
 
   if (dest.datum_type === PJD_GRIDSHIFT) {
     var destGridShiftResult = applyGridShift(dest, true, point);

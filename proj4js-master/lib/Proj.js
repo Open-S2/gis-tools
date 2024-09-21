@@ -17,6 +17,7 @@ function Projection(srsCode,callback) {
     }
   };
   var json = parseCode(srsCode);
+  // console.log('json', json)
   if(typeof json !== 'object'){
     callback('Could not parse to valid json: ' + srsCode);
     return;
@@ -38,10 +39,8 @@ function Projection(srsCode,callback) {
   json.axis = json.axis || 'enu';
   json.ellps = json.ellps || 'wgs84';
   json.lat1 = json.lat1 || json.lat0; // Lambert_Conformal_Conic_1SP, for example, needs this
-  console.log('json begin', json)
 
   var sphere_ = dc_sphere(json.a, json.b, json.rf, json.ellps, json.sphere);
-  console.log('SPHERE', sphere_)
   var ecc = dc_eccentricity(sphere_.a, sphere_.b, sphere_.rf, json.R_A);
   var nadgrids = getNadgrids(json.nadgrids);
   var datumObj = json.datum || datum(json.datumCode, json.datum_params, sphere_.a, sphere_.b, ecc.es, ecc.ep2,
