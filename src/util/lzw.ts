@@ -8,7 +8,7 @@ const MAX_BYTELENGTH = 12;
  * @param position
  * @param length
  */
-function getByte(array, position, length) {
+function getByte(array: number[] | Uint8Array, position: number, length: number): number {
   const d = position % 8;
   const a = Math.floor(position / 8);
   const de = 8 - d;
@@ -40,7 +40,7 @@ function getByte(array, position, length) {
  * @param dest
  * @param source
  */
-function appendReversed(dest, source) {
+function appendReversed(dest: number[], source: number[]): number[] {
   for (let i = source.length - 1; i >= 0; i--) {
     dest.push(source[i]);
   }
@@ -71,7 +71,7 @@ function decompress(input: ArrayBufferLike): Uint8Array {
   /**
    * @param array
    */
-  function getNext(array) {
+  function getNext(array: number[] | Uint8Array): number {
     const byte = getByte(array, position, byteLength);
     position += byteLength;
     return byte;
@@ -80,7 +80,7 @@ function decompress(input: ArrayBufferLike): Uint8Array {
    * @param i
    * @param c
    */
-  function addToDictionary(i, c) {
+  function addToDictionary(i: number, c: number): number {
     dictionaryChar[dictionaryLength] = c;
     dictionaryIndex[dictionaryLength] = i;
     dictionaryLength++;
@@ -89,7 +89,7 @@ function decompress(input: ArrayBufferLike): Uint8Array {
   /**
    * @param n
    */
-  function getDictionaryReversed(n) {
+  function getDictionaryReversed(n: number): number[] {
     const rev = [];
     for (let i = n; i !== 4096; i = dictionaryIndex[i]) {
       rev.push(dictionaryChar[i]);
@@ -122,10 +122,10 @@ function decompress(input: ArrayBufferLike): Uint8Array {
     } else if (code < dictionaryLength) {
       const val = getDictionaryReversed(code);
       appendReversed(result, val);
-      addToDictionary(oldCode, val[val.length - 1]);
+      addToDictionary(oldCode ?? code, val[val.length - 1]);
       oldCode = code;
     } else {
-      const oldVal = getDictionaryReversed(oldCode);
+      const oldVal = getDictionaryReversed(oldCode ?? code);
       if (!oldVal) {
         throw new Error(
           `Bogus entry. Not in dictionary, ${oldCode} / ${dictionaryLength}, position: ${position}`,
@@ -133,7 +133,7 @@ function decompress(input: ArrayBufferLike): Uint8Array {
       }
       appendReversed(result, oldVal);
       result.push(oldVal[oldVal.length - 1]);
-      addToDictionary(oldCode, oldVal[oldVal.length - 1]);
+      addToDictionary(oldCode ?? code, oldVal[oldVal.length - 1]);
       oldCode = code;
     }
 
@@ -152,6 +152,6 @@ function decompress(input: ArrayBufferLike): Uint8Array {
 /**
  * @param buffer
  */
-export default function decodeBlock(buffer: ArrayBufferLike): ArrayBufferLike {
+export default function decodeLZW(buffer: ArrayBufferLike): ArrayBufferLike {
   return decompress(buffer).buffer;
 }

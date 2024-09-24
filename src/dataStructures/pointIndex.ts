@@ -79,7 +79,7 @@ export default class PointIndex<T> {
     let mid: number;
 
     while (lo < hi) {
-      mid = lo + (hi - lo) / 2;
+      mid = Math.floor(lo + (hi - lo) / 2);
       if (this.#store[mid].cell.compare(cellID) === -1) {
         lo = mid + 1;
       } else {

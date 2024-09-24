@@ -1,4 +1,4 @@
-import { base64ToArrayBuffer } from '../util/base64';
+import { base64ToArrayBuffer } from '../util';
 import wasmBase64 from './uint64.wasm';
 
 import { S2Point, fromS2Point as fromS2, fromST } from '../geometry';
@@ -15,6 +15,8 @@ export type Uint64 = number;
 /** An Uint64 contains all the information needed to uniquely identify a 64-bit cell */
 export interface Uint64Cell {
   id: Uint64;
+  low: number;
+  high: number;
   compare: (other: Uint64Cell) => -1 | 0 | 1;
 }
 
@@ -46,7 +48,7 @@ export default class Uint64CellGenerator {
       env: {},
     });
 
-    this.#finalizationRegistry = new FinalizationRegistry<number>((id: Uint64): void => {
+    this.#finalizationRegistry = new FinalizationRegistry<number>((id: number): void => {
       const freeUint64 = this.instance.exports.free_s2_cell_id as WasmFreeUint64;
       freeUint64(id);
     });
@@ -92,7 +94,7 @@ export default class Uint64CellGenerator {
    */
   fromBigInt(id: S2CellId): Uint64Cell {
     const low = Number(id & 0xffffffffn);
-    const high = Number(id >> 32n);
+    const high = Number(id >> 32n) & 0xffffffff;
     return this.fromLowHigh(low, high);
   }
 
@@ -108,6 +110,8 @@ export default class Uint64CellGenerator {
     const id = _fromLowHigh(low, high);
     const cell: Uint64Cell = {
       id,
+      low,
+      high,
       /**
        * @param other - other Uint64Cell to compare to
        * @returns -1 | 0 | 1; -1 if this < other, 0 if this == other, 1 if this > other

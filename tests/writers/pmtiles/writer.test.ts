@@ -2,18 +2,16 @@ import FileReader from '../../../src/readers/file';
 import FileWriter from '../../../src/writers/file';
 import { TileType } from '../../../src/writers/pmtiles';
 import tmp from 'tmp';
-import { unlink } from 'node:fs/promises';
 import { BufferReader, S2PMTilesReader } from '../../../src/readers';
 import { BufferWriter, S2PMTilesWriter } from '../../../src/writers';
-import { afterAll, expect, test } from 'bun:test';
+import { expect, test } from 'bun:test';
 
 import { stat } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
 import type { S2Header } from '../../../src/readers/pmtiles';
 
-let tmpFile1: string;
-let tmpFile2: string;
+tmp.setGracefulCleanup();
 
 test('File Writer WM', async () => {
   const bufWriter = new BufferWriter();
@@ -70,7 +68,7 @@ test('File Writer WM', async () => {
 });
 
 test('File Writer S2', async () => {
-  tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
+  const tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
   const writer = new S2PMTilesWriter(new FileWriter(tmpFile1), TileType.Pbf);
   // setup data
   const str = 'hello world';
@@ -158,7 +156,7 @@ test('File Writer S2', async () => {
 test(
   'File Writer WM Large',
   async () => {
-    tmpFile2 = tmp.tmpNameSync({ prefix: 'S2-big-2' });
+    const tmpFile2 = tmp.tmpNameSync({ prefix: 'S2-big-2' });
     const writer = new S2PMTilesWriter(new FileWriter(tmpFile2), TileType.Pbf);
     // write lots of tiles
     for (let zoom = 0; zoom < 8; zoom++) {
@@ -210,17 +208,3 @@ test(
   },
   { timeout: 10_000 },
 );
-
-// cleanup
-afterAll(async () => {
-  try {
-    await unlink(tmpFile1);
-  } catch (_) {
-    // ignore
-  }
-  try {
-    await unlink(tmpFile2);
-  } catch (_) {
-    // ignore
-  }
-});

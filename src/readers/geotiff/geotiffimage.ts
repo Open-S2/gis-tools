@@ -10,7 +10,7 @@ import {
   fromPalette,
   fromWhiteIsZero,
   fromYCbCr,
-} from './rgb';
+} from './raster/color';
 import { resample, resampleInterleaved } from './resample';
 
 /**
@@ -40,11 +40,9 @@ import { resample, resampleInterleaved } from './resample';
  * @param start
  * @param end
  */
-function sum(array, start, end) {
+function sum(array: number[], start: number, end: number) {
   let s = 0;
-  for (let i = start; i < end; ++i) {
-    s += array[i];
-  }
+  for (let i = start; i < end; ++i) s += array[i];
   return s;
 }
 

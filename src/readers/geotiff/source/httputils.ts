@@ -3,6 +3,9 @@ const CRLFCRLF = '\r\n\r\n';
 /*
  * Shim for 'Object.fromEntries'
  */
+/**
+ * @param items
+ */
 function itemsToObject(items) {
   if (typeof Object.fromEntries !== 'undefined') {
     return Object.fromEntries(items);
@@ -16,25 +19,23 @@ function itemsToObject(items) {
 
 /**
  * Parse HTTP headers from a given string.
- * @param {String} text the text to parse the headers from
- * @returns {Object} the parsed headers with lowercase keys
+ * @param text the text to parse the headers from
+ * @returns the parsed headers with lowercase keys
  */
 function parseHeaders(text) {
-  const items = text
-    .split('\r\n')
-    .map((line) => {
-      const kv = line.split(':').map((str) => str.trim());
-      kv[0] = kv[0].toLowerCase();
-      return kv;
-    });
+  const items = text.split('\r\n').map((line) => {
+    const kv = line.split(':').map((str) => str.trim());
+    kv[0] = kv[0].toLowerCase();
+    return kv;
+  });
 
   return itemsToObject(items);
 }
 
 /**
  * Parse a 'Content-Type' header value to the content-type and parameters
- * @param {String} rawContentType the raw string to parse from
- * @returns {Object} the parsed content type with the fields: type and params
+ * @param rawContentType the raw string to parse from
+ * @returns the parsed content type with the fields: type and params
  */
 export function parseContentType(rawContentType) {
   const [type, ...rawParams] = rawContentType.split(';').map((s) => s.trim());
@@ -44,8 +45,8 @@ export function parseContentType(rawContentType) {
 
 /**
  * Parse a 'Content-Range' header value to its start, end, and total parts
- * @param {String} rawContentRange the raw string to parse from
- * @returns {Object} the parsed parts
+ * @param rawContentRange the raw string to parse from
+ * @returns the parsed parts
  */
 export function parseContentRange(rawContentRange) {
   let start;
@@ -69,9 +70,9 @@ export function parseContentRange(rawContentRange) {
  * - data: the sliced ArrayBuffer for that specific part
  * - offset: the offset of the byterange within its originating file
  * - length: the length of the byterange
- * @param {ArrayBuffer} responseArrayBuffer the response to be parsed and split
- * @param {String} boundary the boundary string used to split the sections
- * @returns {Object[]} the parsed byteranges
+ * @param responseArrayBuffer the response to be parsed and split
+ * @param boundary the boundary string used to split the sections
+ * @returns the parsed byteranges
  */
 export function parseByteRanges(responseArrayBuffer, boundary) {
   let offset = null;
@@ -84,9 +85,7 @@ export function parseByteRanges(responseArrayBuffer, boundary) {
   // search for the initial boundary, may be offset by some bytes
   // TODO: more efficient to check for `--` in bytes directly
   for (let i = 0; i < 10; ++i) {
-    const text = decoder.decode(
-      new Uint8Array(responseArrayBuffer, i, startBoundary.length),
-    );
+    const text = decoder.decode(new Uint8Array(responseArrayBuffer, i, startBoundary.length));
     if (text === startBoundary) {
       offset = i;
     }
@@ -98,7 +97,9 @@ export function parseByteRanges(responseArrayBuffer, boundary) {
 
   while (offset < responseArrayBuffer.byteLength) {
     const text = decoder.decode(
-      new Uint8Array(responseArrayBuffer, offset,
+      new Uint8Array(
+        responseArrayBuffer,
+        offset,
         Math.min(startBoundary.length + 1024, responseArrayBuffer.byteLength - offset),
       ),
     );

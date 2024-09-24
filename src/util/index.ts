@@ -1,5 +1,8 @@
 export * from './gzip';
 
+/** The formats available to DecompressionStream */
+export type Format = 'deflate' | 'deflate-raw' | 'gzip';
+
 /**
  * pollyfill for string to array buffer
  * @param base64 - base64 encoded string

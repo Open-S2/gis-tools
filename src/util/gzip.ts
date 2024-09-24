@@ -1,7 +1,6 @@
 import { concatUint8Arrays } from '.';
 
-/** The formats available to DecompressionStream */
-export type Format = 'deflate' | 'deflate-raw' | 'gzip';
+import type { Format } from '..';
 
 /**
  * A Browser compatible Gzip decompression function

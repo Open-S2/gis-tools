@@ -1,7 +1,7 @@
 [test]
 
 # preload options
-preload = ['./tests/polyfill.ts']
+preload = ['./src/util/polyfills/local.ts']
 
 # root directory
 root = "./tests"

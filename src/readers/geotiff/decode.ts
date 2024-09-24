@@ -38,19 +38,21 @@ export interface BlobOptions {
 export async function decodeImage(
   buffer: ArrayBufferLike,
   options: BlobOptions = {},
-): ArrayBufferLike {
-  const blob = new Blob([buffer], options); // e.g. { type: 'image/png' }
+): Promise<ImageData> {
+  const blob = new Blob([buffer as ArrayBuffer], options); // e.g. { type: 'image/png' }
   const imageBitmap = await createImageBitmap(blob);
   // Create OffscreenCanvas and draw
-  const canvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
+  const canvas: OffscreenCanvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
   const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not get 2d context');
   ctx.drawImage(imageBitmap, 0, 0);
 
   return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 /**
- * @param buffer
+ * @param buffer - an array of packed bits in a block
+ * @returns the decoded array
  */
 export function decodePackedBitsBlock(buffer: ArrayBufferLike): ArrayBufferLike {
   const dataView = new DataView(buffer);
@@ -61,14 +63,10 @@ export function decodePackedBitsBlock(buffer: ArrayBufferLike): ArrayBufferLike 
     if (header < 0) {
       const next = dataView.getUint8(i + 1);
       header = -header;
-      for (let j = 0; j <= header; ++j) {
-        out.push(next);
-      }
+      for (let j = 0; j <= header; ++j) out.push(next);
       i += 1;
     } else {
-      for (let j = 0; j <= header; ++j) {
-        out.push(dataView.getUint8(i + j + 1));
-      }
+      for (let j = 0; j <= header; ++j) out.push(dataView.getUint8(i + j + 1));
       i += header + 1;
     }
   }

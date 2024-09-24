@@ -1,16 +1,7 @@
 // DataView Utility functions for float32 to float16 conversion and vice versa
-export {};
-
-declare global {
-  /** Extend the DataView interface to include getFloat16 and setFloat16 */
-  interface DataView {
-    getFloat16(byteOffset: number, littleEndian?: boolean): number;
-    setFloat16(byteOffset: number, value: number, littleEndian?: boolean): void;
-  }
-}
 
 /**
- * @param value
+ * @param value - the uint32 value
  */
 function float32ToFloat16(value: number): number {
   const floatView = new Float32Array(1);
@@ -36,7 +27,8 @@ function float32ToFloat16(value: number): number {
 }
 
 /**
- * @param hbits
+ * @param hbits - uint16 bits
+ * @returns - float32
  */
 function float16ToFloat32(hbits: number): number {
   const s = (hbits & 0x8000) >> 15;
@@ -58,8 +50,11 @@ function float16ToFloat32(hbits: number): number {
 // Polyfill for DataView.getFloat16 and DataView.setFloat16
 if (!('getFloat16' in DataView.prototype)) {
   /**
-   * @param byteOffset
-   * @param littleEndian
+   * Gets the Float32 value at the specified byte offset from the start of the view.
+   * There is no alignment constraint; multi-byte values may be fetched from any offset.
+   * @param byteOffset — The place in the buffer at which the value should be retrieved.
+   * @param littleEndian — If false or undefined, a big-endian value should be read.
+   * @returns The Float32 value.
    */
   DataView.prototype.getFloat16 = function (byteOffset: number, littleEndian = false): number {
     const value = this.getUint16(byteOffset, littleEndian);

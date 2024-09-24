@@ -1,4 +1,3 @@
-// import QuickLRU from 'quick-lru'; // TODO: REplace with cache from dataStore
 import Cache from 's2-tools/dataStructures/cache';
 import { BaseSource } from './basesource';
 import { wait, zip } from '../utils';

@@ -7,7 +7,7 @@ export default class PackbitsDecoder extends BaseDecoder {
   /**
    * @param buffer
    */
-  decodeBlock(buffer: ArrayBuffer): ArrayBuffer {
+  decodeBlock(buffer: ArrayBufferLike): ArrayBufferLike {
     const dataView = new DataView(buffer);
     const out = [];
 

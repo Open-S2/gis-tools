@@ -113,6 +113,7 @@
   "include": [
     "eslint.config.mjs",
     "build.ts",
+    "benchmarks/**/*.ts",
     "src/**/*.ts",
     "tests/**/*.ts",
     "tools/**/*.ts",
