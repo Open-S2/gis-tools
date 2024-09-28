@@ -107,11 +107,11 @@ export class EquidistantCylindrical extends ProjectionBase implements Projection
   constructor(params?: ProjectionParams) {
     super(params);
 
-    this.x0 = this.x0 || 0;
-    this.y0 = this.y0 || 0;
-    this.lat0 = this.lat0 || 0;
-    this.long0 = this.long0 || 0;
-    this.latTs = this.latTs || 0;
+    this.x0 = this.x0 ?? 0;
+    this.y0 = this.y0 ?? 0;
+    this.lat0 = this.lat0 ?? 0;
+    this.long0 = this.long0 ?? 0;
+    this.latTs = this.latTs ?? 0;
 
     this.rc = Math.cos(this.latTs);
   }

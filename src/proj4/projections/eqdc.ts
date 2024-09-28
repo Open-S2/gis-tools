@@ -73,7 +73,7 @@ export class EquidistantConic extends ProjectionBase implements ProjectionTransf
 
     if (abs(this.lat1 + this.lat2) < EPSLN)
       throw new Error('Standard parallels cannot be equal and on opposite sides of the equator');
-    this.lat2 = this.lat2 || this.lat1;
+    this.lat2 = this.lat2 ?? this.lat1;
     this.temp = this.b / this.a;
     this.es = 1 - Math.pow(this.temp, 2);
     this.e = Math.sqrt(this.es);

@@ -18,6 +18,7 @@ export interface ProjectionParams {
   lat0?: number;
   lat1?: number;
   lat2?: number;
+  lamc?: number;
   latTs?: number;
   a?: number;
   b?: number;
@@ -67,9 +68,6 @@ export class ProjectionBase implements ProjectionTransform {
   datumParams: DatumParams = [0, 0, 0, 0, 0, 0, 0];
   srsCode = '';
   // these are all variables must have a default value across all projections
-  lon0 = 0;
-  lon1 = 0;
-  lon2 = 0;
   long0 = 0;
   long1 = 0;
   lat0 = 0;
@@ -94,7 +92,7 @@ export class ProjectionBase implements ProjectionTransform {
   rectifiedGridAngle?: number;
   utmSouth = false;
   toMeter?: number;
-  units = 'ft';
+  units = 'm';
   fromGreenwich = 0;
   approx = false;
   axis = 'enu';

@@ -1,4 +1,4 @@
-import { closeSync, openSync, readSync, writeSync } from 'fs';
+import { closeSync, openSync, writeSync } from 'fs';
 
 import type { KVStore } from '.';
 import type { Key, Stringifiable } from '..';

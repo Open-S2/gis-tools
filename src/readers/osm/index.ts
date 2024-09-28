@@ -142,14 +142,13 @@ export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
   /**
    *
    */
-  // async *iterate(): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
   async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
     this.#offset = 0;
     // skip the header
-    await this.#next();
+    this.#next();
 
     while (true) {
-      const blob = await this.#next();
+      const blob = this.#next();
       if (blob === undefined) break;
       const pb = await this.#readBlob(blob);
       for (const pg of pb.primitiveGroups) {
@@ -169,9 +168,9 @@ export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
   /**
    *
    */
-  async getHeader(): Promise<OSMHeader> {
+  getHeader(): OSMHeader {
     this.#offset = 0;
-    const blobHeader = await this.#next();
+    const blobHeader = this.#next();
     if (blobHeader === undefined) throw new Error('Header not found');
     const headerBlock = new HeaderBlock(new Protobuf(new Uint8Array(blobHeader.buffer)));
 
@@ -182,7 +181,7 @@ export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
    * @param isHeader
    * @param offset
    */
-  async #next(): Promise<undefined | DataView> {
+  #next(): undefined | DataView {
     const { reader } = this;
     // if we've already read all the data, return null
     if (this.#offset >= reader.byteLength) return;

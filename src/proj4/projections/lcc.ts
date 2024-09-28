@@ -101,14 +101,9 @@ export class LambertConformalConic extends ProjectionBase implements ProjectionT
     //the above value can be set with proj4.defs
     //example: proj4.defs("EPSG:2154","+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 
-    if (!this.lat2) {
-      this.lat2 = this.lat1;
-    } //if lat2 is not defined
-    if (!this.k0) {
-      this.k0 = 1;
-    }
-    this.x0 = this.x0 || 0;
-    this.y0 = this.y0 || 0;
+    if (this.lat2 === 0) this.lat2 = this.lat1;
+    this.x0 = this.x0 ?? 0;
+    this.y0 = this.y0 ?? 0;
     // Standard Parallels cannot be equal and on opposite sides of the equator
     if (abs(this.lat1 + this.lat2) < EPSLN) {
       return;

@@ -50,7 +50,7 @@ export class Tile {
     const { metadata = {} } = feature;
 
     const layerName = (metadata.layer as string) ?? layer ?? 'default';
-    if (!this.layers[layerName]) {
+    if (this.layers[layerName] === undefined) {
       this.layers[layerName] = new Layer(layerName, []);
     }
     this.layers[layerName].features.push(feature);

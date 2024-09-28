@@ -97,7 +97,7 @@ export class S2MMapStore<V = Stringifiable> {
    * @returns the value if the map contains values for the key
    */
   get(key: Key, max?: number, bigint = false): V[] | undefined {
-    this.switchToReadState();
+    if (!this.#sorted) throw new Error('Not sorted, please call "switchToReadState" first');
     let lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return undefined;
     const { low: lowID, high: highID } = this.#getLowHigh(key);
@@ -116,7 +116,7 @@ export class S2MMapStore<V = Stringifiable> {
         const valueBuf = Buffer.from(valSlice);
         res.push(JSON.parse(valueBuf.toString()) as V);
       }
-      if (max && res.length >= max) break;
+      if (max !== undefined && res.length >= max) break;
       lowerIndex++;
       if (lowerIndex >= this.#size) break;
     }
@@ -131,7 +131,7 @@ export class S2MMapStore<V = Stringifiable> {
    * @returns true if the map contains value(s) for the key
    */
   has(key: Key): boolean {
-    this.switchToReadState();
+    if (!this.#sorted) throw new Error('Not sorted, please call "switchToReadState" first');
     const lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return false;
     const { low: lowID, high: highID } = this.#getLowHigh(key);
@@ -166,7 +166,6 @@ export class S2MMapStore<V = Stringifiable> {
    */
   #lowerBound(id: Key): number {
     const loHiID = this.#getLowHigh(id);
-    this.#sort();
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#size;

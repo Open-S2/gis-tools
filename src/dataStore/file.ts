@@ -111,7 +111,7 @@ export class S2FileStore<V = Stringifiable> {
         readSync(this.#valueFd, valueBuf, 0, valueLength, valueOffset);
         res.push(JSON.parse(valueBuf.toString()) as V);
       }
-      if (max && res.length >= max) break;
+      if (max !== undefined && res.length >= max) break;
       lowerIndex++;
       if (lowerIndex >= this.#size) break;
     }

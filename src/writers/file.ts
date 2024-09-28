@@ -27,11 +27,14 @@ export default class FileWriter implements Writer {
     }
   }
 
-  /** @param data - the data to append */
+  /**
+   * @param data - the data to append
+   * @returns - a promise that resolves when the data is appended
+   */
   async append(data: Uint8Array): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.#stream.write(data, (err) => {
-        if (err) reject(err);
+        if (err instanceof Error) reject(err);
         else resolve();
       });
     });

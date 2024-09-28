@@ -1,4 +1,4 @@
-// DataView Utility functions for float32 to float16 conversion and vice versa
+// DataView Utility functions for float16
 
 /**
  * @param value - the uint32 value
@@ -19,7 +19,7 @@ function float32ToFloat16(value: number): number {
     return sign | fraction;
   } else if (exponent === 143) {
     // NaN or Infinity
-    return sign | 0x7c00 | (fraction ? 1 : 0);
+    return sign | 0x7c00 | (fraction > 0 ? 1 : 0);
   }
 
   // Normalized number
@@ -37,14 +37,14 @@ function float16ToFloat32(hbits: number): number {
 
   if (e === 0) {
     // Subnormal number
-    return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+    return (s > 0 ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
   } else if (e === 31) {
     // NaN or Infinity
-    return f ? NaN : (s ? -1 : 1) * Infinity;
+    return f > 0 ? NaN : (s > 0 ? -1 : 1) * Infinity;
   }
 
   // Normalized number
-  return (s ? -1 : 1) * Math.pow(2, e - 15) * (1 + f / Math.pow(2, 10));
+  return (s > 0 ? -1 : 1) * Math.pow(2, e - 15) * (1 + f / Math.pow(2, 10));
 }
 
 // Polyfill for DataView.getFloat16 and DataView.setFloat16

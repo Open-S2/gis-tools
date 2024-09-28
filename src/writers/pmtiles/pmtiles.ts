@@ -184,7 +184,7 @@ export function serializeDir(entries: Entry[]): Uint8Array {
   for (let i = 0; i < entries.length; i++) writeVarint(entries[i].runLength, data);
   for (let i = 0; i < entries.length; i++) writeVarint(entries[i].length, data);
   for (let i = 0; i < entries.length; i++) {
-    if (i > 0 && entries[i].offset == entries[i - 1].offset + entries[i - 1].length) {
+    if (i > 0 && entries[i].offset === entries[i - 1].offset + entries[i - 1].length) {
       writeVarint(0, data);
     } else {
       writeVarint(entries[i].offset + 1, data);

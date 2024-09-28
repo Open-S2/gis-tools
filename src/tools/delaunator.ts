@@ -163,7 +163,9 @@ export default class Delaunator {
       // order collinear points by dx (or dy if all x are identical)
       // and return the list as a hull
       for (let i = 0; i < n; i++) {
-        this.#dists[i] = coords[2 * i] - coords[0] || coords[2 * i + 1] - coords[1];
+        const dx = coords[2 * i] - coords[0];
+        const dy = coords[2 * i + 1] - coords[1];
+        this.#dists[i] = dx > 0 ? dx : dy;
       }
       quicksort(this.#ids, this.#dists, 0, n - 1);
       const hull = new Array(n);

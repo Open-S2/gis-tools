@@ -1,4 +1,5 @@
-import { exists, mkdir, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { mkdir, writeFile } from 'fs/promises';
 
 import type { Metadata } from 's2-tilejson';
 import type { TileWriter } from '.';
@@ -14,7 +15,7 @@ export default class LocalTileWriter implements TileWriter {
     readonly fileType: string = 'vector.pbf',
   ) {
     // check that the folder exists
-    const folderExists = exists(this.path);
+    const folderExists = existsSync(this.path);
     if (!folderExists) throw new Error(`Folder ${this.path} does not exist.`);
   }
 
@@ -28,7 +29,7 @@ export default class LocalTileWriter implements TileWriter {
   async writeTileXYZ(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
     // if folders don't exist, create it
     const folders = `${this.path}/${zoom}/${x}`;
-    if (!exists(folders)) await mkdir(folders, { recursive: true });
+    if (!existsSync(folders)) await mkdir(folders, { recursive: true });
 
     await writeFile(`${folders}/${y}.${this.fileType}`, data);
   }
@@ -50,7 +51,7 @@ export default class LocalTileWriter implements TileWriter {
   ): Promise<void> {
     // if folders don't exist, create it
     const folders = `${this.path}/${face}/${zoom}/${x}`;
-    if (!exists(folders)) await mkdir(folders, { recursive: true });
+    if (!existsSync(folders)) await mkdir(folders, { recursive: true });
 
     await writeFile(`${folders}/${y}.${this.fileType}`, data);
   }

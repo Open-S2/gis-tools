@@ -100,7 +100,7 @@ export class JSONReader {
     public reader: Reader,
     chunkSize?: number,
   ) {
-    if (chunkSize) this.#chunkSize = chunkSize;
+    if (chunkSize !== undefined) this.#chunkSize = chunkSize;
     this.#length = reader.byteLength;
   }
 

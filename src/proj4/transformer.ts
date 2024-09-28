@@ -1,9 +1,14 @@
-import { parseProjStr } from './parseCode';
+import * as EPSG_Codes from './projections/references';
+import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
 import type { VectorPoint } from 's2-tools/geometry';
-import type { ProjectionTransform, ProjectionTransformDefinition } from './projections';
+import type {
+  ProjectionParams,
+  ProjectionTransform,
+  ProjectionTransformDefinition,
+} from './projections';
 
 /**
  * A Transformer class contains all projections necessary for converting coordinates from one
@@ -12,6 +17,8 @@ import type { ProjectionTransform, ProjectionTransformDefinition } from './proje
  * Both forward and inverse projections are default set to wgs84.
  */
 export class Transformer {
+  // EPSG code definitions
+  epsgs = new Map<string, string>();
   // Definitions are descriptions of projections
   definitions = new Map<string, ProjectionTransformDefinition>();
   // source and destination projections
@@ -24,21 +31,21 @@ export class Transformer {
    * @param sourceCode - convenience: if provided, we run `this.setSource(sourceCode)` immediately
    * @param destCode - convenience: if provided, we run `this.setDestination(destCode)` immediately
    */
-  constructor(sourceCode?: string, destCode?: string) {
+  constructor(sourceCode?: string | ProjectionParams, destCode?: string | ProjectionParams) {
     for (const def of DEFAULT_DEFINITIONS) this.insertDefinition(def);
     // defaults to a standard WGS84 lon-lat projection transform
     this.source = this.destination = this.wgs84 = this.#buildTransformer(WGS84);
-    if (sourceCode) this.setSource(sourceCode);
-    if (destCode) this.setDestination(destCode);
+    if (sourceCode !== undefined) this.setSource(sourceCode);
+    if (destCode !== undefined) this.setDestination(destCode);
   }
 
   /** @param sourceCode - can be a name or a coded definition */
-  setSource(sourceCode: string): void {
+  setSource(sourceCode: string | ProjectionParams): void {
     this.source = this.#buildTransformer(sourceCode);
   }
 
   /** @param destCode - can be a name or a coded definition */
-  setDestination(destCode: string): void {
+  setDestination(destCode: string | ProjectionParams): void {
     this.destination = this.#buildTransformer(destCode);
   }
 
@@ -46,8 +53,9 @@ export class Transformer {
    * @param code - can be a WKT object or proj4 encoded string
    * @returns - A ready to use ProjectionTransform
    */
-  #buildTransformer(code: string): ProjectionTransform {
-    const params = parseProjStr(code);
+  #buildTransformer(code: string | ProjectionParams): ProjectionTransform {
+    code = this.#parseEPSGCode(code);
+    const params = parseProj(code);
     // search
     let def: ProjectionTransformDefinition | undefined;
     for (const name of [params.projName, params.name]) {
@@ -59,12 +67,36 @@ export class Transformer {
   }
 
   /**
+   * Attempt to parse the EPSG code if epsg codes are loaded and return the definition
+   * @param code - a string or params with the EPSG code set in projName
+   * @returns - if no EPSG code is found, returns the original code. Otherwise returns the EPSG definition
+   */
+  #parseEPSGCode(code: string | ProjectionParams): string | ProjectionParams {
+    if (typeof code === 'string' && this.epsgs.has(code)) return this.epsgs.get(code)!;
+    else if (
+      typeof code === 'object' &&
+      typeof code.projName === 'string' &&
+      this.epsgs.has(code.projName)
+    )
+      return this.epsgs.get(code.projName)!;
+    else return code;
+  }
+
+  /**
    * @param def - a class that may be instatiated with future setSource and setDestination
    * @param names - optionally add projection reference names to add lookups to the definition
    */
   insertDefinition(def: ProjectionTransformDefinition, names: string[] = []): void {
     for (const name of def.names) this.definitions.set(name.toLowerCase(), def);
     for (const name of names) this.definitions.set(name.toLowerCase(), def);
+  }
+
+  /**
+   * @param code - EPSG code to insert e.g. "EPSG_4326" (uses underscore instead of colon)
+   * @param value - the EPSG definition which is either a WKT string object or proj4 encoded string
+   */
+  insertEPSGCode(code: string, value: string): void {
+    this.epsgs.set(code, value);
   }
 
   /**
@@ -98,9 +130,10 @@ export class Transformer {
     dest: ProjectionTransform,
     enforceAxis: boolean,
   ): VectorPoint {
-    const hasZ = sourcePoint.z !== undefined;
     // Workaround for datum shifts towgs84, if either source or destination projection is not wgs84
     let res = { ...sourcePoint };
+    if (src === dest) return res;
+    const hasZ = sourcePoint.z !== undefined;
     if (checkNotWGS(src, dest)) {
       const wgs84 = this.wgs84;
       res = this.#transformPoint(res, src, wgs84, enforceAxis);
@@ -108,11 +141,9 @@ export class Transformer {
     }
     // STEP 1: SOURCE -> WGS84
     // if needed, adjust axis
-    if (enforceAxis && src.axis !== 'enu') {
-      adjustAxis(res, src, true);
-    }
+    if (enforceAxis && src.axis !== 'enu') adjustAxis(res, src, true);
     // adjust for meters if necessary
-    if (src.name !== 'longlat' && src.projName !== 'longlat' && src.toMeter) {
+    if (src.name !== 'longlat' && src.projName !== 'longlat' && src.toMeter !== undefined) {
       res.x *= src.toMeter;
       res.y *= src.toMeter;
     }
@@ -125,22 +156,18 @@ export class Transformer {
     // STEP 2: MID-POINT. Convert datums if needed, and if possible.
     datumTransform(res, src, dest);
 
-    // console.log('STEP 2: MID DATUM B', res);
-
     // STEP 3: WGS84 -> DEST
     // Adjust for the prime meridian if necessary
     res.x -= dest.fromGreenwich;
     // transform forward
     dest.forward(res);
     // adjust for meters if necessary
-    if (dest.name !== 'longlat' && dest.projName !== 'longlat' && dest.toMeter) {
+    if (dest.name !== 'longlat' && dest.projName !== 'longlat' && dest.toMeter !== undefined) {
       res.x /= dest.toMeter;
       res.y /= dest.toMeter;
     }
     // if needed, adjust axis
-    if (enforceAxis && dest.axis !== 'enu') {
-      adjustAxis(res, dest, true);
-    }
+    if (enforceAxis && dest.axis !== 'enu') adjustAxis(res, dest, true);
 
     if (!hasZ) delete res.z;
 
@@ -151,6 +178,11 @@ export class Transformer {
 /** @param transformer - projection transformer */
 export function injectAllDefinitions(transformer: Transformer) {
   for (const proj of ALL_DEFINITIONS) transformer.insertDefinition(proj);
+}
+
+/** @param transformer - the transformer to inject EPSG codes to */
+export function injectAllEPSGCodes(transformer: Transformer) {
+  for (const [key, value] of Object.entries(EPSG_Codes)) transformer.insertEPSGCode(key, value);
 }
 
 /**

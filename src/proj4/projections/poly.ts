@@ -120,7 +120,7 @@ export class Polyconic extends ProjectionBase implements ProjectionTransform {
         bl = (x * x) / this.a / this.a + al * al;
         phi = al;
         let tanphi;
-        for (i = 20; i; --i) {
+        for (i = 20; i !== 0; --i) {
           tanphi = tan(phi);
           dphi =
             (-1 * (al * (phi * tanphi + 1) - phi - 0.5 * (phi * phi + bl) * tanphi)) /
@@ -142,7 +142,7 @@ export class Polyconic extends ProjectionBase implements ProjectionTransform {
         phi = al;
         let cl, mln, mlnp, ma;
         let con;
-        for (i = 20; i; --i) {
+        for (i = 20; i !== 0; --i) {
           con = this.e * sin(phi);
           cl = sqrt(1 - con * con) * tan(phi);
           mln = this.a * mlfn(this.e0, this.e1, this.e2, this.e3, phi);

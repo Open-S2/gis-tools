@@ -71,7 +71,7 @@ export default class DataBaseFile {
     const res: Properties[] = [];
     for (let i = 0; i < records; i++) {
       const properties = this.getProperties(i);
-      if (properties) res.push(properties);
+      if (properties !== undefined) res.push(properties);
     }
     return res;
   }

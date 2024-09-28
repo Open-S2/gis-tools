@@ -46,7 +46,7 @@ export default class Cache<K, V> extends Map<K, V> {
    */
   delete(key: K): boolean {
     const value = super.get(key);
-    if (value !== undefined && this.onDelete) this.onDelete(key, value);
+    if (value !== undefined && this.onDelete !== undefined) this.onDelete(key, value);
     return super.delete(key);
   }
 }

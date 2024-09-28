@@ -68,7 +68,7 @@ export interface BuildGuide {
  * Build vector tiles give a guide on what sources to parse data from and how to store it
  * @param buildGuide - the user defined guide on building the vector tiles
  */
-export function toVectorTiles(buildGuide: BuildGuide): void {
+export async function toTiles(buildGuide: BuildGuide): Promise<void> {
   const { tileWriter } = buildGuide;
 
   // first setup our metadata builder
@@ -81,7 +81,7 @@ export function toVectorTiles(buildGuide: BuildGuide): void {
 
   // FINISH:
   const metadata = metaBuilder.commit();
-  tileWriter.commit(metadata);
+  await tileWriter.commit(metadata);
 }
 
 /**

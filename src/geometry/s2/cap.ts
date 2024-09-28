@@ -113,7 +113,7 @@ export function isEmpty<T>(cap: S2Cap<T>): boolean {
  * @returns - true if the cap is full
  */
 export function isFull<T>(cap: S2Cap<T>): boolean {
-  return cap.radius == 4;
+  return cap.radius === 4;
 }
 
 /**

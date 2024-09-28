@@ -269,7 +269,7 @@ function buildSpheroid(input: WKTObject): Spheroid {
  * @param input
  */
 function buildAuthority(input?: WKTValue): Authority {
-  return { EPSG: (input ? input[1] : '') as string };
+  return { EPSG: (input !== undefined ? input[1] : '') as string };
 }
 
 /**
@@ -292,7 +292,7 @@ function updateProj(wkt: WKTCRS): void {
     wkt.local = true;
   }
   // improve axis definitions
-  if (wkt.AXIS) {
+  if (wkt.AXIS !== undefined) {
     let axisOrder = '';
     for (let i = 0, ii = wkt.AXIS.length; i < ii; ++i) {
       const axis = [wkt.AXIS[i][0].toLowerCase(), wkt.AXIS[i][1].toLowerCase()];
@@ -326,12 +326,12 @@ function updateProj(wkt: WKTCRS): void {
     }
   }
   // unit adjustments
-  if (wkt.UNIT) {
+  if (wkt.UNIT !== undefined) {
     wkt.units = wkt.UNIT.name?.toLowerCase();
     if (wkt.units === 'metre') wkt.units = 'meter';
     if (wkt.UNIT.convert !== undefined) {
       if (wkt.type === 'GEOGCS') {
-        if (wkt.DATUM && wkt.DATUM.SPHEROID) {
+        if (wkt.DATUM !== undefined && wkt.DATUM.SPHEROID !== undefined) {
           wkt.to_meter = wkt.UNIT.convert * wkt.DATUM.SPHEROID.a;
         }
       } else {
@@ -343,11 +343,11 @@ function updateProj(wkt: WKTCRS): void {
   if (wkt.type === 'GEOGCS') {
     geogcs = wkt as GeoGCS;
   }
-  if (geogcs) {
+  if (geogcs !== undefined) {
     //if(wkt.GEOGCS.PRIMEM&&wkt.GEOGCS.PRIMEM.convert){
     //  wkt.from_greenwich=wkt.GEOGCS.PRIMEM.convert*D2R;
     //}
-    if (geogcs.DATUM) {
+    if (geogcs.DATUM !== undefined) {
       wkt.datumCode = geogcs.DATUM.name?.toLowerCase();
     } else {
       wkt.datumCode = geogcs.name?.toLowerCase();
@@ -373,10 +373,10 @@ function updateProj(wkt: WKTCRS): void {
     if (wkt.datumCode?.slice(-8) === '_jakarta') {
       wkt.datumCode = wkt.datumCode.slice(0, -8);
     }
-    if (~(wkt.datumCode?.indexOf('belge') ?? -1)) {
+    if (~(wkt.datumCode?.indexOf('belge') ?? -1) !== 0) {
       wkt.datumCode = 'rnb72';
     }
-    if (geogcs.DATUM && geogcs.DATUM.SPHEROID) {
+    if (geogcs.DATUM?.SPHEROID !== undefined) {
       wkt.ellps = geogcs.DATUM.SPHEROID.name.replace('_19', '').replace(/[Cc]larke_18/, 'clrk');
       if (wkt.ellps.toLowerCase().slice(0, 13) === 'international') {
         wkt.ellps = 'intl';
@@ -386,29 +386,29 @@ function updateProj(wkt: WKTCRS): void {
       wkt.rf = geogcs.DATUM.SPHEROID.rf;
     }
 
-    if (geogcs.DATUM && geogcs.DATUM.TOWGS84) {
+    if (geogcs.DATUM?.TOWGS84 !== undefined) {
       wkt.datum_params = geogcs.DATUM.TOWGS84;
     }
-    if (~(wkt.datumCode?.indexOf('osgb_1936') ?? -1)) {
+    if (~(wkt.datumCode?.indexOf('osgb_1936') ?? -1) !== 0) {
       wkt.datumCode = 'osgb36';
     }
-    if (~(wkt.datumCode?.indexOf('osni_1952') ?? -1)) {
+    if (~(wkt.datumCode?.indexOf('osni_1952') ?? -1) !== 0) {
       wkt.datumCode = 'osni52';
     }
     if (
-      ~(wkt.datumCode?.indexOf('tm65') ?? -1) ||
-      ~(wkt.datumCode?.indexOf('geodetic_datum_of_1965') ?? -1)
+      ~(wkt.datumCode?.indexOf('tm65') ?? -1) !== 0 ||
+      ~(wkt.datumCode?.indexOf('geodetic_datum_of_1965') ?? -1) !== 0
     ) {
       wkt.datumCode = 'ire65';
     }
     if (wkt.datumCode === 'ch1903+') {
       wkt.datumCode = 'ch1903';
     }
-    if (~(wkt.datumCode?.indexOf('israel') ?? -1)) {
+    if (~(wkt.datumCode?.indexOf('israel') ?? -1) !== 0) {
       wkt.datumCode = 'isr93';
     }
   }
-  if (wkt.b && !isFinite(wkt.b)) {
+  if (wkt.b !== undefined && !isFinite(wkt.b)) {
     wkt.b = wkt.a;
   }
   /**
@@ -473,13 +473,17 @@ function updateProj(wkt: WKTCRS): void {
   }
   // update lat_ts and lat0 for polar stereographic
   if (
-    !wkt.lat_ts &&
-    wkt.lat1 &&
+    wkt.lat_ts === undefined &&
+    wkt.lat1 !== undefined &&
     ['Stereographic_South_Pole', 'Polar Stereographic (variant B)'].includes(wkt.projName ?? '')
   ) {
     wkt.lat0 = degToRad(wkt.lat1 > 0 ? 90 : -90);
     wkt.lat_ts = wkt.latTs = wkt.lat1;
-  } else if (!wkt.lat_ts && wkt.lat0 && wkt.projName === 'Polar_Stereographic') {
+  } else if (
+    wkt.lat_ts === undefined &&
+    wkt.lat0 !== undefined &&
+    wkt.projName === 'Polar_Stereographic'
+  ) {
     wkt.lat_ts = wkt.latTs = wkt.lat0;
     wkt.lat0 = degToRad(wkt.lat0 > 0 ? 90 : -90);
   }
@@ -500,6 +504,6 @@ function remap(
 ): void {
   if (input[to] === undefined && input[from] !== undefined) {
     // @ts-expect-error - its ok to remap the key
-    input[to] = updateFun ? updateFun(input[from] as number) : input[from];
+    input[to] = updateFun !== undefined ? updateFun(input[from] as number) : input[from];
   }
 }

@@ -13,12 +13,16 @@ import type { DatumParams } from 's2-tools/readers/wkt';
 import type { ProjectionParams } from './projections';
 
 /**
+ * TODO: Support json objects that use the https://proj.org/schemas/v0.7/projjson.schema.json
  * @param code
  * @param proj
  */
-export function parseProjStr(code: string): ProjectionParams {
-  const params =
-    code[0] === '+' ? parseProj4Str(code) : isWKTProjection(code) ? parseWKTProjection(code) : {};
+export function parseProj(code: string | ProjectionParams): ProjectionParams {
+  let params: ProjectionParams = {};
+  if (typeof code === 'object') params = code;
+  else if (code[0] === '+') params = parseProj4Str(code);
+  else if (isWKTProjection(code)) params = parseWKTProjection(code);
+  else throw new Error(`Invalid projection string: ${code}`);
   // adjust params as needed
   deriveSphere(params);
   deriveEccentricity(params);
@@ -117,6 +121,3 @@ function parseProj4StrKeyValue(res: ProjectionParams, key: string, value: string
   // @ts-expect-error - key is a string in ProjectionParams
   else res[key as keyof ProjectionParams] = value;
 }
-
-//   noOff: false,
-//   noRot: false,

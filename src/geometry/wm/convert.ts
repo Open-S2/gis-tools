@@ -102,7 +102,7 @@ function convertPoint(point: Point | Point3D, m?: MValue, bbox?: BBOX): VectorPo
 function convertGeometry(geometry: Geometry, buildBBox?: boolean): VectorGeometry {
   const { type, coordinates: coords, mValues, bbox } = geometry;
   const newBBox: BBOX | undefined =
-    buildBBox && bbox === undefined ? ([] as unknown as BBOX) : undefined;
+    buildBBox === true && bbox === undefined ? ([] as unknown as BBOX) : undefined;
 
   let coordinates: VectorCoordinates;
   if (type === 'Point' || type === 'Point3D') coordinates = convertPoint(coords, mValues, newBBox);

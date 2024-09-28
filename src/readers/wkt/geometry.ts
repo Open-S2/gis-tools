@@ -120,7 +120,7 @@ function parseWKTMultiPolygon(wktStr: string, is3D: boolean): VectorGeometry {
 function parseWKTArray(wktStr: string): WKTArray {
   const res: WKTArray = [];
   _parseWKTArray(wktStr, res);
-  return res.length ? (res[0] as WKTArray) : res;
+  return res.length > 0 ? (res[0] as WKTArray) : res;
 }
 
 // always return the endBracketIndex if we hit it
@@ -132,7 +132,7 @@ function parseWKTArray(wktStr: string): WKTArray {
  */
 function _parseWKTArray(wktStr: string, res: WKTArray): string {
   // first get the array name and build the residual
-  while (wktStr.length) {
+  while (wktStr.length > 0) {
     let commaIndex = wktStr.indexOf(',');
     let startBracketIndex = wktStr.indexOf('(');
     const endBracketIndex = wktStr.indexOf(')');
@@ -168,5 +168,5 @@ function _parseWKTArray(wktStr: string, res: WKTArray): string {
  */
 function buildPoint(str: string): VectorPoint {
   const [x, y, z] = cleanString(str).split(' ');
-  return { x: +x, y: +y, z: z ? +z : undefined };
+  return { x: Number(x), y: Number(y), z: z !== undefined ? Number(z) : undefined };
 }

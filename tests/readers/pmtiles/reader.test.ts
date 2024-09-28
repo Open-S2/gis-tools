@@ -35,7 +35,7 @@ interface MetaExternal {
   };
 }
 
-describe('File Reader', async () => {
+describe('File Reader', () => {
   test('test_fixture_1', async () => {
     const bufferReader = new BufferReader(
       await Bun.file(`${__dirname}/fixtures/test_fixture_1.pmtiles`).arrayBuffer(),

@@ -131,7 +131,7 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
     const con = this.b / this.a;
     this.es = 1 - con * con;
     this.e = sqrt(this.es);
-    if (this.latTs) {
+    if (this.latTs !== undefined) {
       if (this.sphere) {
         this.k0 = cos(this.latTs);
       } else {
@@ -139,7 +139,7 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
       }
     } else {
       if (this.k0 === undefined) {
-        if (this.k) {
+        if (this.k !== undefined) {
           this.k0 = this.k;
         } else {
           this.k0 = 1;

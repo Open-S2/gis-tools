@@ -21,7 +21,7 @@ export type Path = Array<string | Step> | ReadonlyArray<string | Step>;
 export function countSubstring(string: string, substring: string): number {
   const pattern = new RegExp(substring, 'g');
   const match = string.match(pattern);
-  return match ? match.length : 0;
+  return match !== null ? match.length : 0;
 }
 
 /**
@@ -31,10 +31,10 @@ export function countSubstring(string: string, substring: string): number {
  * @returns the first tag with the given name
  */
 export function findTagByName(xml: string, tagName: string, options?: Options): Tag | undefined {
-  const debug = (options && options.debug) ?? false;
-  const nested = !(options && options.nested === false);
+  const debug = options?.debug ?? false;
+  const nested = !(options?.nested === false);
 
-  const startIndex = (options && options.startIndex) ?? 0;
+  const startIndex = options?.startIndex ?? 0;
 
   if (debug) console.info('[xml-utils] starting findTagByName with', tagName, ' and ', options);
 
@@ -94,7 +94,7 @@ export function findTagByName(xml: string, tagName: string, options?: Options): 
  * @returns the first tag with the given path
  */
 export function findTagByPath(xml: string, path: Path, options?: Options): Tag | undefined {
-  const debug = (options && options.debug) ?? false;
+  const debug = options?.debug ?? false;
   const found = findTagsByPath(xml, path, { debug, returnOnFirst: true });
   if (Array.isArray(found) && found.length === 1) return found[0];
   else return undefined;
@@ -108,11 +108,12 @@ export function findTagByPath(xml: string, path: Path, options?: Options): Tag |
  */
 export function findTagsByName(xml: string, tagName: string, options?: Options): Tag[] {
   const tags = [];
-  const debug = (options && options.debug) ?? false;
-  const nested = options && typeof options.nested === 'boolean' ? options.nested : true;
-  let startIndex = (options && options.startIndex) ?? 0;
-  let tag;
-  while ((tag = findTagByName(xml, tagName, { debug, startIndex }))) {
+  const debug = options?.debug ?? false;
+  const nested = options?.nested ?? true;
+  let startIndex = options?.startIndex ?? 0;
+  while (true) {
+    const tag = findTagByName(xml, tagName, { debug, startIndex });
+    if (tag === undefined) break;
     if (nested) {
       startIndex = tag.start + 1 + tagName.length;
     } else {
@@ -131,9 +132,9 @@ export function findTagsByName(xml: string, tagName: string, options?: Options):
  * @returns all tags with the given path
  */
 export function findTagsByPath(xml: string, path: Path, options?: Options): Tag[] {
-  const debug = (options && options.debug) ?? false;
+  const debug = options?.debug ?? false;
   if (debug) console.info('[xml-utils] starting findTagsByPath with: ', xml.substring(0, 500));
-  const returnOnFirst = (options && options.returnOnFirst) ?? false;
+  const returnOnFirst = options?.returnOnFirst ?? false;
 
   if (Array.isArray(path) === false) throw new Error('[xml-utils] path should be an array');
 
@@ -197,7 +198,7 @@ export function getAttribute(
   attributeName: string,
   options?: Options,
 ): string | undefined {
-  const debug = (options && options.debug) ?? false;
+  const debug = options?.debug ?? false;
   if (debug) console.info('[xml-utils] getting ' + attributeName + ' in ' + tag);
 
   const xml = typeof tag === 'object' ? tag.outer : tag;
@@ -214,7 +215,7 @@ export function getAttribute(
     const re = new RegExp(pattern);
     const match = re.exec(opening);
     if (debug) console.info('[xml-utils] match:', match);
-    if (match) return match[1];
+    if (match !== null) return match[1];
   }
 }
 
@@ -227,7 +228,7 @@ export function getAttribute(
 export function indexOfMatchEnd(xml: string, pattern: string, startIndex: number): number {
   const re = new RegExp(pattern);
   const match = re.exec(xml.slice(startIndex));
-  if (match) return startIndex + match.index + match[0].length - 1;
+  if (match !== null) return startIndex + match.index + match[0].length - 1;
   else return -1;
 }
 
@@ -240,7 +241,7 @@ export function indexOfMatchEnd(xml: string, pattern: string, startIndex: number
 export function indexOfMatch(xml: string, pattern: string, startIndex: number): number {
   const re = new RegExp(pattern);
   const match = re.exec(xml.slice(startIndex));
-  if (match) return startIndex + match.index;
+  if (match !== null) return startIndex + match.index;
   else return -1;
 }
 
@@ -259,9 +260,10 @@ export function removeComments(xml: string): string {
  * @returns the xml without the given tag
  */
 export function removeTagsByName(xml: string, tagName: string, options?: Options) {
-  const debug = (options && options.debug) ?? false;
-  let tag;
-  while ((tag = findTagByName(xml, tagName, { debug }))) {
+  const debug = options?.debug ?? false;
+  while (true) {
+    const tag = findTagByName(xml, tagName, { debug });
+    if (tag === undefined) break;
     xml = xml.substring(0, tag.start) + xml.substring(tag.end);
     if (debug) console.info('[xml-utils] removed:', tag);
   }

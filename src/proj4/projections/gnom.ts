@@ -117,7 +117,6 @@ export class Gnomonic extends ProjectionBase implements ProjectionTransform {
    * @param p - Gnomonic point
    */
   inverse(p: VectorPoint): void {
-    let rh; /* Rho */
     let sinc, cosc;
     let c;
     let lon, lat;
@@ -127,7 +126,8 @@ export class Gnomonic extends ProjectionBase implements ProjectionTransform {
     p.y = (p.y - this.y0) / this.a;
     p.x /= this.k0;
     p.y /= this.k0;
-    if ((rh = sqrt(p.x * p.x + p.y * p.y))) {
+    const rh = sqrt(p.x * p.x + p.y * p.y); /* Rho */
+    if (rh !== 0) {
       c = atan2(rh, this.rc);
       sinc = sin(c);
       cosc = cos(c);

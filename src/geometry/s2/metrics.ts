@@ -56,7 +56,7 @@ export class Metric {
    * @returns - the minimum level such that the metric is at most the given value
    */
   getClosestLevel(value: number): number {
-    return this.getLevelForMaxValue((this.dim == 1 ? Math.sqrt(2) : 2) * value);
+    return this.getLevelForMaxValue((this.dim === 1 ? Math.sqrt(2) : 2) * value);
   }
 
   /**

@@ -5,7 +5,7 @@
  */
 export default function match<T>(obj: Record<string, T>, key?: string): T | undefined {
   if (key === undefined) return;
-  if (obj[key]) return obj[key];
+  if (obj[key] !== undefined) return obj[key];
   const keys = Object.keys(obj);
   const ignoredChar = /[\s_\-/()]/g;
   const lkey = key.toLowerCase().replace(ignoredChar, '');

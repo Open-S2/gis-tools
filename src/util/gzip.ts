@@ -92,7 +92,7 @@ export function* iterItems(raw: Uint8Array): Generator<ZipItem, void, void> {
   at = centralDirectoryStart;
 
   // read central directory
-  while (fileCount--) {
+  while (fileCount-- > 0) {
     const compressionMethod = u16(10);
     const filenameLength = u16(28);
     const extraFieldsLength = u16(30);
@@ -121,9 +121,9 @@ export function* iterItems(raw: Uint8Array): Generator<ZipItem, void, void> {
        * @returns - the decompressed bytes
        */
       read: async () => {
-        return compressionMethod & 8
+        return (compressionMethod & 8) > 0
           ? await decompressStream(bytes, 'deflate-raw')
-          : compressionMethod
+          : compressionMethod > 0
             ? throwCode(1)
             : bytes;
       },

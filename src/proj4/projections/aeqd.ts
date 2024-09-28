@@ -108,7 +108,7 @@ export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTr
         //default case
         cos_c = this.sinP12 * sinphi + this.cosP12 * cosphi * cos(dlon);
         c = acos(cos_c);
-        kp = c ? c / sin(c) : 1;
+        kp = c !== 0 ? c / sin(c) : 1;
         p.x = this.x0 + this.a * kp * cosphi * sin(dlon);
         p.y = this.y0 + this.a * kp * (this.cosP12 * sinphi - this.sinP12 * cosphi * cos(dlon));
         return;

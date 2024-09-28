@@ -70,7 +70,7 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
   constructor(params?: ProjectionParams) {
     super(params);
 
-    if (!this.rc) throw new Error('rc must be defined');
+    if (this.rc === undefined) throw new Error('rc must be defined');
     this.sinc0 = sin(this.phic0);
     this.cosc0 = cos(this.phic0);
     this.R2 = 2 * this.rc;
@@ -98,12 +98,13 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
    * @param p - StereographicNorthPole point
    */
   inverse(p: VectorPoint): void {
-    let sinc, cosc, lon, lat, rho;
+    let sinc, cosc, lon, lat;
     p.x = (p.x - this.x0) / this.a;
     p.y = (p.y - this.y0) / this.a;
     p.x /= this.k0;
     p.y /= this.k0;
-    if ((rho = hypot(p.x, p.y))) {
+    const rho = hypot(p.x, p.y);
+    if (rho !== 0) {
       const c = 2 * atan2(rho, this.R2);
       sinc = sin(c);
       cosc = cos(c);

@@ -25,7 +25,7 @@ export function parseWKTObject(wktStr: string): WKTObject {
  */
 function _parseWKTObject(wktStr: string, res: WKTObject): string {
   // first get the object name and build the residual
-  while (wktStr.length) {
+  while (wktStr.length > 0) {
     let commaIndex = wktStr.indexOf(',');
     let startBracketIndex = wktStr.indexOf('[');
     const endBracketIndex = wktStr.indexOf(']');

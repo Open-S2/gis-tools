@@ -38,7 +38,7 @@ export class Info {
     public primitiveBlock: PrimitiveBlock,
     pbf?: Protobuf,
   ) {
-    if (pbf) pbf.readMessage(this.#readLayer, this);
+    if (pbf !== undefined) pbf.readMessage(this.#readLayer, this);
   }
 
   /**

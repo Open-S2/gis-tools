@@ -38,7 +38,7 @@ export class ExtendedTransverseMercator extends TransverseMercator implements Pr
     precompute?: (etmerc: ExtendedTransverseMercator) => void,
   ) {
     super(params);
-    if (precompute) precompute(this);
+    if (precompute !== undefined) precompute(this);
 
     if (!this.approx && (this.ep2 === Infinity || this.es <= 0)) {
       throw new Error(

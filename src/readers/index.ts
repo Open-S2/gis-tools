@@ -90,6 +90,6 @@ export class BufferReader extends DataView implements Reader {
    * @returns - the ranged buffer
    */
   async getRange(offset: number, length: number): Promise<Uint8Array> {
-    return new Uint8Array(this.buffer).slice(offset, offset + length);
+    return await new Uint8Array(this.buffer).slice(offset, offset + length);
   }
 }

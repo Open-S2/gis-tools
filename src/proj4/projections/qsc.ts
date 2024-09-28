@@ -429,7 +429,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
       const tanphi = tan(lp.phi);
       const xa = this.b / sqrt(tanphi * tanphi + this.oneMinusFSquared);
       lp.phi = atan(sqrt(this.a * this.a - xa * xa) / (this.oneMinusF * xa));
-      if (invert_sign) {
+      if (invert_sign !== 0) {
         lp.phi = -lp.phi;
       }
     }

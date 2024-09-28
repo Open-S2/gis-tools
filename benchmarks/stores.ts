@@ -7,7 +7,8 @@ import tmp from 'tmp';
 tmp.setGracefulCleanup();
 
 const dir = tmp.dirSync({ prefix: 'store_benchmarks' });
-const TEST_SIZE = 1_000_000;
+// const TEST_SIZE = 1_000_000;
+const TEST_SIZE = 100_000;
 
 const mmapStore = new S2MMapStore<{ a: number }>(`${dir.name}/mmap`, false, false);
 // const fileStore = new S2FileStore<{ a: number }>(`${dir.name}/file`, false, false);
@@ -59,10 +60,22 @@ console.info('mmap total time: ', mmapAddSeconds + mmapSortSeconds + mmapQuerySe
 
 // const myDB = open({ path: `${dir.name}/lmdb` });
 // const lmdbAddStart = Bun.nanoseconds();
-// for (let i = 0; i < 10_000; i++) await myDB.put(String(i), { a: i });
+// for (let i = 0; i < TEST_SIZE; i++) {
+//   const rand = getRandomInt(0, TEST_SIZE);
+//   await myDB.put(String(rand), { a: rand });
+// }
 // const lmdbAddEnd = Bun.nanoseconds();
 // const lmdbAddSeconds = (lmdbAddEnd - lmdbAddStart) / 1_000_000_000;
 // console.info('lmdb Add time: ', lmdbAddSeconds);
+
+// // Let's perform a simple lookup to simulate a query
+// const lmdbQueryStart = Bun.nanoseconds();
+// await myDB.get('22');
+// const lmdbQueryEnd = Bun.nanoseconds();
+// const lmdbQuerySeconds = (lmdbQueryEnd - lmdbQueryStart) / 1_000_000_000;
+// console.info('lmdb Query time: ', lmdbQuerySeconds);
+
+// console.info('lmdb total time: ', lmdbAddSeconds + lmdbQuerySeconds);
 
 // await myDB.close();
 

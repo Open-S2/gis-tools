@@ -235,7 +235,7 @@ export function hypot(x: number, y: number): number {
   x = abs(x);
   y = abs(y);
   const a = max(x, y);
-  const b = min(x, y) / (a ? a : 1);
+  const b = min(x, y) / (a !== 0 ? a : 1);
 
   return a * sqrt(1 + pow(b, 2));
 }
@@ -425,7 +425,7 @@ export function pjInvMlfn(arg: number, es: number, en: En): number {
   const MAX_ITER = 20;
   const k = 1 / (1 - es);
   let phi = arg;
-  for (let i = MAX_ITER; i; --i) {
+  for (let i = MAX_ITER; i !== 0; --i) {
     /* rarely goes over 2 iterations */
     const s = sin(phi);
     let t = 1 - es * s * s;

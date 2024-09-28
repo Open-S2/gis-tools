@@ -195,7 +195,7 @@ export default class Shapefile implements FeatureIterator {
     const point: VectorPoint = {
       x: data.getFloat64(offset, true),
       y: data.getFloat64(offset + 8, true),
-      z: offset3D ? data.getFloat64(offset3D, true) : undefined,
+      z: offset3D !== undefined ? data.getFloat64(offset3D, true) : undefined,
     };
     return this.transform?.forward(point) ?? point;
   }

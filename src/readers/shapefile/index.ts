@@ -37,7 +37,7 @@ export async function fromGzip(
     } else if (item.filename.endsWith('prj')) {
       const data = await item.read();
       transform = new Transformer(new TextDecoder('utf8').decode(data));
-      if (defs) {
+      if (defs !== undefined) {
         for (const def of defs) transform.insertDefinition(def);
       }
     }
@@ -63,7 +63,7 @@ export async function fromURL(url: string): Promise<ShapeFile> {
  * @returns - raw data of a shapefile OR a gzipped folder that may include the dbf, prj, and/or cpg
  */
 async function fetchShapefile(url: string): Promise<ArrayBufferLike> {
-  return fetch(url)
+  return await fetch(url)
     .then(async (res) => {
       if (!res.ok) throw new Error(`Failed to fetch data from ${url}`);
       return await res.arrayBuffer();

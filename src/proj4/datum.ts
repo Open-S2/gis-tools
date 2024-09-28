@@ -121,7 +121,7 @@ export function compareDatums(source: ProjectionTransform, dest: ProjectionTrans
 export function geodeticToGeocentric(p: VectorPoint, es: number, a: number): void {
   let Longitude = p.x;
   let Latitude = p.y;
-  const Height = p.z ? p.z : 0; //Z value not always supplied
+  const Height = p.z !== undefined ? p.z : 0; //Z value not always supplied
 
   /*
    ** Don't blow up if Latitude is just a little out of the value
@@ -174,7 +174,7 @@ export function geocentricToGeodetic(p: VectorPoint, es: number, a: number, b: n
 
   const X = p.x;
   const Y = p.y;
-  const Z = p.z ? p.z : 0.0; //Z value not always supplied
+  const Z = p.z !== undefined ? p.z : 0.0; //Z value not always supplied
   let Longitude;
   let Latitude;
   let Height;
@@ -517,7 +517,7 @@ function applySubgridShift(pin, inverse, ct) {
 function nadInterpolate(pin: VectorPoint, ct): VectorPoint {
   const t = { x: pin.x / ct.del[0], y: pin.y / ct.del[1] };
   const indx = { x: floor(t.x), y: floor(t.y) };
-  const frct = { x: t.x - 1.0 * indx.x, y: t.y - 1.0 * indx.y };
+  const frct = { x: t.x - 1 * indx.x, y: t.y - 1.0 * indx.y };
   const val = { x: NaN, y: NaN };
   let inx;
   if (indx.x < 0 || indx.x >= ct.lim[0]) return val;

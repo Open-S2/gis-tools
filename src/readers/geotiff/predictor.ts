@@ -2,7 +2,7 @@
  * @param row
  * @param stride
  */
-function decodeRowAcc(row, stride) {
+function decodeRowAcc(row: Uint8Array | Uint16Array | Uint32Array, stride: number): void {
   let length = row.length - stride;
   let offset = 0;
   do {
@@ -20,7 +20,11 @@ function decodeRowAcc(row, stride) {
  * @param stride
  * @param bytesPerSample
  */
-function decodeRowFloatingPoint(row, stride, bytesPerSample) {
+function decodeRowFloatingPoint(
+  row: Uint8Array | Uint16Array | Uint32Array,
+  stride: number,
+  bytesPerSample: number,
+) {
   let index = 0;
   let count = row.length;
   const wc = count / bytesPerSample;
@@ -50,14 +54,14 @@ function decodeRowFloatingPoint(row, stride, bytesPerSample) {
  * @param planarConfiguration
  */
 export function applyPredictor(
-  block,
-  predictor,
-  width,
-  height,
-  bitsPerSample,
-  planarConfiguration,
+  block: ArrayBufferLike,
+  predictor: number,
+  width: number,
+  height: number,
+  bitsPerSample: number[],
+  planarConfiguration: number,
 ) {
-  if (!predictor || predictor === 1) {
+  if (predictor === 0 || predictor === 1) {
     return block;
   }
 
@@ -106,7 +110,7 @@ export function applyPredictor(
         default:
           throw new Error(`Predictor 2 not allowed with ${bitsPerSample[0]} bits per sample.`);
       }
-      decodeRowAcc(row, stride, bytesPerSample);
+      decodeRowAcc(row, stride);
     } else if (predictor === 3) {
       // horizontal floating point
       row = new Uint8Array(

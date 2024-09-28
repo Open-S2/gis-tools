@@ -113,7 +113,7 @@ export class NadGrid {
    * Iterate over all features in the shapefile
    * @yields {VectorFeature<NadGridMetadata>}
    */
-  *iterate(): IterableIterator<VectorFeature<NadGridMetadata>> {
+  *[Symbol.iterator](): Generator<VectorFeature<NadGridMetadata>> {
     for (const feature of this.features) yield feature;
   }
 

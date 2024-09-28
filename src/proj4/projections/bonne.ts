@@ -88,7 +88,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - an Bonne Werner point
    */
   eFwd(p: VectorPoint): VectorPoint {
-    const lam = adjustLon(p.x - (this.long0 || 0));
+    const lam = adjustLon(p.x - (this.long0 ?? 0));
     const phi = p.y;
     let E, c;
     const rh = this.am1 + this.m1 - pjMlfn(phi, (E = sin(phi)), (c = cos(phi)), this.en);
@@ -96,8 +96,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
     p.x = rh * sin(E);
     p.y = this.am1 - rh * cos(E);
 
-    p.x = this.a * p.x + (this.x0 || 0);
-    p.y = this.a * p.y + (this.y0 || 0);
+    p.x = this.a * p.x + (this.x0 ?? 0);
+    p.y = this.a * p.y + (this.y0 ?? 0);
     return p;
   }
 
@@ -107,8 +107,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - lon-lat WGS84 point
    */
   eInv(p: VectorPoint): VectorPoint {
-    p.x = (p.x - (this.x0 || 0)) / this.a;
-    p.y = (p.y - (this.y0 || 0)) / this.a;
+    p.x = (p.x - (this.x0 ?? 0)) / this.a;
+    p.y = (p.y - (this.y0 ?? 0)) / this.a;
 
     let s: number, lam: number;
     const rh = hypot(p.x, (p.y = this.am1 - p.y));
@@ -121,7 +121,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
     } else {
       throw new Error();
     }
-    p.x = adjustLon(lam + (this.long0 || 0));
+    p.x = adjustLon(lam + (this.long0 ?? 0));
     p.y = adjustLat(phi);
     return p;
   }
@@ -132,7 +132,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - an Bonne Werner point
    */
   sFwd(p: VectorPoint): VectorPoint {
-    const lam = adjustLon(p.x - (this.long0 || 0));
+    const lam = adjustLon(p.x - (this.long0 ?? 0));
     const phi = p.y;
     let E: number;
     const rh = this.cphi1 + this.phi1 - phi;
@@ -143,8 +143,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
       p.x = p.y = 0;
     }
 
-    p.x = this.a * p.x + (this.x0 || 0);
-    p.y = this.a * p.y + (this.y0 || 0);
+    p.x = this.a * p.x + (this.x0 ?? 0);
+    p.y = this.a * p.y + (this.y0 ?? 0);
     return p;
   }
 
@@ -154,8 +154,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - lon-lat WGS84 point
    */
   sInv(p: VectorPoint): VectorPoint {
-    p.x = (p.x - (this.x0 || 0)) / this.a;
-    p.y = (p.y - (this.y0 || 0)) / this.a;
+    p.x = (p.x - (this.x0 ?? 0)) / this.a;
+    p.y = (p.y - (this.y0 ?? 0)) / this.a;
 
     let lam: number;
     const rh = hypot(p.x, (p.y = this.cphi1 - p.y));
@@ -168,7 +168,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
     } else {
       lam = (rh * atan2(p.x, p.y)) / cos(phi);
     }
-    p.x = adjustLon(lam + (this.long0 || 0));
+    p.x = adjustLon(lam + (this.long0 ?? 0));
     p.y = adjustLat(phi);
     return p;
   }

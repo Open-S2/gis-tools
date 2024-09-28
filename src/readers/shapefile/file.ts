@@ -69,12 +69,13 @@ export async function fromDefinition(
   defs?: ProjectionTransformDefinition[],
 ): Promise<Shapefile> {
   const { shp, dbf, prj, cpg } = def;
-  const encoding = cpg ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
-  const transform = prj ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
+  const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
+  const transform =
+    prj !== undefined ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
   const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
 
-  if (transform && defs) {
+  if (transform !== undefined && defs !== undefined) {
     for (const def of defs) transform.insertDefinition(def);
   }
 

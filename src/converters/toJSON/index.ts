@@ -58,7 +58,7 @@ export async function toJSON(
 
   await writer.appendString('\n\t],');
   await writer.appendString(`\n\t"faces": ${JSON.stringify([...faces])}`);
-  if (bbox) await writer.appendString(`,\n\t"bbox": ${JSON.stringify(bbox)}`);
+  if (bbox !== undefined) await writer.appendString(`,\n\t"bbox": ${JSON.stringify(bbox)}`);
   await writer.appendString('\n}');
 }
 
@@ -89,7 +89,7 @@ export async function toJSONLD(
       for (const convertedFeature of convertedFeatures) {
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;
-        writer.appendString(JSON.stringify(userFeature) + '\n');
+        await writer.appendString(JSON.stringify(userFeature) + '\n');
       }
     }
   }

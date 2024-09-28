@@ -87,14 +87,14 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
     this.a = 6377397.155;
     this.es = 0.006674372230614;
     this.e = sqrt(this.es);
-    if (!this.lat0) {
+    if (this.lat0 === 0) {
       this.lat0 = 0.863937979737193;
     }
-    if (!this.long0) {
+    if (this.long0 === 0) {
       this.long0 = 0.7417649320975901 - 0.308341501185665;
     }
     /* if scale not set default to 0.9999 */
-    if (!this.k0) {
+    if (this.k0 === undefined) {
       this.k0 = 0.9999;
     }
     this.s45 = 0.785398163397448; /* 45 */
@@ -136,7 +136,7 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
       (this.ro0 * pow(tan(this.s0 / 2 + this.s45), this.n)) / pow(tan(s / 2 + this.s45), this.n);
     p.y = (ro * cos(eps)) / 1;
     p.x = (ro * sin(eps)) / 1;
-    if (!this.czech) {
+    if (this.czech === undefined) {
       p.y *= -1;
       p.x *= -1;
     }
@@ -153,7 +153,7 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
     const tmp = p.x;
     p.x = p.y;
     p.y = tmp;
-    if (!this.czech) {
+    if (this.czech === undefined) {
       p.y *= -1;
       p.x *= -1;
     }

@@ -211,7 +211,7 @@ export class S2PMTilesReader {
 async function decompress(data: Uint8Array, compression: Compression): Promise<Uint8Array> {
   switch (compression) {
     case Compression.Gzip:
-      return decompressGzip(data);
+      return await decompressGzip(data);
     case Compression.Brotli:
       throw new Error('Brotli decompression not implemented');
     case Compression.Zstd:

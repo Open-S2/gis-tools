@@ -126,7 +126,7 @@ function decompress(input: ArrayBufferLike): Uint8Array {
       oldCode = code;
     } else {
       const oldVal = getDictionaryReversed(oldCode ?? code);
-      if (!oldVal) {
+      if (oldVal.length === 0) {
         throw new Error(
           `Bogus entry. Not in dictionary, ${oldCode} / ${dictionaryLength}, position: ${position}`,
         );
@@ -152,6 +152,6 @@ function decompress(input: ArrayBufferLike): Uint8Array {
 /**
  * @param buffer
  */
-export default function decodeLZW(buffer: ArrayBufferLike): ArrayBufferLike {
+export function lzwDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
   return decompress(buffer).buffer;
 }

@@ -312,7 +312,7 @@ export class LambertAzimuthalEqualArea extends ProjectionBase implements Project
           y = -y;
         }
         q = x * x + y * y;
-        if (!q) {
+        if (q === 0) {
           p.x = this.long0;
           p.y = this.lat0;
           return;

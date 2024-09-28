@@ -1,4 +1,5 @@
 export * from './gzip';
+export * from './lzw';
 
 /** The formats available to DecompressionStream */
 export type Format = 'deflate' | 'deflate-raw' | 'gzip';

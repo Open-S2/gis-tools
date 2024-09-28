@@ -107,11 +107,11 @@ export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
         -----------------*/
     lon = adjustLon(lon - this.long0);
     if (this.sphere) {
-      if (!this.m) {
+      if (this.m !== 0) {
         lat = this.n !== 1 ? asin(this.n * sin(lat)) : lat;
       } else {
         const k = this.n * sin(lat);
-        for (let i = 20; i; --i) {
+        for (let i = 20; i !== 0; --i) {
           const V = (this.m * lat + sin(lat) - k) / (this.m + cos(lat));
           lat -= V;
           if (abs(V) < EPSLN) {
@@ -144,7 +144,7 @@ export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
     if (this.sphere) {
       lat /= this.Cy;
       lon = lon / (this.Cx * (this.m + cos(lat)));
-      if (this.m) {
+      if (this.m !== 0) {
         lat = asinz((this.m * lat + sin(lat)) / this.n);
       } else if (this.n !== 1) {
         lat = asinz(sin(lat) / this.n);

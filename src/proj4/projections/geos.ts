@@ -51,7 +51,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
   ];
   // GeostationarySatelliteView specific variables
   declare sweep: string;
-  flip_axis: number;
+  flip_axis: 0 | 1;
   declare h: number;
   radiusG: number;
   radiusG1: number;
@@ -114,7 +114,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
         throw new Error('h/a out of range');
       }
       tmp = this.radiusG - v_x;
-      if (this.flip_axis) {
+      if (this.flip_axis === 1) {
         p.x = this.radiusG1 * atan(v_y / hypot(v_z, tmp));
         p.y = this.radiusG1 * atan(v_z / tmp);
       } else {
@@ -127,7 +127,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
       v_y = sin(lon) * tmp;
       v_z = sin(lat);
       tmp = this.radiusG - v_x;
-      if (this.flip_axis) {
+      if (this.flip_axis === 1) {
         p.x = this.radiusG1 * atan(v_y / hypot(v_z, tmp));
         p.y = this.radiusG1 * atan(v_z / tmp);
       } else {
@@ -151,7 +151,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
     p.x = p.x / this.a;
     p.y = p.y / this.a;
     if (this.shape === 'ellipse') {
-      if (this.flip_axis) {
+      if (this.flip_axis === 1) {
         v_z = tan(p.y / this.radiusG1);
         v_y = tan(p.x / this.radiusG1) * hypot(1.0, v_z);
       } else {
@@ -173,7 +173,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
       p.y = atan((v_z * cos(p.x)) / v_x);
       p.y = atan(this.radiusPInv2 * tan(p.y));
     } else if (this.shape === 'sphere') {
-      if (this.flip_axis) {
+      if (this.flip_axis === 1) {
         v_z = tan(p.y / this.radiusG1);
         v_y = tan(p.x / this.radiusG1) * sqrt(1.0 + v_z * v_z);
       } else {

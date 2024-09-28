@@ -226,7 +226,7 @@ function newtonRapshon(
   iters: number,
 ): number {
   let x = start;
-  for (; iters; --iters) {
+  for (; iters !== 0; --iters) {
     const upd = fDf(x);
     x -= upd;
     if (abs(upd) < max_err) {

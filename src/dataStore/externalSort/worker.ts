@@ -16,7 +16,7 @@ export interface SortChunk {
  * @param event - the sort chunk message
  */
 self.onmessage = (event: Bun.MessageEvent<SortChunk>): void => {
-  sortChunk(event.data).then((outFile): void => {
+  void sortChunk(event.data).then((outFile): void => {
     postMessage(outFile);
   });
 };

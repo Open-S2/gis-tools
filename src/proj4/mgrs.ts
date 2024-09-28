@@ -489,7 +489,7 @@ function getLetter100kID(column: number, row: number, parm: number): string {
  *     zoneNumber and accuracy (in meters) properties.
  */
 function decode(mgrsString: string): UTM {
-  if (mgrsString && mgrsString.length === 0) {
+  if (mgrsString.length === 0) {
     throw new TypeError('MGRSPoint coverting from nothing');
   }
 

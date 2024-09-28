@@ -65,7 +65,7 @@ export class TransverseMercator extends ProjectionBase implements ProjectionTran
     this.long0 = this.long0 !== undefined ? this.long0 : 0;
     this.lat0 = this.lat0 !== undefined ? this.lat0 : 0;
 
-    if (this.es) {
+    if (this.es !== 0) {
       this.en = pjEnfn(this.es);
       this.ml0 = pjMlfn(this.lat0, sin(this.lat0), cos(this.lat0), this.en);
     }

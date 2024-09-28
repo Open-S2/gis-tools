@@ -375,7 +375,9 @@ function _clipLine(
     const { x: bx, y: by, z: bz, m: bm } = geom[i + 1];
     const a = axis === 0 ? ax : ay;
     const b = axis === 0 ? bx : by;
-    const z = az && bz ? (az + bz) / 2 : az ? az : bz ? bz : undefined;
+    const azNU = az !== undefined;
+    const bzNU = bz !== undefined;
+    const z = azNU && bzNU ? (az + bz) / 2 : azNU ? az : bzNU ? bz : undefined;
     let entered = false;
     let exited = false;
     let intP: VectorPoint | undefined;
@@ -401,7 +403,7 @@ function _clipLine(
     }
 
     // Update the intersection point and offset if the intP exists
-    if (intP) {
+    if (intP !== undefined) {
       // our first enter will change the offset for the line
       if (entered && !firstEnter) {
         curOffset = accOffset + distance(prevP, intP);

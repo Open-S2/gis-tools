@@ -17,8 +17,8 @@ export interface CSVReaderOptions {
 
 /** Parse (Geo|S2)JSON from a file that is in the CSV format */
 export class CSVReader implements FeatureIterator {
-  #delimiter = ',';
-  #lineDelimiter = '\n';
+  #delimiter: string;
+  #lineDelimiter: string;
   #lonKey = 'lon';
   #latKey = 'lat';
   #heightKey?: string;
@@ -32,11 +32,11 @@ export class CSVReader implements FeatureIterator {
     public reader: Reader,
     options?: CSVReaderOptions,
   ) {
-    if (options?.delimiter) this.#delimiter = options.delimiter;
-    if (options?.lineDelimiter) this.#lineDelimiter = options.lineDelimiter;
-    if (options?.lonKey) this.#lonKey = options.lonKey;
-    if (options?.latKey) this.#latKey = options.latKey;
-    if (options?.heightKey) this.#heightKey = options.heightKey;
+    this.#delimiter = options?.delimiter ?? ',';
+    this.#lineDelimiter = options?.lineDelimiter ?? '\n';
+    this.#lonKey = options?.lonKey ?? 'lon';
+    this.#latKey = options?.latKey ?? 'lat';
+    this.#heightKey = options?.heightKey;
   }
 
   /**
@@ -93,7 +93,7 @@ export class CSVReader implements FeatureIterator {
 
       if (field === this.#lonKey) coordinates.x = parseFloat(value);
       else if (field === this.#latKey) coordinates.y = parseFloat(value);
-      else if (this.#heightKey && field === this.#heightKey) {
+      else if (this.#heightKey !== undefined && field === this.#heightKey) {
         is3D = true;
         coordinates.z = parseFloat(value);
       } else properties[field] = value;

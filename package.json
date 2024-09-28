@@ -46,6 +46,7 @@
     "package-check": "package-check",
     "test:dev": "bun test --watch --coverage",
     "test": "bun test",
+    "test:fast": "FAST_TESTS_ONLY=true bun test",
     "test:coverage": "bun run test --coverage",
     "test:cov": "bun run tools/buildCoverage.ts",
     "docs": "typedoc"
@@ -70,6 +71,7 @@
     "eslint-plugin-jsdoc": "^50.2.3",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-tsdoc": "^0.3.0",
+    "geotiff": "^2.1.3",
     "lmdb": "^3.1.2",
     "nextafter": "^1.0.0",
     "prettier": "^3.3.3",
@@ -82,6 +84,7 @@
   },
   "dependencies": {
     "earclip": "^1.1.0",
+    "latest": "^0.2.0",
     "open-vector-tile": "^1.3.0",
     "s2-tilejson": "^1.6.0",
     "s2json-spec": "^1.5.5",

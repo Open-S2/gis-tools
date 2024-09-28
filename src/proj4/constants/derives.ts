@@ -26,7 +26,7 @@ export function deriveEccentricity(el: EccentricityParams): void {
   const b2 = b * b; // used in geocentric
   let es = (a2 - b2) / a2; // e ^ 2
   let e = 0;
-  if (el.rA) {
+  if (el.rA === true) {
     a *= 1 - es * (SIXTH + es * (RA4 + es * RA6));
     a2 = a * a;
     es = 0;
@@ -62,13 +62,13 @@ export function deriveSphere(obj: SphereParams): void {
     obj.b = ellipse.b;
     obj.rf = ellipse.rf;
   }
-  if (obj.rf && !obj.b) {
+  if (obj.rf !== undefined && obj.b === undefined) {
     obj.b = (1.0 - 1.0 / obj.rf) * obj.a;
   }
-  if (obj.rf === undefined && obj.b) {
+  if (obj.rf === undefined && obj.b !== undefined) {
     obj.rf = (obj.a - obj.b) / obj.a;
   }
-  if (obj.rf === 0 || (obj.b && Math.abs(obj.a - obj.b) < EPSLN)) {
+  if (obj.rf === 0 || (obj.b !== undefined && Math.abs(obj.a - obj.b) < EPSLN)) {
     obj.sphere = true;
     obj.b = obj.a;
   }

@@ -20,13 +20,14 @@ export interface TileWriter {
 }
 
 /** Buffer writer is used on smaller datasets that are easy to write in memory. Faster then the Filesystem */
-export class BufferWriter {
+export class BufferWriter implements Writer {
   #buffer: number[] = [];
   #textEncoder = new TextEncoder();
 
   /** @param data - the data to append */
   async append(data: Uint8Array): Promise<void> {
     for (let i = 0; i < data.byteLength; i++) this.#buffer.push(data[i]);
+    await true;
   }
 
   /** @param string - the string to append */
@@ -52,6 +53,7 @@ export class BufferWriter {
     for (let i = 0; i < data.byteLength; i++) {
       this.#buffer[offset + i] = data[i];
     }
+    await true;
   }
 
   /** @returns - the buffer */

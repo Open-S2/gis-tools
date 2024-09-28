@@ -54,8 +54,9 @@ export async function fromPath(input: string) {
  */
 export async function fromDefinition(def: Definition): Promise<Shapefile> {
   const { shp, dbf, prj, cpg } = def;
-  const encoding = cpg ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
-  const transform = prj ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
+  const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
+  const transform =
+    prj !== undefined ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
   const dbfReader = dbf !== undefined ? new MMapReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
 

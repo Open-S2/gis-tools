@@ -165,6 +165,6 @@ export default class MMapReader implements Reader {
    * @returns - the ranged buffer
    */
   async getRange(offset: number, length: number): Promise<Uint8Array> {
-    return this.#buffer.slice(offset, offset + length);
+    return await this.#buffer.slice(offset, offset + length);
   }
 }
