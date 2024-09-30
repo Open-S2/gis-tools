@@ -1,4 +1,5 @@
 import * as EPSG_Codes from './projections/references';
+import { NadGridStore } from '../readers/nadgrid';
 import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
@@ -16,7 +17,7 @@ import type {
  * as needed to reduce code size and improve performance.
  * Both forward and inverse projections are default set to wgs84.
  */
-export class Transformer {
+export class Transformer extends NadGridStore {
   // EPSG code definitions
   epsgs = new Map<string, string>();
   // Definitions are descriptions of projections
@@ -32,6 +33,7 @@ export class Transformer {
    * @param destCode - convenience: if provided, we run `this.setDestination(destCode)` immediately
    */
   constructor(sourceCode?: string | ProjectionParams, destCode?: string | ProjectionParams) {
+    super();
     for (const def of DEFAULT_DEFINITIONS) this.insertDefinition(def);
     // defaults to a standard WGS84 lon-lat projection transform
     this.source = this.destination = this.wgs84 = this.#buildTransformer(WGS84);
@@ -55,7 +57,7 @@ export class Transformer {
    */
   #buildTransformer(code: string | ProjectionParams): ProjectionTransform {
     code = this.#parseEPSGCode(code);
-    const params = parseProj(code);
+    const params = parseProj(code, this);
     // search
     let def: ProjectionTransformDefinition | undefined;
     for (const name of [params.projName, params.name]) {
@@ -72,14 +74,10 @@ export class Transformer {
    * @returns - if no EPSG code is found, returns the original code. Otherwise returns the EPSG definition
    */
   #parseEPSGCode(code: string | ProjectionParams): string | ProjectionParams {
-    if (typeof code === 'string' && this.epsgs.has(code)) return this.epsgs.get(code)!;
-    else if (
-      typeof code === 'object' &&
-      typeof code.projName === 'string' &&
-      this.epsgs.has(code.projName)
-    )
-      return this.epsgs.get(code.projName)!;
-    else return code;
+    const codeName = (typeof code === 'string' ? code : code.projName)?.replaceAll(':', '_');
+    const epsg = this.epsgs.get(codeName ?? '');
+    if (epsg !== undefined) return epsg;
+    return code;
   }
 
   /**

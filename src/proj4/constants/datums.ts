@@ -40,13 +40,6 @@ const nad83: ToWGS84Datum = {
   datumName: 'North_American_Datum_1983',
 };
 
-/** North_American_Datum_1927 Datum */
-const nad27: NADGRIDSDatum = {
-  nadgrids: ['@conus', '@alaska', '@ntv2_0.gsb', '@ntv1_can.dat'],
-  ellipse: 'clrk66',
-  datumName: 'North_American_Datum_1927',
-};
-
 /** Potsdam Rauenberg 1950 DHDN Datum */
 const potsdam: ToWGS84Datum = {
   datumParams: [598.1, 73.7, 418.2, 0.202, 0.045, -2.455, 6.7],
@@ -156,6 +149,13 @@ export const DATUMS: Record<string, ToWGS84Datum> = {
   ire65,
   rnb72,
   gunung_segara,
+};
+
+/** North_American_Datum_1927 Datum */
+const nad27: NADGRIDSDatum = {
+  nadgrids: ['@conus', '@alaska', '@ntv2_0.gsb', '@ntv1_can.dat'],
+  ellipse: 'clrk66',
+  datumName: 'North_American_Datum_1927',
 };
 
 export const NAD_GRIDS: Record<string, NADGRIDSDatum> = {

@@ -1,49 +1,71 @@
-import Uint64CellGenerator from '../wasm/uint64';
+import { Vector } from '../dataStore/vector';
 import { fromS2Points } from '../geometry/s1/chordAngle';
 import { range } from '../geometry';
+import { compare, fromS2Point, toCell } from '../dataStructures/uint64';
 import { fromS1ChordAngle, getIntersectingCells } from '../geometry/s2/cap';
 
-import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Uint64Cell } from '../wasm/uint64';
-import type { Point3D, S2CellId } from '../geometry';
+import { fromLonLat, fromST } from '../geometry/s2/point';
 
-/** A point shape to be indexed */
-export class PointShape<T> {
-  /**
-   * @param cell - the cell that defines the point
-   * @param point - the point to track current location
-   * @param data - the data associated with the point
-   */
-  constructor(
-    public cell: Uint64Cell,
-    public point: Point3D,
-    public data: T,
-  ) {}
+import type { S1ChordAngle } from '../geometry/s1/chordAngle';
+import type { Stringifiable } from '../dataStore';
+import type { Face, Point3D } from '../geometry';
+import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
+import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
+
+/** The kind of input required to store a point for proper indexing */
+export interface PointShape<T = Stringifiable> {
+  cell: Uint64Cell;
+  point: Point3D;
+  data: T;
 }
 
 /** An index of cells with radius queries */
-export default class PointIndex<T> {
-  #store: PointShape<T>[] = [];
+export default class PointIndex<T = Stringifiable> {
+  #store: VectorStore<PointShape<T>>;
   #unsorted: boolean = false;
-  cellGen = new Uint64CellGenerator();
+
+  /** @param store - the store to index. May be an in memory or disk */
+  constructor(store: VectorStoreConstructor<PointShape<T>> = Vector) {
+    this.#store = new store();
+  }
 
   /**
    * @param point - the point to be indexed
    * @param data - the data associated with the point
    */
   insert(point: Point3D, data: T): void {
-    const cell = this.cellGen.fromS2Point(point);
-    this.#store.push(new PointShape(cell, point, data));
+    this.#store.push({ cell: fromS2Point(point), point, data });
     this.#unsorted = true;
   }
 
   /**
-   * iterate through the points
-   * @returns an iterator
+   * Add a lon-lat pair to the cluster
+   * @param lon - longitude in degrees
+   * @param lat - latitude in degrees
+   * @param data - the data associated with the point
    */
-  [Symbol.iterator](): IterableIterator<PointShape<T>> {
-    this.#sort();
-    return this.#store.values();
+  insertLonLat(lon: number, lat: number, data: T): void {
+    this.insert(fromLonLat(lon, lat), data);
+  }
+
+  /**
+   * @param face - the face of the cell
+   * @param s - the s coordinate
+   * @param t - the t coordinate
+   * @param data - the data associated with the point
+   */
+  insertFaceST(face: Face, s: number, t: number, data: T): void {
+    this.insert(fromST(face, s, t), data);
+  }
+
+  /**
+   * iterate through the points
+   * @yields a PointShape<T>
+   */
+  async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<T>> {
+    await this.#sort();
+    // return this.#store.values();
+    for (const value of this.#store) yield value;
   }
 
   /**
@@ -51,17 +73,15 @@ export default class PointIndex<T> {
    * @param points - array of the points to add
    */
   insertPoints(points: PointShape<T>[]): void {
-    this.#store.push(...points);
+    for (const point of points) this.#store.push(point);
     this.#unsorted = true;
   }
 
   /** Sort the index in place if unsorted */
-  #sort(): void {
+  async #sort(): Promise<void> {
     if (!this.#unsorted) return;
 
-    this.#store.sort((a, b) => {
-      return a.cell.compare(b.cell);
-    });
+    await this.#store.sort();
     this.#unsorted = false;
   }
 
@@ -70,9 +90,9 @@ export default class PointIndex<T> {
    * @param id - input id to seek the starting index of the search
    * @returns the starting index
    */
-  lowerBound(id: S2CellId): number {
-    const cellID = this.cellGen.fromBigInt(id);
-    this.#sort();
+  async lowerBound(id: Uint64): Promise<number> {
+    const cellID = toCell(id);
+    await this.#sort();
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#store.length;
@@ -80,7 +100,8 @@ export default class PointIndex<T> {
 
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
-      if (this.#store[mid].cell.compare(cellID) === -1) {
+      const { cell: midCell } = await this.#store.get(mid);
+      if (compare(midCell, cellID) === -1) {
         lo = mid + 1;
       } else {
         hi = mid;
@@ -95,14 +116,16 @@ export default class PointIndex<T> {
    * @param high - the upper bound
    * @returns the points in the range
    */
-  searchRange(low: S2CellId, high: S2CellId): PointShape<T>[] {
-    this.#sort();
+  async searchRange(low: Uint64, high: Uint64): Promise<PointShape<T>[]> {
+    await this.#sort();
     const res: PointShape<T>[] = [];
-    let lo = this.lowerBound(low);
-    const hiID = this.cellGen.fromBigInt(high);
+    let lo = await this.lowerBound(low);
+    const hiID = toCell(high);
 
-    while (lo < this.#store.length && this.#store[lo].cell.compare(hiID) <= 0) {
-      res.push(this.#store[lo]);
+    while (true) {
+      const currLo = await this.#store.get(lo);
+      if (lo < this.#store.length && compare(currLo.cell, hiID) <= 0) break;
+      res.push(currLo);
       lo++;
     }
 
@@ -114,8 +137,8 @@ export default class PointIndex<T> {
    * @param radius - the search radius
    * @returns the points within the radius
    */
-  searchRadius(target: Point3D, radius: S1ChordAngle): PointShape<T>[] {
-    this.#sort();
+  async searchRadius(target: Point3D, radius: S1ChordAngle): Promise<PointShape<T>[]> {
+    await this.#sort();
     const res: PointShape<T>[] = [];
     if (radius < 0) return res;
     const cap = fromS1ChordAngle<undefined>(target, radius, undefined);
@@ -123,7 +146,7 @@ export default class PointIndex<T> {
       // iterate each covering s2cell min-max range on store. check distance from found
       // store Cells to target and if within radius add to results
       const [min, max] = range(cell);
-      for (const point of this.searchRange(min, max)) {
+      for (const point of await this.searchRange(min, max)) {
         if (fromS2Points(target, point.point) < radius) res.push(point);
       }
     }

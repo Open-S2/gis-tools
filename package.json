@@ -63,16 +63,16 @@
   "homepage": "https://github.com/Open-S2/s2-tools#readme",
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
-    "@types/bun": "^1.1.9",
+    "@types/bun": "^1.1.10",
     "@types/node": "^22.5.5",
     "@types/tmp": "^0.2.6",
-    "eslint": "^9.10.0",
+    "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsdoc": "^50.2.3",
+    "eslint-plugin-jsdoc": "^50.3.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-tsdoc": "^0.3.0",
     "geotiff": "^2.1.3",
-    "lmdb": "^3.1.2",
+    "lmdb": "^3.1.3",
     "nextafter": "^1.0.0",
     "prettier": "^3.3.3",
     "robust-orientation": "^1.2.1",
@@ -80,11 +80,10 @@
     "typedoc": "^0.26.7",
     "typedoc-plugin-coverage": "^3.3.0",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.5.0"
+    "typescript-eslint": "^8.7.0"
   },
   "dependencies": {
     "earclip": "^1.1.0",
-    "latest": "^0.2.0",
     "open-vector-tile": "^1.3.0",
     "s2-tilejson": "^1.6.0",
     "s2json-spec": "^1.5.5",

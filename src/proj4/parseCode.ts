@@ -11,13 +11,18 @@ import { isWKTProjection, parseWKTProjection } from 's2-tools/readers/wkt';
 
 import type { DatumParams } from 's2-tools/readers/wkt';
 import type { ProjectionParams } from './projections';
+import type { Transformer } from './transformer';
 
 /**
  * TODO: Support json objects that use the https://proj.org/schemas/v0.7/projjson.schema.json
  * @param code
  * @param proj
+ * @param transformer
  */
-export function parseProj(code: string | ProjectionParams): ProjectionParams {
+export function parseProj(
+  code: string | ProjectionParams,
+  transformer: Transformer,
+): ProjectionParams {
   let params: ProjectionParams = {};
   if (typeof code === 'object') params = code;
   else if (code[0] === '+') params = parseProj4Str(code);
@@ -28,7 +33,7 @@ export function parseProj(code: string | ProjectionParams): ProjectionParams {
   deriveEccentricity(params);
   params.lat1 = params.lat1 ?? params.lat0; // Lambert_Conformal_Conic_1SP, for example, needs this
   params.k0 = params.k ?? params.k0;
-  buildDatum(params);
+  buildDatum(params, transformer);
   // filter undefined values
   Object.keys(params).forEach((key) => {
     // @ts-expect-error - key is a string

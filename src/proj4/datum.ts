@@ -7,7 +7,6 @@ import {
   PJD_GRIDSHIFT,
   PJD_NODATUM,
   PJD_WGS84,
-  R2D,
   SEC_TO_RAD,
   SRS_WGS84_ESQUARED,
   SRS_WGS84_SEMIMAJOR,
@@ -15,23 +14,25 @@ import {
 } from './constants';
 
 import type { DatumParams } from 's2-tools/readers/wkt';
+import type { NadSubGrid } from 's2-tools/readers/nadgrid';
 import type { VectorPoint } from 's2-tools/geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { ProjectionParams, ProjectionTransform, Transformer } from '.';
 
 const { abs, sin, cos, sqrt, atan2, atan, PI, floor } = Math;
 
 /**
  * @param params - projection specific parameters to be adjusted
  * @param nadgrids - nad grid data if applicable
+ * @param transformer - the projection transformer to potentially pull data from
  */
-export function buildDatum(params: ProjectionParams): void {
+export function buildDatum(params: ProjectionParams, transformer: Transformer): void {
   if (params.datumCode === undefined || params.datumCode === 'none') {
     params.datumType = PJD_NODATUM;
   } else {
     params.datumType = PJD_WGS84;
   }
 
-  // TODO: If datumParams is undefined, check against datum constants using datumCode
+  // If datumParams is undefined, check against datum constants using datumCode
   if (params.datumParams === undefined) {
     const datum = DATUMS[params.datumCode?.toLowerCase() ?? ''];
     if (datum !== undefined) {
@@ -61,11 +62,11 @@ export function buildDatum(params: ProjectionParams): void {
     }
   }
 
-  // TODO: Just upgrade datumType if grids exists in params
-  // if (params.nadgrids) {
-  //   params.datumType = PJD_GRIDSHIFT;
-  //   params.grids = params.nadgrids;
-  // }
+  // Upgrade datumType if grids exists in params and pull in the grids we need
+  if (params.nadgrids !== undefined) {
+    params.datumType = PJD_GRIDSHIFT;
+    params.grids = transformer.getGridsFromString(params.nadgrids);
+  }
 }
 
 /**
@@ -335,7 +336,7 @@ function checkParams(type: number): boolean {
  * @param source
  * @param dest
  */
-export function checkNotWGS(source: ProjectionTransform, dest: ProjectionTransform) {
+export function checkNotWGS(source: ProjectionTransform, dest: ProjectionTransform): boolean {
   return (
     ((source.datumType === PJD_3PARAM ||
       source.datumType === PJD_7PARAM ||
@@ -364,14 +365,13 @@ export function datumTransform(
   if (source.datumType === PJD_NODATUM || dest.datumType === PJD_NODATUM) return;
 
   // If this datum requires grid shifts, then apply it to geodetic coordinates.
-  let source_a = source.a;
-  let source_es = source.es;
+  let sourceA = source.a;
+  let sourceEs = source.es;
   if (source.datumType === PJD_GRIDSHIFT) {
     // source
-    const gridShiftCode = applyGridShift(source, false, point);
-    if (gridShiftCode !== 0) return;
-    source_a = SRS_WGS84_SEMIMAJOR;
-    source_es = SRS_WGS84_ESQUARED;
+    applyGridShift(source, false, point);
+    sourceA = SRS_WGS84_SEMIMAJOR;
+    sourceEs = SRS_WGS84_ESQUARED;
   }
 
   let dest_a = dest.a;
@@ -385,25 +385,22 @@ export function datumTransform(
 
   // Do we need to go through geocentric coordinates?
   if (
-    source_es === dest_es &&
-    source_a === dest_a &&
+    sourceEs === dest_es &&
+    sourceA === dest_a &&
     !checkParams(source.datumType) &&
     !checkParams(dest.datumType)
   )
     return;
 
   // Convert to geocentric coordinates.
-  geodeticToGeocentric(point, source_es, source_a);
+  geodeticToGeocentric(point, sourceEs, sourceA);
   // Convert between datums
   if (checkParams(source.datumType)) geocentricToWgs84(point, source.datumType, source.datumParams);
   if (checkParams(dest.datumType)) geocentricFromWgs84(point, dest.datumType, dest.datumParams);
   // Convert back to geodetic coordinates.
   geocentricToGeodetic(point, dest_es, dest_a, dest_b);
 
-  if (dest.datumType === PJD_GRIDSHIFT) {
-    const destGridShiftResult = applyGridShift(dest, true, point);
-    if (destGridShiftResult !== 0) return;
-  }
+  if (dest.datumType === PJD_GRIDSHIFT) applyGridShift(dest, true, point);
 }
 
 /**
@@ -411,25 +408,27 @@ export function datumTransform(
  * @param inverse
  * @param point
  */
-export function applyGridShift(source, inverse, point) {
-  if (source.grids === null || source.grids.length === 0) {
-    throw new Error('Grid shift grids not found');
-  }
+export function applyGridShift(
+  source: ProjectionTransform,
+  inverse: boolean,
+  point: VectorPoint,
+): void {
+  const { grids } = source;
+  if (grids === undefined) throw new Error('Grid shift grids not found');
   const input = { x: -point.x, y: point.y };
   let output = { x: Number.NaN, y: Number.NaN };
-  let onlyMandatoryGrids = false;
   const attemptedGrids = [];
-  outer: for (let i = 0; i < source.grids.length; i++) {
-    const grid = source.grids[i];
+  outer: for (const grid of grids) {
     attemptedGrids.push(grid.name);
     if (grid.isNull) {
       output = input;
       break;
     }
-    onlyMandatoryGrids = grid.mandatory;
-    if (grid.grid === null) {
+    if (grid.grid === undefined) {
       if (grid.mandatory) {
-        throw new Error(`Unable to find mandatory grid '${grid.name}'`);
+        console.warn(
+          `Unable to find mandatory grid '${grid.name}'. Maybe have an incorrect result.`,
+        );
       }
       continue;
     }
@@ -437,11 +436,11 @@ export function applyGridShift(source, inverse, point) {
     for (let j = 0, jj = subgrids.length; j < jj; j++) {
       const subgrid = subgrids[j];
       // skip tables that don't match our point at all
-      const epsilon = (abs(subgrid.del[1]) + abs(subgrid.del[0])) / 10000.0;
-      const minX = subgrid.ll[0] - epsilon;
-      const minY = subgrid.ll[1] - epsilon;
-      const maxX = subgrid.ll[0] + (subgrid.lim[0] - 1) * subgrid.del[0] + epsilon;
-      const maxY = subgrid.ll[1] + (subgrid.lim[1] - 1) * subgrid.del[1] + epsilon;
+      const epsilon = (abs(subgrid.del.y) + abs(subgrid.del.x)) / 10000.0;
+      const minX = subgrid.ll.x - epsilon;
+      const minY = subgrid.ll.y - epsilon;
+      const maxX = subgrid.ll.x + (subgrid.lim.x - 1) * subgrid.del.x + epsilon;
+      const maxY = subgrid.ll.y + (subgrid.lim.y - 1) * subgrid.del.y + epsilon;
       if (minY > input.y || minX > input.x || maxY < input.y || maxX < input.x) {
         continue;
       }
@@ -452,13 +451,13 @@ export function applyGridShift(source, inverse, point) {
     }
   }
   if (isNaN(output.x)) {
-    throw new Error(
-      `Failed to find a grid shift table for location '${-input.x * R2D} ${input.y * R2D}' tried: '${attemptedGrids}'`,
-    );
+    return;
+    // throw new Error(
+    //   `Failed to find a grid shift table for location '${-input.x * R2D} ${input.y * R2D}' tried: '${attemptedGrids}'`,
+    // );
   }
   point.x = -output.x;
   point.y = output.y;
-  return 0;
 }
 
 /**
@@ -466,20 +465,15 @@ export function applyGridShift(source, inverse, point) {
  * @param inverse
  * @param ct
  */
-function applySubgridShift(pin, inverse, ct) {
+function applySubgridShift(pin: VectorPoint, inverse: boolean, ct: NadSubGrid): VectorPoint {
   const val = { x: Number.NaN, y: Number.NaN };
-  if (isNaN(pin.x)) {
-    return val;
-  }
   const tb = { x: pin.x, y: pin.y };
-  tb.x -= ct.ll[0];
-  tb.y -= ct.ll[1];
+  tb.x -= ct.ll.x;
+  tb.y -= ct.ll.y;
   tb.x = adjustLon(tb.x - PI) + PI;
   const t = nadInterpolate(tb, ct);
   if (inverse) {
-    if (isNaN(t.x)) {
-      return val;
-    }
+    if (isNaN(t.x)) return val;
     t.x = tb.x - t.x;
     t.y = tb.y - t.y;
     let i = 9;
@@ -495,12 +489,10 @@ function applySubgridShift(pin, inverse, ct) {
       dif = { x: tb.x - (del.x + t.x), y: tb.y - (del.y + t.y) };
       t.x += dif.x;
       t.y += dif.y;
-    } while (i-- && abs(dif.x) > tol && abs(dif.y) > tol);
-    if (i < 0) {
-      throw new Error('Inverse grid shift iterator failed to converge.');
-    }
-    val.x = adjustLon(t.x + ct.ll[0]);
-    val.y = t.y + ct.ll[1];
+    } while (i-- > 0 && abs(dif.x) > tol && abs(dif.y) > tol);
+    if (i < 0) throw new Error('Inverse grid shift iterator failed to converge.');
+    val.x = adjustLon(t.x + ct.ll.x);
+    val.y = t.y + ct.ll.y;
   } else {
     if (!isNaN(t.x)) {
       val.x = pin.x + t.x;
@@ -514,22 +506,22 @@ function applySubgridShift(pin, inverse, ct) {
  * @param pin
  * @param ct
  */
-function nadInterpolate(pin: VectorPoint, ct): VectorPoint {
-  const t = { x: pin.x / ct.del[0], y: pin.y / ct.del[1] };
-  const indx = { x: floor(t.x), y: floor(t.y) };
-  const frct = { x: t.x - 1 * indx.x, y: t.y - 1.0 * indx.y };
+function nadInterpolate(pin: VectorPoint, ct: NadSubGrid): VectorPoint {
+  const t = { x: pin.x / ct.del.x, y: pin.y / ct.del.y };
+  const indx: VectorPoint = { x: floor(t.x), y: floor(t.y) };
+  const frct = { x: t.x - indx.x, y: t.y - indx.y };
   const val = { x: NaN, y: NaN };
   let inx;
-  if (indx.x < 0 || indx.x >= ct.lim[0]) return val;
-  if (indx.y < 0 || indx.y >= ct.lim[1]) return val;
-  inx = indx.y * ct.lim[0] + indx.x;
-  const f00 = { x: ct.cvs[inx][0], y: ct.cvs[inx][1] };
+  if (indx.x < 0 || indx.x >= ct.lim.x) return val;
+  if (indx.y < 0 || indx.y >= ct.lim.y) return val;
+  inx = indx.y * ct.lim.x + indx.x;
+  const f00 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };
   inx++;
-  const f10 = { x: ct.cvs[inx][0], y: ct.cvs[inx][1] };
-  inx += ct.lim[0];
-  const f11 = { x: ct.cvs[inx][0], y: ct.cvs[inx][1] };
+  const f10 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };
+  inx += ct.lim.x;
+  const f11 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };
   inx--;
-  const f01 = { x: ct.cvs[inx][0], y: ct.cvs[inx][1] };
+  const f01 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };
   const m11 = frct.x * frct.y,
     m10 = frct.x * (1.0 - frct.y),
     m00 = (1.0 - frct.x) * (1.0 - frct.y),

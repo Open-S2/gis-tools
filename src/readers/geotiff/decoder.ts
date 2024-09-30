@@ -14,7 +14,7 @@ export function getDecoder(compression = 1): Decoder {
   if (compression === 1) return rawDecoder;
   else if (compression === 5) return lzwDecoder;
   else if (compression === 7) return jpegDecoder;
-  else if ([6, 7, 50001].includes(compression)) return imageDecoder;
+  else if ([6, 50001].includes(compression)) return imageDecoder;
   else if ([8, 32946].includes(compression)) return deflateDecoder;
   else if (compression === 32773) return packbitsDecoder;
   throw new Error(`Unsupported compression: ${compression}`);

@@ -1,5 +1,5 @@
-import { Database } from 'bun:sqlite';
-// import { S2FileStore } from '../src/dataStore/file';
+// import { Database } from 'bun:sqlite';
+import { S2FileStore } from '../src/dataStore/file';
 import { S2MMapStore } from '../src/dataStore/mmap';
 // import { open } from 'lmdb';
 import tmp from 'tmp';
@@ -7,11 +7,11 @@ import tmp from 'tmp';
 tmp.setGracefulCleanup();
 
 const dir = tmp.dirSync({ prefix: 'store_benchmarks' });
-// const TEST_SIZE = 1_000_000;
 const TEST_SIZE = 100_000;
 
-const mmapStore = new S2MMapStore<{ a: number }>(`${dir.name}/mmap`, false, false);
-// const fileStore = new S2FileStore<{ a: number }>(`${dir.name}/file`, false, false);
+/// ----------------------------------------------
+
+const mmapStore = new S2MMapStore<{ a: number }>(`${dir.name}/mmap`);
 
 const mmapAddStart = Bun.nanoseconds();
 for (let i = 0; i < TEST_SIZE; i++) {
@@ -25,14 +25,14 @@ console.info('mmap Add time: ', mmapAddSeconds);
 
 // lets sort:
 const mmapSortStart = Bun.nanoseconds();
-await mmapStore.switchToReadState();
+await mmapStore.sort();
 const mmapSortEnd = Bun.nanoseconds();
 const mmapSortSeconds = (mmapSortEnd - mmapSortStart) / 1_000_000_000;
 console.info('mmap Sort time: ', mmapSortSeconds);
 
 // query
 const mmapQueryStart = Bun.nanoseconds();
-const mmapRes = mmapStore.get(22, 1);
+const mmapRes = await mmapStore.get(22, 1);
 const mmapQueryEnd = Bun.nanoseconds();
 const mmapQuerySeconds = (mmapQueryEnd - mmapQueryStart) / 1_000_000_000;
 console.info('mmap Query time: ', mmapQuerySeconds, mmapRes);
@@ -41,20 +41,35 @@ console.info('mmap total time: ', mmapAddSeconds + mmapSortSeconds + mmapQuerySe
 
 /// ----------------------------------------------
 
-// const fileAddStart = Bun.nanoseconds();
-// for (let i = 0; i < 10_000; i++) fileStore.set(i, { a: i });
-// const fileAddEnd = Bun.nanoseconds();
-// const fileAddSeconds = (fileAddEnd - fileAddStart) / 1_000_000_000;
-// console.info('file Add time: ', fileAddSeconds);
+const fileStore = new S2FileStore<{ a: number }>(`${dir.name}/file`);
 
-// // lets sort:
-// const fileSortStart = Bun.nanoseconds();
-// fileStore.has(0);
-// const fileSortEnd = Bun.nanoseconds();
-// const fileSortSeconds = (fileSortEnd - fileSortStart) / 1_000_000_000;
-// console.info('file Sort time: ', fileSortSeconds);
+const fileAddStart = Bun.nanoseconds();
+for (let i = 0; i < TEST_SIZE; i++) {
+  const rand = getRandomInt(0, TEST_SIZE);
+  fileStore.set(rand, { a: rand });
+}
+fileStore.set(22, { a: 22 });
+const fileAddEnd = Bun.nanoseconds();
+const fileAddSeconds = (fileAddEnd - fileAddStart) / 1_000_000_000;
+console.info('file Add time: ', fileAddSeconds);
 
-// console.info('file total time: ', fileAddSeconds + fileSortSeconds);
+// lets sort:
+const fileSortStart = Bun.nanoseconds();
+await fileStore.sort();
+const fileSortEnd = Bun.nanoseconds();
+const fileSortSeconds = (fileSortEnd - fileSortStart) / 1_000_000_000;
+console.info('file Sort time: ', fileSortSeconds);
+
+// query
+const fileQueryStart = Bun.nanoseconds();
+const fileRes = await fileStore.get(22, 1);
+const fileQueryEnd = Bun.nanoseconds();
+const fileQuerySeconds = (fileQueryEnd - fileQueryStart) / 1_000_000_000;
+console.info('file Query time: ', fileQuerySeconds, fileRes);
+
+console.info('file total time: ', fileAddSeconds + fileSortSeconds + fileQuerySeconds);
+
+fileStore.close();
 
 /// ----------------------------------------------
 
@@ -81,35 +96,35 @@ console.info('mmap total time: ', mmapAddSeconds + mmapSortSeconds + mmapQuerySe
 
 /// ----------------------------------------------
 
-const db = new Database(`${dir.name}/sqlite.db`);
-db.exec(`
-  CREATE TABLE IF NOT EXISTS data (
-    hi INTEGER NOT NULL,
-    lo INTEGER NOT NULL,
-    value BLOB NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (hi, lo);
-`);
+// const db = new Database(`${dir.name}/sqlite.db`);
+// db.exec(`
+//   CREATE TABLE IF NOT EXISTS data (
+//     hi INTEGER NOT NULL,
+//     lo INTEGER NOT NULL,
+//     value BLOB NOT NULL
+//   );
+//   CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (hi, lo);
+// `);
 
-// Adding data as BLOB to SQLite
-const sqliteAddStart = Bun.nanoseconds();
-const insert = db.prepare('INSERT INTO data (hi, lo, value) VALUES (?, ?, ?)');
-for (let i = 0; i < TEST_SIZE; i++) {
-  const rand = getRandomInt(0, TEST_SIZE);
-  insert.run(0, rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
-}
-const sqliteAddEnd = Bun.nanoseconds();
-const sqliteAddSeconds = (sqliteAddEnd - sqliteAddStart) / 1_000_000_000;
-console.info('SQLite Add time: ', sqliteAddSeconds);
+// // Adding data as BLOB to SQLite
+// const sqliteAddStart = Bun.nanoseconds();
+// const insert = db.prepare('INSERT INTO data (hi, lo, value) VALUES (?, ?, ?)');
+// for (let i = 0; i < TEST_SIZE; i++) {
+//   const rand = getRandomInt(0, TEST_SIZE);
+//   insert.run(0, rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
+// }
+// const sqliteAddEnd = Bun.nanoseconds();
+// const sqliteAddSeconds = (sqliteAddEnd - sqliteAddStart) / 1_000_000_000;
+// console.info('SQLite Add time: ', sqliteAddSeconds);
 
-// Let's perform a simple lookup to simulate a query
-const sqliteQueryStart = Bun.nanoseconds();
-const res = db.prepare('SELECT * FROM data WHERE hi = ? AND lo = ?').get(0, 22); // Query the first entry
-const sqliteQueryEnd = Bun.nanoseconds();
-const sqliteQuerySeconds = (sqliteQueryEnd - sqliteQueryStart) / 1_000_000_000;
-console.info('SQLite Query time: ', sqliteQuerySeconds, res);
+// // Let's perform a simple lookup to simulate a query
+// const sqliteQueryStart = Bun.nanoseconds();
+// const res = db.prepare('SELECT * FROM data WHERE hi = ? AND lo = ?').get(0, 22); // Query the first entry
+// const sqliteQueryEnd = Bun.nanoseconds();
+// const sqliteQuerySeconds = (sqliteQueryEnd - sqliteQueryStart) / 1_000_000_000;
+// console.info('SQLite Query time: ', sqliteQuerySeconds, res);
 
-console.info('SQLite total time: ', sqliteAddSeconds + sqliteQuerySeconds);
+// console.info('SQLite total time: ', sqliteAddSeconds + sqliteQuerySeconds);
 
 /**
  * Generate a random whole number between two given values.

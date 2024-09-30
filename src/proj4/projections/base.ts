@@ -1,6 +1,7 @@
 import { D2R, PJD_NODATUM, R2D } from '../constants';
 
 import type { DatumParams } from 's2-tools/readers/wkt';
+import type { GridDefinition } from 's2-tools/readers/nadgrid';
 import type { ProjectionTransform } from '.';
 import type { VectorPoint } from 's2-tools/geometry';
 
@@ -56,6 +57,7 @@ export interface ProjectionParams {
   noRot?: boolean;
   rA?: boolean;
   projName?: string;
+  grids?: GridDefinition[];
 }
 
 /** Base class for all projections */
@@ -97,6 +99,7 @@ export class ProjectionBase implements ProjectionTransform {
   approx = false;
   axis = 'enu';
   nadgrids = '@null';
+  grids?: GridDefinition[];
   sphere = false;
   ellps = 'wgs84'; // Ellipsoid name
 

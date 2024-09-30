@@ -1,12 +1,22 @@
+import externalSort from './externalSort';
 import { closeSync, fstatSync, openSync, readSync, writeSync } from 'fs';
+import { compare, toCell } from '../dataStructures/uint64';
 
-import type { Uint64Cell } from '../wasm/uint64';
-import type { Key, Stringifiable } from '..';
+import type { Stringifiable } from '..';
+import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
-/** A low/high pair for faster comparisons */
-interface LowHigh {
-  low: number;
-  high: number;
+/** Options to create a S2FileStore */
+export interface Options {
+  /** If true, then the values are stored in the index section of the keys file */
+  valuesAreIndex?: boolean;
+  /** If true, then the data is already sorted and get calls can be immediately returned */
+  isSorted?: boolean;
+  /** The maximum heap size in bytes for each grouping of data. */
+  maxHeap?: number;
+  /** The number of threads to use for sorting */
+  threadCount?: number;
+  /** If desired, a temporary directory to use */
+  tmpDir?: string;
 }
 
 /**
@@ -19,47 +29,55 @@ export class S2FileStore<V = Stringifiable> {
   #state: 'read' | 'write' = 'read';
   #size = 0;
   #sorted: boolean;
+  #maxHeap?: number;
+  #threadCount?: number;
+  #tmpDir?: string;
   // options
   #indexIsValues = false;
   // write params
   #valueOffset = 0;
-  #keyFd: number;
-  #valueFd: number;
+  // read write fd
+  #keyFd: number = -1;
+  #valueFd: number = -1;
 
   /**
    * Builds a new File based KV
-   * @param path - the path to the file
-   * @param isSorted - set to true if the keys are already sorted
-   * @param valuesAreIndex - set to true if the values are stored in the index section of the keys file
+   * @param fileName - the path + file name without the extension
+   * @param options - the options of how the store should be created and ued
    */
   constructor(
-    public readonly path: string,
-    isSorted = false,
-    valuesAreIndex = false,
+    public readonly fileName: string,
+    options?: Options,
   ) {
-    this.#sorted = isSorted;
-    this.#indexIsValues = valuesAreIndex;
-    this.#keyFd = openSync(`${path}.keys`, 'a');
-    if (!this.#indexIsValues) this.#valueFd = openSync(`${path}.values`, 'a');
-    else this.#valueFd = -1;
+    this.#sorted = options?.isSorted ?? false;
+    this.#indexIsValues = options?.valuesAreIndex ?? false;
+    this.#maxHeap = options?.maxHeap;
+    this.#threadCount = options?.threadCount;
+    this.#tmpDir = options?.tmpDir;
+    if (!this.#sorted) this.#switchToWriteState();
     // Update the size if the file already existed
     const stat = fstatSync(this.#keyFd);
     if (stat.size >= 16) this.#size = stat.size / 16;
   }
 
+  /** @returns - the length of the store */
+  get length(): number {
+    return this.#size;
+  }
+
   /**
    * Adds a value to be associated with a key
-   * @param key - the key
+   * @param key - the uint64 id
    * @param value - the value to store
    */
-  set(key: Key, value: V): void {
-    if (this.#state !== 'read') throw new Error('Can no longer write to KVFile store.');
+  set(key: Uint64, value: V): void {
+    this.#switchToWriteState();
     // prepare value
     const valueStr = JSON.stringify(value);
     const valueBuf = Buffer.from(valueStr);
     // write key offset as a uint64
     const buffer = Buffer.alloc(16);
-    const { low, high } = this.#getLowHigh(key);
+    const { low, high } = toCell(key);
     buffer.writeUInt32LE(low, 0);
     buffer.writeUInt32LE(high, 4);
     // write value offset to point to the value position in the `${path}.values`
@@ -91,15 +109,15 @@ export class S2FileStore<V = Stringifiable> {
    * @param bigint - set to true if the key is a bigint
    * @returns the value if the map contains values for the key
    */
-  get(key: Key, max?: number, bigint = false): V[] | undefined {
-    this.#switchToWriteState();
+  async get(key: Uint64, max?: number, bigint = false): Promise<V[] | undefined> {
+    await this.#switchToReadState();
     let lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return undefined;
+    const { low: lowID, high: highID } = toCell(key);
     const res: V[] = [];
     const buffer = Buffer.alloc(16);
     while (true) {
       readSync(this.#keyFd, buffer, 0, 16, lowerIndex * 16);
-      const { low: lowID, high: highID } = this.#getLowHigh(key);
       if (buffer.readUInt32LE(0) !== lowID || buffer.readUInt32LE(4) !== highID) break;
       const valueOffset = buffer.readUInt32LE(8);
       const valueLength = buffer.readUInt32LE(12);
@@ -120,98 +138,83 @@ export class S2FileStore<V = Stringifiable> {
     return res;
   }
 
-  /**
-   * Check if the map contains the key
-   * @param key - the key
-   * @returns true if the map contains value(s) for the key
-   */
-  has(key: Key): boolean {
-    this.#switchToWriteState();
-    const lowerIndex = this.#lowerBound(key);
-    if (lowerIndex >= this.#size) return false;
-    const { low: lowID, high: highID } = this.#getLowHigh(key);
-    const buffer = Buffer.alloc(8);
-    readSync(this.#keyFd, buffer, 0, 8, lowerIndex * 16);
-    const low = buffer.readUInt32LE(0);
-    const high = buffer.readUInt32LE(4);
-    return low === lowID && high === highID;
+  /** Sort the data if not sorted */
+  async sort(): Promise<void> {
+    await this.#switchToReadState();
   }
 
-  /** Switches to write state if in read. Also sort the keys. */
+  /**
+   * Iterates over all values in the store
+   * @param bigint - set to true if the value is a bigint stored in the index
+   * @yields an iterator
+   */
+  async *entries(bigint = false): AsyncIterableIterator<{ key: Uint64Cell; value: V }> {
+    await this.#switchToReadState();
+    for (let i = 0; i < this.#size; i++) {
+      const buffer = Buffer.alloc(16);
+      readSync(this.#keyFd, buffer, 0, 16, i * 16);
+      const keyLow = buffer.readUInt32LE(0);
+      const keyHigh = buffer.readUInt32LE(4);
+      const valueOffset = buffer.readUInt32LE(8);
+      const valueLength = buffer.readUInt32LE(12);
+      if (this.#indexIsValues) {
+        const value = bigint
+          ? ((BigInt(valueOffset) + (BigInt(valueLength) << 32n)) as unknown as V)
+          : ((valueOffset + (valueLength << 32)) as unknown as V);
+        yield { key: { low: keyLow, high: keyHigh }, value };
+      } else {
+        const valueBuf = Buffer.alloc(valueLength);
+        readSync(this.#valueFd, valueBuf, 0, valueLength, valueOffset);
+        const value = JSON.parse(valueBuf.toString()) as V;
+        yield { key: { low: keyLow, high: keyHigh }, value };
+      }
+    }
+  }
+
+  /** Closes the store */
+  close(): void {
+    if (this.#keyFd >= 0) closeSync(this.#keyFd);
+    if (!this.#indexIsValues && this.#valueFd >= 0) closeSync(this.#valueFd);
+  }
+
+  /** Switches to write state if in read. */
   #switchToWriteState(): void {
     if (this.#state === 'write') return;
-    if (this.#state === 'read') {
-      this.#state = 'write';
-      closeSync(this.#keyFd);
-      if (!this.#indexIsValues) closeSync(this.#valueFd);
-      this.#keyFd = openSync(`${this.path}.keys`, 'r+');
-      if (!this.#indexIsValues) this.#valueFd = openSync(`${this.path}.values`, 'r+');
-      this.#sort();
-    }
+    this.#state = 'write';
+    this.close();
+    this.#keyFd = openSync(`${this.fileName}.keys`, 'w');
+    if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'w');
+  }
+
+  /** Switches to read state if in write. Also sort the keys. */
+  async #switchToReadState(): Promise<void> {
+    if (this.#state === 'read') return;
+    this.#state = 'read';
+    this.close();
+    await this.#sort();
+    this.#keyFd = openSync(`${this.fileName}.sortedkeys`, 'r');
+    if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'r');
   }
 
   /** Sort the data */
-  #sort(): void {
+  async #sort(): Promise<void> {
     if (this.#sorted) return;
-    this.#quickSort(0, this.#size - 1);
+    await externalSort(
+      [`${this.fileName}.keys`],
+      `${this.fileName}.sortedKeys`,
+      this.#maxHeap,
+      this.#threadCount,
+      this.#tmpDir,
+    );
     this.#sorted = true;
-  }
-
-  /**
-   * TODO: Running in parallel can be faster
-   * @param low - low index inclusive
-   * @param high - high index inclusive
-   */
-  #quickSort(low: number, high: number): void {
-    if (low >= high) return;
-    const pivot = this.#partition(low, high);
-    this.#quickSort(low, pivot - 1);
-    this.#quickSort(pivot + 1, high);
-  }
-
-  /**
-   * @param low - low index inclusive
-   * @param high - high index inclusive
-   * @returns the index of the pivot
-   */
-  #partition(low: number, high: number): number {
-    const pivot = this.#getKey(high);
-    let i = low - 1;
-    for (let j = low; j < high; j++) {
-      const jLohi = this.#getKey(j);
-      if (this.#compareLowHigh(jLohi, pivot) <= 0) {
-        i++;
-        this.#swapKeys(i, j);
-      }
-    }
-    this.#swapKeys(i + 1, high);
-    return i + 1;
-  }
-
-  /**
-   * Swap the keys at i and j including their pointers to values
-   * @param i - the index of the i-th key
-   * @param j - the index of the j-th key
-   */
-  #swapKeys(i: number, j: number): void {
-    if (i === j) return;
-    const iKey = Buffer.alloc(16);
-    const jKey = Buffer.alloc(16);
-    readSync(this.#keyFd, iKey, 0, 16, i * 16);
-    readSync(this.#keyFd, jKey, 0, 16, j * 16);
-    writeSync(this.#keyFd, jKey, 0, 16, i * 16);
-    writeSync(this.#keyFd, iKey, 0, 16, j * 16);
-    readSync(this.#keyFd, iKey, 0, 16, i * 16);
-    readSync(this.#keyFd, jKey, 0, 16, j * 16);
   }
 
   /**
    * @param id - the id to search for
    * @returns the starting index from the lower bound of the id
    */
-  #lowerBound(id: Key): number {
-    const loHiID = this.#getLowHigh(id);
-    this.#sort();
+  #lowerBound(id: Uint64): number {
+    const loHiID = toCell(id);
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#size;
@@ -220,7 +223,7 @@ export class S2FileStore<V = Stringifiable> {
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
       const loHi = this.#getKey(mid);
-      if (this.#compareLowHigh(loHi, loHiID) === -1) {
+      if (compare(loHi, loHiID) === -1) {
         lo = mid + 1;
       } else {
         hi = mid;
@@ -234,51 +237,9 @@ export class S2FileStore<V = Stringifiable> {
    * @param index - the index to get the key from
    * @returns the key
    */
-  #getKey(index: number): LowHigh {
-    // read in the key
-    const buffer = Buffer.alloc(8);
-    readSync(this.#keyFd, buffer, 0, 4, index * 16);
-    return {
-      low: buffer.readUInt32LE(0),
-      high: buffer.readUInt32LE(4),
-    };
-  }
-
-  /**
-   * @param lohiA - the first LowHigh
-   * @param lohiB - the second LowHigh
-   * @returns -1 | 0 | 1
-   */
-  #compareLowHigh(lohiA: LowHigh, lohiB: LowHigh): -1 | 0 | 1 {
-    if (lohiA.high < lohiB.high) return -1;
-    if (lohiA.high > lohiB.high) return 1;
-    if (lohiA.low < lohiB.low) return -1;
-    if (lohiA.low > lohiB.low) return 1;
-    return 0;
-  }
-
-  /**
-   * @param key - the key used by the S2FileStore
-   * @returns the low and high parts of the key
-   */
-  #getLowHigh(key: Key): LowHigh {
-    if (typeof key === 'number') {
-      const keyBig = BigInt(key);
-      return {
-        low: Number(keyBig & 0xffffffffn),
-        high: Number(keyBig >> 32n) & 0xffffffff,
-      };
-    } else if (typeof key === 'bigint') {
-      return {
-        low: Number(key & 0xffffffffn),
-        high: Number(key >> 32n) & 0xffffffff,
-      };
-    } else {
-      const { low, high } = key as Uint64Cell;
-      return {
-        low,
-        high,
-      };
-    }
+  #getKey(index: number): Uint64Cell {
+    const buf = Buffer.alloc(8);
+    readSync(this.#keyFd, buf, 0, 8, index * 16);
+    return { low: buf.readUint32LE(0), high: buf.readUint32LE(4) };
   }
 }

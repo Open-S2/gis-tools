@@ -18,10 +18,27 @@ export * from './predictor';
 /**
  *
  */
+export interface GridReader {
+  key: string;
+  reader: Reader;
+}
+
+/**
+ *
+ */
 export class GeoTIFFReader extends GeoTIFFHeaderReader {
+  gridStore: GridReader[] = [];
   /** @param reader - the geotiff reader to parse data from */
   constructor(reader: Reader) {
     super(reader);
+  }
+
+  /**
+   * @param key
+   * @param reader
+   */
+  addGridReader(key: string, reader: Reader): void {
+    this.gridStore.push({ key, reader });
   }
 
   /**
@@ -31,7 +48,12 @@ export class GeoTIFFReader extends GeoTIFFHeaderReader {
    */
   getImage(index = 0): GeoTIFFImage {
     if (index >= this.length) throw new Error('Index out of bounds.');
-    return new GeoTIFFImage(this.reader, this.imageDirectories[index], this.littleEndian);
+    return new GeoTIFFImage(
+      this.reader,
+      this.imageDirectories[index],
+      this.littleEndian,
+      this.gridStore,
+    );
   }
 
   /**

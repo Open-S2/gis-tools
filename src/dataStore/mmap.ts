@@ -1,14 +1,23 @@
 import externalSort from './externalSort';
 import { mmap } from 'bun';
 import { closeSync, fstatSync, openSync, writeSync } from 'fs';
+import { compare, toCell } from '../dataStructures/uint64';
 
-import type { Uint64Cell } from '../wasm/uint64';
-import type { Key, Stringifiable } from '..';
+import type { Stringifiable } from '..';
+import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
-/** A low/high pair for faster comparisons */
-interface LowHigh {
-  low: number;
-  high: number;
+/** Options to create a S2MMapStore */
+export interface Options {
+  /** If true, then the values are stored in the index section of the keys file */
+  valuesAreIndex?: boolean;
+  /** If true, then the data is already sorted and get calls can be immediately returned */
+  isSorted?: boolean;
+  /** The maximum heap size in bytes for each grouping of data. */
+  maxHeap?: number;
+  /** The number of threads to use for sorting */
+  threadCount?: number;
+  /** If desired, a temporary directory to use */
+  tmpDir?: string;
 }
 
 /**
@@ -18,53 +27,60 @@ interface LowHigh {
  * and read-only.
  */
 export class S2MMapStore<V = Stringifiable> {
-  #state: 'read' | 'write' = 'write';
+  #state: 'read' | 'write' = 'read';
   #size = 0;
   #sorted: boolean;
+  #maxHeap?: number;
+  #threadCount?: number;
+  #tmpDir?: string;
   // options
   #indexIsValues = false;
   // write params
   #valueOffset = 0;
-  #keyFd: number;
-  #valueFd: number;
+  #keyFd: number = -1;
+  #valueFd: number = -1;
   // readers
   #keyReader!: Uint8Array;
   #valueReader!: Uint8Array;
 
   /**
    * Builds a new File based KV
-   * @param fileName - the file name without the extension
-   * @param isSorted - set to true if the keys are already sorted
-   * @param valuesAreIndex - set to true if the values are stored in the index section of the keys file
+   * @param fileName - the path + file name without the extension
+   * @param options - the options of how the store should be created and ued
    */
   constructor(
     public readonly fileName: string,
-    isSorted = false,
-    valuesAreIndex = false,
+    options?: Options,
   ) {
-    this.#sorted = isSorted;
-    this.#indexIsValues = valuesAreIndex;
-    this.#keyFd = openSync(`${fileName}.keys`, 'a');
-    if (!this.#indexIsValues) this.#valueFd = openSync(`${fileName}.values`, 'a');
-    else this.#valueFd = -1;
+    this.#sorted = options?.isSorted ?? false;
+    this.#indexIsValues = options?.valuesAreIndex ?? false;
+    this.#maxHeap = options?.maxHeap;
+    this.#threadCount = options?.threadCount;
+    this.#tmpDir = options?.tmpDir;
+    if (!this.#sorted) this.#switchToWriteState();
     // Update the size if the file already existed
     const stat = fstatSync(this.#keyFd);
     if (stat.size >= 16) this.#size = stat.size / 16;
   }
 
+  /** @returns - the length of the store */
+  get length(): number {
+    return this.#size;
+  }
+
   /**
    * Adds a value to be associated with a key
-   * @param key - the key
+   * @param key - the uint64 id
    * @param value - the value to store
    */
-  set(key: Key, value: V): void {
-    if (this.#state !== 'write') throw new Error('Can no longer write to KVFile store.');
+  set(key: Uint64, value: V): void {
+    this.#switchToWriteState();
     // prepare value
     const valueStr = JSON.stringify(value);
     const valueBuf = Buffer.from(valueStr);
     // write key offset as a uint64
     const buffer = Buffer.alloc(16);
-    const { low, high } = this.#getLowHigh(key);
+    const { low, high } = toCell(key);
     buffer.writeUInt32LE(low, 0);
     buffer.writeUInt32LE(high, 4);
     // write value offset to point to the value position in the `${path}.values`
@@ -96,11 +112,11 @@ export class S2MMapStore<V = Stringifiable> {
    * @param bigint - set to true if the key is a bigint
    * @returns the value if the map contains values for the key
    */
-  get(key: Key, max?: number, bigint = false): V[] | undefined {
-    if (!this.#sorted) throw new Error('Not sorted, please call "switchToReadState" first');
+  async get(key: Uint64, max?: number, bigint = false): Promise<V[] | undefined> {
+    await this.#switchToReadState();
     let lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return undefined;
-    const { low: lowID, high: highID } = this.#getLowHigh(key);
+    const { low: lowID, high: highID } = toCell(key);
     const res: V[] = [];
     while (true) {
       const keySlice = this.#keyReader.subarray(lowerIndex * 16, lowerIndex * 16 + 16);
@@ -125,29 +141,53 @@ export class S2MMapStore<V = Stringifiable> {
     return res;
   }
 
+  /** Sort the data if not sorted */
+  async sort(): Promise<void> {
+    await this.#switchToReadState();
+  }
+
   /**
-   * Check if the map contains the key
-   * @param key - the key
-   * @returns true if the map contains value(s) for the key
+   * Iterates over all values in the store
+   * @param bigint - set to true if the value is a bigint stored in the index
+   * @yields an iterator
    */
-  has(key: Key): boolean {
-    if (!this.#sorted) throw new Error('Not sorted, please call "switchToReadState" first');
-    const lowerIndex = this.#lowerBound(key);
-    if (lowerIndex >= this.#size) return false;
-    const { low: lowID, high: highID } = this.#getLowHigh(key);
-    const keySlice = this.#keyReader.subarray(lowerIndex * 16, lowerIndex * 16 + 8);
-    const buf = Buffer.from(keySlice);
-    const low = buf.readUint32LE(0);
-    const high = buf.readUint32LE(4);
-    return low === lowID && high === highID;
+  async *entries(bigint = false): AsyncIterableIterator<{ key: Uint64Cell; value: V }> {
+    await this.#switchToReadState();
+    for (let i = 0; i < this.#size; i++) {
+      const keySlice = this.#keyReader.subarray(i * 16, i * 16 + 16);
+      const buffer = Buffer.from(keySlice);
+      const keyLow = buffer.readUInt32LE(0);
+      const keyHigh = buffer.readUInt32LE(4);
+      const valueOffset = buffer.readUInt32LE(8);
+      const valueLength = buffer.readUInt32LE(12);
+      if (this.#indexIsValues) {
+        const value = bigint
+          ? ((BigInt(valueOffset) + (BigInt(valueLength) << 32n)) as unknown as V)
+          : ((valueOffset + (valueLength << 32)) as unknown as V);
+        yield { key: { low: keyLow, high: keyHigh }, value };
+      } else {
+        const valSlice = this.#valueReader.subarray(valueOffset, valueOffset + valueLength);
+        const valueBuf = Buffer.from(valSlice);
+        const value = JSON.parse(valueBuf.toString()) as V;
+        yield { key: { low: keyLow, high: keyHigh }, value };
+      }
+    }
+  }
+
+  /** Switches to write state if in read. */
+  #switchToWriteState(): void {
+    if (this.#state === 'write') return;
+    this.#state = 'write';
+    this.#keyFd = openSync(`${this.fileName}.keys`, 'w');
+    if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'w');
   }
 
   /** Switches to read state if in write. Also sort the keys. */
-  async switchToReadState(): Promise<void> {
+  async #switchToReadState(): Promise<void> {
     if (this.#state === 'read') return;
     this.#state = 'read';
-    closeSync(this.#keyFd);
-    if (!this.#indexIsValues) closeSync(this.#valueFd);
+    if (this.#keyFd > 0) closeSync(this.#keyFd);
+    if (!this.#indexIsValues && this.#valueFd > 0) closeSync(this.#valueFd);
     await this.#sort();
     this.#keyReader = mmap(`${this.fileName}.sortedkeys`);
     if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
@@ -156,7 +196,13 @@ export class S2MMapStore<V = Stringifiable> {
   /** Sort the data */
   async #sort(): Promise<void> {
     if (this.#sorted) return;
-    await externalSort([`${this.fileName}.keys`], `${this.fileName}.sortedKeys`);
+    await externalSort(
+      [`${this.fileName}.keys`],
+      `${this.fileName}.sortedKeys`,
+      this.#maxHeap,
+      this.#threadCount,
+      this.#tmpDir,
+    );
     this.#sorted = true;
   }
 
@@ -164,8 +210,8 @@ export class S2MMapStore<V = Stringifiable> {
    * @param id - the id to search for
    * @returns the starting index from the lower bound of the id
    */
-  #lowerBound(id: Key): number {
-    const loHiID = this.#getLowHigh(id);
+  #lowerBound(id: Uint64): number {
+    const loHiID = toCell(id);
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#size;
@@ -174,7 +220,7 @@ export class S2MMapStore<V = Stringifiable> {
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
       const loHi = this.#getKey(mid);
-      if (this.#compareLowHigh(loHi, loHiID) === -1) {
+      if (compare(loHi, loHiID) === -1) {
         lo = mid + 1;
       } else {
         hi = mid;
@@ -188,50 +234,9 @@ export class S2MMapStore<V = Stringifiable> {
    * @param index - the index to get the key from
    * @returns the key
    */
-  #getKey(index: number): LowHigh {
+  #getKey(index: number): Uint64Cell {
     const key = this.#keyReader.subarray(index * 16, index * 16 + 8);
     const buf = Buffer.from(key);
-    return {
-      low: buf.readUint32LE(0),
-      high: buf.readUint32LE(4),
-    };
-  }
-
-  /**
-   * @param lohiA - the first LowHigh
-   * @param lohiB - the second LowHigh
-   * @returns -1 | 0 | 1
-   */
-  #compareLowHigh(lohiA: LowHigh, lohiB: LowHigh): -1 | 0 | 1 {
-    if (lohiA.high < lohiB.high) return -1;
-    if (lohiA.high > lohiB.high) return 1;
-    if (lohiA.low < lohiB.low) return -1;
-    if (lohiA.low > lohiB.low) return 1;
-    return 0;
-  }
-
-  /**
-   * @param key - the key used by the S2MMapStore
-   * @returns the low and high parts of the key
-   */
-  #getLowHigh(key: Key): LowHigh {
-    if (typeof key === 'number') {
-      const keyBig = BigInt(key);
-      return {
-        low: Number(keyBig & 0xffffffffn),
-        high: Number(keyBig >> 32n) & 0xffffffff,
-      };
-    } else if (typeof key === 'bigint') {
-      return {
-        low: Number(key & 0xffffffffn),
-        high: Number(key >> 32n) & 0xffffffff,
-      };
-    } else {
-      const { low, high } = key as Uint64Cell;
-      return {
-        low,
-        high,
-      };
-    }
+    return { low: buf.readUint32LE(0), high: buf.readUint32LE(4) };
   }
 }

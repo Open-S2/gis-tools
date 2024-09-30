@@ -182,7 +182,9 @@ test('mercator1sp.tif test', async (): Promise<void> => {
 test('byte.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/byte.tif`);
+  // const ntv2 = new MMapReader(`${__dirname}/fixtures/ntv2_0.gsb`);
   const geotiffReader = new GeoTIFFReader(fileReader);
+  // geotiffReader.addGridReader('NTv2_0.gsb', ntv2);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -726,7 +728,7 @@ test('ProjectedCSTypeGeoKey_5588_oblique_stereographic.tif test', async (): Prom
   expect(bounds).toEqual([440720, 3751260, 440780, 3751320]);
   const boundsCorrected = image.getBoundingBox(true);
   expect(boundsCorrected).toEqual([
-    -69.08909055988515, 54.00219682088313, -69.08882272890078, 54.0023659994581,
+    -69.08909055988515, 54.002196820883135, -69.08882272890078, 54.0023659994581,
   ]);
   const boundsCmp = cmpImage.getBoundingBox();
   expect(boundsCmp).toEqual([440720, 3751260, 440780, 3751320]);
@@ -854,7 +856,7 @@ test('ProjectedCSTypeGeoKey_27200_new_zealand_mapping_grid.tif test', async (): 
   expect(bounds).toEqual([440720, 3751260, 440780, 3751320]);
   const boundsCorrected = image.getBoundingBox(true);
   expect(boundsCorrected).toEqual([
-    142.5869840558114, -55.8388637505136, 142.58790609359477, -55.838724496136386,
+    142.5869840558114, -55.838863750513596, 142.58790609359477, -55.83872449613639,
   ]);
   const boundsCmp = cmpImage.getBoundingBox();
   expect(boundsCmp).toEqual([440720, 3751260, 440780, 3751320]);
@@ -929,7 +931,7 @@ test('ProjLinearUnitsGeoKey_9036.tif test', async (): Promise<void> => {
   expect(bounds).toEqual([440720, 3751260, 440780, 3751320]);
   const boundsCorrected = image.getBoundingBox(true);
   expect(boundsCorrected).toEqual([
-    -102.33809671112067, 10.326816035405699, -102.33793170372446, 10.326982893760002,
+    -102.33809671112067, 10.326816035405699, -102.33793170372446, 10.32698289376,
   ]);
   const boundsCmp = cmpImage.getBoundingBox();
   expect(boundsCmp).toEqual([440720, 3751260, 440780, 3751320]);

@@ -1,17 +1,27 @@
-import type { Stringifiable } from '../';
+import { compare } from '../../dataStructures/uint64';
 
-/** Represents a vector store or an array */
-export interface VectorStore<V = Stringifiable> {
-  push: (value: V) => void;
-  get: (index: number) => V;
-  sort: (compareFn?: (a: V, b: V) => number) => void;
-  length: () => number;
-  values: () => IterableIterator<V>;
-  [Symbol.iterator]: () => IterableIterator<V>;
+import type { Uint64Cell } from '../../dataStructures/uint64';
+
+/** The kind of input required to store a vector for proper indexing */
+export interface VectorKey {
+  cell: Uint64Cell;
 }
 
-/** Just a placeholder to explain what a local key-value store essentially is */
-export class Vector<V = Stringifiable> implements VectorStore<V> {
+/** Represents a vector store or an array */
+export interface VectorStore<V> {
+  push: (value: V) => void;
+  get: (index: number) => Promise<V>;
+  length: number;
+  values: (() => Generator<V>) | (() => AsyncGenerator<V>);
+  sort: (() => void) | (() => Promise<void>);
+  [Symbol.iterator]: (() => Generator<V>) | (() => AsyncGenerator<V>);
+}
+
+/** A constructor for a vector store */
+export type VectorStoreConstructor<V extends VectorKey> = new () => VectorStore<V>;
+
+/** A local vector key-value store */
+export class Vector<V extends VectorKey> implements VectorStore<V> {
   #store: V[] = [];
 
   /** @param value - the value to store */
@@ -23,36 +33,35 @@ export class Vector<V = Stringifiable> implements VectorStore<V> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  get(index: number): V {
-    return this.#store[index];
-  }
-
-  /**
-   * Sort the store
-   * @param compareFn - the compare function explaining how the data should be sorted
-   */
-  sort(compareFn?: (a: V, b: V) => number): void {
-    this.#store.sort(compareFn);
+  async get(index: number): Promise<V> {
+    return await this.#store[index];
   }
 
   /** @returns the length of the store */
-  length(): number {
+  get length(): number {
     return this.#store.length;
   }
 
   /**
    * iterate through the values
-   * @returns an iterator
+   * @yields an iterator
    */
-  values(): IterableIterator<V> {
-    return this.#store.values();
+  *values(): Generator<V> {
+    for (const value of this.#store) yield value;
+  }
+
+  /** Sort the store in place */
+  sort(): void {
+    this.#store.sort((a, b): -1 | 0 | 1 => {
+      return compare(a.cell, b.cell);
+    });
   }
 
   /**
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): IterableIterator<V> {
+  [Symbol.iterator](): Generator<V> {
     return this.values();
   }
 }

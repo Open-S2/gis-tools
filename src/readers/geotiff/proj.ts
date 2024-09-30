@@ -12,17 +12,23 @@ import {
 } from '../../proj4';
 
 import type { DatumParams } from '..';
-import type { GeoKeyDirectory } from '.';
 import type { ProjectionParams } from '../../proj4';
+import type { GeoKeyDirectory, GridReader } from '.';
 
 /**
  * @param geoKeys
+ * @param gridStore
  */
-export function buildTransform(geoKeys?: GeoKeyDirectory): Transformer {
+export function buildTransform(
+  geoKeys?: GeoKeyDirectory,
+  gridStore: GridReader[] = [],
+): Transformer {
   const params = buildParams(geoKeys);
   const transformer = new Transformer();
   injectAllDefinitions(transformer);
   injectAllEPSGCodes(transformer);
+  for (const { key, reader } of gridStore) transformer.addGridFromReader(key, reader);
+  if (geoKeys === undefined) return transformer;
   if (params !== undefined) transformer.setSource(params);
   return transformer;
 }

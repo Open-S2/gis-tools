@@ -4,7 +4,7 @@ import { forward, getLetterDesignator, inverse, toPoint } from '../../src/proj4/
 describe('First MGRS set', () => {
   const mgrsStr = '33UXP04';
   const point = toPoint(mgrsStr);
-  if (!point) throw new Error('Invalid MGRS string');
+  if (point === undefined) throw new Error('Invalid MGRS string');
   it('Longitude of point from MGRS correct.', () => {
     expect(point.x).toBeCloseTo(16.4145, 6);
   });
@@ -28,7 +28,7 @@ describe('First MGRS set', () => {
 describe('Second MGRS set', () => {
   const mgrsStr = '24XWT783908'; // near UTM zone border, so there are two ways to reference this
   const point = toPoint(mgrsStr);
-  if (!point) throw new Error('Invalid MGRS string');
+  if (point === undefined) throw new Error('Invalid MGRS string');
   it('Longitude of point from MGRS correct.', () => {
     expect(point.x).toBeCloseTo(-32.66433, 5);
   });
@@ -143,7 +143,8 @@ describe('data validation', () => {
   });
 });
 
-describe('test against all data from mgrsToGeo_WE.txt', async () => {
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+describe('test against all data from mgrsToGeo_WE.txt', async (): Promise<void> => {
   const text = await Bun.file(`${__dirname}/fixtures/mgrsToGeo_WE.txt`).text();
 
   const [_header, _description, _blank, ...rows] = text.split(/\r?\n/);

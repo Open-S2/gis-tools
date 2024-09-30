@@ -11,11 +11,19 @@ import {
   toST,
 } from '../geometry/s2/point';
 
+import type { PointShape } from './pointIndex';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type { Face, Point3D, Projection, Properties, S2CellId } from '../geometry';
 
+import type { VectorStoreConstructor } from '../dataStore/vector';
+
+/** The kind of input required to store a point for proper indexing */
+export type ClusterStore = VectorStoreConstructor<PointShape<Cluster>>;
+
 /** Options for point clustering */
 export interface ClusterOptions {
+  /** type of store to use. Defaults to an in memory store */
+  store?: ClusterStore;
   /** projection to use */
   projection?: Projection;
   /** Name of the layer to build when requesting a tile */
@@ -29,25 +37,27 @@ export interface ClusterOptions {
 }
 
 /** A cluster is a storage device to maintain groups of information in a cluster */
-export class Cluster {
-  visited: boolean = false;
-  sum: number = 1;
+export interface Cluster {
+  properties: Properties;
+  visited: boolean;
+  sum: number;
+}
 
-  /**
-   * @param ref - the reference data
-   */
-  constructor(public ref: Properties) {}
+/**
+ * @param properties - the properties associated with the cluster
+ * @returns - a new cluster
+ */
+function newCluster(properties: Properties): Cluster {
+  return { properties, visited: false, sum: 1 };
+}
 
-  /**
-   * @param ref - the reference data
-   * @param sum - the sum of points
-   * @returns - a new cluster
-   */
-  static fromSum(ref: Properties, sum: number): Cluster {
-    const cluster = new Cluster(ref);
-    cluster.sum = sum;
-    return cluster;
-  }
+/**
+ * @param properties - the properties associated with the cluster
+ * @param sum - the sum of the cluster
+ * @returns - a new cluster with the correct sum and properties data
+ */
+function sumToCluster(properties: Properties, sum: number): Cluster {
+  return { properties, visited: false, sum };
 }
 
 /** Compare two data items, return true to merge data */
@@ -60,7 +70,6 @@ export default class PointCluster {
   minzoom: number;
   maxzoom: number;
   radius: number;
-  // { [zoom]: Index }
   indexes = new Map<number, PointIndex<Cluster>>();
 
   /** @param options - cluster options on how to build the cluster */
@@ -71,7 +80,7 @@ export default class PointCluster {
     this.maxzoom = Math.min(options?.maxzoom ?? 16, 29);
     this.radius = options?.radius ?? 40;
     for (let zoom = this.minzoom; zoom <= this.maxzoom; zoom++) {
-      this.indexes.set(zoom, new PointIndex<Cluster>());
+      this.indexes.set(zoom, new PointIndex<Cluster>(options?.store));
     }
   }
 
@@ -82,7 +91,7 @@ export default class PointCluster {
    */
   insert(point: Point3D, data: Properties): void {
     const maxzoomIndex = this.indexes.get(this.maxzoom);
-    maxzoomIndex?.insert(point, new Cluster(data));
+    maxzoomIndex?.insert(point, newCluster(data));
   }
 
   /**
@@ -109,7 +118,7 @@ export default class PointCluster {
    * Build the clusters when done adding points
    * @param cmp_ - custom compare function
    */
-  buildClusters(cmp_?: Comparitor): void {
+  async buildClusters(cmp_?: Comparitor): Promise<void> {
     const { minzoom, maxzoom } = this;
     // const cmp = cmp_ orelse defaultCmp;
     const cmp: Comparitor = cmp_ ?? ((_a: Properties, _b: Properties) => true);
@@ -117,7 +126,7 @@ export default class PointCluster {
       const curIndex = this.indexes.get(zoom);
       const queryIndex = this.indexes.get(zoom - 1);
       if (curIndex === undefined || queryIndex === undefined) throw new Error('Index not found');
-      if (zoom === maxzoom) this.#cluster(zoom, queryIndex, curIndex, cmp);
+      if (zoom === maxzoom) await this.#cluster(zoom, queryIndex, curIndex, cmp);
     }
   }
 
@@ -127,14 +136,14 @@ export default class PointCluster {
    * @param currIndex - the index to insert into
    * @param cmp - the compare function
    */
-  #cluster(
+  async #cluster(
     zoom: number,
     queryIndex: PointIndex<Cluster>,
     currIndex: PointIndex<Cluster>,
     cmp: Comparitor,
-  ): void {
+  ): Promise<void> {
     const radius = this.#getLevelRadius(zoom);
-    for (const clusterPoint of queryIndex) {
+    for await (const clusterPoint of queryIndex) {
       const { point, data: clusterData } = clusterPoint;
       if (clusterData.visited) continue;
       clusterData.visited = true;
@@ -142,10 +151,10 @@ export default class PointCluster {
       const newClusterPoint = mulScalar(point, clusterData.sum);
       let newNumPoints = clusterData.sum;
       // joining all points found within radius
-      const points = queryIndex.searchRadius(point, radius);
+      const points = await queryIndex.searchRadius(point, radius);
       for (const { point: foundPoint, data: foundData } of points) {
         // only add points that match or have not been visited already
-        if (!cmp(clusterData.ref, foundData.ref) || foundData.visited) continue;
+        if (!cmp(clusterData.properties, foundData.properties) || foundData.visited) continue;
         foundData.visited = true;
         // weighted add to newClusterPoint position
         addMut(newClusterPoint, mulScalar(foundPoint, foundData.sum));
@@ -155,7 +164,7 @@ export default class PointCluster {
       divMutScalar(newClusterPoint, newNumPoints);
       normalize(newClusterPoint);
       // store the new cluster point
-      currIndex.insert(newClusterPoint, Cluster.fromSum(clusterData.ref, newNumPoints));
+      currIndex.insert(newClusterPoint, sumToCluster(clusterData.properties, newNumPoints));
     }
   }
 
@@ -163,33 +172,33 @@ export default class PointCluster {
    * @param id - the cell id
    * @returns - the data within the range of the tile id
    */
-  getCellData(id: S2CellId): undefined | Point<Cluster>[] {
+  async getCellData(id: S2CellId): Promise<undefined | Point<Cluster>[]> {
     const { minzoom, maxzoom, indexes } = this;
     const zoom = level(id);
     if (zoom < minzoom) return;
     const [min, max] = range(id);
     const levelIndex = indexes.get(Math.min(zoom, maxzoom));
 
-    return levelIndex?.searchRange(min, max);
+    return await levelIndex?.searchRange(min, max);
   }
 
   /**
    * @param id - the id of the vector tile
    * @returns - the vector tile
    */
-  getTile(id: S2CellId): undefined | Tile {
-    const data = this.getCellData(id);
+  async getTile(id: S2CellId): Promise<undefined | Tile> {
+    const data = await this.getCellData(id);
     if (data === undefined) return;
     const tile = new Tile(id);
     for (const { point, data: cluster } of data) {
       const [face, s, t] = toST(point);
-      const { sum, ref } = cluster;
+      const { sum, properties } = cluster;
       tile.addFeature(
         {
           type: 'VectorFeature',
           face,
           geometry: { is3D: false, type: 'Point', coordinates: { x: s, y: t, m: { sum } } },
-          properties: ref,
+          properties,
         },
         this.layerName,
       );

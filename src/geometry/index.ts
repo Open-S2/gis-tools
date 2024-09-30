@@ -61,7 +61,7 @@ export interface BaseFeature<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-  G = Geometry<D> | VectorGeometry,
+  G = Geometry<D> | VectorGeometry<D>,
 > {
   type: T;
   id?: number;
@@ -82,14 +82,14 @@ export type VectorFeature<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-  G = VectorGeometry,
+  G = VectorGeometry<D>,
 > = BaseFeature<'VectorFeature', M, D, P, G>;
 /** S2 Feature */
 export interface S2Feature<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-  G = VectorGeometry,
+  G = VectorGeometry<D>,
 > extends BaseFeature<'S2Feature', M, D, P, G> {
   face: Face;
 }

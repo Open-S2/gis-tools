@@ -1,89 +1,48 @@
-import { closeSync, openSync, writeSync } from 'fs';
+import { S2FileStore } from '../file';
 
 import type { KVStore } from '.';
-import type { Key, Stringifiable } from '..';
+import type { Stringifiable } from '..';
+import type { Uint64Cell } from '../../dataStructures/uint64';
 
-/**
- * NOTE: The File KVStore is designed to be used in states:
- * - write-only. The initial state is write-only. Write all you need to before reading
- * - read-only. Once you have written everything, the first read will lock the file to be static
- * and read-only.
- */
-export class KVFile<K = Key, V = Stringifiable> implements KVStore<K, V> {
-  state: 'read' | 'write' = 'read';
-  // write params
-  #valueOffset = 0;
-  #keyWriteFd: number;
-  #valueWriteFd: number;
-  // read params
+/** File based multimap store */
+export class FileMultiMap<V = Stringifiable> implements KVStore<V> {
+  #store: S2FileStore<V>;
 
   /**
-   * Builds a new File based KV
-   * @param file - the path to the file
+   * Builds a new MultiMap file store
+   * @param fileName - the path + file name without the extension
    */
-  constructor(file: string) {
-    this.#keyWriteFd = openSync(`${file}.keys`, 'a');
-    this.#valueWriteFd = openSync(`${file}.values`, 'a');
+  constructor(fileName: string) {
+    this.#store = new S2FileStore<V>(fileName);
+  }
+
+  /** @returns - the length of the map */
+  get length(): number {
+    return this.#store.length;
   }
 
   /**
-   * Adds a value to be associated with a key
+   * Adds a value to the list of values associated with a key
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: K, value: V): void {
-    if (this.state !== 'read') throw new Error('Can no longer write to KVFile store.');
-    // write key offset as a uint64
-    const buffer = Buffer.alloc(8);
-    if (typeof key === 'number') {
-      buffer.writeUInt32LE(key & 0xffffffff, 0);
-      buffer.writeUInt32LE((key >>> 32) & 0xffffffff, 4);
-    } else {
-      const keyBuffer = Buffer.from(
-        (key as DataView).buffer,
-        (key as DataView).byteOffset,
-        (key as DataView).byteLength,
-      );
-      keyBuffer.copy(buffer, 0, 0, 8);
-    }
-    buffer.writeUInt32LE(this.#valueOffset & 0xffffffff, 8);
-    buffer.writeUInt32LE((this.#valueOffset >>> 32) & 0xffffffff, 12);
-    writeSync(this.#keyWriteFd, buffer);
-    // write value and update value offset
-    const valueStr = JSON.stringify(value);
-    const valueBuf = Buffer.from(valueStr);
-    writeSync(this.#valueWriteFd, valueBuf);
-    this.#valueOffset += valueBuf.byteLength;
+  set(key: Uint64Cell, value: V): void {
+    this.#store.set(key, value);
   }
 
   /**
-   * Gets the value associated with a key
+   * Gets the list of values associated with a key
    * @param key - the key
-   * @returns the value if the map contains values for the key
+   * @returns the list of values if the map contains values for the key
    */
-  get(key: K): V | undefined {
-    this.#switchToWriteState();
-    return undefined;
+  async get(key: Uint64Cell): Promise<V | undefined> {
+    const value = await this.#store.get(key, 0);
+    if (value === undefined) return undefined;
+    return value[0] as V;
   }
 
-  /**
-   * Check if the map contains the key
-   * @param key - the key
-   * @returns true if the map contains value(s) for the key
-   */
-  has(key: K): boolean {
-    this.#switchToWriteState();
-    return false;
-  }
-
-  /** Switches to write state if in read. Also sort the keys. */
-  #switchToWriteState(): void {
-    if (this.state === 'write') return;
-    if (this.state === 'read') {
-      this.state = 'write';
-      closeSync(this.#keyWriteFd);
-      closeSync(this.#valueWriteFd);
-      // TODO: SORT KEYS
-    }
+  /** Closes the store */
+  close(): void {
+    this.#store.close();
   }
 }

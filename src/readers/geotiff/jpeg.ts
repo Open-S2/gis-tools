@@ -645,6 +645,7 @@ function buildComponentData(frame, component) {
  *
  */
 class JpegStreamReader {
+  quantizationTables: Int32Array[] = [];
   /**
    *
    */
@@ -652,7 +653,6 @@ class JpegStreamReader {
     this.jfif = null;
     this.adobe = null;
 
-    this.quantizationTables = [];
     this.huffmanTablesAC = [];
     this.huffmanTablesDC = [];
     this.resetFrames();

@@ -121,9 +121,7 @@ export const FIELD_TAG_NAMES = {
   0xc5f2: 'LercParameters',
 };
 
-/**
- *
- */
+/** List of Tags and their representations */
 export interface TagNames {
   // TIFF Baseline
   Artist?: string;
@@ -137,42 +135,42 @@ export interface TagNames {
   ExtraSamples?: number[];
   FillOrder?: number;
   FreeByteCounts?: number[];
-  // 0x0120: 'FreeOffsets';
-  // 0x0123: 'GrayResponseCurve';
-  // 0x0122: 'GrayResponseUnit';
-  // 0x013c: 'HostComputer';
+  FreeOffsets?: number[];
+  GrayResponseCurve?: number[];
+  GrayResponseUnit?: number;
+  HostComputer?: string;
   ImageDescription?: string;
   ImageLength?: number;
   ImageWidth?: number;
-  // 0x010f: 'Make';
-  // 0x0119: 'MaxSampleValue';
-  // 0x0118: 'MinSampleValue';
-  // 0x0110: 'Model';
-  // 0x00fe: 'NewSubfileType';
-  // 0x0112: 'Orientation';
+  Make?: string;
+  MaxSampleValue?: number;
+  MinSampleValue?: number;
+  Model?: string;
+  NewSubfileType?: number;
+  Orientation?: number;
   PhotometricInterpretation?: number;
   PlanarConfiguration?: number;
   ResolutionUnit?: number;
   RowsPerStrip?: number;
   SamplesPerPixel?: number;
-  // 0x0131: 'Software';
+  Software?: string;
   StripByteCounts?: number[];
   StripOffsets?: number[];
-  // 0x00ff: 'SubfileType';
-  // 0x0107: 'Threshholding';
+  SubfileType?: number;
+  Threshholding?: number;
   XResolution?: [number, number];
   YResolution?: [number, number];
-  // // TIFF Extended
-  // 0x0146: 'BadFaxLines';
-  // 0x0147: 'CleanFaxData';
-  // 0x0157: 'ClipPath';
-  // 0x0148: 'ConsecutiveBadFaxLines';
-  // 0x01b1: 'Decode';
-  // 0x01b2: 'DefaultImageColor';
-  // 0x010d: 'DocumentName';
-  // 0x0150: 'DotRange';
-  // 0x0141: 'HalftoneHints';
-  // 0x015a: 'Indexed';
+  // TIFF Extended
+  BadFaxLines?: number;
+  CleanFaxData?: number;
+  ClipPathName?: string;
+  ConsecutiveBadFaxLines?: number[];
+  Decode?: number[];
+  DefaultImageColor?: number;
+  DocumentName?: string;
+  DotRange?: number[];
+  HalftoneHints?: number[];
+  Indexed?: number;
   JPEGTables?: number[];
   // 0x011d: 'PageName';
   // 0x0129: 'PageNumber';
@@ -200,7 +198,7 @@ export interface TagNames {
   // 0x0212: 'YCbCrSubSampling';
   // 0x0159: 'YClipPathUnits';
   // 0x011f: 'YPosition';
-  // // EXIF
+  // EXIF
   // 0x9202: 'ApertureValue';
   // 0xa001: 'ColorSpace';
   // 0x9004: 'DateTimeDigitized';
@@ -217,27 +215,26 @@ export interface TagNames {
   // 0x927c: 'MakerNote';
   // 0x9201: 'ShutterSpeedValue';
   // 0x9286: 'UserComment';
-  // // IPTC
-  // 0x83bb: 'IPTC';
-  // // ICC
-  // 0x8773: 'ICC Profile';
-  // // XMP
-  // 0x02bc: 'XMP';
-  // // GDAL
-  // 0xa480: 'GDAL_METADATA';
-  // 0xa481: 'GDAL_NODATA';
-  // // Photoshop
-  // 0x8649: 'Photoshop';
-  // // GeoTiff
-  // 0x830e: 'ModelPixelScale';
-  // 0x8482: 'ModelTiepoint';
-  // 0x85d8: 'ModelTransformation';
+  // IPTC
+  IPTC?: number[];
+  // ICC
+  'ICC Profile'?: number[];
+  // XMP
+  XMP?: number[];
+  // GDAL
+  GDAL_METADATA?: string;
+  GDAL_NODATA?: number;
+  // Photoshop
+  Photoshop?: string;
+  // GeoTiff
+  ModelPixelScale?: number[];
+  ModelTiepoint?: number[];
   ModelTransformation?: number[];
-  // 0x87af: 'GeoKeyDirectory';
-  // 0x87b0: 'GeoDoubleParams';
+  GeoKeyDirectory?: GeoKeyDirectory;
+  GeoDoubleParams?: number[];
   GeoAsciiParams?: string;
-  // // LERC
-  // 0xc5f2: 'LercParameters';
+  // LERC
+  LercParameters?: number[];
 }
 
 export const FIELD_TAG_TYPES = {

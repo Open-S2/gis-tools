@@ -66,7 +66,7 @@ async function createImageBitmap(blob: Blob): Promise<ImageBitmap> {
     info: { width, height },
   } = decodedImage;
 
-  return { data, width, height };
+  return { data: new Uint8Array(data), width, height };
 }
 
 /** An offscreen canvas polyfill */
@@ -143,8 +143,10 @@ class OffscreenCanvasRenderingContext2D {
    * @returns the ImageData
    */
   getImageData(x: number, y: number, width: number, height: number): ImageData {
-    const imageData = new Uint8ClampedArray(width * height * 4);
+    const size = width * height * 4;
+    if (this.data.length === size) return { data: this.data, width, height };
 
+    const imageData = new Uint8ClampedArray(size);
     for (let row = 0; row < height; row++) {
       for (let col = 0; col < width; col++) {
         const canvasX = x + col;

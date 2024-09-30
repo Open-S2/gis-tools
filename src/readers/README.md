@@ -11,7 +11,7 @@
 ### OTHERS
 
 - [ ] GTFS
-- [ ] netCDF (currently only partially supported via nadgrid)
+- [ ] netCDF
 - [ ] gdb (in gzipped form)
 - [ ] TIFFs (.tif, .tiff, .dem)
 - [ ] Images (.png, .jpg, .gif)

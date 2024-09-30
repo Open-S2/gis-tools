@@ -1,6 +1,11 @@
 import type { Reader } from '.';
 
-import type { FeatureCollection, VectorFeature, VectorPoint } from 's2-tools/geometry';
+import type {
+  FeatureCollection,
+  VectorFeature,
+  VectorMultiPoint,
+  VectorPoint,
+} from 's2-tools/geometry';
 
 /**
  * Resources for details of NTv2 file formats:
@@ -8,12 +13,32 @@ import type { FeatureCollection, VectorFeature, VectorPoint } from 's2-tools/geo
  * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
  */
 
+/** Seconds to degrees (S / 3_600) */
+const SEC2DEG = 0.00000484813681109536;
+
+/** A Subgrid contained inside a NadGrid */
+export interface NadSubGrid {
+  cvs: VectorMultiPoint;
+  ll: VectorPoint;
+  del: VectorPoint;
+  lim: VectorPoint;
+  count: number;
+}
+
+/** A grid wrapper around a parsed .gsb file */
+export interface GridDefinition {
+  name: string;
+  mandatory: boolean;
+  grid?: NadGrid;
+  isNull: boolean;
+}
+
 /** Store Grids from a NTv2 file (.gsb) */
 export class NadGridStore {
   grids = new Map<string, NadGrid>();
 
   /** @param grid - a nadgrid class to store */
-  addGrid(grid: NadGrid) {
+  addGrid(grid: NadGrid): void {
     this.grids.set(grid.key, grid);
   }
 
@@ -29,9 +54,42 @@ export class NadGridStore {
    * @param key - the key or name of the grid
    * @param reader - the input data to parse
    */
-  addGridFromReader(key: string, reader: Reader) {
+  addGridFromReader(key: string, reader: Reader): void {
     const grid = new NadGrid(key, reader);
     this.addGrid(grid);
+  }
+
+  /**
+   * @param keys - complex string of grid keys to test against
+   * @returns - an array of grid definitions
+   */
+  getGridsFromString(keys?: string): GridDefinition[] {
+    const res: GridDefinition[] = [];
+    if (keys === undefined) return res;
+    for (const grid of keys.split(',')) {
+      const g = this.getGridFromString(grid);
+      if (g !== undefined) res.push(g);
+    }
+    return res;
+  }
+
+  /**
+   * @param name - a single grid name to test against
+   * @returns - a grid definition
+   */
+  getGridFromString(name: string): undefined | GridDefinition {
+    if (name.length === 0) return undefined;
+    const optional = name[0] === '@';
+    if (optional) name = name.slice(1);
+    if (name === 'null') {
+      return { name: 'null', mandatory: !optional, grid: undefined, isNull: true };
+    }
+    return {
+      name: name,
+      mandatory: !optional,
+      grid: this.grids.get(name),
+      isNull: false,
+    };
   }
 }
 
@@ -78,9 +136,9 @@ export interface NadGridMetadata {
 
 /** Load a binary NTv2 file (.gsb) */
 export class NadGrid {
-  isLittleEndian = false;
+  #isLittleEndian = false;
   #header!: NadGridHeader;
-  features: VectorFeature<NadGridMetadata>[] = [];
+  subgrids: NadSubGrid[] = [];
 
   /**
    * @param key - the key or name of the grid
@@ -90,13 +148,13 @@ export class NadGrid {
     public key: string,
     public reader: Reader,
   ) {
-    this.#detectLittleEndian();
+    this.#isLittleEndian = this.#detectLittleEndian();
     this.#readHeader();
     this.#readSubGrids();
   }
 
   /** @returns - The header describing how to decode the feature */
-  getHeader(): NadGridHeader {
+  get header(): NadGridHeader {
     return { ...this.#header };
   }
 
@@ -105,7 +163,7 @@ export class NadGrid {
    * @returns - a collection of VectorFeatures
    */
   getFeatureCollection(): FeatureCollection<NadGridMetadata> {
-    const { features } = this;
+    const features = this.subgrids.map(this.#subGrideToVectorFeature);
     return { type: 'FeatureCollection', features };
   }
 
@@ -114,7 +172,7 @@ export class NadGrid {
    * @yields {VectorFeature<NadGridMetadata>}
    */
   *[Symbol.iterator](): Generator<VectorFeature<NadGridMetadata>> {
-    for (const feature of this.features) yield feature;
+    for (const subgrid of this.subgrids) yield this.#subGrideToVectorFeature(subgrid);
   }
 
   /**
@@ -132,22 +190,23 @@ export class NadGrid {
   }
 
   /** Parse the main header data. Describes the subgrids to decode lon-lat */
-  #readHeader() {
-    const { reader, isLittleEndian } = this;
+  #readHeader(): void {
+    const { reader } = this;
+    const le = this.#isLittleEndian;
     this.#header = {
-      nFields: reader.getInt32(8, isLittleEndian),
-      nSubgridFields: reader.getInt32(24, isLittleEndian),
-      nSubgrids: reader.getInt32(40, isLittleEndian),
+      nFields: reader.getInt32(8, le),
+      nSubgridFields: reader.getInt32(24, le),
+      nSubgrids: reader.getInt32(40, le),
       shiftType: reader.parseString(56, 8),
-      fromSemiMajorAxis: reader.getFloat64(120, isLittleEndian),
-      fromSemiMinorAxis: reader.getFloat64(136, isLittleEndian),
-      toSemiMajorAxis: reader.getFloat64(152, isLittleEndian),
-      toSemiMinorAxis: reader.getFloat64(168, isLittleEndian),
+      fromSemiMajorAxis: reader.getFloat64(120, le),
+      fromSemiMinorAxis: reader.getFloat64(136, le),
+      toSemiMajorAxis: reader.getFloat64(152, le),
+      toSemiMinorAxis: reader.getFloat64(168, le),
     };
   }
 
   /** Build all grid data */
-  #readSubGrids() {
+  #readSubGrids(): void {
     let gridOffset = 176;
     for (let i = 0; i < this.#header.nSubgrids; i++) {
       const subHeader = this.#readSubGridHeader(gridOffset);
@@ -159,34 +218,50 @@ export class NadGrid {
         1 + (subHeader.upperLatitude - subHeader.lowerLatitude) / subHeader.latitudeInterval,
       );
 
-      const feature: VectorFeature<NadGridMetadata> = {
-        type: 'VectorFeature',
-        properties: {},
-        geometry: {
-          type: 'MultiPoint',
-          is3D: false,
-          // CVS => lonLat coords
-          coordinates: nodes.map(({ longitudeShift, latitudeShift }) => {
-            return { x: secondsToDegrees(longitudeShift), y: secondsToDegrees(latitudeShift) };
-          }),
+      const subGrid: NadSubGrid = {
+        cvs: nodes.map(({ longitudeShift, latitudeShift }) => {
+          return { x: longitudeShift * SEC2DEG, y: latitudeShift * SEC2DEG };
+        }),
+        ll: {
+          x: subHeader.lowerLongitude * SEC2DEG,
+          y: subHeader.lowerLatitude * SEC2DEG,
         },
-        metadata: {
-          // ll => lowerLonLat
-          lowerLonLat: {
-            x: secondsToDegrees(subHeader.lowerLongitude),
-            y: secondsToDegrees(subHeader.lowerLatitude),
-          },
-          // del => lonLatInterval
-          lonLatInterval: { x: subHeader.longitudeInterval, y: subHeader.latitudeInterval },
-          // lim => lonLatColumnCount
-          lonLatColumnCount: { x: lonColumnCount, y: latColumnCount },
-          // count => count
-          count: subHeader.gridNodeCount,
-        },
+        del: { x: subHeader.longitudeInterval * SEC2DEG, y: subHeader.latitudeInterval * SEC2DEG },
+        lim: { x: lonColumnCount, y: latColumnCount },
+        count: subHeader.gridNodeCount,
       };
-      this.features.push(feature);
+
+      this.subgrids.push(subGrid);
       gridOffset += 176 + subHeader.gridNodeCount * 16;
     }
+  }
+
+  /**
+   * @param subGrid - the subgrid to convert to a vector feature
+   * @returns - the vector feature
+   */
+  #subGrideToVectorFeature(subGrid: NadSubGrid): VectorFeature<NadGridMetadata> {
+    const { cvs, ll, del, lim, count } = subGrid;
+    return {
+      type: 'VectorFeature',
+      properties: {},
+      geometry: {
+        type: 'MultiPoint',
+        is3D: false,
+        // CVS => lonLat coords
+        coordinates: cvs,
+      },
+      metadata: {
+        // ll => lowerLonLat
+        lowerLonLat: ll,
+        // del => lonLatInterval
+        lonLatInterval: del,
+        // lim => lonLatColumnCount
+        lonLatColumnCount: lim,
+        // count => count
+        count,
+      },
+    };
   }
 
   /**
@@ -194,17 +269,18 @@ export class NadGrid {
    * @returns - the subgrid header
    */
   #readSubGridHeader(offset: number): NadSubGridHeader {
-    const { reader, isLittleEndian } = this;
+    const { reader } = this;
+    const le = this.#isLittleEndian;
     return {
       name: reader.parseString(offset + 8, 8),
       parent: reader.parseString(offset + 24, 8),
-      lowerLatitude: reader.getFloat64(offset + 72, isLittleEndian),
-      upperLatitude: reader.getFloat64(offset + 88, isLittleEndian),
-      lowerLongitude: reader.getFloat64(offset + 104, isLittleEndian),
-      upperLongitude: reader.getFloat64(offset + 120, isLittleEndian),
-      latitudeInterval: reader.getFloat64(offset + 136, isLittleEndian),
-      longitudeInterval: reader.getFloat64(offset + 152, isLittleEndian),
-      gridNodeCount: reader.getInt32(offset + 168, isLittleEndian),
+      lowerLatitude: reader.getFloat64(offset + 72, le),
+      upperLatitude: reader.getFloat64(offset + 88, le),
+      lowerLongitude: reader.getFloat64(offset + 104, le),
+      upperLongitude: reader.getFloat64(offset + 120, le),
+      latitudeInterval: reader.getFloat64(offset + 136, le),
+      longitudeInterval: reader.getFloat64(offset + 152, le),
+      gridNodeCount: reader.getInt32(offset + 168, le),
     };
   }
 
@@ -214,30 +290,20 @@ export class NadGrid {
    * @returns - an array of grid nodes
    */
   #readGridNodes(offset: number, gridHeader: NadSubGridHeader): GridNode[] {
-    const { reader, isLittleEndian } = this;
+    const { reader } = this;
+    const le = this.#isLittleEndian;
     const nodesOffset = offset + 176;
     const gridRecordLength = 16;
     const gridShiftRecords = [];
     for (let i = 0; i < gridHeader.gridNodeCount; i++) {
       const record = {
-        latitudeShift: reader.getFloat32(nodesOffset + i * gridRecordLength, isLittleEndian),
-        longitudeShift: reader.getFloat32(nodesOffset + i * gridRecordLength + 4, isLittleEndian),
-        latitudeAccuracy: reader.getFloat32(nodesOffset + i * gridRecordLength + 8, isLittleEndian),
-        longitudeAccuracy: reader.getFloat32(
-          nodesOffset + i * gridRecordLength + 12,
-          isLittleEndian,
-        ),
+        latitudeShift: reader.getFloat32(nodesOffset + i * gridRecordLength, le),
+        longitudeShift: reader.getFloat32(nodesOffset + i * gridRecordLength + 4, le),
+        latitudeAccuracy: reader.getFloat32(nodesOffset + i * gridRecordLength + 8, le),
+        longitudeAccuracy: reader.getFloat32(nodesOffset + i * gridRecordLength + 12, le),
       };
       gridShiftRecords.push(record);
     }
     return gridShiftRecords;
   }
-}
-
-/**
- * @param seconds - number of seconds
- * @returns radians
- */
-function secondsToDegrees(seconds: number): number {
-  return seconds / 3600;
 }

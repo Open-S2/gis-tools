@@ -6,7 +6,7 @@ import { needsNormalization, normalizeArray, sum, toArrayType } from './imageUti
 
 import type { Reader } from '..';
 import type { Transformer } from '../../proj4';
-import type { ArrayTypes, Decoder, ImageFileDirectory } from '.';
+import type { ArrayTypes, Decoder, GridReader, ImageFileDirectory } from '.';
 import type {
   Properties,
   VectorMultiPoint,
@@ -64,26 +64,26 @@ export class GeoTIFFImage {
   #littleEndian: boolean;
   #isTiled = false;
   #planarConfiguration = 1;
-  #transformer?: Transformer;
+  #transformer: Transformer;
   /**
    * @param reader
    * @param imageDirectory
    * @param littleEndian
+   * @param gridStore
    */
-  constructor(reader: Reader, imageDirectory: ImageFileDirectory, littleEndian: boolean) {
+  constructor(
+    reader: Reader,
+    imageDirectory: ImageFileDirectory,
+    littleEndian: boolean,
+    gridStore: GridReader[],
+  ) {
     this.#reader = reader;
     this.#imageDirectory = imageDirectory;
     this.#littleEndian = littleEndian;
     if (imageDirectory.StripOffsets === undefined) this.#isTiled = true;
     if (imageDirectory.PlanarConfiguration !== undefined)
       this.#planarConfiguration = imageDirectory.PlanarConfiguration;
-  }
-
-  /** Build a transformer if it doesn't exist. */
-  getTransformer(): Transformer {
-    if (this.#transformer === undefined)
-      this.#transformer = buildTransform(this.#imageDirectory.geoKeyDirectory);
-    return this.#transformer;
+    this.#transformer = buildTransform(this.#imageDirectory.geoKeyDirectory, gridStore);
   }
 
   /**
@@ -224,8 +224,7 @@ export class GeoTIFFImage {
    */
   get originLL(): VectorPoint {
     const { origin } = this;
-    const transfomer = this.getTransformer();
-    return transfomer.forward(origin);
+    return this.#transformer.forward(origin);
   }
 
   /**
@@ -263,8 +262,7 @@ export class GeoTIFFImage {
    */
   get resolutionLL(): VectorPoint {
     const { resolution } = this;
-    const transfomer = this.getTransformer();
-    return transfomer.forward(resolution);
+    return this.#transformer.forward(resolution);
   }
 
   /**
@@ -313,9 +311,8 @@ export class GeoTIFFImage {
       const maxY = Math.max(y1, y2);
 
       if (transform) {
-        const transformer = this.getTransformer();
-        const { x: tminX, y: tminY } = transformer.forward({ x: minX, y: minY });
-        const { x: tmaxX, y: tmaxY } = transformer.forward({ x: maxX, y: maxY });
+        const { x: tminX, y: tminY } = this.#transformer.forward({ x: minX, y: minY });
+        const { x: tmaxX, y: tmaxY } = this.#transformer.forward({ x: maxX, y: maxY });
         return [tminX, tminY, tmaxX, tmaxY];
       } else {
         return [minX, minY, maxX, maxY];
@@ -414,7 +411,6 @@ export class GeoTIFFImage {
    * @returns - The vector feature with rgba values incoded into the points
    */
   async getMultiPointVector(): Promise<VectorMultiPointResult> {
-    const transformer = this.getTransformer();
     const { width, height, alpha, data } = await this.getRGBA();
     const [minX, minY, maxX, maxY] = this.getBoundingBox(false);
     const coordinates: VectorMultiPoint<RGBA> = [];
@@ -437,7 +433,7 @@ export class GeoTIFFImage {
         const b = data[y * width * rgbaStride + x * rgbaStride + 2];
         const a = alpha ? data[y * width * rgbaStride + x * rgbaStride + 3] : 255;
         // find the lon-lat coordinates of the point
-        const { x: lon, y: lat } = transformer.forward({ x: xPos, y: yPos });
+        const { x: lon, y: lat } = this.#transformer.forward({ x: xPos, y: yPos });
         // Add point to coordinates array
         coordinates.push({
           x: lon,

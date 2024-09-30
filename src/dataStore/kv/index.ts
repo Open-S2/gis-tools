@@ -1,11 +1,17 @@
-import type { Key, Stringifiable } from '..';
+import type { Stringifiable } from '..';
+import type { Uint64Cell } from '../../dataStructures/uint64';
 
 /** Represents a key-value store */
-export interface KVStore<K = Key, V = Stringifiable> {
-  get: (key: K) => V | undefined;
-  set: (key: K, value: V) => void;
-  has: (key: K) => boolean;
+export interface KVStore<V = Stringifiable> {
+  length: number;
+  get: ((key: Uint64Cell) => V | undefined) | ((key: Uint64Cell) => Promise<V | undefined>);
+  set: (key: Uint64Cell, value: V) => void;
 }
 
 /** Just a placeholder to explain what a local key-value store essentially is */
-export class KV<K = Key, V = Stringifiable> extends Map<K, V> implements KVStore<K, V> {}
+export class KV<V = Stringifiable> extends Map<Uint64Cell, V> implements KVStore<V> {
+  /** @returns - the length of the map */
+  get length(): number {
+    return this.size;
+  }
+}

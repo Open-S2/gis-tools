@@ -37,6 +37,7 @@ import { VanDerGrinten } from './vandg';
 import { ProjectionBase } from './base';
 
 import type { DatumParams } from 's2-tools/readers/wkt';
+import type { GridDefinition } from 's2-tools/readers/nadgrid';
 import type { VectorPoint } from 's2json-spec';
 
 export * from './aea';
@@ -88,6 +89,7 @@ export interface ProjectionTransform {
   toMeter?: number;
   fromGreenwich: number;
   datum?: string;
+  grids?: GridDefinition[];
   datumCode: string;
   datumType: number;
   datumParams: DatumParams;
