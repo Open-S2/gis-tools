@@ -3,7 +3,7 @@ import { S2MMapStore } from '../mmap';
 import type { VectorKey, VectorStore } from '.';
 
 /** File based vector store */
-export class FileVector<V extends VectorKey> implements VectorStore<V> {
+export default class FileVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2MMapStore;
   /** @param fileName - the path + file name without the extension */
   constructor(fileName: string) {

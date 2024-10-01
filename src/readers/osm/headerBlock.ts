@@ -1,9 +1,7 @@
 import type { BBox } from 's2-tools/geometry';
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { Pbf as Protobuf } from '../protobuf';
 
-/**
- *
- */
+/** OSM Header Block */
 export interface OSMHeader {
   bbox: BBox;
   required_features: string[];
@@ -88,7 +86,7 @@ export class HeaderBlock {
     else if (tag === 32) header.osmosis_replication_timestamp = pbf.readVarint();
     else if (tag === 33) header.osmosis_replication_sequence_number = pbf.readVarint();
     else if (tag === 34) header.osmosis_replication_base_url = pbf.readString();
-    else throw new Error('unknown tag ' + tag);
+    // else throw new Error('unknown tag ' + tag);
   }
 }
 

@@ -1,4 +1,12 @@
-import type { BBOX, BBox, BBox3D, VectorPoint } from './';
+import type {
+  BBOX,
+  BBox,
+  BBox3D,
+  VectorLineString,
+  VectorMultiLineString,
+  VectorMultiPolygon,
+  VectorPoint,
+} from './';
 
 /**
  * @param point - input vector point
@@ -8,6 +16,44 @@ export function fromPoint(point: VectorPoint): BBOX {
   const { x, y, z } = point;
   if (z !== undefined) return [x, y, x, y, z, z] as BBox3D;
   return [x, y, x, y] as BBox;
+}
+
+/**
+ * @param line - input vector line
+ * @returns - BBox of the line
+ */
+export function fromLineString(line: VectorLineString): BBOX {
+  let bbox: BBOX = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const point of line) {
+    bbox = extendBBox(bbox, point);
+  }
+  return bbox;
+}
+
+/**
+ * @param multiLines - input vector multilinestring
+ * @returns - BBox of the multilinestring
+ */
+export function fromMultiLineString(multiLines: VectorMultiLineString): BBOX {
+  let bbox: BBOX = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const line of multiLines) {
+    for (const point of line) bbox = extendBBox(bbox, point);
+  }
+  return bbox;
+}
+
+/**
+ * @param multiPolygon - input vector multipolygon
+ * @returns - BBox of the multipolygon
+ */
+export function fromMultiPolygon(multiPolygon: VectorMultiPolygon): BBOX {
+  let bbox: BBOX = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const poly of multiPolygon) {
+    for (const line of poly) {
+      for (const point of line) bbox = extendBBox(bbox, point);
+    }
+  }
+  return bbox;
 }
 
 /**

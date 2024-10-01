@@ -8,6 +8,9 @@ export interface MultiMapStore<V = Stringifiable> {
   set: (key: Uint64Cell, value: V) => void;
 }
 
+/** A constructor for a vector store */
+export type MultiMapStoreConstructor<V = Stringifiable> = new () => MultiMapStore<V>;
+
 /** A local multimap key-value store */
 export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
   private map: Map<Uint64Cell, V[]>;

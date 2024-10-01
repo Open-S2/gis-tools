@@ -2,10 +2,10 @@ import { S2FileStore } from '../file';
 
 import type { KVStore } from '.';
 import type { Stringifiable } from '..';
-import type { Uint64Cell } from '../../dataStructures/uint64';
+import type { Uint64 } from '../../dataStructures/uint64';
 
 /** File based multimap store */
-export class FileMultiMap<V = Stringifiable> implements KVStore<V> {
+export default class FileMultiMap<V = Stringifiable> implements KVStore<V> {
   #store: S2FileStore<V>;
 
   /**
@@ -26,7 +26,7 @@ export class FileMultiMap<V = Stringifiable> implements KVStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64Cell, value: V): void {
+  set(key: Uint64, value: V): void {
     this.#store.set(key, value);
   }
 
@@ -35,10 +35,26 @@ export class FileMultiMap<V = Stringifiable> implements KVStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  async get(key: Uint64Cell): Promise<V | undefined> {
+  async get(key: Uint64): Promise<V | undefined> {
     const value = await this.#store.get(key, 0);
     if (value === undefined) return undefined;
     return value[0] as V;
+  }
+
+  /**
+   * iterate through the values
+   * @yields an iterator
+   */
+  async *values(): AsyncGenerator<V> {
+    for await (const { value } of this.#store.entries()) yield value;
+  }
+
+  /**
+   * iterate through the values
+   * @returns an iterator
+   */
+  [Symbol.asyncIterator](): AsyncGenerator<V> {
+    return this.values();
   }
 
   /** Closes the store */

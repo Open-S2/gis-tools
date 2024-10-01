@@ -63,7 +63,7 @@ export default class PointIndex<T = Stringifiable> {
    * @yields a PointShape<T>
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<T>> {
-    await this.#sort();
+    await this.sort();
     // return this.#store.values();
     for (const value of this.#store) yield value;
   }
@@ -78,7 +78,7 @@ export default class PointIndex<T = Stringifiable> {
   }
 
   /** Sort the index in place if unsorted */
-  async #sort(): Promise<void> {
+  async sort(): Promise<void> {
     if (!this.#unsorted) return;
 
     await this.#store.sort();
@@ -92,7 +92,7 @@ export default class PointIndex<T = Stringifiable> {
    */
   async lowerBound(id: Uint64): Promise<number> {
     const cellID = toCell(id);
-    await this.#sort();
+    await this.sort();
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#store.length;
@@ -117,7 +117,7 @@ export default class PointIndex<T = Stringifiable> {
    * @returns the points in the range
    */
   async searchRange(low: Uint64, high: Uint64): Promise<PointShape<T>[]> {
-    await this.#sort();
+    await this.sort();
     const res: PointShape<T>[] = [];
     let lo = await this.lowerBound(low);
     const hiID = toCell(high);
@@ -138,7 +138,7 @@ export default class PointIndex<T = Stringifiable> {
    * @returns the points within the radius
    */
   async searchRadius(target: Point3D, radius: S1ChordAngle): Promise<PointShape<T>[]> {
-    await this.#sort();
+    await this.sort();
     const res: PointShape<T>[] = [];
     if (radius < 0) return res;
     const cap = fromS1ChordAngle<undefined>(target, radius, undefined);

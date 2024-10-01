@@ -1,13 +1,19 @@
 import { HeaderBlock } from './headerBlock';
+import { KV } from 's2-tools/dataStore';
 import { PrimitiveBlock } from './primitive';
-import { Pbf as Protobuf } from 'open-vector-tile';
+import { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import { intermediateRelationToVectorFeature } from './relation';
+import { intermediateWayToVectorFeature } from './way';
+import { mergeRelationIfExists } from './node';
 import { Blob, BlobHeader } from './blob';
 
-import type { InfoBlock } from './info';
-import type { KVStore } from 's2-tools/dataStore';
+import type { Metadata } from './primitive';
 import type { OSMHeader } from './headerBlock';
 import type { FeatureIterator, Reader } from '..';
-import type { VectorFeature, VectorLineString, VectorPoint } from 's2-tools/geometry';
+import type { IntermediateNodeMember, IntermediateRelation } from './relation';
+import type { IntermediateWay, WayNodes } from './way';
+import type { KVStore, KVStoreConstructor } from 's2-tools/dataStore';
+import type { VectorFeature, VectorPoint } from 's2-tools/geometry';
 
 export type * from './blob';
 export type * from './headerBlock';
@@ -16,7 +22,10 @@ export type * from './node';
 export type * from './relation';
 export type * from './way';
 
-// TODO: Add bbox for each node, way, relation toVectorFeature
+// https://wiki.openstreetmap.org/wiki/PBF_Format#File_format
+// https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
+
+// TODO: Add threads for the blocks
 
 /**
  *
@@ -96,12 +105,16 @@ export interface OsmReaderOptions {
    * [Default = false]
    */
   upgradeWaysToAreas?: boolean;
+  /** If set to true, add a bbox property to each feature */
+  addBBox?: boolean;
+  /** TODO: If defined, replace the stores with the provided class */
+  store?: KVStoreConstructor;
 }
 
 /**
  *
  */
-export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
+export class OSMReader implements FeatureIterator<Metadata> {
   /** if true, remove nodes that have no tags [Default = true] */
   removeEmptyNodes: boolean;
   /** If provided, filters of the  */
@@ -118,9 +131,15 @@ export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
    * [Default = false]
    */
   upgradeWaysToAreas: boolean;
+  /** If set to true, add a bbox property to each feature */
+  addBBox: boolean;
 
-  nodes: KVStore<number, VectorPoint> = new Map<number, VectorPoint>();
-  ways: KVStore<number, VectorLineString> = new Map<number, VectorLineString>();
+  nodeGeometry: KVStore<VectorPoint> = new KV<VectorPoint>();
+  nodes: KVStore<VectorFeature<Metadata>> = new KV<VectorFeature<Metadata>>();
+  wayGeometry: KVStore<WayNodes> = new KV<WayNodes>();
+  ways: KVStore<IntermediateWay> = new KV<IntermediateWay>();
+  relations: KVStore<IntermediateRelation> = new KV<IntermediateRelation>();
+  nodeRelationPairs: KVStore<IntermediateNodeMember> = new KV<IntermediateNodeMember>();
   #offset = 0;
 
   /**
@@ -137,30 +156,51 @@ export class OSMReader implements FeatureIterator<InfoBlock | undefined> {
     this.skipWays = options?.skipWays ?? false;
     this.skipRelations = options?.skipRelations ?? false;
     this.upgradeWaysToAreas = options?.upgradeWaysToAreas ?? false;
+    this.addBBox = options?.addBBox ?? false;
+    const store = options?.store;
+    if (store !== undefined) {
+      this.nodeGeometry = new store() as KVStore<VectorPoint>;
+      this.nodes = new store() as KVStore<VectorFeature<Metadata>>;
+      this.wayGeometry = new store() as KVStore<WayNodes>;
+      this.ways = new store() as KVStore<IntermediateWay>;
+      this.relations = new store() as KVStore<IntermediateRelation>;
+      this.nodeRelationPairs = new store() as KVStore<IntermediateNodeMember>;
+    }
   }
 
   /**
    *
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<InfoBlock | undefined>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<Metadata>> {
     this.#offset = 0;
     // skip the header
     this.#next();
 
+    // PARSE
     while (true) {
       const blob = this.#next();
       if (blob === undefined) break;
-      const pb = await this.#readBlob(blob);
-      for (const pg of pb.primitiveGroups) {
-        for (const node of pg.nodes) yield node.toVectorFeature();
-        for (const way of pg.ways) {
-          const feature = way.toVectorFeature();
-          if (feature !== undefined) yield feature;
-        }
-        for (const relation of pg.relations) {
-          const feature = relation.toVectorFeature();
-          if (feature !== undefined) yield feature;
-        }
+      await this.#readBlob(blob);
+    }
+    // NODES
+    if (!this.skipNodes) {
+      for await (const node of this.nodes) {
+        await mergeRelationIfExists(node, this);
+        yield node;
+      }
+    }
+    // WAYS
+    if (!this.skipWays) {
+      for await (const interWay of this.ways) {
+        const way = await intermediateWayToVectorFeature(interWay, this);
+        if (way !== undefined) yield way;
+      }
+    }
+    // RELATIONS
+    if (!this.skipRelations) {
+      for await (const interRelation of this.relations) {
+        const relation = await intermediateRelationToVectorFeature(interRelation, this);
+        if (relation !== undefined) yield relation;
       }
     }
   }

@@ -1,10 +1,40 @@
+import { intermediateRelationToVectorFeature } from './relation';
+import { mergeBBoxes } from 's2-tools/geometry';
 import { DenseInfo, Info } from './info';
 
+import type { OSMReader } from '.';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'open-vector-tile';
-import type { InfoBlock, OSMReader } from '.';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
 
-import type { VectorFeature, VectorPoint } from 's2-tools/geometry';
+import type { Metadata } from './primitive';
+import type { BBox, VectorFeature, VectorPoint } from 's2-tools/geometry';
+
+/**
+ * @param feature
+ * @param reader
+ */
+export async function mergeRelationIfExists(
+  feature: VectorFeature<Metadata>,
+  reader: OSMReader,
+): Promise<void> {
+  const { nodeRelationPairs, relations, addBBox } = reader;
+  const { id, metadata } = feature;
+  const pair = await nodeRelationPairs.get(id ?? -1);
+  if (pair === undefined) return;
+  const { relationID, role } = pair;
+  const relation = await relations.get(relationID);
+  if (relation === undefined) return;
+  const { properties } = relation;
+  if (metadata !== undefined) metadata.relation = { role, properties };
+  if (addBBox) {
+    const relationVectorFeature = await intermediateRelationToVectorFeature(relation, reader);
+    if (relationVectorFeature === undefined) return;
+    feature.geometry.bbox = mergeBBoxes(
+      feature.geometry.bbox,
+      relationVectorFeature.geometry.bbox as BBox,
+    );
+  }
+}
 
 /**
  *
@@ -16,6 +46,7 @@ export class Node {
   lon = 0.0;
   #keys: number[] = [];
   #vals: number[] = [];
+  #properties?: Record<string, string>;
 
   /**
    * @param primitiveBlock
@@ -67,7 +98,8 @@ export class Node {
    */
   isFilterable(): boolean {
     const { primitiveBlock: pb, reader } = this;
-    const { tagFilter, removeEmptyNodes } = reader;
+    const { tagFilter, removeEmptyNodes, skipNodes } = reader;
+    if (skipNodes) return true;
     if (removeEmptyNodes && this.#keys.length === 0) return true;
     if (tagFilter !== undefined) {
       for (let i = 0; i < this.#keys.length; i++) {
@@ -85,7 +117,9 @@ export class Node {
    *
    */
   properties(): Record<string, string> {
-    return this.primitiveBlock.tags(this.#keys, this.#vals);
+    if (this.#properties !== undefined) return this.#properties;
+    this.#properties = this.primitiveBlock.tags(this.#keys, this.#vals);
+    return this.#properties;
   }
 
   /**
@@ -106,24 +140,36 @@ export class Node {
   }
 
   /**
-   *
+   * @param properties
    */
   toVectorGeometry(): VectorPoint {
-    // TODO: if feature has altitude or something defining its z position, make feature 3D
-    return { x: this.lon, y: this.lat };
+    // if feature has altitude or something defining its z position, make feature 3D
+    const { altitude, ele, elevation, height, depth } = this.properties();
+    const z = parseAltitude(
+      ele ?? height ?? altitude ?? elevation ?? (depth !== undefined ? `-${depth}` : ''),
+    );
+    return { x: this.lon, y: this.lat, z };
   }
 
   /**
    *
    */
-  toVectorFeature(): VectorFeature<InfoBlock | undefined> {
+  toVectorFeature(): VectorFeature<Metadata> {
+    const { addBBox } = this.reader;
+    const bbox = addBBox ? this.buildBBox() : undefined;
+    const coordinates = this.toVectorGeometry();
     return {
       id: this.id,
       type: 'VectorFeature',
       properties: this.properties(),
-      geometry: { type: 'Point', is3D: false, coordinates: this.toVectorGeometry() },
-      metadata: this.info?.toBlock(),
+      geometry: { type: 'Point', is3D: coordinates.z !== undefined, coordinates, bbox },
+      metadata: { info: this.info?.toBlock() ?? {} },
     };
+  }
+
+  /** @returns - the bounding box for this node */
+  buildBBox(): BBox {
+    return [this.lon, this.lat, this.lon, this.lat];
   }
 }
 
@@ -206,4 +252,15 @@ export class DenseNodes {
     else if (tag === 10) denseNodes.keysVals = pbf.readPackedVarint();
     else throw new Error('unknown tag ' + tag);
   }
+}
+
+/**
+ * @param alt - the altitude to parse
+ * @returns the altitude assuming it is in meters
+ */
+function parseAltitude(alt: string): number | undefined {
+  alt = alt.replace(/\D/g, '');
+  if (alt === '') return undefined;
+  // common inputs: 246,62␣m - remove all non-digits
+  return Number(alt);
 }

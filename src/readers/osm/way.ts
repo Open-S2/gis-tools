@@ -1,10 +1,65 @@
 import { Info } from './info';
+import { extendBBox } from 's2-tools/geometry';
 
+import type { Metadata } from './primitive';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
 import type { InfoBlock, OSMReader } from '.';
 
-import type { VectorFeature, VectorGeometry, VectorLineString } from 's2-tools/geometry';
+import type {
+  BBOX,
+  Properties,
+  VectorFeature,
+  VectorGeometry,
+  VectorLineString,
+} from 's2-tools/geometry';
+
+/** Linebased node reference store */
+export type WayNodes = number[];
+
+/** An intermediate vector feature where the way nodes haven't been resolved yet. */
+export interface IntermediateWay {
+  id: number;
+  properties: Properties;
+  metadata: InfoBlock;
+  wayNodes: WayNodes;
+  isArea: boolean;
+}
+
+/**
+ * @param way
+ * @param reader
+ */
+export async function intermediateWayToVectorFeature(
+  way: IntermediateWay,
+  reader: OSMReader,
+): Promise<VectorFeature<Metadata> | undefined> {
+  const { addBBox } = reader;
+  const { id, isArea, wayNodes, properties, metadata } = way;
+  // build line
+  const vectorLine: VectorLineString = [];
+  for (const ref of wayNodes) {
+    const node = await reader.nodeGeometry.get(ref);
+    if (node === undefined) return;
+    vectorLine.push({ ...node });
+  }
+  let bbox: BBOX | undefined;
+  if (addBBox) {
+    for (const node of vectorLine) bbox = extendBBox(bbox, node);
+  }
+  // build geometry
+  const geometry: VectorGeometry = isArea
+    ? { type: 'Polygon', is3D: false, coordinates: [vectorLine], bbox }
+    : { type: 'LineString', is3D: false, coordinates: vectorLine, bbox };
+
+  return {
+    id,
+    type: 'VectorFeature',
+    properties,
+    geometry,
+    metadata: { info: metadata },
+  };
+}
 
 /**
  *
@@ -17,10 +72,9 @@ export class Way {
   #vals: number[] = [];
   #refs: number[] = []; // DELTA coded
   // Optional infield lat-lon
-  // NOTE: I'm not going to bother implementing this.
+  // NOTE: I'm not going to bother implementing this, I've never seen it used.
   //   #lats: number[] = []; // optional DELTA coded
   //   #lons: number[] = []; // optional DELTA coded
-  #build?: VectorLineString;
 
   /**
    * @param primitiveBlock
@@ -39,7 +93,8 @@ export class Way {
    * @param options
    */
   isFilterable(): boolean {
-    const { tagFilter } = this.reader;
+    const { tagFilter, skipWays } = this.reader;
+    if (skipWays) return true;
     if (tagFilter !== undefined) {
       for (let i = 0; i < this.#keys.length; i++) {
         const keyStr = this.primitiveBlock.getString(this.#keys[i]);
@@ -106,36 +161,16 @@ export class Way {
   /**
    *
    */
-  toVectorGeometry(): undefined | VectorLineString {
-    if (this.#build !== undefined) return this.#build;
-    const { reader } = this;
-    const res: VectorLineString = [];
-    const nodeRefs = this.nodeRefs();
-    for (const ref of nodeRefs) {
-      const node = reader.nodes.get(ref);
-      if (node === undefined) return;
-      res.push({ ...node });
-    }
-    this.#build = res;
-    return res;
-  }
-
-  /**
-   *
-   */
-  toVectorFeature(): undefined | VectorFeature<InfoBlock | undefined> {
+  toVectorFeature(): undefined | IntermediateWay {
     const isArea = this.isArea();
-    const coordinates = this.toVectorGeometry();
-    if (coordinates === undefined) return;
-    const geometry: VectorGeometry = isArea
-      ? { type: 'Polygon', is3D: false, coordinates: [coordinates] }
-      : { type: 'LineString', is3D: false, coordinates };
+    const wayNodes = this.nodeRefs();
+    if (wayNodes.length < 2) return;
     return {
       id: this.id,
-      type: 'VectorFeature',
+      isArea,
       properties: this.properties(),
-      geometry,
-      metadata: this.info?.toBlock(),
+      wayNodes,
+      metadata: this.info?.toBlock() ?? {},
     };
   }
 

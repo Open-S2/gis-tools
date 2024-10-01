@@ -1,6 +1,6 @@
 import { decompressStream } from 's2-tools/util';
 
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
 
 export const MAX_HEADER_SIZE = 64 * 1024;
 

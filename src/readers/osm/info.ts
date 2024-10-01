@@ -1,5 +1,5 @@
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
 
 /**
  *
@@ -42,7 +42,8 @@ export class Info {
   }
 
   /**
-   *
+   * @param filter - If true, the higher level object (node, way, relation) filter was applied.
+   * @returns - the info block with added filter flag
    */
   toBlock(): InfoBlock {
     return {
@@ -90,14 +91,6 @@ export class Info {
     if (this.#timestamp === undefined) return;
     return this.#timestamp * this.primitiveBlock.dateGranularity;
   }
-
-  // /**
-  //  *
-  //  */
-  // changeset(): string | undefined {
-  //   if (this.#changeset === undefined) return;
-  //   return this.primitiveBlock.getString(this.#changeset);
-  // }
 
   /**
    *

@@ -1,9 +1,20 @@
-import { Relation } from './relation';
 import { Way } from './way';
 import { DenseNodes, Node } from './node';
+import { Relation, getNodeRelationPairs } from './relation';
 
-import type { OSMReader } from '.';
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { IntermediateNodeMember } from './relation';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { InfoBlock, OSMReader } from '.';
+
+/** The expected metadata in the VectorFeature for all types (node, way, relation) */
+export interface Metadata {
+  info: InfoBlock;
+  nodes?: IntermediateNodeMember[];
+  relation?: {
+    role: string;
+    properties: Record<string, string>;
+  };
+}
 
 /**
  * NOTE: currently relations are stored, but we don't wait for the Block to store all relations
@@ -75,10 +86,7 @@ export class PrimitiveBlock {
 
 /** Group of OSMPrimitives. All primitives in a group must be the same type. */
 export class PrimitiveGroup {
-  nodes: Node[] = [];
-  ways: Way[] = [];
-  relations: Relation[] = [];
-  changesets: ChangeSet[] = [];
+  // changesets: ChangeSet[] = [];
   /**
    * @param primitiveBlock
    * @param pbf
@@ -96,34 +104,41 @@ export class PrimitiveGroup {
    * @param pbf
    */
   #readLayer(tag: number, pg: PrimitiveGroup, pbf: Protobuf): void {
-    const { nodes, ways, relations, primitiveBlock } = pg;
+    const { primitiveBlock } = pg;
     const { reader } = primitiveBlock;
-    const { skipNodes, skipWays, skipRelations } = reader;
+    const { skipWays, skipRelations } = reader;
     const skipWR = skipWays && skipRelations;
 
     if (tag === 1) {
       const node = new Node(primitiveBlock, reader, pbf);
-      if (!skipWR) reader.nodes.set(node.id, node.toVectorGeometry());
-      if (!node.isFilterable() || skipNodes) nodes.push(node);
+      if (!node.isFilterable()) reader.nodes.set(node.id, node.toVectorFeature());
+      if (!skipWR) reader.nodeGeometry.set(node.id, node.toVectorGeometry());
     } else if (tag === 2) {
       const dn = new DenseNodes(primitiveBlock, reader, pbf);
       for (const node of dn.nodes()) {
-        if (!skipWR) reader.nodes.set(node.id, node.toVectorGeometry());
-        if (!node.isFilterable() || skipNodes) nodes.push(node);
+        if (!node.isFilterable()) reader.nodes.set(node.id, node.toVectorFeature());
+        if (!skipWR) reader.nodeGeometry.set(node.id, node.toVectorGeometry());
       }
     } else if (tag === 3) {
       if (skipWR) return;
       const way = new Way(primitiveBlock, reader, pbf);
-      const wayLine = way.toVectorGeometry();
-      if (wayLine !== undefined) reader.ways.set(way.id, wayLine);
-      if (!way.isFilterable() || skipWays) ways.push(way);
+      const refs = way.nodeRefs();
+      const ivf = way.toVectorFeature();
+      if (refs.length >= 2) reader.wayGeometry.set(way.id, refs);
+      if (ivf !== undefined && !way.isFilterable()) reader.ways.set(way.id, ivf);
     } else if (tag === 4) {
-      if (skipWR) return;
+      if (skipRelations) return;
       const relation = new Relation(primitiveBlock, reader, pbf);
-      if (!relation.isFilterable() || skipRelations) relations.push(relation);
-    } else if (tag === 5) {
-      this.changesets.push(new ChangeSet(pbf));
+      const ivf = relation.toIntermediateFeature();
+      if (ivf === undefined) return;
+      for (const member of getNodeRelationPairs(ivf.members)) {
+        reader.nodeRelationPairs.set(member.node, member);
+      }
+      if (!relation.isFilterable()) reader.relations.set(relation.id, ivf);
     }
+    // else if (tag === 5) {
+    //   this.changesets.push(new ChangeSet(pbf));
+    // }
   }
 }
 
@@ -163,23 +178,23 @@ export class StringTable {
 }
 
 /** This is kept for backwards compatibility but not used anywhere. */
-export class ChangeSet {
-  id = 0;
+// export class ChangeSet {
+//   id = 0;
 
-  /**
-   * @param pbf
-   */
-  constructor(pbf: Protobuf) {
-    pbf.readMessage(this.#readLayer, this);
-  }
+//   /**
+//    * @param pbf
+//    */
+//   constructor(pbf: Protobuf) {
+//     pbf.readMessage(this.#readLayer, this);
+//   }
 
-  /**
-   * @param tag
-   * @param cs
-   * @param pbf
-   */
-  #readLayer(tag: number, cs: ChangeSet, pbf: Protobuf): void {
-    if (tag === 1) cs.id = pbf.readVarint();
-    else throw new Error(`unknown tag ${tag}`);
-  }
-}
+//   /**
+//    * @param tag
+//    * @param cs
+//    * @param pbf
+//    */
+//   #readLayer(tag: number, cs: ChangeSet, pbf: Protobuf): void {
+//     if (tag === 1) cs.id = pbf.readVarint();
+//     else throw new Error(`unknown tag ${tag}`);
+//   }
+// }

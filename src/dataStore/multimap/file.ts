@@ -5,7 +5,7 @@ import type { Stringifiable } from '..';
 import type { Uint64Cell } from '../../dataStructures/uint64';
 
 /** File based multimap store */
-export class FileMultiMap<V = Stringifiable> implements MultiMapStore<V> {
+export default class FileMultiMap<V = Stringifiable> implements MultiMapStore<V> {
   #store: S2FileStore<V>;
 
   /**

@@ -1,10 +1,12 @@
 import { Info, InfoBlock } from './info';
+import { fromMultiLineString, fromMultiPolygon } from 's2-tools/geometry';
 
 import type { OSMReader } from '.';
-import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'open-vector-tile';
+import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Metadata, PrimitiveBlock } from './primitive';
 
 import type {
+  BBOX,
   VectorFeature,
   VectorGeometry,
   VectorLineString,
@@ -14,46 +16,94 @@ import type {
   VectorPolygon,
 } from 's2-tools/geometry';
 
-/**
- *
- */
-enum MemberType {
-  Node = 0,
-  Way = 1,
-  Relation = 2,
+/** An intermediate vector feature where the ways and nodes haven't been resolved yet. */
+export interface IntermediateRelation {
+  id: number;
+  properties: Record<string, string>;
+  members: IntermediateMember[];
+  metadata: InfoBlock;
+}
+
+/** An intermediate vector feature where the way nodes haven't been resolved yet. */
+export type IntermediateMember = IntermediateNodeMember | IntermediateWayMember;
+/** An intermediate vector feature where the way nodes haven't been resolved yet. */
+export interface IntermediateNodeMember {
+  relationID: number;
+  role: string;
+  node: number;
+}
+/** An intermediate vector feature where the way nodes haven't been resolved yet. */
+export interface IntermediateWayMember {
+  role: string;
+  way: number;
 }
 
 /**
- *
+ * @param relation - the intermediate relation
+ * @param reader - the OSM reader
+ * @returns - the feature in vector format
  */
-export enum RoleType {
-  Area,
-  Outer,
-  Inner,
-  From,
-  To,
-  Via,
-  Label,
-  AdminCentre,
-  Stop,
-  Empty,
-  Other,
+export async function intermediateRelationToVectorFeature(
+  relation: IntermediateRelation,
+  reader: OSMReader,
+): Promise<VectorFeature<Metadata> | undefined> {
+  const { addBBox, nodeGeometry, wayGeometry } = reader;
+  const { id, members, properties, metadata } = relation;
+  const iNodes: IntermediateNodeMember[] = members.filter((m) => 'node' in m);
+  const nodes: NodeMember[] = [];
+  for (const { role, node } of iNodes) {
+    const n = await nodeGeometry.get(node);
+    if (n === undefined) return;
+    nodes.push({ id: node, role, node: n });
+  }
+  const iWays: IntermediateWayMember[] = members.filter((m) => 'way' in m);
+  const ways: WayMember[] = [];
+  for (const { role, way } of iWays) {
+    const w = await wayGeometry.get(way);
+    if (w === undefined) return;
+    const mappedW: VectorLineString = [];
+    for (const nodeID of w) {
+      const n = await nodeGeometry.get(nodeID);
+      if (n === undefined) return;
+      mappedW.push(n);
+    }
+    ways.push({ id: way, role, way: mappedW });
+  }
+  const geo = buildGeometry(ways);
+  if (geo === undefined) return;
+
+  const { type, coordinates } = geo;
+  let bbox: BBOX | undefined;
+  if (addBBox) {
+    if (type === 0) bbox = fromMultiLineString(coordinates);
+    else bbox = fromMultiPolygon(coordinates);
+  }
+  const is3D = false;
+  const geometry: VectorGeometry =
+    type === 0
+      ? coordinates.length === 1
+        ? { type: 'LineString', is3D, coordinates: coordinates[0], bbox }
+        : { type: 'MultiLineString', is3D, coordinates, bbox }
+      : coordinates.length === 1
+        ? { type: 'Polygon', is3D, coordinates: coordinates[0], bbox }
+        : { type: 'MultiPolygon', is3D, coordinates, bbox };
+  return {
+    id,
+    type: 'VectorFeature',
+    properties,
+    geometry,
+    metadata: {
+      info: metadata,
+      nodes: iNodes,
+    },
+  };
 }
-/**
- * @param name - string name of the role
- * @returns the RoleType
- */
-export function fromStringToRoleType(name: string): RoleType {
-  if (name === 'area') return RoleType.Area;
-  if (name === 'outer') return RoleType.Outer;
-  if (name === 'inner') return RoleType.Inner;
-  if (name === 'from') return RoleType.From;
-  if (name === 'to') return RoleType.To;
-  if (name === 'via') return RoleType.Via;
-  if (name === 'label') return RoleType.Label;
-  if (name === 'admin_centre') return RoleType.AdminCentre;
-  if (name === 'stop') return RoleType.Stop;
-  return RoleType.Other;
+
+/** Member Type can be Node, Way or Relation. */
+export enum MemberType {
+  Node = 0,
+  Way = 1,
+  Relation = 2,
 }
 
 /** Member Options. Relations is skipped as it is not supported / has no use. */
@@ -61,13 +111,13 @@ export type Member = NodeMember | WayMember;
 /** Node Member */
 export interface NodeMember {
   id: number;
-  role: RoleType;
+  role: string;
   node: VectorPoint;
 }
 /** Way Member */
 export interface WayMember {
   id: number;
-  role: RoleType;
+  role: string;
   way: VectorLineString;
 }
 
@@ -77,17 +127,15 @@ export type RelationGeometry = RelationGeometryLines | RelationGeometryArea;
 export interface RelationGeometryLines {
   type: 0;
   coordinates: VectorMultiLineString;
-  nodes: NodeMember[];
 }
 /** Area Geometry */
 export interface RelationGeometryArea {
   type: 1;
   coordinates: VectorMultiPolygon;
-  nodes: NodeMember[];
 }
 
 /**
- *
+ * Relation class contains a collection of nodes, ways and relations as members.
  */
 export class Relation {
   id = -1;
@@ -98,12 +146,11 @@ export class Relation {
   #rolesSid: number[] = []; // This should have been defined as uint32 for consistency, but it is now too late to change it
   #memids: number[] = []; // DELTA encoded
   #types: MemberType[] = [];
-  #build?: RelationGeometry;
 
   /**
-   * @param primitiveBlock
-   * @param reader
-   * @param pbf
+   * @param primitiveBlock - the primitive block
+   * @param reader - the OSM reader
+   * @param pbf - the Protobuf if provided
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -114,12 +161,11 @@ export class Relation {
     if (pbf !== undefined) pbf.readMessage(this.#readLayer, this);
   }
 
-  /**
-   * @param options
-   */
+  /** @returns - true if the relation is filterable */
   isFilterable(): boolean {
     const { primitiveBlock: pb, reader } = this;
-    const { tagFilter } = reader;
+    const { tagFilter, skipRelations } = reader;
+    if (skipRelations) return true;
     if (tagFilter !== undefined) {
       for (let i = 0; i < this.#keys.length; i++) {
         const keyStr = pb.getString(this.#keys[i]);
@@ -132,9 +178,7 @@ export class Relation {
     return false;
   }
 
-  /**
-   *
-   */
+  /** @returns - the properties of the relation */
   properties(): Record<string, string> {
     return this.primitiveBlock.tags(this.#keys, this.#vals);
   }
@@ -143,20 +187,18 @@ export class Relation {
    * Each member can be node, way or relation.
    * @returns an array of members associated with this relation
    */
-  members(): Member[] {
-    const { primitiveBlock: pb, reader } = this;
-    const res: Member[] = [];
+  members(): IntermediateMember[] {
+    const { primitiveBlock: pb } = this;
+    const res: IntermediateMember[] = [];
     let memid: number = 0;
     for (let i = 0; i < this.#memids.length; i++) {
       memid += this.#memids[i];
-      const role = fromStringToRoleType(pb.getString(this.#rolesSid[i]));
+      const role = pb.getString(this.#rolesSid[i]);
       const curType = this.#types[i];
       if (curType === MemberType.Node) {
-        const node = reader.nodes.get(memid);
-        if (node !== undefined) res.push({ id: memid, role, node });
+        res.push({ role, node: memid, relationID: this.id });
       } else if (curType === MemberType.Way) {
-        const way = reader.ways.get(memid);
-        if (way !== undefined) res.push({ id: memid, role, way });
+        res.push({ role, way: memid });
       } else {
         // Relation -> no-op
       }
@@ -164,50 +206,22 @@ export class Relation {
     return res;
   }
 
-  /**
-   *
-   */
-  toVectorGeometry(): undefined | RelationGeometry {
-    if (this.#build !== undefined) return this.#build;
+  /** @returns - the feature in intermediate format to build later */
+  toIntermediateFeature(): undefined | IntermediateRelation {
     const members = this.members();
-    const nodes: NodeMember[] = members.filter((m) => 'node' in m);
-    this.#build = buildGeometry(
-      members.filter((m) => 'way' in m),
-      nodes,
-    );
-    return this.#build;
-  }
-
-  /**
-   * Convert members to vector geometry. members are grouped by type if applicable.
-   * (outer + inner are grouped together to be a polygon/multipolygon for instance)
-   */
-  toVectorFeature(): undefined | VectorFeature<InfoBlock | undefined> {
-    const vg = this.toVectorGeometry();
-    if (vg === undefined) return;
-    const { type, coordinates } = vg;
-    const is3D = false;
-    const geometry: VectorGeometry =
-      type === 0
-        ? coordinates.length === 1
-          ? { type: 'LineString', is3D, coordinates: coordinates[0] }
-          : { type: 'MultiLineString', is3D, coordinates }
-        : coordinates.length === 1
-          ? { type: 'Polygon', is3D, coordinates: coordinates[0] }
-          : { type: 'MultiPolygon', is3D, coordinates };
+    if (members.length === 0) return;
     return {
       id: this.id,
-      type: 'VectorFeature',
       properties: this.properties(),
-      geometry,
-      metadata: this.info?.toBlock(),
+      members,
+      metadata: this.info?.toBlock() ?? {},
     };
   }
 
   /**
-   * @param tag
-   * @param relation
-   * @param pbf
+   * @param tag - the tag
+   * @param relation - the relation to update
+   * @param pbf - the protobuf to parse from
    */
   #readLayer(tag: number, relation: Relation, pbf: Protobuf): void {
     if (tag === 1) relation.id = pbf.readVarint();
@@ -222,26 +236,36 @@ export class Relation {
 }
 
 /**
+ * @param members - an array of members
+ * @returns - an array of node members that have a 'label' or 'admin_centre' role
+ */
+export function getNodeRelationPairs(members: IntermediateMember[]): IntermediateNodeMember[] {
+  const res: IntermediateNodeMember[] = [];
+  for (const member of members) {
+    if ('node' in member && (member.role === 'label' || member.role === 'admin_centre'))
+      res.push(member);
+  }
+  return res;
+}
+
+/**
  * Given a group of Members whose type is "way", build a multilinestring or multipolygon Feature.
  * If the ways include an 'outer' or 'inner', then we know its an area, otherwise its a line.
- * @param members - an array of way members
- * @param nodes
+ * @param ways - an array of way members
  * @returns - a multipolygon
  */
-function buildGeometry(members: WayMember[], nodes: NodeMember[]): undefined | RelationGeometry {
+function buildGeometry(ways: WayMember[]): undefined | RelationGeometry {
   // prep variables
   const polygons: VectorMultiPolygon = [];
   const currentPolygon: VectorPolygon = [];
   const currentRing: VectorLineString = [];
 
-  const isArea =
-    members.some((m) => m.role === RoleType.Outer) ||
-    members.some((m) => m.role === RoleType.Inner);
+  const isArea = ways.some((m) => m.role === 'outer') || ways.some((m) => m.role === 'inner');
 
   // prepare step: members are stored out of order
-  sortMembers(members);
+  sortMembers(ways);
 
-  for (const member of members) {
+  for (const member of ways) {
     // Using "isClockwise", depending on whether the ring is outer or inner,
     // we may need to reverse the order of the points. Every time we find the
     // first and last point are the same, close out the ring, add it to the current
@@ -267,7 +291,7 @@ function buildGeometry(members: WayMember[], nodes: NodeMember[]): undefined | R
       // start a new polygon.
       // If the member role is inner, we can add the ring to the
       // current polygon.
-      if (member.role === RoleType.Outer && currentPolygon.length > 0) {
+      if (member.role === 'outer' && currentPolygon.length > 0) {
         polygons.push(currentPolygon);
       }
       currentPolygon.push(currentRing);
@@ -277,11 +301,11 @@ function buildGeometry(members: WayMember[], nodes: NodeMember[]): undefined | R
   // Last step is to build:
   // flush ring if it exists
   if (currentRing.length > 0) currentPolygon.push(currentRing);
-  if (!isArea) return { type: 0, coordinates: currentPolygon, nodes };
+  if (!isArea) return { type: 0, coordinates: currentPolygon };
   // flush the current polygon if it exists
   if (currentPolygon.length > 0) polygons.push(currentPolygon);
   // grab the polys and return a feature
-  return { type: 1, coordinates: polygons, nodes };
+  return { type: 1, coordinates: polygons };
 }
 
 /**
