@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import DirCache from '../../src/dataStructures/cache';
+import { Cache } from '../../src/dataStructures/cache';
 
 describe('dirCache', () => {
-  const dirCache = new DirCache<number, number>(5);
+  const dirCache = new Cache<number, number>(5);
 
   test('test functionality', () => {
     expect(dirCache.set(1, 2)).toBe(dirCache);

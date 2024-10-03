@@ -2,11 +2,6 @@ import { S2Point, fromS2Point as fromS2, fromST } from '../geometry';
 
 import type { Face, Point3D, S2CellId } from '../geometry';
 
-// TODO:
-// - [ ] bit shift left and right
-// - [ ] add, subtract, multiply, divide
-// - [ ] &, |, ^, ~
-
 /** An Uint64Cell contains all the information needed to uniquely identify a 64-bit cell */
 export interface Uint64Cell {
   low: number;
@@ -26,7 +21,7 @@ export function toCell(id: Uint64): Uint64Cell {
   const bigint = BigInt(id);
   return {
     low: Number(bigint & 0xffffffffn),
-    high: Number(bigint >> 32n) & 0xffffffff,
+    high: Number((bigint >> 32n) & 0xffffffffn),
   };
 }
 

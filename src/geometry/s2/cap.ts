@@ -1,4 +1,4 @@
-import { K_AVG_EDGE } from './metrics';
+import { K_MAX_EDGE } from './metrics';
 import {
   K_MAX_LENGTH_2,
   chordAngleSin2,
@@ -215,8 +215,7 @@ export function complement<T>(cap: S2Cap<T>): S2Cap<T> {
 export function containsS2CellVertexCount<T>(cap: S2Cap<T>, cell: S2CellId): number {
   // If the cap does not contain all cell vertices, return false.
   let count = 0;
-  const vertices = getVertices(cell);
-  for (const vertex of vertices) {
+  for (const vertex of getVertices(cell)) {
     if (containsS2Point(cap, vertex)) count++;
   }
 
@@ -328,18 +327,22 @@ export function getIntersectingCells<T>(cap: S2Cap<T>): S2CellId[] {
   if (isEmpty(cap)) return res;
   const queue: S2CellId[] = ([0, 1, 2, 3, 4, 5] as Face[]).map(fromFace);
   if (isFull(cap)) return queue;
-  const maxDepth = K_AVG_EDGE.getLevelForMaxValue(cap.radius);
+  const maxDepth = K_MAX_EDGE.getClosestLevel(toAngle(cap.radius));
   while (true) {
     const cell = queue.pop();
     if (cell === undefined) break;
     const vertexCount = containsS2CellVertexCount(cap, cell);
-    if (vertexCount === 4) {
+    const maxLevel = level(cell) >= maxDepth;
+    if (vertexCount === 4 || (vertexCount > 0 && maxLevel)) {
       res.push(cell);
-    } else if (vertexCount === 0) {
-      continue;
+    } else if (vertexCount === 0 && !maxLevel) {
+      // if cap center is in the cell, then we check all children because the cell is larger than the cap
+      if (idContainsS2Point(cell, cap.center)) {
+        queue.push(...children(cell));
+      } else continue;
     } else {
-      if (level(cell) >= maxDepth) res.push(cell);
-      else queue.push(...children(cell));
+      if (maxLevel) continue;
+      queue.push(...children(cell));
     }
   }
 

@@ -1,6 +1,6 @@
-import KDBush from 'kdbush';
-import PointIndex from '../dist/dataStructures/pointIndex';
-import { fromLonLat } from '../dist/geometry/s2/point';
+// import KDBush from 'kdbush';
+import PointIndex from '../src/dataStructures/pointIndex';
+import { fromLonLat } from '../src/geometry/s2/point';
 
 const TOTAL_SIZE = 1_000_000;
 
@@ -16,12 +16,12 @@ for (let i = 0; i < TOTAL_SIZE; i++) {
 
 // ---------------------------------------------- BUSH
 
-// const bushBuild = Bun.nanoseconds();
+// const bushBuildStart = Bun.nanoseconds();
 // const bush = new KDBush(TOTAL_SIZE);
 // for (let i = 0; i < TOTAL_SIZE; i++) bush.add(lls[i].lon, lls[i].lat);
 // bush.finish();
 // const bushBuildEnd = Bun.nanoseconds();
-// const bushBuildSeconds = (bushBuildEnd - bushBuild) / 1_000_000_000;
+// const bushBuildSeconds = (bushBuildEnd - bushBuildStart) / 1_000_000_000;
 // console.info('bush Build time: ', bushBuildSeconds);
 
 // const bushSearchTime = Bun.nanoseconds();
@@ -35,26 +35,26 @@ for (let i = 0; i < TOTAL_SIZE; i++) {
 // ---------------------------------------------- POINT INDEX
 console.info('\n\n');
 
-// const indexBuild = Bun.nanoseconds();
+const indexBuildStart = Bun.nanoseconds();
 const index = new PointIndex<{ a: number }>();
 for (let i = 0; i < TOTAL_SIZE; i++) {
   index.insertLonLat(lls[i].lon, lls[i].lat, { a: i });
 }
-// const indexSortTime = Bun.nanoseconds();
+const indexSortTime = Bun.nanoseconds();
 await index.sort();
-// const indexBuildEnd = Bun.nanoseconds();
-// const indexSortSeconds = (indexBuildEnd - indexSortTime) / 1_000_000_000;
-// const indexBuildSeconds = (indexBuildEnd - indexBuild) / 1_000_000_000;
-// console.info('index Build time: ', indexBuildSeconds);
-// console.info('index Sort time: ', indexSortSeconds);
+const indexBuildEnd = Bun.nanoseconds();
+const indexSortSeconds = (indexBuildEnd - indexSortTime) / 1_000_000_000;
+const indexBuildSeconds = (indexBuildEnd - indexBuildStart) / 1_000_000_000;
+console.info('index Build time: ', indexBuildSeconds);
+console.info('index Sort time: ', indexSortSeconds);
 
-// const indexSearchTime = Bun.nanoseconds();
+const indexSearchTime = Bun.nanoseconds();
 const _withinSearch2 = index.searchRadius(fromLonLat(lls[0].lon, lls[0].lat), 1);
-// const withinSearchEnd2 = Bun.nanoseconds();
-// const withinSearchSeconds2 = (withinSearchEnd2 - indexSearchTime) / 1_000_000_000;
-// console.info('index Search time: ', withinSearchSeconds2);
+const withinSearchEnd2 = Bun.nanoseconds();
+const withinSearchSeconds2 = (withinSearchEnd2 - indexSearchTime) / 1_000_000_000;
+console.info('index Search time: ', withinSearchSeconds2);
 
-// console.info('index total time: ', indexBuildSeconds + withinSearchSeconds2);
+console.info('index total time: ', indexBuildSeconds + withinSearchSeconds2);
 
 /**
  * Generate a random whole number between two given values.

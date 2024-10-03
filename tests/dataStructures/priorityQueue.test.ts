@@ -1,4 +1,4 @@
-import PriorityQueue from '../../src/dataStructures/priorityQueue';
+import { PriorityQueue } from '../../src/dataStructures/priorityQueue';
 import { beforeAll, expect, test } from 'bun:test';
 
 import type { PriorityCompare } from '../../src/dataStructures/priorityQueue';
@@ -20,7 +20,7 @@ test('maintains a priority queue', () => {
   expect(queue.peek()).toEqual(sorted[0]);
 
   const result: number[] = [];
-  while (queue.length) result.push(queue.pop() ?? 999_999);
+  while (queue.length > 0) result.push(queue.pop() ?? 999_999);
 
   expect(result).toEqual(sorted);
 });
@@ -29,7 +29,7 @@ test('accepts data in constructor', () => {
   const queue = new PriorityQueue(data.slice());
 
   const result: number[] = [];
-  while (queue.length) result.push(queue.pop() ?? 999_999);
+  while (queue.length > 0) result.push(queue.pop() ?? 999_999);
 
   expect(result).toEqual(sorted);
 });

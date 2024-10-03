@@ -1,5 +1,5 @@
 /** A cache of values with a max size to ensure that too much old data is not stored. */
-export default class Cache<K, V> extends Map<K, V> {
+export class Cache<K, V> extends Map<K, V> {
   order: K[] = [];
   /**
    * @param maxSize - the max size of the cache before dumping old data

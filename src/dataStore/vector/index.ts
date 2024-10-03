@@ -12,9 +12,10 @@ export interface VectorStore<V> {
   push: (value: V) => void;
   get: (index: number) => Promise<V>;
   length: number;
-  values: (() => Generator<V>) | (() => AsyncGenerator<V>);
+  values: () => AsyncGenerator<V>;
   sort: (() => void) | (() => Promise<void>);
-  [Symbol.iterator]: (() => Generator<V>) | (() => AsyncGenerator<V>);
+  [Symbol.asyncIterator]: () => AsyncGenerator<V>;
+  close: () => void;
 }
 
 /** A constructor for a vector store */
@@ -46,7 +47,7 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
    * iterate through the values
    * @yields an iterator
    */
-  *values(): Generator<V> {
+  async *values(): AsyncGenerator<V> {
     for (const value of this.#store) yield value;
   }
 
@@ -61,7 +62,12 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): Generator<V> {
+  [Symbol.asyncIterator](): AsyncGenerator<V> {
     return this.values();
+  }
+
+  /** Closes the store */
+  close(): void {
+    this.#store = [];
   }
 }

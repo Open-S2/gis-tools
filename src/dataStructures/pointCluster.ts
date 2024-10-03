@@ -1,5 +1,6 @@
+import { convert } from '../geometry/convert';
 import { fromS2Points } from 's2-tools/geometry/s1/chordAngle';
-import PointIndex, { PointShape as Point } from './pointIndex';
+import { PointShape as Point, PointIndex } from './pointIndex';
 import { Tile, fromFacePosLevel, getVertices, level, range } from '../geometry';
 import {
   addMut,
@@ -13,7 +14,7 @@ import {
 
 import type { PointShape } from './pointIndex';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Face, Point3D, Projection, Properties, S2CellId } from '../geometry';
+import type { Face, JSONCollection, Point3D, Projection, Properties, S2CellId } from '../geometry';
 
 import type { VectorStoreConstructor } from '../dataStore/vector';
 
@@ -32,7 +33,7 @@ export interface ClusterOptions {
   minzoom?: number;
   /** max zoom level to cluster the points on */
   maxzoom?: number;
-  /** cluster radius in pixels */
+  /** cluster radius in pixels relative to a 512x512 pixel tile */
   radius?: number;
 }
 
@@ -64,23 +65,39 @@ function sumToCluster(properties: Properties, sum: number): Cluster {
 export type Comparitor = (a: Properties, b: Properties) => boolean;
 
 /** A cluster store to index points at each zoom level */
-export default class PointCluster {
+export class PointCluster {
   projection: Projection;
   layerName: string;
   minzoom: number;
   maxzoom: number;
   radius: number;
+  extent = 512; // a 512x512 pixel tile
   indexes = new Map<number, PointIndex<Cluster>>();
 
-  /** @param options - cluster options on how to build the cluster */
-  constructor(options?: ClusterOptions) {
+  /**
+   * @param data - if provided, the data to index
+   * @param options - cluster options on how to build the cluster
+   */
+  constructor(data?: JSONCollection, options?: ClusterOptions) {
     this.projection = options?.projection ?? 'S2';
-    this.layerName = options?.layerName ?? '__cluster';
+    this.layerName = options?.layerName ?? 'default';
     this.minzoom = Math.max(options?.minzoom ?? 0, 0);
     this.maxzoom = Math.min(options?.maxzoom ?? 16, 29);
     this.radius = options?.radius ?? 40;
     for (let zoom = this.minzoom; zoom <= this.maxzoom; zoom++) {
       this.indexes.set(zoom, new PointIndex<Cluster>(options?.store));
+    }
+    // convert features if provided
+    if (data !== undefined) {
+      const features = convert(this.projection, data, false, undefined, this.maxzoom, true);
+      for (const feature of features) {
+        const face = feature.face ?? 0;
+        const { type, coordinates } = feature.geometry;
+        if (type === 'Point') {
+          const { x: s, y: t } = coordinates;
+          this.insertFaceST(face, s, t, feature.properties);
+        }
+      }
     }
   }
 
@@ -122,11 +139,11 @@ export default class PointCluster {
     const { minzoom, maxzoom } = this;
     // const cmp = cmp_ orelse defaultCmp;
     const cmp: Comparitor = cmp_ ?? ((_a: Properties, _b: Properties) => true);
-    for (let zoom = maxzoom; zoom > minzoom; zoom--) {
+    for (let zoom = maxzoom - 1; zoom >= minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
-      const queryIndex = this.indexes.get(zoom - 1);
+      const queryIndex = this.indexes.get(zoom + 1);
       if (curIndex === undefined || queryIndex === undefined) throw new Error('Index not found');
-      if (zoom === maxzoom) await this.#cluster(zoom, queryIndex, curIndex, cmp);
+      await this.#cluster(zoom, queryIndex, curIndex, cmp);
     }
   }
 
@@ -216,7 +233,7 @@ export default class PointCluster {
    * @returns - the appropriate radius for the given zoom
    */
   #getLevelRadius(zoom: number): S1ChordAngle {
-    const multiplier = this.radius;
+    const multiplier = this.radius / this.extent;
     const cell = fromFacePosLevel(0, 0n, zoom);
     const [lo, hi] = getVertices(cell);
     const angle = fromS2Points(lo, hi);

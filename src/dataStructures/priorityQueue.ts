@@ -2,7 +2,7 @@
 export type PriorityCompare<T> = (a: T, b: T) => number;
 
 /** A Priority Queue */
-export default class PriorityQueue<T = number> {
+export class PriorityQueue<T = number> {
   #length: number = 0;
   /**
    * @param data - initial data

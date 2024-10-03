@@ -1,7 +1,9 @@
 import { Tile, TileStore, transformPoint } from '../../src/dataStructures/tile';
 import { expect, test } from 'bun:test';
 
-import { type FeatureCollection, childrenIJ, fromFace } from '../../src/geometry';
+import { childrenIJ, fromFace } from '../../src/geometry/id';
+
+import type { FeatureCollection } from '../../src/geometry';
 
 const SIMPLIFY_MAXZOOM = 16;
 

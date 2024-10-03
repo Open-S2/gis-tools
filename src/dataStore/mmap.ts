@@ -1,6 +1,7 @@
-import externalSort from './externalSort';
+import { externalSort } from './externalSort';
 import { mmap } from 'bun';
-import { closeSync, fstatSync, openSync, writeSync } from 'fs';
+import { tmpdir } from 'os';
+import { closeSync, openSync, unlinkSync, writeSync } from 'fs';
 import { compare, toCell } from '../dataStructures/uint64';
 
 import type { Stringifiable } from '..';
@@ -49,18 +50,21 @@ export class S2MMapStore<V = Stringifiable> {
    * @param options - the options of how the store should be created and ued
    */
   constructor(
-    public readonly fileName: string,
+    public readonly fileName?: string,
     options?: Options,
   ) {
+    if (fileName === undefined) fileName = buildTmpFileName(options?.tmpDir);
     this.#sorted = options?.isSorted ?? false;
     this.#indexIsValues = options?.valuesAreIndex ?? false;
     this.#maxHeap = options?.maxHeap;
     this.#threadCount = options?.threadCount;
     this.#tmpDir = options?.tmpDir;
     if (!this.#sorted) this.#switchToWriteState();
-    // Update the size if the file already existed
-    const stat = fstatSync(this.#keyFd);
-    if (stat.size >= 16) this.#size = stat.size / 16;
+    else {
+      this.#keyReader = mmap(`${this.fileName}.sortedkeys`);
+      if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
+      this.#size = this.#keyReader.length / 16;
+    }
   }
 
   /** @returns - the length of the store */
@@ -88,8 +92,8 @@ export class S2MMapStore<V = Stringifiable> {
       if (typeof value !== 'number' && typeof value !== 'bigint')
         throw new Error('value must be a number.');
       if (typeof value === 'number') {
-        buffer.writeUInt32LE(value & 0xffffffff, 8);
-        buffer.writeUInt32LE(value >>> 32, 12);
+        buffer.writeUInt32LE(value >>> 0, 8);
+        buffer.writeUInt32LE(Math.floor(value / 0x100000000), 12);
       } else {
         buffer.writeBigInt64LE(value, 8);
       }
@@ -114,6 +118,7 @@ export class S2MMapStore<V = Stringifiable> {
    */
   async get(key: Uint64, max?: number, bigint = false): Promise<V[] | undefined> {
     await this.#switchToReadState();
+    if (this.#size === 0) return;
     let lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return undefined;
     const { low: lowID, high: highID } = toCell(key);
@@ -126,7 +131,7 @@ export class S2MMapStore<V = Stringifiable> {
       const valueLength = buffer.readUInt32LE(12);
       if (this.#indexIsValues) {
         if (bigint) res.push((BigInt(valueOffset) + (BigInt(valueLength) << 32n)) as unknown as V);
-        else res.push((valueOffset + (valueLength << 32)) as unknown as V);
+        else res.push(((valueOffset >>> 0) + (valueLength >>> 0) * 0x100000000) as unknown as V);
       } else {
         const valSlice = this.#valueReader.subarray(valueOffset, valueOffset + valueLength);
         const valueBuf = Buffer.from(valSlice);
@@ -144,6 +149,20 @@ export class S2MMapStore<V = Stringifiable> {
   /** Sort the data if not sorted */
   async sort(): Promise<void> {
     await this.#switchToReadState();
+  }
+
+  /**
+   * Closes the store
+   * @param cleanup - set to true if you want to remove the .keys and .values files upon closing
+   */
+  close(cleanup = false): void {
+    if (this.#keyFd >= 0) closeSync(this.#keyFd);
+    if (!this.#indexIsValues && this.#valueFd >= 0) closeSync(this.#valueFd);
+    if (cleanup) {
+      unlinkSync(`${this.fileName}.keys`);
+      if (!this.#indexIsValues) unlinkSync(`${this.fileName}.values`);
+      if (this.#sorted) unlinkSync(`${this.fileName}.sortedKeys`);
+    }
   }
 
   /**
@@ -178,16 +197,23 @@ export class S2MMapStore<V = Stringifiable> {
   #switchToWriteState(): void {
     if (this.#state === 'write') return;
     this.#state = 'write';
-    this.#keyFd = openSync(`${this.fileName}.keys`, 'w');
-    if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'w');
+    this.#keyFd = openSync(`${this.fileName}.keys`, 'a');
+    if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'a');
   }
 
   /** Switches to read state if in write. Also sort the keys. */
   async #switchToReadState(): Promise<void> {
     if (this.#state === 'read') return;
     this.#state = 'read';
-    if (this.#keyFd > 0) closeSync(this.#keyFd);
-    if (!this.#indexIsValues && this.#valueFd > 0) closeSync(this.#valueFd);
+    if (this.#keyFd > 0) {
+      closeSync(this.#keyFd);
+      this.#keyFd = -1;
+    }
+    if (!this.#indexIsValues && this.#valueFd > 0) {
+      closeSync(this.#valueFd);
+      this.#valueFd = -1;
+    }
+    if (this.#size === 0) return;
     await this.#sort();
     this.#keyReader = mmap(`${this.fileName}.sortedkeys`);
     if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
@@ -239,4 +265,14 @@ export class S2MMapStore<V = Stringifiable> {
     const buf = Buffer.from(key);
     return { low: buf.readUint32LE(0), high: buf.readUint32LE(4) };
   }
+}
+
+/**
+ * @param tmpDir - the temporary directory to use if provided otherwise default os tmpdir
+ * @returns - a temporary file name based on a random number.
+ */
+function buildTmpFileName(tmpDir?: string): string {
+  const tmpd = tmpDir ?? tmpdir();
+  const randomName = Math.random().toString(36).slice(2);
+  return `${tmpd}/${randomName}`;
 }

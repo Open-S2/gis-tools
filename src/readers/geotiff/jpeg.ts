@@ -419,9 +419,10 @@ function decodeScan(
 
 /**
  * @param frame
+ * @param _frame
  * @param component
  */
-function buildComponentData(frame, component) {
+function buildComponentData(component) {
   const lines = [];
   const { blocksPerLine, blocksPerColumn } = component;
   const samplesPerLine = blocksPerLine << 3;
@@ -992,7 +993,7 @@ class JpegStreamReader {
     for (let i = 0; i < componentsOrder.length; i++) {
       const component = components[componentsOrder[i]];
       outComponents.push({
-        lines: buildComponentData(frame, component),
+        lines: buildComponentData(component),
         scaleX: component.h / frame.maxH,
         scaleY: component.v / frame.maxV,
       });
@@ -1010,6 +1011,58 @@ class JpegStreamReader {
       }
     }
     return out;
+  }
+}
+
+/**
+ * @param jpegData
+ * @param jpegTables
+ * @param userOpts
+ */
+export function decode(jpegData: ArrayBufferLike, userOpts = {}) {
+  const defaultOpts = {
+    // "undefined" means "Choose whether to transform colors based on the image’s color model."
+    colorTransform: undefined,
+    formatAsRGBA: true,
+    tolerantDecoding: true,
+    maxResolutionInMP: 100, // Don't decode more than 100 megapixels
+    maxMemoryUsageInMB: 512, // Don't decode if memory footprint is more than 512MB
+  };
+
+  const opts = { ...defaultOpts, ...userOpts };
+  const arr = new Uint8Array(jpegData);
+  const decoder = new JpegImage();
+  decoder.opts = opts;
+  // If this constructor ever supports async decoding this will need to be done differently.
+  // Until then, treating as singleton limit is fine.
+  // JpegImage.resetMaxMemoryUsage(opts.maxMemoryUsageInMB * 1024 * 1024);
+  decoder.parse(arr);
+
+  const channels = opts.formatAsRGBA ? 4 : 3;
+  const bytesNeeded = decoder.width * decoder.height * channels;
+  try {
+    // JpegImage.requestMemoryAllocation(bytesNeeded);
+    const image = {
+      width: decoder.width,
+      height: decoder.height,
+      exifBuffer: decoder.exifBuffer,
+      data: new Uint8Array(bytesNeeded),
+      comments: [],
+    };
+    if (decoder.comments.length > 0) {
+      image.comments = decoder.comments;
+    }
+    decoder.copyToImageData(image, opts.formatAsRGBA);
+
+    return image;
+  } catch (err) {
+    if (err instanceof RangeError) {
+      throw new Error(
+        'Could not allocate enough memory for the image. ' + 'Required: ' + bytesNeeded,
+      );
+    }
+
+    throw err;
   }
 }
 

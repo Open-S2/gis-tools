@@ -181,7 +181,7 @@ test('high precision float 256', () => {
    * @returns rounded
    */
   function round(val: number): number {
-    return +parseFloat(String(val)).toFixed(6);
+    return Number(parseFloat(String(val)).toFixed(6));
   }
 
   expect(round(withInt[0])).toEqual(round(withFloat[0]));
@@ -204,7 +204,7 @@ test('high precision float 512', () => {
    * @returns rounded
    */
   function round(val: number): number {
-    return +parseFloat(String(val)).toFixed(6);
+    return Number(parseFloat(String(val)).toFixed(6));
   }
 
   expect(round(withInt[0])).toEqual(round(withFloat[0]));

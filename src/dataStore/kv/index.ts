@@ -8,10 +8,11 @@ export interface KVStore<V = Stringifiable> {
   set: (key: Uint64, value: V) => void;
   values: () => AsyncGenerator<V>;
   [Symbol.asyncIterator]: () => AsyncGenerator<V>;
+  close: () => void;
 }
 
 /** A constructor for a vector store */
-export type KVStoreConstructor<V = Stringifiable> = new () => KVStore<V>;
+export type KVStoreConstructor<V = Stringifiable> = new (fileName?: string) => KVStore<V>;
 
 /** Just a placeholder to explain what a local key-value store essentially is */
 export class KV<V = Stringifiable> implements KVStore<V> {
@@ -53,5 +54,12 @@ export class KV<V = Stringifiable> implements KVStore<V> {
    */
   [Symbol.asyncIterator](): AsyncGenerator<V> {
     return this.values();
+  }
+
+  /**
+   * Closes the store
+   */
+  close(): void {
+    this.#store.clear();
   }
 }

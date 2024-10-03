@@ -5,6 +5,7 @@ import { Pbf as Protobuf } from 's2-tools/readers/protobuf';
 import { intermediateRelationToVectorFeature } from './relation';
 import { intermediateWayToVectorFeature } from './way';
 import { mergeRelationIfExists } from './node';
+import { tmpdir } from 'os';
 import { Blob, BlobHeader } from './blob';
 
 import type { Metadata } from './primitive';
@@ -159,12 +160,14 @@ export class OSMReader implements FeatureIterator<Metadata> {
     this.addBBox = options?.addBBox ?? false;
     const store = options?.store;
     if (store !== undefined) {
-      this.nodeGeometry = new store() as KVStore<VectorPoint>;
-      this.nodes = new store() as KVStore<VectorFeature<Metadata>>;
-      this.wayGeometry = new store() as KVStore<WayNodes>;
-      this.ways = new store() as KVStore<IntermediateWay>;
-      this.relations = new store() as KVStore<IntermediateRelation>;
-      this.nodeRelationPairs = new store() as KVStore<IntermediateNodeMember>;
+      this.nodeGeometry = new store(buildTmpFileName('nodeGeometry')) as KVStore<VectorPoint>;
+      this.nodes = new store(buildTmpFileName('nodes')) as KVStore<VectorFeature<Metadata>>;
+      this.wayGeometry = new store(buildTmpFileName('wayGeometry')) as KVStore<WayNodes>;
+      this.ways = new store(buildTmpFileName('ways')) as KVStore<IntermediateWay>;
+      this.relations = new store(buildTmpFileName('relations')) as KVStore<IntermediateRelation>;
+      this.nodeRelationPairs = new store(
+        buildTmpFileName('nodeRelationPairs'),
+      ) as KVStore<IntermediateNodeMember>;
     }
   }
 
@@ -254,4 +257,25 @@ export class OSMReader implements FeatureIterator<Metadata> {
     // all nodes/ways/relations that can be filtered already are on invocation.
     return new PrimitiveBlock(pbf, this);
   }
+
+  /** Close out the data which will cleanup any temporary files if they exist */
+  close(): void {
+    this.nodeGeometry.close();
+    this.nodes.close();
+    this.wayGeometry.close();
+    this.ways.close();
+    this.relations.close();
+    this.nodeRelationPairs.close();
+  }
+}
+
+/**
+ * @param tmpDir - the temporary directory to use if provided otherwise default os tmpdir
+ * @param name - the name of the temporary file
+ * @returns - a temporary file name based on a random number.
+ */
+function buildTmpFileName(name: string): string {
+  const tmpd = tmpdir();
+  const randomName = Math.random().toString(36).slice(2);
+  return `${tmpd}/${name ?? ''}_${randomName}`;
 }

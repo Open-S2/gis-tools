@@ -1,4 +1,4 @@
-import PriorityQueue from '../dataStructures/priorityQueue';
+import { PriorityQueue } from '../dataStructures/priorityQueue';
 import { VectorPoint, VectorPolygon } from '../geometry';
 
 /**

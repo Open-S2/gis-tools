@@ -12,9 +12,9 @@ import {
   lonLatToXYZ,
   xyzToLonLat,
 } from './s2/coords';
-import { toIJ as S2PointToIJ, fromS2CellID, invert, normalize } from './s2/point';
+import { toIJ as S2PointToIJ, invert, normalize, fromUV as s2PointFromUV } from './s2/point';
 
-import type { BBox, Face, Point3D } from './';
+import type { BBox, Face, Point3D } from '.';
 
 /**
  * An S2CellId is a 64-bit unsigned integer that uniquely identifies a
@@ -53,8 +53,10 @@ export type S2CellId = bigint;
 
 /** CONSTANTS */
 const LOOKUP_POS: S2CellId[] = [];
-const LOOKUP_IJ: S2CellId[] = [];
+const LOOKUP_IJ: number[] = [];
+export const K_FACE_BITS = 3;
 export const FACE_BITS = 3n;
+export const K_NUM_FACES = 6;
 export const NUM_FACES = 6n;
 export const K_MAX_LEVEL = 30;
 export const MAX_LEVEL = 30n;
@@ -90,7 +92,7 @@ function initLookupCell(
   if (level === 4) {
     const ij = (i << 4) + j;
     LOOKUP_POS[(ij << 2) + origOrientation] = BigInt((pos << 2) + orientation);
-    LOOKUP_IJ[(pos << 2) + origOrientation] = BigInt((ij << 2) + orientation);
+    LOOKUP_IJ[(pos << 2) + origOrientation] = (ij << 2) + orientation;
   } else {
     level++;
     i <<= 1;
@@ -277,12 +279,12 @@ export function fromIJ(face: Face, i: number, j: number, level?: number): S2Cell
  */
 export function toIJ(
   id: S2CellId,
-  level?: number | bigint,
+  level?: number,
 ): [face: Face, i: number, j: number, orientation: number] {
-  let i = 0n;
-  let j = 0n;
+  let i = 0;
+  let j = 0;
   const face = Number(id >> POS_BITS);
-  let bits = BigInt(face) & 1n;
+  let bits = face & 1;
 
   // Each iteration maps 8 bits of the Hilbert curve position into
   // 4 bits of "i" and "j".  The lookup table transforms a key of the
@@ -292,25 +294,24 @@ export function toIJ(
   //
   // On the first iteration we need to be careful to clear out the bits
   // representing the cube face.
-  for (let k = 7n; k >= 0n; k--) {
-    const nbits = k === 7n ? 2n : 4n;
-    bits += ((id >> (k * 8n + 1n)) & ((1n << (2n * nbits)) - 1n)) << 2n;
-    bits = LOOKUP_IJ[Number(bits)];
-    i += (bits >> NUM_FACES) << (k * 4n);
-    j += ((bits >> 2n) & 15n) << (k * 4n);
-    bits &= FACE_BITS;
+  for (let k = 7; k >= 0; k--) {
+    const nbits = k === 7 ? 2 : 4;
+    bits += (Number(id >> (BigInt(k) * 8n + 1n)) & ((1 << (2 * nbits)) - 1)) << 2;
+    bits = LOOKUP_IJ[bits];
+    i += (bits >> K_NUM_FACES) << (k * 4);
+    j += ((bits >> 2) & 15) << (k * 4);
+    bits &= K_FACE_BITS;
   }
 
   // adjust bits to the orientation
   const lsb = id & (~id + 1n);
-  if ((lsb & 1229782938247303424n) !== 0n) bits ^= 1n;
+  if ((lsb & 1229782938247303424n) !== 0n) bits ^= 1;
 
   if (level !== undefined) {
-    level = BigInt(level);
-    i = i >> (MAX_LEVEL - level);
-    j = j >> (MAX_LEVEL - level);
+    i >>= K_MAX_LEVEL - level;
+    j >>= K_MAX_LEVEL - level;
   }
-  return [face as Face, Number(i), Number(j), Number(bits)];
+  return [face as Face, i, j, Number(bits)];
 }
 
 /**
@@ -356,7 +357,10 @@ export function toLonLat(id: S2CellId): [lon: number, lat: number] {
  * @returns a 3D vector
  */
 export function toS2Point(id: S2CellId): Point3D {
-  return fromS2CellID(id);
+  // Decompose the S2CellID into its constituent parts: face, u, and v.
+  const [face, u, v] = toUV(id);
+  // Use the decomposed parts to construct an XYZ Point.
+  return s2PointFromUV(face, u, v);
 }
 
 /**

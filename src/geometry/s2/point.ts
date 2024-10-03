@@ -1,4 +1,3 @@
-import * as S2CellID from '../id';
 import { EARTH_RADIUS_EQUATORIAL, EARTH_RADIUS_POLAR } from '../planets/earth';
 import {
   IJtoST,
@@ -13,6 +12,7 @@ import {
   lonLatToXYZGL,
   xyzToLonLat,
 } from './coords';
+import { fromS2Point as idFromS2Point, toUV as idToUV } from '../id';
 
 import type { S1Angle } from '../s1/angle';
 import type { Face, Point3D, S2CellId } from '../';
@@ -88,9 +88,9 @@ export function fromIJ(face: Face, i: number, j: number): Point3D {
  * @param id - The S2CellID to convert.
  * @returns The XYZ Point representing the given S2CellID.
  */
-export function fromS2CellID(id: bigint): Point3D {
+export function fromS2CellID(id: S2CellId): Point3D {
   // Decompose the S2CellID into its constituent parts: face, u, and v.
-  const [face, u, v] = S2CellID.toUV(id);
+  const [face, u, v] = idToUV(id);
 
   // Use the decomposed parts to construct an XYZ Point.
   return fromUV(face, u, v);
@@ -187,7 +187,7 @@ export function toLonLat(xyz: Point3D): [lon: number, lat: number] {
  * @returns The S2CellID representing the given XYZ Point.
  */
 export function toS2CellID(xyz: Point3D): S2CellId {
-  return S2CellID.fromS2Point(xyz);
+  return idFromS2Point(xyz);
 }
 
 /**

@@ -2,11 +2,11 @@ import { S2MMapStore } from '../mmap';
 
 import type { VectorKey, VectorStore } from '.';
 
-/** File based vector store */
-export default class FileVector<V extends VectorKey> implements VectorStore<V> {
+/** MMap based vector store */
+export default class MMapVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2MMapStore;
   /** @param fileName - the path + file name without the extension */
-  constructor(fileName: string) {
+  constructor(fileName?: string) {
     this.#store = new S2MMapStore<V>(fileName);
   }
 
@@ -47,7 +47,12 @@ export default class FileVector<V extends VectorKey> implements VectorStore<V> {
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): AsyncGenerator<V> {
+  [Symbol.asyncIterator](): AsyncGenerator<V> {
     return this.values();
+  }
+
+  /** Closes the store */
+  close(): void {
+    this.#store.close(true);
   }
 }

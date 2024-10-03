@@ -1,7 +1,7 @@
-import computeShader from './wgsl/index.ts';
-import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants.ts';
+// import computeShader from './wgsl';
+import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants';
 
-import type { Satellite } from '../sat.ts';
+import type { Satellite } from '../sat';
 
 // After creating the class you must call `await bfGPU.init()`
 /**

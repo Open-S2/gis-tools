@@ -3,11 +3,20 @@ name = "geometry"
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/OpenS2/s2-tools/rust/geometry"
+documentation = "https://docs.rs/s2-tools/geometry"
 license = "MIT"
-categories = ["no-std", "algorithms"]
+categories = ["encoding", "wasm", "embedded", "no-std", "gis"]
+keywords = ["open", "vector", "tile", "gis", "low-cost-code"]
+
+[features]
+default = ["quadratic"] # Default feature
+quadratic = []          # Feature for quadratic projection
+tan = []                # Feature for tangential projection
 
 [dependencies]
-libm = "0.2.5"
+libm = "0.2"
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 
 [lib]
 name = "geometry"

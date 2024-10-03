@@ -35,14 +35,7 @@ export async function toJSON(
   let first = true;
   for (const iterator of iterators) {
     for await (const feature of iterator) {
-      const convertedFeatures = convert(
-        projection,
-        feature,
-        undefined,
-        undefined,
-        buildBBox,
-        false,
-      );
+      const convertedFeatures = convert(projection, feature, buildBBox);
       for (const convertedFeature of convertedFeatures) {
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;
@@ -78,14 +71,7 @@ export async function toJSONLD(
 
   for (const iterator of iterators) {
     for await (const feature of iterator) {
-      const convertedFeatures = convert(
-        projection,
-        feature,
-        undefined,
-        undefined,
-        buildBBox,
-        false,
-      );
+      const convertedFeatures = convert(projection, feature, buildBBox);
       for (const convertedFeature of convertedFeatures) {
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;

@@ -1,11 +1,12 @@
 import type { Stringifiable } from '..';
-import type { Uint64Cell } from '../../dataStructures/uint64';
+import type { Uint64 } from '../../dataStructures/uint64';
 
 /** Represents a key-value store */
 export interface MultiMapStore<V = Stringifiable> {
   length: number;
-  get: ((key: Uint64Cell) => V[] | undefined) | ((key: Uint64Cell) => Promise<V[] | undefined>);
-  set: (key: Uint64Cell, value: V) => void;
+  get: ((key: Uint64) => V[] | undefined) | ((key: Uint64) => Promise<V[] | undefined>);
+  set: (key: Uint64, value: V) => void;
+  close: () => void;
 }
 
 /** A constructor for a vector store */
@@ -13,16 +14,17 @@ export type MultiMapStoreConstructor<V = Stringifiable> = new () => MultiMapStor
 
 /** A local multimap key-value store */
 export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
-  private map: Map<Uint64Cell, V[]>;
+  #store: Map<Uint64, V[]>;
+  #count = 0;
 
   /** Builds a new MultiMap */
   constructor() {
-    this.map = new Map();
+    this.#store = new Map();
   }
 
   /** @returns - the length of the map */
   get length(): number {
-    return this.map.size;
+    return this.#count;
   }
 
   /**
@@ -30,13 +32,14 @@ export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64Cell, value: V): void {
+  set(key: Uint64, value: V): void {
     const list = this.get(key);
     if (list === undefined) {
-      this.map.set(key, [value]);
+      this.#store.set(key, [value]);
     } else {
       list.push(value);
     }
+    this.#count++;
   }
 
   /**
@@ -44,7 +47,12 @@ export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  get(key: Uint64Cell): V[] | undefined {
-    return this.map.get(key);
+  get(key: Uint64): V[] | undefined {
+    return this.#store.get(key);
+  }
+
+  /** Closes the store */
+  close(): void {
+    this.#store.clear();
   }
 }

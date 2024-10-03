@@ -11,7 +11,7 @@ import { stat, unlink } from 'fs/promises';
  * @param threadCount - number of workers
  * @param tmpDir - temporary directory
  */
-export default async function externalSort(
+export async function externalSort(
   inputs: string[],
   output: string,
   maxHeap = 100_000,

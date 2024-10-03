@@ -22,10 +22,10 @@ import type {
 export function convert(
   projection: Projection,
   data: JSONCollection,
+  buildBBox?: boolean,
   tolerance?: number,
   maxzoom?: number,
-  buildBBox?: boolean,
-  toUnitScale = true,
+  toUnitScale = false,
 ): VectorFeatures[] {
   const res: VectorFeatures[] = [];
 

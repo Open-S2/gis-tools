@@ -84,11 +84,11 @@ describe('convert point', () => {
       faces: [0],
     };
 
-    const res1 = convert('WM', feature, 3, 14, true);
-    const res2 = convert('WM', vectorFeature, 3, 14);
-    const res3 = convert('WM', s2Feature, 3, 14);
-    const res4 = convert('WM', featureCollection, 3, 14);
-    const res5 = convert('WM', s2FeatureCollection, 3, 14);
+    const res1 = convert('WM', feature, true, 3, 14, true);
+    const res2 = convert('WM', vectorFeature, false, 3, 14, true);
+    const res3 = convert('WM', s2Feature, false, 3, 14, true);
+    const res4 = convert('WM', featureCollection, false, 3, 14, true);
+    const res5 = convert('WM', s2FeatureCollection, false, 3, 14, true);
 
     expect(res1).toEqual([
       {
@@ -298,11 +298,11 @@ describe('convert point', () => {
       faces: [0],
     };
 
-    const res1 = convert('S2', feature, 3, 14);
-    const res2 = convert('S2', vectorFeature, 3, 14);
-    const res3 = convert('S2', s2Feature, 3, 14);
-    const res4 = convert('S2', featureCollection, 3, 14, true);
-    const res5 = convert('S2', s2FeatureCollection, 3, 14);
+    const res1 = convert('S2', feature, false, 3, 14, true);
+    const res2 = convert('S2', vectorFeature, false, 3, 14, true);
+    const res3 = convert('S2', s2Feature, false, 3, 14, true);
+    const res4 = convert('S2', featureCollection, true, 3, 14, true);
+    const res5 = convert('S2', s2FeatureCollection, false, 3, 14, true);
 
     expect(res1).toEqual([
       {

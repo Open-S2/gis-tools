@@ -103,5 +103,6 @@ async function getNextLowestKey(sortedFiles: SortedFile[]): Promise<Key | undefi
     else if (bKey === undefined) return -1;
     else return keySort(aKey, bKey);
   });
+  if (sortedFiles.length === 0) return undefined;
   return sortedFiles[0].take();
 }

@@ -5,14 +5,14 @@ import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 
 /** File based multimap store */
-export default class FileMultiMap<V = Stringifiable> implements KVStore<V> {
+export default class FileKV<V = Stringifiable> implements KVStore<V> {
   #store: S2FileStore<V>;
 
   /**
    * Builds a new MultiMap file store
    * @param fileName - the path + file name without the extension
    */
-  constructor(fileName: string) {
+  constructor(fileName?: string) {
     this.#store = new S2FileStore<V>(fileName);
   }
 
@@ -59,6 +59,6 @@ export default class FileMultiMap<V = Stringifiable> implements KVStore<V> {
 
   /** Closes the store */
   close(): void {
-    this.#store.close();
+    this.#store.close(true);
   }
 }

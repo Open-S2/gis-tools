@@ -46,7 +46,7 @@ test('utf dbf', async () => {
   expect(dbf.getProperties(1)).toEqual({ field: 'Hněvošický háj' });
 });
 
-test('watershed dbf', async () => {
+test('watershed dbf', () => {
   const data = new MMapReader(`${__dirname}/fixtures/watershed.dbf`);
   const dbf = new DataBaseFile(data, 'utf-8');
 
@@ -292,7 +292,7 @@ test('watershed dbf', async () => {
   ]);
 });
 
-test('watershed-specialCharacters dbf', async () => {
+test('watershed-specialCharacters dbf', () => {
   const data = new FileReader(`${__dirname}/fixtures/watershed-specialCharacters.dbf`);
   const dbf = new DataBaseFile(data, 'utf-8');
 

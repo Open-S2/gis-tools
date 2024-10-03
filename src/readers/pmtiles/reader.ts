@@ -1,4 +1,4 @@
-import DirCache from '../../dataStructures/cache';
+import { Cache as DirCache } from '../../dataStructures/cache';
 import { FetchReader } from '..';
 import { concatUint8Arrays } from '../../util';
 import { Compression, bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';

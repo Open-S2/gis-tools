@@ -40,8 +40,18 @@ pub extern "C" fn from_face_st(face: u8, s: f64, t: f64) -> *mut S2CellId {
 ///
 /// This function is not safe, but it's only used in wasm
 #[no_mangle]
-pub unsafe extern "C" fn to_bigint(ptr: *const S2CellId) -> S2CellId {
-    *ptr
+pub unsafe extern "C" fn low_bits(ptr: *const S2CellId) -> u32 {
+    let ptr = &*ptr;
+    ptr.low_bits()
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn high_bits(ptr: *const S2CellId) -> u32 {
+    let ptr = &*ptr;
+    ptr.high_bits()
 }
 
 /// # Safety

@@ -136,6 +136,8 @@ export interface TileStoreOptions {
   tolerance?: number;
   /** tile buffer on each side so lines and polygons don't get clipped */
   buffer?: number;
+  /** whether to build the bounding box for each tile feature */
+  buildBBox?: boolean;
 }
 
 /** TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request */
@@ -148,6 +150,7 @@ export class TileStore {
   buffer = 0.0625; // tile buffer for lines and polygons
   tiles: Map<bigint, Tile> = new Map(); // stores both WM and S2 tiles
   projection: Projection; // projection to build tiles for
+  buildBBox = false; // whether to build the bounding box for each tile feature
   /**
    * @param data - input data may be WM or S2 as a Feature or a Collection of Features
    * @param options - options to define how to store the data
@@ -159,6 +162,7 @@ export class TileStore {
     this.indexMaxzoom = options?.indexMaxzoom ?? 4;
     this.tolerance = options?.tolerance ?? 3;
     this.buffer = options?.buffer ?? 64;
+    this.buildBBox = options?.buildBBox ?? false;
     // update projection
     if (options?.projection !== undefined) this.projection = options.projection;
     else if (data.type === 'Feature' || data.type === 'FeatureCollection') this.projection = 'WM';
@@ -167,7 +171,14 @@ export class TileStore {
     if (this.maxzoom < 0 || this.maxzoom > 20)
       throw new Error('maxzoom should be in the 0-20 range');
     // convert features
-    const features: VectorFeatures[] = convert(this.projection, data);
+    const features: VectorFeatures[] = convert(
+      this.projection,
+      data,
+      this.buildBBox,
+      this.tolerance,
+      this.maxzoom,
+      true,
+    );
     for (const feature of features) this.addFeature(feature);
     for (let face = 0; face < 6; face++) {
       const id = fromFace(face as Face);

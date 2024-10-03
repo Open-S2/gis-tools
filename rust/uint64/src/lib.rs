@@ -53,6 +53,135 @@ pub extern "C" fn from_low_high(low: u32, high: u32) -> *mut Uint64 {
 ///
 /// This function is not safe, but it's only used in wasm
 #[no_mangle]
+pub unsafe extern "C" fn add(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+
+    let cell = Box::new(Uint64::new(id1.id + id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn sub(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+
+    let cell = Box::new(Uint64::new(id1.id - id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn div(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+
+    let cell = Box::new(Uint64::new(id1.id / id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn mul(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+
+    let cell = Box::new(Uint64::new(id1.id * id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn shift_left(id1: *const Uint64, shift: u32) -> *mut Uint64 {
+    let id1 = &*id1;
+    let cell = Box::new(Uint64::new(id1.id << shift));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn shift_right(id1: *const Uint64, shift: u32) -> *mut Uint64 {
+    let id1 = &*id1;
+    let cell = Box::new(Uint64::new(id1.id >> shift));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn bit_and(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+    let cell = Box::new(Uint64::new(id1.id & id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn bit_or(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+    let cell = Box::new(Uint64::new(id1.id | id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn bit_xor(id1: *const Uint64, id2: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let id2 = &*id2;
+    let cell = Box::new(Uint64::new(id1.id ^ id2.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn bit_not(id1: *const Uint64) -> *mut Uint64 {
+    let id1 = &*id1;
+    let cell = Box::new(Uint64::new(!id1.id));
+    Box::into_raw(cell)
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn low_bits(id1: *const Uint64) -> u32 {
+    let id1 = &*id1;
+    id1.id as u32
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
+pub unsafe extern "C" fn high_bits(id1: *const Uint64) -> u32 {
+    let id1 = &*id1;
+    ((id1.id >> 32) & 0xffffffff) as u32
+}
+
+/// # Safety
+///
+/// This function is not safe, but it's only used in wasm
+#[no_mangle]
 pub unsafe extern "C" fn compare_uint64(id1: *const Uint64, id2: *const Uint64) -> i32 {
     let id1 = &*id1;
     let id2 = &*id2;

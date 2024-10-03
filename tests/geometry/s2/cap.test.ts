@@ -140,6 +140,28 @@ test('getIntersectingCells', () => {
   ]);
 });
 
+test('getIntersectingCells small', () => {
+  const cells = getIntersectingCells({
+    center: [1, 0, 0],
+    radius: 0.002435949740175752,
+    data: undefined,
+  });
+  expect(cells).toEqual([
+    1924162940794044416n,
+    1921911140980359168n,
+    1919659341166673920n,
+    1160802803954745344n,
+    1156299204327374848n,
+    1154047404513689600n,
+    1151795604700004352n,
+    1149543804886319104n,
+    1145040205258948608n,
+    386183668047020032n,
+    383931868233334784n,
+    381680068419649536n,
+  ]);
+});
+
 test('intersectsS2CellFast', () => {
   const face = fromFace(0);
   const cap = fromS1ChordAngle(toS2Point(face), 0.95, { a: 1 });

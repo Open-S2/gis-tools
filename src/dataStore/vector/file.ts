@@ -6,7 +6,7 @@ import type { VectorKey, VectorStore } from '.';
 export default class FileVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2FileStore;
   /** @param fileName - the path + file name without the extension */
-  constructor(fileName: string) {
+  constructor(fileName?: string) {
     this.#store = new S2FileStore<V>(fileName);
   }
 
@@ -47,12 +47,12 @@ export default class FileVector<V extends VectorKey> implements VectorStore<V> {
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): AsyncGenerator<V> {
+  [Symbol.asyncIterator](): AsyncGenerator<V> {
     return this.values();
   }
 
   /** Closes the store */
   close(): void {
-    this.#store.close();
+    this.#store.close(true);
   }
 }

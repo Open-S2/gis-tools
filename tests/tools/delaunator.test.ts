@@ -9,7 +9,7 @@ beforeAll(async () => {
   points = await Bun.file(`${__dirname}/fixtures/ukraine.json`).json();
 });
 
-test('triangulates typed array', async () => {
+test('triangulates typed array', () => {
   // @ts-expect-error - testing purposes only
   const d = new Delaunator(Float64Array.from([].concat(...points)));
   expect(d.triangles).toEqual(Delaunator.fromPoints(points).triangles);
@@ -92,7 +92,7 @@ test('robustness', async () => {
   validate(robustness4);
 });
 
-test('returns empty triangulation for small number of points', async () => {
+test('returns empty triangulation for small number of points', () => {
   let d = Delaunator.fromPoints([]);
   expect(d.triangles).toEqual([]);
   expect(d.hull).toEqual([]);
@@ -148,7 +148,7 @@ function orient([px, py]: Point, [rx, ry]: Point, [qx, qy]: Point): number {
  * @returns - orientation
  */
 function convex(r: Point, q: Point, p: Point): boolean {
-  return (orient(p, r, q) || orient(r, q, p) || orient(q, p, r)) >= 0;
+  return orient(p, r, q) >= 0 || orient(r, q, p) >= 0 || orient(q, p, r) >= 0;
 }
 
 /**

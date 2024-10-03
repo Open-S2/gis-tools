@@ -89,7 +89,7 @@ test('utf shp with dbf', async () => {
   });
 });
 
-test('utf shp - file', async () => {
+test('utf shp - file', () => {
   const data = new FileReader(`${__dirname}/fixtures/utf.shp`);
   const shp = new ShapeFile(data);
 

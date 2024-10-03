@@ -20,7 +20,7 @@ export interface PointShape<T = Stringifiable> {
 }
 
 /** An index of cells with radius queries */
-export default class PointIndex<T = Stringifiable> {
+export class PointIndex<T = Stringifiable> {
   #store: VectorStore<PointShape<T>>;
   #unsorted: boolean = false;
 
@@ -64,23 +64,12 @@ export default class PointIndex<T = Stringifiable> {
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<T>> {
     await this.sort();
-    // return this.#store.values();
-    for (const value of this.#store) yield value;
-  }
-
-  /**
-   * add points from perhaps another index
-   * @param points - array of the points to add
-   */
-  insertPoints(points: PointShape<T>[]): void {
-    for (const point of points) this.#store.push(point);
-    this.#unsorted = true;
+    for await (const value of this.#store) yield value;
   }
 
   /** Sort the index in place if unsorted */
   async sort(): Promise<void> {
     if (!this.#unsorted) return;
-
     await this.#store.sort();
     this.#unsorted = false;
   }
@@ -114,19 +103,22 @@ export default class PointIndex<T = Stringifiable> {
   /**
    * @param low - the lower bound
    * @param high - the upper bound
+   * @param maxResults - the maximum number of results to return
    * @returns the points in the range
    */
-  async searchRange(low: Uint64, high: Uint64): Promise<PointShape<T>[]> {
+  async searchRange(low: Uint64, high: Uint64, maxResults = Infinity): Promise<PointShape<T>[]> {
     await this.sort();
     const res: PointShape<T>[] = [];
-    let lo = await this.lowerBound(low);
+    let loIdx = await this.lowerBound(low);
     const hiID = toCell(high);
 
     while (true) {
-      const currLo = await this.#store.get(lo);
-      if (lo < this.#store.length && compare(currLo.cell, hiID) <= 0) break;
+      if (loIdx >= this.#store.length) break;
+      const currLo = await this.#store.get(loIdx);
+      if (compare(currLo.cell, hiID) > 0) break;
       res.push(currLo);
-      lo++;
+      if (res.length >= maxResults) break;
+      loIdx++;
     }
 
     return res;
@@ -135,9 +127,14 @@ export default class PointIndex<T = Stringifiable> {
   /**
    * @param target - the point to search
    * @param radius - the search radius
+   * @param maxResults - the maximum number of results
    * @returns the points within the radius
    */
-  async searchRadius(target: Point3D, radius: S1ChordAngle): Promise<PointShape<T>[]> {
+  async searchRadius(
+    target: Point3D,
+    radius: S1ChordAngle,
+    maxResults = Infinity,
+  ): Promise<PointShape<T>[]> {
     await this.sort();
     const res: PointShape<T>[] = [];
     if (radius < 0) return res;
@@ -148,6 +145,7 @@ export default class PointIndex<T = Stringifiable> {
       const [min, max] = range(cell);
       for (const point of await this.searchRange(min, max)) {
         if (fromS2Points(target, point.point) < radius) res.push(point);
+        if (res.length >= maxResults) break;
       }
     }
 

@@ -4,15 +4,15 @@ import type { KVStore } from '.';
 import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 
-/** File based multimap store */
-export default class FileMultiMap<V = Stringifiable> implements KVStore<V> {
+/** MMap based multimap store */
+export default class MMapKV<V = Stringifiable> implements KVStore<V> {
   #store: S2MMapStore<V>;
 
   /**
    * Builds a new MultiMap file store
    * @param fileName - the path + file name without the extension
    */
-  constructor(fileName: string) {
+  constructor(fileName?: string) {
     this.#store = new S2MMapStore<V>(fileName);
   }
 
@@ -55,5 +55,10 @@ export default class FileMultiMap<V = Stringifiable> implements KVStore<V> {
    */
   [Symbol.asyncIterator](): AsyncGenerator<V> {
     return this.values();
+  }
+
+  /** Closes the store */
+  close(): void {
+    this.#store.close(true);
   }
 }

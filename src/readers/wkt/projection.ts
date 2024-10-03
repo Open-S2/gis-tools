@@ -104,7 +104,7 @@ export interface WKTCRS extends ProjectionParams {
   y0?: number;
   k0?: number;
   lat_ts?: number;
-  latTS?: number;
+  latTs?: number;
   longc?: number;
   long0?: number;
   lat0?: number;
@@ -113,10 +113,14 @@ export interface WKTCRS extends ProjectionParams {
   axis?: string;
   srsCode: string;
   datum_params?: DatumParams;
+  datumParams?: DatumParams;
   scale_factor?: number;
+  scaleFactor?: number;
   sphere?: boolean;
   azimuth?: number;
   alpha?: number;
+  projName?: string;
+  toMeter?: number;
 }
 
 export const KEYWORDS = [
