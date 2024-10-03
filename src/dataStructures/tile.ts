@@ -105,7 +105,7 @@ function _transform(geometry: VectorGeometry, zoom: number, ti: number, tj: numb
  * @param ti - x translation
  * @param tj - y translation
  */
-export function transformPoint(vp: VectorPoint, zoom: number, ti: number, tj: number) {
+export function transformPoint(vp: VectorPoint, zoom: number, ti: number, tj: number): void {
   vp.x = vp.x * zoom - ti;
   vp.y = vp.y * zoom - tj;
 }

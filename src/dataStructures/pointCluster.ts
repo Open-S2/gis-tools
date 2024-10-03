@@ -1,7 +1,7 @@
+import { Tile } from '../dataStructures';
 import { convert } from '../geometry/convert';
 import { fromS2Points } from 's2-tools/geometry/s1/chordAngle';
 import { PointShape as Point, PointIndex } from './pointIndex';
-import { Tile, fromFacePosLevel, getVertices, level, range } from '../geometry';
 import {
   addMut,
   divMutScalar,
@@ -11,6 +11,7 @@ import {
   normalize,
   toST,
 } from '../geometry/s2/point';
+import { fromFacePosLevel, getVertices, level, range } from '../geometry';
 
 import type { PointShape } from './pointIndex';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';

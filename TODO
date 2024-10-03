@@ -3,5 +3,8 @@
 [ ] - - INPUTS: all S2JSON types as `s2jsonld` files
 [ ] - - Store: folders/files, PMTiles
 [ ] - - FORMATS: ZXY, FZXY
-[ ] - Point Cluster (S2 and WM)
-[ ] - Point Index
+[ ] - readers
+[ ] - - netCDF
+[ ] - - KML, KMZ, GML, & GPX
+[ ] - - raster tile reader including DEM for z-data
+[ ] - - LAS/LAZ

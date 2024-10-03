@@ -13,6 +13,5 @@
 - [ ] GTFS
 - [ ] netCDF
 - [ ] gdb (in gzipped form)
-- [ ] TIFFs (.tif, .tiff, .dem)
 - [ ] Images (.png, .jpg, .gif)
 - [ ] LAS/LAZ

@@ -1,10 +1,10 @@
 import { EARTH_RADIUS } from '../planets/earth';
 import { angle } from '../s2/point';
 import { getDistance } from '../ll';
-import { degToRad, radToDeg } from 's2json-spec';
+import { degToRad, radToDeg } from '..';
 
 import type { LonLat } from '../ll';
-import type { Point3D } from '../geometry.spec';
+import type { Point3D } from 's2json-spec';
 
 /**
  * This class represents a one-dimensional angle (as opposed to a

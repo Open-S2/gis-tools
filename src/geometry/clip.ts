@@ -1,4 +1,4 @@
-import { Tile } from '.';
+import { Tile } from '../dataStructures';
 import { childrenIJ, toFaceIJ } from './id';
 import { clipBBox, extendBBox } from './bbox';
 
