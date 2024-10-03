@@ -6,7 +6,7 @@
 //   scale,
 //   splitter,
 //   sum,
-//   sum_three,
+//   predSumThree,
 //   vec,
 // } from './util.js';
 
@@ -69,8 +69,8 @@
 //  * @param cz
 //  * @param out
 //  */
-// function sum_three_scale(a, b, c, az, bz, cz, out) {
-//   return sum_three(
+// function predSumThree_scale(a, b, c, az, bz, cz, out) {
+//   return predSumThree(
 //     scale(4, a, az, _8),
 //     _8,
 //     scale(4, b, bz, _8b),
@@ -105,7 +105,7 @@
 //     _96,
 //   );
 
-//   return sum_three(
+//   return predSumThree(
 //     scale(scale(len, _96, x, _192), _192, x, _384x),
 //     _384x,
 //     scale(scale(len, _96, y, _192), _192, y, _384y),
@@ -428,23 +428,23 @@
 //   eb[2] = _j - (u3 - bvirt) + (_i - bvirt);
 //   eb[3] = u3;
 
-//   const abclen = sum_three_scale(ab, bc, ac, cz, az, -bz, abc);
-//   const bcdlen = sum_three_scale(bc, cd, bd, dz, bz, -cz, bcd);
-//   const cdelen = sum_three_scale(cd, de, ce, ez, cz, -dz, cde);
-//   const dealen = sum_three_scale(de, ea, da, az, dz, -ez, dea);
-//   const eablen = sum_three_scale(ea, ab, eb, bz, ez, -az, eab);
-//   const abdlen = sum_three_scale(ab, bd, da, dz, az, bz, abd);
-//   const bcelen = sum_three_scale(bc, ce, eb, ez, bz, cz, bce);
-//   const cdalen = sum_three_scale(cd, da, ac, az, cz, dz, cda);
-//   const deblen = sum_three_scale(de, eb, bd, bz, dz, ez, deb);
-//   const eaclen = sum_three_scale(ea, ac, ce, cz, ez, az, eac);
+//   const abclen = predSumThree_scale(ab, bc, ac, cz, az, -bz, abc);
+//   const bcdlen = predSumThree_scale(bc, cd, bd, dz, bz, -cz, bcd);
+//   const cdelen = predSumThree_scale(cd, de, ce, ez, cz, -dz, cde);
+//   const dealen = predSumThree_scale(de, ea, da, az, dz, -ez, dea);
+//   const eablen = predSumThree_scale(ea, ab, eb, bz, ez, -az, eab);
+//   const abdlen = predSumThree_scale(ab, bd, da, dz, az, bz, abd);
+//   const bcelen = predSumThree_scale(bc, ce, eb, ez, bz, cz, bce);
+//   const cdalen = predSumThree_scale(cd, da, ac, az, cz, dz, cda);
+//   const deblen = predSumThree_scale(de, eb, bd, bz, dz, ez, deb);
+//   const eaclen = predSumThree_scale(ea, ac, ce, cz, ez, az, eac);
 
-//   const deterlen = sum_three(
+//   const deterlen = predSumThree(
 //     liftexact(cdelen, cde, bcelen, bce, deblen, deb, bcdlen, bcd, ax, ay, az, adet),
 //     adet,
 //     liftexact(dealen, dea, cdalen, cda, eaclen, eac, cdelen, cde, bx, by, bz, bdet),
 //     bdet,
-//     sum_three(
+//     predSumThree(
 //       liftexact(eablen, eab, deblen, deb, abdlen, abd, dealen, dea, cx, cy, cz, cdet),
 //       cdet,
 //       liftexact(abclen, abc, eaclen, eac, bcelen, bce, eablen, eab, dx, dy, dz, ddet),
@@ -480,8 +480,8 @@
 //  * @param out
 //  */
 // function liftadapt(a, b, c, az, bz, cz, x, y, z, out) {
-//   const len = sum_three_scale(a, b, c, az, bz, cz, _24);
-//   return sum_three(
+//   const len = predSumThree_scale(a, b, c, az, bz, cz, _24);
+//   return predSumThree(
 //     scale(scale(len, _24, x, _48), _48, x, xdet),
 //     xdet,
 //     scale(scale(len, _24, y, _48), _48, y, ydet),

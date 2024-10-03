@@ -8,16 +8,16 @@ export function buildServer() {
      * @param req - the request from the user
      * @returns - a response of the file to the user
      */
-    async fetch(req) {
+    fetch(req) {
       const { pathname } = new URL(req.url);
       const filePath = `${__dirname}${pathname}`;
       const file = Bun.file(filePath);
 
-      if (!file || file.size === 0) return new Response(null, { status: 404 });
+      if (file.size === 0) return new Response(null, { status: 404 });
 
       // Handle range request
       const rangeHeader = req.headers.get('Range');
-      if (rangeHeader) {
+      if (rangeHeader !== null) {
         const [unit, range] = rangeHeader.split('=');
         if (unit === 'bytes') {
           const [start, end] = range.split('-').map(Number);

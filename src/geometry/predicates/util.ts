@@ -10,7 +10,7 @@ export const resulterrbound = (3 + 8 * epsilon) * epsilon;
  * @param f
  * @param h
  */
-export function sum(
+export function predSum(
   elen: number,
   e: number[] | Float64Array,
   flen: number,
@@ -98,7 +98,7 @@ export function sum(
  * @param tmp
  * @param out
  */
-export function sum_three(
+export function predSumThree(
   alen: number,
   a: number[] | Float64Array,
   blen: number,
@@ -108,7 +108,7 @@ export function sum_three(
   tmp: number[] | Float64Array,
   out: number[] | Float64Array,
 ): number {
-  return sum(sum(alen, a, blen, b, tmp), tmp, clen, c, out);
+  return predSum(predSum(alen, a, blen, b, tmp), tmp, clen, c, out);
 }
 
 /**

@@ -7,7 +7,7 @@ import type { Stringifiable } from '..';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
 /** Options to create a S2FileStore */
-export interface Options {
+export interface FileOptions {
   /** If true, then the values are stored in the index section of the keys file */
   valuesAreIndex?: boolean;
   /** If true, then the data is already sorted and get calls can be immediately returned */
@@ -48,7 +48,7 @@ export class S2FileStore<V = Stringifiable> {
    */
   constructor(
     public readonly fileName?: string,
-    options?: Options,
+    options?: FileOptions,
   ) {
     if (fileName === undefined) fileName = buildTmpFileName(options?.tmpDir);
     this.#sorted = options?.isSorted ?? false;

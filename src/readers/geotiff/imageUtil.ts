@@ -77,7 +77,7 @@ export function arrayForType(format: number, bitsPerSample: number, size: number
  * @param end - End index
  * @returns The sum
  */
-export function sum(array: number[], start: number, end: number): number {
+export function sampleSum(array: number[], start: number, end: number): number {
   let s = 0;
   for (let i = start; i < end; ++i) s += array[i];
   return s;

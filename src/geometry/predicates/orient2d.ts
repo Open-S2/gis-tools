@@ -1,4 +1,4 @@
-import { epsilon, estimate, resulterrbound, splitter, sum, vec } from './util.js';
+import { epsilon, estimate, predSum, resulterrbound, splitter, vec } from './util.js';
 
 const ccwerrboundA = (3 + 16 * epsilon) * epsilon;
 const ccwerrboundB = (2 + 12 * epsilon) * epsilon;
@@ -121,7 +121,7 @@ function orient2dadapt(
   bvirt = u3 - _j;
   u[2] = _j - (u3 - bvirt) + (_i - bvirt);
   u[3] = u3;
-  const C1len = sum(4, B, 4, u, C1);
+  const C1len = predSum(4, B, 4, u, C1);
 
   s1 = acx * bcytail;
   c = splitter * acx;
@@ -152,7 +152,7 @@ function orient2dadapt(
   bvirt = u3 - _j;
   u[2] = _j - (u3 - bvirt) + (_i - bvirt);
   u[3] = u3;
-  const C2len = sum(C1len, C1, 4, u, C2);
+  const C2len = predSum(C1len, C1, 4, u, C2);
 
   s1 = acxtail * bcytail;
   c = splitter * acxtail;
@@ -183,7 +183,7 @@ function orient2dadapt(
   bvirt = u3 - _j;
   u[2] = _j - (u3 - bvirt) + (_i - bvirt);
   u[3] = u3;
-  const Dlen = sum(C2len, C2, 4, u, D);
+  const Dlen = predSum(C2len, C2, 4, u, D);
 
   return D[Dlen - 1];
 }

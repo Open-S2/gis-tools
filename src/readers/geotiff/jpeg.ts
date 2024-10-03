@@ -39,7 +39,7 @@ const dctSqrt1d2 = 2896; // sqrt(2) / 2
 /**
  *
  */
-export interface Options {
+export interface JPEGOptions {
   skipMutation?: boolean;
   colorTransform?: boolean;
   formatAsRGBA?: boolean;
@@ -131,7 +131,7 @@ export interface Image {
  */
 export function decode(
   jpegData: ArrayBufferLike,
-  userOpts?: Options,
+  userOpts?: JPEGOptions,
   jpegTables?: number[],
 ): Image {
   const arr = new Uint8Array(jpegData);
@@ -184,7 +184,7 @@ export class JpegStreamReader {
   /**
    * @param opts
    */
-  constructor(opts?: Options) {
+  constructor(opts?: JPEGOptions) {
     this.adobe = null;
     if (opts?.colorTransform !== undefined) this.colorTransform = opts.colorTransform;
     this.skipMutation = opts?.skipMutation ?? false;

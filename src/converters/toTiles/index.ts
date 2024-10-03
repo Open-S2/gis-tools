@@ -8,7 +8,7 @@ import type { TileWriter, Writer } from '../../writers';
 import type { ClusterOptions } from '../../dataStructures/pointCluster';
 
 /** A layer defines the exact mechanics of what data to parse and how the data is stored */
-export interface Layer {
+export interface SourceLayer {
   /** Name of the layer */
   name: string;
   /** Components of how the layer is built and stored */
@@ -24,7 +24,7 @@ export interface Source {
   /** Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined */
   onFeature?: (feature: VectorFeatures) => VectorFeatures | undefined;
   /** The layers to construct and organize the data around for this source */
-  layers: Layer[];
+  layers: SourceLayer[];
 }
 
 /** A user defined guide on building the vector tiles */

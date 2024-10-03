@@ -1,11 +1,14 @@
 import type { Features } from '../geometry';
 
 export * from './csv';
+export * from './geotiff';
 export * from './json';
 export * from './osm';
 export * from './pmtiles';
+export * from './protobuf';
 export * from './shapefile';
 export * from './wkt';
+export * from './xml';
 export * from './fetch';
 export * from './nadgrid';
 

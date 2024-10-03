@@ -6,7 +6,7 @@ import type { Writer } from '../../writers';
 import type { BBOX, Projection, VectorFeatures } from '../../geometry';
 
 /** User defined options on how to store the features */
-export interface Options {
+export interface ToJSONOptions {
   projection?: Projection;
   buildBBox?: boolean;
   onFeature?: (feature: VectorFeatures) => VectorFeatures | undefined;
@@ -20,7 +20,7 @@ export interface Options {
 export async function toJSON(
   writer: Writer,
   iterators: FeatureIterator[],
-  opts?: Options,
+  opts?: ToJSONOptions,
 ): Promise<void> {
   const projection = opts?.projection ?? 'S2';
   const type = projection === 'S2' ? 'S2FeatureCollection' : 'FeatureCollection';
@@ -63,7 +63,7 @@ export async function toJSON(
 export async function toJSONLD(
   writer: Writer,
   iterators: FeatureIterator[],
-  opts?: Options,
+  opts?: ToJSONOptions,
 ): Promise<void> {
   const projection = opts?.projection ?? 'S2';
   const onFeature = opts?.onFeature ?? ((feature) => feature);

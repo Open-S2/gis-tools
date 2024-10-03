@@ -1,0 +1,74 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>sgp4init | s2-tools - v0.1.0</title><meta name="description" content="Documentation for s2-tools"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base=".."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">s2-tools - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">s2-tools</a></li><li><a href="sgp4init.html">sgp4init</a></li></ul><h1>Function sgp4init</h1></div><section class="tsd-panel"><ul class="tsd-signatures"><li class="tsd-signature tsd-anchor-link"><a id="sgp4init" class="tsd-anchor"></a><span class="tsd-kind-call-signature">sgp4init</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sat</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#sgp4init" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></li><li class="tsd-description"><div class="tsd-comment tsd-typography"><hr>
+<p>procedure sgp4init</p>
+<p>this procedure initializes variables for sgp4.</p>
+<p>author        : david vallado                  719-573-2600   28 jun 2005
+author        : david vallado                  719-573-2600   28 jun 2005</p>
+<p>inputs        :
+opsmode     - mode of operation afspc or improved 'a', 'i'
+satn        - satellite number
+drag       - sgp4 type drag coefficient              kg/m2er
+ecco        - eccentricity
+epoch       - epoch time in days from jan 0, 1950. 0 hr
+argpo       - argument of perigee (output if ds)
+inclo       - inclination
+mo          - mean anomaly (output if ds)
+no          - mean motion
+nodeo       - right ascension of ascending node</p>
+<p>outputs       :
+rec      - common values for subsequent calls
+return code - non-zero on error.
+1 - mean elements, ecc &gt;= 1.0 or ecc &lt; -0.001 or a &lt; 0.95 er
+2 - mean motion less than 0.0
+3 - pert elements, ecc &lt; 0.0  or  ecc &gt; 1.0
+4 - semi-latus rectum &lt; 0.0
+5 - epoch elements are sub-orbital
+6 - satellite has decayed</p>
+<p>locals        :
+cnodm  , snodm  , cosim  , sinim  , cosomm , sinomm
+cc1sq  , cc2    , cc3
+coef   , coef1
+cosio4      -
+day         -
+dndt        -
+em          - eccentricity
+emsq        - eccentricity squared
+eeta        -
+etasq       -
+gam         -
+argpm       - argument of perigee
+nodem       -
+inclm       - inclination
+mm          - mean anomaly
+nm          - mean motion
+perige      - perigee
+pinvsq      -
+psisq       -
+qzms24      -
+rtemsq      -
+s1, s2, s3, s4, s5, s6, s7          -
+sfour       -
+ss1, ss2, ss3, ss4, ss5, ss6, ss7         -
+sz1, sz2, sz3
+sz11, sz12, sz13, sz21, sz22, sz23, sz31, sz32, sz33        -
+tc          -
+temp        -
+temp1, temp2, temp3       -
+tsi         -
+xpidot      -
+xhdot1      -
+z1, z2, z3          -
+z11, z12, z13, z21, z22, z23, z31, z32, z33         -</p>
+<p>coupling      :
+getgravconst-
+initl       -
+dscom       -
+dpper       -
+dsinit      -
+sgp4        -</p>
+<p>references    :
+hoots, roehrich, norad spacetrack report #3 1980
+hoots, norad spacetrack report #6 1986
+hoots, schumacher and glover 2004
+vallado, crawford, hujsak, kelso  2006</p>
+</div><div class="tsd-parameters"><h4 class="tsd-parameters-title">Parameters</h4><ul class="tsd-parameter-list"><li><span><span class="tsd-kind-parameter">sat</span>: <span class="tsd-signature-type">Satellite</span></span><div class="tsd-comment tsd-typography"><p>Satellite object</p>
+</div><div class="tsd-comment tsd-typography"></div></li></ul></div><h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><div class="tsd-comment tsd-typography"></div></li></ul></section></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="../assets/icons.svg#icon-1"></use></svg><span>s2-tools - v0.1.0</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base=".."><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>

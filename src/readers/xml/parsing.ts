@@ -1,5 +1,5 @@
-/** Options for xml parsing */
-export interface Options {
+/** XMLOptions for xml parsing */
+export interface XMLOptions {
   debug?: boolean;
   startIndex?: number;
   nested?: boolean;
@@ -7,7 +7,7 @@ export interface Options {
 }
 
 /** A Tag is a pair of an inner and an outer strings with their indexes */
-export type Tag = { inner: null | string; outer: string; start: number; end: number };
+export type XMLTag = { inner: null | string; outer: string; start: number; end: number };
 /** A Step is a name and an index */
 export type Step = { name: string; index?: number | undefined | null };
 /** A Path is an array of Steps or Strings */
@@ -30,7 +30,11 @@ export function countSubstring(string: string, substring: string): number {
  * @param options - user defined options
  * @returns the first tag with the given name
  */
-export function findTagByName(xml: string, tagName: string, options?: Options): Tag | undefined {
+export function findTagByName(
+  xml: string,
+  tagName: string,
+  options?: XMLOptions,
+): XMLTag | undefined {
   const debug = options?.debug ?? false;
   const nested = !(options?.nested === false);
 
@@ -93,7 +97,7 @@ export function findTagByName(xml: string, tagName: string, options?: Options): 
  * @param options - user defined options
  * @returns the first tag with the given path
  */
-export function findTagByPath(xml: string, path: Path, options?: Options): Tag | undefined {
+export function findTagByPath(xml: string, path: Path, options?: XMLOptions): XMLTag | undefined {
   const debug = options?.debug ?? false;
   const found = findTagsByPath(xml, path, { debug, returnOnFirst: true });
   if (Array.isArray(found) && found.length === 1) return found[0];
@@ -106,7 +110,7 @@ export function findTagByPath(xml: string, path: Path, options?: Options): Tag |
  * @param options - user defined options
  * @returns all tags with the given name
  */
-export function findTagsByName(xml: string, tagName: string, options?: Options): Tag[] {
+export function findTagsByName(xml: string, tagName: string, options?: XMLOptions): XMLTag[] {
   const tags = [];
   const debug = options?.debug ?? false;
   const nested = options?.nested ?? true;
@@ -131,7 +135,7 @@ export function findTagsByName(xml: string, tagName: string, options?: Options):
  * @param options - user defined options
  * @returns all tags with the given path
  */
-export function findTagsByPath(xml: string, path: Path, options?: Options): Tag[] {
+export function findTagsByPath(xml: string, path: Path, options?: XMLOptions): XMLTag[] {
   const debug = options?.debug ?? false;
   if (debug) console.info('[xml-utils] starting findTagsByPath with: ', xml.substring(0, 500));
   const returnOnFirst = options?.returnOnFirst ?? false;
@@ -157,7 +161,7 @@ export function findTagsByPath(xml: string, path: Path, options?: Options): Tag[
         ? { name: path[pathIndex] as string }
         : (path[pathIndex] as Step);
     if (debug) console.info('part.name:', part.name);
-    let allSubTags: Tag[] = [];
+    let allSubTags: XMLTag[] = [];
     for (let tagIndex = 0; tagIndex < tags.length; tagIndex++) {
       const tag = tags[tagIndex];
       const subTags = findTagsByName(tag.outer, part.name, {
@@ -194,9 +198,9 @@ export function findTagsByPath(xml: string, path: Path, options?: Options): Tag[
  * @returns the attribute value
  */
 export function getAttribute(
-  tag: string | Tag,
+  tag: string | XMLTag,
   attributeName: string,
-  options?: Options,
+  options?: XMLOptions,
 ): string | undefined {
   const debug = options?.debug ?? false;
   if (debug) console.info('[xml-utils] getting ' + attributeName + ' in ' + tag);
@@ -259,7 +263,7 @@ export function removeComments(xml: string): string {
  * @param options - user defined options
  * @returns the xml without the given tag
  */
-export function removeTagsByName(xml: string, tagName: string, options?: Options) {
+export function removeTagsByName(xml: string, tagName: string, options?: XMLOptions) {
   const debug = options?.debug ?? false;
   while (true) {
     const tag = findTagByName(xml, tagName, { debug });

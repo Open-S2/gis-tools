@@ -1,6 +1,6 @@
-import { Tile } from '../../src/geometry/';
-import { fromFace } from '../../src/geometry//id';
-import { clipLine, clipPoint, splitTile } from '../../src/geometry//clip';
+import { Tile } from '../../src/dataStructures';
+import { fromFace } from '../../src/geometry/id';
+import { clipLine, clipPoint, splitTile } from '../../src/geometry/clip';
 import { describe, expect, it, test } from 'bun:test';
 
 import type {
@@ -8,7 +8,7 @@ import type {
   VectorFeature,
   VectorLineString,
   VectorPointGeometry,
-} from '../../src/geometry/';
+} from '../../src/geometry';
 
 test('clipPoint', () => {
   const point: VectorPointGeometry = {

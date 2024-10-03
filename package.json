@@ -1,6 +1,6 @@
 {
   "name": "s2-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.",
   "type": "module",
   "keywords": [
@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "lint+build+test+docs+test:cov": "bun run lint && bun run build && bun run test && bun run docs && bun run test:cov",
-    "lint": "eslint src test",
+    "lint": "eslint src tests",
     "lint:fix": "bun run lint -- --fix",
     "prettier": "bunx prettier src tests tools benchmarks --check",
     "prettier:fix": "bunx prettier -- --write",

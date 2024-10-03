@@ -1,7 +1,6 @@
 import type { Face, Metadata } from 's2-tilejson';
 
 export * from './pmtiles';
-export * from './file';
 
 /** The defacto interface for all writers. */
 export interface Writer {

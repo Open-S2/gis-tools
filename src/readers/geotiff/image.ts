@@ -2,7 +2,7 @@ import { applyPredictor } from './predictor';
 import { buildTransform } from './proj';
 import { getDecoder } from './decoder';
 import { buildSamples, convertColorSpace } from './color';
-import { needsNormalization, normalizeArray, sum, toArrayType } from './imageUtil';
+import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil';
 
 import type { Reader } from '..';
 import type { Transformer } from '../../proj4';
@@ -334,7 +334,7 @@ export class GeoTIFFImage {
     const sampleReaders: ((offset: number, littleEndian: boolean) => number)[] = [];
     for (let i = 0; i < samples.length; ++i) {
       if (this.#planarConfiguration === 1) {
-        srcSampleOffsets.push(sum(bitsPerSample, 0, samples[i]) / 8);
+        srcSampleOffsets.push(sampleSum(bitsPerSample, 0, samples[i]) / 8);
       } else {
         srcSampleOffsets.push(0);
       }
