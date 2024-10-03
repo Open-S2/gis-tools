@@ -4,7 +4,7 @@ import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../geometry';
 import type {
   ProjectionParams,
   ProjectionTransform,

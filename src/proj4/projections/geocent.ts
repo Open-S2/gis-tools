@@ -1,7 +1,7 @@
 import { ProjectionBase } from '.';
 import { geocentricToGeodetic, geodeticToGeocentric } from '../datum';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 /** Geocentric Projection */

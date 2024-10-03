@@ -1,6 +1,6 @@
-import { decompressStream } from 's2-tools/util';
+import { decompressStream } from '../../util';
 
-import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Pbf as Protobuf } from '../../readers/protobuf';
 
 export const MAX_HEADER_SIZE = 64 * 1024;
 

@@ -1,11 +1,6 @@
 import type { Reader } from '.';
 
-import type {
-  FeatureCollection,
-  VectorFeature,
-  VectorMultiPoint,
-  VectorPoint,
-} from 's2-tools/geometry';
+import type { FeatureCollection, VectorFeature, VectorMultiPoint, VectorPoint } from '../geometry';
 
 /**
  * Resources for details of NTv2 file formats:

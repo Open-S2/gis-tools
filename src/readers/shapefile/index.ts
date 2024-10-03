@@ -1,10 +1,10 @@
 import { BufferReader } from '..';
 import DataBaseFile from './dbf';
 import ShapeFile from './shp';
-import { Transformer } from 's2-tools/proj4';
-import { iterItems } from 's2-tools/util';
+import { Transformer } from '../../proj4';
+import { iterItems } from '../../util';
 
-import type { ProjectionTransformDefinition } from 's2-tools/proj4';
+import type { ProjectionTransformDefinition } from '../../proj4';
 
 export { default as DataBaseFile } from './dbf';
 export { default as ShapeFile } from './shp';

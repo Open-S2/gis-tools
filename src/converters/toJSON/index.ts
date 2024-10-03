@@ -1,7 +1,7 @@
 import { convert } from '../../geometry/convert';
 import { mergeBBoxes } from '../../geometry';
 
-import type { FeatureIterator } from 's2-tools/readers';
+import type { FeatureIterator } from '../../readers';
 import type { Writer } from '../../writers';
 import type { BBOX, Projection, VectorFeatures } from '../../geometry';
 

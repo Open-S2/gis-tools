@@ -1,4 +1,4 @@
-import type { VarintBufPos } from 's2-tools/readers/pmtiles';
+import type { VarintBufPos } from '../../readers/pmtiles';
 
 /**
  * Write a varint. Can be max 64-bits. Numbers are coerced to an unsigned

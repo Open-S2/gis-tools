@@ -2,7 +2,7 @@ import { ProjectionBase } from './base';
 import { EPSLN, HALF_PI } from '../constants';
 import { adjustLon, asinz, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../common';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;

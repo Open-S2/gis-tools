@@ -1,7 +1,7 @@
-import { HEADER_SIZE_BYTES } from 's2-tools/readers/pmtiles';
+import { HEADER_SIZE_BYTES } from '../../readers/pmtiles';
 import { writeVarint } from './varint';
 
-import type { Entry, Header } from 's2-tools/readers/pmtiles';
+import type { Entry, Header } from '../../readers/pmtiles';
 
 /**
  * @param header - the header object

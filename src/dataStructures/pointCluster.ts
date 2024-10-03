@@ -1,6 +1,6 @@
 import { Tile } from '../dataStructures';
 import { convert } from '../geometry/convert';
-import { fromS2Points } from 's2-tools/geometry/s1/chordAngle';
+import { fromS2Points } from '../geometry/s1/chordAngle';
 import { PointShape as Point, PointIndex } from './pointIndex';
 import {
   addMut,

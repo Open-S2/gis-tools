@@ -7,7 +7,7 @@ import type {
   VectorMultiPolygon,
   VectorPoint,
   VectorPointGeometry,
-} from 's2-tools/geometry';
+} from '../../geometry';
 
 /**
  *

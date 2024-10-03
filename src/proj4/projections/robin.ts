@@ -2,7 +2,7 @@ import { ProjectionBase } from '.';
 import { adjustLon } from '../common';
 import { D2R, EPSLN, HALF_PI, R2D } from '../constants';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, floor } = Math;

@@ -7,9 +7,9 @@ import {
   deriveEccentricity,
   deriveSphere,
 } from './constants';
-import { isWKTProjection, parseWKTProjection } from 's2-tools/readers/wkt';
+import { isWKTProjection, parseWKTProjection } from '../readers/wkt';
 
-import type { DatumParams } from 's2-tools/readers/wkt';
+import type { DatumParams } from '../readers/wkt';
 import type { ProjectionParams } from './projections';
 import type { Transformer } from './transformer';
 

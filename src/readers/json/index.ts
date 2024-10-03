@@ -1,5 +1,5 @@
 import type { FeatureIterator, Reader } from '..';
-import type { Features, JSONCollection } from 's2-tools/geometry';
+import type { Features, JSONCollection } from '../../geometry';
 
 /** Standard Buffer Reader for (Geo|S2)JSON */
 export class BufferJSONReader implements FeatureIterator {

@@ -1,8 +1,8 @@
 import { Info, InfoBlock } from './info';
-import { fromMultiLineString, fromMultiPolygon } from 's2-tools/geometry';
+import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
 
 import type { OSMReader } from '.';
-import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Pbf as Protobuf } from '../../readers/protobuf';
 import type { Metadata, PrimitiveBlock } from './primitive';
 
 import type {
@@ -14,7 +14,7 @@ import type {
   VectorMultiPolygon,
   VectorPoint,
   VectorPolygon,
-} from 's2-tools/geometry';
+} from '../../geometry';
 
 /** An intermediate vector feature where the ways and nodes haven't been resolved yet. */
 export interface IntermediateRelation {

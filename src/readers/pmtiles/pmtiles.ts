@@ -1,6 +1,6 @@
 import { readVarint } from './varint';
 
-import type { Point } from 's2-tools/geometry';
+import type { Point } from '../../geometry';
 
 /** A tile, in the format of ZXY. */
 export type FlatTile = [zoom: number, x: number, y: number];

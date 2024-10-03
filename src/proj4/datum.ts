@@ -13,9 +13,9 @@ import {
   SRS_WGS84_SEMIMINOR,
 } from './constants';
 
-import type { DatumParams } from 's2-tools/readers/wkt';
-import type { NadSubGrid } from 's2-tools/readers/nadgrid';
-import type { VectorPoint } from 's2-tools/geometry';
+import type { DatumParams } from '../readers/wkt';
+import type { NadSubGrid } from '../readers/nadgrid';
+import type { VectorPoint } from '../geometry';
 import type { ProjectionParams, ProjectionTransform, Transformer } from '.';
 
 const { abs, sin, cos, sqrt, atan2, atan, PI, floor } = Math;

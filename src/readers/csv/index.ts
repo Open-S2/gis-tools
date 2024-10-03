@@ -1,5 +1,5 @@
 import type { FeatureIterator, Reader } from '..';
-import type { Properties, VectorFeature, VectorPoint } from 's2-tools/geometry';
+import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
 
 /** User defined options on how to parse the CSV file */
 export interface CSVReaderOptions {

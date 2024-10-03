@@ -6,7 +6,7 @@ import { EPSLN, HALF_PI } from '../constants';
 import { adjustLon, pjEnfn, pjInvMlfn, pjMlfn, sign } from '../common';
 
 import type { En } from '../common';
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, atan2, asin, log, tan, acos, exp } = Math;

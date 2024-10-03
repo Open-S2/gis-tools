@@ -1,8 +1,8 @@
 // Implements https://www.esri.com/content/dam/esrisites/sitecore-archive/Files/Pdfs/library/whitepapers/pdfs/shapefile.pdf
-import { extendBBox } from 's2-tools/geometry';
+import { extendBBox } from '../../geometry';
 
 import type DataBaseFile from './dbf';
-import type { Transformer } from 's2-tools/proj4';
+import type { Transformer } from '../../proj4';
 import type {
   BBOX,
   BBox3D,
@@ -18,7 +18,7 @@ import type {
   VectorPoint,
   VectorPointGeometry,
   VectorPolygonGeometry,
-} from 's2-tools/geometry';
+} from '../../geometry';
 import type { FeatureIterator, Reader } from '..';
 
 /** A Shapefile Header describing the internal data */

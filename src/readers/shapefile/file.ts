@@ -1,11 +1,11 @@
 import DataBaseFile from './dbf';
 import FileReader from '../file';
 import Shapefile from './shp';
-import { Transformer } from 's2-tools/proj4';
+import { Transformer } from '../../proj4';
 import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
 
-import type { ProjectionTransformDefinition } from 's2-tools/proj4';
+import type { ProjectionTransformDefinition } from '../../proj4';
 
 export * from './dbf';
 export * from './shp';

@@ -1,4 +1,4 @@
-import type { Properties } from 's2-tools/geometry';
+import type { Properties } from '../../geometry';
 import type { Reader } from '..';
 
 /** The Header data explaining the contents of the DBF file */

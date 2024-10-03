@@ -1,6 +1,6 @@
 import { incirclefast, orient2d } from '../geometry/predicates';
 
-import type { Point, VectorPoint } from 's2-tools/geometry';
+import type { Point, VectorPoint } from '../geometry';
 
 const EPSILON = Math.pow(2, -52);
 

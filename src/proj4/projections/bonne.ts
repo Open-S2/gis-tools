@@ -3,7 +3,7 @@ import { ProjectionBase } from './base';
 import { adjustLat, adjustLon, hypot, pjEnfn, pjInvMlfn, pjMlfn } from '../common';
 
 import type { En } from '../common';
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const EPS10 = 1e-10;

@@ -6,10 +6,10 @@ import {
   S2_HEADER_SIZE_BYTES,
   S2_ROOT_SIZE,
   zxyToTileID,
-} from 's2-tools/readers/pmtiles';
+} from '../../readers/pmtiles';
 import { headerToBytes, serializeDir } from './pmtiles';
 
-import type { Entry, Header, S2Entries, S2Header, TileType } from 's2-tools/readers/pmtiles';
+import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles';
 import type { Face, Metadata } from 's2-tilejson';
 import type { TileWriter, Writer } from '..';
 

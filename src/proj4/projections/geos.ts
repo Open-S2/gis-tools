@@ -1,7 +1,7 @@
 import { ProjectionBase } from '.';
 import { hypot } from '../common';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { sin, cos, sqrt, tan, atan, atan2 } = Math;

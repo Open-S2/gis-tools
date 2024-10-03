@@ -1,7 +1,7 @@
 import { degToRad } from '../../geometry';
 import { parseWKTObject } from '.';
 
-import type { ProjectionParams } from 's2-tools/proj4';
+import type { ProjectionParams } from '../../proj4';
 import type { WKTObject, WKTValue } from '.';
 
 /**

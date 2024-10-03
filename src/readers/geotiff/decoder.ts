@@ -1,5 +1,5 @@
 import { jpegDecoder } from './jpeg';
-import { decompressStream, lzwDecoder } from 's2-tools/util';
+import { decompressStream, lzwDecoder } from '../../util';
 
 /** What to expect from the decoder */
 export type Decoder =

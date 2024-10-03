@@ -1,5 +1,5 @@
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Pbf as Protobuf } from '../../readers/protobuf';
 
 /**
  *

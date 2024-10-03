@@ -12,7 +12,7 @@ import type {
   VectorMultiPoint,
   VectorMultiPointGeometry,
   VectorPoint,
-} from 's2-tools/geometry';
+} from '../../geometry';
 
 /** Metadata for a GeoTIFF image */
 export interface GeoTIFFMetadata {

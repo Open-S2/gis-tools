@@ -35,10 +35,15 @@
       "s2-tools": ["./src"],
       "s2-tools/*": ["./src/*"],
       "converters/*": ["./src/converters/*"],
-      "db/*": ["./src/db/*"],
+      "db/*": ["src/dataStore/*"],
+      "dataStore/*": ["src/dataStore/*"],
       "geometry/*": ["./src/geometry/*"],
-      "predicates/*": ["./src/predicates/*"],
-      "readers/*": ["./src/readers/*"]
+      "proj4/*": ["src/proj4/*"],
+      "readers/*": ["./src/readers/*"],
+      "space/*": ["./src/space/*"],
+      "tools/*": ["./src/tools/*"],
+      "util/*": ["./src/util/*"],
+      "writers/*": ["./src/writers/*"]
     },
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */

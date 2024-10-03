@@ -5,7 +5,7 @@ import { GeoTIFFImage } from './image';
 
 import type { Reader } from '..';
 import type { GeoTIFFMetadata, RGBA } from './image';
-import type { Properties, VectorFeature, VectorMultiPointGeometry } from 's2-tools/geometry';
+import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
 
 export * from './color';
 export * from './constants';

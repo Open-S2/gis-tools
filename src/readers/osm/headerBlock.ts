@@ -1,4 +1,4 @@
-import type { BBox } from 's2-tools/geometry';
+import type { BBox } from '../../geometry';
 import type { Pbf as Protobuf } from '../protobuf';
 
 /** OSM Header Block */

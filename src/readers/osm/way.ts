@@ -1,9 +1,9 @@
 import { Info } from './info';
-import { extendBBox } from 's2-tools/geometry';
+import { extendBBox } from '../../geometry';
 
 import type { Metadata } from './primitive';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Pbf as Protobuf } from '../../readers/protobuf';
 import type { InfoBlock, OSMReader } from '.';
 
 import type {
@@ -12,7 +12,7 @@ import type {
   VectorFeature,
   VectorGeometry,
   VectorLineString,
-} from 's2-tools/geometry';
+} from '../../geometry';
 
 /** Linebased node reference store */
 export type WayNodes = number[];

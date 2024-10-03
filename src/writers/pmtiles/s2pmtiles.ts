@@ -1,7 +1,7 @@
-import { S2_HEADER_SIZE_BYTES } from 's2-tools/readers/pmtiles';
+import { S2_HEADER_SIZE_BYTES } from '../../readers/pmtiles';
 import { headerToBytes, setUint64 } from './pmtiles';
 
-import type { S2Header } from 's2-tools/readers/pmtiles';
+import type { S2Header } from '../../readers/pmtiles';
 
 /**
  * @param header - the header object

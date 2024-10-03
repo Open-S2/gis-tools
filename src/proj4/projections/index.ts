@@ -36,8 +36,8 @@ import { VanDerGrinten } from './vandg';
 
 import { ProjectionBase } from './base';
 
-import type { DatumParams } from 's2-tools/readers/wkt';
-import type { GridDefinition } from 's2-tools/readers/nadgrid';
+import type { DatumParams } from '../../readers/wkt';
+import type { GridDefinition } from '../../readers/nadgrid';
 import type { VectorPoint } from 's2json-spec';
 
 export * from './aea';

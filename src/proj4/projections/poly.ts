@@ -2,7 +2,7 @@ import { EPSLN } from '../constants';
 import { ProjectionBase } from '.';
 import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, mlfn } from '../common';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, asin, tan } = Math;

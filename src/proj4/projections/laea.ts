@@ -2,7 +2,7 @@ import { ProjectionBase } from '.';
 import { EPSLN, HALF_PI, QUART_PI } from '../constants';
 import { adjustLon, qsfnz } from '../common';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 export const S_POLE = 1;

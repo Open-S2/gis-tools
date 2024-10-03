@@ -1,13 +1,13 @@
 import { intermediateRelationToVectorFeature } from './relation';
-import { mergeBBoxes } from 's2-tools/geometry';
+import { mergeBBoxes } from '../../geometry';
 import { DenseInfo, Info } from './info';
 
 import type { OSMReader } from '.';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import type { Pbf as Protobuf } from '../../readers/protobuf';
 
 import type { Metadata } from './primitive';
-import type { BBox, VectorFeature, VectorPoint } from 's2-tools/geometry';
+import type { BBox, VectorFeature, VectorPoint } from '../../geometry';
 
 /**
  * @param feature

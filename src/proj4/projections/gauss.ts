@@ -2,7 +2,7 @@ import { ProjectionBase } from '.';
 import { srat } from '../common';
 import { HALF_PI, QUART_PI } from '../constants';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, pow, sin, cos, sqrt, asin, tan, atan } = Math;

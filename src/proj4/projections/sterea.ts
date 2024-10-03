@@ -1,7 +1,7 @@
 import { GaussKruger } from './gauss';
 import { adjustLon, hypot } from '../common';
 
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { sin, cos, atan2, asin } = Math;

@@ -5,7 +5,7 @@
 [npm-url]: https://npmjs.org/package/s2-tools
 [crate-image]: https://img.shields.io/crates/v/s2-tools.svg?logo=rust&logoColor=white
 [crate-url]: https://crates.io/crates/s2-tools
-[bundle-image]: https://img.shields.io/bundlejs/size/s2-tools?exports=s2-tools
+[bundle-image]: https://img.shields.io/bundlejs/size/s2-tools
 [bundle-url]: https://bundlejs.com/?q=s2-tools&treeshake=%5B%7B+s2-tools+%7D%5D
 [downloads-image]: https://img.shields.io/npm/dm/s2-tools.svg
 [downloads-url]: https://www.npmjs.com/package/s2-tools

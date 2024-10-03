@@ -1,7 +1,7 @@
 import { HeaderBlock } from './headerBlock';
-import { KV } from 's2-tools/dataStore';
+import { KV } from '../../dataStore';
 import { PrimitiveBlock } from './primitive';
-import { Pbf as Protobuf } from 's2-tools/readers/protobuf';
+import { Pbf as Protobuf } from '../../readers/protobuf';
 import { intermediateRelationToVectorFeature } from './relation';
 import { intermediateWayToVectorFeature } from './way';
 import { mergeRelationIfExists } from './node';
@@ -13,8 +13,8 @@ import type { OSMHeader } from './headerBlock';
 import type { FeatureIterator, Reader } from '..';
 import type { IntermediateNodeMember, IntermediateRelation } from './relation';
 import type { IntermediateWay, WayNodes } from './way';
-import type { KVStore, KVStoreConstructor } from 's2-tools/dataStore';
-import type { VectorFeature, VectorPoint } from 's2-tools/geometry';
+import type { KVStore, KVStoreConstructor } from '../../dataStore';
+import type { VectorFeature, VectorPoint } from '../../geometry';
 
 export type * from './blob';
 export type * from './headerBlock';

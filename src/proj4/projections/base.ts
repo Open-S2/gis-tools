@@ -1,9 +1,9 @@
 import { D2R, PJD_NODATUM, R2D } from '../constants';
 
-import type { DatumParams } from 's2-tools/readers/wkt';
-import type { GridDefinition } from 's2-tools/readers/nadgrid';
+import type { DatumParams } from '../../readers/wkt';
+import type { GridDefinition } from '../../readers/nadgrid';
 import type { ProjectionTransform } from '.';
-import type { VectorPoint } from 's2-tools/geometry';
+import type { VectorPoint } from '../../geometry';
 
 /** Define the projection with all it's variable components */
 export interface ProjectionParams {
