@@ -1,3 +1,5 @@
+import WgslPlugin from './config/wgsl-loader/bun';
+
 // first convert the wasm file to base64
 // const dataS2Cell = await Bun.file('./zig-out/bin/optimized-s2cell.wasm').arrayBuffer();
 const dataS2Cell = await Bun.file(
@@ -10,14 +12,16 @@ await Bun.write('./src/wasm/uint64.wasm.ts', code);
 
 try {
   console.info('Starting the build process...');
-  await Bun.build({
+  const output = await Bun.build({
     entrypoints: ['src/index.ts'],
     outdir: 'dist',
     format: 'esm',
     minify: false,
     sourcemap: 'external',
+    plugins: [WgslPlugin],
     // target: 'esnext', // Adjust target based on your project needs
   });
+  console.info(output);
   console.info('Build completed successfully!');
 } catch (error) {
   console.error('Build failed:', error);

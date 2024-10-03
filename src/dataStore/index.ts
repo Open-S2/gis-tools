@@ -1,4 +1,3 @@
-export * from './externalSort';
 export * from './kv';
 export * from './multimap';
 export * from './vector';
