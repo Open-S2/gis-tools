@@ -66,6 +66,7 @@
     "@types/bun": "^1.1.10",
     "@types/node": "^22.5.5",
     "@types/tmp": "^0.2.6",
+    "@webgpu/types": "^0.1.48",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^50.3.0",

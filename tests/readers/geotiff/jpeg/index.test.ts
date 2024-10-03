@@ -1,4 +1,4 @@
-import { decode, jpegDecoder } from '../../../../src/readers/geotiff/jpegOld';
+import { decode, jpegDecoder } from '../../../../src/readers/geotiff/jpeg';
 import { expect, test } from 'bun:test';
 
 const SUPER_LARGE_JPEG_BASE64 = '/9j/wfFRBf//BdgC/9p/2P/E4d4=';
@@ -9,12 +9,13 @@ const SUPER_LARGE_RESOLUTION_JPEG_BUFFER = Buffer.from(
   'base64',
 );
 
+const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
+
 /**
  * @param name - the name of the fixture
  * @returns the contents of the fixture as an array buffer
  */
 async function fixture(name: string): Promise<ArrayBuffer> {
-  // return fs.readFileSync(path.join(__dirname, 'fixtures', name));
   return await Bun.file(`${__dirname}/fixtures/${name}`).arrayBuffer();
 }
 
@@ -70,7 +71,7 @@ test('decodes a grayscale JPEG', async () => {
   expect(rawImageData.data).toEqual(expected);
 });
 
-test('decodes a 32-bit TrueColor RGB image', async () => {
+testFunc('decodes a 32-bit TrueColor RGB image', async () => {
   const jpegData = await fixture('truecolor.jpg');
   const rawImageData = decode(jpegData, { colorTransform: false });
   expect(rawImageData.width).toEqual(1280);
@@ -140,7 +141,7 @@ test('decodes an adobe CMYK jpeg with correct colors', async () => {
   expect(rawImageData2.data).toEqual(expected2);
 });
 
-test('decodes a unconventional table JPEG', async () => {
+testFunc('decodes a unconventional table JPEG', async () => {
   const jpegData = await fixture('unconventional-table.jpg');
   const rawImageData = decode(jpegData);
   expect(rawImageData.width).toEqual(1920);
@@ -170,7 +171,7 @@ test('decodes a progressive JPEG the same as non-progressive', async () => {
 
 test('decodes a JPEG into a typed array', async () => {
   const jpegData = await fixture('grumpycat.jpg');
-  const rawImageData = decode(jpegData, { useTArray: true });
+  const rawImageData = decode(jpegData);
   expect(rawImageData.width).toEqual(320);
   expect(rawImageData.height).toEqual(180);
   const expected = await fixture('grumpycat.rgba');
@@ -180,7 +181,7 @@ test('decodes a JPEG into a typed array', async () => {
 
 test('decodes a JPEG from a typed array into a typed array', async () => {
   const jpegData = await fixture('grumpycat.jpg');
-  const rawImageData = decode(jpegData, { useTArray: true });
+  const rawImageData = decode(jpegData);
   expect(rawImageData.width).toEqual(320);
   expect(rawImageData.height).toEqual(180);
   const expected = await fixture('grumpycat.rgba');
@@ -190,10 +191,7 @@ test('decodes a JPEG from a typed array into a typed array', async () => {
 
 test('decodes a JPEG with options', async () => {
   const jpegData = await fixture('grumpycat.jpg');
-  const rawImageData = decode(jpegData, {
-    useTArray: true,
-    colorTransform: false,
-  });
+  const rawImageData = decode(jpegData, { colorTransform: false });
   expect(rawImageData.width).toEqual(320);
   expect(rawImageData.height).toEqual(180);
   const expected = await fixture('grumpycat-nocolortrans.rgba');
@@ -203,10 +201,7 @@ test('decodes a JPEG with options', async () => {
 
 test('decodes a JPEG into RGB', async () => {
   const jpegData = await fixture('grumpycat.jpg');
-  const rawImageData = decode(jpegData, {
-    useTArray: true,
-    formatAsRGBA: false,
-  });
+  const rawImageData = decode(jpegData, { formatAsRGBA: false });
   expect(rawImageData.width).toEqual(320);
   expect(rawImageData.height).toEqual(180);
   const expected = await fixture('grumpycat.rgb');
@@ -221,12 +216,16 @@ test('decodes image with ffdc marker', async () => {
   expect(imageData.width).toEqual(200);
 });
 
-test('decodes large images within memory limits', async () => {
-  const jpegData = await fixture('black-6000x6000.jpg');
-  const rawImageData = decode(jpegData);
-  expect(rawImageData.width).toEqual(6000);
-  expect(rawImageData.height).toEqual(6000);
-}, 30000);
+testFunc(
+  'decodes large images within memory limits',
+  async () => {
+    const jpegData = await fixture('black-6000x6000.jpg');
+    const rawImageData = decode(jpegData);
+    expect(rawImageData.width).toEqual(6000);
+    expect(rawImageData.height).toEqual(6000);
+  },
+  30000,
+);
 
 // See https://github.com/eugeneware/jpeg-js/issues/53
 test('limits resolution exposure', () => {

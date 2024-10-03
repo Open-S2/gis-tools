@@ -11,6 +11,8 @@ use alloc::boxed::Box;
 use s2::cellid::S2CellId;
 // use lonlat::LonLat;
 
+use core::cmp::Ordering;
+
 #[cfg(target_arch = "wasm32")]
 use lol_alloc::{AssumeSingleThreaded, FreeListAllocator};
 
@@ -61,12 +63,10 @@ pub unsafe extern "C" fn high_bits(ptr: *const S2CellId) -> u32 {
 pub unsafe extern "C" fn compare_s2_cell_id(id1: *const S2CellId, id2: *const S2CellId) -> i32 {
     let id1 = &*id1;
     let id2 = &*id2;
-    if id1 < id2 {
-        -1
-    } else if id1 == id2 {
-        0
-    } else {
-        1
+    match id1.cmp(id2) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
     }
 }
 

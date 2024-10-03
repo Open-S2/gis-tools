@@ -37,26 +37,849 @@ const dctSqrt2 = 5793; // sqrt(2)
 const dctSqrt1d2 = 2896; // sqrt(2) / 2
 
 /**
+ *
+ */
+export interface Options {
+  skipMutation?: boolean;
+  colorTransform?: boolean;
+  formatAsRGBA?: boolean;
+  tolerantDecoding?: boolean;
+  maxResolutionInMP?: number; // Don't decode more than 100 megapixels
+  maxMemoryUsageInMB?: number; // Don't decode if memory footprint is more than 512MB
+}
+
+/**
+ *
+ */
+export interface Component {
+  h: number;
+  v: number;
+  quantizationIdx: number;
+  blocksPerLine: number;
+  blocksPerColumn: number;
+  blocks: Int32Array[][];
+  huffmanTableDC: HuffmanNode[];
+  huffmanTableAC: HuffmanNode[];
+  quantizationTable: Int32Array;
+  pred: number;
+}
+
+/**
+ *
+ */
+export interface OutComponent {
+  lines: Uint8Array[];
+  scaleX: number;
+  scaleY: number;
+}
+
+/**
+ *
+ */
+export interface Frame {
+  extended: boolean;
+  progressive: boolean;
+  precision?: number;
+  scanLines: number;
+  samplesPerLine: number;
+  components: { [id: number | string]: Component };
+  componentsOrder: number[];
+  maxH: number;
+  maxV: number;
+  mcusPerLine: number;
+  mcusPerColumn: number;
+}
+
+/**
+ *
+ */
+export interface Adobe {
+  version: number;
+  flags0: number;
+  flags1: number;
+  transformCode: number;
+}
+
+/**
+ *
+ */
+export interface JFIF {
+  version: { major: number; minor: number };
+  densityUnits: number;
+  xDensity: number;
+  yDensity: number;
+  thumbWidth: number;
+  thumbHeight: number;
+  thumbData: Uint8Array;
+}
+
+/**
+ *
+ */
+export interface Image {
+  width: number;
+  height: number;
+  exifBuffer: Uint8Array | null;
+  data: Uint8Array;
+  comments?: string[];
+}
+
+/**
+ * @param jpegData
+ * @param jpegTables
+ * @param userOpts
+ */
+export function decode(
+  jpegData: ArrayBufferLike,
+  userOpts?: Options,
+  jpegTables?: number[],
+): Image {
+  const arr = new Uint8Array(jpegData);
+  const reader = new JpegStreamReader(userOpts);
+  // If this constructor ever supports async decoding this will need to be done differently.
+  // Until then, treating as singleton limit is fine.
+  reader.resetMaxMemoryUsage(reader.maxMemoryUsageInMB * 1024 * 1024);
+  if (jpegTables !== undefined) reader.parse(new Uint8Array(jpegTables));
+  reader.parse(arr);
+
+  const image = reader.getImageData();
+
+  return image;
+}
+
+/**
+ * @param buffer
+ * @param jpegTables
+ * @param options
+ */
+export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): ArrayBufferLike {
+  const { data } = decode(buffer, { skipMutation: true }, jpegTables);
+  return data.buffer;
+}
+
+/**
+ *
+ */
+export class JpegStreamReader {
+  colorTransform?: boolean;
+  skipMutation: boolean;
+  formatAsRGBA: boolean;
+  tolerantDecoding: boolean;
+  maxResolutionInMP: number; // Don't decode more than 100 megapixels
+  maxMemoryUsageInMB: number; // Don't decode if memory footprint is more than 512MB
+  quantizationTables: Int32Array[] = [];
+  huffmanTablesAC: HuffmanNode[] = [];
+  huffmanTablesDC: HuffmanNode[] = [];
+  totalBytesAllocated = 0;
+  maxMemoryUsageBytes = 0;
+  width = 0;
+  height = 0;
+  resetInterval = 0;
+  comments: string[] = [];
+  adobe: Adobe | null = null;
+  jfif: JFIF | null = null;
+  exifBuffer: Uint8Array | null = null;
+  frames: Frame[] = [];
+
+  /**
+   * @param opts
+   */
+  constructor(opts?: Options) {
+    this.adobe = null;
+    if (opts?.colorTransform !== undefined) this.colorTransform = opts.colorTransform;
+    this.skipMutation = opts?.skipMutation ?? false;
+    this.formatAsRGBA = opts?.formatAsRGBA ?? true;
+    this.tolerantDecoding = opts?.tolerantDecoding ?? true;
+    this.maxResolutionInMP = opts?.maxResolutionInMP ?? 100; // Don't decode more than 100 megapixels
+    this.maxMemoryUsageInMB = opts?.maxMemoryUsageInMB ?? 512; // Don't decode if memory footprint is more than 512MB
+    this.resetFrames();
+  }
+
+  /**
+   * @param increaseAmount
+   */
+  requestMemoryAllocation(increaseAmount = 0) {
+    const totalMemoryImpactBytes = this.totalBytesAllocated + increaseAmount;
+    if (totalMemoryImpactBytes > this.maxMemoryUsageBytes) {
+      const exceededAmount = Math.ceil(
+        (totalMemoryImpactBytes - this.maxMemoryUsageBytes) / 1024 / 1024,
+      );
+      throw new Error(`maxMemoryUsageInMB limit exceeded by at least ${exceededAmount}MB`);
+    }
+
+    this.totalBytesAllocated = totalMemoryImpactBytes;
+  }
+
+  /**
+   * @param maxMemoryUsageBytes_
+   */
+  resetMaxMemoryUsage(maxMemoryUsageBytes_: number): void {
+    this.totalBytesAllocated = 0;
+    this.maxMemoryUsageBytes = maxMemoryUsageBytes_;
+  }
+
+  /**
+   *
+   */
+  resetFrames(): void {
+    this.frames = [];
+  }
+
+  /**
+   * @param data
+   */
+  parse(data: Uint8Array): void {
+    const maxResolutionInPixels = this.maxResolutionInMP * 1000 * 1000;
+    let offset = 0;
+    /**
+     *
+     */
+    function readUint16() {
+      const value = (data[offset] << 8) | data[offset + 1];
+      offset += 2;
+      return value;
+    }
+    /**
+     *
+     */
+    function readDataBlock() {
+      const length = readUint16();
+      const array = data.subarray(offset, offset + length - 2);
+      offset += array.length;
+      return array;
+    }
+    /**
+     * @param frame
+     */
+    const prepareComponents = (frame: Frame): void => {
+      // According to the JPEG standard, the sampling factor must be between 1 and 4
+      // See https://github.com/libjpeg-turbo/libjpeg-turbo/blob/9abeff46d87bd201a952e276f3e4339556a403a3/libjpeg.txt#L1138-L1146
+      let maxH = 1;
+      let maxV = 1;
+      let component, componentId;
+      for (componentId in frame.components) {
+        if (componentId in frame.components) {
+          component = frame.components[componentId];
+          if (maxH < component.h) maxH = component.h;
+          if (maxV < component.v) maxV = component.v;
+        }
+      }
+      const mcusPerLine = Math.ceil(frame.samplesPerLine / 8 / maxH);
+      const mcusPerColumn = Math.ceil(frame.scanLines / 8 / maxV);
+      for (componentId in frame.components) {
+        if (componentId in frame.components) {
+          component = frame.components[componentId];
+          const blocksPerLine = Math.ceil(
+            (Math.ceil(frame.samplesPerLine / 8) * component.h) / maxH,
+          );
+          const blocksPerColumn = Math.ceil((Math.ceil(frame.scanLines / 8) * component.v) / maxV);
+          const blocksPerLineForMcu = mcusPerLine * component.h;
+          const blocksPerColumnForMcu = mcusPerColumn * component.v;
+          const blocksToAllocate = blocksPerColumnForMcu * blocksPerLineForMcu;
+          const blocks = [];
+
+          // Each block is a Int32Array of length 64 (4 x 64 = 256 bytes)
+          this.requestMemoryAllocation(blocksToAllocate * 256);
+
+          for (let i = 0; i < blocksPerColumnForMcu; i++) {
+            const row = [];
+            for (let j = 0; j < blocksPerLineForMcu; j++) row.push(new Int32Array(64));
+            blocks.push(row);
+          }
+          component.blocksPerLine = blocksPerLine;
+          component.blocksPerColumn = blocksPerColumn;
+          component.blocks = blocks;
+        }
+      }
+      frame.maxH = maxH;
+      frame.maxV = maxV;
+      frame.mcusPerLine = mcusPerLine;
+      frame.mcusPerColumn = mcusPerColumn;
+    };
+
+    let fileMarker = readUint16();
+    let malformedDataOffset = -1;
+    if (fileMarker !== 0xffd8) {
+      // SOI (Start of Image)
+      throw new Error('SOI not found');
+    }
+
+    fileMarker = readUint16();
+    while (fileMarker !== 0xffd9) {
+      // EOI (End of image)
+      switch (fileMarker) {
+        case 0xff00:
+          break;
+        case 0xffe0: // APP0 (Application Specific)
+        case 0xffe1: // APP1
+        case 0xffe2: // APP2
+        case 0xffe3: // APP3
+        case 0xffe4: // APP4
+        case 0xffe5: // APP5
+        case 0xffe6: // APP6
+        case 0xffe7: // APP7
+        case 0xffe8: // APP8
+        case 0xffe9: // APP9
+        case 0xffea: // APP10
+        case 0xffeb: // APP11
+        case 0xffec: // APP12
+        case 0xffed: // APP13
+        case 0xffee: // APP14
+        case 0xffef: // APP15
+        case 0xfffe: {
+          // COM (Comment)
+          const appData = readDataBlock();
+
+          if (fileMarker === 0xfffe) {
+            const comment = String.fromCharCode.apply(null, [...appData]);
+            this.comments.push(comment);
+          }
+
+          if (fileMarker === 0xffe0) {
+            if (
+              appData[0] === 0x4a &&
+              appData[1] === 0x46 &&
+              appData[2] === 0x49 &&
+              appData[3] === 0x46 &&
+              appData[4] === 0
+            ) {
+              // 'JFIF\x00'
+              this.jfif = {
+                version: { major: appData[5], minor: appData[6] },
+                densityUnits: appData[7],
+                xDensity: (appData[8] << 8) | appData[9],
+                yDensity: (appData[10] << 8) | appData[11],
+                thumbWidth: appData[12],
+                thumbHeight: appData[13],
+                thumbData: appData.subarray(14, 14 + 3 * appData[12] * appData[13]),
+              };
+            }
+          }
+          // TODO APP1 - Exif
+          if (fileMarker === 0xffe1) {
+            if (
+              appData[0] === 0x45 &&
+              appData[1] === 0x78 &&
+              appData[2] === 0x69 &&
+              appData[3] === 0x66 &&
+              appData[4] === 0
+            ) {
+              // 'EXIF\x00'
+              this.exifBuffer = appData.subarray(5, appData.length);
+            }
+          }
+
+          if (fileMarker === 0xffee) {
+            if (
+              appData[0] === 0x41 &&
+              appData[1] === 0x64 &&
+              appData[2] === 0x6f &&
+              appData[3] === 0x62 &&
+              appData[4] === 0x65 &&
+              appData[5] === 0
+            ) {
+              // 'Adobe\x00'
+              this.adobe = {
+                version: appData[6],
+                flags0: (appData[7] << 8) | appData[8],
+                flags1: (appData[9] << 8) | appData[10],
+                transformCode: appData[11],
+              };
+            }
+          }
+          break;
+        }
+
+        case 0xffdb: {
+          // DQT (Define Quantization Tables)
+          const quantizationTablesLength = readUint16();
+          const quantizationTablesEnd = quantizationTablesLength + offset - 2;
+          while (offset < quantizationTablesEnd) {
+            const quantizationTableSpec = data[offset++];
+            this.requestMemoryAllocation(64 * 4);
+            const tableData = new Int32Array(64);
+            if (quantizationTableSpec >> 4 === 0) {
+              // 8 bit values
+              for (let j = 0; j < 64; j++) {
+                const z = dctZigZag[j];
+                tableData[z] = data[offset++];
+              }
+            } else if (quantizationTableSpec >> 4 === 1) {
+              // 16 bit
+              for (let j = 0; j < 64; j++) {
+                const z = dctZigZag[j];
+                tableData[z] = readUint16();
+              }
+            } else {
+              throw new Error('DQT: invalid table spec');
+            }
+            this.quantizationTables[quantizationTableSpec & 15] = tableData;
+          }
+          break;
+        }
+
+        case 0xffc0: // SOF0 (Start of Frame, Baseline DCT)
+        case 0xffc1: // SOF1 (Start of Frame, Extended DCT)
+        case 0xffc2: {
+          // SOF2 (Start of Frame, Progressive DCT)
+          readUint16(); // skip data length
+          const frame: Frame = {
+            extended: fileMarker === 0xffc1,
+            progressive: fileMarker === 0xffc2,
+            precision: data[offset++],
+            scanLines: readUint16(),
+            samplesPerLine: readUint16(),
+            components: {},
+            componentsOrder: [],
+            maxH: 0,
+            maxV: 0,
+            mcusPerLine: 0,
+            mcusPerColumn: 0,
+          };
+
+          const pixelsInFrame = frame.scanLines * frame.samplesPerLine;
+          if (pixelsInFrame > maxResolutionInPixels) {
+            const exceededAmount = Math.ceil((pixelsInFrame - maxResolutionInPixels) / 1e6);
+            throw new Error(`maxResolutionInMP limit exceeded by ${exceededAmount}MP`);
+          }
+
+          const componentsCount = data[offset++];
+          let componentId;
+          for (let i = 0; i < componentsCount; i++) {
+            componentId = data[offset];
+            const h = data[offset + 1] >> 4;
+            const v = data[offset + 1] & 15;
+            const qId = data[offset + 2];
+
+            if (h <= 0 || v <= 0) {
+              throw new Error('Invalid sampling factor, expected values above 0');
+            }
+
+            frame.componentsOrder.push(componentId);
+            frame.components[componentId] = {
+              h,
+              v,
+              quantizationIdx: qId,
+              blocksPerLine: 0,
+              blocksPerColumn: 0,
+              blocks: [],
+              huffmanTableDC: [],
+              huffmanTableAC: [],
+              pred: 0,
+              quantizationTable: new Int32Array(0),
+            };
+            offset += 3;
+          }
+          prepareComponents(frame);
+          this.frames.push(frame);
+          break;
+        }
+
+        case 0xffc4: {
+          // DHT (Define Huffman Tables)
+          const huffmanLength = readUint16();
+          for (let i = 2; i < huffmanLength; ) {
+            const huffmanTableSpec = data[offset++];
+            const codeLengths = new Uint8Array(16);
+            let codeLengthSum = 0;
+            for (let j = 0; j < 16; j++, offset++) {
+              codeLengths[j] = data[offset];
+              codeLengthSum += codeLengths[j];
+            }
+            this.requestMemoryAllocation(16 + codeLengthSum);
+            const huffmanValues = new Uint8Array(codeLengthSum);
+            for (let j = 0; j < codeLengthSum; j++, offset++) {
+              huffmanValues[j] = data[offset];
+            }
+            i += 17 + codeLengthSum;
+
+            (huffmanTableSpec >> 4 === 0 ? this.huffmanTablesDC : this.huffmanTablesAC)[
+              huffmanTableSpec & 15
+            ] = buildHuffmanTable(codeLengths, huffmanValues);
+          }
+          break;
+        }
+
+        case 0xffdd: // DRI (Define Restart Interval)
+          readUint16(); // skip data length
+          this.resetInterval = readUint16();
+          break;
+
+        case 0xffdc: // Number of Lines marker
+          readUint16(); // skip data length
+          readUint16(); // Ignore this data since it represents the image height
+          break;
+
+        case 0xffda: {
+          // SOS (Start of Scan)
+          readUint16(); // skip scan length
+          const selectorsCount = data[offset++];
+          const components: Component[] = [];
+          const frame = this.frames[0];
+          for (let i = 0; i < selectorsCount; i++) {
+            const component = frame.components[data[offset++]];
+            const tableSpec = data[offset++];
+            component.huffmanTableDC = this.huffmanTablesDC[tableSpec >> 4] as HuffmanNode[];
+            component.huffmanTableAC = this.huffmanTablesAC[tableSpec & 15] as HuffmanNode[];
+            components.push(component);
+          }
+          const spectralStart = data[offset++];
+          const spectralEnd = data[offset++];
+          const successiveApproximation = data[offset++];
+          const processed = decodeScan(
+            data,
+            offset,
+            frame,
+            components,
+            this.resetInterval,
+            spectralStart,
+            spectralEnd,
+            successiveApproximation >> 4,
+            successiveApproximation & 15,
+            this,
+          );
+          offset += processed;
+          break;
+        }
+
+        case 0xffff: // Fill bytes
+          if (data[offset] !== 0xff) {
+            // Avoid skipping a valid marker.
+            offset--;
+          }
+          break;
+
+        default:
+          if (data[offset - 3] === 0xff && data[offset - 2] >= 0xc0 && data[offset - 2] <= 0xfe) {
+            // could be incorrect encoding -- last 0xFF byte of the previous
+            // block was eaten by the encoder
+            offset -= 3;
+            break;
+          } else if (fileMarker === 0xe0 || fileMarker === 0xe1) {
+            // Recover from malformed APP1 markers popular in some phone models.
+            // See https://github.com/eugeneware/jpeg-js/issues/82
+            if (malformedDataOffset !== -1) {
+              throw new Error(
+                `first unknown JPEG marker at offset ${malformedDataOffset.toString(16)}, second unknown JPEG marker ${fileMarker.toString(16)} at offset ${(offset - 1).toString(16)}`,
+              );
+            }
+            malformedDataOffset = offset - 1;
+            const nextOffset = readUint16();
+            if (data[offset + nextOffset - 2] === 0xff) {
+              offset += nextOffset - 2;
+              break;
+            }
+          }
+          throw new Error(`unknown JPEG marker ${fileMarker.toString(16)}`);
+      }
+      fileMarker = readUint16();
+    }
+  }
+
+  /**
+   * @param skipMutation
+   */
+  getResult() {
+    const { frames } = this;
+    if (this.frames.length === 0) {
+      throw new Error('no frames were decoded');
+    } else if (this.frames.length > 1) {
+      console.warn('more than one frame is not supported');
+    }
+
+    // set each frame's components quantization table
+    for (let i = 0; i < this.frames.length; i++) {
+      const cp = this.frames[i].components;
+      for (const j of Object.keys(cp)) {
+        cp[j].quantizationTable = this.quantizationTables[cp[j].quantizationIdx];
+      }
+    }
+
+    const frame = frames[0];
+    const { components, componentsOrder } = frame;
+    const outComponents: OutComponent[] = [];
+    const width = (this.width = frame.samplesPerLine);
+    const height = (this.height = frame.scanLines);
+    const scaleX = this.width / width;
+    const scaleY = this.height / height;
+
+    for (let i = 0; i < componentsOrder.length; i++) {
+      const component = components[componentsOrder[i]];
+      outComponents.push({
+        lines: buildComponentData(component, this),
+        scaleX: component.h / frame.maxH,
+        scaleY: component.v / frame.maxV,
+      });
+    }
+
+    let component1, component2, component3, component4;
+    let component1Line, component2Line, component3Line, component4Line;
+    let x, y;
+    let offset = 0;
+    let Y, Cb, Cr, K, C, M, Ye, R, G, B;
+    let colorTransform;
+    let ready = false;
+    const dataLength = width * height * outComponents.length;
+    this.requestMemoryAllocation(dataLength);
+    const data = new Uint8Array(dataLength);
+
+    /**
+     *
+     */
+    const noMutation = () => {
+      ready = true;
+      let oi = 0;
+      for (let y = 0; y < height; ++y) {
+        for (let x = 0; x < width; ++x) {
+          for (let i = 0; i < outComponents.length; ++i) {
+            const component = outComponents[i];
+            data[oi] = component.lines[0 | (y * component.scaleY)][0 | (x * component.scaleX)];
+            ++oi;
+          }
+        }
+      }
+    };
+
+    if (this.skipMutation) {
+      noMutation();
+      return { data, ready, outComponents };
+    }
+
+    switch (outComponents.length) {
+      case 1:
+        component1 = outComponents[0];
+        for (y = 0; y < height; y++) {
+          component1Line = component1.lines[0 | (y * component1.scaleY * scaleY)];
+          for (x = 0; x < width; x++) {
+            Y = component1Line[0 | (x * component1.scaleX * scaleX)];
+
+            data[offset++] = Y;
+          }
+        }
+        break;
+      case 2:
+        // PDF might compress two component data in custom colorspace
+        component1 = outComponents[0];
+        component2 = outComponents[1];
+        for (y = 0; y < height; y++) {
+          component1Line = component1.lines[0 | (y * component1.scaleY * scaleY)];
+          component2Line = component2.lines[0 | (y * component2.scaleY * scaleY)];
+          for (x = 0; x < width; x++) {
+            Y = component1Line[0 | (x * component1.scaleX * scaleX)];
+            data[offset++] = Y;
+            Y = component2Line[0 | (x * component2.scaleX * scaleX)];
+            data[offset++] = Y;
+          }
+        }
+        break;
+      case 3:
+        // The default transform for three components is true
+        colorTransform = true;
+        // The adobe transform marker overrides any previous setting
+        if (this.adobe?.transformCode !== undefined && this.adobe?.transformCode !== 0)
+          colorTransform = true;
+        else if (this.colorTransform !== undefined) colorTransform = this.colorTransform;
+
+        component1 = outComponents[0];
+        component2 = outComponents[1];
+        component3 = outComponents[2];
+        for (y = 0; y < height; y++) {
+          component1Line = component1.lines[0 | (y * component1.scaleY * scaleY)];
+          component2Line = component2.lines[0 | (y * component2.scaleY * scaleY)];
+          component3Line = component3.lines[0 | (y * component3.scaleY * scaleY)];
+          for (x = 0; x < width; x++) {
+            if (!colorTransform) {
+              R = component1Line[0 | (x * component1.scaleX * scaleX)];
+              G = component2Line[0 | (x * component2.scaleX * scaleX)];
+              B = component3Line[0 | (x * component3.scaleX * scaleX)];
+            } else {
+              Y = component1Line[0 | (x * component1.scaleX * scaleX)];
+              Cb = component2Line[0 | (x * component2.scaleX * scaleX)];
+              Cr = component3Line[0 | (x * component3.scaleX * scaleX)];
+
+              R = clampTo8bit(Y + 1.402 * (Cr - 128));
+              G = clampTo8bit(Y - 0.3441363 * (Cb - 128) - 0.71413636 * (Cr - 128));
+              B = clampTo8bit(Y + 1.772 * (Cb - 128));
+            }
+
+            data[offset++] = R;
+            data[offset++] = G;
+            data[offset++] = B;
+          }
+        }
+        break;
+      case 4:
+        if (this.adobe === null) {
+          noMutation();
+        } else {
+          // The default transform for four components is false
+          colorTransform = false;
+          // The adobe transform marker overrides any previous setting
+          if (this.adobe?.transformCode !== undefined && this.adobe?.transformCode !== 0)
+            colorTransform = true;
+          else if (this.colorTransform !== undefined) colorTransform = this.colorTransform;
+          component1 = outComponents[0];
+          component2 = outComponents[1];
+          component3 = outComponents[2];
+          component4 = outComponents[3];
+          for (y = 0; y < height; y++) {
+            component1Line = component1.lines[0 | (y * component1.scaleY * scaleY)];
+            component2Line = component2.lines[0 | (y * component2.scaleY * scaleY)];
+            component3Line = component3.lines[0 | (y * component3.scaleY * scaleY)];
+            component4Line = component4.lines[0 | (y * component4.scaleY * scaleY)];
+            for (x = 0; x < width; x++) {
+              if (!colorTransform) {
+                C = component1Line[0 | (x * component1.scaleX * scaleX)];
+                M = component2Line[0 | (x * component2.scaleX * scaleX)];
+                Ye = component3Line[0 | (x * component3.scaleX * scaleX)];
+                K = component4Line[0 | (x * component4.scaleX * scaleX)];
+              } else {
+                Y = component1Line[0 | (x * component1.scaleX * scaleX)];
+                Cb = component2Line[0 | (x * component2.scaleX * scaleX)];
+                Cr = component3Line[0 | (x * component3.scaleX * scaleX)];
+                K = component4Line[0 | (x * component4.scaleX * scaleX)];
+
+                C = 255 - clampTo8bit(Y + 1.402 * (Cr - 128));
+                M = 255 - clampTo8bit(Y - 0.3441363 * (Cb - 128) - 0.71413636 * (Cr - 128));
+                Ye = 255 - clampTo8bit(Y + 1.772 * (Cb - 128));
+              }
+              data[offset++] = 255 - C;
+              data[offset++] = 255 - M;
+              data[offset++] = 255 - Ye;
+              data[offset++] = 255 - K;
+            }
+          }
+        }
+        break;
+      default:
+        throw new Error('Unsupported color mode');
+    }
+
+    return { data, outComponents, ready };
+  }
+
+  /**
+   * @param imageData
+   */
+  getImageData(): Image {
+    const channels = this.formatAsRGBA ? 4 : 3;
+
+    const { data, outComponents, ready } = this.getResult();
+    const { width, height, exifBuffer, formatAsRGBA, comments } = this;
+
+    const bytesNeeded = this.width * this.height * channels;
+    this.requestMemoryAllocation(bytesNeeded);
+    const image: Image = {
+      width,
+      height,
+      exifBuffer,
+      data: ready ? new Uint8Array(data) : new Uint8Array(bytesNeeded),
+      comments,
+    };
+    if (ready) return image;
+
+    const imageDataArray = image.data;
+    let i = 0,
+      j = 0,
+      x,
+      y;
+    let Y, K, C, M, R, G, B;
+    switch (outComponents.length) {
+      case 1:
+        for (y = 0; y < height; y++) {
+          for (x = 0; x < width; x++) {
+            Y = data[i++];
+
+            imageDataArray[j++] = Y;
+            imageDataArray[j++] = Y;
+            imageDataArray[j++] = Y;
+            if (formatAsRGBA) {
+              imageDataArray[j++] = 255;
+            }
+          }
+        }
+        break;
+      case 3:
+        for (y = 0; y < height; y++) {
+          for (x = 0; x < width; x++) {
+            R = data[i++];
+            G = data[i++];
+            B = data[i++];
+
+            imageDataArray[j++] = R;
+            imageDataArray[j++] = G;
+            imageDataArray[j++] = B;
+            if (formatAsRGBA) {
+              imageDataArray[j++] = 255;
+            }
+          }
+        }
+        break;
+      case 4:
+        for (y = 0; y < height; y++) {
+          for (x = 0; x < width; x++) {
+            C = data[i++];
+            M = data[i++];
+            Y = data[i++];
+            K = data[i++];
+
+            R = 255 - clampTo8bit(C * (1 - K / 255) + K);
+            G = 255 - clampTo8bit(M * (1 - K / 255) + K);
+            B = 255 - clampTo8bit(Y * (1 - K / 255) + K);
+
+            imageDataArray[j++] = R;
+            imageDataArray[j++] = G;
+            imageDataArray[j++] = B;
+            if (formatAsRGBA) imageDataArray[j++] = 255;
+          }
+        }
+        break;
+      default:
+        throw new Error('Unsupported color mode');
+    }
+
+    return image;
+  }
+}
+
+/**
+ * Represents a Huffman tree node where each node can contain either
+ * a number (leaf) or nested arrays of numbers (internal nodes).
+ */
+type HuffmanNode = number | HuffmanNode[];
+
+/**
+ * Represents a Huffman code node that can either contain child nodes
+ * or be a leaf containing a numeric value.
+ */
+interface Code {
+  children: HuffmanNode[]; // Internal node is Code[], leaf node is number[]
+  index: number;
+}
+
+/**
  * @param codeLengths
  * @param values
  */
-function buildHuffmanTable(codeLengths: number[], values: number[]) {
+function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): HuffmanNode[] {
   let k = 0;
-  const code: { children: number[]; index: number }[] = [];
+  const code: Code[] = [];
   let length = 16;
-  while (length > 0 && !codeLengths[length - 1]) {
+  // Find the highest non-zero code length
+  while (length > 0 && codeLengths[length - 1] === 0) {
     --length;
   }
   code.push({ children: [], index: 0 });
 
   let p = code[0];
-  let q;
+  let q: Code;
   for (let i = 0; i < length; i++) {
     for (let j = 0; j < codeLengths[i]; j++) {
-      p = code.pop();
+      p = code.pop()!;
       p.children[p.index] = values[k];
       while (p.index > 0) {
-        p = code.pop();
+        if (code.length === 0) throw new Error('Could not recreate Huffman Table');
+        p = code.pop()!;
       }
       p.index++;
       code.push(p);
@@ -80,6 +903,7 @@ function buildHuffmanTable(codeLengths: number[], values: number[]) {
 /**
  * @param data
  * @param initialOffset
+ * @param offset
  * @param frame
  * @param components
  * @param resetInterval
@@ -87,22 +911,25 @@ function buildHuffmanTable(codeLengths: number[], values: number[]) {
  * @param spectralEnd
  * @param successivePrev
  * @param successive
+ * @param tolerantDecoding
+ * @param opts
  */
 function decodeScan(
-  data,
-  initialOffset,
-  frame,
-  components,
-  resetInterval,
-  spectralStart,
-  spectralEnd,
-  successivePrev,
-  successive,
+  data: Uint8Array,
+  offset: number,
+  frame: Frame,
+  components: Component[],
+  resetInterval: number,
+  spectralStart: number,
+  spectralEnd: number,
+  successivePrev: number,
+  successive: number,
+  opts: JpegStreamReader,
 ) {
-  const { mcusPerLine, progressive } = frame;
+  const mcusPerLine = frame.mcusPerLine;
+  const progressive = frame.progressive;
 
-  const startOffset = initialOffset;
-  let offset = initialOffset;
+  const startOffset = offset;
   let bitsData = 0;
   let bitsCount = 0;
   /**
@@ -116,8 +943,8 @@ function decodeScan(
     bitsData = data[offset++];
     if (bitsData === 0xff) {
       const nextByte = data[offset++];
-      if (nextByte) {
-        throw new Error(`unexpected marker: ${((bitsData << 8) | nextByte).toString(16)}`);
+      if (nextByte === undefined) {
+        throw new Error('unexpected marker: ' + ((bitsData << 8) | nextByte).toString(16));
       }
       // unstuff 0
     }
@@ -127,88 +954,76 @@ function decodeScan(
   /**
    * @param tree
    */
-  function decodeHuffman(tree) {
-    let node = tree;
-    let bit;
+  function decodeHuffman(tree: HuffmanNode[]): number {
+    let node: HuffmanNode = tree;
+    let bit: number;
     while ((bit = readBit()) !== null) {
       node = node[bit];
-      if (typeof node === 'number') {
-        return node;
-      }
-      if (typeof node !== 'object') {
-        throw new Error('invalid huffman sequence');
-      }
+      if (typeof node === 'number') return node;
+      if (typeof node !== 'object') throw new Error('invalid huffman sequence');
     }
-    return null;
+    return 0;
   }
   /**
-   * @param initialLength
+   * @param length
    */
-  function receive(initialLength) {
-    let length = initialLength;
+  function receive(length: number): number {
     let n = 0;
     while (length > 0) {
       const bit = readBit();
-      if (bit === null) {
-        return undefined;
-      }
+      if (bit === null) return 0;
       n = (n << 1) | bit;
-      --length;
+      length--;
     }
     return n;
   }
   /**
    * @param length
    */
-  function receiveAndExtend(length) {
+  function receiveAndExtend(length: number): number {
     const n = receive(length);
-    if (n >= 1 << (length - 1)) {
-      return n;
-    }
+    if (n >= 1 << (length - 1)) return n;
     return n + (-1 << length) + 1;
   }
   /**
    * @param component
    * @param zz
    */
-  function decodeBaseline(component, zz) {
+  function decodeBaseline(component: Component, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
     const diff = t === 0 ? 0 : receiveAndExtend(t);
-    component.pred += diff;
-    zz[0] = component.pred;
+    zz[0] = component.pred += diff;
     let k = 1;
     while (k < 64) {
       const rs = decodeHuffman(component.huffmanTableAC);
-      const s = rs & 15;
-      const r = rs >> 4;
+      const s = rs & 15,
+        r = rs >> 4;
       if (s === 0) {
-        if (r < 15) {
-          break;
-        }
+        if (r < 15) break;
         k += 16;
-      } else {
-        k += r;
-        const z = dctZigZag[k];
-        zz[z] = receiveAndExtend(s);
-        k++;
+        continue;
       }
+      k += r;
+      const z = dctZigZag[k];
+      zz[z] = receiveAndExtend(s);
+      k++;
     }
   }
   /**
    * @param component
    * @param zz
    */
-  function decodeDCFirst(component, zz) {
+  function decodeDCFirst(component: Component, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
     const diff = t === 0 ? 0 : receiveAndExtend(t) << successive;
-    component.pred += diff;
-    zz[0] = component.pred;
+    zz[0] = component.pred += diff;
   }
   /**
    * @param component
+   * @param _component
    * @param zz
    */
-  function decodeDCSuccessive(component, zz) {
+  function decodeDCSuccessive(_component: Component, zz: Int32Array): void {
     zz[0] |= readBit() << successive;
   }
   let eobrun = 0;
@@ -216,7 +1031,7 @@ function decodeScan(
    * @param component
    * @param zz
    */
-  function decodeACFirst(component, zz) {
+  function decodeACFirst(component: Component, zz: Int32Array): void {
     if (eobrun > 0) {
       eobrun--;
       return;
@@ -225,29 +1040,29 @@ function decodeScan(
     const e = spectralEnd;
     while (k <= e) {
       const rs = decodeHuffman(component.huffmanTableAC);
-      const s = rs & 15;
-      const r = rs >> 4;
+      const s = rs & 15,
+        r = rs >> 4;
       if (s === 0) {
         if (r < 15) {
           eobrun = receive(r) + (1 << r) - 1;
           break;
         }
         k += 16;
-      } else {
-        k += r;
-        const z = dctZigZag[k];
-        zz[z] = receiveAndExtend(s) * (1 << successive);
-        k++;
+        continue;
       }
+      k += r;
+      const z = dctZigZag[k];
+      zz[z] = receiveAndExtend(s) * (1 << successive);
+      k++;
     }
   }
   let successiveACState = 0;
-  let successiveACNextValue;
+  let successiveACNextValue: number;
   /**
    * @param component
    * @param zz
    */
-  function decodeACSuccessive(component, zz) {
+  function decodeACSuccessive(component: Component, zz: Int32Array): void {
     let k = spectralStart;
     const e = spectralEnd;
     let r = 0;
@@ -269,121 +1084,115 @@ function decodeScan(
               successiveACState = 1;
             }
           } else {
-            if (s !== 1) {
-              throw new Error('invalid ACn encoding');
-            }
+            if (s !== 1) throw new Error('invalid ACn encoding');
             successiveACNextValue = receiveAndExtend(s);
-            successiveACState = r ? 2 : 3;
+            successiveACState = r !== 0 ? 2 : 3;
           }
           continue;
         }
         case 1: // skipping r zero items
         case 2:
-          if (zz[z]) {
-            zz[z] += (readBit() << successive) * direction;
-          } else {
+          if (zz[z] !== 0) zz[z] += (readBit() << successive) * direction;
+          else {
             r--;
-            if (r === 0) {
-              successiveACState = successiveACState === 2 ? 3 : 0;
-            }
+            if (r === 0) successiveACState = successiveACState === 2 ? 3 : 0;
           }
           break;
         case 3: // set value for a zero item
-          if (zz[z]) {
-            zz[z] += (readBit() << successive) * direction;
-          } else {
+          if (zz[z] !== 0) zz[z] += (readBit() << successive) * direction;
+          else {
             zz[z] = successiveACNextValue << successive;
             successiveACState = 0;
           }
           break;
         case 4: // eob
-          if (zz[z]) {
-            zz[z] += (readBit() << successive) * direction;
-          }
-          break;
-        default:
+          if (zz[z] !== 0) zz[z] += (readBit() << successive) * direction;
           break;
       }
       k++;
     }
     if (successiveACState === 4) {
       eobrun--;
-      if (eobrun === 0) {
-        successiveACState = 0;
-      }
+      if (eobrun === 0) successiveACState = 0;
     }
   }
   /**
    * @param component
-   * @param decodeFunction
+   * @param decode
    * @param mcu
    * @param row
    * @param col
    */
-  function decodeMcu(component, decodeFunction, mcu, row, col) {
+  function decodeMcu(
+    component: Component,
+    decode: (component: Component, zz: Int32Array) => void,
+    mcu: number,
+    row: number,
+    col: number,
+  ) {
     const mcuRow = (mcu / mcusPerLine) | 0;
     const mcuCol = mcu % mcusPerLine;
     const blockRow = mcuRow * component.v + row;
     const blockCol = mcuCol * component.h + col;
-    decodeFunction(component, component.blocks[blockRow][blockCol]);
+    // If the block is missing and we're in tolerant mode, just skip it.
+    if (component.blocks[blockRow] === undefined && opts.tolerantDecoding) return;
+    decode(component, component.blocks[blockRow][blockCol]);
   }
   /**
    * @param component
-   * @param decodeFunction
+   * @param decode
    * @param mcu
    */
-  function decodeBlock(component, decodeFunction, mcu) {
+  function decodeBlock(
+    component: Component,
+    decode: (component: Component, zz: Int32Array) => void,
+    mcu: number,
+  ): void {
     const blockRow = (mcu / component.blocksPerLine) | 0;
     const blockCol = mcu % component.blocksPerLine;
-    decodeFunction(component, component.blocks[blockRow][blockCol]);
+    // If the block is missing and we're in tolerant mode, just skip it.
+    if (component.blocks[blockRow] === undefined && opts.tolerantDecoding) return;
+    decode(component, component.blocks[blockRow][blockCol]);
   }
 
   const componentsLength = components.length;
-  let component;
-  let i;
-  let j;
-  let k;
-  let n;
+  let component, i, j, k, n;
   let decodeFn;
   if (progressive) {
-    if (spectralStart === 0) {
-      decodeFn = successivePrev === 0 ? decodeDCFirst : decodeDCSuccessive;
-    } else {
-      decodeFn = successivePrev === 0 ? decodeACFirst : decodeACSuccessive;
-    }
+    if (spectralStart === 0) decodeFn = successivePrev === 0 ? decodeDCFirst : decodeDCSuccessive;
+    else decodeFn = successivePrev === 0 ? decodeACFirst : decodeACSuccessive;
   } else {
     decodeFn = decodeBaseline;
   }
 
-  let mcu = 0;
-  let marker;
+  let mcu = 0,
+    marker;
   let mcuExpected;
   if (componentsLength === 1) {
     mcuExpected = components[0].blocksPerLine * components[0].blocksPerColumn;
   } else {
     mcuExpected = mcusPerLine * frame.mcusPerColumn;
   }
+  if (resetInterval === 0) resetInterval = mcuExpected;
 
-  const usedResetInterval = resetInterval || mcuExpected;
-
+  let h, v;
   while (mcu < mcuExpected) {
     // reset interval stuff
-    for (i = 0; i < componentsLength; i++) {
-      components[i].pred = 0;
-    }
+    for (i = 0; i < componentsLength; i++) components[i].pred = 0;
     eobrun = 0;
 
     if (componentsLength === 1) {
       component = components[0];
-      for (n = 0; n < usedResetInterval; n++) {
+      for (n = 0; n < resetInterval; n++) {
         decodeBlock(component, decodeFn, mcu);
         mcu++;
       }
     } else {
-      for (n = 0; n < usedResetInterval; n++) {
+      for (n = 0; n < resetInterval; n++) {
         for (i = 0; i < componentsLength; i++) {
           component = components[i];
-          const { h, v } = component;
+          h = component.h;
+          v = component.v;
           for (j = 0; j < v; j++) {
             for (k = 0; k < h; k++) {
               decodeMcu(component, decodeFn, mcu, j, k);
@@ -393,10 +1202,20 @@ function decodeScan(
         mcu++;
 
         // If we've reached our expected MCU's, stop decoding
-        if (mcu === mcuExpected) {
-          break;
-        }
+        if (mcu === mcuExpected) break;
       }
+    }
+
+    if (mcu === mcuExpected) {
+      // Skip trailing bytes at the end of the scan - until we reach the next marker
+      do {
+        if (data[offset] === 0xff) {
+          if (data[offset + 1] !== 0x00) {
+            break;
+          }
+        }
+        offset += 1;
+      } while (offset < data.length - 2);
     }
 
     // find marker
@@ -409,9 +1228,7 @@ function decodeScan(
     if (marker >= 0xffd0 && marker <= 0xffd7) {
       // RSTx
       offset += 2;
-    } else {
-      break;
-    }
+    } else break;
   }
 
   return offset - startOffset;
@@ -421,13 +1238,16 @@ function decodeScan(
  * @param frame
  * @param _frame
  * @param component
+ * @param reader
  */
-function buildComponentData(component) {
+function buildComponentData(component: Component, reader: JpegStreamReader): Uint8Array[] {
   const lines = [];
-  const { blocksPerLine, blocksPerColumn } = component;
+  const blocksPerLine = component.blocksPerLine;
+  const blocksPerColumn = component.blocksPerColumn;
   const samplesPerLine = blocksPerLine << 3;
-  const R = new Int32Array(64);
-  const r = new Uint8Array(64);
+  // Only 1 used per invocation of this function and garbage collected after invocation, so no need to account for its memory footprint.
+  const R = new Int32Array(64),
+    r = new Uint8Array(64);
 
   // A port of poppler's IDCT method which in turn is taken from:
   //   Christoph Loeffler, Adriaan Ligtenberg, George S. Moschytz,
@@ -439,24 +1259,14 @@ function buildComponentData(component) {
    * @param dataOut
    * @param dataIn
    */
-  function quantizeAndInverse(zz, dataOut, dataIn) {
+  function quantizeAndInverse(zz: Int32Array, dataOut: Uint8Array, dataIn: Int32Array) {
     const qt = component.quantizationTable;
-    let v0;
-    let v1;
-    let v2;
-    let v3;
-    let v4;
-    let v5;
-    let v6;
-    let v7;
-    let t;
+    let v0, v1, v2, v3, v4, v5, v6, v7, t;
     const p = dataIn;
     let i;
 
     // dequant
-    for (i = 0; i < 64; i++) {
-      p[i] = zz[i] * qt[i];
-    }
+    for (i = 0; i < 64; i++) p[i] = zz[i] * qt[i];
 
     // inverse DCT on rows
     for (i = 0; i < 8; ++i) {
@@ -611,31 +1421,24 @@ function buildComponentData(component) {
     // convert to 8-bit integers
     for (i = 0; i < 64; ++i) {
       const sample = 128 + ((p[i] + 8) >> 4);
-      if (sample < 0) {
-        dataOut[i] = 0;
-      } else if (sample > 0xff) {
-        dataOut[i] = 0xff;
-      } else {
-        dataOut[i] = sample;
-      }
+      dataOut[i] = sample < 0 ? 0 : sample > 0xff ? 0xff : sample;
     }
   }
 
+  reader.requestMemoryAllocation(samplesPerLine * blocksPerColumn * 8);
+
+  let i, j;
   for (let blockRow = 0; blockRow < blocksPerColumn; blockRow++) {
     const scanLine = blockRow << 3;
-    for (let i = 0; i < 8; i++) {
-      lines.push(new Uint8Array(samplesPerLine));
-    }
+    for (i = 0; i < 8; i++) lines.push(new Uint8Array(samplesPerLine));
     for (let blockCol = 0; blockCol < blocksPerLine; blockCol++) {
       quantizeAndInverse(component.blocks[blockRow][blockCol], r, R);
 
       let offset = 0;
       const sample = blockCol << 3;
-      for (let j = 0; j < 8; j++) {
+      for (j = 0; j < 8; j++) {
         const line = lines[scanLine + j];
-        for (let i = 0; i < 8; i++) {
-          line[sample + i] = r[offset++];
-        }
+        for (i = 0; i < 8; i++) line[sample + i] = r[offset++];
       }
     }
   }
@@ -643,437 +1446,8 @@ function buildComponentData(component) {
 }
 
 /**
- *
+ * @param a
  */
-class JpegStreamReader {
-  quantizationTables: Int32Array[] = [];
-  /**
-   *
-   */
-  constructor() {
-    this.jfif = null;
-    this.adobe = null;
-
-    this.huffmanTablesAC = [];
-    this.huffmanTablesDC = [];
-    this.resetFrames();
-  }
-
-  /**
-   *
-   */
-  resetFrames() {
-    this.frames = [];
-  }
-
-  /**
-   * @param data
-   */
-  parse(data) {
-    let offset = 0;
-    // const { length } = data;
-    /**
-     *
-     */
-    function readUint16() {
-      const value = (data[offset] << 8) | data[offset + 1];
-      offset += 2;
-      return value;
-    }
-    /**
-     *
-     */
-    function readDataBlock() {
-      const length = readUint16();
-      const array = data.subarray(offset, offset + length - 2);
-      offset += array.length;
-      return array;
-    }
-    /**
-     * @param frame
-     */
-    function prepareComponents(frame) {
-      let maxH = 0;
-      let maxV = 0;
-      let component;
-      let componentId;
-      for (componentId in frame.components) {
-        if (frame.components.hasOwnProperty(componentId)) {
-          component = frame.components[componentId];
-          if (maxH < component.h) {
-            maxH = component.h;
-          }
-          if (maxV < component.v) {
-            maxV = component.v;
-          }
-        }
-      }
-      const mcusPerLine = Math.ceil(frame.samplesPerLine / 8 / maxH);
-      const mcusPerColumn = Math.ceil(frame.scanLines / 8 / maxV);
-      for (componentId in frame.components) {
-        if (frame.components.hasOwnProperty(componentId)) {
-          component = frame.components[componentId];
-          const blocksPerLine = Math.ceil(
-            (Math.ceil(frame.samplesPerLine / 8) * component.h) / maxH,
-          );
-          const blocksPerColumn = Math.ceil((Math.ceil(frame.scanLines / 8) * component.v) / maxV);
-          const blocksPerLineForMcu = mcusPerLine * component.h;
-          const blocksPerColumnForMcu = mcusPerColumn * component.v;
-          const blocks = [];
-          for (let i = 0; i < blocksPerColumnForMcu; i++) {
-            const row = [];
-            for (let j = 0; j < blocksPerLineForMcu; j++) {
-              row.push(new Int32Array(64));
-            }
-            blocks.push(row);
-          }
-          component.blocksPerLine = blocksPerLine;
-          component.blocksPerColumn = blocksPerColumn;
-          component.blocks = blocks;
-        }
-      }
-      frame.maxH = maxH;
-      frame.maxV = maxV;
-      frame.mcusPerLine = mcusPerLine;
-      frame.mcusPerColumn = mcusPerColumn;
-    }
-
-    let fileMarker = readUint16();
-    if (fileMarker !== 0xffd8) {
-      // SOI (Start of Image)
-      throw new Error('SOI not found');
-    }
-
-    fileMarker = readUint16();
-    while (fileMarker !== 0xffd9) {
-      // EOI (End of image)
-      switch (fileMarker) {
-        case 0xff00:
-          break;
-        case 0xffe0: // APP0 (Application Specific)
-        case 0xffe1: // APP1
-        case 0xffe2: // APP2
-        case 0xffe3: // APP3
-        case 0xffe4: // APP4
-        case 0xffe5: // APP5
-        case 0xffe6: // APP6
-        case 0xffe7: // APP7
-        case 0xffe8: // APP8
-        case 0xffe9: // APP9
-        case 0xffea: // APP10
-        case 0xffeb: // APP11
-        case 0xffec: // APP12
-        case 0xffed: // APP13
-        case 0xffee: // APP14
-        case 0xffef: // APP15
-        case 0xfffe: {
-          // COM (Comment)
-          const appData = readDataBlock();
-
-          if (fileMarker === 0xffe0) {
-            if (
-              appData[0] === 0x4a &&
-              appData[1] === 0x46 &&
-              appData[2] === 0x49 &&
-              appData[3] === 0x46 &&
-              appData[4] === 0
-            ) {
-              // 'JFIF\x00'
-              this.jfif = {
-                version: { major: appData[5], minor: appData[6] },
-                densityUnits: appData[7],
-                xDensity: (appData[8] << 8) | appData[9],
-                yDensity: (appData[10] << 8) | appData[11],
-                thumbWidth: appData[12],
-                thumbHeight: appData[13],
-                thumbData: appData.subarray(14, 14 + 3 * appData[12] * appData[13]),
-              };
-            }
-          }
-          // TODO APP1 - Exif
-          if (fileMarker === 0xffee) {
-            if (
-              appData[0] === 0x41 &&
-              appData[1] === 0x64 &&
-              appData[2] === 0x6f &&
-              appData[3] === 0x62 &&
-              appData[4] === 0x65 &&
-              appData[5] === 0
-            ) {
-              // 'Adobe\x00'
-              this.adobe = {
-                version: appData[6],
-                flags0: (appData[7] << 8) | appData[8],
-                flags1: (appData[9] << 8) | appData[10],
-                transformCode: appData[11],
-              };
-            }
-          }
-          break;
-        }
-
-        case 0xffdb: {
-          // DQT (Define Quantization Tables)
-          const quantizationTablesLength = readUint16();
-          const quantizationTablesEnd = quantizationTablesLength + offset - 2;
-          while (offset < quantizationTablesEnd) {
-            const quantizationTableSpec = data[offset++];
-            const tableData = new Int32Array(64);
-            if (quantizationTableSpec >> 4 === 0) {
-              // 8 bit values
-              for (let j = 0; j < 64; j++) {
-                const z = dctZigZag[j];
-                tableData[z] = data[offset++];
-              }
-            } else if (quantizationTableSpec >> 4 === 1) {
-              // 16 bit
-              for (let j = 0; j < 64; j++) {
-                const z = dctZigZag[j];
-                tableData[z] = readUint16();
-              }
-            } else {
-              throw new Error('DQT: invalid table spec');
-            }
-            this.quantizationTables[quantizationTableSpec & 15] = tableData;
-          }
-          break;
-        }
-
-        case 0xffc0: // SOF0 (Start of Frame, Baseline DCT)
-        case 0xffc1: // SOF1 (Start of Frame, Extended DCT)
-        case 0xffc2: {
-          // SOF2 (Start of Frame, Progressive DCT)
-          readUint16(); // skip data length
-          const frame = {
-            extended: fileMarker === 0xffc1,
-            progressive: fileMarker === 0xffc2,
-            precision: data[offset++],
-            scanLines: readUint16(),
-            samplesPerLine: readUint16(),
-            components: {},
-            componentsOrder: [],
-          };
-
-          const componentsCount = data[offset++];
-          let componentId;
-          // let maxH = 0;
-          // let maxV = 0;
-          for (let i = 0; i < componentsCount; i++) {
-            componentId = data[offset];
-            const h = data[offset + 1] >> 4;
-            const v = data[offset + 1] & 15;
-            const qId = data[offset + 2];
-            frame.componentsOrder.push(componentId);
-            frame.components[componentId] = {
-              h,
-              v,
-              quantizationIdx: qId,
-            };
-            offset += 3;
-          }
-          prepareComponents(frame);
-          this.frames.push(frame);
-          break;
-        }
-
-        case 0xffc4: {
-          // DHT (Define Huffman Tables)
-          const huffmanLength = readUint16();
-          for (let i = 2; i < huffmanLength; ) {
-            const huffmanTableSpec = data[offset++];
-            const codeLengths = new Uint8Array(16);
-            let codeLengthSum = 0;
-            for (let j = 0; j < 16; j++, offset++) {
-              codeLengths[j] = data[offset];
-              codeLengthSum += codeLengths[j];
-            }
-            const huffmanValues = new Uint8Array(codeLengthSum);
-            for (let j = 0; j < codeLengthSum; j++, offset++) {
-              huffmanValues[j] = data[offset];
-            }
-            i += 17 + codeLengthSum;
-
-            if (huffmanTableSpec >> 4 === 0) {
-              this.huffmanTablesDC[huffmanTableSpec & 15] = buildHuffmanTable(
-                codeLengths,
-                huffmanValues,
-              );
-            } else {
-              this.huffmanTablesAC[huffmanTableSpec & 15] = buildHuffmanTable(
-                codeLengths,
-                huffmanValues,
-              );
-            }
-          }
-          break;
-        }
-
-        case 0xffdd: // DRI (Define Restart Interval)
-          readUint16(); // skip data length
-          this.resetInterval = readUint16();
-          break;
-
-        case 0xffda: {
-          // SOS (Start of Scan)
-          readUint16(); // skip length
-          const selectorsCount = data[offset++];
-          const components = [];
-          const frame = this.frames[0];
-          for (let i = 0; i < selectorsCount; i++) {
-            const component = frame.components[data[offset++]];
-            const tableSpec = data[offset++];
-            component.huffmanTableDC = this.huffmanTablesDC[tableSpec >> 4];
-            component.huffmanTableAC = this.huffmanTablesAC[tableSpec & 15];
-            components.push(component);
-          }
-          const spectralStart = data[offset++];
-          const spectralEnd = data[offset++];
-          const successiveApproximation = data[offset++];
-          const processed = decodeScan(
-            data,
-            offset,
-            frame,
-            components,
-            this.resetInterval,
-            spectralStart,
-            spectralEnd,
-            successiveApproximation >> 4,
-            successiveApproximation & 15,
-          );
-          offset += processed;
-          break;
-        }
-
-        case 0xffff: // Fill bytes
-          if (data[offset] !== 0xff) {
-            // Avoid skipping a valid marker.
-            offset--;
-          }
-          break;
-
-        default:
-          if (data[offset - 3] === 0xff && data[offset - 2] >= 0xc0 && data[offset - 2] <= 0xfe) {
-            // could be incorrect encoding -- last 0xFF byte of the previous
-            // block was eaten by the encoder
-            offset -= 3;
-            break;
-          }
-          throw new Error(`unknown JPEG marker ${fileMarker.toString(16)}`);
-      }
-      fileMarker = readUint16();
-    }
-  }
-
-  /**
-   *
-   */
-  getResult() {
-    const { frames } = this;
-    if (this.frames.length === 0) {
-      throw new Error('no frames were decoded');
-    } else if (this.frames.length > 1) {
-      console.warn('more than one frame is not supported');
-    }
-
-    // set each frame's components quantization table
-    for (let i = 0; i < this.frames.length; i++) {
-      const cp = this.frames[i].components;
-      for (const j of Object.keys(cp)) {
-        cp[j].quantizationTable = this.quantizationTables[cp[j].quantizationIdx];
-        delete cp[j].quantizationIdx;
-      }
-    }
-
-    const frame = frames[0];
-    const { components, componentsOrder } = frame;
-    const outComponents = [];
-    const width = frame.samplesPerLine;
-    const height = frame.scanLines;
-
-    for (let i = 0; i < componentsOrder.length; i++) {
-      const component = components[componentsOrder[i]];
-      outComponents.push({
-        lines: buildComponentData(component),
-        scaleX: component.h / frame.maxH,
-        scaleY: component.v / frame.maxV,
-      });
-    }
-
-    const out = new Uint8Array(width * height * outComponents.length);
-    let oi = 0;
-    for (let y = 0; y < height; ++y) {
-      for (let x = 0; x < width; ++x) {
-        for (let i = 0; i < outComponents.length; ++i) {
-          const component = outComponents[i];
-          out[oi] = component.lines[0 | (y * component.scaleY)][0 | (x * component.scaleX)];
-          ++oi;
-        }
-      }
-    }
-    return out;
-  }
-}
-
-/**
- * @param jpegData
- * @param jpegTables
- * @param userOpts
- */
-export function decode(jpegData: ArrayBufferLike, userOpts = {}) {
-  const defaultOpts = {
-    // "undefined" means "Choose whether to transform colors based on the image’s color model."
-    colorTransform: undefined,
-    formatAsRGBA: true,
-    tolerantDecoding: true,
-    maxResolutionInMP: 100, // Don't decode more than 100 megapixels
-    maxMemoryUsageInMB: 512, // Don't decode if memory footprint is more than 512MB
-  };
-
-  const opts = { ...defaultOpts, ...userOpts };
-  const arr = new Uint8Array(jpegData);
-  const decoder = new JpegImage();
-  decoder.opts = opts;
-  // If this constructor ever supports async decoding this will need to be done differently.
-  // Until then, treating as singleton limit is fine.
-  // JpegImage.resetMaxMemoryUsage(opts.maxMemoryUsageInMB * 1024 * 1024);
-  decoder.parse(arr);
-
-  const channels = opts.formatAsRGBA ? 4 : 3;
-  const bytesNeeded = decoder.width * decoder.height * channels;
-  try {
-    // JpegImage.requestMemoryAllocation(bytesNeeded);
-    const image = {
-      width: decoder.width,
-      height: decoder.height,
-      exifBuffer: decoder.exifBuffer,
-      data: new Uint8Array(bytesNeeded),
-      comments: [],
-    };
-    if (decoder.comments.length > 0) {
-      image.comments = decoder.comments;
-    }
-    decoder.copyToImageData(image, opts.formatAsRGBA);
-
-    return image;
-  } catch (err) {
-    if (err instanceof RangeError) {
-      throw new Error(
-        'Could not allocate enough memory for the image. ' + 'Required: ' + bytesNeeded,
-      );
-    }
-
-    throw err;
-  }
-}
-
-/**
- * @param buffer
- * @param jpegTables
- */
-export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): ArrayBufferLike {
-  const reader = new JpegStreamReader();
-  if (jpegTables !== undefined) reader.parse(new Uint8Array(jpegTables));
-  reader.parse(new Uint8Array(buffer));
-  const res = reader.getResult();
-  return res.buffer;
+function clampTo8bit(a: number): number {
+  return a < 0 ? 0 : a > 255 ? 255 : a;
 }

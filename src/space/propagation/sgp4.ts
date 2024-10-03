@@ -1,13 +1,13 @@
 import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants';
 
 import { Satellite } from '../sat';
-import dpper from './dpper';
-import dspace from './dspace';
+import { dpper } from './dpper';
+import { dspace } from './dspace';
 
 /**
  *
  */
-export interface ErrorOutput {
+export interface SGP4ErrorOutput {
   type: number;
   error: string;
 }
@@ -15,7 +15,7 @@ export interface ErrorOutput {
 /**
  *
  */
-export interface Output {
+export interface SGP4Output {
   position: {
     x: number;
     y: number;
@@ -118,7 +118,7 @@ export interface Output {
  * @param sat
  * @param tsince
  */
-export default function sgp4(sat: Satellite, tsince: number): ErrorOutput | Output {
+export function sgp4(sat: Satellite, tsince: number): SGP4ErrorOutput | SGP4Output {
   const {
     anomaly,
     motion,

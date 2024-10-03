@@ -1,5 +1,5 @@
 /* eslint-disable no-loss-of-precision */
-import gstime from '../util/time';
+import { gstime } from '../util/time';
 import { j2, twoPi, x2o3, xke } from '../util/constants';
 
 import type { Method, OperationMode } from '../sat';
@@ -7,7 +7,7 @@ import type { Method, OperationMode } from '../sat';
 /**
  *
  */
-export interface Options {
+export interface InitlOptions {
   ecco: number;
   epoch: number;
   inclo: number;
@@ -18,7 +18,7 @@ export interface Options {
 /**
  *
  */
-export interface Output {
+export interface InitlOutput {
   no: number;
   method: Method;
   ainv: number;
@@ -89,7 +89,7 @@ export interface Output {
 /**
  * @param options
  */
-export default function initl(options: Options): Output {
+export function initl(options: InitlOptions): InitlOutput {
   const { ecco, epoch, inclo, opsmode } = options;
 
   let { no } = options;

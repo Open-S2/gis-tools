@@ -3,7 +3,7 @@ import { twoPi } from '../util/constants';
 /**
  *
  */
-export interface Options {
+export interface DscomOptions {
   epoch: number;
   ep: number;
   argpp: number;
@@ -16,7 +16,7 @@ export interface Options {
 /**
  *
  */
-export interface Output {
+export interface DscomOutput {
   snodm: number;
   cnodm: number;
   sinim: number;
@@ -186,7 +186,7 @@ export interface Output {
 /**
  * @param options
  */
-export default function dscom(options: Options): Output {
+export function dscom(options: DscomOptions): DscomOutput {
   const { epoch, ep, argpp, tc, inclp, nodep, np } = options;
 
   let a1: number;

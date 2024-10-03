@@ -1,44 +1,44 @@
 import { deg2rad, twoPi } from './constants';
 
-/* -----------------------------------------------------------------------------
- *
- *                           procedure days2mdhms
- *
- *  this procedure converts the day of the year, days, to the equivalent month
- *    day, hour, minute and second.
- *
- *  algorithm     : set up array for the number of days per month
- *                  find leap year - use 1900 because 2000 is a leap year
- *                  loop through a temp value while the value is < the days
- *                  perform int conversions to the correct day and month
- *                  convert remainder into h m s using type conversions
- *
- *  author        : david vallado                  719-573-2600    1 mar 2001
- *
- *  inputs          description                    range / units
- *    year        - year                           1900 .. 2100
- *    days        - julian day of the year         0.0  .. 366.0
- *
- *  outputs       :
- *    mon         - month                          1 .. 12
- *    day         - day                            1 .. 28,29,30,31
- *    hr          - hour                           0 .. 23
- *    min         - minute                         0 .. 59
- *    sec         - second                         0.0 .. 59.999
- *
- *  locals        :
- *    dayofyr     - day of year
- *    temp        - temporary extended values
- *    inttemp     - temporary int value
- *    i           - index
- *    lmonth[12]  - int array containing the number of days per month
- *
- *  coupling      :
- *    none.
- * --------------------------------------------------------------------------- */
 /**
- * @param year
- * @param days
+ * -----------------------------------------------------------------------------
+ *
+ * procedure days2mdhms
+ *
+ * this procedure converts the day of the year, days, to the equivalent month
+ * day, hour, minute and second.
+ *
+ * algorithm     : set up array for the number of days per month
+ * find leap year - use 1900 because 2000 is a leap year
+ * loop through a temp value while the value is < the days
+ * perform int conversions to the correct day and month
+ * convert remainder into h m s using type conversions
+ *
+ * author        : david vallado                  719-573-2600    1 mar 2001
+ *
+ * inputs          description                    range / units
+ * year        - year                           1900 .. 2100
+ * days        - julian day of the year         0.0  .. 366.0
+ *
+ * outputs       :
+ * mon         - month                          1 .. 12
+ * day         - day                            1 .. 28,29,30,31
+ * hr          - hour                           0 .. 23
+ * min         - minute                         0 .. 59
+ * sec         - second                         0.0 .. 59.999
+ *
+ * locals        :
+ * dayofyr     - day of year
+ * temp        - temporary extended values
+ * inttemp     - temporary int value
+ * i           - index
+ * lmonth[12]  - int array containing the number of days per month
+ *
+ * coupling      :
+ * none.
+ * @param year - year to date
+ * @param days - day of year
+ * @returns - Decomposed information into year, month, day, hour, minute and second
  */
 export function days2mdhms(
   year: number,
@@ -293,7 +293,7 @@ function gstimeInternal(jdut1: number): number {
 /**
  * @param time
  */
-export default function gstime(time: Date | number): number {
+export function gstime(time: Date | number): number {
   if (time instanceof Date) return gstimeInternal(jday(time));
   return gstimeInternal(time);
 }

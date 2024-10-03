@@ -4,7 +4,7 @@ import { pi, twoPi } from '../util/constants';
 /**
  *
  */
-export interface Options {
+export interface DpperOptions {
   init: boolean;
   ep: number;
   inclp: number;
@@ -16,7 +16,7 @@ export interface Options {
 /**
  *
  */
-export interface Output {
+export interface DpperOutput {
   ep: number;
   inclp: number;
   nodep: number;
@@ -95,11 +95,11 @@ export interface Output {
  * @param options
  * @param tsince
  */
-export default function dpper(
+export function dpper(
   sat: Satellite,
-  options: Options,
+  options: DpperOptions,
   tsince: number, // defaults to 0 (sgp4init doesn't set a time)
-): Output {
+): DpperOutput {
   const {
     e3,
     ee2,

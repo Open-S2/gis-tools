@@ -3,8 +3,6 @@ import { EPSLN, RA4, RA6, SIXTH } from './values';
 
 import type { Ellipsoid } from './ellipsoid';
 
-import match from '../util/match';
-
 /** Describes an ellipsoid's eccentricity */
 export interface EccentricityParams {
   a?: number;
@@ -72,4 +70,14 @@ export function deriveSphere(obj: SphereParams): void {
     obj.sphere = true;
     obj.b = obj.a;
   }
+}
+
+/**
+ * @param obj - the object to search
+ * @param key - the key to search with
+ * @returns - the value of the key
+ */
+function match<T>(obj: Record<string, T>, key?: string): T | undefined {
+  if (key === undefined) return;
+  if (obj[key] !== undefined) return obj[key];
 }

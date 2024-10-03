@@ -1,6 +1,6 @@
 import FileReader from '../../../src/readers/file';
 import FileWriter from '../../../src/writers/file';
-import { TileType } from '../../../src/writers/pmtiles';
+import { TileType } from '../../../src/readers/pmtiles';
 import tmp from 'tmp';
 import { BufferReader, S2PMTilesReader } from '../../../src/readers';
 import { BufferWriter, S2PMTilesWriter } from '../../../src/writers';

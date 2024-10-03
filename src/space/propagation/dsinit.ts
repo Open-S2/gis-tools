@@ -3,7 +3,7 @@ import { pi, twoPi, x2o3, xke } from '../util/constants';
 /**
  *
  */
-export interface Options {
+export interface DsInitOptions {
   cosim: number;
   argpo: number;
   s1: number;
@@ -79,7 +79,7 @@ export interface Options {
 /**
  *
  */
-export interface Output {
+export interface DsInitOutput {
   em: number;
   argpm: number;
   inclm: number;
@@ -202,7 +202,7 @@ export interface Output {
  * @param options
  * @param tsince
  */
-export default function dsinit(options: Options, tsince: number): Output {
+export function dsinit(options: DsInitOptions, tsince: number): DsInitOutput {
   const {
     cosim,
     argpo,

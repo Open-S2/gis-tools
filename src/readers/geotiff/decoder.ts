@@ -43,7 +43,7 @@ async function imageDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
   const blob = new Blob([buffer as ArrayBuffer]); // e.g. { type: 'image/png' }
   const imageBitmap = await createImageBitmap(blob);
   // Create OffscreenCanvas and draw
-  const canvas: OffscreenCanvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
+  const canvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
   const ctx = canvas.getContext('2d');
   if (ctx === null) throw new Error('Could not get 2d context');
   ctx.drawImage(imageBitmap, 0, 0);

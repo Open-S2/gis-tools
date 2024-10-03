@@ -1,7 +1,34 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // DataView Utility functions for float16
+export {};
+
+declare global {
+  /** Extend the DataView interface */
+  interface DataView {
+    /**
+     * Retrieves a 16-bit floating point number (Float16) at the specified byte offset from the start of the view.
+     * This method reads two bytes from the buffer, converts them into a 16-bit floating-point number,
+     * and returns the corresponding 32-bit floating-point representation.
+     * @param byteOffset - The offset, in bytes, from the start of the DataView to read the value from.
+     * @param littleEndian - If true, the value is read as little-endian. Otherwise, it's read as big-endian.
+     * @returns The converted 32-bit floating-point number (Float32) corresponding to the 16-bit value.
+     */
+    getFloat16(byteOffset: number, littleEndian?: boolean): number;
+    /**
+     * Stores a 16-bit floating point number (Float16) at the specified byte offset in the DataView.
+     * This method converts a 32-bit floating-point number (Float32) to a 16-bit floating-point representation,
+     * then writes the resulting 16-bit value into the buffer at the specified offset.
+     * @param byteOffset - The offset, in bytes, at which to store the value.
+     * @param value - The 32-bit floating-point number (Float32) to be converted and stored as Float16.
+     * @param littleEndian - If true, the value is stored as little-endian. Otherwise, it's stored as big-endian.
+     */
+    setFloat16(byteOffset: number, value: number, littleEndian?: boolean): void;
+  }
+}
 
 /**
- * @param value - the uint32 value
+ * @param value - the float 32 value
+ * @returns - the float 16 value
  */
 function float32ToFloat16(value: number): number {
   const floatView = new Float32Array(1);
@@ -27,7 +54,7 @@ function float32ToFloat16(value: number): number {
 }
 
 /**
- * @param hbits - uint16 bits
+ * @param hbits - float 16 bits
  * @returns - float32
  */
 function float16ToFloat32(hbits: number): number {
@@ -47,28 +74,36 @@ function float16ToFloat32(hbits: number): number {
   return (s > 0 ? -1 : 1) * Math.pow(2, e - 15) * (1 + f / Math.pow(2, 10));
 }
 
-// Polyfill for DataView.getFloat16 and DataView.setFloat16
+// Polyfill for DataView.getFloat16
 if (!('getFloat16' in DataView.prototype)) {
   /**
-   * Gets the Float32 value at the specified byte offset from the start of the view.
-   * There is no alignment constraint; multi-byte values may be fetched from any offset.
-   * @param byteOffset — The place in the buffer at which the value should be retrieved.
-   * @param littleEndian — If false or undefined, a big-endian value should be read.
-   * @returns The Float32 value.
+   * Retrieves a 16-bit floating point number (Float16) at the specified byte offset from the start of the view.
+   * This method reads two bytes from the buffer, converts them into a 16-bit floating-point number,
+   * and returns the corresponding 32-bit floating-point representation.
+   * @param byteOffset - The offset, in bytes, from the start of the DataView to read the value from.
+   * @param littleEndian - If true, the value is read as little-endian. Otherwise, it's read as big-endian.
+   * @returns The converted 32-bit floating-point number (Float32) corresponding to the 16-bit value.
    */
-  DataView.prototype.getFloat16 = function (byteOffset: number, littleEndian = false): number {
+  (DataView.prototype as any).getFloat16 = function (
+    byteOffset: number,
+    littleEndian = false,
+  ): number {
     const value = this.getUint16(byteOffset, littleEndian);
     return float16ToFloat32(value);
   };
 }
 
+// Polyfill for DataView.setFloat16
 if (!('setFloat16' in DataView.prototype)) {
   /**
-   * @param byteOffset
-   * @param value
-   * @param littleEndian
+   * Stores a 16-bit floating point number (Float16) at the specified byte offset in the DataView.
+   * This method converts a 32-bit floating-point number (Float32) to a 16-bit floating-point representation,
+   * then writes the resulting 16-bit value into the buffer at the specified offset.
+   * @param byteOffset - The offset, in bytes, at which to store the value.
+   * @param value - The 32-bit floating-point number (Float32) to be converted and stored as Float16.
+   * @param littleEndian - If true, the value is stored as little-endian. Otherwise, it's stored as big-endian.
    */
-  DataView.prototype.setFloat16 = function (
+  (DataView.prototype as any).setFloat16 = function (
     byteOffset: number,
     value: number,
     littleEndian = false,

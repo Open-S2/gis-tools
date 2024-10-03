@@ -3,7 +3,7 @@ import { twoPi } from '../util/constants';
 /**
  *
  */
-export interface Options {
+export interface DspaceOptions {
   irez: number;
   d2201: number;
   d2211: number;
@@ -44,7 +44,7 @@ export interface Options {
 /**
  *
  */
-export interface Output {
+export interface DspaceOutput {
   atime: number;
   em: number; // eccentricity
   argpm: number; // argument of perigee
@@ -133,7 +133,7 @@ export interface Output {
  * @param options
  * @param tsince
  */
-export default function dspace(options: Options, tsince: number): Output {
+export function dspace(options: DspaceOptions, tsince: number): DspaceOutput {
   const {
     irez,
     d2201,

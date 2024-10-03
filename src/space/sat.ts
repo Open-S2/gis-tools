@@ -1,9 +1,8 @@
-import sgp4 from './propagation/sgp4';
-import sgp4init from './propagation/sgp4init';
 import { days2mdhms, jday } from './util/time';
 import { deg2rad, minutesPerDay, pi } from './util/constants';
+import { sgp4, sgp4init } from './propagation';
 
-import type { ErrorOutput as SGP4ErrorOutput, Output as SGP4Output } from './propagation/sgp4';
+import type { SGP4ErrorOutput, SGP4Output } from './propagation';
 
 /**
  *

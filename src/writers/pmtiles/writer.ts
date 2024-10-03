@@ -1,10 +1,16 @@
 import { concatUint8Arrays } from '../../util';
-import { Compression, ROOT_SIZE, headerToBytes, serializeDir, zxyToTileID } from './pmtiles';
-import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2HeaderToBytes } from './s2pmtiles';
+import { s2HeaderToBytes } from './s2pmtiles';
+import {
+  Compression,
+  ROOT_SIZE,
+  S2_HEADER_SIZE_BYTES,
+  S2_ROOT_SIZE,
+  zxyToTileID,
+} from 's2-tools/readers/pmtiles';
+import { headerToBytes, serializeDir } from './pmtiles';
 
-import type { Entry, Header, TileType } from './pmtiles';
+import type { Entry, Header, S2Entries, S2Header, TileType } from 's2-tools/readers/pmtiles';
 import type { Face, Metadata } from 's2-tilejson';
-import type { S2Entries, S2Header } from './s2pmtiles';
 import type { TileWriter, Writer } from '..';
 
 /** Write a PMTiles file. */

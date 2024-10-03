@@ -1,13 +1,12 @@
-// import computeShader from './wgsl';
-import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants';
+import computeShader from './sgp4.wgsl';
+import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util';
 
 import type { Satellite } from '../sat';
 
-// After creating the class you must call `await bfGPU.init()`
 /**
- *
+ * Note: After creating the class you must call `await bfGPU.init()`
  */
-export default class SGP4GPU {
+export class SGP4GPU {
   #device: GPUDevice;
   #sgp4Pipeline!: GPUComputePipeline;
   #layout!: GPUBindGroupLayout;

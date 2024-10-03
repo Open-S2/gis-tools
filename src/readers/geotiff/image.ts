@@ -486,7 +486,6 @@ export class GeoTIFFImage {
       case 3:
         switch (bitsPerSample) {
           case 16:
-            // @ts-expect-error - getFloat16 is polyfilled
             return DataView.prototype.getFloat16;
           case 32:
             return DataView.prototype.getFloat32;

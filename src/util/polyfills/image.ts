@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import sharp from 'sharp';
 
 import type { Blob } from 'node:buffer';
@@ -17,12 +18,18 @@ declare global {
     readonly height: number;
   }
 
-  /** Declare the OffscreenCanvas class globally */
-  interface OffscreenCanvas {
+  /** What the OffscreenCanvas interface looks like */
+  interface OffscreenCanvasInterface {
     readonly width: number;
     readonly height: number;
     getContext(type: string): null | OffscreenCanvasRenderingContext2D;
   }
+
+  /** Declare the OffscreenCanvas class globally */
+  var OffscreenCanvas: {
+    prototype: OffscreenCanvasInterface;
+    new (width: number, height: number): OffscreenCanvasInterface;
+  };
 
   /**
    * Declare the createImageBitmap function globally
@@ -66,11 +73,11 @@ async function createImageBitmap(blob: Blob): Promise<ImageBitmap> {
     info: { width, height },
   } = decodedImage;
 
-  return { data: new Uint8Array(data), width, height };
+  return new ImageBitmap(new Uint8Array(data), width, height);
 }
 
 /** An offscreen canvas polyfill */
-class OffscreenCanvas {
+class OffscreenCanvasPolyfill {
   /**
    * @param width - the canvas width
    * @param height - the canvas height
@@ -167,5 +174,4 @@ class OffscreenCanvasRenderingContext2D {
 }
 
 globalThis.createImageBitmap ??= createImageBitmap;
-// @ts-expect-error - declare the OffscreenCanvas class
-globalThis.OffscreenCanvas ??= OffscreenCanvas;
+globalThis.OffscreenCanvas ??= OffscreenCanvasPolyfill;

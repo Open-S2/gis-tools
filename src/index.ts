@@ -4,5 +4,7 @@ export * from './dataStructures';
 export * from './geometry';
 export * from './proj4';
 export * from './readers';
+export * from './space';
+export * from './tools';
 export * from './util';
-// export * from './writers';
+export * from './writers';

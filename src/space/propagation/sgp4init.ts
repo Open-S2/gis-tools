@@ -1,96 +1,92 @@
 import { earthRadius, j2, j3oj2, j4, pi, x2o3 } from '../util/constants';
 
 import { Satellite } from '../sat';
-import dpper from './dpper';
-import dscom from './dscom';
-import dsinit from './dsinit';
-import initl from './initl';
+import { dpper, dscom, dsinit, initl } from '.';
 
-/* -----------------------------------------------------------------------------
- *
- *                             procedure sgp4init
- *
- *  this procedure initializes variables for sgp4.
- *
- *  author        : david vallado                  719-573-2600   28 jun 2005
- *  author        : david vallado                  719-573-2600   28 jun 2005
- *
- *  inputs        :
- *    opsmode     - mode of operation afspc or improved 'a', 'i'
- *    satn        - satellite number
- *    drag       - sgp4 type drag coefficient              kg/m2er
- *    ecco        - eccentricity
- *    epoch       - epoch time in days from jan 0, 1950. 0 hr
- *    argpo       - argument of perigee (output if ds)
- *    inclo       - inclination
- *    mo          - mean anomaly (output if ds)
- *    no          - mean motion
- *    nodeo       - right ascension of ascending node
- *
- *  outputs       :
- *    rec      - common values for subsequent calls
- *    return code - non-zero on error.
- *                   1 - mean elements, ecc >= 1.0 or ecc < -0.001 or a < 0.95 er
- *                   2 - mean motion less than 0.0
- *                   3 - pert elements, ecc < 0.0  or  ecc > 1.0
- *                   4 - semi-latus rectum < 0.0
- *                   5 - epoch elements are sub-orbital
- *                   6 - satellite has decayed
- *
- *  locals        :
- *    cnodm  , snodm  , cosim  , sinim  , cosomm , sinomm
- *    cc1sq  , cc2    , cc3
- *    coef   , coef1
- *    cosio4      -
- *    day         -
- *    dndt        -
- *    em          - eccentricity
- *    emsq        - eccentricity squared
- *    eeta        -
- *    etasq       -
- *    gam         -
- *    argpm       - argument of perigee
- *    nodem       -
- *    inclm       - inclination
- *    mm          - mean anomaly
- *    nm          - mean motion
- *    perige      - perigee
- *    pinvsq      -
- *    psisq       -
- *    qzms24      -
- *    rtemsq      -
- *    s1, s2, s3, s4, s5, s6, s7          -
- *    sfour       -
- *    ss1, ss2, ss3, ss4, ss5, ss6, ss7         -
- *    sz1, sz2, sz3
- *    sz11, sz12, sz13, sz21, sz22, sz23, sz31, sz32, sz33        -
- *    tc          -
- *    temp        -
- *    temp1, temp2, temp3       -
- *    tsi         -
- *    xpidot      -
- *    xhdot1      -
- *    z1, z2, z3          -
- *    z11, z12, z13, z21, z22, z23, z31, z32, z33         -
- *
- *  coupling      :
- *    getgravconst-
- *    initl       -
- *    dscom       -
- *    dpper       -
- *    dsinit      -
- *    sgp4        -
- *
- *  references    :
- *    hoots, roehrich, norad spacetrack report #3 1980
- *    hoots, norad spacetrack report #6 1986
- *    hoots, schumacher and glover 2004
- *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
 /**
- * @param sat
+ * -----------------------------------------------------------------------------
+ *
+ * procedure sgp4init
+ *
+ * this procedure initializes variables for sgp4.
+ *
+ * author        : david vallado                  719-573-2600   28 jun 2005
+ * author        : david vallado                  719-573-2600   28 jun 2005
+ *
+ * inputs        :
+ * opsmode     - mode of operation afspc or improved 'a', 'i'
+ * satn        - satellite number
+ * drag       - sgp4 type drag coefficient              kg/m2er
+ * ecco        - eccentricity
+ * epoch       - epoch time in days from jan 0, 1950. 0 hr
+ * argpo       - argument of perigee (output if ds)
+ * inclo       - inclination
+ * mo          - mean anomaly (output if ds)
+ * no          - mean motion
+ * nodeo       - right ascension of ascending node
+ *
+ * outputs       :
+ * rec      - common values for subsequent calls
+ * return code - non-zero on error.
+ * 1 - mean elements, ecc >= 1.0 or ecc < -0.001 or a < 0.95 er
+ * 2 - mean motion less than 0.0
+ * 3 - pert elements, ecc < 0.0  or  ecc > 1.0
+ * 4 - semi-latus rectum < 0.0
+ * 5 - epoch elements are sub-orbital
+ * 6 - satellite has decayed
+ *
+ * locals        :
+ * cnodm  , snodm  , cosim  , sinim  , cosomm , sinomm
+ * cc1sq  , cc2    , cc3
+ * coef   , coef1
+ * cosio4      -
+ * day         -
+ * dndt        -
+ * em          - eccentricity
+ * emsq        - eccentricity squared
+ * eeta        -
+ * etasq       -
+ * gam         -
+ * argpm       - argument of perigee
+ * nodem       -
+ * inclm       - inclination
+ * mm          - mean anomaly
+ * nm          - mean motion
+ * perige      - perigee
+ * pinvsq      -
+ * psisq       -
+ * qzms24      -
+ * rtemsq      -
+ * s1, s2, s3, s4, s5, s6, s7          -
+ * sfour       -
+ * ss1, ss2, ss3, ss4, ss5, ss6, ss7         -
+ * sz1, sz2, sz3
+ * sz11, sz12, sz13, sz21, sz22, sz23, sz31, sz32, sz33        -
+ * tc          -
+ * temp        -
+ * temp1, temp2, temp3       -
+ * tsi         -
+ * xpidot      -
+ * xhdot1      -
+ * z1, z2, z3          -
+ * z11, z12, z13, z21, z22, z23, z31, z32, z33         -
+ *
+ * coupling      :
+ * getgravconst-
+ * initl       -
+ * dscom       -
+ * dpper       -
+ * dsinit      -
+ * sgp4        -
+ *
+ * references    :
+ * hoots, roehrich, norad spacetrack report #3 1980
+ * hoots, norad spacetrack report #6 1986
+ * hoots, schumacher and glover 2004
+ * vallado, crawford, hujsak, kelso  2006
+ * @param sat - Satellite object
  */
-export default function sgp4init(sat: Satellite): void {
+export function sgp4init(sat: Satellite): void {
   const epoch = sat.jdsatepoch - 2433281.5;
 
   let cosim: number;
