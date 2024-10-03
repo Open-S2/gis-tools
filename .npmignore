@@ -11,3 +11,4 @@ tsconfig.tsbuildinfo
 target/
 zig/
 coverage/
+docs/
