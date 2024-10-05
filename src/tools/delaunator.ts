@@ -5,7 +5,7 @@ import type { Point, VectorPoint } from '../geometry';
 const EPSILON = Math.pow(2, -52);
 
 /** An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points. */
-export default class Delaunator {
+export class Delaunator {
   edgeStack = new Array(512);
   coords: number[];
   triangles: number[] = [];

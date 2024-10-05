@@ -1,4 +1,4 @@
-import Orthodrome from '../../src/tools/orthodrome';
+import { Orthodrome } from '../../src';
 import { expect, test } from 'bun:test';
 
 test('orthodrome', () => {

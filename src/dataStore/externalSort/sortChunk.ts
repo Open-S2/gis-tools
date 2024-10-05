@@ -6,7 +6,7 @@ import type { SortChunk } from '.';
  * @param chunk - chunk information needed to start sorting
  * @returns - output file that it created
  */
-export default async function sortChunk(chunk: SortChunk): Promise<string> {
+export async function sortChunk(chunk: SortChunk): Promise<string> {
   const { name, input, outDir, start, end } = chunk;
   const outFile = `${outDir}/es_${name}_${start}_${end}.tmp`;
   await _sortChunk(input, outFile, start, end);

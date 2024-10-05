@@ -1,5 +1,5 @@
-import mergeSortedChunks from './mergeSortedChunks';
-import sortChunk from './sortChunk';
+import { mergeSortedChunks } from './mergeSortedChunks';
+import { sortChunk } from './sortChunk';
 import { availableParallelism, tmpdir } from 'os';
 import { stat, unlink } from 'fs/promises';
 
@@ -102,7 +102,6 @@ async function sortChunksWithWorkers(chunks: SortChunk[], tc: number): Promise<s
     // begin the workers and ship chunks
     const chunkLength = chunks.length;
     for (let i = 0; i < Math.min(threadCount, chunkLength); i++) {
-      // @ts-expect-error - import.meta.url is a string
       const worker = new Worker(new URL('./worker', import.meta.url).href, { type: 'module' });
       worker.postMessage(chunks.shift());
       /** @param msg - a sorted file */

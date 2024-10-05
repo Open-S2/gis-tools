@@ -1,4 +1,4 @@
-import { PointIndex } from '../../src/dataStructures/pointIndex';
+import { PointIndex } from '../../src';
 import { expect, test } from 'bun:test';
 
 // HELPER TOOLS

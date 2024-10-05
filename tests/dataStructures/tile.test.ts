@@ -18,7 +18,11 @@ test('transformPoint', () => {
 test('Tile', () => {
   const tile = new Tile(0n);
   expect(tile).toEqual({
-    id: 0n,
+    face: 0,
+    zoom: 0,
+    i: 0,
+    j: 0,
+    extent: 1,
     layers: {},
     transformed: false,
   } as Tile);
@@ -43,10 +47,15 @@ test('Tile', () => {
   tile.transform(3, SIMPLIFY_MAXZOOM);
 
   expect(tile).toEqual({
-    id: 0n,
+    face: 0,
+    zoom: 0,
+    i: 0,
+    j: 0,
+    extent: 1,
     transformed: true,
     layers: {
       default: {
+        extent: 1,
         name: 'default',
         features: [
           {
@@ -115,9 +124,14 @@ test('TileStore - points', () => {
   const faceTile = store.getTile(faceID);
 
   expect(faceTile).toEqual({
-    id: 1152921504606846976n,
+    face: 0,
+    zoom: 0,
+    i: 0,
+    j: 0,
+    extent: 1,
     layers: {
       default: {
+        extent: 1,
         features: [
           {
             geometry: {
@@ -222,54 +236,30 @@ test('TileStore - points', () => {
     transformed: true,
   } as unknown as Tile);
 
-  const [childID] = childrenIJ(0, 0, 0, 0);
-  const childTile = store.getTile(childID);
+  const [, child2] = childrenIJ(0, 0, 0, 0);
+  const childTile = store.getTile(child2);
   expect(childTile).toEqual({
-    id: 288230376151711744n,
+    extent: 1,
+    face: 0,
+    i: 1,
+    j: 0,
     layers: {
       default: {
+        extent: 1,
         features: [
           {
             geometry: {
-              bbox: undefined,
-              coordinates: [
-                {
-                  m: undefined,
-                  x: 0.75,
-                  y: 0.7194500738304099,
-                  z: undefined,
-                },
-              ],
-              type: 'MultiPoint',
-              is3D: false,
-              vecBBox: [0.375, 0.35972503691520497, 0.375, 0.35972503691520497],
-            },
-            id: undefined,
-            metadata: undefined,
-            properties: {
-              c: 3,
-            },
-            type: 'VectorFeature',
-          },
-          {
-            geometry: {
-              bbox: undefined,
-              coordinates: [
-                {
-                  m: undefined,
-                  x: 0,
-                  y: 0.8865611987228108,
-                  z: 2,
-                },
-              ],
-              type: 'MultiPoint',
+              coordinates: {
+                x: 0.25,
+                y: 0.7194500738304099,
+                z: 1,
+              },
               is3D: true,
-              vecBBox: [0, 0.4432805993614054, 0, 0.4432805993614054, 2, 2],
+              type: 'Point',
+              vecBBox: [0.625, 0.35972503691520497, 0.625, 0.35972503691520497, 1, 1],
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
-              d: 4,
+              b: 2,
             },
             type: 'VectorFeature',
           },
@@ -278,6 +268,7 @@ test('TileStore - points', () => {
       },
     },
     transformed: true,
+    zoom: 1,
   } as unknown as Tile);
 });
 

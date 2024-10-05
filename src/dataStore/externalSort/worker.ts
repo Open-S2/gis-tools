@@ -1,6 +1,6 @@
 declare let self: Worker;
 
-import sortChunk from './sortChunk';
+import { sortChunk } from './sortChunk';
 
 /** A chunk of a file to be sorted */
 export interface SortChunk {

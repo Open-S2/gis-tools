@@ -1,4 +1,4 @@
-import MMapMultiMap from '../../../src/dataStore/multimap/mmap';
+import { MMapMultiMap } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 test('MMapMultiMap', async () => {

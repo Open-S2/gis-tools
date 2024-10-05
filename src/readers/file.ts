@@ -6,7 +6,7 @@ import type { Reader } from '.';
 const readAsync = promisify(read);
 
 /** Reads data from a file */
-export default class FileReader implements Reader {
+export class FileReader implements Reader {
   #fileHandle: number;
   byteOffset: number = 0;
   byteLength: number;

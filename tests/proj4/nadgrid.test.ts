@@ -1,4 +1,4 @@
-import MMapReader from '../../src/readers/mmap';
+import { MMapReader } from '../../src/mmap';
 import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from '../../src/proj4';
 import { describe, expect, it, test } from 'bun:test';
 

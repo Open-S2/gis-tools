@@ -1,6 +1,6 @@
 import { Compression } from '../../../src/readers/pmtiles';
-import FileReader from '../../../src/readers/file';
-import MMapReader from '../../../src/readers/mmap';
+import { FileReader } from '../../../src/file';
+import { MMapReader } from '../../../src/mmap';
 import { buildServer } from '../../server';
 import { BufferReader, S2PMTilesReader } from '../../../src/readers';
 import { describe, expect, test } from 'bun:test';

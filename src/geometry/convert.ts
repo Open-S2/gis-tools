@@ -13,9 +13,9 @@ import type {
 /**
  * @param projection - output either S2 or WM
  * @param data - the data to convert
+ * @param buildBBox - optional - build a bbox for the feature if desired
  * @param tolerance - optionally specify a tolerance to prepare for future simplification
  * @param maxzoom - optionally specify a maxzoom to prepare for future simplification
- * @param buildBBox - optional - build a bbox for the feature if desired
  * @param toUnitScale - optional - convert to unit scale. Assumed to be true if not specified
  * @returns - the converted data
  */

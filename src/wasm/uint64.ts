@@ -42,7 +42,7 @@ export type WasmHiBits = (id: Uint64Ref) => number;
 type WasmFreeUint64 = (ptr: Uint64Ref) => void;
 
 /** Generator that builds Uint64Cells from either lon/lat or face/s/t */
-export default class Uint64CellGenerator {
+export class Uint64CellGenerator {
   instance!: WebAssembly.Instance;
   wasmMemory?: Uint8Array;
   tmpString = '';

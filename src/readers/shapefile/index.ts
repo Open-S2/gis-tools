@@ -1,16 +1,13 @@
 import { BufferReader } from '..';
-import DataBaseFile from './dbf';
-import ShapeFile from './shp';
+import { DataBaseFile } from './dbf';
+import { ShapeFile } from './shp';
 import { Transformer } from '../../proj4';
 import { iterItems } from '../../util';
 
 import type { ProjectionTransformDefinition } from '../../proj4';
 
-export { default as DataBaseFile } from './dbf';
-export { default as ShapeFile } from './shp';
-
-export type * from './dbf';
-export type * from './shp';
+export * from './dbf';
+export * from './shp';
 
 /**
  * Assumes the input is pointing to shapefile data.

@@ -5,7 +5,7 @@ import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 
 /** MMap based multimap store */
-export default class MMapKV<V = Stringifiable> implements KVStore<V> {
+export class MMapKV<V = Stringifiable> implements KVStore<V> {
   #store: S2MMapStore<V>;
 
   /**

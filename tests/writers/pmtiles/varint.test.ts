@@ -1,6 +1,5 @@
-import { readVarint } from '../../../src/readers/pmtiles';
-import { writeVarint } from '../../../src/writers/pmtiles';
 import { describe, expect, test } from 'bun:test';
+import { readVarint, writeVarint } from '../../../src';
 
 describe('varint', () => {
   const buffer = { buf: new Uint8Array(0), pos: 0 };

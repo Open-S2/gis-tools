@@ -5,7 +5,7 @@ import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 
 /** File based multimap store */
-export default class FileKV<V = Stringifiable> implements KVStore<V> {
+export class FileKV<V = Stringifiable> implements KVStore<V> {
   #store: S2FileStore<V>;
 
   /**

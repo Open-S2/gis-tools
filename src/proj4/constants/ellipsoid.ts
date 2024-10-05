@@ -370,7 +370,7 @@ const SPHERE: Ellipsoid = {
   b: 6370997.0,
 };
 
-const ellipsoids: Record<string, Ellipsoid> = {
+export const ellipsoids: Record<string, Ellipsoid> = {
   MERIT,
   SGS85,
   GRS80,
@@ -435,5 +435,3 @@ const ellipsoids: Record<string, Ellipsoid> = {
   WGS84,
   SPHERE,
 };
-
-export default ellipsoids;

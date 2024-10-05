@@ -1,6 +1,6 @@
-import DataBaseFile from './dbf';
-import MMapReader from '../mmap';
-import Shapefile from './shp';
+import { DataBaseFile } from './dbf';
+import { MMapReader } from '../mmap';
+import { ShapeFile } from './shp';
 import { Transformer } from '../../proj4';
 import { exists, readFile } from 'fs/promises';
 
@@ -52,7 +52,7 @@ export async function fromPath(input: string) {
  * @param def - a description of the data to parse
  * @returns - a Shapefile
  */
-export async function fromDefinition(def: Definition): Promise<Shapefile> {
+export async function fromDefinition(def: Definition): Promise<ShapeFile> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
   const transform =
@@ -60,5 +60,5 @@ export async function fromDefinition(def: Definition): Promise<Shapefile> {
   const dbfReader = dbf !== undefined ? new MMapReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
 
-  return new Shapefile(new MMapReader(shp), databaseFile, transform);
+  return new ShapeFile(new MMapReader(shp), databaseFile, transform);
 }

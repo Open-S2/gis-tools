@@ -1,6 +1,5 @@
+import { Cache } from '../../src';
 import { describe, expect, test } from 'bun:test';
-
-import { Cache } from '../../src/dataStructures/cache';
 
 describe('dirCache', () => {
   const dirCache = new Cache<number, number>(5);

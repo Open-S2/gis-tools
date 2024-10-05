@@ -1,10 +1,8 @@
-import { BufferReader } from '../../../src/readers';
-import DataBaseFile from '../../../src/readers/shapefile/dbf';
-import FileReader from '../../../src/readers/file';
-import MMapReader from '../../../src/readers/mmap';
+import { FileReader } from '../../../src/file';
+import { MMapReader } from '../../../src/mmap';
 import { buildServer } from '../../server';
+import { BufferReader, DataBaseFile, ShapeFile, fromGzip, fromURL } from '../../../src';
 // import { fromPath } from '../../../src/readers/shapefile/file';
-import { ShapeFile, fromGzip, fromURL } from '../../../src/readers/shapefile';
 import { expect, test } from 'bun:test';
 
 test('utf shp', async () => {

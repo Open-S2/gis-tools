@@ -1,8 +1,8 @@
-import { Vector } from '../../../src/dataStore/vector';
+import { Vector } from '../../../src';
 import { toCell } from '../../../src/dataStructures/uint64';
 import { expect, test } from 'bun:test';
 
-import type { VectorKey } from '../../../src/dataStore/vector';
+import type { VectorKey } from '../../../src';
 
 /** Test key */
 interface TestKey extends VectorKey {

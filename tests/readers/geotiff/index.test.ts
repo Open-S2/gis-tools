@@ -1,11 +1,11 @@
-import FileReader from '../../../src/readers/file';
-import { GeoTIFFReader } from '../../../src/readers/geotiff';
+import { FileReader } from '../../../src/file';
+import { GeoTIFFReader } from '../../../src';
 import { expect, test } from 'bun:test';
 
 // import { fromArrayBuffer } from '../../../geotiff/src/geotiff';
 import { fromArrayBuffer } from 'geotiff';
 
-import type { ArrayTypes } from '../../../src/readers/geotiff';
+import type { ArrayTypes } from '../../../src';
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 

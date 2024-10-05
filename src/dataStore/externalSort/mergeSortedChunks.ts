@@ -63,7 +63,7 @@ class SortedFile {
  * @param inputs - a list of sorted files
  * @param output - output file
  */
-export default async function mergeSortedChunks(inputs: string[], output: string): Promise<void> {
+export async function mergeSortedChunks(inputs: string[], output: string): Promise<void> {
   const inputFiles: SortedFile[] = [];
   for (const input of inputs) {
     inputFiles.push(new SortedFile(await open(input, 'r'), statSync(input).size));

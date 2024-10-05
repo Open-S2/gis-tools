@@ -3,7 +3,7 @@ import { S2FileStore } from '../file';
 import type { VectorKey, VectorStore } from '.';
 
 /** File based vector store */
-export default class FileVector<V extends VectorKey> implements VectorStore<V> {
+export class FileVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2FileStore;
   /** @param fileName - the path + file name without the extension */
   constructor(fileName?: string) {

@@ -1,4 +1,4 @@
-import { S2FileStore } from '../../src/dataStore/file';
+import { S2FileStore } from '../../src/file';
 import { expect, test } from 'bun:test';
 
 test('S2FileStore', async () => {

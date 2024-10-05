@@ -6,7 +6,7 @@ import type { VectorPoint } from '../geometry';
  * Represents an orthodrome, which is the shortest path between two points on a sphere.
  * [Learn more here](http://www.movable-type.co.uk/scripts/latlong.html)
  */
-export default class Orthodrome {
+export class Orthodrome {
   /** start longitude */
   readonly lon1: number;
   /** start latitude */

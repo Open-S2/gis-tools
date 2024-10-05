@@ -1,4 +1,4 @@
-import ellipsoids from './ellipsoid';
+import { ellipsoids } from './ellipsoid';
 import { EPSLN, RA4, RA6, SIXTH } from './values';
 
 import type { Ellipsoid } from './ellipsoid';

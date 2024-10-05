@@ -1,6 +1,6 @@
-import DataBaseFile from './dbf';
-import FileReader from '../file';
-import Shapefile from './shp';
+import { DataBaseFile } from './dbf';
+import { FileReader } from '../file';
+import { ShapeFile } from './shp';
 import { Transformer } from '../../proj4';
 import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
@@ -38,7 +38,7 @@ export interface Definition {
 export async function fromPath(
   input: string,
   defs?: ProjectionTransformDefinition[],
-): Promise<Shapefile> {
+): Promise<ShapeFile> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
     return fromGzip(gzipData.buffer);
@@ -67,7 +67,7 @@ export async function fromPath(
 export async function fromDefinition(
   def: Definition,
   defs?: ProjectionTransformDefinition[],
-): Promise<Shapefile> {
+): Promise<ShapeFile> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
   const transform =
@@ -79,5 +79,5 @@ export async function fromDefinition(
     for (const def of defs) transform.insertDefinition(def);
   }
 
-  return new Shapefile(new FileReader(shp), databaseFile, transform);
+  return new ShapeFile(new FileReader(shp), databaseFile, transform);
 }

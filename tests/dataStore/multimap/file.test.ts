@@ -1,4 +1,4 @@
-import FileMultiMap from '../../../src/dataStore/multimap/file';
+import { FileMultiMap } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 test('FileMultiMap', async () => {

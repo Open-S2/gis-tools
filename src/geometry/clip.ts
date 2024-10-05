@@ -1,5 +1,5 @@
 import { Tile } from '../dataStructures';
-import { childrenIJ, toFaceIJ } from './id';
+import { childrenIJ } from './id';
 import { clipBBox, extendBBox } from './bbox';
 
 import type {
@@ -23,10 +23,10 @@ import type {
 
 /** Split features into the 4 children of a tile */
 export type TileChildren = [
-  Tile, // bottom left
-  Tile, // bottom right
-  Tile, // top left
-  Tile, // top right
+  { id: bigint; tile: Tile }, // bottom left
+  { id: bigint; tile: Tile }, // bottom right
+  { id: bigint; tile: Tile }, // top left
+  { id: bigint; tile: Tile }, // top right
 ];
 
 /**
@@ -35,10 +35,14 @@ export type TileChildren = [
  * @returns - the tile's children split into 4 sub-tiles
  */
 export function splitTile(tile: Tile, buffer: number = 0.0625): TileChildren {
-  const { id } = tile;
-  const [face, zoom, i, j] = toFaceIJ(id);
+  const { face, zoom, i, j } = tile;
   const [blID, brID, tlID, trID] = childrenIJ(face, zoom, i, j);
-  const children: TileChildren = [new Tile(blID), new Tile(brID), new Tile(tlID), new Tile(trID)];
+  const children: TileChildren = [
+    { id: blID, tile: new Tile(blID) },
+    { id: brID, tile: new Tile(brID) },
+    { id: tlID, tile: new Tile(tlID) },
+    { id: trID, tile: new Tile(trID) },
+  ];
   const scale = 1 << zoom;
   const k1 = 0;
   const k2 = 0.5;
@@ -57,15 +61,15 @@ export function splitTile(tile: Tile, buffer: number = 0.0625): TileChildren {
     if (left !== null) {
       bl = _clip(left, scale, j - k1, j + k3, 1, buffer);
       tl = _clip(left, scale, j + k2, j + k4, 1, buffer);
-      if (bl !== null) for (const d of bl) children[0].addFeature(d, name);
-      if (tl !== null) for (const d of tl) children[2].addFeature(d, name);
+      if (bl !== null) for (const d of bl) children[0].tile.addFeature(d, name);
+      if (tl !== null) for (const d of tl) children[2].tile.addFeature(d, name);
     }
 
     if (right !== null) {
       br = _clip(right, scale, j - k1, j + k3, 1, buffer);
       tr = _clip(right, scale, j + k2, j + k4, 1, buffer);
-      if (br !== null) for (const d of br) children[1].addFeature(d, name);
-      if (tr !== null) for (const d of tr) children[3].addFeature(d, name);
+      if (br !== null) for (const d of br) children[1].tile.addFeature(d, name);
+      if (tr !== null) for (const d of tr) children[3].tile.addFeature(d, name);
     }
   }
 

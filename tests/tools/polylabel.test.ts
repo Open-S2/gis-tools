@@ -1,4 +1,4 @@
-import polylabel from '../../src/tools/polylabel';
+import { polylabel } from '../../src';
 import { expect, test } from 'bun:test';
 
 import type { Polygon, VectorPolygon } from '../../src/geometry';

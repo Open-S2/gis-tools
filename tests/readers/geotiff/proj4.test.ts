@@ -1,4 +1,4 @@
-import FileReader from '../../../src/readers/file';
+import { FileReader } from '../../../src/file';
 import { GeoTIFFReader } from '../../../src/readers/geotiff';
 import { expect, test } from 'bun:test';
 

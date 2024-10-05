@@ -1,4 +1,4 @@
-import MMapKV from '../../../src/dataStore/kv/mmap';
+import { MMapKV } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 test('KV - MMap', async () => {

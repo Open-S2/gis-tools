@@ -6,7 +6,7 @@ import { VectorPoint, VectorPolygon } from '../geometry';
  * @param precision - the precision of the label
  * @returns - the label
  */
-export default function polylabel(
+export function polylabel(
   polygon: VectorPolygon,
   precision = 1.0,
 ): VectorPoint<{ distance: number }> {
@@ -85,7 +85,7 @@ export default function polylabel(
 }
 
 /** A cell in the polygon label algorithm */
-export interface PolyLabelCell {
+interface PolyLabelCell {
   /** cell center x */
   x: number;
   /** cell center y */

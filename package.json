@@ -1,6 +1,6 @@
 {
   "name": "s2-tools",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "description": "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.",
   "type": "module",
   "keywords": [
@@ -31,7 +31,7 @@
     "prettier:fix": "bunx prettier -- --write",
     "format": "bunx prettier:fix && bun run lint:fix",
     "build": "bun run build:rust && bun run build:ts",
-    "build:ts": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && bun run build.ts && tsc",
+    "build:ts": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc",
     "build:rust": "bun build:rust:cargo && bun build:rust:optimize && bun build:rust:strip",
     "build:rust:cargo": "cargo build --target wasm32-unknown-unknown --release --workspace --package rust-uint64",
     "build:rust:optimize": "wasm-opt -Oz -o target/wasm32-unknown-unknown/release/optimized.wasm target/wasm32-unknown-unknown/release/uint64.wasm",

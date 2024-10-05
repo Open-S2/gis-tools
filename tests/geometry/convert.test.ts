@@ -1,4 +1,4 @@
-import { convert } from '../../src/geometry/convert';
+import { convert } from '../../src';
 import { describe, expect, it } from 'bun:test';
 
 import type {

@@ -16,10 +16,12 @@ try {
     entrypoints: ['src/index.ts'],
     outdir: 'dist',
     format: 'esm',
+    splitting: true,
     minify: false,
     sourcemap: 'external',
+    packages: 'external',
     plugins: [WgslPlugin],
-    // target: 'esnext', // Adjust target based on your project needs
+    target: 'browser', // Adjust target based on your project needs
   });
   console.info(output);
   console.info('Build completed successfully!');

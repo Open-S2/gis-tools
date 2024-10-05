@@ -1,4 +1,4 @@
-import FileVector from '../../../src/dataStore/vector/file';
+import { FileVector } from '../../../src/file';
 import { toCell } from '../../../src/dataStructures/uint64';
 import { expect, test } from 'bun:test';
 

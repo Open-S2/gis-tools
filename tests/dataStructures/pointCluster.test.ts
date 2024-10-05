@@ -1,10 +1,10 @@
-import { PointCluster } from '../../src/dataStructures/pointCluster';
+import { PointCluster } from '../../src';
 import { expect, test } from 'bun:test';
 
 // helper functions
-import { fromFace } from '../../src/geometry';
+import { fromFace } from '../../src';
 
-import type { Tile } from '../../src/dataStructures/tile';
+import type { Tile } from '../../src/';
 
 test('PointCluster', async () => {
   const cluster = new PointCluster(
@@ -27,9 +27,14 @@ test('PointCluster', async () => {
 
   const tileFace = await cluster.getTile(fromFace(0));
   expect(tileFace).toEqual({
-    id: 1152921504606846976n,
+    face: 0,
+    zoom: 0,
+    i: 0,
+    j: 0,
+    extent: 1,
     layers: {
       default: {
+        extent: 1,
         features: [
           {
             face: 0,

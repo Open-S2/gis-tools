@@ -1,9 +1,7 @@
-import FileReader from '../../../src/readers/file';
-import FileWriter from '../../../src/writers/file';
 import { TileType } from '../../../src/readers/pmtiles';
 import tmp from 'tmp';
-import { BufferReader, S2PMTilesReader } from '../../../src/readers';
-import { BufferWriter, S2PMTilesWriter } from '../../../src/writers';
+import { BufferReader, BufferWriter, S2PMTilesReader, S2PMTilesWriter } from '../../../src';
+import { FileReader, FileWriter } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 import { stat } from 'node:fs/promises';

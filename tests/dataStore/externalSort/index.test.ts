@@ -1,6 +1,5 @@
-import { S2FileStore } from '../../../src/dataStore/file';
-import { S2MMapStore } from '../../../src/dataStore/mmap';
-import { externalSort } from '../../../src/dataStore/externalSort';
+import { S2FileStore } from '../../../src/file';
+import { S2MMapStore, externalSort } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';

@@ -1,4 +1,4 @@
-import { Mercator, Transformer, injectAllDefinitions } from '../../src/proj4';
+import { Mercator, Transformer, injectAllDefinitions } from '../../src';
 import { describe, expect, it } from 'bun:test';
 
 import { TEST_DATA } from './testData';

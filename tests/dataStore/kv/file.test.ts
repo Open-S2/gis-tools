@@ -1,4 +1,4 @@
-import FileKV from '../../../src/dataStore/kv/file';
+import { FileKV } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 test('KV - File', async () => {

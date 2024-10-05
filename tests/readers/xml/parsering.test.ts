@@ -13,7 +13,7 @@ import {
 
 import { beforeAll, expect, test } from 'bun:test';
 
-import type { Tag } from '../../../src/readers/xml/parsing';
+import type { XMLTag } from '../../../src/readers/xml/parsing';
 
 let iso: string;
 let mrf: string;
@@ -52,7 +52,7 @@ id="container"
 
 test('tmx', () => {
   expect(getAttribute(tmx, 'version')).toEqual('1.4');
-  const header: Tag = findTagByName(tmx, 'header') ?? {
+  const header: XMLTag = findTagByName(tmx, 'header') ?? {
     inner: '',
     outer: '',
     start: 0,
@@ -69,7 +69,7 @@ test('tmx', () => {
 });
 
 test('svg', () => {
-  const tag: Tag = findTagByName(svg, 'svg') ?? { inner: '', outer: '', start: 0, end: 0 };
+  const tag: XMLTag = findTagByName(svg, 'svg') ?? { inner: '', outer: '', start: 0, end: 0 };
   expect(getAttribute(tag, 'height')).toEqual('391');
   expect(getAttribute(tag, 'width')).toEqual('391');
   expect(getAttribute(tag, 'viewBox')).toEqual('-70.5 -70.5 391 391');

@@ -39,7 +39,7 @@ type WasmFreeS2CellId = (ptr: S2CellId) => void;
 /**
  * Generator that builds S2Cells from either lon/lat, S2Point, or face/s/t
  */
-export default class S2CellGenerator {
+export class S2CellGenerator {
   instance!: WebAssembly.Instance;
   wasmMemory?: Uint8Array;
   tmpString = '';

@@ -1,4 +1,4 @@
-import { MultiMap } from '../../../src/dataStore/multimap';
+import { MultiMap } from '../../../src';
 import { expect, test } from 'bun:test';
 
 test('MultiMap', () => {

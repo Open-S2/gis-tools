@@ -26,7 +26,7 @@ export interface DBFRow {
 }
 
 /** A DBF file class to parse the data from a DBF */
-export default class DataBaseFile {
+export class DataBaseFile {
   #header!: DBFHeader;
   #rows: DBFRow[];
 

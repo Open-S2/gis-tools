@@ -1,10 +1,10 @@
-import { BufferReader } from '../../../src/readers';
-import FileReader from '../../../src/readers/file';
+import { FileReader } from '../../../src/file';
 import {
   BufferJSONReader,
+  BufferReader,
   JSONReader,
   NewLineDelimitedJSONReader,
-} from '../../../src/readers/json';
+} from '../../../src';
 import { expect, test } from 'bun:test';
 
 test('BufferJSONReader - string', async () => {

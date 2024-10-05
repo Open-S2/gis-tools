@@ -1,4 +1,4 @@
-import { buildSqDists, simplify } from '../../src/geometry/simplify';
+import { buildSqDists, simplify } from '../../src';
 import { expect, test } from 'bun:test';
 
 import type {

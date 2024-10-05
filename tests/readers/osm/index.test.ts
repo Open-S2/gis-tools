@@ -1,6 +1,6 @@
-import FileReader from '../../../src/readers/file';
-import MMapMultiMap from '../../../src/dataStore/kv/mmap';
-import { OSMReader, TagFilter } from '../../../src/readers/osm';
+import { FileReader } from '../../../src/file';
+import { MMapKV } from '../../../src/mmap';
+import { OSMReader, TagFilter } from '../../../src';
 import { expect, test } from 'bun:test';
 
 test('parse basic case', async () => {
@@ -223,7 +223,7 @@ test('parse basic case with mmap KV store', async () => {
 
   const reader = new OSMReader(fileReader, {
     removeEmptyNodes: false,
-    store: MMapMultiMap,
+    store: MMapKV,
     tagFilter,
   });
   const header = reader.getHeader();

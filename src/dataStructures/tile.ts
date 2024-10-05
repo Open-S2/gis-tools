@@ -22,16 +22,27 @@ import type {
 
 /** Tile Class to contain the tile information for splitting or simplifying */
 export class Tile {
+  extent = 1;
+  face: Face;
+  zoom: number;
+  i: number;
+  j: number;
   /**
    * @param id - the tile id
    * @param layers - the tile's layers
    * @param transformed - whether the tile feature geometry has been transformed to tile coordinates
    */
   constructor(
-    public id: bigint,
+    id: bigint,
     public layers: Record<string, Layer> = {},
     public transformed = false,
-  ) {}
+  ) {
+    const [face, zoom, i, j] = toFaceIJ(id);
+    this.face = face;
+    this.zoom = zoom;
+    this.i = i;
+    this.j = j;
+  }
 
   /** @returns true if the tile is empty of features */
   isEmpty(): boolean {
@@ -63,10 +74,9 @@ export class Tile {
    * @param tolerance - tolerance
    * @param maxzoom - max zoom at which to simplify
    */
-  transform(tolerance: number, maxzoom?: number) {
-    const { transformed, id, layers } = this;
+  transform(tolerance: number, maxzoom?: number): void {
+    const { transformed, zoom, i, j, layers } = this;
     if (transformed) return;
-    const [, zoom, i, j] = toFaceIJ(id);
 
     for (const layer of Object.values(layers)) {
       for (const feature of layer.features) {
@@ -112,6 +122,7 @@ export function transformPoint(vp: VectorPoint, zoom: number, ti: number, tj: nu
 
 /** Layer Class to contain the layer information for splitting or simplifying */
 export class Layer {
+  extent = 1;
   /**
    * @param name - the layer name
    * @param features - the layer's features
@@ -161,7 +172,7 @@ export class TileStore {
     this.maxzoom = options?.maxzoom ?? 20;
     this.indexMaxzoom = options?.indexMaxzoom ?? 4;
     this.tolerance = options?.tolerance ?? 3;
-    this.buffer = options?.buffer ?? 64;
+    this.buffer = options?.buffer ?? 0.0625;
     this.buildBBox = options?.buildBBox ?? false;
     // update projection
     if (options?.projection !== undefined) this.projection = options.projection;
@@ -220,27 +231,32 @@ export class TileStore {
       const tile = tiles.get(stackID);
       // if the tile we need does not exist, is empty, or already transformed, skip it
       if (tile === undefined || tile.isEmpty() || tile.transformed) continue;
-      const tileZoom = level(tile.id);
+      const tileZoom = tile.zoom;
       // 1: stop tiling if we reached a defined end
       // 2: stop tiling if it's the first-pass tiling, and we reached max zoom for indexing
       // 3: stop at currently needed maxzoom OR current tile does not include child
       if (
         tileZoom >= maxzoom || // 1
         (endID === undefined && tileZoom >= indexMaxzoom) || // 2
-        (endID !== undefined && (tileZoom > endZoom || !contains(tile.id, endID))) // 3
+        (endID !== undefined && (tileZoom > endZoom || !contains(stackID, endID))) // 3
       )
         continue;
 
       // split the tile and store the children
-      const [blID, brID, tlID, trID] = splitTile(tile, buffer);
-      tiles.set(blID.id, blID);
-      tiles.set(brID.id, brID);
-      tiles.set(tlID.id, tlID);
-      tiles.set(trID.id, trID);
+      const [
+        { id: blID, tile: blTile },
+        { id: brID, tile: brTile },
+        { id: tlID, tile: tlTile },
+        { id: trID, tile: trTile },
+      ] = splitTile(tile, buffer);
+      tiles.set(blID, blTile);
+      tiles.set(brID, brTile);
+      tiles.set(tlID, tlTile);
+      tiles.set(trID, trTile);
       // now that the tile has been split, we can transform it
       tile.transform(tolerance, maxzoom);
       // push the new features to the stack
-      stack.push(blID.id, brID.id, tlID.id, trID.id);
+      stack.push(blID, brID, tlID, trID);
     }
   }
 
@@ -257,9 +273,7 @@ export class TileStore {
 
     // we want to find the closest tile to the data.
     let pID = id;
-    while (!tiles.has(pID) && !isFace(pID)) {
-      pID = parentID(pID);
-    }
+    while (!tiles.has(pID) && !isFace(pID)) pID = parentID(pID);
     // split as necessary, the algorithm will know if the tile is already split
     this.splitTile(pID, id, zoom);
 

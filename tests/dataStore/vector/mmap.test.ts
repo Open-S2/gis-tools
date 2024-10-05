@@ -1,4 +1,4 @@
-import MMapVector from '../../../src/dataStore/vector/mmap';
+import { MMapVector } from '../../../src/mmap';
 import { toCell } from '../../../src/dataStructures/uint64';
 import { expect, test } from 'bun:test';
 

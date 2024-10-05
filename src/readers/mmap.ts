@@ -3,7 +3,7 @@ import { mmap } from 'bun';
 import type { Reader } from '.';
 
 /** Reads data from a file */
-export default class MMapReader implements Reader {
+export class MMapReader implements Reader {
   #buffer: Uint8Array;
   byteOffset: number = 0;
   byteLength: number;

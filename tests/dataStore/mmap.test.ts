@@ -1,4 +1,4 @@
-import { S2MMapStore } from '../../src/dataStore/mmap';
+import { S2MMapStore } from '../../src/mmap';
 import { expect, test } from 'bun:test';
 
 test('S2MMapStore', async () => {

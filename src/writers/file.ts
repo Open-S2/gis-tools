@@ -5,7 +5,7 @@ import type { Writable } from 'stream'; // Needed for type annotation if desired
 import type { Writer } from '.';
 
 /** The File writer is to be used by bun/node/deno on the local filesystem. */
-export default class FileWriter implements Writer {
+export class FileWriter implements Writer {
   #stream: Writable;
   #textEncoder = new TextEncoder();
 

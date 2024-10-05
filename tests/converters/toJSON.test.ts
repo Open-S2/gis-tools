@@ -1,7 +1,5 @@
-import { BufferReader } from '../../src/readers';
-import { BufferWriter } from '../../src/writers';
-import FileReader from '../../src/readers/file';
-import { JSONReader, NewLineDelimitedJSONReader } from '../../src/readers/json';
+import { FileReader } from '../../src/file';
+import { BufferReader, BufferWriter, JSONReader, NewLineDelimitedJSONReader } from '../../src';
 import { expect, test } from 'bun:test';
 import { toJSON, toJSONLD } from '../../src/converters';
 
