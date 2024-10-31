@@ -1,8 +1,12 @@
 import { S2FileStore } from '../../src/file';
 import { expect, test } from 'bun:test';
 
+import tmp from 'tmp';
+tmp.setGracefulCleanup();
+
 test('S2FileStore', async () => {
-  const store = new S2FileStore<{ a: number }>();
+  const dir = tmp.dirSync({ prefix: 'file_test' });
+  const store = new S2FileStore<{ a: number }>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, { a: 1 });
   expect(store.length).toBe(1);

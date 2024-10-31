@@ -31,22 +31,21 @@ export function adjustLon(x: number): number {
 }
 
 /**
- * Returns an adjusted zone relative to the input longitude
+ * Returns an adjusted zone relative to the input zone and longitude
  * @param zone - the input zone
  * @param lon - the input longitude
  * @returns - the adjusted zone
  */
 export function adjustZone(zone: number | undefined, lon: number): number {
-  if (zone === undefined) {
-    zone = floor(((adjustLon(lon) + PI) * 30) / PI) + 1;
+  zone = zone ?? floor(((adjustLon(lon) + PI) * 30) / PI) + 1;
 
-    if (zone < 0) {
-      return 0;
-    } else if (zone > 60) {
-      return 60;
-    }
+  if (zone < 0) {
+    return 0;
+  } else if (zone > 60) {
+    return 60;
+  } else {
+    return zone;
   }
-  return zone;
 }
 
 /**
@@ -161,6 +160,7 @@ export function cosh(x: number): number {
 }
 
 /**
+ * Returns eOfn(x)
  * @param x - input
  * @returns - eOfn(x)
  */
@@ -169,21 +169,27 @@ export function e0fn(x: number): number {
 }
 
 /**
- * @param x
+ * Returns e1fn(x)
+ * @param x - input
+ * @returns - e1fn(x)
  */
 export function e1fn(x: number): number {
   return 0.375 * x * (1 + 0.25 * x * (1 + 0.46875 * x));
 }
 
 /**
- * @param x
+ * Returns e2fn(x)
+ * @param x - input
+ * @returns - e2fn(x)
  */
 export function e2fn(x: number): number {
   return 0.05859375 * x * x * (1 + 0.75 * x);
 }
 
 /**
- * @param x
+ * Returns e3fn(x)
+ * @param x - input
+ * @returns - e3fn(x)
  */
 export function e3fn(x: number): number {
   return x * x * x * (35 / 3072);

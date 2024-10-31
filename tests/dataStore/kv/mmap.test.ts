@@ -1,8 +1,12 @@
 import { MMapKV } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
+import tmp from 'tmp';
+tmp.setGracefulCleanup();
+
 test('KV - MMap', async () => {
-  const store = new MMapKV<number>();
+  const dir = tmp.dirSync({ prefix: 'kv_mmap' });
+  const store = new MMapKV<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);
   expect(store.length).toBe(1);

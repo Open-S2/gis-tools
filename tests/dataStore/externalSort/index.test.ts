@@ -3,12 +3,12 @@ import { S2MMapStore, externalSort } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-
 tmp.setGracefulCleanup();
 
 test('sort - single threaded', async () => {
   const dir = tmp.dirSync({ prefix: 'externalSort_single' });
-  const store = new S2FileStore<{ a: number }>(dir.name);
+  const name = `${dir.name}/sort-single-threaded`;
+  const store = new S2FileStore<{ a: number }>(name);
 
   store.set(0, { a: 1 });
   store.set(1, { a: 2 });
@@ -19,9 +19,9 @@ test('sort - single threaded', async () => {
 
   store.close();
 
-  await externalSort([`${dir.name}.keys`], `${dir.name}.sortedkeys`);
+  await externalSort([name], name);
 
-  const storeSorted = new S2FileStore<{ a: number }>(dir.name, { isSorted: true });
+  const storeSorted = new S2FileStore<{ a: number }>(name, { isSorted: true });
   const data = await Array.fromAsync(storeSorted.entries());
 
   expect(data).toStrictEqual([
@@ -34,10 +34,51 @@ test('sort - single threaded', async () => {
   ]);
 });
 
-// TODO: multi-thread not working entirely yet.
-test.skip('sort - multi threaded', async () => {
+test('sort multi-file - single threaded', async () => {
   const dir = tmp.dirSync({ prefix: 'externalSort_single' });
-  const store = new S2MMapStore<{ a: number }>(dir.name);
+
+  const storeA = new S2FileStore<{ a: number }>(`${dir.name}/a`);
+  storeA.set(0, { a: 1 });
+  storeA.set(1, { a: 2 });
+  storeA.set(22, { a: 6 });
+  storeA.close();
+
+  const storeB = new S2FileStore<{ a: number }>(`${dir.name}/b`);
+  storeB.set(5_005, { a: 3 });
+  storeB.set(22, { a: 4 });
+  storeB.set(22, { a: 5 });
+  storeB.close();
+
+  const storeC = new S2FileStore<{ a: number }>(`${dir.name}/c`);
+  storeC.set(9807, { a: 7 });
+  storeC.set(456, { a: 8 });
+  storeC.set(55, { a: 9 });
+  storeC.set(12, { a: 10 });
+  storeC.close();
+
+  await externalSort([`${dir.name}/a`, `${dir.name}/b`, `${dir.name}/c`], `${dir.name}/a`);
+
+  const storeSorted = new S2FileStore<{ a: number }>(`${dir.name}/a`, { isSorted: true });
+  const data = await Array.fromAsync(storeSorted.entries());
+
+  expect(data).toStrictEqual([
+    { key: { high: 0, low: 0 }, value: { a: 1 } },
+    { key: { high: 0, low: 1 }, value: { a: 2 } },
+    { key: { high: 0, low: 12 }, value: { a: 10 } },
+    { key: { high: 0, low: 22 }, value: { a: 6 } },
+    { key: { high: 0, low: 22 }, value: { a: 4 } },
+    { key: { high: 0, low: 22 }, value: { a: 5 } },
+    { key: { high: 0, low: 55 }, value: { a: 9 } },
+    { key: { high: 0, low: 456 }, value: { a: 8 } },
+    { key: { high: 0, low: 5005 }, value: { a: 3 } },
+    { key: { high: 0, low: 9807 }, value: { a: 7 } },
+  ]);
+});
+
+test('sort - multi threaded', async () => {
+  const dir = tmp.dirSync({ prefix: 'externalSort_single' });
+  const name = `${dir.name}/sort-multi-threaded`;
+  const store = new S2MMapStore<{ a: number }>(name);
 
   store.set(0, { a: 1 });
   store.set(1, { a: 2 });
@@ -69,9 +110,9 @@ test.skip('sort - multi threaded', async () => {
 
   store.close();
 
-  await externalSort([`${dir.name}.keys`], `${dir.name}.sortedkeys`, 2, 2);
+  await externalSort([name], name, 2, 2);
 
-  const storeSorted = new S2FileStore<{ a: number }>(dir.name, { isSorted: true });
+  const storeSorted = new S2FileStore<{ a: number }>(name, { isSorted: true });
   const data = await Array.fromAsync(storeSorted.entries());
 
   // We cant strict equal because threading, so just check that all key-vaue pairs exist

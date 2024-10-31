@@ -7,9 +7,9 @@ import type { SortChunk } from '.';
  * @returns - output file that it created
  */
 export async function sortChunk(chunk: SortChunk): Promise<string> {
-  const { name, input, outDir, start, end } = chunk;
+  const { name, input, outDir, start, end, valueOffset } = chunk;
   const outFile = `${outDir}/es_${name}_${start}_${end}.tmp`;
-  await _sortChunk(input, outFile, start, end);
+  await _sortChunk(input, outFile, start, end, valueOffset);
   return outFile;
 }
 
@@ -18,12 +18,14 @@ export async function sortChunk(chunk: SortChunk): Promise<string> {
  * @param output - output file
  * @param start - start index
  * @param end - end index
+ * @param valueOffset - actual value offset if merging values of multiple files
  */
 async function _sortChunk(
   input: string,
   output: string,
   start: number,
   end: number,
+  valueOffset: number,
 ): Promise<void> {
   // prepare the input and output files
   const inputHandle = await open(input, 'r').catch((err) => {
@@ -38,6 +40,8 @@ async function _sortChunk(
   // sort the chunk
   const keys = bufferToKeys(inputBuffer);
   keys.sort(keySort);
+  // update keys to correct offset
+  for (let i = 0; i < keys.length; i++) keys[i].offset += valueOffset;
   // write out the sorted chunk
   const sortedBuffer = keysToBuffer(keys);
   await outputHandle.appendFile(sortedBuffer);

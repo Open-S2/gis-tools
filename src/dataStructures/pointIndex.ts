@@ -1,4 +1,4 @@
-import { Vector } from '../dataStore/vector';
+import { Vector } from '../dataStore';
 import { fromS2Points } from '../geometry/s1/chordAngle';
 import { range } from '../geometry';
 import { compare, fromS2Point, toCell } from '../dataStructures/uint64';
@@ -10,7 +10,7 @@ import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type { Stringifiable } from '../dataStore';
 import type { Face, Point3D } from '../geometry';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
-import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
+import type { VectorStore, VectorStoreConstructor } from '../dataStore';
 
 /** The kind of input required to store a point for proper indexing */
 export interface PointShape<T = Stringifiable> {

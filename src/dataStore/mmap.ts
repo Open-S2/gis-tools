@@ -21,6 +21,12 @@ export interface MMapOptions {
   tmpDir?: string;
 }
 
+/** An entry in a file */
+export interface MMapEntry<V> {
+  key: Uint64Cell;
+  value: V;
+}
+
 /**
  * NOTE: The File KVStore is designed to be used in states:
  * - write-only. The initial state is write-only. Write all you need to before reading
@@ -28,6 +34,7 @@ export interface MMapOptions {
  * and read-only.
  */
 export class S2MMapStore<V = Stringifiable> {
+  readonly fileName: string;
   #state: 'read' | 'write' = 'read';
   #size = 0;
   #sorted: boolean;
@@ -49,11 +56,8 @@ export class S2MMapStore<V = Stringifiable> {
    * @param fileName - the path + file name without the extension
    * @param options - the options of how the store should be created and ued
    */
-  constructor(
-    public readonly fileName?: string,
-    options?: MMapOptions,
-  ) {
-    if (fileName === undefined) fileName = buildTmpFileName(options?.tmpDir);
+  constructor(fileName?: string, options?: MMapOptions) {
+    this.fileName = fileName ?? buildTmpFileName(options?.tmpDir);
     this.#sorted = options?.isSorted ?? false;
     this.#indexIsValues = options?.valuesAreIndex ?? false;
     this.#maxHeap = options?.maxHeap;
@@ -170,7 +174,7 @@ export class S2MMapStore<V = Stringifiable> {
    * @param bigint - set to true if the value is a bigint stored in the index
    * @yields an iterator
    */
-  async *entries(bigint = false): AsyncIterableIterator<{ key: Uint64Cell; value: V }> {
+  async *entries(bigint = false): AsyncIterableIterator<MMapEntry<V>> {
     await this.#switchToReadState();
     for (let i = 0; i < this.#size; i++) {
       const keySlice = this.#keyReader.subarray(i * 16, i * 16 + 16);
@@ -223,8 +227,8 @@ export class S2MMapStore<V = Stringifiable> {
   async #sort(): Promise<void> {
     if (this.#sorted) return;
     await externalSort(
-      [`${this.fileName}.keys`],
-      `${this.fileName}.sortedKeys`,
+      [this.fileName],
+      this.fileName,
       this.#maxHeap,
       this.#threadCount,
       this.#tmpDir,

@@ -1,5 +1,5 @@
-import { toWM } from './s2';
-import { toS2, toUnitScale, toVector } from './wm';
+import { toWM } from '../s2';
+import { toS2, toUnitScale, toVector } from '../wm';
 
 import type {
   Feature,
@@ -8,7 +8,7 @@ import type {
   S2Feature,
   VectorFeature,
   VectorFeatures,
-} from '.';
+} from '..';
 
 /**
  * @param projection - output either S2 or WM

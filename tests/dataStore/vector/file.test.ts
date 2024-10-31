@@ -2,6 +2,9 @@ import { FileVector } from '../../../src/file';
 import { toCell } from '../../../src/dataStructures/uint64';
 import { expect, test } from 'bun:test';
 
+import tmp from 'tmp';
+tmp.setGracefulCleanup();
+
 import type { VectorKey } from '../../../src/dataStore/vector';
 
 /** Test key */
@@ -10,7 +13,8 @@ interface TestKey extends VectorKey {
 }
 
 test('FileVector', async () => {
-  const store = new FileVector<TestKey>();
+  const dir = tmp.dirSync({ prefix: 'vector_file' });
+  const store = new FileVector<TestKey>(dir.name);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: toCell(0) });
   expect(store.length).toBe(1);

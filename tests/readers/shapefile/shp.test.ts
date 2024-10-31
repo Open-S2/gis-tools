@@ -296,14 +296,3 @@ test('fromURL', async () => {
     type: 'FeatureCollection',
   });
 });
-
-// TODO: FINISH TRANSFORM THEN ADD THIS BACK
-// test('fromPath', async () => {
-//   const shp = await fromPath(`${__dirname}/../fixtures/utf.shp`);
-//   expect(shp.getHeader()).toEqual({
-//     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
-//     length: 156,
-//     shpCode: 1,
-//     version: 1000,
-//   });
-// });

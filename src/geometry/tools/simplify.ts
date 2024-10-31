@@ -4,7 +4,7 @@ import {
   VectorMultiLineString,
   VectorMultiPolygon,
   VectorPolygon,
-} from '.';
+} from '..';
 
 /**
  * Builds squared distances for the vector geometry using the Douglas-Peucker algorithm.

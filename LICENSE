@@ -4,7 +4,7 @@ Copyright 2024 - Open S2
 
 All rights reserved.
 
-If you use any code from the s2maps-gpu engine, whether by forking the repository or incorporating snippets into your own project, you must maintain the code that includes the watermark and attribution to the OpenS2 initiative as is. You can learn more, including exceptions to this rule found at the attribution section <https://www.opens2.com/legal/attribution#when-attribute> and watermark section <https://www.opens2.com/legal/attribution#when-watermark>.
+If you use any code from the s2-tools engine, whether by forking the repository or incorporating snippets into your own project, you must maintain the code that includes the watermark and attribution to the OpenS2 initiative as is. You can learn more, including exceptions to this rule found at the attribution section <https://www.opens2.com/legal/attribution#when-attribute> and watermark section <https://www.opens2.com/legal/attribution#when-watermark>.
 
 By use, copy, modify, merge, publish, distribute, contribute, sublicense, and/or sell copies of the Software, you confirm that you are not employed at MapTiler AG, you are in no way affiliated to MapTiler AG, your work is not on behalf of MapTiler AG or associated with MapTiler AG. To the best of your knowledge, information and/or belief your work will not make it's way into the hands of MapTiler AG.
 
@@ -426,3 +426,63 @@ express Statement of Purpose.
  d. Affirmer understands and acknowledges that Creative Commons is not a
     party to this document and has no duty or obligation with respect to
     this CC0 or use of the Work.
+
+---
+
+Some code has been repurposed from <https://github.com/mourner/kdbush>
+
+ISC License
+
+Copyright (c) 2018, Vladimir Agafonkin
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+---
+
+Some code has been repurposed from <https://github.com/mourner/geokdbush>
+
+ISC License
+
+Copyright (c) 2017, Vladimir Agafonkin
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+---
+
+Some code has been repurposed from <https://github.com/mourner/tinyqueue>
+
+ISC License
+
+Copyright (c) 2017, Vladimir Agafonkin
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.

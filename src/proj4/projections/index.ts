@@ -9,7 +9,7 @@ import { EquidistantConic } from './eqdc';
 import { EquidistantCylindrical } from './eqc';
 import { ExtendedTransverseMercator } from './etmerc';
 import { GaussKruger } from './gauss';
-import { GaussSchreiberTransverseMercator } from './gstmerc';
+// import { GaussSchreiberTransverseMercator } from './gstmerc';
 import { Geocentric } from './geocent';
 import { GeostationarySatelliteView } from './geos';
 import { Gnomonic } from './gnom';
@@ -55,7 +55,7 @@ export * from './gauss';
 export * from './geocent';
 export * from './geos';
 export * from './gnom';
-export * from './gstmerc';
+// export * from './gstmerc';
 export * from './krovak';
 export * from './laea';
 export * from './lcc';
@@ -113,7 +113,7 @@ export const ALL_DEFINITIONS: ProjectionTransformDefinition[] = [
   EquiRectangular,
   ExtendedTransverseMercator,
   GaussKruger,
-  GaussSchreiberTransverseMercator,
+  // GaussSchreiberTransverseMercator,
   Geocentric,
   GeostationarySatelliteView,
   Gnomonic,

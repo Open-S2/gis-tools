@@ -43,10 +43,12 @@ export const GON2R = GRD2R;
 export const QUART_PI = Math.PI / 4;
 /** 2 π */
 export const TWO_PI = Math.PI * 2;
-// SPI is slightly greater than Math.PI, so values that exceed the -180..180
-// degree range by a tiny amount don't get wrapped. This prevents points that
-// have drifted from their original location along the 180th meridian (due to
-// floating point error) from changing their sign.
+/**
+ * SPI is slightly greater than Math.PI, so values that exceed the -180..180
+ * degree range by a tiny amount don't get wrapped. This prevents points that
+ * have drifted from their original location along the 180th meridian (due to
+ * floating point error) from changing their sign.
+ */
 export const SPI = 3.14159265359;
 
 export const FT_TO_M = 0.3048;

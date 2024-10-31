@@ -1,7 +1,7 @@
 import { KV } from '../../../src';
 import { expect, test } from 'bun:test';
 
-test('KV', async () => {
+test('KV - local', async () => {
   const store = new KV<number>();
   expect(store.length).toBe(0);
   store.set(0, 1);

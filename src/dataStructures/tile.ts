@@ -1,6 +1,6 @@
-import { convert } from '../geometry/convert';
+import { convert } from '../geometry/tools/convert';
 import { simplify } from '../geometry';
-import { splitTile } from '../geometry/clip';
+import { splitTile } from '../geometry/tools/clip';
 import {
   contains,
   fromFace,

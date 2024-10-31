@@ -1,3 +1,4 @@
+[ ] - reimagine the pointIndex system, its too slow
 [ ] - bin -> toS2JSON, toRasterTiles, & toVectorTiles
 [ ] - toVectorTiles
 [ ] - - INPUTS: all S2JSON types as `s2jsonld` files
@@ -8,3 +9,5 @@
 [ ] - - KML, KMZ, GML, & GPX
 [ ] - - raster tile reader including DEM for z-data
 [ ] - - LAS/LAZ
+[ ] - geometry tools (lookup readme in geometry folder)
+[ ] - support missing projections in proj4 found in c++ implementation

@@ -20,6 +20,14 @@ export interface FileOptions {
   tmpDir?: string;
 }
 
+/** An entry in a file */
+export interface FileEntry<V> {
+  key: Uint64Cell;
+  value: V;
+}
+
+const KEY_LENGTH = 16;
+
 /**
  * NOTE: The File KVStore is designed to be used in states:
  * - write-only. The initial state is write-only. Write all you need to before reading
@@ -27,6 +35,7 @@ export interface FileOptions {
  * and read-only.
  */
 export class S2FileStore<V = Stringifiable> {
+  readonly fileName: string;
   #state: 'read' | 'write' = 'read';
   #size = 0;
   #sorted: boolean;
@@ -44,13 +53,10 @@ export class S2FileStore<V = Stringifiable> {
   /**
    * Builds a new File based KV
    * @param fileName - the path + file name without the extension
-   * @param options - the options of how the store should be created and ued
+   * @param options - the options of how the store should be created and used
    */
-  constructor(
-    public readonly fileName?: string,
-    options?: FileOptions,
-  ) {
-    if (fileName === undefined) fileName = buildTmpFileName(options?.tmpDir);
+  constructor(fileName?: string, options?: FileOptions) {
+    this.fileName = fileName ?? buildTmpFileName(options?.tmpDir);
     this.#sorted = options?.isSorted ?? false;
     this.#indexIsValues = options?.valuesAreIndex ?? false;
     this.#maxHeap = options?.maxHeap;
@@ -58,12 +64,12 @@ export class S2FileStore<V = Stringifiable> {
     this.#tmpDir = options?.tmpDir;
     if (!this.#sorted) this.#switchToWriteState();
     else {
-      this.#keyFd = openSync(`${fileName}.sortedKeys`, 'r');
-      if (!this.#indexIsValues) this.#valueFd = openSync(`${fileName}.values`, 'r');
+      this.#keyFd = openSync(`${this.fileName}.sortedKeys`, 'r');
+      if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'r');
     }
     // Update the size if the file already existed
     const stat = fstatSync(this.#keyFd);
-    if (stat.size >= 16) this.#size = stat.size / 16;
+    if (stat.size >= KEY_LENGTH) this.#size = stat.size / KEY_LENGTH;
   }
 
   /** @returns - the length of the store */
@@ -79,10 +85,9 @@ export class S2FileStore<V = Stringifiable> {
   set(key: Uint64, value: V): void {
     this.#switchToWriteState();
     // prepare value
-    const valueStr = JSON.stringify(value);
-    const valueBuf = Buffer.from(valueStr);
+    const valueBuf = Buffer.from(JSON.stringify(value));
     // write key offset as a uint64
-    const buffer = Buffer.alloc(16);
+    const buffer = Buffer.alloc(KEY_LENGTH);
     const { low, high } = toCell(key);
     buffer.writeUInt32LE(low, 0);
     buffer.writeUInt32LE(high, 4);
@@ -122,9 +127,9 @@ export class S2FileStore<V = Stringifiable> {
     if (lowerIndex >= this.#size) return undefined;
     const { low: lowID, high: highID } = toCell(key);
     const res: V[] = [];
-    const buffer = Buffer.alloc(16);
+    const buffer = Buffer.alloc(KEY_LENGTH);
     while (true) {
-      readSync(this.#keyFd, buffer, 0, 16, lowerIndex * 16);
+      readSync(this.#keyFd, buffer, 0, KEY_LENGTH, lowerIndex * KEY_LENGTH);
       if (buffer.readUInt32LE(0) !== lowID || buffer.readUInt32LE(4) !== highID) break;
       const valueOffset = buffer.readUInt32LE(8);
       const valueLength = buffer.readUInt32LE(12);
@@ -155,11 +160,11 @@ export class S2FileStore<V = Stringifiable> {
    * @param bigint - set to true if the value is a bigint stored in the index
    * @yields an iterator
    */
-  async *entries(bigint = false): AsyncIterableIterator<{ key: Uint64Cell; value: V }> {
+  async *entries(bigint = false): AsyncIterableIterator<FileEntry<V>> {
     await this.#switchToReadState();
     for (let i = 0; i < this.#size; i++) {
-      const buffer = Buffer.alloc(16);
-      readSync(this.#keyFd, buffer, 0, 16, i * 16);
+      const buffer = Buffer.alloc(KEY_LENGTH);
+      readSync(this.#keyFd, buffer, 0, KEY_LENGTH, i * KEY_LENGTH);
       const keyLow = buffer.readUInt32LE(0);
       const keyHigh = buffer.readUInt32LE(4);
       const valueOffset = buffer.readUInt32LE(8);
@@ -216,8 +221,8 @@ export class S2FileStore<V = Stringifiable> {
   async #sort(): Promise<void> {
     if (this.#sorted) return;
     await externalSort(
-      [`${this.fileName}.keys`],
-      `${this.fileName}.sortedKeys`,
+      [this.fileName],
+      this.fileName,
       this.#maxHeap,
       this.#threadCount,
       this.#tmpDir,
@@ -255,7 +260,7 @@ export class S2FileStore<V = Stringifiable> {
    */
   #getKey(index: number): Uint64Cell {
     const buf = Buffer.alloc(8);
-    readSync(this.#keyFd, buf, 0, 8, index * 16);
+    readSync(this.#keyFd, buf, 0, 8, index * KEY_LENGTH);
     return { low: buf.readUint32LE(0), high: buf.readUint32LE(4) };
   }
 }

@@ -35,7 +35,7 @@ export interface Definition {
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @returns - a Shapefile
  */
-export async function fromPath(
+export async function shapefileFromPath(
   input: string,
   defs?: ProjectionTransformDefinition[],
 ): Promise<ShapeFile> {
@@ -55,7 +55,7 @@ export async function fromPath(
     prj: (await exists(prj)) ? prj : undefined,
     cpg: (await exists(cpg)) ? cpg : undefined,
   };
-  return fromDefinition(definition, defs);
+  return shapefileFromDefinition(definition, defs);
 }
 
 /**
@@ -64,7 +64,7 @@ export async function fromPath(
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @returns - a Shapefile
  */
-export async function fromDefinition(
+export async function shapefileFromDefinition(
   def: Definition,
   defs?: ProjectionTransformDefinition[],
 ): Promise<ShapeFile> {

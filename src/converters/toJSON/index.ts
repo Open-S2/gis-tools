@@ -1,4 +1,4 @@
-import { convert } from '../../geometry/convert';
+import { convert } from '../../geometry/tools/convert';
 import { mergeBBoxes } from '../../geometry';
 
 import type { FeatureIterator } from '../../readers';

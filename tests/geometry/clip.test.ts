@@ -1,6 +1,6 @@
 import { Tile } from '../../src/dataStructures';
 import { fromFace } from '../../src/geometry/id';
-import { clipLine, clipPoint, splitTile } from '../../src/geometry/clip';
+import { clipLine, clipPoint, splitTile } from '../../src/geometry/tools/clip';
 import { describe, expect, it, test } from 'bun:test';
 
 import type {
@@ -685,747 +685,875 @@ describe('splitTile', () => {
     ]);
   });
 
-  // it('LineString', () => {
-  //   const faceID = fromFace(0);
-  //   const features: VectorFeature[] = [
-  //     {
-  //       type: 'VectorFeature',
-  //       properties: { a: 2 },
-  //       geometry: {
-  //         type: 'LineString',
-  //         is3D: false,
-  //         coordinates: [
-  //           { x: 0.25, y: 0.25 },
-  //           { x: 0.75, y: 0.75 },
-  //           { x: 0.75, y: 0.25 },
-  //           { x: 0.25, y: 0.75 },
-  //         ],
-  //         vecBBox: [0.25, 0.25, 0.75, 0.75],
-  //       },
-  //     },
-  //   ];
+  it('LineString', () => {
+    const faceID = fromFace(0);
+    const features: VectorFeature[] = [
+      {
+        type: 'VectorFeature',
+        properties: { a: 2 },
+        geometry: {
+          type: 'LineString',
+          is3D: false,
+          coordinates: [
+            { x: 0.25, y: 0.25 },
+            { x: 0.75, y: 0.75 },
+            { x: 0.75, y: 0.25 },
+            { x: 0.25, y: 0.75 },
+          ],
+          vecBBox: [0.25, 0.25, 0.75, 0.75],
+        },
+      },
+    ];
 
-  //   const tile = new Tile(faceID);
-  //   for (const feature of features) tile.addFeature(feature);
+    const tile = new Tile(faceID);
+    for (const feature of features) tile.addFeature(feature);
 
-  //   const res = splitTile(tile);
-  //   expect(res).toEqual([
-  //     {
-  //       id: 288230376151711744n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.25, y: 0.25 },
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.5625, y: 0.4375 },
-  //                     { x: 0.4375, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0, 1.4722718241315027],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.25, 0.5625, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 2017612633061982208n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.4375, y: 0.4375 },
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.75, y: 0.5625, t: 1 },
-  //                     { x: 0.75, y: 0.25 },
-  //                     { x: 0.4375, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.2651650429449553, 0.8946067811865475],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.25, 0.75, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 864691128455135232n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.4375, y: 0.4375, t: 1 },
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.5625, y: 0.4375 },
-  //                     { x: 0.25, y: 0.75 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.2651650429449553, 1.4722718241315027],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.4375, 0.5625, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 1441151880758558720n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.4375, y: 0.4375 },
-  //                     { x: 0.75, y: 0.75 },
-  //                     { x: 0.75, y: 0.4375, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.5625, y: 0.4375, t: 1 },
-  //                     { x: 0.4375, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.2651650429449553, 1.4722718241315027],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.4375, 0.75, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //   ]);
-  // });
+    const res = splitTile(tile);
+    expect(res).toEqual([
+      {
+        id: 288230376151711744n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.25, y: 0.25 },
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                      ],
+                      [
+                        { x: 0.5625, y: 0.4375 },
+                        { t: 1, x: 0.4375, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0, 1.4722718241315027],
+                    type: 'MultiLineString',
+                    vecBBox: [0.25, 0.25, 0.5625, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 2017612633061982208n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.4375, y: 0.4375 },
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                      ],
+                      [
+                        { t: 1, x: 0.75, y: 0.5625 },
+                        { x: 0.75, y: 0.25 },
+                        { t: 1, x: 0.4375, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.2651650429449553, 0.8946067811865475],
+                    type: 'MultiLineString',
+                    vecBBox: [0.4375, 0.25, 0.75, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 864691128455135232n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { t: 1, x: 0.4375, y: 0.4375 },
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                      ],
+                      [
+                        { x: 0.5625, y: 0.4375 },
+                        { x: 0.25, y: 0.75 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.2651650429449553, 1.4722718241315027],
+                    type: 'MultiLineString',
+                    vecBBox: [0.25, 0.4375, 0.5625, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 1441151880758558720n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.4375, y: 0.4375 },
+                        { x: 0.75, y: 0.75 },
+                        { t: 1, x: 0.75, y: 0.4375 },
+                      ],
+                      [
+                        { t: 1, x: 0.5625, y: 0.4375 },
+                        { t: 1, x: 0.4375, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.2651650429449553, 1.4722718241315027],
+                    type: 'MultiLineString',
+                    vecBBox: [0.4375, 0.4375, 0.75, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+    ]);
+  });
 
-  // it('MultiLineString', () => {
-  //   const faceID = fromFace(0);
-  //   const features: VectorFeature[] = [
-  //     {
-  //       type: 'VectorFeature',
-  //       properties: { a: 2 },
-  //       geometry: {
-  //         type: 'MultiLineString',
-  //         is3D: false,
-  //         coordinates: [
-  //           [
-  //             { x: 0.25, y: 0.25 },
-  //             { x: 0.75, y: 0.25 },
-  //             { x: 0.75, y: 0.75 },
-  //             { x: 0.25, y: 0.75 },
-  //           ],
-  //           [
-  //             { x: 0.4, y: 0.4 },
-  //             { x: 0.6, y: 0.4 },
-  //             { x: 0.6, y: 0.6 },
-  //             { x: 0.4, y: 0.6 },
-  //           ],
-  //         ],
-  //         vecBBox: [0.25, 0.25, 0.75, 0.75],
-  //       },
-  //     },
-  //   ];
+  it('MultiLineString', () => {
+    const faceID = fromFace(0);
+    const features: VectorFeature[] = [
+      {
+        type: 'VectorFeature',
+        properties: { a: 2 },
+        geometry: {
+          type: 'MultiLineString',
+          is3D: false,
+          coordinates: [
+            [
+              { x: 0.25, y: 0.25 },
+              { x: 0.75, y: 0.25 },
+              { x: 0.75, y: 0.75 },
+              { x: 0.25, y: 0.75 },
+            ],
+            [
+              { x: 0.4, y: 0.4 },
+              { x: 0.6, y: 0.4 },
+              { x: 0.6, y: 0.6 },
+              { x: 0.4, y: 0.6 },
+            ],
+          ],
+          vecBBox: [0.25, 0.25, 0.75, 0.75],
+        },
+      },
+    ];
 
-  //   const tile = new Tile(faceID);
-  //   for (const feature of features) tile.addFeature(feature);
+    const tile = new Tile(faceID);
+    for (const feature of features) tile.addFeature(feature);
 
-  //   const res = splitTile(tile);
-  //   expect(res).toEqual([
-  //     {
-  //       id: 288230376151711744n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.25, y: 0.25 },
-  //                     { x: 0.5625, y: 0.25, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.4, y: 0.4 },
-  //                     { x: 0.5625, y: 0.4, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0, 0],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.25, 0.5625, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 2017612633061982208n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.4375, y: 0.25 },
-  //                     { x: 0.75, y: 0.25 },
-  //                     { x: 0.75, y: 0.5625, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.4375, y: 0.4 },
-  //                     { x: 0.6, y: 0.4 },
-  //                     { x: 0.6, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.1875, 0.03749999999999998],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.25, 0.75, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 864691128455135232n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.5625, y: 0.75 },
-  //                     { x: 0.25, y: 0.75 },
-  //                   ],
-  //                   [
-  //                     { x: 0.5625, y: 0.6 },
-  //                     { x: 0.4, y: 0.6 },
-  //                   ],
-  //                 ],
-  //                 offset: [1.1875, 0.4374999999999999],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.4375, 0.5625, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 1441151880758558720n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.75, y: 0.4375, t: 1 },
-  //                     { x: 0.75, y: 0.75 },
-  //                     { x: 0.4375, y: 0.75, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.6, y: 0.4375, t: 1 },
-  //                     { x: 0.6, y: 0.6 },
-  //                     { x: 0.4375, y: 0.6, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.6875, 0.23749999999999993],
-  //                 type: 'MultiLineString',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.4375, 0.75, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //   ]);
-  // });
+    const res = splitTile(tile);
+    expect(res).toEqual([
+      {
+        id: 288230376151711744n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.25, y: 0.25 },
+                        { t: 1, x: 0.5625, y: 0.25 },
+                      ],
+                      [
+                        { x: 0.4, y: 0.4 },
+                        { t: 1, x: 0.5625, y: 0.4 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0, 0],
+                    type: 'MultiLineString',
+                    vecBBox: [0.25, 0.25, 0.5625, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 2017612633061982208n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.4375, y: 0.25 },
+                        { x: 0.75, y: 0.25 },
+                        { t: 1, x: 0.75, y: 0.5625 },
+                      ],
+                      [
+                        { x: 0.4375, y: 0.4 },
+                        { x: 0.6, y: 0.4 },
+                        { t: 1, x: 0.6, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.1875, 0.03749999999999998],
+                    type: 'MultiLineString',
+                    vecBBox: [0.4375, 0.25, 0.75, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 864691128455135232n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.5625, y: 0.75 },
+                        { x: 0.25, y: 0.75 },
+                      ],
+                      [
+                        { x: 0.5625, y: 0.6 },
+                        { x: 0.4, y: 0.6 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [1.1875, 0.4374999999999999],
+                    type: 'MultiLineString',
+                    vecBBox: [0.25, 0.4375, 0.5625, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 1441151880758558720n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { t: 1, x: 0.75, y: 0.4375 },
+                        { x: 0.75, y: 0.75 },
+                        { t: 1, x: 0.4375, y: 0.75 },
+                      ],
+                      [
+                        { t: 1, x: 0.6, y: 0.4375 },
+                        { x: 0.6, y: 0.6 },
+                        { t: 1, x: 0.4375, y: 0.6 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.6875, 0.23749999999999993],
+                    type: 'MultiLineString',
+                    vecBBox: [0.4375, 0.4375, 0.75, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+    ]);
+  });
 
-  // it('Polygon', () => {
-  //   const faceID = fromFace(0);
-  //   const features: VectorFeature[] = [
-  //     {
-  //       type: 'VectorFeature',
-  //       properties: { a: 2 },
-  //       geometry: {
-  //         type: 'Polygon',
-  //         is3D: false,
-  //         coordinates: [
-  //           [
-  //             { x: 0.25, y: 0.25 },
-  //             { x: 0.75, y: 0.25 },
-  //             { x: 0.75, y: 0.75 },
-  //             { x: 0.25, y: 0.75 },
-  //           ],
-  //           [
-  //             { x: 0.4, y: 0.6 },
-  //             { x: 0.6, y: 0.6 },
-  //             { x: 0.6, y: 0.4 },
-  //             { x: 0.4, y: 0.4 },
-  //           ],
-  //         ],
-  //         vecBBox: [0.25, 0.25, 0.75, 0.75],
-  //       },
-  //     },
-  //   ];
+  it('Polygon', () => {
+    const faceID = fromFace(0);
+    const features: VectorFeature[] = [
+      {
+        type: 'VectorFeature',
+        properties: { a: 2 },
+        geometry: {
+          type: 'Polygon',
+          is3D: false,
+          coordinates: [
+            [
+              { x: 0.25, y: 0.25 },
+              { x: 0.75, y: 0.25 },
+              { x: 0.75, y: 0.75 },
+              { x: 0.25, y: 0.75 },
+            ],
+            [
+              { x: 0.4, y: 0.6 },
+              { x: 0.6, y: 0.6 },
+              { x: 0.6, y: 0.4 },
+              { x: 0.4, y: 0.4 },
+            ],
+          ],
+          vecBBox: [0.25, 0.25, 0.75, 0.75],
+        },
+      },
+    ];
 
-  //   const tile = new Tile(faceID);
-  //   for (const feature of features) tile.addFeature(feature);
+    const tile = new Tile(faceID);
+    for (const feature of features) tile.addFeature(feature);
 
-  //   const res = splitTile(tile);
-  //   expect(res).toEqual([
-  //     {
-  //       id: 288230376151711744n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.25, y: 0.25 },
-  //                     { x: 0.5625, y: 0.25 },
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                     { x: 0.25, y: 0.5625, t: 1 },
-  //                     { x: 0.25, y: 0.25 },
-  //                   ],
-  //                   [
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                     { x: 0.5625, y: 0.4 },
-  //                     { x: 0.4, y: 0.4 },
-  //                     { x: 0.4, y: 0.5625, t: 1 },
-  //                     { x: 0.5625, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [2.5, 0.6374999999999998],
-  //                 type: 'Polygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.25, 0.5625, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 2017612633061982208n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.4375, y: 0.25 },
-  //                     { x: 0.75, y: 0.25 },
-  //                     { x: 0.75, y: 0.5625, t: 1 },
-  //                     { x: 0.4375, y: 0.5625, t: 1 },
-  //                     { x: 0.4375, y: 0.25, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.6, y: 0.5625, t: 1 },
-  //                     { x: 0.6, y: 0.4 },
-  //                     { x: 0.4375, y: 0.4 },
-  //                     { x: 0.4375, y: 0.5625, t: 1 },
-  //                     { x: 0.6, y: 0.5625, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [1.5, 0.23749999999999993],
-  //                 type: 'Polygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.25, 0.75, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 864691128455135232n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.5625, y: 0.4375, t: 1 },
-  //                     { x: 0.5625, y: 0.75 },
-  //                     { x: 0.25, y: 0.75 },
-  //                     { x: 0.25, y: 0.4375, t: 1 },
-  //                     { x: 0.5625, y: 0.4375, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.4, y: 0.6 },
-  //                     { x: 0.5625, y: 0.6 },
-  //                     { x: 0.5625, y: 0.4375, t: 1 },
-  //                     { x: 0.4, y: 0.4375, t: 1 },
-  //                     { x: 0.4, y: 0.6 },
-  //                   ],
-  //                 ],
-  //                 offset: [1.6875, 0.9999999999999998],
-  //                 type: 'Polygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.4375, 0.5625, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 1441151880758558720n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     { x: 0.75, y: 0.4375, t: 1 },
-  //                     { x: 0.75, y: 0.75 },
-  //                     { x: 0.4375, y: 0.75 },
-  //                     { x: 0.4375, y: 0.4375, t: 1 },
-  //                     { x: 0.75, y: 0.4375, t: 1 },
-  //                   ],
-  //                   [
-  //                     { x: 0.4375, y: 0.6 },
-  //                     { x: 0.6, y: 0.6 },
-  //                     { x: 0.6, y: 0.4375, t: 1 },
-  //                     { x: 0.4375, y: 0.4375, t: 1 },
-  //                     { x: 0.4375, y: 0.6, t: 1 },
-  //                   ],
-  //                 ],
-  //                 offset: [0.6875, 0.5999999999999999],
-  //                 type: 'Polygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.4375, 0.75, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //   ]);
-  // });
+    const res = splitTile(tile);
+    expect(res).toEqual([
+      {
+        id: 288230376151711744n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.25, y: 0.25 },
+                        { x: 0.5625, y: 0.25 },
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                        { t: 1, x: 0.25, y: 0.5625 },
+                        { x: 0.25, y: 0.25 },
+                      ],
+                      [
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                        { x: 0.5625, y: 0.4 },
+                        { x: 0.4, y: 0.4 },
+                        { t: 1, x: 0.4, y: 0.5625 },
+                        { t: 1, x: 0.5625, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [2.5, 0.6374999999999998],
+                    type: 'Polygon',
+                    vecBBox: [0.25, 0.25, 0.5625, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 2017612633061982208n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { x: 0.4375, y: 0.25 },
+                        { x: 0.75, y: 0.25 },
+                        { t: 1, x: 0.75, y: 0.5625 },
+                        { t: 1, x: 0.4375, y: 0.5625 },
+                        { t: 1, x: 0.4375, y: 0.25 },
+                      ],
+                      [
+                        { t: 1, x: 0.6, y: 0.5625 },
+                        { x: 0.6, y: 0.4 },
+                        { x: 0.4375, y: 0.4 },
+                        { t: 1, x: 0.4375, y: 0.5625 },
+                        { t: 1, x: 0.6, y: 0.5625 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [1.5, 0.23749999999999993],
+                    type: 'Polygon',
+                    vecBBox: [0.4375, 0.25, 0.75, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 864691128455135232n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { t: 1, x: 0.5625, y: 0.4375 },
+                        { x: 0.5625, y: 0.75 },
+                        { x: 0.25, y: 0.75 },
+                        { t: 1, x: 0.25, y: 0.4375 },
+                        { t: 1, x: 0.5625, y: 0.4375 },
+                      ],
+                      [
+                        { x: 0.4, y: 0.6 },
+                        { x: 0.5625, y: 0.6 },
+                        { t: 1, x: 0.5625, y: 0.4375 },
+                        { t: 1, x: 0.4, y: 0.4375 },
+                        { x: 0.4, y: 0.6 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [1.6875, 0.9999999999999998],
+                    type: 'Polygon',
+                    vecBBox: [0.25, 0.4375, 0.5625, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 1441151880758558720n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        { t: 1, x: 0.75, y: 0.4375 },
+                        { x: 0.75, y: 0.75 },
+                        { x: 0.4375, y: 0.75 },
+                        { t: 1, x: 0.4375, y: 0.4375 },
+                        { t: 1, x: 0.75, y: 0.4375 },
+                      ],
+                      [
+                        { x: 0.4375, y: 0.6 },
+                        { x: 0.6, y: 0.6 },
+                        { t: 1, x: 0.6, y: 0.4375 },
+                        { t: 1, x: 0.4375, y: 0.4375 },
+                        { t: 1, x: 0.4375, y: 0.6 },
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [0.6875, 0.5999999999999999],
+                    type: 'Polygon',
+                    vecBBox: [0.4375, 0.4375, 0.75, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+    ]);
+  });
 
-  // it('MultiPolygon', () => {
-  //   const faceID = fromFace(0);
-  //   const features: VectorFeature[] = [
-  //     {
-  //       type: 'VectorFeature',
-  //       properties: { a: 2 },
-  //       geometry: {
-  //         type: 'MultiPolygon',
-  //         is3D: false,
-  //         coordinates: [
-  //           [
-  //             [
-  //               { x: 0.25, y: 0.25 },
-  //               { x: 0.75, y: 0.25 },
-  //               { x: 0.75, y: 0.75 },
-  //               { x: 0.25, y: 0.75 },
-  //             ],
-  //             [
-  //               { x: 0.4, y: 0.6 },
-  //               { x: 0.6, y: 0.6 },
-  //               { x: 0.6, y: 0.4 },
-  //               { x: 0.4, y: 0.4 },
-  //             ],
-  //           ],
-  //         ],
-  //         vecBBox: [0.25, 0.25, 0.75, 0.75],
-  //       },
-  //     },
-  //   ];
+  it('MultiPolygon', () => {
+    const faceID = fromFace(0);
+    const features: VectorFeature[] = [
+      {
+        type: 'VectorFeature',
+        properties: { a: 2 },
+        geometry: {
+          type: 'MultiPolygon',
+          is3D: false,
+          coordinates: [
+            [
+              [
+                { x: 0.25, y: 0.25 },
+                { x: 0.75, y: 0.25 },
+                { x: 0.75, y: 0.75 },
+                { x: 0.25, y: 0.75 },
+              ],
+              [
+                { x: 0.4, y: 0.6 },
+                { x: 0.6, y: 0.6 },
+                { x: 0.6, y: 0.4 },
+                { x: 0.4, y: 0.4 },
+              ],
+            ],
+          ],
+          vecBBox: [0.25, 0.25, 0.75, 0.75],
+        },
+      },
+    ];
 
-  //   const tile = new Tile(faceID);
-  //   for (const feature of features) tile.addFeature(feature);
+    const tile = new Tile(faceID);
+    for (const feature of features) tile.addFeature(feature);
 
-  //   const res = splitTile(tile);
-  //   expect(res).toEqual([
-  //     {
-  //       id: 288230376151711744n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     [
-  //                       { x: 0.25, y: 0.25 },
-  //                       { x: 0.5625, y: 0.25 },
-  //                       { x: 0.5625, y: 0.5625, t: 1 },
-  //                       { x: 0.25, y: 0.5625, t: 1 },
-  //                       { x: 0.25, y: 0.25 },
-  //                     ],
-  //                     [
-  //                       { x: 0.5625, y: 0.5625, t: 1 },
-  //                       { x: 0.5625, y: 0.4 },
-  //                       { x: 0.4, y: 0.4 },
-  //                       { x: 0.4, y: 0.5625, t: 1 },
-  //                       { x: 0.5625, y: 0.5625, t: 1 },
-  //                     ],
-  //                   ],
-  //                 ],
-  //                 offset: [[2.5, 0.6374999999999998]],
-  //                 type: 'MultiPolygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.25, 0.5625, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 2017612633061982208n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     [
-  //                       { x: 0.4375, y: 0.25 },
-  //                       { x: 0.75, y: 0.25 },
-  //                       { x: 0.75, y: 0.5625, t: 1 },
-  //                       { x: 0.4375, y: 0.5625, t: 1 },
-  //                       { x: 0.4375, y: 0.25, t: 1 },
-  //                     ],
-  //                     [
-  //                       { x: 0.6, y: 0.5625, t: 1 },
-  //                       { x: 0.6, y: 0.4 },
-  //                       { x: 0.4375, y: 0.4 },
-  //                       { x: 0.4375, y: 0.5625, t: 1 },
-  //                       { x: 0.6, y: 0.5625, t: 1 },
-  //                     ],
-  //                   ],
-  //                 ],
-  //                 offset: [[1.5, 0.23749999999999993]],
-  //                 type: 'MultiPolygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.25, 0.75, 0.5625],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 864691128455135232n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     [
-  //                       { x: 0.5625, y: 0.4375, t: 1 },
-  //                       { x: 0.5625, y: 0.75 },
-  //                       { x: 0.25, y: 0.75 },
-  //                       { x: 0.25, y: 0.4375, t: 1 },
-  //                       { x: 0.5625, y: 0.4375, t: 1 },
-  //                     ],
-  //                     [
-  //                       { x: 0.4, y: 0.6 },
-  //                       { x: 0.5625, y: 0.6 },
-  //                       { x: 0.5625, y: 0.4375, t: 1 },
-  //                       { x: 0.4, y: 0.4375, t: 1 },
-  //                       { x: 0.4, y: 0.6 },
-  //                     ],
-  //                   ],
-  //                 ],
-  //                 offset: [[1.6875, 0.9999999999999998]],
-  //                 type: 'MultiPolygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.25, 0.4375, 0.5625, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //     {
-  //       id: 1441151880758558720n,
-  //       layers: {
-  //         default: {
-  //           features: [
-  //             {
-  //               geometry: {
-  //                 bbox: undefined,
-  //                 coordinates: [
-  //                   [
-  //                     [
-  //                       { x: 0.75, y: 0.4375, t: 1 },
-  //                       { x: 0.75, y: 0.75 },
-  //                       { x: 0.4375, y: 0.75 },
-  //                       { x: 0.4375, y: 0.4375, t: 1 },
-  //                       { x: 0.75, y: 0.4375, t: 1 },
-  //                     ],
-  //                     [
-  //                       { x: 0.4375, y: 0.6 },
-  //                       { x: 0.6, y: 0.6 },
-  //                       { x: 0.6, y: 0.4375, t: 1 },
-  //                       { x: 0.4375, y: 0.4375, t: 1 },
-  //                       { x: 0.4375, y: 0.6, t: 1 },
-  //                     ],
-  //                   ],
-  //                 ],
-  //                 offset: [[0.6875, 0.5999999999999999]],
-  //                 type: 'MultiPolygon',
-  //                 is3D: false,
-  //                 vecBBox: [0.4375, 0.4375, 0.75, 0.75],
-  //               },
-  //               properties: {
-  //                 a: 2,
-  //               },
-  //               type: 'VectorFeature',
-  //             },
-  //           ],
-  //           name: 'default',
-  //         },
-  //       },
-  //       transformed: false,
-  //     } as unknown as Tile,
-  //   ]);
-  // });
+    const res = splitTile(tile);
+    expect(res).toEqual([
+      {
+        id: 288230376151711744n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        [
+                          { x: 0.25, y: 0.25 },
+                          { x: 0.5625, y: 0.25 },
+                          { t: 1, x: 0.5625, y: 0.5625 },
+                          { t: 1, x: 0.25, y: 0.5625 },
+                          { x: 0.25, y: 0.25 },
+                        ],
+                        [
+                          { t: 1, x: 0.5625, y: 0.5625 },
+                          { x: 0.5625, y: 0.4 },
+                          { x: 0.4, y: 0.4 },
+                          { t: 1, x: 0.4, y: 0.5625 },
+                          { t: 1, x: 0.5625, y: 0.5625 },
+                        ],
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [[2.5, 0.6374999999999998]],
+                    type: 'MultiPolygon',
+                    vecBBox: [0.25, 0.25, 0.5625, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 2017612633061982208n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 0,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        [
+                          { x: 0.4375, y: 0.25 },
+                          { x: 0.75, y: 0.25 },
+                          { t: 1, x: 0.75, y: 0.5625 },
+                          { t: 1, x: 0.4375, y: 0.5625 },
+                          { t: 1, x: 0.4375, y: 0.25 },
+                        ],
+                        [
+                          { t: 1, x: 0.6, y: 0.5625 },
+                          { x: 0.6, y: 0.4 },
+                          { x: 0.4375, y: 0.4 },
+                          { t: 1, x: 0.4375, y: 0.5625 },
+                          { t: 1, x: 0.6, y: 0.5625 },
+                        ],
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [[1.5, 0.23749999999999993]],
+                    type: 'MultiPolygon',
+                    vecBBox: [0.4375, 0.25, 0.75, 0.5625],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 864691128455135232n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 0,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        [
+                          { t: 1, x: 0.5625, y: 0.4375 },
+                          { x: 0.5625, y: 0.75 },
+                          { x: 0.25, y: 0.75 },
+                          { t: 1, x: 0.25, y: 0.4375 },
+                          { t: 1, x: 0.5625, y: 0.4375 },
+                        ],
+                        [
+                          { x: 0.4, y: 0.6 },
+                          { x: 0.5625, y: 0.6 },
+                          { t: 1, x: 0.5625, y: 0.4375 },
+                          { t: 1, x: 0.4, y: 0.4375 },
+                          { x: 0.4, y: 0.6 },
+                        ],
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [[1.6875, 0.9999999999999998]],
+                    type: 'MultiPolygon',
+                    vecBBox: [0.25, 0.4375, 0.5625, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+      {
+        id: 1441151880758558720n,
+        tile: {
+          extent: 1,
+          face: 0,
+          i: 1,
+          j: 1,
+          layers: {
+            default: {
+              extent: 1,
+              features: [
+                {
+                  geometry: {
+                    bbox: undefined,
+                    coordinates: [
+                      [
+                        [
+                          { t: 1, x: 0.75, y: 0.4375 },
+                          { x: 0.75, y: 0.75 },
+                          { x: 0.4375, y: 0.75 },
+                          { t: 1, x: 0.4375, y: 0.4375 },
+                          { t: 1, x: 0.75, y: 0.4375 },
+                        ],
+                        [
+                          { x: 0.4375, y: 0.6 },
+                          { x: 0.6, y: 0.6 },
+                          { t: 1, x: 0.6, y: 0.4375 },
+                          { t: 1, x: 0.4375, y: 0.4375 },
+                          { t: 1, x: 0.4375, y: 0.6 },
+                        ],
+                      ],
+                    ],
+                    is3D: false,
+                    offset: [[0.6875, 0.5999999999999999]],
+                    type: 'MultiPolygon',
+                    vecBBox: [0.4375, 0.4375, 0.75, 0.75],
+                  },
+                  properties: {
+                    a: 2,
+                  },
+                  type: 'VectorFeature',
+                },
+              ],
+              name: 'default',
+            },
+          },
+          transformed: false,
+          zoom: 1,
+        } as unknown as Tile,
+      },
+    ]);
+  });
 });

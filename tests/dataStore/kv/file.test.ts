@@ -1,8 +1,12 @@
 import { FileKV } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
+import tmp from 'tmp';
+tmp.setGracefulCleanup();
+
 test('KV - File', async () => {
-  const store = new FileKV<number>();
+  const dir = tmp.dirSync({ prefix: 'kv_file' });
+  const store = new FileKV<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);
   expect(store.length).toBe(1);

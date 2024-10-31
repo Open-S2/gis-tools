@@ -2,6 +2,7 @@ import { DataBaseFile } from './dbf';
 import { MMapReader } from '../mmap';
 import { ShapeFile } from './shp';
 import { Transformer } from '../../proj4';
+import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
 
 export * from './dbf';
@@ -31,7 +32,11 @@ export interface Definition {
  * @param input - the path to the .shp file or name without the extension
  * @returns - a Shapefile
  */
-export async function fromPath(input: string) {
+export async function shapefileFromPath(input: string) {
+  if (input.endsWith('.zip')) {
+    const gzipData = await readFile(input);
+    return fromGzip(gzipData.buffer);
+  }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;
   const dbf = `${path}.dbf`;
@@ -44,7 +49,7 @@ export async function fromPath(input: string) {
     prj: (await exists(prj)) ? prj : undefined,
     cpg: (await exists(cpg)) ? cpg : undefined,
   };
-  return fromDefinition(definition);
+  return shapefileFromDefinition(definition);
 }
 
 /**
@@ -52,7 +57,7 @@ export async function fromPath(input: string) {
  * @param def - a description of the data to parse
  * @returns - a Shapefile
  */
-export async function fromDefinition(def: Definition): Promise<ShapeFile> {
+export async function shapefileFromDefinition(def: Definition): Promise<ShapeFile> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
   const transform =

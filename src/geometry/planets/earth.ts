@@ -4,8 +4,8 @@ export const EARTH_RADIUS = 6_371_008.8;
 export const EARTH_RADIUS_EQUATORIAL = 6_378_137;
 /** Earth's polar radius in meters */
 export const EARTH_RADIUS_POLAR = 6_356_752.3;
-/** The average circumference of the world in meters. */
-export const EARTH_CIRCUMFERENCE = 2.0 * Math.PI * EARTH_RADIUS; // meters
+/** The average circumference of Earth in meters. */
+export const EARTH_CIRCUMFERENCE = 2.0 * Math.PI * EARTH_RADIUS;
 /**
  * Returns the altitude of the lowest known point on Earth in meters. The lowest known
  * point on Earth is the Challenger Deep with an altitude of 10898 meters

@@ -1,5 +1,5 @@
 import { Tile } from '../dataStructures';
-import { convert } from '../geometry/convert';
+import { convert } from '../geometry/tools/convert';
 import { fromS2Points } from '../geometry/s1/chordAngle';
 import { PointShape as Point, PointIndex } from './pointIndex';
 import {

@@ -70,7 +70,7 @@ export class S2CellGenerator {
 
   /**
    * @param point - a vector point on the sphere
-   * @returns - an Uint64Cell with the appropriate id and functions
+   * @returns - an S2Cell with the appropriate id and functions
    */
   fromS2Point(point: Point3D): S2Cell {
     const [face, s, t] = toST(point);

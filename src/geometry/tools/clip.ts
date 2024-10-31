@@ -1,6 +1,6 @@
-import { Tile } from '../dataStructures';
-import { childrenIJ } from './id';
-import { clipBBox, extendBBox } from './bbox';
+import { Tile } from '../../dataStructures';
+import { childrenIJ } from '../id';
+import { clipBBox, extendBBox } from '../bbox';
 
 import type {
   BBOX,
@@ -19,7 +19,7 @@ import type {
   VectorPointGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from './';
+} from '..';
 
 /** Split features into the 4 children of a tile */
 export type TileChildren = [

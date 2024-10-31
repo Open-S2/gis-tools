@@ -1,0 +1,30 @@
+[
+  {
+    "tleLine1": "1 00001U 57001B   21005.53831292 -.00000083  00000-0 -11575-3 0  9990",
+    "tleLine2": "2 00001  34.2508 325.6936 1846988 181.8107 177.4919 00.00000000227200",
+    "description": "Mean motion is zero and that is not allowed.",
+    "error": 2,
+    "errorMessage": "error nm 0"
+  },
+  {
+    "tleLine1": "1 00002U 57001B   21005.53831292 -.00000083  00000-0 -11575-3 0  9991",
+    "tleLine2": "2 00002  34.2508 325.6936 1846988 181.8107 177.4919 00.00000001227202",
+    "description": "Eccentricity is way too high because mean motion is nearly zero.",
+    "error": 3,
+    "errorMessage": "error ep -3675.41207932076"
+  },
+  {
+    "tleLine1": "1 00004U 57001B   21005.53831292 -.00000083  00000-0 -11575-3 0  9993",
+    "tleLine2": "2 00004  34.2508 325.6936 9999999 181.8107 177.4919 10.84863720227201",
+    "description": "Mean motion is zero and that is not allowed.",
+    "error": 4,
+    "errorMessage": "error pl -8056055.678190488"
+  },
+  {
+    "tleLine1": "1 00006U 57001B   21005.53831292 -.00000083  00000-0 -11575-3 0  9995",
+    "tleLine2": "2 00005  34.2508 325.6936 1846988 181.8107 177.4919 25.84863720227209",
+    "description": "Satellite should be decayed already.",
+    "error": 6,
+    "errorMessage": "decay condition 0.8970340022947848"
+  }
+]

@@ -35,6 +35,40 @@ yarn add s2-tools
 bun add s2-tools
 ```
 
+## Components
+
+> 💡 **NOTE:** The sizes are estimates and can change based on how you use them. Click the module link for documentation and more precise guides on file cost.
+
+### Converters
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
+| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
+
+[toJSON]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/converters/toJSON.md
+[toJSONBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+toJSON,toJSONLD,BufferReader+}]
+[toTiles]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/converters/toTiles.md
+[toTilesBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+toTiles,BufferReader+}]
+
+### Data Stores
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
+| [kv]                     | ![KV Badge][kvBadge]          | Collection of tools using the filesystem to read and write data. |
+| [multiMap]               | ![MM Badge][mmBadge]          | Collection of tools using the filesystem to read and write data. |
+| [vector]                 | ![Vec Badge][vecBadge]        | Collection of tools using the filesystem to read and write data. |
+
+[externalSort]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/externalSort.md
+[esBadge]: https://deno.bundlejs.com/badge?q=s2-tools/file&treeshake=[{externalSort}]
+[kv]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/kv.md
+[kvBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{KV}]
+[multiMap]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/multimap.md
+[mmBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{MultiMap}]
+[vector]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/vector.md
+[vecBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{Vector}]
+
 ---
 
 ## Development

@@ -1,12 +1,13 @@
 import { mergeSortedChunks } from './mergeSortedChunks';
 import { sortChunk } from './sortChunk';
 import { availableParallelism, tmpdir } from 'os';
-import { stat, unlink } from 'fs/promises';
+import { createReadStream, createWriteStream } from 'fs';
+import { exists, stat, unlink } from 'fs/promises';
 
 /**
  * Sorts an array using external-sorting.
- * @param inputs - a list of input files
- * @param output - output file
+ * @param inputs - a list of input files without their extensions. e.g. './file1', './file2', './file3'
+ * @param output - output folder to place the sorted keys
  * @param maxHeap - max instance of the parsed entity in memory
  * @param threadCount - number of workers
  * @param tmpDir - temporary directory
@@ -31,15 +32,23 @@ export async function externalSort(
   }
   // 4) Merge chunks
   await mergeSortedChunks(sortedFiles, output).catch((err) => console.error(err));
+  await mergeValues(output, sizes);
   // 5) Cleanup
   for (const file of sortedFiles) await unlink(file);
 }
 
 /** A File name and it's size */
 export interface FileSize {
+  /** Name of the folder */
   name: string;
+  /** Name of the input (there could be multiple input files to sort) */
   input: string;
-  size: number;
+  /** Total size of the key store */
+  keySize: number;
+  /** Total size of the item store */
+  valueSize: number;
+  /** Offset for values */
+  valueOffset: number;
 }
 
 /**
@@ -48,13 +57,20 @@ export interface FileSize {
  */
 async function getSizes(inputs: string[]): Promise<FileSize[]> {
   const sizes: FileSize[] = [];
+  let valueOffset = 0;
 
   for (const input of inputs) {
+    const valueSize = (await exists(`${input}.values`))
+      ? await stat(`${input}.values`).then((stat) => stat.size)
+      : 0;
     sizes.push({
       name: input.split('/').pop()!,
       input,
-      size: await stat(input).then((stat) => stat.size),
+      keySize: await stat(`${input}.keys`).then((stat) => stat.size),
+      valueSize,
+      valueOffset,
     });
+    valueOffset += valueSize;
   }
 
   return sizes;
@@ -67,6 +83,7 @@ export interface SortChunk {
   outDir: string;
   start: number;
   end: number;
+  valueOffset: number;
 }
 
 /**
@@ -78,10 +95,10 @@ export interface SortChunk {
 function buildChunks(fileSizes: FileSize[], outDir: string, maxHeap: number): SortChunk[] {
   const chunks: SortChunk[] = [];
 
-  for (const { name, input, size } of fileSizes) {
-    for (let start = 0; start < size; start += maxHeap * 16) {
-      const end = Math.min(start + maxHeap * 16, size);
-      chunks.push({ name, input, outDir, start, end });
+  for (const { name, input, keySize, valueOffset } of fileSizes) {
+    for (let start = 0; start < keySize; start += maxHeap * 16) {
+      const end = Math.min(start + maxHeap * 16, keySize);
+      chunks.push({ name, input: `${input}.keys`, outDir, start, end, valueOffset });
     }
   }
 
@@ -101,7 +118,9 @@ async function sortChunksWithWorkers(chunks: SortChunk[], tc: number): Promise<s
   await new Promise<void>((resolve) => {
     // begin the workers and ship chunks
     const chunkLength = chunks.length;
-    for (let i = 0; i < Math.min(threadCount, chunkLength); i++) {
+    const threads = Math.min(threadCount, chunkLength);
+    let threadsComplete = 0;
+    for (let i = 0; i < threads; i++) {
       const worker = new Worker(new URL('./worker', import.meta.url).href, { type: 'module' });
       worker.postMessage(chunks.shift());
       /** @param msg - a sorted file */
@@ -109,7 +128,8 @@ async function sortChunksWithWorkers(chunks: SortChunk[], tc: number): Promise<s
         sortedFiles.push(msg.data);
         if (chunks.length === 0) {
           worker.terminate();
-          resolve();
+          threadsComplete++;
+          if (threadsComplete === threads) resolve();
         } else {
           worker.postMessage(chunks.shift());
         }
@@ -118,4 +138,32 @@ async function sortChunksWithWorkers(chunks: SortChunk[], tc: number): Promise<s
   });
 
   return sortedFiles;
+}
+
+/**
+ * merge the values files since the sorted key indexes have been merged as well.
+ * @param output - name of the output folder
+ * @param sizes - list of unique input values
+ */
+async function mergeValues(output: string, sizes: FileSize[]): Promise<void> {
+  if (sizes.length <= 1) return;
+  const values = sizes
+    .sort((a, b) => a.valueOffset - b.valueOffset)
+    .filter((c) => c.input !== output && c.valueSize > 0)
+    .map((c) => c.input);
+
+  if (values.length === 0) return;
+
+  const writeStream = createWriteStream(`${output}.values`, { flags: 'a' }); // Open output file in append mode
+
+  for (const value of values) {
+    const readStream = createReadStream(`${value}.values`); // Create a read stream for each file
+    readStream.pipe(writeStream, { end: false }); // Pipe data to the write stream
+    await new Promise((resolve, reject) => {
+      readStream.on('end', resolve); // Resolve when reading ends
+      readStream.on('error', reject); // Reject on error
+    });
+  }
+
+  writeStream.end(); // Close the write stream
 }

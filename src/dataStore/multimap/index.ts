@@ -1,11 +1,21 @@
+import { compare, toCell } from '../../dataStructures/uint64';
+
 import type { Stringifiable } from '..';
-import type { Uint64 } from '../../dataStructures/uint64';
+import type { Uint64, Uint64Cell } from '../../dataStructures/uint64';
+
+/** A key-value entry in the multimap */
+export interface MMEntry<V> {
+  key: Uint64;
+  value: V[];
+}
 
 /** Represents a key-value store */
 export interface MultiMapStore<V = Stringifiable> {
   length: number;
   get: ((key: Uint64) => V[] | undefined) | ((key: Uint64) => Promise<V[] | undefined>);
   set: (key: Uint64, value: V) => void;
+  entries: () => AsyncGenerator<MMEntry<V>>;
+  [Symbol.asyncIterator]: () => AsyncGenerator<MMEntry<V>>;
   close: () => void;
 }
 
@@ -49,6 +59,29 @@ export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
    */
   get(key: Uint64): V[] | undefined {
     return this.#store.get(key);
+  }
+
+  /**
+   * iterate through the values
+   * @yields - The values in the store
+   */
+  async *entries(): AsyncGenerator<MMEntry<V>> {
+    const entries = Array.from(this.#store.entries()).map(([id, value]) => [toCell(id), value]) as [
+      Uint64Cell,
+      V[],
+    ][];
+    entries.sort((a, b) => compare(a[0], b[0]));
+    for (const [key, value] of entries) {
+      yield { key, value };
+    }
+  }
+
+  /**
+   * iterate through the values
+   * @returns - an iterator
+   */
+  [Symbol.asyncIterator](): AsyncGenerator<MMEntry<V>> {
+    return this.entries();
   }
 
   /** Closes the store */

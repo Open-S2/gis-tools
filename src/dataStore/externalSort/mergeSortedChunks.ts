@@ -38,7 +38,6 @@ class SortedFile {
       const length = Math.min(16 * 1_024, this.size - this.#offset);
       const buffer = Buffer.alloc(length);
       await read(this.input, { buffer, offset: 0, length, position: this.#offset });
-      // await this.input.read({ buffer, offset: 0, length, position: this.#offset });
       this.keys = bufferToKeys(buffer);
       this.#offset += length;
       if (this.#offset >= this.size) this.#isDone = true;
@@ -68,7 +67,7 @@ export async function mergeSortedChunks(inputs: string[], output: string): Promi
   for (const input of inputs) {
     inputFiles.push(new SortedFile(await open(input, 'r'), statSync(input).size));
   }
-  const outputStream = createWriteStream(output);
+  const outputStream = createWriteStream(`${output}.sortedKeys`);
 
   // loop through all the input files and grab the next key in order
   let keyWrites: Key[] = [];

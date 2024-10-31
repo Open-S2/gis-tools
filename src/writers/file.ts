@@ -54,4 +54,9 @@ export class FileWriter implements Writer {
   appendStringSync(string: string): void {
     this.appendSync(this.#textEncoder.encode(string));
   }
+
+  /** Close the file */
+  close(): void {
+    this.#stream.end();
+  }
 }
