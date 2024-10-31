@@ -42,7 +42,7 @@ const { abs, sin, cos, sqrt, atan2 } = Math;
  * - `+x_0` (False easting)
  * - `+y_0` (False northing)
  *
- * ![Equidistant Conic](./images/eqdc.png)
+ * ![Equidistant Conic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/eqdc.png?raw=true)
  */
 export class EquidistantConic extends ProjectionBase implements ProjectionTransform {
   name = 'Equidistant_Conic';

@@ -99,10 +99,13 @@ export async function intermediateRelationToVectorFeature(
   };
 }
 
-/** Member Type can be Node, Way or Relation. */
+/** Member Type can be Node (0), Way (1) or Relation (2). */
 export enum MemberType {
+  /** Node Member */
   Node = 0,
+  /** Way Member */
   Way = 1,
+  /** Relation Member */
   Relation = 2,
 }
 

@@ -39,7 +39,7 @@ const { sin, cos, sqrt, tan, atan, atan2 } = Math;
  * - `+x_0`: False easting.
  * - `+y_0`: False northing.
  *
- * ![Geostationary Satellite View](./images/geos.png)
+ * ![Geostationary Satellite View](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/geos.png?raw=true)
  */
 export class GeostationarySatelliteView extends ProjectionBase implements ProjectionTransform {
   name = 'GeostationarySatelliteView';

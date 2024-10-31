@@ -1,8 +1,6 @@
 import { pi, twoPi, x2o3, xke } from '../util/constants';
 
-/**
- *
- */
+/** Options for DsInit */
 export interface DsInitOptions {
   cosim: number;
   argpo: number;
@@ -76,9 +74,7 @@ export interface DsInitOptions {
   xni: number;
 }
 
-/**
- *
- */
+/** Output from DsInit */
 export interface DsInitOutput {
   em: number;
   argpm: number;
@@ -119,8 +115,7 @@ export interface DsInitOutput {
   xni: number;
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           procedure dsinit
  *
  *  this procedure provides deep space contributions to mean motion dot due
@@ -197,10 +192,9 @@ export interface DsInitOutput {
  *    hoots, norad spacetrack report #6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param options
- * @param tsince
+ * @param options - the options
+ * @param tsince - the time since epoch
+ * @returns - the computed dpsace initial values
  */
 export function dsinit(options: DsInitOptions, tsince: number): DsInitOutput {
   const {

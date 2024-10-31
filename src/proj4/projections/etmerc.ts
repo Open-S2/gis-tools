@@ -10,7 +10,39 @@ import type { ProjectionParams, ProjectionTransform } from '.';
 const { abs, pow, sin, cos, sqrt, atan2, tan, atan } = Math;
 
 /**
- * Extended Transverse Mercator
+ * # Extended Transverse Mercator
+ *
+ * **Classification**: Transverse and oblique cylindrical
+ *
+ * **Available forms**: Forward and inverse, spherical and ellipsoidal
+ *
+ * **Defined area**: Global, with full accuracy within 3900 km of the central meridian
+ *
+ * **Alias**: etmerc
+ *
+ * **Domain**: 2D
+ *
+ * **Input type**: Geodetic coordinates
+ *
+ * **Output type**: Projected coordinates
+ *
+ * ## Projection String
+ * ```
+ * +proj=etmerc
+ * ```
+ *
+ * ## Required Parameters
+ * - `+lon_0`: Longitude of the central meridian.
+ *
+ * ## Optional Parameters
+ * - `+approx`: Use the faster Evenden-Snyder algorithm, less accurate beyond 3°.
+ * - `+algo`: Select algorithm from "auto", "evenden_snyder", or "poder_engsager".
+ * - `+lat_0`: Latitude of origin.
+ * - `+k_0`: Scale factor on the central meridian.
+ * - `+x_0`: False easting.
+ * - `+y_0`: False northing.
+ *
+ * ![ExtendedTransverseMercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
  */
 export class ExtendedTransverseMercator extends TransverseMercator implements ProjectionTransform {
   name = 'ExtendedTransverseMercator';

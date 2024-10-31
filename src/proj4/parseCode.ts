@@ -14,10 +14,11 @@ import type { ProjectionParams } from './projections';
 import type { Transformer } from './transformer';
 
 /**
+ * Parse a proj4 string or object into a projection object
  * TODO: Support json objects that use the https://proj.org/schemas/v0.7/projjson.schema.json
- * @param code
- * @param proj
- * @param transformer
+ * @param code - a proj4 projection definition string or object
+ * @param transformer - the transformer to build the projection state around
+ * @returns - a projection object
  */
 export function parseProj(
   code: string | ProjectionParams,
@@ -44,8 +45,9 @@ export function parseProj(
 }
 
 /**
- * @param code
- * @param proj
+ * Parse a proj4 string into a projection object
+ * @param code - a proj4 projection definition string
+ * @returns - a projection description object
  */
 function parseProj4Str(code: string): ProjectionParams {
   return code
@@ -60,9 +62,10 @@ function parseProj4Str(code: string): ProjectionParams {
 }
 
 /**
- * @param res
- * @param key
- * @param value
+ * Modify a key/value pair in a proj4 string to match the CRS projection standard
+ * @param res - a projection description object
+ * @param key - a proj4 string key
+ * @param value - a proj4 string value
  */
 function parseProj4StrKeyValue(res: ProjectionParams, key: string, value: string): void {
   // adjust key

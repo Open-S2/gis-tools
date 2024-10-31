@@ -36,9 +36,7 @@ const dctSin6 = 3784; // sin(6*pi/16)
 const dctSqrt2 = 5793; // sqrt(2)
 const dctSqrt1d2 = 2896; // sqrt(2) / 2
 
-/**
- *
- */
+/** JPEG Options */
 export interface JPEGOptions {
   skipMutation?: boolean;
   colorTransform?: boolean;
@@ -48,9 +46,7 @@ export interface JPEGOptions {
   maxMemoryUsageInMB?: number; // Don't decode if memory footprint is more than 512MB
 }
 
-/**
- *
- */
+/** A Component of a JPEG image */
 export interface Component {
   h: number;
   v: number;
@@ -64,18 +60,14 @@ export interface Component {
   pred: number;
 }
 
-/**
- *
- */
+/** A Component of a JPEG image organized into lines */
 export interface OutComponent {
   lines: Uint8Array[];
   scaleX: number;
   scaleY: number;
 }
 
-/**
- *
- */
+/** A JPEG frame */
 export interface Frame {
   extended: boolean;
   progressive: boolean;
@@ -90,9 +82,7 @@ export interface Frame {
   mcusPerColumn: number;
 }
 
-/**
- *
- */
+/** Adobe APP14 marker */
 export interface Adobe {
   version: number;
   flags0: number;
@@ -100,9 +90,7 @@ export interface Adobe {
   transformCode: number;
 }
 
-/**
- *
- */
+/** JFIF marker */
 export interface JFIF {
   version: { major: number; minor: number };
   densityUnits: number;
@@ -113,9 +101,14 @@ export interface JFIF {
   thumbData: Uint8Array;
 }
 
-/**
- *
- */
+/** The result of an individual parse */
+export interface ParseResult {
+  data: Uint8Array;
+  outComponents: OutComponent[];
+  ready: boolean;
+}
+
+/** An Image organized for the JPEG decoder */
 export interface Image {
   width: number;
   height: number;
@@ -125,9 +118,11 @@ export interface Image {
 }
 
 /**
- * @param jpegData
- * @param jpegTables
- * @param userOpts
+ * Decodes a JPEG image
+ * @param jpegData - The JPEG data
+ * @param userOpts - The user provided options
+ * @param jpegTables - The JPEG tables (if provided)
+ * @returns - The decoded image
  */
 export function decode(
   jpegData: ArrayBufferLike,
@@ -148,9 +143,10 @@ export function decode(
 }
 
 /**
- * @param buffer
- * @param jpegTables
- * @param options
+ * Decodes a JPEG image
+ * @param buffer - The JPEG data
+ * @param jpegTables - The JPEG tables (if provided)
+ * @returns - The decoded image as a buffer
  */
 export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): ArrayBufferLike {
   const { data } = decode(buffer, { skipMutation: true }, jpegTables);
@@ -158,7 +154,7 @@ export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): Arr
 }
 
 /**
- *
+ * A JPEG stream reader
  */
 export class JpegStreamReader {
   colorTransform?: boolean;
@@ -182,7 +178,7 @@ export class JpegStreamReader {
   frames: Frame[] = [];
 
   /**
-   * @param opts
+   * @param opts - The user provided options
    */
   constructor(opts?: JPEGOptions) {
     this.adobe = null;
@@ -196,9 +192,10 @@ export class JpegStreamReader {
   }
 
   /**
-   * @param increaseAmount
+   * Increase the max memory usage
+   * @param increaseAmount - The amount to increase the max memory usage
    */
-  requestMemoryAllocation(increaseAmount = 0) {
+  requestMemoryAllocation(increaseAmount = 0): void {
     const totalMemoryImpactBytes = this.totalBytesAllocated + increaseAmount;
     if (totalMemoryImpactBytes > this.maxMemoryUsageBytes) {
       const exceededAmount = Math.ceil(
@@ -211,45 +208,47 @@ export class JpegStreamReader {
   }
 
   /**
-   * @param maxMemoryUsageBytes_
+   * Reset the max memory usage
+   * @param maxMemoryUsageBytes - The new max memory usage
    */
-  resetMaxMemoryUsage(maxMemoryUsageBytes_: number): void {
+  resetMaxMemoryUsage(maxMemoryUsageBytes: number): void {
     this.totalBytesAllocated = 0;
-    this.maxMemoryUsageBytes = maxMemoryUsageBytes_;
+    this.maxMemoryUsageBytes = maxMemoryUsageBytes;
   }
 
   /**
-   *
+   * Reset the frames
    */
   resetFrames(): void {
     this.frames = [];
   }
 
   /**
-   * @param data
+   * @param data - The individual block of JPEG data to parse
    */
   parse(data: Uint8Array): void {
     const maxResolutionInPixels = this.maxResolutionInMP * 1000 * 1000;
     let offset = 0;
     /**
-     *
+     * @returns - The next 2 bytes as a uint16
      */
-    function readUint16() {
+    function readUint16(): number {
       const value = (data[offset] << 8) | data[offset + 1];
       offset += 2;
       return value;
     }
     /**
-     *
+     * @returns - The next block as a Uint8Array
      */
-    function readDataBlock() {
+    function readDataBlock(): Uint8Array {
       const length = readUint16();
       const array = data.subarray(offset, offset + length - 2);
       offset += array.length;
       return array;
     }
     /**
-     * @param frame
+     * Prepares the components of the frame
+     * @param frame - The frame to parse
      */
     const prepareComponents = (frame: Frame): void => {
       // According to the JPEG standard, the sampling factor must be between 1 and 4
@@ -577,9 +576,10 @@ export class JpegStreamReader {
   }
 
   /**
-   * @param skipMutation
+   * Get a result of the frame decoding
+   * @returns - The result of the frame decoding
    */
-  getResult() {
+  getResult(): ParseResult {
     const { frames } = this;
     if (this.frames.length === 0) {
       throw new Error('no frames were decoded');
@@ -624,9 +624,9 @@ export class JpegStreamReader {
     const data = new Uint8Array(dataLength);
 
     /**
-     *
+     * No mutation function for parsing the data without mutation
      */
-    const noMutation = () => {
+    const noMutation = (): void => {
       ready = true;
       let oi = 0;
       for (let y = 0; y < height; ++y) {
@@ -759,7 +759,8 @@ export class JpegStreamReader {
   }
 
   /**
-   * @param imageData
+   * Get the complete image data
+   * @returns - The image data
    */
   getImageData(): Image {
     const channels = this.formatAsRGBA ? 4 : 3;
@@ -858,8 +859,10 @@ interface Code {
 }
 
 /**
- * @param codeLengths
- * @param values
+ * Builds a Huffman table from the input data
+ * @param codeLengths - array of code lengths
+ * @param values - array of values
+ * @returns - the Huffman table
  */
 function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): HuffmanNode[] {
   let k = 0;
@@ -901,18 +904,18 @@ function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): Huffman
 }
 
 /**
- * @param data
- * @param initialOffset
- * @param offset
- * @param frame
- * @param components
- * @param resetInterval
- * @param spectralStart
- * @param spectralEnd
- * @param successivePrev
- * @param successive
- * @param tolerantDecoding
- * @param opts
+ * Decodes a JPEG scan
+ * @param data - the JPEG data
+ * @param offset - the offset in the JPEG data
+ * @param frame - the frame
+ * @param components - the components of the frame
+ * @param resetInterval - the reset interval
+ * @param spectralStart - the spectral start
+ * @param spectralEnd - the spectral end
+ * @param successivePrev - the successive prev
+ * @param successive - the successive number
+ * @param opts - the options passed to the reader
+ * @returns - the decoded scan size
  */
 function decodeScan(
   data: Uint8Array,
@@ -925,7 +928,7 @@ function decodeScan(
   successivePrev: number,
   successive: number,
   opts: JpegStreamReader,
-) {
+): number {
   const mcusPerLine = frame.mcusPerLine;
   const progressive = frame.progressive;
 
@@ -933,9 +936,9 @@ function decodeScan(
   let bitsData = 0;
   let bitsCount = 0;
   /**
-   *
+   * @returns - The next bit
    */
-  function readBit() {
+  function readBit(): number {
     if (bitsCount > 0) {
       bitsCount--;
       return (bitsData >> bitsCount) & 1;
@@ -952,7 +955,9 @@ function decodeScan(
     return bitsData >>> 7;
   }
   /**
-   * @param tree
+   * Decodes a Huffman Node tree
+   * @param tree - the huffman tree
+   * @returns - The next Huffman code
    */
   function decodeHuffman(tree: HuffmanNode[]): number {
     let node: HuffmanNode = tree;
@@ -965,7 +970,9 @@ function decodeScan(
     return 0;
   }
   /**
-   * @param length
+   * Receives a number
+   * @param length - the number of bits
+   * @returns - the number
    */
   function receive(length: number): number {
     let n = 0;
@@ -978,7 +985,9 @@ function decodeScan(
     return n;
   }
   /**
-   * @param length
+   * Recieves and extends a number
+   * @param length - the number of bits
+   * @returns - the number
    */
   function receiveAndExtend(length: number): number {
     const n = receive(length);
@@ -986,8 +995,9 @@ function decodeScan(
     return n + (-1 << length) + 1;
   }
   /**
-   * @param component
-   * @param zz
+   * Decodes a baseline block
+   * @param component - the component
+   * @param zz - the block
    */
   function decodeBaseline(component: Component, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
@@ -1010,8 +1020,9 @@ function decodeScan(
     }
   }
   /**
-   * @param component
-   * @param zz
+   * Decodes a DC coefficient first pass
+   * @param component - the component
+   * @param zz - the block
    */
   function decodeDCFirst(component: Component, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
@@ -1019,17 +1030,18 @@ function decodeScan(
     zz[0] = component.pred += diff;
   }
   /**
-   * @param component
-   * @param _component
-   * @param zz
+   * Decodes a successive approximation block
+   * @param _component - the component
+   * @param zz - the block
    */
   function decodeDCSuccessive(_component: Component, zz: Int32Array): void {
     zz[0] |= readBit() << successive;
   }
   let eobrun = 0;
   /**
-   * @param component
-   * @param zz
+   * Decodes an AC block first pass
+   * @param component - the component
+   * @param zz - the block
    */
   function decodeACFirst(component: Component, zz: Int32Array): void {
     if (eobrun > 0) {
@@ -1059,8 +1071,9 @@ function decodeScan(
   let successiveACState = 0;
   let successiveACNextValue: number;
   /**
-   * @param component
-   * @param zz
+   * Decodes a successive approximation block
+   * @param component - the component
+   * @param zz - the block
    */
   function decodeACSuccessive(component: Component, zz: Int32Array): void {
     let k = spectralStart;
@@ -1117,11 +1130,12 @@ function decodeScan(
     }
   }
   /**
-   * @param component
-   * @param decode
-   * @param mcu
-   * @param row
-   * @param col
+   * Decodes an MCU
+   * @param component - The component
+   * @param decode - The decoder
+   * @param mcu - The mcu
+   * @param row - The row
+   * @param col - The column
    */
   function decodeMcu(
     component: Component,
@@ -1129,7 +1143,7 @@ function decodeScan(
     mcu: number,
     row: number,
     col: number,
-  ) {
+  ): void {
     const mcuRow = (mcu / mcusPerLine) | 0;
     const mcuCol = mcu % mcusPerLine;
     const blockRow = mcuRow * component.v + row;
@@ -1139,9 +1153,10 @@ function decodeScan(
     decode(component, component.blocks[blockRow][blockCol]);
   }
   /**
-   * @param component
-   * @param decode
-   * @param mcu
+   * Decodes a block
+   * @param component - The component
+   * @param decode - The decoder
+   * @param mcu - The mcu value
    */
   function decodeBlock(
     component: Component,
@@ -1235,10 +1250,10 @@ function decodeScan(
 }
 
 /**
- * @param frame
- * @param _frame
- * @param component
- * @param reader
+ * Build the component data
+ * @param component - the component
+ * @param reader - the jpeg stream reader
+ * @returns - the component data
  */
 function buildComponentData(component: Component, reader: JpegStreamReader): Uint8Array[] {
   const lines = [];
@@ -1249,17 +1264,17 @@ function buildComponentData(component: Component, reader: JpegStreamReader): Uin
   const R = new Int32Array(64),
     r = new Uint8Array(64);
 
-  // A port of poppler's IDCT method which in turn is taken from:
-  //   Christoph Loeffler, Adriaan Ligtenberg, George S. Moschytz,
-  //   "Practical Fast 1-D DCT Algorithms with 11 Multiplications",
-  //   IEEE Intl. Conf. on Acoustics, Speech & Signal Processing, 1989,
-  //   988-991.
   /**
-   * @param zz
-   * @param dataOut
-   * @param dataIn
+   * A port of poppler's IDCT method which in turn is taken from:
+   * Christoph Loeffler, Adriaan Ligtenberg, George S. Moschytz,
+   * "Practical Fast 1-D DCT Algorithms with 11 Multiplications",
+   * IEEE Intl. Conf. on Acoustics, Speech & Signal Processing, 1989,
+   * 988-991.
+   * @param zz - the 8x8 block
+   * @param dataOut - the 8x8 block
+   * @param dataIn - the 8x8 block
    */
-  function quantizeAndInverse(zz: Int32Array, dataOut: Uint8Array, dataIn: Int32Array) {
+  function quantizeAndInverse(zz: Int32Array, dataOut: Uint8Array, dataIn: Int32Array): void {
     const qt = component.quantizationTable;
     let v0, v1, v2, v3, v4, v5, v6, v7, t;
     const p = dataIn;
@@ -1446,7 +1461,9 @@ function buildComponentData(component: Component, reader: JpegStreamReader): Uin
 }
 
 /**
- * @param a
+ * Clamp a number to a uint8 [0-255]
+ * @param a - the number
+ * @returns - the clamped number
  */
 function clampTo8bit(a: number): number {
   return a < 0 ? 0 : a > 255 ? 255 : a;

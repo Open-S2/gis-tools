@@ -144,7 +144,10 @@ export class FileReader implements Reader {
     return new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
   }
 
-  /**  @param encoding - update the text decoder's encoding */
+  /**
+   * Set the text decoder's encoding
+   * @param encoding - update the text decoder's encoding
+   */
   setStringEncoding(encoding: string) {
     this.textDecoder = new TextDecoder(encoding);
   }

@@ -4,25 +4,19 @@ import { parseWKTObject } from '.';
 import type { ProjectionParams } from '../../proj4';
 import type { WKTObject, WKTValue } from '.';
 
-/**
- *
- */
+/** Authority - EPSG code. */
 export interface Authority {
   EPSG: string;
 }
 
-/**
- *
- */
+/** Unit - name and conversion factor. */
 export interface Unit {
   name: string;
   convert: number;
   AUTHORITY: Authority;
 }
 
-/**
- *
- */
+/** Spheroid - name, a and rf. */
 export interface Spheroid {
   name: string;
   a: number;
@@ -30,9 +24,7 @@ export interface Spheroid {
   AUTHORITY: Authority;
 }
 
-/**
- *
- */
+/** Datum - name, SPHEROID, TOWGS84. */
 export interface Datum {
   name: string;
   SPHEROID?: Spheroid;
@@ -40,9 +32,7 @@ export interface Datum {
   TOWGS84?: DatumParams;
 }
 
-/**
- *
- */
+/** GeoGCS - name, DATUM, PRIMEM, UNIT, AUTHORITY. */
 export interface GeoGCS {
   name: string;
   DATUM?: Datum;
@@ -51,9 +41,7 @@ export interface GeoGCS {
   AUTHORITY: Authority;
 }
 
-/**
- *
- */
+/** VertCS - name, VERT_DATUM, UNIT, AXIS. */
 export interface VertCS {
   name?: string;
   VERT_DATUM?: Unit;
@@ -62,13 +50,12 @@ export interface VertCS {
   AUTHORITY?: Authority;
 }
 
-/**
- *
- */
+/** Datum parameters. Can be 3 or 7 elements. */
 export type DatumParams = [number, number, number, number, number, number, number];
 
 /**
- *
+ * WKT CRS
+ * The resolved CRS object from a WKT string.
  */
 export interface WKTCRS extends ProjectionParams {
   type?: string;
@@ -148,6 +135,7 @@ export const KEYWORDS = [
 ];
 
 /**
+ * Checks the string to see if it is a WKT projection
  * @param srsCode - WKT string
  * @returns - true if it is a WKT projection string
  */
@@ -157,8 +145,9 @@ export function isWKTProjection(srsCode: string): boolean {
 }
 
 /**
- * @param input
- * @param srsCode
+ * Parses a WKT projection
+ * @param srsCode - WKT string input
+ * @returns - WKT object
  */
 export function parseWKTProjection(srsCode: string): WKTCRS {
   const obj = parseWKTObject(srsCode);
@@ -169,8 +158,9 @@ export function parseWKTProjection(srsCode: string): WKTCRS {
 }
 
 /**
- * @param obj
- * @param res
+ * Parses a WKT projection object
+ * @param obj - WKT object
+ * @param res - the resolved WKT object with cleaned data
  */
 function parseProj(obj: WKTObject, res: Record<string, unknown>): void {
   // grab type
@@ -187,8 +177,9 @@ function parseProj(obj: WKTObject, res: Record<string, unknown>): void {
 }
 
 /**
- * @param obj
- * @param res
+ * Builds keywords
+ * @param obj - WKT object to read from
+ * @param res - the resolved WKT object with cleaned data
  */
 function buildKeywords(obj: WKTObject, res: Record<string, unknown>): void {
   while (obj.length > 0) {
@@ -231,8 +222,9 @@ function buildKeywords(obj: WKTObject, res: Record<string, unknown>): void {
 }
 
 /**
- * @param obj
- * @param res
+ * Builds sub keywords for compound coordinate systems
+ * @param obj - WKT object
+ * @returns - GeoGCS with sub keywords parsed
  */
 function buildSubKeywords(obj: WKTObject): GeoGCS {
   const [name, ...keywords] = obj;
@@ -245,7 +237,9 @@ function buildSubKeywords(obj: WKTObject): GeoGCS {
 }
 
 /**
- * @param input
+ * Builds a Unit object
+ * @param input - WKT object
+ * @returns - Unit object with appropriate values
  */
 function buildUnit(input: WKTObject): Unit {
   const [name, convert, _authStr, authority] = input;
@@ -257,7 +251,9 @@ function buildUnit(input: WKTObject): Unit {
 }
 
 /**
- * @param input
+ * Builds a Spheroid object
+ * @param input - WKT object
+ * @returns - Spheroid object with appropriate values
  */
 function buildSpheroid(input: WKTObject): Spheroid {
   const [name, a, rf, _authStr, authority] = input;
@@ -270,22 +266,26 @@ function buildSpheroid(input: WKTObject): Spheroid {
 }
 
 /**
- * @param input
+ * Builds an Authority object
+ * @param input - WKT object
+ * @returns - Authority object
  */
 function buildAuthority(input?: WKTValue): Authority {
   return { EPSG: (input !== undefined ? input[1] : '') as string };
 }
 
 /**
- * @param input
+ * Builds a TOWGS84 object (Datum Parameters)
+ * @param input - WKT object
+ * @returns - TOWGS84 object
  */
 function buildTOWGS84(input: WKTObject): DatumParams {
   return input.map((key) => parseFloat(key as string)) as DatumParams;
 }
 
 /**
- * @param prj
- * @param wkt
+ * Update the projection to match the WKTCRS standard
+ * @param wkt - the projection object to update
  */
 function updateProj(wkt: WKTCRS): void {
   // adjust projName if necessary
@@ -494,11 +494,11 @@ function updateProj(wkt: WKTCRS): void {
 }
 
 /**
- * Only update teh to key if it did not exist
- * @param input
- * @param to
- * @param from
- * @param updateFun
+ * Only update the to key if it did not exist
+ * @param input - input object
+ * @param to - keys to update
+ * @param from - keys to remap
+ * @param updateFun - function guide on how to update the value
  */
 function remap(
   input: WKTCRS,

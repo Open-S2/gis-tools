@@ -70,7 +70,10 @@ export class BufferReader extends DataView implements Reader {
     );
   }
 
-  /**  @param encoding - update the text decoder's encoding */
+  /**
+   * Set the text decoder's encoding
+   * @param encoding - update the text decoder's encoding
+   */
   setStringEncoding(encoding: string) {
     this.textDecoder = new TextDecoder(encoding);
   }

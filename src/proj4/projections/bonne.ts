@@ -41,7 +41,7 @@ const { abs, sin, cos, sqrt, atan2, tan } = Math;
  * - `x0`: False easting
  * - `y0`: False northing
  *
- * ![Bonne (Werner lat_1=90) Projection](https://github.com/OSGeo/PROJ/blob/38dd7c2446f3500a43f0257f5a4833d6aa5aab0b/docs/source/operations/projections/images/bonne.png?raw=true)
+ * ![Bonne (Werner lat_1=90) Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/bonne.png?raw=true)
  */
 export class BonneWerner extends ProjectionBase implements ProjectionTransform {
   name = 'Bonne (Werner lat_1=90)';

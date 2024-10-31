@@ -1,6 +1,7 @@
 /**
- * @param row
- * @param stride
+ * Decode a block using the specified predictor
+ * @param row - the row to decode
+ * @param stride - the number of bytes per row
  */
 function decodeRowAcc(row: Uint8Array | Uint16Array | Uint32Array, stride: number): void {
   let length = row.length - stride;
@@ -16,15 +17,16 @@ function decodeRowAcc(row: Uint8Array | Uint16Array | Uint32Array, stride: numbe
 }
 
 /**
- * @param row
- * @param stride
- * @param bytesPerSample
+ * Decode a floating point block using the specified predictor
+ * @param row - the row to decode
+ * @param stride - the number of bytes per row
+ * @param bytesPerSample - the number of bytes per sample
  */
 function decodeRowFloatingPoint(
   row: Uint8Array | Uint16Array | Uint32Array,
   stride: number,
   bytesPerSample: number,
-) {
+): void {
   let index = 0;
   let count = row.length;
   const wc = count / bytesPerSample;
@@ -46,12 +48,14 @@ function decodeRowFloatingPoint(
 }
 
 /**
- * @param block
- * @param predictor
- * @param width
- * @param height
- * @param bitsPerSample
- * @param planarConfiguration
+ * Apply the specified predictor to a block
+ * @param block - the block to modify
+ * @param predictor - the predictor
+ * @param width - the block width
+ * @param height - the block height
+ * @param bitsPerSample - the number of bits per sample
+ * @param planarConfiguration - the planar configuration
+ * @returns - the modified block
  */
 export function applyPredictor(
   block: ArrayBufferLike,
@@ -60,7 +64,7 @@ export function applyPredictor(
   height: number,
   bitsPerSample: number[],
   planarConfiguration: number,
-) {
+): ArrayBufferLike {
   if (predictor === 0 || predictor === 1) {
     return block;
   }

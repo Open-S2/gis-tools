@@ -9,17 +9,15 @@ import type {
   VectorPointGeometry,
 } from '../../geometry';
 
-/**
- *
- */
+/** WKT Value can be a point or an array of points */
 export type WKTAValue = VectorPoint | WKTAValue[];
-/**
- *
- */
+/** WKT Array can be an array of points or even nested arrays of points */
 export type WKTArray = WKTAValue[];
 
 /**
- * @param wktStr
+ * Parse a WKT string geometry to a VectorGeometry
+ * @param wktStr - WKT string
+ * @returns - VectorGeometry
  */
 export function parseWKTGeometry(wktStr: string): VectorGeometry {
   if (wktStr.startsWith('POINT')) return parseWKTPoint(wktStr, wktStr.startsWith('POINT Z'));
@@ -37,8 +35,10 @@ export function parseWKTGeometry(wktStr: string): VectorGeometry {
 }
 
 /**
- * @param wktStr
- * @param is3D
+ * Parse a WKT point string to a VectorPoint
+ * @param wktStr - WKT string
+ * @param is3D - true if the point is 3D
+ * @returns - VectorPoint
  */
 function parseWKTPoint(wktStr: string, is3D: boolean): VectorPointGeometry {
   const geo = parseWKTArray(wktStr);
@@ -50,9 +50,11 @@ function parseWKTPoint(wktStr: string, is3D: boolean): VectorPointGeometry {
 }
 
 /**
- * @param wktStr
- * @param type
- * @param is3D
+ * Parse a WKT array to a LineString or MultiPoint geometry
+ * @param wktStr - WKT string
+ * @param type - 'MultiPoint' or 'LineString'
+ * @param is3D - true if the point is 3D
+ * @returns - VectorGeometry (LineString or MultiPoint)
  */
 function parseWKTLine(
   wktStr: string,
@@ -72,9 +74,11 @@ function parseWKTLine(
 }
 
 /**
- * @param wktStr
- * @param type
- * @param is3D
+ * Parse a WKT array to a MultiLineString or Polygon
+ * @param wktStr - WKT string
+ * @param type - 'MultiLineString' or 'Polygon'
+ * @param is3D - true if the point is 3D
+ * @returns - VectorGeometry
  */
 function parseWKTMultiLine(
   wktStr: string,
@@ -96,8 +100,10 @@ function parseWKTMultiLine(
 }
 
 /**
- * @param wktStr
- * @param is3D
+ * Parse a WKT array to a MultiPolygon
+ * @param wktStr - WKT string
+ * @param is3D - true if each point is 3D
+ * @returns - VectorGeometry
  */
 function parseWKTMultiPolygon(wktStr: string, is3D: boolean): VectorGeometry {
   let geo = parseWKTArray(wktStr) as VectorMultiPolygon;
@@ -115,7 +121,9 @@ function parseWKTMultiPolygon(wktStr: string, is3D: boolean): VectorGeometry {
 }
 
 /**
- * @param wktStr
+ * Parse a WKT array
+ * @param wktStr - WKT string
+ * @returns - collection of points
  */
 function parseWKTArray(wktStr: string): WKTArray {
   const res: WKTArray = [];
@@ -125,10 +133,11 @@ function parseWKTArray(wktStr: string): WKTArray {
 
 // always return the endBracketIndex if we hit it
 /**
- * @param wktStr
- * @param res
- * @param startChar
- * @param endChar
+ * Parse a WKT array.
+ * always return the endBracketIndex if we hit it
+ * @param wktStr - WKT string
+ * @param res - collection to store the values
+ * @returns - a sliced WKT string with the parsed values
  */
 function _parseWKTArray(wktStr: string, res: WKTArray): string {
   // first get the array name and build the residual
@@ -164,7 +173,9 @@ function _parseWKTArray(wktStr: string, res: WKTArray): string {
 }
 
 /**
- * @param str
+ * Build a point from a WKT string
+ * @param str - WKT string
+ * @returns - VectorPoint
  */
 function buildPoint(str: string): VectorPoint {
   const [x, y, z] = cleanString(str).split(' ');

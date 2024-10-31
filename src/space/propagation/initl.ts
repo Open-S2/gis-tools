@@ -4,9 +4,7 @@ import { j2, twoPi, x2o3, xke } from '../util/constants';
 
 import type { Method, OperationMode } from '../sat';
 
-/**
- *
- */
+/** Options for Initl */
 export interface InitlOptions {
   ecco: number;
   epoch: number;
@@ -15,9 +13,7 @@ export interface InitlOptions {
   opsmode: OperationMode;
 }
 
-/**
- *
- */
+/** Output for Initl */
 export interface InitlOutput {
   no: number;
   method: Method;
@@ -36,8 +32,7 @@ export interface InitlOutput {
   gsto: number;
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           procedure initl
  *
  *  this procedure initializes the sgp4 propagator. all the initialization is
@@ -85,9 +80,8 @@ export interface InitlOutput {
  *    hoots, norad spacetrack report #6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param options
+ * @param options - initl options
+ * @returns - initialization params for sgp4
  */
 export function initl(options: InitlOptions): InitlOutput {
   const { ecco, epoch, inclo, opsmode } = options;

@@ -54,7 +54,7 @@ const { abs, sin, cos, sqrt, atan2 } = Math;
  * http://mathworld.wolfram.com/GnomonicProjection.html
  * Accessed: 12th November 2009
  *
- * ![Gnomonic](./images/gnom.png)
+ * ![Gnomonic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/gnom.png?raw=true)
  */
 export class Gnomonic extends ProjectionBase implements ProjectionTransform {
   name = 'GnomonicProjection';

@@ -44,7 +44,7 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, log, tan, acos, exp } = Math;
  * - `+x_0`: False easting.
  * - `+y_0`: False northing.
  *
- * ![Transverse Mercator](./images/tmerc.png)
+ * ![Transverse Mercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
  */
 export class TransverseMercator extends ProjectionBase implements ProjectionTransform {
   name = 'Transverse_Mercator';

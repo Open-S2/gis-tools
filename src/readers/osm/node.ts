@@ -10,8 +10,9 @@ import type { Metadata } from './primitive';
 import type { BBox, VectorFeature, VectorPoint } from '../../geometry';
 
 /**
- * @param feature
- * @param reader
+ * Merge an associated relation if it exists
+ * @param feature - the node vector feature
+ * @param reader - the OSM reader
  */
 export async function mergeRelationIfExists(
   feature: VectorFeature<Metadata>,
@@ -37,7 +38,8 @@ export async function mergeRelationIfExists(
 }
 
 /**
- *
+ * Node class
+ * contains a single node.
  */
 export class Node {
   id = 1;
@@ -49,9 +51,9 @@ export class Node {
   #properties?: Record<string, string>;
 
   /**
-   * @param primitiveBlock
-   * @param reader
-   * @param pbf
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param reader - the OSM reader
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -63,14 +65,16 @@ export class Node {
   }
 
   /**
-   * @param id
-   * @param info
-   * @param keys
-   * @param vals
-   * @param lat
-   * @param lon
-   * @param pb
-   * @param reader
+   * Create a node from a dense representation
+   * @param id - the node id
+   * @param info - the node info
+   * @param keys - list of keys
+   * @param vals - list of values
+   * @param lat - the latitude
+   * @param lon - the longitude
+   * @param pb - the primitive block to access keys and values
+   * @param reader - the OSM reader
+   * @returns - the node
    */
   static fromDense(
     id: number,
@@ -94,7 +98,8 @@ export class Node {
   }
 
   /**
-   * @param options
+   * Check if the node is filterable
+   * @returns - true if the node is filterable
    */
   isFilterable(): boolean {
     const { primitiveBlock: pb, reader } = this;
@@ -114,7 +119,8 @@ export class Node {
   }
 
   /**
-   *
+   * Get the properties of the node
+   * @returns - the properties
    */
   properties(): Record<string, string> {
     if (this.#properties !== undefined) return this.#properties;
@@ -123,9 +129,9 @@ export class Node {
   }
 
   /**
-   * @param tag
-   * @param node
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param node - the node
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, node: Node, pbf: Protobuf): void {
     const { primitiveBlock: pb } = node;
@@ -140,7 +146,8 @@ export class Node {
   }
 
   /**
-   * @param properties
+   * Gain access to the nodes geometry
+   * @returns - the vector feature
    */
   toVectorGeometry(): VectorPoint {
     // if feature has altitude or something defining its z position, make feature 3D
@@ -152,7 +159,8 @@ export class Node {
   }
 
   /**
-   *
+   * Convert the node to a vector feature
+   * @returns - the vector feature
    */
   toVectorFeature(): VectorFeature<Metadata> {
     const { addBBox } = this.reader;
@@ -191,9 +199,9 @@ export class DenseNodes {
   keysVals: number[] = [];
 
   /**
-   * @param reader
-   * @param pbf
-   * @param primitiveBlock
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param reader - the OSM reader
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -205,7 +213,8 @@ export class DenseNodes {
   }
 
   /**
-   *
+   * Access the nodes in this block
+   * @returns - the nodes in this block
    */
   nodes(): Node[] {
     const { primitiveBlock: pb, reader } = this;
@@ -238,9 +247,9 @@ export class DenseNodes {
   }
 
   /**
-   * @param tag
-   * @param denseNodes
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param denseNodes - the DenseNodes object
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, denseNodes: DenseNodes, pbf: Protobuf): void {
     const { primitiveBlock: pb } = denseNodes;

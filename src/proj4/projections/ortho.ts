@@ -49,7 +49,7 @@ const { abs, sin, cos, sqrt, atan2 } = Math;
  * - Before PROJ 7.2, only the spherical formulation was implemented. To replicate PROJ < 7.2 results with newer versions, force the ellipsoid to a sphere using `+f=0`.
  * - This projection method corresponds to `EPSG:9840` (or `EPSG:1130` with `k_0` or `alpha`).
  *
- * ![Orthographic](./images/ortho.png)
+ * ![Orthographic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/ortho.png?raw=true)
  */
 export class Orthographic extends ProjectionBase implements ProjectionTransform {
   name = 'Orthographic';

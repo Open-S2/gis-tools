@@ -23,28 +23,41 @@ export class BufferWriter implements Writer {
   #buffer: number[] = [];
   #textEncoder = new TextEncoder();
 
-  /** @param data - the data to append */
+  /**
+   * Append data to the buffer
+   * @param data - the data to append
+   */
   async append(data: Uint8Array): Promise<void> {
     for (let i = 0; i < data.byteLength; i++) this.#buffer.push(data[i]);
     await true;
   }
 
-  /** @param string - the string to append */
+  /**
+   * Append string to the buffer
+   * @param string - the string to append
+   */
   async appendString(string: string): Promise<void> {
     await this.append(this.#textEncoder.encode(string));
   }
 
-  /** @param data - the data to append */
+  /**
+   * Append data to the buffer synchronously
+   * @param data - the data to append
+   */
   appendSync(data: Uint8Array): void {
     for (let i = 0; i < data.byteLength; i++) this.#buffer.push(data[i]);
   }
 
-  /** @param string - the string to append */
+  /**
+   * Append string to the buffer synchronously
+   * @param string - the string to append
+   */
   appendStringSync(string: string): void {
     this.appendSync(this.#textEncoder.encode(string));
   }
 
   /**
+   * Write data to the buffer
    * @param data - the data to write
    * @param offset - where in the buffer to start
    */

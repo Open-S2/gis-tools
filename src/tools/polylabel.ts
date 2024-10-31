@@ -1,15 +1,17 @@
 import { PriorityQueue } from '../dataStructures/priorityQueue';
-import { VectorPoint, VectorPolygon } from '../geometry';
+import { Properties, VectorPoint, VectorPolygon } from '../geometry';
+
+/** The metadata inserted into the Vector Feature */
+export interface PolyLabelMetadata extends Properties {
+  distance: number;
+}
 
 /**
  * @param polygon - the vector polygon to find the label for
  * @param precision - the precision of the label
  * @returns - the label
  */
-export function polylabel(
-  polygon: VectorPolygon,
-  precision = 1.0,
-): VectorPoint<{ distance: number }> {
+export function polylabel(polygon: VectorPolygon, precision = 1.0): VectorPoint<PolyLabelMetadata> {
   // find the bounding box of the outer ring
   let minX = Infinity;
   let minY = Infinity;

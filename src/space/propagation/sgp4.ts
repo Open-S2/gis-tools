@@ -4,17 +4,13 @@ import { Satellite } from '../sat';
 import { dpper } from './dpper';
 import { dspace } from './dspace';
 
-/**
- *
- */
+/** An error output from an sgp4 computation */
 export interface SGP4ErrorOutput {
   type: number;
   error: string;
 }
 
-/**
- *
- */
+/** A successful output from an sgp4 computation */
 export interface SGP4Output {
   position: {
     x: number;
@@ -28,8 +24,7 @@ export interface SGP4Output {
   };
 }
 
-/* ----------------------------------------------------------------------------
- *
+/**
  *                             procedure sgp4
  *
  *  this procedure is the sgp4 prediction model from space command. this is an
@@ -113,10 +108,9 @@ export interface SGP4Output {
  *    hoots, norad spacetrack report //6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param sat
- * @param tsince
+ * @param sat - the satellite object to propagate
+ * @param tsince - the time since the epoch
+ * @returns - the position and velocity of the satellite or an error report
  */
 export function sgp4(sat: Satellite, tsince: number): SGP4ErrorOutput | SGP4Output {
   const {

@@ -49,12 +49,12 @@ const { tan, atan, PI, log, exp } = Math;
  *
  * ## Mathematical Definition
  * ### Forward projection:
- * ```math
+ * ```
  * x = \lambda
  * y = 1.25 * \ln \left[ \tan \left(\frac{\pi}{4} + 0.4 * \phi \right) \right]
  * ```
  * ### Inverse projection:
- * ```math
+ * ```
  * \lambda = x
  * \phi = 2.5 * ( \arctan \left[ e^{0.8 * y} \right] - \frac{\pi}{4} )
  * ```
@@ -63,7 +63,7 @@ const { tan, atan, PI, log, exp } = Math;
  * - [Wikipedia on Miller Cylindrical](https://en.wikipedia.org/wiki/Miller_cylindrical_projection)
  * - "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder, The American Cartographer, Vol 15, No. 4, October 1988, pp. 341-355.
  *
- * ![Miller Cylindrical](./images/mill.png)
+ * ![Miller Cylindrical](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/mill.png?raw=true)
  */
 export class MillerCylindrical extends ProjectionBase implements ProjectionTransform {
   name = 'MillerCylindrical';

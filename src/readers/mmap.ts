@@ -142,7 +142,10 @@ export class MMapReader implements Reader {
     return new DataView(slice.buffer, slice.byteOffset, slice.byteLength);
   }
 
-  /**  @param encoding - update the text decoder's encoding */
+  /**
+   * Set the text decoder's encoding
+   * @param encoding - update the text decoder's encoding
+   */
   setStringEncoding(encoding: string) {
     this.textDecoder = new TextDecoder(encoding);
   }

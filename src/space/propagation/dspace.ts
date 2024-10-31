@@ -1,8 +1,6 @@
 import { twoPi } from '../util/constants';
 
-/**
- *
- */
+/** Options for Dspace */
 export interface DspaceOptions {
   irez: number;
   d2201: number;
@@ -41,9 +39,7 @@ export interface DspaceOptions {
   nm: number;
 }
 
-/**
- *
- */
+/** Output from Dspace computation */
 export interface DspaceOutput {
   atime: number;
   em: number; // eccentricity
@@ -57,8 +53,7 @@ export interface DspaceOutput {
   nm: number; // mean motion
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           procedure dspace
  *
  *  this procedure provides deep space contributions to mean elements for
@@ -128,10 +123,9 @@ export interface DspaceOutput {
  *    hoots, norad spacetrack report #6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param options
- * @param tsince
+ * @param options - options explaining how to compute
+ * @param tsince - time since epoch
+ * @returns - computed values
  */
 export function dspace(options: DspaceOptions, tsince: number): DspaceOutput {
   const {

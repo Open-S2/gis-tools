@@ -201,10 +201,11 @@ export function add(a: Point3D, b: Point3D): Point3D {
 }
 
 /**
+ * Take an XYZ Point and add another XYZ Point to it
  * @param a - The XYZ Point to add to.
  * @param b - The XYZ Point to add.
  */
-export function addMut(a: Point3D, b: Point3D) {
+export function addMut(a: Point3D, b: Point3D): void {
   a[0] += b[0];
   a[1] += b[1];
   a[2] += b[2];

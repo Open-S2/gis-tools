@@ -15,6 +15,7 @@ export class FileWriter implements Writer {
   }
 
   /**
+   * Write data to the buffer
    * @param data - the data to write
    * @param offset - where in the buffer to start
    */
@@ -28,6 +29,7 @@ export class FileWriter implements Writer {
   }
 
   /**
+   * Append data to the buffer
    * @param data - the data to append
    * @returns - a promise that resolves when the data is appended
    */
@@ -40,17 +42,26 @@ export class FileWriter implements Writer {
     });
   }
 
-  /** @param string - the string to append */
+  /**
+   * Append string to the buffer synchronously
+   * @param string - the string to append
+   */
   async appendString(string: string): Promise<void> {
     await this.append(this.#textEncoder.encode(string));
   }
 
-  /** @param data - the data to append */
+  /**
+   * Append data to the buffer synchronously
+   * @param data - the data to append
+   */
   appendSync(data: Uint8Array): void {
     this.#stream.write(data); // Write data synchronously
   }
 
-  /** @param string - the string to append */
+  /**
+   * Append string to the buffer synchronously
+   * @param string - the string to append
+   */
   appendStringSync(string: string): void {
     this.appendSync(this.#textEncoder.encode(string));
   }

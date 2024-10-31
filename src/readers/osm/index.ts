@@ -20,26 +20,34 @@ export type * from './blob';
 export type * from './headerBlock';
 export type * from './info';
 export type * from './node';
+export type * from './primitive';
 export type * from './relation';
 export type * from './way';
 
 // https://wiki.openstreetmap.org/wiki/PBF_Format#File_format
 // https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
 
-// TODO: Add threads for the blocks
+// TODO: Add threads for reading the blocks
 
 /**
- *
+ * Filter types
+ * Options are:
+ * - All
+ * - Node
+ * - Way
+ * - Relation
  */
 export type FilterType = 'All' | 'Node' | 'Way' | 'Relation';
 
-/**
- *
- */
+/** Filter map. Used internally by TagFilter */
 export type FilterMap = Map<string, string | undefined>;
 
 /**
- *
+ * TagFilter Class
+ * Builds a filter for the tags when parsing data.
+ * Can parse tags from nodes, ways and relations.
+ * Also allows the ability to add tags that apply to all object types.
+ * Can filter by key, but also both key and value.
  */
 export class TagFilter {
   #filters: FilterMap = new Map<string, string | undefined>();
@@ -48,7 +56,9 @@ export class TagFilter {
   #relationFilters: FilterMap = new Map<string, string | undefined>();
 
   /**
-   * @param filterType
+   * Internal method to get the correct filter map
+   * @param filterType - The filter type
+   * @returns - The correct filter map to check against
    */
   #getFilter(filterType: FilterType): FilterMap {
     if (filterType === 'All') return this.#filters;
@@ -58,9 +68,10 @@ export class TagFilter {
   }
 
   /**
-   * @param filterType
-   * @param key
-   * @param value
+   * Add a filter
+   * @param filterType - The filter type to apply the filter
+   * @param key - The key to apply the filter
+   * @param value - The value to apply the filter (optional)
    */
   addFilter(filterType: FilterType, key: string, value?: string): void {
     const filter: FilterMap = this.#getFilter(filterType);
@@ -68,9 +79,11 @@ export class TagFilter {
   }
 
   /**
-   * @param filterType
-   * @param key
-   * @param value
+   * Check if a filter has been found
+   * @param filterType - The filter type
+   * @param key - The key
+   * @param value - The value (optional)
+   * @returns - True if the filter has been found
    */
   matchFound(filterType: FilterType, key: string, value?: string): boolean {
     const filter: FilterMap = this.#getFilter(filterType);
@@ -113,7 +126,9 @@ export interface OsmReaderOptions {
 }
 
 /**
- *
+ * OSM Reader
+ * Parses OSM PBF files
+ * https://wiki.openstreetmap.org/wiki/PBF_Format
  */
 export class OSMReader implements FeatureIterator<Metadata> {
   /** if true, remove nodes that have no tags [Default = true] */
@@ -144,8 +159,8 @@ export class OSMReader implements FeatureIterator<Metadata> {
   #offset = 0;
 
   /**
-   * @param reader
-   * @param options
+   * @param reader - The reader input (may be a local memory filter or file reader)
+   * @param options - User defined options to apply when reading the OSM file
    */
   constructor(
     public reader: Reader,
@@ -172,7 +187,8 @@ export class OSMReader implements FeatureIterator<Metadata> {
   }
 
   /**
-   *
+   * An async iterator to read in each feature
+   * @yields {VectorFeature}
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<Metadata>> {
     this.#offset = 0;
@@ -209,7 +225,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
   }
 
   /**
-   *
+   * @returns - The header of the OSM file
    */
   getHeader(): OSMHeader {
     this.#offset = 0;
@@ -221,8 +237,8 @@ export class OSMReader implements FeatureIterator<Metadata> {
   }
 
   /**
-   * @param isHeader
-   * @param offset
+   * Read the next blob
+   * @returns - the next blob if it exists
    */
   #next(): undefined | DataView {
     const { reader } = this;
@@ -245,8 +261,9 @@ export class OSMReader implements FeatureIterator<Metadata> {
   }
 
   /**
-   * @param blob
-   * @param data
+   * Read the input blob and parse the block of data
+   * @param data - the data to parse
+   * @returns - the parsed primitive block
    */
   async #readBlob(data: DataView): Promise<PrimitiveBlock> {
     // Blob data is PBF encoded and ?compressed, so we need to parse & decompress it first
@@ -270,7 +287,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
 }
 
 /**
- * @param tmpDir - the temporary directory to use if provided otherwise default os tmpdir
+ * Build a temporary file name
  * @param name - the name of the temporary file
  * @returns - a temporary file name based on a random number.
  */

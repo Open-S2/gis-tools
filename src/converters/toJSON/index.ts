@@ -13,6 +13,7 @@ export interface ToJSONOptions {
 }
 
 /**
+ * Given a writer and an array of iterators, write the input features to the writer as a JSON object
  * @param writer - the writer to append strings to
  * @param iterators - the collection of iterators to write
  * @param opts - user defined options [optional]
@@ -56,6 +57,7 @@ export async function toJSON(
 }
 
 /**
+ * Given a writer and an array of iterators, write the input features to the writer as JSON-LD
  * @param writer - the writer to apppend strings to
  * @param iterators - the collection of iterators to write
  * @param opts - user defined options [optional]

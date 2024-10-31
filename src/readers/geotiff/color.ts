@@ -3,9 +3,11 @@ import { EXTRA_SAMPLES_VALUES, PHOTOMETRIC_INTERPRETATIONS } from './constants';
 import type { Raster } from './image';
 
 /**
+ * Converts photometric interpretation to samples
  * @param pi - photometric interpretation
- * @param bitsPerSample
- * @param extraSamples
+ * @param bitsPerSample - bits per sample
+ * @param extraSamples - extra samples
+ * @returns - sample output
  */
 export function buildSamples(
   pi?: number,
@@ -46,11 +48,12 @@ export function buildSamples(
 }
 
 /**
+ * Convert color space raster to RGB
  * TODO: ICCLAB, ITULAB
  * @param pi - photometric interpretation
- * @param rasterData
- * @param max
- * @param colorMap
+ * @param rasterData - raster data
+ * @param max - maximum value if needed
+ * @param colorMap - color map if needed
  */
 export function convertColorSpace(
   pi: number | undefined,
@@ -78,8 +81,9 @@ export function convertColorSpace(
 }
 
 /**
- * @param raster
- * @param max
+ * Converts raster with white is zero and max is one to RGB
+ * @param raster - raster
+ * @param max - maximum value
  */
 export function fromWhiteIsZero(raster: Raster, max: number): void {
   const { width, height, data } = raster;
@@ -95,8 +99,9 @@ export function fromWhiteIsZero(raster: Raster, max: number): void {
 }
 
 /**
- * @param raster
- * @param max
+ * Converts raster with black is zero and max is one to RGB
+ * @param raster - raster
+ * @param max - maximum value
  */
 export function fromBlackIsZero(raster: Raster, max: number): void {
   const { width, height, data } = raster;
@@ -112,8 +117,9 @@ export function fromBlackIsZero(raster: Raster, max: number): void {
 }
 
 /**
- * @param raster
- * @param colorMap
+ * Converts raster with a color map to RGB
+ * @param raster - raster
+ * @param colorMap - color map
  */
 export function fromPalette(raster: Raster, colorMap: number[]): void {
   const { width, height, data } = raster;
@@ -131,8 +137,8 @@ export function fromPalette(raster: Raster, colorMap: number[]): void {
 }
 
 /**
- * @param cmykRaster
- * @param raster
+ * Converts CMYK to RGB
+ * @param raster - CMYK raster
  */
 export function fromCMYK(raster: Raster): void {
   const { width, height, data } = raster;
@@ -152,7 +158,8 @@ export function fromCMYK(raster: Raster): void {
 }
 
 /**
- * @param raster
+ * Converts YCbCr to RGB
+ * @param raster - YCbCr raster
  */
 export function fromYCbCr(raster: Raster): void {
   const { width, height, data } = raster;
@@ -175,9 +182,9 @@ const Yn = 1.0;
 const Zn = 1.08883;
 
 /**
+ * Converts CIELab to RGB
  * https://github.com/antimatter15/rgb-lab/blob/master/color.js
- * @param cieLabRaster
- * @param raster
+ * @param raster - CIELab raster
  */
 export function fromCIELab(raster: Raster): void {
   const { width, height, data } = raster;

@@ -16,8 +16,10 @@ import type { ProjectionParams } from '../../proj4';
 import type { GeoKeyDirectory, GridReader } from '.';
 
 /**
- * @param geoKeys
- * @param gridStore
+ * Builds the projection transformer for a GeoTIFF image
+ * @param geoKeys - the geo-keys pulled from the image metadata
+ * @param gridStore - the grid readers
+ * @returns - the projection transformer
  */
 export function buildTransform(
   geoKeys?: GeoKeyDirectory,
@@ -136,9 +138,11 @@ function buildParams(geoKeys?: GeoKeyDirectory): ProjectionParams | undefined {
 }
 
 /**
+ * Given an EPSG key, return the corresponding proj4 string
  * http://geotiff.maptools.org/spec/geotiff6.html#6.3.2.1
  * http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
- * @param id
+ * @param id - the EPSG code
+ * @returns - the proj4 string
  */
 function fromEPSGKey(id?: number): string | undefined {
   // 32767 is a user-defined code
@@ -147,9 +151,11 @@ function fromEPSGKey(id?: number): string | undefined {
 }
 
 /**
+ * Convert angle to Radians
  * http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.4
- * @param angle
- * @param units
+ * @param angle - the angle
+ * @param units - the unit type of the angle
+ * @returns - the angle in radians
  */
 function getAngle(angle?: number, units?: number): undefined | number {
   if (angle === undefined) return undefined;
@@ -172,8 +178,10 @@ function getAngle(angle?: number, units?: number): undefined | number {
 }
 
 /**
+ * Convert geotiff key to proj4 name
  * http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.3
- * @param key
+ * @param key - the geotiff key
+ * @returns - the proj4 name
  */
 function buildProjName(key?: number): string | undefined {
   if (key === 1)
@@ -233,7 +241,9 @@ function buildProjName(key?: number): string | undefined {
 }
 
 /**
- * @param key
+ * Convert geotiff key to proj4 ellipsoid
+ * @param key - the geotiff key
+ * @returns - the proj4 ellipsoid
  */
 function buildEllps(key?: number): string | undefined {
   if (key === 7001) return 'airy';
@@ -275,8 +285,10 @@ function buildEllps(key?: number): string | undefined {
 }
 
 /**
+ * Convert geotiff meter key to proj4 toMeter format
  * http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.3
- * @param key
+ * @param key - the geotiff key
+ * @returns - the proj4 toMeter
  */
 function buildToMeter(key?: number): number | undefined {
   if (key === 9001)

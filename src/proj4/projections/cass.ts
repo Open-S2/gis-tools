@@ -44,7 +44,7 @@ const { abs, sin, cos, asin, atan2, tan, pow } = Math;
  * - `R`
  * - `+hyperbolic`: Use modified form of the standard Cassini-Soldner projection known as the Hyperbolic Cassini-Soldner (used in EPSG:3139).
  *
- * ![Cassini (Cassini-Soldner)](./images/cass.png)
+ * ![Cassini (Cassini-Soldner)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/cass.png?raw=true)
  */
 export class CassiniSoldner extends ProjectionBase implements ProjectionTransform {
   name = 'Cassini_Soldner';

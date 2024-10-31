@@ -38,7 +38,7 @@ const { abs, PI, sin, cos, sqrt, tan, acos } = Math;
  * - `+x_0=<value>`: False easting.
  * - `+y_0=<value>`: False northing.
  *
- * ![van der Grinten (I)](./images/vandg.png)
+ * ![van der Grinten (I)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/vandg.png?raw=true)
  */
 export class VanDerGrinten extends ProjectionBase implements ProjectionTransform {
   name = 'VanDerGrinten';

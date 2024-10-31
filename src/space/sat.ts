@@ -5,21 +5,26 @@ import { sgp4, sgp4init } from './propagation';
 import type { SGP4ErrorOutput, SGP4Output } from './propagation';
 
 /**
- *
+ * Classification of TLE
+ * - U: unclassified
+ * - C: classified
+ * - S: secret
  */
 export type Classification = 'U' | 'C' | 'S'; // (U: unclassified, C: classified, S: secret)
 /**
- *
+ * Mode of operation AFSPC or Improved
+ * - a: afspc
+ * - i: improved
  */
 export type OperationMode = 'a' | 'i'; // mode of operation afspc or improved 'a', 'i'
 /**
- *
+ * Method of orbit determination
+ * - d: deep space
+ * - n: near earth
  */
 export type Method = 'd' | 'n'; // flag for deep space 'd', 'n'
 
-/**
- *
- */
+/** TLE Data Interface */
 export interface TLEData {
   name: string;
   number: number;
@@ -41,9 +46,7 @@ export interface TLEData {
   rms?: number;
 }
 
-/**
- *
- */
+/** Celestrak TLE Data Interface */
 export interface TLEDataCelestrak {
   OBJECT_NAME: string;
   OBJECT_ID: string;
@@ -72,7 +75,12 @@ export interface TLEDataCelestrak {
 // 2 44713  53.0512 157.2379 0001140  81.3827  74.7980 15.06382459    15
 
 /**
+ * Satellite Orbit Class
  *
+ * Input TLE example
+ * STARLINK-1007
+ * 1 44713C 19074A   23048.53451389 -.00009219  00000+0 -61811-3 0   482
+ * 2 44713  53.0512 157.2379 0001140  81.3827  74.7980 15.06382459    15
  */
 export class Satellite {
   init = false;
@@ -187,8 +195,9 @@ export class Satellite {
   xli = 0;
   xni = 0;
   /**
-   * @param data
-   * @param initialize
+   * Constructor
+   * @param data - TLE data or TLE string
+   * @param initialize - initialize the object on creation
    */
   constructor(data: TLEData | string, initialize = true) {
     if (typeof data === 'string') this.#parseTLE(data);
@@ -214,24 +223,27 @@ export class Satellite {
   /** API */
 
   /**
-   * @param time
+   * propagate the satellite's position and velocity given a Date input
+   * @param time - Date object
+   * @returns - SGP4ErrorOutput or SGP4Output
    */
   propagate(time: Date): SGP4ErrorOutput | SGP4Output {
     const j = jday(time);
     return sgp4(this, (j - this.jdsatepoch) * minutesPerDay);
   }
 
-  // time in minutes since epoch
   /**
-   * @param time
+   * time in minutes since epoch
+   * @param time - time in minutes
+   * @returns - satellite state at that time
    */
   sgp4(time: number): SGP4ErrorOutput | SGP4Output {
     return sgp4(this, time);
   }
 
-  // to gpu variables
   /**
-   *
+   * Converts satellite state to an array that is readable by the GPU
+   * @returns - satellite state in an array
    */
   gpu(): number[] {
     return [
@@ -330,9 +342,7 @@ export class Satellite {
 
   /** INTERNAL */
 
-  /**
-   * @param data
-   */
+  /** @param data - TLE data object */
   #parseJSON(data: TLEData): void {
     if (typeof data.date === 'string') data.date = new Date(data.date);
     for (const [key, value] of Object.entries(data)) {
@@ -344,9 +354,10 @@ export class Satellite {
     this.epochdays = jday(this.date) - jday(start);
   }
 
-  // https://en.wikipedia.org/wiki/Two-line_element_set
   /**
-   * @param value
+   * Parse TLE string
+   * https://en.wikipedia.org/wiki/Two-line_element_set
+   * @param value - TLE string
    */
   #parseTLE(value: string): void {
     const lines = trim(String(value)).split(/\r?\n/g);
@@ -399,7 +410,9 @@ export class Satellite {
   }
 
   /**
-   * @param value
+   * Parse a float number from a string
+   * @param value - string
+   * @returns - the parsed float number
    */
   #parseFloat(value: string): number {
     const pattern = /([-])?([.\d]+)([+-]\d+)?/;
@@ -416,7 +429,9 @@ export class Satellite {
   }
 
   /**
-   * @param value
+   * Parse a drag coefficient
+   * @param value - string
+   * @returns - the parsed drag coefficient
    */
   #parseDrag(value: string): number {
     const pattern = /([-])?([.\d]+)([+-]\d+)?/;
@@ -433,7 +448,9 @@ export class Satellite {
   }
 
   /**
-   * @param value
+   * Parse a date
+   * @param value - string of the date
+   * @returns - the parsed date
    */
   #parseDate(value: string): Date {
     value = String(value).replace(/^\s+|\s+$/, '');
@@ -462,9 +479,11 @@ export class Satellite {
   }
 }
 
-// JSON https://celestrak.org/NORAD/elements/supplemental/index.php?FORMAT=json example:
 /**
- * @param data
+ * Covnert Celestrak TLE data to a standard TLE data object
+ * [JSON example](https://celestrak.org/NORAD/elements/supplemental/index.php?FORMAT=json)
+ * @param data - Celestrak TLE data
+ * @returns - TLE data
  */
 export function convertCelestrak(data: TLEDataCelestrak): TLEData {
   // convert date to UTC to avoid javascripts localization issues
@@ -501,7 +520,9 @@ export function convertCelestrak(data: TLEDataCelestrak): TLEData {
 }
 
 /**
- * @param line
+ * Check TLE checksum
+ * @param line - TLE line
+ * @returns - TLE checksum
  */
 function check(line: string): number {
   let sum = 0;
@@ -515,9 +536,11 @@ function check(line: string): number {
   return sum % 10;
 }
 
-// NOTE: Alpha5 skips I and O
 /**
- * @param str
+ * Converts alpha5 to alpha2
+ * NOTE: Alpha5 skips I and O
+ * @param str - alpha5 input string
+ * @returns - alpha2 string
  */
 function alpha5Converter(str: string): string {
   const firstChar = str.charAt(0);
@@ -528,7 +551,9 @@ function alpha5Converter(str: string): string {
 }
 
 /**
- * @param str
+ * Trim leading and trailing whitespace
+ * @param str - string to trim
+ * @returns - trimmed string
  */
 function trim(str: string): string {
   return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');

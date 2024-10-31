@@ -25,7 +25,10 @@ export type VectorStoreConstructor<V extends VectorKey> = new () => VectorStore<
 export class Vector<V extends VectorKey> implements VectorStore<V> {
   #store: V[] = [];
 
-  /** @param value - the value to store */
+  /**
+   * Push a value into the store
+   * @param value - the value to store
+   */
   push(value: V): void {
     this.#store.push(value);
   }

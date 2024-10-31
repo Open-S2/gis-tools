@@ -18,17 +18,15 @@ export class BlobHeader {
   indexdata: Uint8Array = new Uint8Array(0);
   datasize = 0;
 
-  /**
-   * @param pbf
-   */
+  /** @param pbf - the Protobuf object to read from */
   constructor(pbf: Protobuf) {
     pbf.readFields(this.#readLayer, this, 0);
   }
 
   /**
-   * @param tag
-   * @param blobHeader
-   * @param pbf
+   * @param tag - the tag of the layer
+   * @param blobHeader - the blobHeader to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, blobHeader: BlobHeader, pbf: Protobuf): void {
     if (tag === 1) blobHeader.type = pbf.readString();
@@ -39,24 +37,20 @@ export class BlobHeader {
 }
 
 ///  STORAGE LAYER: Storing primitives.
-/**
- *
- */
+/** A Blob is a data block containing the actual data. */
 export class Blob {
   raw_size = 0;
   data: Uint8Array | Promise<Uint8Array> = new Uint8Array(0);
 
-  /**
-   * @param pbf
-   */
+  /** @param pbf - the Protobuf object to read from */
   constructor(pbf: Protobuf) {
     pbf.readFields(this.#readLayer, this, 0);
   }
 
   /**
-   * @param tag
-   * @param blob
-   * @param pbf
+   * @param tag - the tag of the layer
+   * @param blob - the blob to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, blob: Blob, pbf: Protobuf): void {
     // no compression

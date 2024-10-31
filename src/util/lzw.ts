@@ -4,9 +4,11 @@ const EOI_CODE = 257; // end of information
 const MAX_BYTELENGTH = 12;
 
 /**
- * @param array
- * @param position
- * @param length
+ * Get a byte from an array
+ * @param array - The array to read the byte from
+ * @param position - The position to read the byte from
+ * @param length - The length of the byte
+ * @returns - The byte
  */
 function getByte(array: number[] | Uint8Array, position: number, length: number): number {
   const d = position % 8;
@@ -37,18 +39,20 @@ function getByte(array: number[] | Uint8Array, position: number, length: number)
 }
 
 /**
- * @param dest
- * @param source
+ * Append an array in reverse
+ * @param dest - The array to append to
+ * @param source - The array to append
+ * @returns - The dest array
  */
 function appendReversed(dest: number[], source: number[]): number[] {
-  for (let i = source.length - 1; i >= 0; i--) {
-    dest.push(source[i]);
-  }
+  for (let i = source.length - 1; i >= 0; i--) dest.push(source[i]);
   return dest;
 }
 
 /**
- * @param input
+ * Decompress the LZW data
+ * @param input - The LZW data
+ * @returns - The decompressed data
  */
 function decompress(input: ArrayBufferLike): Uint8Array {
   const dictionaryIndex = new Uint16Array(4093);
@@ -62,14 +66,16 @@ function decompress(input: ArrayBufferLike): Uint8Array {
   let position = 0;
 
   /**
-   *
+   * Initializes the dictionary
    */
   function initDictionary() {
     dictionaryLength = 258;
     byteLength = MIN_BITS;
   }
   /**
-   * @param array
+   * Go next
+   * @param array - The array
+   * @returns - The next byte
    */
   function getNext(array: number[] | Uint8Array): number {
     const byte = getByte(array, position, byteLength);
@@ -77,8 +83,10 @@ function decompress(input: ArrayBufferLike): Uint8Array {
     return byte;
   }
   /**
-   * @param i
-   * @param c
+   * Add to the dictionary
+   * @param i - The index
+   * @param c - The character
+   * @returns - The new length of the dictionary
    */
   function addToDictionary(i: number, c: number): number {
     dictionaryChar[dictionaryLength] = c;
@@ -87,7 +95,9 @@ function decompress(input: ArrayBufferLike): Uint8Array {
     return dictionaryLength - 1;
   }
   /**
-   * @param n
+   * Get the dictionary reversed
+   * @param n - The index
+   * @returns - The reversed dictionary
    */
   function getDictionaryReversed(n: number): number[] {
     const rev = [];
@@ -150,7 +160,9 @@ function decompress(input: ArrayBufferLike): Uint8Array {
 }
 
 /**
- * @param buffer
+ * Decompress the LZW data
+ * @param buffer - The LZW data
+ * @returns - The decompressed data
  */
 export function lzwDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
   return decompress(buffer).buffer;

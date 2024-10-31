@@ -32,12 +32,16 @@ export interface GridDefinition {
 export class NadGridStore {
   grids = new Map<string, NadGrid>();
 
-  /** @param grid - a nadgrid class to store */
+  /**
+   * Insert a new NadGrid into the store
+   * @param grid - a nadgrid class to store
+   */
   addGrid(grid: NadGrid): void {
     this.grids.set(grid.key, grid);
   }
 
   /**
+   * Get a grid from the store given a key or name
    * @param key - the key or name of the grid
    * @returns - the grid
    */
@@ -46,6 +50,7 @@ export class NadGridStore {
   }
 
   /**
+   * Add a grid given a reader input
    * @param key - the key or name of the grid
    * @param reader - the input data to parse
    */
@@ -55,6 +60,7 @@ export class NadGridStore {
   }
 
   /**
+   * Get grid definitions from a string name
    * @param keys - complex string of grid keys to test against
    * @returns - an array of grid definitions
    */
@@ -69,6 +75,7 @@ export class NadGridStore {
   }
 
   /**
+   * Get a grid definition from a string
    * @param name - a single grid name to test against
    * @returns - a grid definition
    */

@@ -7,11 +7,21 @@ import type { ProjectionParams, ProjectionTransform } from '.';
 
 const { abs, sin, cos, sqrt, atan2, asin } = Math;
 
-/** The 4 possible modes of the TiltedPerspective projection */
+/**
+ * The 4 possible modes of the TiltedPerspective projection
+ * - North Pole (0)
+ * - South Pole (1)
+ * - Equator (2)
+ * - Oblique (3)
+ */
 export enum MODE {
+  /** North Pole */
   N_POLE = 0,
+  /** South Pole */
   S_POLE = 1,
+  /** Equator */
   EQUIT = 2,
+  /** Oblique */
   OBLIQ = 3,
 }
 
@@ -53,7 +63,7 @@ export enum MODE {
  * - `+azi=<value>`: Bearing in degrees away from north. *Defaults to 0.0.*
  * - `+tilt=<value>`: Angle in degrees away from nadir. *Defaults to 0.0.*
  *
- * ![Tilted perspective](./images/tpers.png)
+ * ![Tilted perspective](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/tpers.png?raw=true)
  */
 export class TiltedPerspective extends ProjectionBase implements ProjectionTransform {
   name = 'TiltedPerspective';

@@ -45,11 +45,11 @@ function findEndCentralDirectory(raw: Uint8Array): number {
  * Each {@link ZipItem} can have its decompressed bytes read by calling its `read()` method,
  * which'll give either `Uint8Array` _or_ `Promise<Uint8Array>` (as it's possible to be sync).
  */
-export type ZipItem = {
+export interface ZipItem {
   filename: string;
   comment: string;
   read: () => Promise<Uint8Array> | Uint8Array;
-};
+}
 
 /**
  * @param raw - the raw data to read

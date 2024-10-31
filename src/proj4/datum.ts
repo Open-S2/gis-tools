@@ -21,8 +21,8 @@ import type { ProjectionParams, ProjectionTransform, Transformer } from '.';
 const { abs, sin, cos, sqrt, atan2, atan, PI, floor } = Math;
 
 /**
+ * Modifies projection parameters to properly define a datum
  * @param params - projection specific parameters to be adjusted
- * @param nadgrids - nad grid data if applicable
  * @param transformer - the projection transformer to potentially pull data from
  */
 export function buildDatum(params: ProjectionParams, transformer: Transformer): void {
@@ -70,8 +70,10 @@ export function buildDatum(params: ProjectionParams, transformer: Transformer): 
 }
 
 /**
- * @param source
- * @param dest
+ * Compares datums to see if they have equal datums
+ * @param source - source projection starting from
+ * @param dest - destination projection to end at
+ * @returns true if projection datums are equal
  */
 export function compareDatums(source: ProjectionTransform, dest: ProjectionTransform): boolean {
   if (source.datumType !== dest.datumType) {
@@ -101,20 +103,17 @@ export function compareDatums(source: ProjectionTransform, dest: ProjectionTrans
   }
 } // cs_compare_datums()
 
-/*
+/**
  * The function Convert_Geodetic_To_Geocentric converts geodetic coordinates
  * (latitude, longitude, and height) to geocentric coordinates (X, Y, Z),
  * according to the current ellipsoid parameters.
  *
- *    Latitude  : Geodetic latitude in radians                     (input)
- *    Longitude : Geodetic longitude in radians                    (input)
- *    Height    : Geodetic height, in meters                       (input)
- *    X         : Calculated Geocentric X coordinate, in meters    (output)
- *    Y         : Calculated Geocentric Y coordinate, in meters    (output)
- *    Z         : Calculated Geocentric Z coordinate, in meters    (output)
- *
- */
-/**
+ * Latitude  : Geodetic latitude in radians                     (input)
+ * Longitude : Geodetic longitude in radians                    (input)
+ * Height    : Geodetic height, in meters                       (input)
+ * X         : Calculated Geocentric X coordinate, in meters    (output)
+ * Y         : Calculated Geocentric Y coordinate, in meters    (output)
+ * Z         : Calculated Geocentric Z coordinate, in meters    (output)
  * @param p - lon-lat WGS84 point
  * @param es - eccentricity
  * @param a - semi-major axis
@@ -151,6 +150,7 @@ export function geodeticToGeocentric(p: VectorPoint, es: number, a: number): voi
 }
 
 /**
+ * converts a geocentric point to a geodetic point
  * @param p - Geocentric point
  * @param es - ellipsoid eccentricity
  * @param a - ellipsoid semimajor axis
@@ -326,15 +326,17 @@ export function geocentricFromWgs84(
 
 /**
  * @param type - datum type
- * @returns - true if 1 or 2
+ * @returns - true if 1 or 2 (3 or 7 parameter datum)
  */
 function checkParams(type: number): boolean {
   return type === PJD_3PARAM || type === PJD_7PARAM;
 }
 
 /**
- * @param source
- * @param dest
+ * check if either of the projections are not WGS84
+ * @param source - source projection
+ * @param dest - destination projection
+ * @returns - true if either of the projections are not WGS84
  */
 export function checkNotWGS(source: ProjectionTransform, dest: ProjectionTransform): boolean {
   return (
@@ -350,6 +352,7 @@ export function checkNotWGS(source: ProjectionTransform, dest: ProjectionTransfo
 }
 
 /**
+ * Transforms a point from one datum to another
  * @param point - lon-lat WGS84 point to mutate
  * @param source - source projection
  * @param dest - destination projection
@@ -404,9 +407,10 @@ export function datumTransform(
 }
 
 /**
- * @param source
- * @param inverse
- * @param point
+ * Apply a grid shift given the source projection (assums a nadgrid has been set up)
+ * @param source - source projection
+ * @param inverse - if true, the grid shift is applied in reverse
+ * @param point - the point to apply the grid shift
  */
 export function applyGridShift(
   source: ProjectionTransform,
@@ -461,9 +465,11 @@ export function applyGridShift(
 }
 
 /**
- * @param pin
- * @param inverse
- * @param ct
+ * Apply a subgrid shift
+ * @param pin - the point
+ * @param inverse - if true, the grid shift is applied in reverse
+ * @param ct - the subgrid
+ * @returns - the new point
  */
 function applySubgridShift(pin: VectorPoint, inverse: boolean, ct: NadSubGrid): VectorPoint {
   const val = { x: Number.NaN, y: Number.NaN };
@@ -503,8 +509,10 @@ function applySubgridShift(pin: VectorPoint, inverse: boolean, ct: NadSubGrid): 
 }
 
 /**
- * @param pin
- * @param ct
+ * Interpolate between two points using the nad-subgrid
+ * @param pin - the point
+ * @param ct - the subgrid
+ * @returns - the new point
  */
 function nadInterpolate(pin: VectorPoint, ct: NadSubGrid): VectorPoint {
   const t = { x: pin.x / ct.del.x, y: pin.y / ct.del.y };

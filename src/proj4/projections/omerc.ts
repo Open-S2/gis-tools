@@ -57,7 +57,7 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, log, atan, PI, tan, exp } = Math;
  * ## Caveats
  * The two-point method with no rectification is probably only marginally useful.
  *
- * ![Oblique Mercator](./images/omerc.png)
+ * ![Oblique Mercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/omerc.png?raw=true)
  */
 export class HotineObliqueMercator extends ProjectionBase implements ProjectionTransform {
   name = 'HotineObliqueMercator';

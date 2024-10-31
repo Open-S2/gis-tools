@@ -41,7 +41,7 @@ const { abs, pow, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;
  * - `ellps`: Ellipsoid name
  * - `R`: Radius of sphere
  *
- * ![Azimuthal Equidistant Projection](https://github.com/OSGeo/PROJ/blob/38dd7c2446f3500a43f0257f5a4833d6aa5aab0b/docs/source/operations/projections/images/aeqd.png?raw=true)
+ * ![Azimuthal Equidistant Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/aeqd.png?raw=true)
  */
 export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTransform {
   name = 'Azimuthal_Equidistant';

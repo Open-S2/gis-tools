@@ -123,6 +123,7 @@ export class PointCluster {
   }
 
   /**
+   * Insert an STPoint to the index
    * @param face - the face of the cell
    * @param s - the s coordinate
    * @param t - the t coordinate

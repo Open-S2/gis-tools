@@ -1,8 +1,6 @@
 import { twoPi } from '../util/constants';
 
-/**
- *
- */
+/** Options for Dscom */
 export interface DscomOptions {
   epoch: number;
   ep: number;
@@ -13,9 +11,7 @@ export interface DscomOptions {
   np: number;
 }
 
-/**
- *
- */
+/** Output for Dscom */
 export interface DscomOutput {
   snodm: number;
   cnodm: number;
@@ -117,7 +113,8 @@ export interface DscomOutput {
 }
 
 /* -----------------------------------------------------------------------------
- *
+ ---------------------------------------------------------------------------- */
+/**
  *                           procedure dscom
  *
  *  this procedure provides deep space common items used by both the secular
@@ -182,9 +179,8 @@ export interface DscomOutput {
  *    hoots, norad spacetrack report #6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param options
+ * @param options - the options
+ * @returns - computed deep space common items used by both the secular and periodics
  */
 export function dscom(options: DscomOptions): DscomOutput {
   const { epoch, ep, argpp, tc, inclp, nodep, np } = options;

@@ -5,6 +5,7 @@ export * from './projection';
 export type * from './projection';
 
 /**
+ * Clean a string to remove whitespace, single and double quotes, and replace multiple spaces with a single space
  * @param str - string to clean
  * @returns - cleaned string
  */

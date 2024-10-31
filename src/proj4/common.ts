@@ -196,16 +196,20 @@ export function e3fn(x: number): number {
 }
 
 /**
- * @param x
- * @param L
+ * Convenience function to compute fL(x, L)
+ * @param x - input
+ * @param L - exponent
+ * @returns - fL(x, L)
  */
 export function fL(x: number, L: number): number {
   return 2 * atan(x * exp(L)) - HALF_PI;
 }
 
 /**
- * @param pp
- * @param B
+ * Convenience function to compute gatg(pp, B)
+ * @param pp - array of coefficients
+ * @param B - input
+ * @returns - gatg(pp, B)
  */
 export function gatg(pp: number[], B: number): number {
   const cos_2B = 2 * cos(2 * B);
@@ -224,9 +228,11 @@ export function gatg(pp: number[], B: number): number {
 }
 
 /**
- * @param a
- * @param e
- * @param sinphi
+ * Returns gN(a, e, sinphi)
+ * @param a - input
+ * @param e - input
+ * @param sinphi - sin of latitude
+ * @returns - gN(a, e, sinphi)
  */
 export function gN(a: number, e: number, sinphi: number): number {
   const temp = e * sinphi;
@@ -234,8 +240,10 @@ export function gN(a: number, e: number, sinphi: number): number {
 }
 
 /**
- * @param x
- * @param y
+ * Returns the hypotenuse of x and y
+ * @param x - input
+ * @param y - input
+ * @returns - hypot(x, y)
  */
 export function hypot(x: number, y: number): number {
   x = abs(x);
@@ -247,11 +255,13 @@ export function hypot(x: number, y: number): number {
 }
 
 /**
- * @param ml
- * @param e0
- * @param e1
- * @param e2
- * @param e3
+ * Convenience function to compute iMLfn(ml, e0, e1, e2, e3)
+ * @param ml - input
+ * @param e0 - input
+ * @param e1 - input
+ * @param e2 - input
+ * @param e3 - input
+ * @returns - iMLfn(ml, e0, e1, e2, e3)
  */
 export function imlfn(ml: number, e0: number, e1: number, e2: number, e3: number): number {
   let phi;
@@ -272,8 +282,10 @@ export function imlfn(ml: number, e0: number, e1: number, e2: number, e3: number
 }
 
 /**
- * @param eccent
- * @param ts
+ * Inverse of iLfn
+ * @param eccent - eccentricity
+ * @param ts - input
+ * @returns - invlatiso(eccent, ts)
  */
 export function invlatiso(eccent: number, ts: number): number {
   let phi = fL(1, ts);
@@ -288,8 +300,10 @@ export function invlatiso(eccent: number, ts: number): number {
 }
 
 /**
- * @param eccent
- * @param q
+ * Convienience function to compute iqsfnz(eccent, q)
+ * @param eccent - eccentricity
+ * @param q - input
+ * @returns - iqsfnz(eccent, q)
  */
 export function iqsfnz(eccent: number, q: number): number {
   const temp = 1 - ((1 - eccent * eccent) / (2 * eccent)) * log((1 - eccent) / (1 + eccent));
@@ -325,9 +339,11 @@ export function iqsfnz(eccent: number, q: number): number {
 }
 
 /**
- * @param eccent
- * @param phi
- * @param sinphi
+ * Convenience function to compute latiso(eccent, phi, sinphi)
+ * @param eccent - eccentricity
+ * @param phi - latitude
+ * @param sinphi - sin of latitude
+ * @returns - latiso(eccent, phi, sinphi)
  */
 export function latiso(eccent: number, phi: number, sinphi: number): number {
   if (abs(phi) > HALF_PI) return Number.NaN;
@@ -339,7 +355,9 @@ export function latiso(eccent: number, phi: number, sinphi: number): number {
 }
 
 /**
- * @param x
+ * Convenience function to compute log1py(x)
+ * @param x - input
+ * @returns - log1py(x)
  */
 export function log1py(x: number): number {
   const y = 1 + x;
@@ -349,20 +367,24 @@ export function log1py(x: number): number {
 }
 
 /**
- * @param e0
- * @param e1
- * @param e2
- * @param e3
- * @param phi
+ * Convienience function to compute mlfn
+ * @param e0 - input
+ * @param e1 - input
+ * @param e2 - input
+ * @param e3 - input
+ * @param phi - latitude
+ * @returns - mlfn(e0, e1, e2, e3, phi)
  */
 export function mlfn(e0: number, e1: number, e2: number, e3: number, phi: number): number {
   return e0 * phi - e1 * sin(2 * phi) + e2 * sin(4 * phi) - e3 * sin(6 * phi);
 }
 
 /**
- * @param eccent
- * @param sinphi
- * @param cosphi
+ * Convienience function to compute msfnz(eccent, sinphi, cosphi)
+ * @param eccent - eccentricity
+ * @param sinphi - sin of latitude
+ * @param cosphi - cos of latitude
+ * @returns - msfnz(eccent, sinphi, cosphi)
  */
 export function msfnz(eccent: number, sinphi: number, cosphi: number): number {
   const con = eccent * sinphi;
@@ -370,8 +392,10 @@ export function msfnz(eccent: number, sinphi: number, cosphi: number): number {
 }
 
 /**
- * @param eccent
- * @param ts
+ * Convenience function to compute phi2z(eccent, ts)
+ * @param eccent - eccentricity
+ * @param ts - input
+ * @returns - phi2z(eccent, ts)
  */
 export function phi2z(eccent: number, ts: number): number {
   const eccnth = 0.5 * eccent;
@@ -388,13 +412,13 @@ export function phi2z(eccent: number, ts: number): number {
   throw new Error('phi2z has NoConvergence');
 }
 
-/**
- *
- */
+/** The 5 elements of the eccentricity vector. */
 export type En = [number, number, number, number, number];
 
 /**
- * @param es
+ * Convenience function to compute enfn(es)
+ * @param es - eccentricity
+ * @returns - enfn(es)
  */
 export function pjEnfn(es: number): En {
   const C00 = 1;
@@ -423,9 +447,11 @@ export function pjEnfn(es: number): En {
 }
 
 /**
- * @param arg
- * @param es
- * @param en
+ * Convenience function for pjInvMlfn(arg, es, en)
+ * @param arg - latitude
+ * @param es - eccentricity
+ * @param en - input
+ * @returns - pjInvMlfn(arg, es, en)
  */
 export function pjInvMlfn(arg: number, es: number, en: En): number {
   const MAX_ITER = 20;
@@ -448,10 +474,12 @@ export function pjInvMlfn(arg: number, es: number, en: En): number {
 }
 
 /**
- * @param phi
- * @param sphi
- * @param cphi
- * @param en
+ * Convenience function for pjMlfn(phi, sphi, cphi, en)
+ * @param phi - latitude
+ * @param sphi - sin of latitude
+ * @param cphi - cos of latitude
+ * @param en - input
+ * @returns - pjMlfn(phi, sphi, cphi, en)
  */
 export function pjMlfn(phi: number, sphi: number, cphi: number, en: En): number {
   cphi *= sphi;
@@ -460,8 +488,10 @@ export function pjMlfn(phi: number, sphi: number, cphi: number, en: En): number 
 }
 
 /**
- * @param eccent
- * @param sinphi
+ * Convenience function for qsfnz(eccent, sinphi)
+ * @param eccent - eccentricity
+ * @param sinphi - sin of latitude
+ * @returns - qsfnz(eccent, sinphi)
  */
 export function qsfnz(eccent: number, sinphi: number): number {
   let con;
@@ -477,14 +507,18 @@ export function qsfnz(eccent: number, sinphi: number): number {
 }
 
 /**
- * @param x
+ * Returns the sign of x
+ * @param x - The value to get the sign of
+ * @returns - 1 if x is positive, -1 if x is negative
  */
 export function sign(x: number): 1 | -1 {
   return x < 0 ? -1 : 1;
 }
 
 /**
- * @param x
+ * Returns the hyperbolic sine of x.
+ * @param x - The value to calculate the hyperbolic sine of
+ * @returns - sinh(x)
  */
 export function sinh(x: number): number {
   let r = exp(x);
@@ -493,15 +527,19 @@ export function sinh(x: number): number {
 }
 
 /**
- * @param esinp
- * @param exp
+ * Returns the ratio of the exponential of two numbers
+ * @param esinp - The ratio
+ * @param exp - The exponent
+ * @returns - srat(esinp, exp)
  */
 export function srat(esinp: number, exp: number): number {
   return pow((1 - esinp) / (1 + esinp), exp);
 }
 
 /**
- * @param x
+ * Returns the hyperbolic tangent of x.
+ * @param x - The value to calculate the hyperbolic tangent of
+ * @returns - tanh(x)
  */
 export function tanh(x: number): number {
   let r = exp(x);
@@ -510,9 +548,11 @@ export function tanh(x: number): number {
 }
 
 /**
- * @param eccent
- * @param phi
- * @param sinphi
+ * Apply the spherical formulae to obtain the conformal latitude
+ * @param eccent - eccentricity
+ * @param phi - latitude
+ * @param sinphi - sin(latitude)
+ * @returns - conformal latitude
  */
 export function tsfnz(eccent: number, phi: number, sinphi: number): number {
   let con = eccent * sinphi;

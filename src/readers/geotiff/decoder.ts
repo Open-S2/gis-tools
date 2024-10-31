@@ -21,23 +21,26 @@ export function getDecoder(compression = 1): Decoder {
 }
 
 /**
- * @param buffer
+ * Deflate and decode the input buffer
+ * @param buffer - inflated data
+ * @returns - the decoded buffer
  */
 async function deflateDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
   return (await decompressStream(new Uint8Array(buffer))).buffer;
 }
 
 /**
- * @param buffer
+ * Raw decoder
+ * @param buffer - the input buffer
+ * @returns - the decoded buffer
  */
 function rawDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
   return buffer;
 }
 /**
- * @param fileDirectory
- * @param buffer
- * @param options
- * @param jpegTables
+ * Image decoder
+ * @param buffer - the input buffer
+ * @returns - the decoded buffer
  */
 async function imageDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
   const blob = new Blob([buffer as ArrayBuffer]); // e.g. { type: 'image/png' }
@@ -53,6 +56,7 @@ async function imageDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
 }
 
 /**
+ * Packbits decoder
  * @param buffer - an array of packed bits in a block
  * @returns the decoded array
  */

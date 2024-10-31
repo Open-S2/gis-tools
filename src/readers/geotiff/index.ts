@@ -15,16 +15,14 @@ export * from './image';
 export * from './imageUtil';
 export * from './predictor';
 
-/**
- *
- */
+/** A grid reader object */
 export interface GridReader {
   key: string;
   reader: Reader;
 }
 
 /**
- *
+ * GeoTIFF Reader
  */
 export class GeoTIFFReader extends GeoTIFFHeaderReader {
   gridStore: GridReader[] = [];
@@ -34,8 +32,9 @@ export class GeoTIFFReader extends GeoTIFFHeaderReader {
   }
 
   /**
-   * @param key
-   * @param reader
+   * Add a grid reader
+   * @param key - the key or name of the grid
+   * @param reader - the input data to parse
    */
   addGridReader(key: string, reader: Reader): void {
     this.gridStore.push({ key, reader });

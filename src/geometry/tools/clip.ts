@@ -21,12 +21,20 @@ import type {
   VectorPolygonGeometry,
 } from '..';
 
+/** The child of a tile */
+export interface TileChild {
+  /** The id of the child tile */
+  id: bigint;
+  /** The child tile */
+  tile: Tile;
+}
+
 /** Split features into the 4 children of a tile */
 export type TileChildren = [
-  { id: bigint; tile: Tile }, // bottom left
-  { id: bigint; tile: Tile }, // bottom right
-  { id: bigint; tile: Tile }, // top left
-  { id: bigint; tile: Tile }, // top right
+  TileChild, // bottom left
+  TileChild, // bottom right
+  TileChild, // top left
+  TileChild, // top right
 ];
 
 /**

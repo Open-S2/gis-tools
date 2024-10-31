@@ -2,13 +2,14 @@ export const epsilon = 1.1102230246251565e-16;
 export const splitter = 134217729;
 export const resulterrbound = (3 + 8 * epsilon) * epsilon;
 
-// fast_expansion_sum_zeroelim routine from oritinal code
 /**
- * @param elen
- * @param e
- * @param flen
- * @param f
- * @param h
+ * fast_expansion_sum_zeroelim routine from oritinal code
+ * @param elen - number of elements in expansion
+ * @param e - expansion
+ * @param flen - number of elements in expansion
+ * @param f - expansion
+ * @param h - expansion
+ * @returns - the sum
  */
 export function predSum(
   elen: number,
@@ -89,14 +90,15 @@ export function predSum(
 }
 
 /**
- * @param alen
- * @param a
- * @param blen
- * @param b
- * @param clen
- * @param c
- * @param tmp
- * @param out
+ * @param alen - length of array a
+ * @param a - array A
+ * @param blen - length of array b
+ * @param b - array B
+ * @param clen - length of array c
+ * @param c - array C
+ * @param tmp - temporary array
+ * @param out - output
+ * @returns the sum
  */
 export function predSumThree(
   alen: number,
@@ -113,17 +115,18 @@ export function predSumThree(
 
 /**
  * scale_expansion_zeroelim routine from oritinal code
- * @param elen
- * @param e
- * @param b
- * @param h
+ * @param elen - number of elements in expansion
+ * @param e - expansion
+ * @param b - scalar
+ * @param h - expansion
+ * @returns - the size of the h expansion
  */
 export function scale(
   elen: number,
   e: number[] | Float64Array,
   b: number,
   h: number[] | Float64Array,
-) {
+): number {
   let Q, sum, hh, product1, product0;
   let bvirt, c, ahi, alo;
 
@@ -175,8 +178,10 @@ export function scale(
 // }
 
 /**
- * @param elen
- * @param e
+ * estimation of expansion sum
+ * @param elen - number of elements in expansion
+ * @param e - expansion
+ * @returns - the sum
  */
 export function estimate(elen: number, e: number[] | Float64Array): number {
   let Q = e[0];
@@ -185,7 +190,9 @@ export function estimate(elen: number, e: number[] | Float64Array): number {
 }
 
 /**
- * @param n
+ * Creates a new Float64Array of n size
+ * @param n - number of elements
+ * @returns - new Float64Array of n size
  */
 export function vec(n: number): Float64Array {
   return new Float64Array(n);

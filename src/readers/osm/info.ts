@@ -1,9 +1,7 @@
 import type { PrimitiveBlock } from './primitive';
 import type { Pbf as Protobuf } from '../../readers/protobuf';
 
-/**
- *
- */
+/** Info Block - decoded into an object */
 export interface InfoBlock {
   version?: number;
   timestamp?: number;
@@ -31,8 +29,8 @@ export class Info {
   #visible = true;
 
   /**
-   * @param primitiveBlock
-   * @param pbf
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -42,8 +40,8 @@ export class Info {
   }
 
   /**
-   * @param filter - If true, the higher level object (node, way, relation) filter was applied.
-   * @returns - the info block with added filter flag
+   * Access the info block's data as a stringifyable JSON object
+   * @returns - the info block
    */
   toBlock(): InfoBlock {
     return {
@@ -57,13 +55,15 @@ export class Info {
   }
 
   /**
-   * @param primitiveBlock
-   * @param version
-   * @param timestamp
-   * @param changeset
-   * @param uid
-   * @param userSid
-   * @param visible
+   * Create an Info object from a dense representation
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param version - the version
+   * @param timestamp - the timestamp
+   * @param changeset - the changeset id
+   * @param uid - the uid
+   * @param userSid - the user who created the object
+   * @param visible - the visibility flag
+   * @returns - the info object
    */
   static fromDense(
     primitiveBlock: PrimitiveBlock,
@@ -85,7 +85,8 @@ export class Info {
   }
 
   /**
-   *
+   * Access the time stamp
+   * @returns - the time stamp as a number
    */
   timeStamp(): number | undefined {
     if (this.#timestamp === undefined) return;
@@ -93,7 +94,8 @@ export class Info {
   }
 
   /**
-   *
+   * Access the user
+   * @returns - the user
    */
   user(): string | undefined {
     if (this.#userSid === undefined) return;
@@ -101,9 +103,9 @@ export class Info {
   }
 
   /**
-   * @param tag
-   * @param info
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param info - the info object to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, info: Info, pbf: Protobuf): void {
     if (tag === 1) info.#version = pbf.readSVarint();
@@ -134,8 +136,8 @@ export class DenseInfo {
   visible?: boolean[] = [];
 
   /**
-   * @param primitiveBlock
-   * @param pbf
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -145,7 +147,8 @@ export class DenseInfo {
   }
 
   /**
-   * @param allocator
+   * Get the info objects
+   * @returns - the info objects
    */
   infos(): Info[] {
     const res: Info[] = [];
@@ -168,7 +171,9 @@ export class DenseInfo {
   }
 
   /**
-   * @param i
+   * Check if the Info object at the given index is visible
+   * @param i - the index
+   * @returns - true if the object is visible
    */
   getVisible(i: number): undefined | boolean {
     if (this.visible === undefined) return;
@@ -176,9 +181,9 @@ export class DenseInfo {
   }
 
   /**
-   * @param tag
-   * @param di
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param di - the dense info object to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, di: DenseInfo, pbf: Protobuf): void {
     if (tag === 1) di.version = pbf.readPackedSVarint();

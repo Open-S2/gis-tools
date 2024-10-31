@@ -43,7 +43,7 @@ const { pow, sin, cos, sqrt, atan, asin } = Math;
  * echo 12 55 | proj +proj=gstmerc +k_0=1 +lon_0=0 +x_0=500000 +y_0=0
  * ```
  *
- * ![Gauss-Schreiber Transverse Mercator](./images/gstmerc.png)
+ * ![Gauss-Schreiber Transverse Mercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/gstmerc.png?raw=true)
  */
 export class GaussSchreiberTransverseMercator
   extends ProjectionBase

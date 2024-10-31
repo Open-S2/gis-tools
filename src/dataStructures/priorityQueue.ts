@@ -23,7 +23,10 @@ export class PriorityQueue<T = number> {
     return this.#length;
   }
 
-  /** @param item - the item to store */
+  /**
+   * Push an item into the queue
+   * @param item - the item to store
+   */
   push(item: T): void {
     this.data.push(item);
     this.#up(this.#length++);

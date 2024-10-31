@@ -1,16 +1,14 @@
 import { cleanString } from '.';
 
-/**
- *
- */
+/** WKT value or array of values */
 export type WKTValue = string | WKTValue[];
-/**
- *
- */
+/** WKT object is a collection of WKT values or even nested WKT objects */
 export type WKTObject = WKTValue[];
 
 /**
- * @param wktStr
+ * Parses a WKT object
+ * @param wktStr - WKT string
+ * @returns - WKT object
  */
 export function parseWKTObject(wktStr: string): WKTObject {
   const res: WKTObject = [];
@@ -18,10 +16,11 @@ export function parseWKTObject(wktStr: string): WKTObject {
   return res;
 }
 
-// always return the endBracketIndex if we hit it
 /**
- * @param wktStr
- * @param res
+ * Parse a WKT object
+ * @param wktStr - WKT string
+ * @param res - collection to store the values
+ * @returns - a sliced WKT string with the parsed values
  */
 function _parseWKTObject(wktStr: string, res: WKTObject): string {
   // first get the object name and build the residual

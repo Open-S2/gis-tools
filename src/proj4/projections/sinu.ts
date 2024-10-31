@@ -65,7 +65,7 @@ const { abs, sin, cos, sqrt, asin } = Math;
  * ## Further Reading
  * - [Wikipedia](https://en.wikipedia.org/wiki/Sinusoidal_projection)
  *
- * ![Sinusoidal (Sanson-Flamsteed)](./images/sinu.png)
+ * ![Sinusoidal (Sanson-Flamsteed)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/sinu.png?raw=true)
  */
 export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
   name = 'Sinusoidal';

@@ -20,7 +20,9 @@ export interface OSMHeader {
 }
 
 /**
- *
+ * The OSM Header Block
+ * A block containing OSM header information that helps guide the parser
+ * of the OSM data how to interpret the data.
  */
 export class HeaderBlock {
   bbox = new HeaderBBox();
@@ -39,15 +41,14 @@ export class HeaderBlock {
   // Replication base URL (from Osmosis' configuration.txt file).
   osmosis_replication_base_url?: string;
 
-  /**
-   * @param pbf
-   */
+  /** @param pbf - the Protobuf object to read from */
   constructor(pbf: Protobuf) {
-    pbf.readMessage(this.readLayer, this);
+    pbf.readMessage(this.#readLayer, this);
   }
 
   /**
-   *
+   * Read the header block's contents into an object
+   * @returns - the header object
    */
   toHeader(): OSMHeader {
     const {
@@ -73,11 +74,12 @@ export class HeaderBlock {
   }
 
   /**
-   * @param tag
-   * @param header
-   * @param pbf
+   * Read in the contents of the header block
+   * @param tag - the tag of the message
+   * @param header - the header object to modify
+   * @param pbf - the Protobuf object to read from
    */
-  readLayer(tag: number, header: HeaderBlock, pbf: Protobuf): void {
+  #readLayer(tag: number, header: HeaderBlock, pbf: Protobuf): void {
     if (tag === 1) header.bbox = pbf.readMessage(header.bbox.readLayer, header.bbox);
     else if (tag === 4) header.required_features.push(pbf.readString());
     else if (tag === 5) header.optional_features.push(pbf.readString());
@@ -102,9 +104,10 @@ export class HeaderBBox {
   bottom = -1;
 
   /**
-   * @param tag
-   * @param bbox
-   * @param pbf
+   * Read the header block's contents into an object
+   * @param tag - the tag of the message
+   * @param bbox - the bbox object to modify
+   * @param pbf - the Protobuf object to read from
    */
   readLayer(tag: number, bbox: HeaderBBox, pbf: Protobuf): void {
     if (tag === 1) bbox.left = pbf.readVarint();
@@ -115,7 +118,8 @@ export class HeaderBBox {
   }
 
   /**
-   *
+   * Returns the bounding box as a [left, bottom, right, top] array
+   * @returns - [left, bottom, right, top]
    */
   toBBox(): [left: number, bottom: number, right: number, top: number] {
     return [this.left, this.bottom, this.right, this.top];

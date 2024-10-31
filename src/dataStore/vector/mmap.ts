@@ -15,7 +15,10 @@ export class MMapVector<V extends VectorKey> implements VectorStore<V> {
     return this.#store.length;
   }
 
-  /** @param value - store the value */
+  /**
+   * Push a value into the store
+   * @param value - the value to store
+   */
   push(value: V): void {
     this.#store.set(value.cell, value);
   }

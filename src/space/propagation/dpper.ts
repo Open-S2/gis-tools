@@ -1,9 +1,7 @@
 import { Satellite } from '../sat';
 import { pi, twoPi } from '../util/constants';
 
-/**
- *
- */
+/** Options for Dpper */
 export interface DpperOptions {
   init: boolean;
   ep: number;
@@ -13,9 +11,7 @@ export interface DpperOptions {
   mp: number;
 }
 
-/**
- *
- */
+/** Output for Dpper */
 export interface DpperOutput {
   ep: number;
   inclp: number;
@@ -24,8 +20,7 @@ export interface DpperOutput {
   mp: number;
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           procedure dpper
  *
  *  this procedure provides deep space long period periodic contributions
@@ -89,11 +84,10 @@ export interface DpperOutput {
  *    hoots, norad spacetrack report #6 1986
  *    hoots, schumacher and glover 2004
  *    vallado, crawford, hujsak, kelso  2006
- ---------------------------------------------------------------------------- */
-/**
- * @param sat
- * @param options
- * @param tsince
+ * @param sat - Satellite object
+ * @param options - dpper options
+ * @param tsince - time in minutes since epoch
+ * @returns - deep space long period periodic contributions
  */
 export function dpper(
   sat: Satellite,

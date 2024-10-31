@@ -69,16 +69,16 @@ const { abs, sin, cos, sqrt, log, tan, atan, exp } = Math;
  *
  * **Spherical Form**
  * - **Forward Projection**:
- *   ```math
+ *   ```
  *   x = k_0 * R * λ
  *   y = k_0 * R * ψ
  *   ```
  *   where
- *   ```math
+ *   ```
  *   ψ = ln(tan(π/4 + φ/2))
  *   ```
  * - **Inverse Projection**:
- *   ```math
+ *   ```
  *   λ = x / (k_0 * R)
  *   ψ = y / (k_0 * R)
  *   φ = π/2 - 2 * atan(exp(-ψ))
@@ -86,22 +86,22 @@ const { abs, sin, cos, sqrt, log, tan, atan, exp } = Math;
  *
  * **Ellipsoidal Form**
  * - **Forward Projection**:
- *   ```math
+ *   ```
  *   x = k_0 * a * λ
  *   y = k_0 * a * ψ
  *   ```
  *   where
- *   ```math
+ *   ```
  *   ψ = ln(tan(π/4 + φ/2)) - 0.5 * e * ln((1 + e * sin(φ)) / (1 - e * sin(φ)))
  *   ```
  * - **Inverse Projection**:
- *   ```math
+ *   ```
  *   λ = x / (k_0 * a)
  *   ψ = y / (k_0 * a)
  *   φ = tan^-1(τ)
  *   ```
  *   where
- *   ```math
+ *   ```
  *   τ = tan(φ)
  *   ```
  *
@@ -109,7 +109,7 @@ const { abs, sin, cos, sqrt, log, tan, atan, exp } = Math;
  * - [Wikipedia: Mercator Projection](https://en.wikipedia.org/wiki/Mercator_projection)
  * - [Wolfram Mathworld: Mercator Projection](http://mathworld.wolfram.com/MercatorProjection.html)
  *
- * ![Mercator Projection](./images/merc.png)
+ * ![Mercator Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
  */
 export class Mercator extends ProjectionBase implements ProjectionTransform {
   name = 'Mercator';

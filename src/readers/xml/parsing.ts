@@ -7,9 +7,17 @@ export interface XMLOptions {
 }
 
 /** A Tag is a pair of an inner and an outer strings with their indexes */
-export type XMLTag = { inner: null | string; outer: string; start: number; end: number };
+export interface XMLTag {
+  inner: null | string;
+  outer: string;
+  start: number;
+  end: number;
+}
 /** A Step is a name and an index */
-export type Step = { name: string; index?: number | undefined | null };
+export interface Step {
+  name: string;
+  index?: number | undefined | null;
+}
 /** A Path is an array of Steps or Strings */
 export type Path = Array<string | Step> | ReadonlyArray<string | Step>;
 

@@ -9,12 +9,25 @@ export type ArrayTypes =
   | Int32Array
   | Float32Array
   | Float64Array;
+/** Types of output constructors */
+export type ArrayTypesConstructors =
+  | Uint8ClampedArrayConstructor
+  | Uint8ArrayConstructor
+  | Uint16ArrayConstructor
+  | Uint32ArrayConstructor
+  | Int8ArrayConstructor
+  | Int16ArrayConstructor
+  | Int32ArrayConstructor
+  | Float32ArrayConstructor
+  | Float64ArrayConstructor;
 
 /**
- * @param format
- * @param bitsPerSample
+ * Convert the data format and bits per sample to an array type
+ * @param format - the data format
+ * @param bitsPerSample - the bits per sample
+ * @returns the array type constructor
  */
-function arrayType(format: number, bitsPerSample: number) {
+function arrayType(format: number, bitsPerSample: number): ArrayTypesConstructors {
   switch (format) {
     case 1: // unsigned integer data
       if (bitsPerSample <= 8) {
@@ -52,21 +65,25 @@ function arrayType(format: number, bitsPerSample: number) {
 }
 
 /**
- * @param raster
- * @param format
- * @param bitsPerSample
+ * Convert the data format and bits per sample to an array type
+ * @param raster - the data
+ * @param format - the data format
+ * @param bitsPerSample - the bits per sample
+ * @returns - the array
  */
-export function toArrayType(raster: number[], format: number, bitsPerSample: number) {
+export function toArrayType(raster: number[], format: number, bitsPerSample: number): ArrayTypes {
   const constructor = arrayType(format, bitsPerSample);
   return new constructor(raster);
 }
 
 /**
- * @param format
- * @param bitsPerSample
- * @param size
+ * Create an array of the right type
+ * @param format - the data format
+ * @param bitsPerSample - the bits per sample
+ * @param size - the size
+ * @returns - the array
  */
-export function arrayForType(format: number, bitsPerSample: number, size: number) {
+export function arrayForType(format: number, bitsPerSample: number, size: number): ArrayTypes {
   const constructor = arrayType(format, bitsPerSample);
   return new constructor(size);
 }
@@ -84,8 +101,10 @@ export function sampleSum(array: number[], start: number, end: number): number {
 }
 
 /**
- * @param format
- * @param bitsPerSample
+ * Check if the data needs normalization
+ * @param format - the data format
+ * @param bitsPerSample - the bits per sample
+ * @returns - true if the data needs normalization
  */
 export function needsNormalization(format: number, bitsPerSample: number): boolean {
   if ((format === 1 || format === 2) && bitsPerSample <= 32 && bitsPerSample % 8 === 0) {
@@ -100,13 +119,15 @@ export function needsNormalization(format: number, bitsPerSample: number): boole
 }
 
 /**
- * @param inBuffer
- * @param format
- * @param planarConfiguration
- * @param samplesPerPixel
- * @param bitsPerSample
- * @param tileWidth
- * @param tileHeight
+ * Normalize the array
+ * @param inBuffer - the input buffer
+ * @param format - the data format
+ * @param planarConfiguration - the planar configuration
+ * @param samplesPerPixel - the number of samples per pixel
+ * @param bitsPerSample - the bits per sample
+ * @param tileWidth - the tile width
+ * @param tileHeight - the tile height
+ * @returns - the normalized array
  */
 export function normalizeArray(
   inBuffer: ArrayBufferLike,

@@ -27,8 +27,10 @@ export interface IntermediateWay {
 }
 
 /**
- * @param way
- * @param reader
+ * Convert an intermediate way to a vector feature
+ * @param way - intermediate way
+ * @param reader - OSM reader
+ * @returns - way vector feature
  */
 export async function intermediateWayToVectorFeature(
   way: IntermediateWay,
@@ -62,7 +64,7 @@ export async function intermediateWayToVectorFeature(
 }
 
 /**
- *
+ * Way Class
  */
 export class Way {
   id = -1;
@@ -77,9 +79,9 @@ export class Way {
   //   #lons: number[] = []; // optional DELTA coded
 
   /**
-   * @param primitiveBlock
-   * @param reader
-   * @param pbf
+   * @param primitiveBlock - the primitive block to access keys and values
+   * @param reader - the OSM reader
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -90,7 +92,8 @@ export class Way {
   }
 
   /**
-   * @param options
+   * Checks if the way is filterable or not
+   * @returns - true if the way is filterable
    */
   isFilterable(): boolean {
     const { tagFilter, skipWays } = this.reader;
@@ -108,14 +111,16 @@ export class Way {
   }
 
   /**
-   *
+   * Access the way's properties
+   * @returns - the way's properties
    */
   properties(): Record<string, string> {
     return this.primitiveBlock.tags(this.#keys, this.#vals);
   }
 
   /**
-   *
+   * Access the way's node IDs associated with this way
+   * @returns - the way's nodes
    */
   nodeRefs(): number[] {
     const res: number[] = [];
@@ -128,8 +133,10 @@ export class Way {
   }
 
   /**
-   * @param key
-   * @param val
+   * Checks if the way has a key-value pair (value optional)
+   * @param key - the key
+   * @param val - the value
+   * @returns - true if the way has the key and value
    */
   hasKeyValue(key: string, val?: string): boolean {
     const { primitiveBlock: pb } = this;
@@ -143,7 +150,8 @@ export class Way {
   }
 
   /**
-   * @param maybeArea
+   * Checks if the way is an area based on it's key-value pairs
+   * @returns - true if the way is an area
    */
   isArea(): boolean {
     const { upgradeWaysToAreas } = this.reader;
@@ -159,7 +167,8 @@ export class Way {
   }
 
   /**
-   *
+   * Converts the way to an intermediate vector feature (way's nodes have not been parsed)
+   * @returns - the way as an intermediate vector feature
    */
   toVectorFeature(): undefined | IntermediateWay {
     const isArea = this.isArea();
@@ -175,9 +184,9 @@ export class Way {
   }
 
   /**
-   * @param tag
-   * @param way
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param way - the way to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, way: Way, pbf: Protobuf): void {
     if (tag === 1) way.id = pbf.readVarint();

@@ -21,9 +21,7 @@ export interface GeoTIFFMetadata {
   alpha: boolean;
 }
 
-/**
- *
- */
+/** Result of getMultiPointVector */
 export interface VectorMultiPointResult {
   geometry: VectorMultiPointGeometry<RGBA>;
   width: number;
@@ -66,10 +64,10 @@ export class GeoTIFFImage {
   #planarConfiguration = 1;
   #transformer: Transformer;
   /**
-   * @param reader
-   * @param imageDirectory
-   * @param littleEndian
-   * @param gridStore
+   * @param reader - the reader containing the input data
+   * @param imageDirectory - the image directory
+   * @param littleEndian - true if little endian false if big endian
+   * @param gridStore - the grid readers to utilize if needed
    */
   constructor(
     reader: Reader,
@@ -87,28 +85,32 @@ export class GeoTIFFImage {
   }
 
   /**
-   *
+   * Get the image width
+   * @returns - the image width
    */
   get width(): number {
     return this.#imageDirectory.ImageWidth ?? 0;
   }
 
   /**
-   *
+   * Get the image height
+   * @returns - the image height
    */
   get height(): number {
     return this.#imageDirectory.ImageLength ?? 0;
   }
 
   /**
-   *
+   * Get the tile width
+   * @returns - the tile width
    */
   get tileWidth(): number {
     return this.#isTiled ? (this.#imageDirectory.TileWidth ?? 0) : this.width;
   }
 
   /**
-   *
+   * Get the tile height
+   * @returns - the tile height
    */
   get tileHeight(): number {
     const { TileLength, RowsPerStrip } = this.#imageDirectory;
@@ -116,14 +118,17 @@ export class GeoTIFFImage {
   }
 
   /**
-   *
+   * Get the block width
+   * @returns - the block width
    */
   get blockWidth(): number {
     return this.tileWidth;
   }
 
   /**
-   * @param y
+   * Get the block height
+   * @param y - the y coordinate of the block
+   * @returns - the block height
    */
   getBlockHeight(y: number): number {
     if (this.#isTiled || (y + 1) * this.tileHeight <= this.height) {
@@ -157,7 +162,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param sampleIndex
+   * Returns the sample format
+   * @param sampleIndex - the sample index to start at
+   * @returns the sample format code
    */
   getSampleFormat(sampleIndex = 0): number {
     const { SampleFormat } = this.#imageDirectory;
@@ -165,7 +172,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param sampleIndex
+   * Returns the number of bits per sample
+   * @param sampleIndex - the sample index to start at
+   * @returns the number of bits per sample at the sample index
    */
   getBitsPerSample(sampleIndex = 0): number {
     const { BitsPerSample } = this.#imageDirectory;
@@ -173,8 +182,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param raster
-   * @param sampleIndex
+   * Convert the data format and bits per sample to the appropriate array type
+   * @param raster - the data
+   * @returns - the array
    */
   rasterToArrayType(raster: number[]): ArrayTypes {
     const format = this.getSampleFormat();
@@ -321,7 +331,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param samples - Samples to read
+   * Returns the raster data of the image.
+   * @param samples - Samples to read from the image
+   * @returns - The raster data
    */
   async rasterData(samples: number[] = []): Promise<Raster> {
     const { tileWidth, tileHeight, width, height, samplesPerPixel } = this;
@@ -390,7 +402,8 @@ export class GeoTIFFImage {
   }
 
   /**
-   *
+   * Returns the RGBA raster data of the image.
+   * @returns - The RGBA raster data
    */
   async getRGBA(): Promise<Raster> {
     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [0];
@@ -456,7 +469,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param sampleIndex
+   * Returns the reader for a sample
+   * @param sampleIndex - the index of the sample
+   * @returns - a function to read each sample value
    */
   getReaderForSample(sampleIndex: number): (offset: number, littleEndian: boolean) => number {
     const bitsPerSample = (this.#imageDirectory.BitsPerSample ?? [])[sampleIndex];
@@ -500,10 +515,12 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param x
-   * @param y
-   * @param sample
-   * @param decodeFn
+   * Get the data for a tile or strip
+   * @param x - the tile or strip x coordinate
+   * @param y - the tile or strip y coordinate
+   * @param sample - the sample
+   * @param decodeFn - the function to decode the data
+   * @returns - the data as a buffer
    */
   async getTileOrStrip(
     x: number,
@@ -545,7 +562,9 @@ export class GeoTIFFImage {
   }
 
   /**
-   * @param data
+   * Apply the predictor if necessary
+   * @param data - the raw data
+   * @returns - the data with the predictor applied
    */
   maybeApplyPredictor(data: ArrayBufferLike): ArrayBufferLike {
     const predictor = this.#imageDirectory.Predictor ?? 1;

@@ -38,8 +38,8 @@ export class PrimitiveBlock {
   dateGranularity = 1000;
 
   /**
-   * @param pbf
-   * @param reader
+   * @param pbf - the Protobuf object to read from
+   * @param reader - the OSMReader to modify
    */
   constructor(
     public pbf: Protobuf,
@@ -49,15 +49,19 @@ export class PrimitiveBlock {
   }
 
   /**
-   * @param index
+   * Get a string from the string table at the given index
+   * @param index - the index of the string in the string table
+   * @returns - the string
    */
   getString(index: number): string {
     return this.stringtable.get(index);
   }
 
   /**
-   * @param keys
-   * @param values
+   * Get a record of strings from the string table
+   * @param keys - list of indices for the keys
+   * @param values - list of indices for the values
+   * @returns - the record or object containing the key-value pairs
    */
   tags(keys: number[], values: number[]): Record<string, string> {
     const res: Record<string, string> = {};
@@ -68,10 +72,10 @@ export class PrimitiveBlock {
   }
 
   /**
-   * @param tag
-   * @param primitiveBlock
-   * @param pb
-   * @param pbf
+   * Read the primitive block's contents into an object
+   * @param tag - the tag of the message
+   * @param pb - the primitive block to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, pb: PrimitiveBlock, pbf: Protobuf): void {
     if (tag === 1) pb.stringtable = new StringTable(pbf);
@@ -88,8 +92,8 @@ export class PrimitiveBlock {
 export class PrimitiveGroup {
   // changesets: ChangeSet[] = [];
   /**
-   * @param primitiveBlock
-   * @param pbf
+   * @param primitiveBlock - the parent PrimitiveBlock
+   * @param pbf - the Protobuf object to read from
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
@@ -99,9 +103,9 @@ export class PrimitiveGroup {
   }
 
   /**
-   * @param tag
-   * @param pg
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param pg - the primitive group to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, pg: PrimitiveGroup, pbf: Protobuf): void {
     const { primitiveBlock } = pg;
@@ -153,23 +157,24 @@ export class StringTable {
   strings: string[] = [];
 
   /**
-   * @param pbf
+   * @param pbf - the Protobuf object to read from
    */
   constructor(pbf: Protobuf) {
     pbf.readMessage(this.#readLayer, this);
   }
 
   /**
-   * @param index
+   * @param index - the index of the string
+   * @returns - the string
    */
   get(index: number): string {
     return this.strings[index];
   }
 
   /**
-   * @param tag
-   * @param st
-   * @param pbf
+   * @param tag - the tag of the message
+   * @param st - the string table to modify
+   * @param pbf - the Protobuf object to read from
    */
   #readLayer(tag: number, st: StringTable, pbf: Protobuf): void {
     if (tag === 1) st.strings.push(pbf.readString());

@@ -36,7 +36,10 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
     return this.#store.length;
   }
 
-  /** @param value - the value to store */
+  /**
+   * Push a value into the store
+   * @param value - the value to store
+   */
   push(value: KDKV<T>): void {
     this.#store.push(value);
   }

@@ -1,5 +1,14 @@
 import { deg2rad, twoPi } from './constants';
 
+/** Time object to track month-day-hour-minute-second */
+export interface TimeStamp {
+  mon: number;
+  day: number;
+  hr: number;
+  minute: number;
+  sec: number;
+}
+
 /**
  * -----------------------------------------------------------------------------
  *
@@ -40,10 +49,7 @@ import { deg2rad, twoPi } from './constants';
  * @param days - day of year
  * @returns - Decomposed information into year, month, day, hour, minute and second
  */
-export function days2mdhms(
-  year: number,
-  days: number,
-): { mon: number; day: number; hr: number; minute: number; sec: number } {
+export function days2mdhms(year: number, days: number): TimeStamp {
   const lmonth = [31, year % 4 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   const dayofyr = Math.floor(days);
 
@@ -74,46 +80,44 @@ export function days2mdhms(
   };
 }
 
-/* -----------------------------------------------------------------------------
+/**
  *
- *                           procedure jday
+ *  procedure jday
  *
  *  this procedure finds the julian date given the year, month, day, and time.
- *    the julian date is defined by each elapsed day since noon, jan 1, 4713 bc.
+ *  the julian date is defined by each elapsed day since noon, jan 1, 4713 bc.
  *
  *  algorithm     : calculate the answer in one step for efficiency
  *
  *  author        : david vallado                  719-573-2600    1 mar 2001
  *
  *  inputs          description                    range / units
- *    year        - year                           1900 .. 2100
- *    mon         - month                          1 .. 12
- *    day         - day                            1 .. 28,29,30,31
- *    hr          - universal time hour            0 .. 23
- *    min         - universal time min             0 .. 59
- *    sec         - universal time sec             0.0 .. 59.999
+ *  year        - year                           1900 .. 2100
+ *  mon         - month                          1 .. 12
+ *  day         - day                            1 .. 28,29,30,31
+ *  hr          - universal time hour            0 .. 23
+ *  min         - universal time min             0 .. 59
+ *  sec         - universal time sec             0.0 .. 59.999
  *
  *  outputs       :
- *    jd          - julian date                    days from 4713 bc
+ *  jd          - julian date                    days from 4713 bc
  *
  *  locals        :
- *    none.
+ *  none.
  *
  *  coupling      :
- *    none.
+ *  none.
  *
  *  references    :
- *    vallado       2007, 189, alg 14, ex 3-14
- *
- * --------------------------------------------------------------------------- */
-/**
- * @param year
- * @param mon
- * @param day
- * @param hr
- * @param minute
- * @param sec
- * @param msec
+ *  vallado       2007, 189, alg 14, ex 3-14
+ * @param year - year
+ * @param mon - month
+ * @param day - day
+ * @param hr - hour
+ * @param minute - minute
+ * @param sec - seconds
+ * @param msec - milliseconds
+ * @returns - Julian date
  */
 function jdayInternal(
   year: number,
@@ -136,13 +140,15 @@ function jdayInternal(
 }
 
 /**
- * @param year
- * @param mon
- * @param day
- * @param hr
- * @param min
- * @param sec
- * @param msec
+ * Builds a julian date from the given parameters
+ * @param year - year
+ * @param mon - month
+ * @param day - day
+ * @param hr - hour
+ * @param min - minute
+ * @param sec - seconds
+ * @param msec - milliseconds
+ * @returns - Julian date
  */
 export function jday(
   year: number | Date,
@@ -169,8 +175,7 @@ export function jday(
   return jdayInternal(year, mon, day, hr, min, sec, msec);
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           procedure invjday
  *
  *  this procedure finds the year, month, day, hour, minute and second
@@ -207,10 +212,9 @@ export function jday(
  *
  *  references    :
  *    vallado       2007, 208, alg 22, ex 3-13
- * --------------------------------------------------------------------------- */
-/**
- * @param jd
- * @param asArray
+ * @param jd - julian date
+ * @param asArray - if true, return an array, otherwise return a Date
+ * @returns - Date or [year, month, day, hour, minute, seconds]
  */
 export function invjday(
   jd: number,
@@ -246,8 +250,7 @@ export function invjday(
   return new Date(Date.UTC(year, mon - 1, day, hr, minute, Math.floor(sec)));
 }
 
-/* -----------------------------------------------------------------------------
- *
+/**
  *                           function gstime
  *
  *  this function finds the greenwich sidereal time.
@@ -270,9 +273,8 @@ export function invjday(
  *
  *  references    :
  *    vallado       2004, 191, eq 3-45
- * --------------------------------------------------------------------------- */
-/**
- * @param jdut1
+ * @param jdut1 - julian date
+ * @returns - greenwich sidereal time
  */
 function gstimeInternal(jdut1: number): number {
   const tut1 = (jdut1 - 2451545.0) / 36525.0;
@@ -291,7 +293,9 @@ function gstimeInternal(jdut1: number): number {
 }
 
 /**
- * @param time
+ * find greenwich sidereal time
+ * @param time - julian date
+ * @returns - greenwich sidereal time
  */
 export function gstime(time: Date | number): number {
   if (time instanceof Date) return gstimeInternal(jday(time));

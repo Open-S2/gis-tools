@@ -46,7 +46,7 @@ const { sin, cos, atan2, asin } = Math;
  * - `+ellps=<value>`: Ellipsoid used.
  * - `+R=<value>`: Radius of the projection sphere.
  *
- * ![Oblique Stereographic Alternative](./images/sterea.png)
+ * ![Oblique Stereographic Alternative](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/sterea.png?raw=true)
  */
 export class StereographicNorthPole extends GaussKruger implements ProjectionTransform {
   name = 'StereographicNorthPole';

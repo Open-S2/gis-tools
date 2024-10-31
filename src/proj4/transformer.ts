@@ -41,12 +41,18 @@ export class Transformer extends NadGridStore {
     if (destCode !== undefined) this.setDestination(destCode);
   }
 
-  /** @param sourceCode - can be a name or a coded definition */
+  /**
+   * Set the source projection
+   * @param sourceCode - can be a name or a coded definition
+   */
   setSource(sourceCode: string | ProjectionParams): void {
     this.source = this.#buildTransformer(sourceCode);
   }
 
-  /** @param destCode - can be a name or a coded definition */
+  /**
+   * Set the destination projection
+   * @param destCode - can be a name or a coded definition
+   */
   setDestination(destCode: string | ProjectionParams): void {
     this.destination = this.#buildTransformer(destCode);
   }
@@ -81,6 +87,7 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Insert a projection definition
    * @param def - a class that may be instatiated with future setSource and setDestination
    * @param names - optionally add projection reference names to add lookups to the definition
    */
@@ -90,6 +97,7 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Insert an EPSG code definition
    * @param code - EPSG code to insert e.g. "EPSG_4326" (uses underscore instead of colon)
    * @param value - the EPSG definition which is either a WKT string object or proj4 encoded string
    */
@@ -98,6 +106,7 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Forward projection from src projection to dest projection
    * @param p - vector point currently in the "source" projection
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
@@ -173,17 +182,24 @@ export class Transformer extends NadGridStore {
   }
 }
 
-/** @param transformer - projection transformer */
-export function injectAllDefinitions(transformer: Transformer) {
+/**
+ * Inject all default definitions into the transformer
+ * @param transformer - projection transformer
+ */
+export function injectAllDefinitions(transformer: Transformer): void {
   for (const proj of ALL_DEFINITIONS) transformer.insertDefinition(proj);
 }
 
-/** @param transformer - the transformer to inject EPSG codes to */
-export function injectAllEPSGCodes(transformer: Transformer) {
+/**
+ * Inject all EPSG codes into the transformer
+ * @param transformer - the transformer to inject EPSG codes to
+ */
+export function injectAllEPSGCodes(transformer: Transformer): void {
   for (const [key, value] of Object.entries(EPSG_Codes)) transformer.insertEPSGCode(key, value);
 }
 
 /**
+ * Adjusts an axis
  * @param point - the vector point to adjust
  * @param prj - the projection
  * @param denorm - denormalizes z if true

@@ -30,6 +30,7 @@ export class PointIndex<T = Stringifiable> {
   }
 
   /**
+   * Insert a point3D and its corresponding data to the index
    * @param point - the point to be indexed
    * @param data - the data associated with the point
    */
@@ -49,6 +50,7 @@ export class PointIndex<T = Stringifiable> {
   }
 
   /**
+   * Insert an STPoint to the index
    * @param face - the face of the cell
    * @param s - the s coordinate
    * @param t - the t coordinate

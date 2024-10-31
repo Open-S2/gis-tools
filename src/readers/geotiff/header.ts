@@ -14,16 +14,14 @@ export interface ImageFileDirectory extends TagNames {
   tiepoint?: number[];
 }
 
-/**
- *
- */
+/** A key value pair */
 interface KeyValue {
   key: keyof ImageFileDirectory;
   value: undefined | number | number[] | string;
 }
 
 /**
- *
+ * GeoTIFF Header Reader
  */
 export class GeoTIFFHeaderReader {
   #littleEndian = true;
@@ -169,7 +167,9 @@ export class GeoTIFFHeaderReader {
   }
 
   /**
-   * @param offset
+   * Get the pixel scale from the GeoKeyDirectory
+   * @param offset - the offset to begin parsing the IFDs (GeoKeyDirectory) at.
+   * @returns the parsed GeoKeyDirectory
    */
   #getPixelScale(offset: number): [x: number, y: number, z: number] {
     const { reader, littleEndian, bigTiff } = this;
@@ -231,6 +231,7 @@ export class GeoTIFFHeaderReader {
   /**
    * @param fieldTag - the tag to read
    * @param offset - the current offset in the IFD header data
+   * @returns the parsed key value
    */
   #getKeyValue(fieldTag: number, offset: number): KeyValue {
     const { reader, littleEndian } = this;
@@ -253,11 +254,11 @@ export class GeoTIFFHeaderReader {
   }
 
   /**
-   * @param fieldTag
-   * @param fieldType
-   * @param typeCount
-   * @param valueOffset
-   * @param fieldTypeLength
+   * @param fieldTag - the tag to read
+   * @param fieldType - the field type
+   * @param typeCount - the number of values
+   * @param valueOffset - the value offset
+   * @returns - the parsed value
    */
   #getValue(
     fieldTag: number,
@@ -326,7 +327,9 @@ export class GeoTIFFHeaderReader {
 }
 
 /**
- * @param fieldType
+ * Get the field type length
+ * @param fieldType - the field type
+ * @returns - the field type length
  */
 function getFieldTypeLength(fieldType: keyof typeof FIELD_TAG_NAMES): 1 | 2 | 4 | 8 {
   switch (fieldType) {
@@ -356,8 +359,10 @@ function getFieldTypeLength(fieldType: keyof typeof FIELD_TAG_NAMES): 1 | 2 | 4 
 }
 
 /**
- * @param rawGeoKeys
- * @param fileDir
+ * Parse the raw geo keys
+ * @param rawGeoKeys - the raw geo keys
+ * @param fileDir - the image file directory
+ * @returns - the parsed geo keys
  */
 function parseRawGeoKeys(rawGeoKeys: Uint16Array, fileDir: ImageFileDirectory): GeoKeyDirectory {
   const geoKeyDirectory: GeoKeyDirectory = {};

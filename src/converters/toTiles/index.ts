@@ -44,7 +44,7 @@ export interface BuildGuide {
   encoding?: Encoding;
   /** The sources that the tile is built from and how the layers are to be stored */
   sources: Source[];
-  /** The attribution of the data. Store as [key: presentation name]: [value: href link] */
+  /** The attribution of the data. Store as { key: presentation name }. [value: href link] */
   attribution?: Attribution;
   /**
    * The vector format if applicable helps define how the vector data is stored.
