@@ -81,15 +81,6 @@ export function asinz(x: number): number {
 }
 
 /**
- * Returns the arc tangent of x.
- * @param x - input
- * @returns - atanh(x)
- */
-export function atanh(x: number): number {
-  return log((x - 1) / (x + 1)) / 2;
-}
-
-/**
  * Returns the complex form of coefficients
  * @param pp - array of coefficients
  * @param arg_r - input

@@ -75,7 +75,7 @@ function float16ToFloat32(hbits: number): number {
 }
 
 // Polyfill for DataView.getFloat16
-if (!('getFloat16' in DataView.prototype)) {
+if (!('getFloat16' in DataView.prototype) || process.env.FORCE_POLYFILL !== undefined) {
   /**
    * Retrieves a 16-bit floating point number (Float16) at the specified byte offset from the start of the view.
    * This method reads two bytes from the buffer, converts them into a 16-bit floating-point number,
@@ -94,7 +94,7 @@ if (!('getFloat16' in DataView.prototype)) {
 }
 
 // Polyfill for DataView.setFloat16
-if (!('setFloat16' in DataView.prototype)) {
+if (!('setFloat16' in DataView.prototype) || process.env.FORCE_POLYFILL !== undefined) {
   /**
    * Stores a 16-bit floating point number (Float16) at the specified byte offset in the DataView.
    * This method converts a 32-bit floating-point number (Float32) to a 16-bit floating-point representation,

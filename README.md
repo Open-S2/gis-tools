@@ -1,22 +1,30 @@
-# s2-tools ![GitHub Actions Workflow Status][test-workflow] [![npm][npm-image]][npm-url] [![crate][crate-image]][crate-url] [![downloads][downloads-image]][downloads-url] [![bundle][bundle-image]][bundle-url] [![docs-ts][docs-ts-image]][docs-ts-url] [![docs-rust][docs-rust-image]][docs-rust-url] ![doc-coverage][doc-coverage-image] ![code-coverage][code-coverage-image] [![Discord][discord-image]][discord-url]
+<h1 style="text-align: center;">
+  <div align="center">s2-tools</div>
+</h1>
 
-[test-workflow]: https://img.shields.io/github/actions/workflow/status/Open-S2/s2-tools/test.yml?logo=github
-[npm-image]: https://img.shields.io/npm/v/s2-tools.svg?logo=npm&logoColor=white
-[npm-url]: https://npmjs.org/package/s2-tools
-[crate-image]: https://img.shields.io/crates/v/s2-tools.svg?logo=rust&logoColor=white
-[crate-url]: https://crates.io/crates/s2-tools
-[bundle-image]: https://img.shields.io/bundlejs/size/s2-tools
-[bundle-url]: https://bundlejs.com/?q=s2-tools&treeshake=%5B%7B+s2-tools+%7D%5D
-[downloads-image]: https://img.shields.io/npm/dm/s2-tools.svg
-[downloads-url]: https://www.npmjs.com/package/s2-tools
-[docs-ts-image]: https://img.shields.io/badge/docs-typescript-yellow.svg
-[docs-ts-url]: https://open-s2.github.io/s2-tools/
-[docs-rust-image]: https://img.shields.io/badge/docs-rust-yellow.svg
-[docs-rust-url]: https://docs.rs/s2-tools
-[doc-coverage-image]: https://raw.githubusercontent.com/Open-S2/s2-tools/master/assets/doc-coverage.svg
-[code-coverage-image]: https://raw.githubusercontent.com/Open-S2/s2-tools/master/assets/code-coverage.svg
-[discord-image]: https://img.shields.io/discord/953563031701426206?logo=discord&logoColor=white
-[discord-url]: https://discord.opens2.com
+<p align="center">
+  <a href="https://npmjs.org/package/s2-tools">
+    <img src="https://img.shields.io/npm/v/s2-tools.svg?logo=npm&logoColor=white" alt="npm">
+  </a>
+  <a href="https://crates.io/crates/s2-tools">
+    <img src="https://img.shields.io/crates/v/s2-tools.svg?logo=rust&logoColor=white" alt="crate">
+  </a>
+  <a href="https://www.npmjs.com/package/s2-tools">
+    <img src="https://img.shields.io/npm/dm/s2-tools.svg" alt="downloads">
+  </a>
+  <a href="https://bundlejs.com/?q=s2-tools">
+    <img src="https://img.shields.io/bundlejs/size/s2-tools" alt="bundle">
+  </a>
+  <a href="https://open-s2.github.io/s2-tools/">
+    <img src="https://img.shields.io/badge/docs-typescript-yellow.svg" alt="docs-ts">
+  </a>
+  <a href="https://docs.rs/s2-tools">
+    <img src="https://img.shields.io/badge/docs-rust-yellow.svg" alt="docs-rust">
+  </a>
+  <a href="https://discord.opens2.com">
+    <img src="https://img.shields.io/discord/953563031701426206?logo=discord&logoColor=white" alt="Discord">
+  </a>
+</p>
 
 ## About
 
@@ -61,7 +69,7 @@ bun add s2-tools
 | [vector]                 | ![Vec Badge][vecBadge]        | Collection of tools using the filesystem to read and write data. |
 
 [externalSort]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/externalSort.md
-[esBadge]: https://deno.bundlejs.com/badge?q=s2-tools/file&treeshake=[{externalSort}]
+[esBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+externalSort+}]
 [kv]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/kv.md
 [kvBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{KV}]
 [multiMap]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/multimap.md

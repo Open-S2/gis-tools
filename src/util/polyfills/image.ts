@@ -151,7 +151,7 @@ class OffscreenCanvasRenderingContext2D {
    */
   getImageData(x: number, y: number, width: number, height: number): ImageData {
     const size = width * height * 4;
-    if (this.data.length === size) return { data: this.data, width, height };
+    if (this.data.length === size) return { data: this.data.slice(0, size), width, height };
 
     const imageData = new Uint8ClampedArray(size);
     for (let row = 0; row < height; row++) {

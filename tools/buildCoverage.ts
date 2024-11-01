@@ -26,7 +26,7 @@ const lines = text.trim().split('\n');
 
 // find line with 'All files'
 const line = lines.find((line) => line.includes('All files'));
-if (!line) throw new Error('Could not find line with All files');
+if (line === undefined) throw new Error('Could not find line with All files');
 
 // line looks like "All files                                |   99.53 |   99.87 |", we want the last number
 const percentDocumented = Number(line.split('|')[2].trim().split(' ')[0].replace('%', ''));
@@ -39,6 +39,6 @@ const color = percentDocumented < 50 ? '#db654f' : percentDocumented < 90 ? '#da
 // build badge
 const badge = svg.replace(/@ratio@/g, `${percentDocumented}%`).replace(/@color@/g, color);
 
-Bun.write(`${__dirname}/../assets/code-coverage.svg`, badge);
+await Bun.write(`${__dirname}/../assets/code-coverage.svg`, badge);
 
 export {};

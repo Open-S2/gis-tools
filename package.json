@@ -49,7 +49,7 @@
     "prepublishOnly": "bun run lint+build+test+docs+test:cov",
     "package-check": "package-check",
     "test:dev": "bun test --watch --coverage",
-    "test": "bun test",
+    "test": "FORCE_POLYFILL=true bun test",
     "test:fast": "FAST_TESTS_ONLY=true bun test",
     "test:coverage": "bun run test --coverage",
     "test:cov": "bun run tools/buildCoverage.ts",
