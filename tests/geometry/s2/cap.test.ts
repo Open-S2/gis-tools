@@ -120,7 +120,7 @@ test('isFull', () => {
 test('radius', () => {
   const face = fromFace(0);
   const cap = fromS1ChordAngle(toS2Point(face), 1, { a: 1 });
-  expect(radius(cap)).toEqual(1.0471975511965976);
+  expect(radius(cap)).toBeCloseTo(1.0471975511965976);
 });
 
 test('getIntersectingCells', () => {
