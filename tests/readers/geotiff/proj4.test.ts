@@ -1028,6 +1028,6 @@ test('transverse_mercator.tif test', async (): Promise<void> => {
  */
 function closeToArray(actual: number[], expected: number[], numDigits?: number) {
   for (let i = 0; i < actual.length; i++) {
-    expect(actual[i]).toBeCloseTo(expected[i], numDigits);
+    expect(actual[i]).toBeCloseTo(expected[i], numDigits ?? 5);
   }
 }
