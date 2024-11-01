@@ -193,13 +193,7 @@ impl<M> Feature<M> {
         geometry: Geometry,
         metadata: Option<M>,
     ) -> Self {
-        Self {
-            _type: "Feature".to_string(),
-            id,
-            properties,
-            geometry,
-            metadata,
-        }
+        Self { _type: "Feature".to_string(), id, properties, geometry, metadata }
     }
 }
 
@@ -248,14 +242,7 @@ impl<M> VectorFeature<M> {
         geometry: VectorGeometry,
         metadata: Option<M>,
     ) -> Self {
-        Self {
-            _type: "S2Feature".to_string(),
-            face,
-            id,
-            properties,
-            geometry,
-            metadata,
-        }
+        Self { _type: "S2Feature".to_string(), face, id, properties, geometry, metadata }
     }
 
     /// Create a new VectorFeature using an input VectorFeature. Assign new geometry if provided

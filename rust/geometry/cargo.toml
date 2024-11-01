@@ -12,6 +12,7 @@ keywords = ["open", "vector", "tile", "gis", "low-cost-code"]
 default = ["quadratic"] # Default feature
 quadratic = []          # Feature for quadratic projection
 tan = []                # Feature for tangential projection
+linear = []             # Feature for linear projection
 
 [dependencies]
 libm = "0.2"

@@ -650,28 +650,17 @@ impl S2CellId {
         let k_limit = 1. + 2.220_446_049_250_313e-16;
         let u = fmax(
             -k_limit,
-            fmin(
-                k_limit,
-                k_scale * (2. * (i as f64 - (K_MAX_SIZE as f64) / 2.) + 1.),
-            ),
+            fmin(k_limit, k_scale * (2. * (i as f64 - (K_MAX_SIZE as f64) / 2.) + 1.)),
         );
         let v = fmax(
             -k_limit,
-            fmin(
-                k_limit,
-                k_scale * (2. * (j as f64 - (K_MAX_SIZE as f64) / 2.) + 1.),
-            ),
+            fmin(k_limit, k_scale * (2. * (j as f64 - (K_MAX_SIZE as f64) / 2.) + 1.)),
         );
 
         // Find the leaf cell coordinates on the adjacent face, and convert
         // them to a cell id at the appropriate level.
         let (n_face, nu, nv) = xyz_to_face_uv(&face_uv_to_xyz(face, u, v));
-        S2CellId::from_face_ij(
-            n_face,
-            st_to_ij(0.5 * (nu + 1.)),
-            st_to_ij(0.5 * (nv + 1.)),
-            None,
-        )
+        S2CellId::from_face_ij(n_face, st_to_ij(0.5 * (nu + 1.)), st_to_ij(0.5 * (nv + 1.)), None)
     }
 
     /// Given an S2CellID, find it's nearest neighbors associated with it

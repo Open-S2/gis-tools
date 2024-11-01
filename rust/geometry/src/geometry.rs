@@ -925,7 +925,11 @@ mod tests {
             }
         );
         let point_str = serde_json::to_string(&point).unwrap();
-        assert_eq!(point_str, "{\"type\":\"Point3D\",\"coordinates\":[0.0,0.0,0.0],\"bbox\":[0.0,0.0,1.0,1.0,0.0,1.0]}");
+        assert_eq!(
+            point_str,
+            "{\"type\":\"Point3D\",\"coordinates\":[0.0,0.0,0.0],\"bbox\":[0.0,0.0,1.0,1.0,0.0,1.\
+             0]}"
+        );
         let str_point: Point3DGeometry = serde_json::from_str(&point_str).unwrap();
         assert_eq!(str_point, point);
     }
@@ -1075,7 +1079,11 @@ mod tests {
             }
         );
         let polygon_str = serde_json::to_string(&polygon).unwrap();
-        assert_eq!(polygon_str, "{\"type\":\"Polygon3D\",\"coordinates\":[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,1.0,1.0]]]}");
+        assert_eq!(
+            polygon_str,
+            "{\"type\":\"Polygon3D\",\"coordinates\":[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,1.0,1.\
+             0]]]}"
+        );
         let str_polygon: Polygon3DGeometry = serde_json::from_str(&polygon_str).unwrap();
         assert_eq!(str_polygon, polygon);
     }
@@ -1127,7 +1135,8 @@ mod tests {
         let multi_polygon_str = serde_json::to_string(&multi_polygon).unwrap();
         assert_eq!(
             multi_polygon_str,
-            "{\"type\":\"MultiPolygon3D\",\"coordinates\":[[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,1.0,1.0]]]]}"
+            "{\"type\":\"MultiPolygon3D\",\"coordinates\":[[[[0.0,0.0,0.0],[1.0,1.0,1.0],[0.0,1.0,\
+             1.0]]]]}"
         );
         let str_multi_polygon: MultiPolygon3DGeometry =
             serde_json::from_str(&multi_polygon_str).unwrap();

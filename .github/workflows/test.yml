@@ -14,6 +14,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
 
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
@@ -29,27 +32,27 @@ jobs:
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly
         override: true
 
     - name: Install Rustfmt
-      run: rustup component add rustfmt
+      run: rustup component add rustfmt --toolchain nightly
 
     - name: Install Clippy
-      run: rustup component add clippy
+      run: rustup component add clippy --toolchain nightly
 
     - name: Run Clippy
-      run: cargo clippy -- -D warnings
+      run: cargo clippy --workspace --package geometry -- -D warnings
       shell: bash
 
     - name: Build Rust project
-      run: cargo build
+      run: cargo +nightly build
       shell: bash
 
     - name: Check Formatting
-      run: cargo fmt -- --check
+      run: cargo +nightly fmt -- --check
       shell: bash
 
     - name: Run Rust tests
-      run: cargo test --lib
+      run: cargo +nightly test --lib
       shell: bash

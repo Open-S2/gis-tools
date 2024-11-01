@@ -1,10 +1,10 @@
 // const S1Angle = @import("s1/angle.zig").S1Angle;
 // const S2Point = @import("point.zig").S2Point;
 
-use libm::{fabs, cos, sin, atan2, sqrt, asin};
-use core::f64::consts::PI;
-use crate::s2::point::S2Point;
 use crate::s1::angle::S1Angle;
+use crate::s2::point::S2Point;
+use core::f64::consts::PI;
+use libm::{asin, atan2, cos, fabs, sin, sqrt};
 
 /// This class represents a point on the unit sphere as a pair
 /// of latitude-longitude coordinates.  Like the rest of the "geometry"
@@ -22,7 +22,7 @@ impl LonLat {
     /// The default constructor sets the latitude and longitude to zero.  This is
     /// mainly useful when declaring arrays, STL containers, etc.
     pub fn new(lon: f64, lat: f64) -> Self {
-        LonLat{ lon, lat }
+        LonLat { lon, lat }
     }
 
     /// Constructor.  The latitude and longitude are allowed to be outside
@@ -35,7 +35,9 @@ impl LonLat {
     // Convert a direction vector (not necessarily unit length) to an LonLat.
     pub fn from_s2_point(p: &S2Point) -> LonLat {
         let ll = LonLat::new(LonLat::latitude(p).radians, LonLat::longitude(p).radians);
-        if !ll.is_valid() { unreachable!(); }
+        if !ll.is_valid() {
+            unreachable!();
+        }
         ll
     }
 
@@ -95,7 +97,11 @@ impl LonLat {
         self.lon_angle().degrees()
     }
     pub fn from_axis(&self, axis: u8) -> f64 {
-        if axis == 0 { self.lon } else { self.lat }
+        if axis == 0 {
+            self.lon
+        } else {
+            self.lat
+        }
     }
 
     /// Return the latitude or longitude coordinates in degrees.
@@ -106,8 +112,7 @@ impl LonLat {
     /// Return true if the latitude is between -90 and 90 degrees inclusive
     /// and the longitude is between -180 and 180 degrees inclusive.
     pub fn is_valid(&self) -> bool {
-        fabs(self.lat_degrees()) <= (PI / 2.0) &&
-        fabs(self.lon_degrees()) <= PI
+        fabs(self.lat_degrees()) <= (PI / 2.0) && fabs(self.lon_degrees()) <= PI
     }
 
     //   // Clamps the latitude to the range [-90, 90] degrees, and adds or subtracts
@@ -129,7 +134,9 @@ impl LonLat {
     //   cap.AddPoint(S2Point(latlon));
     pub fn to_point(&self) -> S2Point {
         // TODO:
-        if !self.is_valid() { unreachable!(); }
+        if !self.is_valid() {
+            unreachable!();
+        }
         // S2_DLOG_IF(ERROR, !is_valid())
         //     << "Invalid LonLat in LonLat::ToPoint: " << *this;
         let phi: f64 = self.lat;
@@ -157,7 +164,9 @@ impl LonLat {
         // you might as well just convert both arguments to S2Points and compute the
         // distance that way (which gives about 15 digits of accuracy for all
         // distances).
-        if !self.is_valid() || !b.is_valid() { unreachable!(); }
+        if !self.is_valid() || !b.is_valid() {
+            unreachable!();
+        }
 
         let lat1 = self.lat;
         let lat2 = b.lat;

@@ -53,19 +53,19 @@ use core::f64::consts::PI;
 /// the default copy constructor and assignment operator.
 #[derive(Copy, Clone, Default, PartialEq, Debug)]
 pub struct S1Angle {
-    pub radians: f64
+    pub radians: f64,
 }
 impl S1Angle {
     pub fn new(radians: f64) -> Self {
-        Self{ radians }
+        Self { radians }
     }
 
     pub fn from_degrees(degrees: f64) -> Self {
-        Self{ radians: degrees * (PI / 180.0) }
+        Self { radians: degrees * (PI / 180.0) }
     }
 
     pub fn infinity() -> Self {
-        Self{ radians: f64::INFINITY }
+        Self { radians: f64::INFINITY }
     }
 
     pub fn degrees(&self) -> f64 {

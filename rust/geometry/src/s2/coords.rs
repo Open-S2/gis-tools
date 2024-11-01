@@ -195,10 +195,10 @@ pub fn st_to_uvtan(s_: f64) -> f64 {
 #[cfg(feature = "quadratic")]
 pub const ST_TO_UV: fn(f64) -> f64 = st_to_uvquadratic;
 /// If settings are updated you can use the tangent projection
-#[cfg(all(not(feature = "quadratic"), feature = "tan"))]
+#[cfg(feature = "tan")]
 pub const ST_TO_UV: fn(f64) -> f64 = st_to_uvtan;
 /// If settings are updated you can use the linear projection
-#[cfg(all(not(feature = "quadratic"), not(feature = "tan")))]
+#[cfg(feature = "linear")]
 pub const ST_TO_UV: fn(f64) -> f64 = st_to_uvlinear;
 
 /// The inverse of the STtoUV transformation.  Note that it is not always
@@ -226,10 +226,10 @@ pub fn uv_to_st_tan(u: f64) -> f64 {
 #[cfg(feature = "quadratic")]
 pub const UV_TO_ST: fn(f64) -> f64 = uv_to_st_quadratic;
 /// If settings are updated you can use the tangent projection
-#[cfg(all(not(feature = "quadratic"), feature = "tan"))]
+#[cfg(feature = "tan")]
 pub const UV_TO_ST: fn(f64) -> f64 = uv_to_st_tan;
 /// If settings are updated you can use the linear projection
-#[cfg(all(not(feature = "quadratic"), not(feature = "tan")))]
+#[cfg(feature = "linear")]
 pub const UV_TO_ST: fn(f64) -> f64 = uv_to_stlinear;
 
 /// Convert the i- or j-index of a leaf cell to the minimum corresponding s-

@@ -34,11 +34,7 @@ pub struct Tile<M> {
 impl<M: HasLayer + Clone> Tile<M> {
     /// Create a new Tile
     pub fn new(id: CellId) -> Self {
-        Self {
-            id,
-            layers: BTreeMap::new(),
-            transformed: false,
-        }
+        Self { id, layers: BTreeMap::new(), transformed: false }
     }
 
     /// Returns true if the tile is empty of features
@@ -62,14 +58,9 @@ impl<M: HasLayer + Clone> Tile<M> {
             .unwrap_or_else(|| "default".to_string()); // Fall back to "default" if none found
 
         if !self.layers.contains_key(&layer_name) {
-            self.layers
-                .insert(layer_name.clone(), Layer::new(layer_name.clone()));
+            self.layers.insert(layer_name.clone(), Layer::new(layer_name.clone()));
         }
-        self.layers
-            .get_mut(&layer_name)
-            .unwrap()
-            .features
-            .push(feature);
+        self.layers.get_mut(&layer_name).unwrap().features.push(feature);
     }
 
     /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
@@ -102,10 +93,7 @@ pub struct Layer<M> {
 impl<M> Layer<M> {
     /// Create a new Layer
     pub fn new(name: String) -> Self {
-        Self {
-            name,
-            features: vec![],
-        }
+        Self { name, features: vec![] }
     }
 }
 
@@ -178,9 +166,7 @@ impl<M: HasLayer + Clone> TileStore<M> {
             Some(tile_store.maxzoom),
             None,
         );
-        features
-            .into_iter()
-            .for_each(|feature| tile_store.add_feature(feature));
+        features.into_iter().for_each(|feature| tile_store.add_feature(feature));
         for i in 0..6 {
             tile_store.split_tile(CellId::from_face(i), None, None);
         }
@@ -191,27 +177,17 @@ impl<M: HasLayer + Clone> TileStore<M> {
     /// Add a feature to the tile store
     pub fn add_feature(&mut self, feature: VectorFeature<M>) {
         let face: u8 = feature.face.into();
-        let tile = self
-            .tiles
-            .entry(CellId::from_face(face))
-            .or_insert_with(|| {
-                self.faces.insert(feature.face);
-                Tile::new(CellId::from_face(face))
-            });
+        let tile = self.tiles.entry(CellId::from_face(face)).or_insert_with(|| {
+            self.faces.insert(feature.face);
+            Tile::new(CellId::from_face(face))
+        });
 
         tile.add_feature(feature, None);
     }
 
     /// Split tiles given a range
     fn split_tile(&mut self, start_id: CellId, end_id: Option<CellId>, end_zoom: Option<u8>) {
-        let TileStore {
-            buffer,
-            tiles,
-            tolerance,
-            maxzoom,
-            index_maxzoom,
-            ..
-        } = self;
+        let TileStore { buffer, tiles, tolerance, maxzoom, index_maxzoom, .. } = self;
         let end_zoom = end_zoom.unwrap_or(*maxzoom);
         let mut stack: Vec<CellId> = vec![start_id];
         // avoid recursion by using a processing queue
@@ -288,17 +264,15 @@ impl VectorGeometry {
         let zoom = (1 << (zoom as u64)) as f64;
         match self {
             VectorGeometry::Point(p) => p.coordinates.transform(zoom, ti, tj),
-            VectorGeometry::LineString(l) | VectorGeometry::MultiPoint(l) => l
-                .coordinates
-                .iter_mut()
-                .for_each(|p| p.transform(zoom, ti, tj)),
+            VectorGeometry::LineString(l) | VectorGeometry::MultiPoint(l) => {
+                l.coordinates.iter_mut().for_each(|p| p.transform(zoom, ti, tj))
+            }
             VectorGeometry::MultiLineString(l) | VectorGeometry::Polygon(l) => l
                 .coordinates
                 .iter_mut()
                 .for_each(|l| l.iter_mut().for_each(|p| p.transform(zoom, ti, tj))),
             VectorGeometry::MultiPolygon(l) => l.coordinates.iter_mut().for_each(|p| {
-                p.iter_mut()
-                    .for_each(|l| l.iter_mut().for_each(|p| p.transform(zoom, ti, tj)))
+                p.iter_mut().for_each(|l| l.iter_mut().for_each(|p| p.transform(zoom, ti, tj)))
             }),
         }
     }
