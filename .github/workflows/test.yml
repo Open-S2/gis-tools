@@ -17,7 +17,6 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
-        path: s2-tools-checkout  # This will create a new directory to avoid nesting
 
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
@@ -44,7 +43,6 @@ jobs:
     - name: Run Clippy
       run: cargo clippy --workspace --package geometry -- -D warnings
       shell: bash
-      working-directory: s2-tools-checkout/rust/geometry
 
     - name: Check Formatting
       run: cargo fmt -- --check
