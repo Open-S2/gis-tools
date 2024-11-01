@@ -147,7 +147,7 @@ testFunc('initial test', async (): Promise<void> => {
 });
 
 testFunc('rgba test', async (): Promise<void> => {
-  const fileReader = new FileReader(`${__dirname}/fixtures/rgba.tiff`);
+  const fileReader = new FileReader(`${__dirname}/fixtures/RGBA.tiff`);
   const geotiffReader = new GeoTIFFReader(fileReader);
 
   const image = geotiffReader.getImage();
@@ -155,7 +155,7 @@ testFunc('rgba test', async (): Promise<void> => {
   const rgb = await image.getRGBA();
 
   const cmpTiff = await fromArrayBuffer(
-    await Bun.file(`${__dirname}/fixtures/rgba.tiff`).arrayBuffer(),
+    await Bun.file(`${__dirname}/fixtures/RGBA.tiff`).arrayBuffer(),
   );
   const cmpImage = await cmpTiff.getImage();
 

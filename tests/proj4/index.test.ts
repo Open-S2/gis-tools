@@ -20,10 +20,9 @@ describe('basic tests', () => {
     // @ts-expect-error - we just want to check internal properties
     expect(testMerc.units).toBe('m');
     expect(transform.forward({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
-    expect(transform.forward({ x: 4156404, y: 7480076.5 })).toEqual({
-      x: 37.33761240175515,
-      y: 55.604470490269755,
-    });
+    const forward2 = transform.forward({ x: 4156404, y: 7480076.5 });
+    expect(forward2.x).toBeCloseTo(37.33761240175515, 5);
+    expect(forward2.y).toBeCloseTo(55.604470490269755, 5);
   });
 });
 

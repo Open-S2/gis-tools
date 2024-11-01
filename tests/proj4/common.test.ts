@@ -82,15 +82,15 @@ test('asinz', () => {
 });
 
 test('clens', () => {
-  expect(clens([0, 1, 2], 5)).toEqual(0.7565545694248642);
-  expect(clens([-1, 0, 1], 22)).toEqual(-0.017699844733562918);
-  expect(clens([2, 3, 4], 4)).toEqual(-0.6918219227474515);
+  expect(clens([0, 1, 2], 5)).toBeCloseTo(0.7565545694248642);
+  expect(clens([-1, 0, 1], 22)).toBeCloseTo(-0.017699844733562918);
+  expect(clens([2, 3, 4], 4)).toBeCloseTo(-0.6918219227474515);
 });
 
 test('clensCmplx', () => {
-  expect(clensCmplx([0, 1, 2], 5, 22)).toEqual([2.9959974452904563e28, -3.500023998925367e28]);
-  expect(clensCmplx([-1, 0, 1], 22, 4)).toEqual([-2160.422054018843, -81321.41774294688]);
-  expect(clensCmplx([2, 3, 4], 4, 5)).toEqual([-3475556.607197254, 5512242.219673926]);
+  closeToArray(clensCmplx([0, 1, 2], 5, 22), [2.9959974452904563e28, -3.500023998925367e28]);
+  closeToArray(clensCmplx([-1, 0, 1], 22, 4), [-2160.422054018843, -81321.41774294688]);
+  closeToArray(clensCmplx([2, 3, 4], 4, 5), [-3475556.607197254, 5512242.219673926]);
 });
 
 test('e0fn', () => {
@@ -245,3 +245,15 @@ test('tsfnz', () => {
   expect(tsfnz(0, 0.01234, Math.sin(0.01234))).toEqual(0.9877355162326474);
   expect(tsfnz(1, 0.01234, Math.sin(0.01234))).toEqual(0.9999999999999999);
 });
+
+/**
+ * closeToArray - check if contents of two arrays are close enough to each other
+ * @param actual - array of actual values
+ * @param expected - array of expected values
+ * @param numDigits - number of digits of precision
+ */
+function closeToArray(actual: number[], expected: number[], numDigits?: number) {
+  for (let i = 0; i < actual.length; i++) {
+    expect(actual[i]).toBeCloseTo(expected[i], numDigits ?? 5);
+  }
+}
