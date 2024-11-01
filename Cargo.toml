@@ -11,7 +11,7 @@ default-members = [
 ]
 
 [workspace.package]
-name = "s2-tools"
+# name = "s2-tools"
 version = "1.0.0"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]

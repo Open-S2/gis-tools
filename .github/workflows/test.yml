@@ -17,6 +17,7 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
+        path: s2-tools-checkout  # This will create a new directory to avoid nesting
 
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
@@ -34,25 +35,21 @@ jobs:
       with:
         toolchain: nightly
         override: true
-
-    - name: Install Rustfmt
-      run: rustup component add rustfmt --toolchain nightly
-
-    - name: Install Clippy
-      run: rustup component add clippy --toolchain nightly
+        components: rustfmt, clippy
+    
+    - name: Build Rust project
+      run: cargo build
+      shell: bash
 
     - name: Run Clippy
       run: cargo clippy --workspace --package geometry -- -D warnings
       shell: bash
-
-    - name: Build Rust project
-      run: cargo +nightly build
-      shell: bash
+      working-directory: s2-tools-checkout/rust/geometry
 
     - name: Check Formatting
-      run: cargo +nightly fmt -- --check
+      run: cargo fmt -- --check
       shell: bash
 
     - name: Run Rust tests
-      run: cargo +nightly test --lib
+      run: cargo test --lib
       shell: bash
