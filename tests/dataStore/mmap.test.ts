@@ -6,7 +6,7 @@ tmp.setGracefulCleanup();
 
 test('S2MMapStore', async () => {
   const dir = tmp.dirSync({ prefix: 'mmap_test' });
-  const store = new S2MMapStore<{ a: number }>(dir.name);
+  const store = new S2MMapStore<{ a: number }>(`${dir.name}/testA`);
   expect(store.length).toBe(0);
   store.set(0, { a: 1 });
   expect(store.length).toBe(1);
