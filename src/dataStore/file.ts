@@ -213,7 +213,7 @@ export class S2FileStore<V = Stringifiable> {
     this.close();
     if (this.#size === 0) return;
     await this.#sort();
-    this.#keyFd = openSync(`${this.fileName}.sortedkeys`, 'r');
+    this.#keyFd = openSync(`${this.fileName}.sortedKeys`, 'r');
     if (!this.#indexIsValues) this.#valueFd = openSync(`${this.fileName}.values`, 'r');
   }
 

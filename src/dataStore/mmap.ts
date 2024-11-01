@@ -65,7 +65,7 @@ export class S2MMapStore<V = Stringifiable> {
     this.#tmpDir = options?.tmpDir;
     if (!this.#sorted) this.#switchToWriteState();
     else {
-      this.#keyReader = mmap(`${this.fileName}.sortedkeys`);
+      this.#keyReader = mmap(`${this.fileName}.sortedKeys`);
       if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
       this.#size = this.#keyReader.length / 16;
     }
@@ -219,7 +219,7 @@ export class S2MMapStore<V = Stringifiable> {
     }
     if (this.#size === 0) return;
     await this.#sort();
-    this.#keyReader = mmap(`${this.fileName}.sortedkeys`);
+    this.#keyReader = mmap(`${this.fileName}.sortedKeys`);
     if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
   }
 
