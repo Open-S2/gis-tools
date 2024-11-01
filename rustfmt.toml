@@ -11,3 +11,4 @@ struct_lit_single_line = true
 indent_style = "Block"
 # Controls how rustfmt treats single-line blocks
 empty_item_single_line = true
+newline_style = "Unix"  # Ensure using UNIX-style newlines
