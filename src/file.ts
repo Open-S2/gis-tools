@@ -6,3 +6,4 @@ export * from './dataStore/vector/file';
 export * from './readers/shapefile/file';
 export * from './readers/file';
 export * from './writers/file';
+export * from './writers/tile';

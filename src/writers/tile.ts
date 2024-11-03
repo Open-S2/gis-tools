@@ -5,7 +5,7 @@ import type { Metadata } from 's2-tilejson';
 import type { TileWriter } from '.';
 
 /** This is a filesystem Tile writer that organizes data via folders. */
-export class LocalTileWriter implements TileWriter {
+export class FileTileWriter implements TileWriter {
   /**
    * @param path - the location to write the data
    * @param fileType - the file ending to write

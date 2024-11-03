@@ -3,6 +3,9 @@
 </h1>
 
 <p align="center">
+  <a href="https://img.shields.io/github/actions/workflow/status/Open-S2/s2-tools/test.yml?logo=github">
+    <img src="https://img.shields.io/github/actions/workflow/status/Open-S2/s2-tools/test.yml?logo=github" alt="GitHub Actions Workflow Status">
+  </a>
   <a href="https://npmjs.org/package/s2-tools">
     <img src="https://img.shields.io/npm/v/s2-tools.svg?logo=npm&logoColor=white" alt="npm">
   </a>
@@ -122,6 +125,8 @@ To generate the coverage report, use the following command:
 
 ```bash
 cargo tarpaulin
+# faster
+cargo tarpaulin --color always --skip-clean
 # bacon
 bacon coverage # or type `l` inside the tool
 ```

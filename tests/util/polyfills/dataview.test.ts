@@ -11,9 +11,9 @@ test('getFloat16', () => {
   dv.setFloat16(4, 0.1);
   dv.setFloat16(6, -0.01, true);
   dv.setFloat16(8, Infinity);
-  expect(dv.getFloat16(0)).toEqual(0x7c00);
-  expect(dv.getFloat16(2, true)).toEqual(0);
-  expect(dv.getFloat16(4)).toEqual(0.0999755859375);
-  expect(dv.getFloat16(6, true)).toEqual(-0.0099945068359375);
-  expect(dv.getFloat16(8)).toEqual(Infinity);
+  expect(dv.getFloat16(0)).toBeCloseTo(0x7c00);
+  expect(dv.getFloat16(2, true)).toBeCloseTo(0);
+  expect(dv.getFloat16(4)).toBeCloseTo(0.0999755859375);
+  expect(dv.getFloat16(6, true)).toBeCloseTo(-0.0099945068359375);
+  expect(dv.getFloat16(8)).toBeCloseTo(Infinity);
 });

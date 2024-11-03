@@ -95,7 +95,7 @@ export class Tile {
  * @param ti - tile i
  * @param tj - tile j
  */
-function _transform(geometry: VectorGeometry, zoom: number, ti: number, tj: number) {
+function _transform(geometry: VectorGeometry, zoom: number, ti: number, tj: number): void {
   const { type, coordinates } = geometry;
   zoom = 1 << zoom;
 
@@ -141,7 +141,7 @@ export interface TileStoreOptions {
   minzoom?: number;
   /** max zoom level to cluster the points on */
   maxzoom?: number;
-  /** tile buffer on each side in pixels */
+  /** max zoom to index data on construction */
   indexMaxzoom?: number;
   /** simplification tolerance (higher means simpler) */
   tolerance?: number;
