@@ -1,4 +1,5 @@
 export * from './gzip';
+export * from './image';
 export * from './lzw';
 
 /** The formats available to DecompressionStream */

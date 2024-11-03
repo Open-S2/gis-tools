@@ -1,6 +1,4 @@
-import { copy, createImage, resize } from './util';
-
-export * from './util';
+import { copyImage, createImage, resizeImage } from '../util';
 
 /**
  * Lanczos filter function for downscaling
@@ -50,13 +48,13 @@ export function lanczos(
     dw === dest.width &&
     dh === dest.height
   ) {
-    resize(source, dest, use2);
+    resizeImage(source, dest, use2);
     return;
   }
 
   const croppedSource = createImage(sw, sh);
   const croppedDest = createImage(dw, dh);
-  copy(source, croppedSource, sx, sy);
-  resize(croppedSource, croppedDest, use2);
-  copy(croppedDest, dest, 0, 0, croppedDest.width, croppedDest.height, dx, dy);
+  copyImage(source, croppedSource, sx, sy);
+  resizeImage(croppedSource, croppedDest, use2);
+  copyImage(croppedDest, dest, 0, 0, croppedDest.width, croppedDest.height, dx, dy);
 }

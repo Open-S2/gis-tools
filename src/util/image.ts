@@ -34,7 +34,7 @@ function toFixedPoint(value: number): number {
  * @param use2 - use 2nd lanczos filter instead of 3rd
  * @returns - filter
  */
-export function filters(
+function filters(
   srcSize: number,
   destSize: number,
   scale: number,
@@ -122,74 +122,6 @@ export function filters(
 }
 
 /**
- * Convolve an image with a filter
- * @param source - the source image
- * @param dest - the destination image
- * @param sw - source width
- * @param sh - source height
- * @param dw - destination width
- * @param filters - image filter
- */
-export function convolve(
-  source: Uint8ClampedArray,
-  dest: Uint8ClampedArray,
-  sw: number,
-  sh: number,
-  dw: number,
-  filters: Int16Array,
-): void {
-  let srcOffset = 0;
-  let destOffset = 0;
-
-  // For each row
-  for (let sourceY = 0; sourceY < sh; sourceY++) {
-    let filterPtr = 0;
-
-    // Apply precomputed filters to each destination row point
-    for (let destX = 0; destX < dw; destX++) {
-      // Get the filter that determines the current output pixel.
-      const filterShift = filters[filterPtr++];
-
-      let srcPtr = (srcOffset + filterShift * 4) | 0;
-
-      let r = 0;
-      let g = 0;
-      let b = 0;
-      let a = 0;
-
-      // Apply the filter to the row to get the destination pixel r, g, b, a
-      for (let filterSize = filters[filterPtr++]; filterSize > 0; filterSize--) {
-        const filterValue = filters[filterPtr++];
-
-        r = (r + filterValue * source[srcPtr]) | 0;
-        g = (g + filterValue * source[srcPtr + 1]) | 0;
-        b = (b + filterValue * source[srcPtr + 2]) | 0;
-        a = (a + filterValue * source[srcPtr + 3]) | 0;
-
-        srcPtr = (srcPtr + 4) | 0;
-      }
-
-      // Bring this value back in range. All of the filter scaling factors
-      // are in fixed point with FIXED_FRAC_BITS bits of fractional part.
-      //
-      // (!) Add 1/2 of value before clamping to get proper rounding. In other
-      // case brightness loss will be noticeable if you resize image with white
-      // border and place it on white background.
-      //
-      dest[destOffset] = (r + (1 << 13)) >> FIXED_FRAC_BITS;
-      dest[destOffset + 1] = (g + (1 << 13)) >> FIXED_FRAC_BITS;
-      dest[destOffset + 2] = (b + (1 << 13)) >> FIXED_FRAC_BITS;
-      dest[destOffset + 3] = (a + (1 << 13)) >> FIXED_FRAC_BITS;
-
-      destOffset = (destOffset + sh * 4) | 0;
-    }
-
-    destOffset = ((sourceY + 1) * 4) | 0;
-    srcOffset = ((sourceY + 1) * sw * 4) | 0;
-  }
-}
-
-/**
  * Copy the contents of the source image to the destination image
  * @param source - the source image
  * @param dest - the destination image
@@ -200,7 +132,7 @@ export function convolve(
  * @param dx - destination starting x point [Default: 0]
  * @param dy - destination starting y point [Default: 0]
  */
-export function copy(
+export function copyImage(
   source: ImageData,
   dest: ImageData,
   sx = 0,
@@ -295,7 +227,7 @@ export function createImage(
  * @param dest - the destination image
  * @param use2 - use 2nd lanczos filter instead of 3rd
  */
-export function resize(source: ImageData, dest: ImageData, use2 = false): void {
+export function resizeImage(source: ImageData, dest: ImageData, use2 = false): void {
   const xRatio = dest.width / source.width;
   const yRatio = dest.height / source.height;
 
@@ -304,32 +236,74 @@ export function resize(source: ImageData, dest: ImageData, use2 = false): void {
 
   const tmp = new Uint8ClampedArray(dest.width * source.height * 4);
 
-  convolve(source.data, tmp, source.width, source.height, dest.width, filtersX);
-  convolve(tmp, dest.data, source.height, dest.width, dest.height, filtersY);
+  convolveImage(source.data, tmp, source.width, source.height, dest.width, filtersX);
+  convolveImage(tmp, dest.data, source.height, dest.width, dest.height, filtersY);
 }
 
-/*
-  Adapted to typescript from pica: https://github.com/nodeca/pica
+/**
+ * Convolve an image with a filter
+ * @param source - the source image
+ * @param dest - the destination image
+ * @param sw - source width
+ * @param sh - source height
+ * @param dw - destination width
+ * @param filters - image filter
+ */
+export function convolveImage(
+  source: Uint8ClampedArray,
+  dest: Uint8ClampedArray,
+  sw: number,
+  sh: number,
+  dw: number,
+  filters: Int16Array,
+): void {
+  let srcOffset = 0;
+  let destOffset = 0;
 
-  (The MIT License)
+  // For each row
+  for (let sourceY = 0; sourceY < sh; sourceY++) {
+    let filterPtr = 0;
 
-  Copyright (C) 2014-2017 by Vitaly Puzrin
+    // Apply precomputed filters to each destination row point
+    for (let destX = 0; destX < dw; destX++) {
+      // Get the filter that determines the current output pixel.
+      const filterShift = filters[filterPtr++];
 
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
+      let srcPtr = (srcOffset + filterShift * 4) | 0;
 
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let a = 0;
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE.
-*/
+      // Apply the filter to the row to get the destination pixel r, g, b, a
+      for (let filterSize = filters[filterPtr++]; filterSize > 0; filterSize--) {
+        const filterValue = filters[filterPtr++];
+
+        r = (r + filterValue * source[srcPtr]) | 0;
+        g = (g + filterValue * source[srcPtr + 1]) | 0;
+        b = (b + filterValue * source[srcPtr + 2]) | 0;
+        a = (a + filterValue * source[srcPtr + 3]) | 0;
+
+        srcPtr = (srcPtr + 4) | 0;
+      }
+
+      // Bring this value back in range. All of the filter scaling factors
+      // are in fixed point with FIXED_FRAC_BITS bits of fractional part.
+      //
+      // (!) Add 1/2 of value before clamping to get proper rounding. In other
+      // case brightness loss will be noticeable if you resize image with white
+      // border and place it on white background.
+      //
+      dest[destOffset] = (r + (1 << 13)) >> FIXED_FRAC_BITS;
+      dest[destOffset + 1] = (g + (1 << 13)) >> FIXED_FRAC_BITS;
+      dest[destOffset + 2] = (b + (1 << 13)) >> FIXED_FRAC_BITS;
+      dest[destOffset + 3] = (a + (1 << 13)) >> FIXED_FRAC_BITS;
+
+      destOffset = (destOffset + sh * 4) | 0;
+    }
+
+    destOffset = ((sourceY + 1) * 4) | 0;
+    srcOffset = ((sourceY + 1) * sw * 4) | 0;
+  }
+}

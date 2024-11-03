@@ -1,4 +1,4 @@
-import { createImage, lanczos } from '../../../src/tools/lanczos';
+import { createImage, lanczos } from '../../../src';
 import { expect, test } from 'bun:test';
 
 import sharp from 'sharp';
