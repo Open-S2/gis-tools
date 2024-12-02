@@ -1,3 +1,5 @@
+import './util/polyfills/local';
+
 export * from './dataStore/externalSort/index';
 export * from './dataStore/file';
 export * from './dataStore/kv/file';

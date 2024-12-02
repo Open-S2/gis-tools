@@ -269,7 +269,8 @@ export class TileStore {
     const zoom = level(id);
     const face = getFace(id);
     // If the zoom is out of bounds, return nothing
-    if (zoom < 0 || zoom > 20 || !faces.has(face)) return;
+    if (zoom < 0 || zoom > 20 || !faces.has(face) || zoom < this.minzoom || zoom > this.maxzoom)
+      return;
 
     // we want to find the closest tile to the data.
     let pID = id;

@@ -1,85 +1,74 @@
 import { MetadataBuilder } from 's2-tilejson';
 
-import type { Reader } from '../../readers';
+import type { ClusterOptions } from '../../dataStructures/pointCluster';
+import type { FeatureIterator } from '../../readers';
+import type { Features } from '../../geometry';
+import type { TileStoreOptions } from '../../dataStructures/tile';
 import type { TileWriter } from '../../writers';
-import type { VectorFeatures } from '../../geometry';
 import type { Attribution, Encoding, LayerMetaData, Scheme } from 's2-tilejson';
 
-import type { ClusterOptions } from '../../dataStructures/pointCluster';
-import type { TileStoreOptions } from '../../dataStructures/tile';
+import type { FeatureMessage, InitMessage } from './vectorWorker/vectorTileWorker';
 
-/** A layer defines the exact mechanics of what data to parse and how the data is stored */
-export interface SourceLayer {
-  /** Name of the layer */
-  name: string;
-  /** Components of how the layer is built and stored */
-  metadata: LayerMetaData;
-}
+// TODO: s2-tilejson needs to modify LayerMetaData so that DrawType can be 'raster'
 
 /**
  * Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined
  */
-export type OnFeature = (feature: VectorFeatures) => VectorFeatures | undefined;
+export type OnFeature = (feature: Features) => Features | undefined;
 
-/** Sources are the blueprints of what data to fetch and how to store it */
-export interface BaseSource {
-  /** The name of the source */
-  name: string;
-  /** The reader to parse the data from */
-  data: Reader;
-}
-
-/** Vector source */
-export interface VectorSource extends BaseSource {
-  /** The layers to construct and organize the data around for this source */
-  layers: SourceLayer[];
-  /** If options are provided, the assumption is the point data is clustered */
-  cluster?: ClusterOptions;
-  /** tile buffer on each side so lines and polygons don't get clipped */
-  buffer?: number;
-  /** whether to build the bounding box for each tile feature */
-  buildBBox?: boolean;
-  /** Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined */
-  onFeature?: OnFeature;
-}
-
-/** Raster source */
-export interface RasterSource extends BaseSource {
-  description?: string;
-}
-
-/** A layerguide is a minified version of a layer used by workers to build tiles */
-export interface LayerGuide {
+/** No matter the type of layer you want to build, these are default properties to include */
+export interface BaseLayer {
+  /** Name of the source */
+  sourceName: string;
+  /** Name of the layer */
+  layerName: string;
   /** Components of how the layer is built and stored */
   metadata: LayerMetaData;
   /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
-  onFeature?: string;
-  /** Guide on how to splice the data into vector tiles */
-  tileGuide: TileStoreOptions;
-}
-
-/** A parsed LayerGuide where onFeature is parsed back into a function */
-export interface ParsedLayerGuide extends Omit<LayerGuide, 'onFeature'> {
   onFeature?: OnFeature;
 }
 
-/** A Source Guide is a minified version of a source used by workers to build tiles */
-export interface SourceGuide {
-  /** The name of the source */
-  [sourceName: string]: {
-    /** Name of the associated layer */
-    [layerName: string]: LayerGuide;
-  };
+/** Guide to building Raster layer data */
+export interface RasterLayer extends BaseLayer {
+  /** describes how the image will be stored */
+  outputType: 'webp' | 'png';
+}
+/** Guide to building Raster layer data where the onFeature & filter is stringified to ship to workers */
+export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature' | 'filter'> {
+  /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
+  onFeature?: string;
 }
 
-/** A parsed SourceGuide where onFeature is parsed back into a function */
-export interface ParsedSourceGuide {
-  /** The name of the source */
-  [sourceName: string]: {
-    /** Name of the associated layer */
-    [layerName: string]: ParsedLayerGuide;
-  };
+/** Guide to building Cluster layer data */
+export interface ClusterLayer extends BaseLayer {
+  /** If options are provided, the assumption is the point data is clustered */
+  clusterGuide?: ClusterOptions;
 }
+/** Guide to building Cluster layer data where the onFeature & filter is stringified to ship to workers */
+export interface StringifiedClusterLayer extends Omit<ClusterLayer, 'onFeature' | 'filter'> {
+  /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
+  onFeature?: string;
+}
+
+/** Guide to building Vector layer data */
+export interface VectorLayer extends BaseLayer {
+  /** Guide on how to splice the data into vector tiles */
+  tileGuide: TileStoreOptions;
+}
+/** Guide to building Vector layer data where the onFeature & filter is stringified to ship to workers */
+export interface StringifiedVectorLayer extends Omit<VectorLayer, 'onFeature' | 'filter'> {
+  /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
+  onFeature?: string;
+}
+
+/** List of user defined guides to build layers */
+export type LayerGuide = RasterLayer | ClusterLayer | VectorLayer;
+
+/** List of user defined guides to build layers where the onFeature is stringified to ship to workers */
+export type StringifiedLayerGuide =
+  | StringifiedRasterLayer
+  | StringifiedClusterLayer
+  | StringifiedVectorLayer;
 
 /** A user defined guide on building the vector tiles */
 export interface BuildGuide {
@@ -96,11 +85,7 @@ export interface BuildGuide {
   scheme?: Scheme;
   /** The encoding format. Can be either 'gz', 'br', 'zstd' or 'none' [Default: 'gz'] */
   encoding?: Encoding;
-  /** The vector sources that the tile is built from and how the layers are to be stored */
-  vectorSources?: VectorSource[];
-  /** The raster sources that will be conjoined into a single rgba pixel index for tile extraction */
-  rasterSources?: RasterSource[];
-  /** The attribution of the data. Store as { key: 'presentation name' }. [value: href link] */
+  /** The attribution of the data. Store as { 'presentation name': 'href' }. */
   attribution?: Attribution;
   /**
    * The vector format if applicable helps define how the vector data is stored.
@@ -111,6 +96,17 @@ export interface BuildGuide {
    * [Default: 'open-v2']
    */
   vectorFormat?: 'open-v1' | 'open-v2';
+  //! Everything after this is crucial to properly build vector tiles
+  //! Take these next variables most seriously when building your data.
+  /**
+   * The vector sources that the tile is built from and how the layers are to be stored.
+   * Created using `{ [sourceName: string]: FeatureIterator }`
+   */
+  vectorSources?: Record<string, FeatureIterator>;
+  /** The raster sources that will be conjoined into a single rgba pixel index for tile extraction */
+  rasterSources?: Record<string, FeatureIterator>;
+  /** The guides on how to build the various data */
+  layerGuides: LayerGuide[];
   /**
    * The data created will be stored in either a folder structure or a pmtiles file
    * Folder structure is either '{face}/{zoom}/{x}/{y}.pbf' or '{zoom}/{x}/{y}.pbf'.
@@ -126,15 +122,40 @@ export interface BuildGuide {
  * @param buildGuide - the user defined guide on building the vector tiles
  */
 export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
-  const { tileWriter } = buildGuide;
+  const { tileWriter, vectorSources, rasterSources, layerGuides, threads } = buildGuide;
+  const totalThreads = Math.max(threads ?? 1, navigator.hardwareConcurrency ?? 1);
+  const featuresIterator = getFeature(vectorSources, rasterSources);
 
-  // TODO: Prepare init messages for workers
+  await new Promise<void>((resolve) => {
+    let threadsComplete = 0;
+    for (let i = 0; i < totalThreads; i++) {
+      const worker = new Worker(new URL('./vectorWorker', import.meta.url).href, {
+        type: 'module',
+      });
+      /** A ready state has been submitted for work */
+      worker.onmessage = async (): Promise<void> => {
+        // iterate features and have workers split/store them
+        const nextFeature = await featuresIterator.next();
+        if (nextFeature.done === true) {
+          threadsComplete++;
+          if (threadsComplete === totalThreads) resolve();
+          worker.terminate();
+        } else {
+          const { sourceName, feature } = nextFeature.value;
+          const featureMessage: FeatureMessage = { type: 'feature', sourceName, feature };
+          worker.postMessage(featureMessage);
+        }
+      };
+      // Prepare workers with init messages
+      const stringifiedLayerGuides = prepareLayerGuides(layerGuides);
+      const initMessage: InitMessage = { type: 'init', id: i, layerGuides: stringifiedLayerGuides };
+      worker.postMessage(initMessage);
+    }
+  });
 
-  // TODO: iterate features and have workers split/store them
+  // TODO: externalSort on vector source data at this point.
 
-  // TODO: externalSort on features at this point.
-
-  // TODO: have workers build tiles
+  // TODO: create workers and build tiles
 
   // build metadata based on the guide
   const metaBuilder = new MetadataBuilder();
@@ -146,11 +167,53 @@ export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
 }
 
 /**
+ * Prepare the layer guides for workers to be stringified
+ * @param layerGuides - the user defined guide on building the vector tiles
+ * @returns the stringified layer guides
+ */
+function prepareLayerGuides(layerGuides: LayerGuide[]): StringifiedLayerGuide[] {
+  return layerGuides.map((layer) => {
+    return {
+      ...layer,
+      onFeature: layer.onFeature !== undefined ? JSON.stringify(layer.onFeature) : undefined,
+    };
+  });
+}
+
+/** A result of a feature iterator */
+export interface FeatureIterateResult {
+  sourceName: string;
+  feature: Features;
+}
+
+/**
+ * Get the features that will be stored in the tile
+ * @param vectorSources - the vector sources that the tile is built from and how the layers are to be stored.
+ * @param rasterSources - the raster sources that will be conjoined into a single rgba pixel index for tile extraction
+ * @yields - a features
+ */
+async function* getFeature(
+  vectorSources?: Record<string, FeatureIterator>,
+  rasterSources?: Record<string, FeatureIterator>,
+): AsyncGenerator<FeatureIterateResult> {
+  if (vectorSources !== undefined) {
+    for (const [sourceName, source] of Object.entries(vectorSources)) {
+      for await (const feature of source) yield { sourceName, feature };
+    }
+  }
+  if (rasterSources !== undefined) {
+    for (const [sourceName, source] of Object.entries(rasterSources)) {
+      for await (const feature of source) yield { sourceName, feature };
+    }
+  }
+}
+
+/**
  * @param metaBuilder - the metadata builder to update
  * @param buildGuide - the user defined guide on building the vector tiles
  */
 function updateBuilder(metaBuilder: MetadataBuilder, buildGuide: BuildGuide): void {
-  const { name, description, version, scheme, encoding, attribution, vectorSources } = buildGuide;
+  const { name, description, version, scheme, encoding, attribution, layerGuides } = buildGuide;
 
   metaBuilder.setName(name);
   metaBuilder.setExtension('pbf');
@@ -164,9 +227,7 @@ function updateBuilder(metaBuilder: MetadataBuilder, buildGuide: BuildGuide): vo
       metaBuilder.addAttribution(displayName, href);
     }
   }
-  for (const { layers } of vectorSources ?? []) {
-    for (const layer of layers) metaBuilder.addLayer(layer.name, layer.metadata);
-  }
+  for (const layer of layerGuides) metaBuilder.addLayer(layer.sourceName, layer.metadata);
 }
 
 // TODO:
