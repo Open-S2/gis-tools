@@ -38,7 +38,7 @@ export interface Tag {
  * ```
  */
 export class Pbf {
-  buf: Uint8Array;
+  buf: Uint8Array<ArrayBuffer>;
   pos: number;
   length: number;
   type: number;
@@ -51,7 +51,7 @@ export class Pbf {
    * @param buf - an optional Uint8Array to use for reading. otherwise defaults to an empty
    * Uint8Array for writing
    */
-  constructor(buf: Uint8Array = new Uint8Array(0)) {
+  constructor(buf: Uint8Array<ArrayBuffer> = new Uint8Array(0)) {
     this.buf = buf;
     this.pos = 0;
     this.type = 0;
@@ -292,7 +292,7 @@ export class Pbf {
    * The bytes themselves are presumed to be u8s and therefore don't need to be decoded
    * @returns - the decoded byte array
    */
-  readBytes(): Uint8Array {
+  readBytes(): Uint8Array<ArrayBuffer> {
     const end = this.readVarint() + this.pos;
     const buffer = this.buf.subarray(this.pos, end);
     this.pos = end;

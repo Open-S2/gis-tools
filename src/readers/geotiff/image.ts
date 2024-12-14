@@ -358,7 +358,7 @@ export class GeoTIFFImage {
     const maxYTile = Math.ceil(height / tileHeight);
     for (let yTile = 0; yTile < maxYTile; ++yTile) {
       for (let xTile = 0; xTile < maxXTile; ++xTile) {
-        let data: ArrayBufferLike | undefined;
+        let data: ArrayBuffer | undefined;
         if (this.#planarConfiguration === 1) {
           data = await this.getTileOrStrip(xTile, yTile, 0, decodeFn);
         }
@@ -527,7 +527,7 @@ export class GeoTIFFImage {
     y: number,
     sample: number,
     decodeFn: Decoder,
-  ): Promise<ArrayBufferLike> {
+  ): Promise<ArrayBuffer> {
     const { TileOffsets, TileByteCounts, StripOffsets, StripByteCounts } = this.#imageDirectory;
     const numTilesPerRow = Math.ceil(this.width / this.tileWidth);
     const numTilesPerCol = Math.ceil(this.height / this.tileHeight);
@@ -566,7 +566,7 @@ export class GeoTIFFImage {
    * @param data - the raw data
    * @returns - the data with the predictor applied
    */
-  maybeApplyPredictor(data: ArrayBufferLike): ArrayBufferLike {
+  maybeApplyPredictor(data: ArrayBuffer): ArrayBuffer {
     const predictor = this.#imageDirectory.Predictor ?? 1;
     if (predictor === 1) {
       return data;

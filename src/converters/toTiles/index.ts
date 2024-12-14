@@ -9,8 +9,6 @@ import type { Attribution, Encoding, LayerMetaData, Scheme } from 's2-tilejson';
 
 import type { FeatureMessage, InitMessage } from './vectorWorker/vectorTileWorker';
 
-// TODO: s2-tilejson needs to modify LayerMetaData so that DrawType can be 'raster'
-
 /**
  * Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined
  */
@@ -31,7 +29,7 @@ export interface BaseLayer {
 /** Guide to building Raster layer data */
 export interface RasterLayer extends BaseLayer {
   /** describes how the image will be stored */
-  outputType: 'webp' | 'png';
+  outputType: 'webp' | 'png' | 'jpeg';
 }
 /** Guide to building Raster layer data where the onFeature & filter is stringified to ship to workers */
 export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature' | 'filter'> {
@@ -228,6 +226,19 @@ function updateBuilder(metaBuilder: MetadataBuilder, buildGuide: BuildGuide): vo
     }
   }
   for (const layer of layerGuides) metaBuilder.addLayer(layer.sourceName, layer.metadata);
+}
+
+/**
+ * TODO: Find all cases where prepping the data could be done wrong by the user with
+ * TODO: explinations of how to correct them.
+ * TODO: - metadata must be correct. -
+ * Check and display errors
+ * @param layerGuides - the user defined guide on building the vector tiles
+ */
+function findErrors(layerGuides: LayerGuide[]): void {
+  for (const layerGuide of layerGuides) {
+    const { metadata } = layerGuide;
+  }
 }
 
 // TODO:

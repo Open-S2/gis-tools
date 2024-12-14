@@ -54,7 +54,7 @@ function appendReversed(dest: number[], source: number[]): number[] {
  * @param input - The LZW data
  * @returns - The decompressed data
  */
-function decompress(input: ArrayBufferLike): Uint8Array {
+function decompress(input: ArrayBuffer): Uint8Array<ArrayBuffer> {
   const dictionaryIndex = new Uint16Array(4093);
   const dictionaryChar = new Uint8Array(4093);
   for (let i = 0; i <= 257; i++) {
@@ -164,6 +164,6 @@ function decompress(input: ArrayBufferLike): Uint8Array {
  * @param buffer - The LZW data
  * @returns - The decompressed data
  */
-export function lzwDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
+export function lzwDecoder(buffer: ArrayBuffer): ArrayBuffer {
   return decompress(buffer).buffer;
 }

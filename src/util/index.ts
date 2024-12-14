@@ -16,14 +16,16 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
 
-  return bytes.buffer as ArrayBuffer;
+  return bytes.buffer;
 }
 
 /**
  * @param uint8arrays - the Uint8Arrays to concatenate
  * @returns - the concatenated Uint8Array
  */
-export async function concatUint8Arrays(uint8arrays: Uint8Array[]): Promise<Uint8Array> {
+export async function concatUint8Arrays(
+  uint8arrays: Uint8Array<ArrayBuffer>[],
+): Promise<Uint8Array<ArrayBuffer>> {
   const blob = new Blob(uint8arrays);
   const buffer = await blob.arrayBuffer();
   return new Uint8Array(buffer);

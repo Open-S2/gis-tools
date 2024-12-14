@@ -47,13 +47,13 @@ export interface JPEGOptions {
 }
 
 /** A Component of a JPEG image */
-export interface Component {
+export interface JPEGComponent {
   h: number;
   v: number;
   quantizationIdx: number;
   blocksPerLine: number;
   blocksPerColumn: number;
-  blocks: Int32Array[][];
+  blocks: Int32Array<ArrayBuffer>[][];
   huffmanTableDC: HuffmanNode[];
   huffmanTableAC: HuffmanNode[];
   quantizationTable: Int32Array;
@@ -74,7 +74,7 @@ export interface Frame {
   precision?: number;
   scanLines: number;
   samplesPerLine: number;
-  components: { [id: number | string]: Component };
+  components: { [id: number | string]: JPEGComponent };
   componentsOrder: number[];
   maxH: number;
   maxV: number;
@@ -103,7 +103,7 @@ export interface JFIF {
 
 /** The result of an individual parse */
 export interface ParseResult {
-  data: Uint8Array;
+  data: Uint8Array<ArrayBuffer>;
   outComponents: OutComponent[];
   ready: boolean;
 }
@@ -112,8 +112,8 @@ export interface ParseResult {
 export interface Image {
   width: number;
   height: number;
-  exifBuffer: Uint8Array | null;
-  data: Uint8Array;
+  exifBuffer: Uint8Array<ArrayBuffer> | null;
+  data: Uint8Array<ArrayBuffer>;
   comments?: string[];
 }
 
@@ -125,7 +125,7 @@ export interface Image {
  * @returns - The decoded image
  */
 export function decode(
-  jpegData: ArrayBufferLike,
+  jpegData: ArrayBuffer,
   userOpts?: JPEGOptions,
   jpegTables?: number[],
 ): Image {
@@ -148,7 +148,7 @@ export function decode(
  * @param jpegTables - The JPEG tables (if provided)
  * @returns - The decoded image as a buffer
  */
-export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): ArrayBufferLike {
+export function jpegDecoder(buffer: ArrayBuffer, jpegTables?: number[]): ArrayBuffer {
   const { data } = decode(buffer, { skipMutation: true }, jpegTables);
   return data.buffer;
 }
@@ -174,7 +174,7 @@ export class JpegStreamReader {
   comments: string[] = [];
   adobe: Adobe | null = null;
   jfif: JFIF | null = null;
-  exifBuffer: Uint8Array | null = null;
+  exifBuffer: Uint8Array<ArrayBuffer> | null = null;
   frames: Frame[] = [];
 
   /**
@@ -226,7 +226,7 @@ export class JpegStreamReader {
   /**
    * @param data - The individual block of JPEG data to parse
    */
-  parse(data: Uint8Array): void {
+  parse(data: Uint8Array<ArrayBuffer>): void {
     const maxResolutionInPixels = this.maxResolutionInMP * 1000 * 1000;
     let offset = 0;
     /**
@@ -240,7 +240,7 @@ export class JpegStreamReader {
     /**
      * @returns - The next block as a Uint8Array
      */
-    function readDataBlock(): Uint8Array {
+    function readDataBlock(): Uint8Array<ArrayBuffer> {
       const length = readUint16();
       const array = data.subarray(offset, offset + length - 2);
       offset += array.length;
@@ -513,7 +513,7 @@ export class JpegStreamReader {
           // SOS (Start of Scan)
           readUint16(); // skip scan length
           const selectorsCount = data[offset++];
-          const components: Component[] = [];
+          const components: JPEGComponent[] = [];
           const frame = this.frames[0];
           for (let i = 0; i < selectorsCount; i++) {
             const component = frame.components[data[offset++]];
@@ -864,7 +864,10 @@ interface Code {
  * @param values - array of values
  * @returns - the Huffman table
  */
-function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): HuffmanNode[] {
+function buildHuffmanTable(
+  codeLengths: Uint8Array<ArrayBuffer>,
+  values: Uint8Array<ArrayBuffer>,
+): HuffmanNode[] {
   let k = 0;
   const code: Code[] = [];
   let length = 16;
@@ -918,10 +921,10 @@ function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): Huffman
  * @returns - the decoded scan size
  */
 function decodeScan(
-  data: Uint8Array,
+  data: Uint8Array<ArrayBuffer>,
   offset: number,
   frame: Frame,
-  components: Component[],
+  components: JPEGComponent[],
   resetInterval: number,
   spectralStart: number,
   spectralEnd: number,
@@ -999,7 +1002,7 @@ function decodeScan(
    * @param component - the component
    * @param zz - the block
    */
-  function decodeBaseline(component: Component, zz: Int32Array): void {
+  function decodeBaseline(component: JPEGComponent, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
     const diff = t === 0 ? 0 : receiveAndExtend(t);
     zz[0] = component.pred += diff;
@@ -1024,7 +1027,7 @@ function decodeScan(
    * @param component - the component
    * @param zz - the block
    */
-  function decodeDCFirst(component: Component, zz: Int32Array): void {
+  function decodeDCFirst(component: JPEGComponent, zz: Int32Array): void {
     const t = decodeHuffman(component.huffmanTableDC);
     const diff = t === 0 ? 0 : receiveAndExtend(t) << successive;
     zz[0] = component.pred += diff;
@@ -1034,7 +1037,7 @@ function decodeScan(
    * @param _component - the component
    * @param zz - the block
    */
-  function decodeDCSuccessive(_component: Component, zz: Int32Array): void {
+  function decodeDCSuccessive(_component: JPEGComponent, zz: Int32Array): void {
     zz[0] |= readBit() << successive;
   }
   let eobrun = 0;
@@ -1043,7 +1046,7 @@ function decodeScan(
    * @param component - the component
    * @param zz - the block
    */
-  function decodeACFirst(component: Component, zz: Int32Array): void {
+  function decodeACFirst(component: JPEGComponent, zz: Int32Array): void {
     if (eobrun > 0) {
       eobrun--;
       return;
@@ -1075,7 +1078,7 @@ function decodeScan(
    * @param component - the component
    * @param zz - the block
    */
-  function decodeACSuccessive(component: Component, zz: Int32Array): void {
+  function decodeACSuccessive(component: JPEGComponent, zz: Int32Array): void {
     let k = spectralStart;
     const e = spectralEnd;
     let r = 0;
@@ -1138,8 +1141,8 @@ function decodeScan(
    * @param col - The column
    */
   function decodeMcu(
-    component: Component,
-    decode: (component: Component, zz: Int32Array) => void,
+    component: JPEGComponent,
+    decode: (component: JPEGComponent, zz: Int32Array) => void,
     mcu: number,
     row: number,
     col: number,
@@ -1159,8 +1162,8 @@ function decodeScan(
    * @param mcu - The mcu value
    */
   function decodeBlock(
-    component: Component,
-    decode: (component: Component, zz: Int32Array) => void,
+    component: JPEGComponent,
+    decode: (component: JPEGComponent, zz: Int32Array) => void,
     mcu: number,
   ): void {
     const blockRow = (mcu / component.blocksPerLine) | 0;
@@ -1255,7 +1258,10 @@ function decodeScan(
  * @param reader - the jpeg stream reader
  * @returns - the component data
  */
-function buildComponentData(component: Component, reader: JpegStreamReader): Uint8Array[] {
+function buildComponentData(
+  component: JPEGComponent,
+  reader: JpegStreamReader,
+): Uint8Array<ArrayBuffer>[] {
   const lines = [];
   const blocksPerLine = component.blocksPerLine;
   const blocksPerColumn = component.blocksPerColumn;
@@ -1274,7 +1280,11 @@ function buildComponentData(component: Component, reader: JpegStreamReader): Uin
    * @param dataOut - the 8x8 block
    * @param dataIn - the 8x8 block
    */
-  function quantizeAndInverse(zz: Int32Array, dataOut: Uint8Array, dataIn: Int32Array): void {
+  function quantizeAndInverse(
+    zz: Int32Array<ArrayBuffer>,
+    dataOut: Uint8Array<ArrayBuffer>,
+    dataIn: Int32Array<ArrayBuffer>,
+  ): void {
     const qt = component.quantizationTable;
     let v0, v1, v2, v3, v4, v5, v6, v7, t;
     const p = dataIn;

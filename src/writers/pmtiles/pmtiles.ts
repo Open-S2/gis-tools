@@ -36,7 +36,7 @@ export function headerToBytes(header: Header): Uint8Array {
  * @param entries - the directory entries
  * @returns - the serialized directory
  */
-export function serializeDir(entries: Entry[]): Uint8Array {
+export function serializeDir(entries: Entry[]): Uint8Array<ArrayBuffer> {
   const data = { buf: new Uint8Array(0), pos: 0 };
 
   writeVarint(entries.length, data);

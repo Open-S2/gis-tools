@@ -42,7 +42,12 @@ export class S2PMTilesWriter implements TileWriter {
    * @param y - the tile Y coordinate
    * @param data - the tile data to store
    */
-  async writeTileXYZ(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
+  async writeTileXYZ(
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array<ArrayBuffer>,
+  ): Promise<void> {
     this.#minZoom = Math.min(this.#minZoom, zoom);
     this.#maxZoom = Math.max(this.#maxZoom, zoom);
     const tileID = zxyToTileID(zoom, x, y);
@@ -62,7 +67,7 @@ export class S2PMTilesWriter implements TileWriter {
     zoom: number,
     x: number,
     y: number,
-    data: Uint8Array,
+    data: Uint8Array<ArrayBuffer>,
   ): Promise<void> {
     this.#minZoom = Math.min(this.#minZoom, zoom);
     this.#maxZoom = Math.max(this.#maxZoom, zoom);
@@ -76,7 +81,7 @@ export class S2PMTilesWriter implements TileWriter {
    * @param data - the tile data
    * @param face - If it exists, then we are storing S2 data
    */
-  async writeTile(tileID: number, data: Uint8Array, face?: Face): Promise<void> {
+  async writeTile(tileID: number, data: Uint8Array<ArrayBuffer>, face?: Face): Promise<void> {
     data = await compress(data, this.compression);
     const length = data.length;
     const tileEntries = face !== undefined ? this.#s2tileEntries[face] : this.#tileEntries;
@@ -398,7 +403,10 @@ async function optimizeDirectories(
  * @param compression - the compression
  * @returns - the compressed Uint8Array or the original if compression is None
  */
-async function compress(input: Uint8Array, compression: Compression): Promise<Uint8Array> {
+async function compress(
+  input: Uint8Array<ArrayBuffer>,
+  compression: Compression,
+): Promise<Uint8Array<ArrayBuffer>> {
   if (compression === Compression.None) return input;
   else if (compression === Compression.Gzip) return await compressGzip(input);
   else throw new Error(`Unsupported compression: ${compression}`);
@@ -408,7 +416,7 @@ async function compress(input: Uint8Array, compression: Compression): Promise<Ui
  * @param input - the input Uint8Array
  * @returns - the compressed Uint8Array
  */
-async function compressGzip(input: Uint8Array): Promise<Uint8Array> {
+async function compressGzip(input: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
   // Convert the string to a byte stream.
   const stream = new Blob([input]).stream();
 

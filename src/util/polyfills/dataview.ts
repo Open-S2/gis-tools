@@ -5,6 +5,18 @@ export {};
 declare global {
   /** Extend the DataView interface */
   interface DataView {
+    // byteLength: number;
+    // byteOffset: number;
+    getBigInt64: (byteOffset: number, littleEndian?: boolean) => bigint;
+    getBigUint64: (byteOffset: number, littleEndian?: boolean) => bigint;
+    getFloat32: (byteOffset: number, littleEndian?: boolean) => number;
+    getFloat64: (byteOffset: number, littleEndian?: boolean) => number;
+    getInt16: (byteOffset: number, littleEndian?: boolean) => number;
+    getInt32: (byteOffset: number, littleEndian?: boolean) => number;
+    getInt8: (byteOffset: number) => number;
+    getUint16: (byteOffset: number, littleEndian?: boolean) => number;
+    getUint32: (byteOffset: number, littleEndian?: boolean) => number;
+    getUint8: (byteOffset: number) => number;
     /**
      * Retrieves a 16-bit floating point number (Float16) at the specified byte offset from the start of the view.
      * This method reads two bytes from the buffer, converts them into a 16-bit floating-point number,

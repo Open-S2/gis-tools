@@ -1,11 +1,8 @@
-[ ] - reimagine the pointIndex system, its too slow
+[ ] - reimagine the pointIndex system, its too slow for javascript (perfect for lower langauges that have u64 support)
 [ ] - bin -> toS2JSON, toRasterTiles, & toVectorTiles
 [ ] - toVectorTiles
-[ ] - - INPUTS: all S2JSON types as `s2jsonld` files
-[ ] - - Store: folders/files, PMTiles
-[ ] - - FORMATS: ZXY, FZXY
 [ ] - readers
-[ ] - - netCDF
+[ ] - - grib2
 [ ] - - KML, KMZ, GML, & GPX
 [ ] - - raster tile reader including DEM for z-data
 [ ] - - LAS/LAZ

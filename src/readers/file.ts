@@ -133,7 +133,7 @@ export class FileReader implements Reader {
    * @param end - End of the slice. If not provided, the end of the data is used
    * @returns - The data as a DataView
    */
-  slice(begin: number, end: number): DataView {
+  slice(begin: number, end: number): DataView<ArrayBuffer> {
     if (begin < 0 || end > this.byteLength || begin >= end) {
       throw new RangeError('Invalid slice range');
     }
@@ -169,7 +169,7 @@ export class FileReader implements Reader {
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length: number): Promise<Uint8Array> {
+  async getRange(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
     const buffer = Buffer.alloc(length);
     await readAsync(this.#fileHandle, buffer, 0, length, offset);
     return new Uint8Array(buffer.buffer, 0, length);

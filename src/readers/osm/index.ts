@@ -240,7 +240,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
    * Read the next blob
    * @returns - the next blob if it exists
    */
-  #next(): undefined | DataView {
+  #next(): undefined | DataView<ArrayBuffer> {
     const { reader } = this;
     // if we've already read all the data, return null
     if (this.#offset >= reader.byteLength) return;
@@ -265,7 +265,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
    * @param data - the data to parse
    * @returns - the parsed primitive block
    */
-  async #readBlob(data: DataView): Promise<PrimitiveBlock> {
+  async #readBlob(data: DataView<ArrayBuffer>): Promise<PrimitiveBlock> {
     // Blob data is PBF encoded and ?compressed, so we need to parse & decompress it first
     let pbf = new Protobuf(new Uint8Array(data.buffer));
     const blob = new Blob(pbf);

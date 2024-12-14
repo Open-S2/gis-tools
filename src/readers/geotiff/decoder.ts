@@ -3,8 +3,8 @@ import { decompressStream, lzwDecoder } from '../../util';
 
 /** What to expect from the decoder */
 export type Decoder =
-  | ((buffer: ArrayBufferLike, tables?: number[]) => Promise<ArrayBufferLike>)
-  | ((buffer: ArrayBufferLike, tables?: number[]) => ArrayBufferLike);
+  | ((buffer: ArrayBuffer, tables?: number[]) => Promise<ArrayBuffer>)
+  | ((buffer: ArrayBuffer, tables?: number[]) => ArrayBuffer);
 
 /**
  * @param compression - the encoded compression value
@@ -25,7 +25,7 @@ export function getDecoder(compression = 1): Decoder {
  * @param buffer - inflated data
  * @returns - the decoded buffer
  */
-async function deflateDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
+async function deflateDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
   return (await decompressStream(new Uint8Array(buffer))).buffer;
 }
 
@@ -34,7 +34,7 @@ async function deflateDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike>
  * @param buffer - the input buffer
  * @returns - the decoded buffer
  */
-function rawDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
+function rawDecoder(buffer: ArrayBuffer): ArrayBuffer {
   return buffer;
 }
 /**
@@ -42,7 +42,7 @@ function rawDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
  * @param buffer - the input buffer
  * @returns - the decoded buffer
  */
-async function imageDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
+async function imageDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
   const blob = new Blob([buffer as ArrayBuffer]); // e.g. { type: 'image/png' }
   const imageBitmap = await createImageBitmap(blob);
   // Create OffscreenCanvas and draw
@@ -60,7 +60,7 @@ async function imageDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
  * @param buffer - an array of packed bits in a block
  * @returns the decoded array
  */
-function packbitsDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
+function packbitsDecoder(buffer: ArrayBuffer): ArrayBuffer {
   const dataView = new DataView(buffer);
   const out = [];
 

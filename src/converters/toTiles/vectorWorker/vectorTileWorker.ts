@@ -1,6 +1,6 @@
 import { DrawType } from 's2-tilejson';
 import { MultiMap } from '../../../dataStore';
-import { TileStore } from '../../../dataStructures';
+import { PointCluster, TileStore } from '../../../dataStructures';
 import { childrenIJ, fromFace } from '../../../geometry';
 
 import type { MultiMapStore } from '../../../dataStore';
@@ -42,7 +42,7 @@ export default class VectorTileWorker {
     VectorFeature<FeatureMetadata>
   >();
   // Unique store for each layer that describes itself as a cluster source
-  clusterStores: MultiMapStore<VectorFeature<FeatureMetadata>>[] = [];
+  clusterStores: { [layerName: string]: PointCluster } = {};
   /**
    * Tile-ize input vector features and store them
    * @param event - the init message or a feature message

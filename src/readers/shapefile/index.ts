@@ -16,13 +16,13 @@ export * from './shp';
  * @returns - a Shapefile
  */
 export async function fromGzip(
-  input: ArrayBufferLike,
+  input: ArrayBuffer,
   defs?: ProjectionTransformDefinition[],
 ): Promise<ShapeFile> {
   let encoding = 'utf8';
   let transform: Transformer | undefined = undefined;
   let dbfReader: DataBaseFile | undefined = undefined;
-  let shpData: Uint8Array | undefined = undefined;
+  let shpData: Uint8Array<ArrayBuffer> | undefined = undefined;
   for (const item of iterItems(new Uint8Array(input))) {
     if (item.filename.endsWith('cpg')) {
       encoding = new TextDecoder('utf8').decode(await item.read());
@@ -59,7 +59,7 @@ export async function fromURL(url: string): Promise<ShapeFile> {
  * @param url - the url to the shapefile
  * @returns - raw data of a shapefile OR a gzipped folder that may include the dbf, prj, and/or cpg
  */
-async function fetchShapefile(url: string): Promise<ArrayBufferLike> {
+async function fetchShapefile(url: string): Promise<ArrayBuffer> {
   return await fetch(url)
     .then(async (res) => {
       if (!res.ok) throw new Error(`Failed to fetch data from ${url}`);

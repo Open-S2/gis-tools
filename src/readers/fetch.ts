@@ -107,7 +107,7 @@ export class FetchReader implements Reader {
    * @param _end - end
    * @returns - empty DataView
    */
-  slice(_begin: number, _end: number): DataView {
+  slice(_begin: number, _end: number): DataView<ArrayBuffer> {
     return new DataView(new Uint8Array([]).buffer);
   }
   /**
@@ -130,7 +130,7 @@ export class FetchReader implements Reader {
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length: number): Promise<Uint8Array> {
+  async getRange(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
     const bytes = String(offset) + '-' + String(offset + length);
     const fetchReq = this.rangeRequests
       ? fetch(this.path, { headers: { Range: `bytes=${offset}-${offset + length - 1}` } })

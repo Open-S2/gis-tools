@@ -1,14 +1,14 @@
 /** Types of outputs */
 export type ArrayTypes =
-  | Uint8ClampedArray
-  | Uint8Array
-  | Uint16Array
-  | Uint32Array
-  | Int8Array
-  | Int16Array
-  | Int32Array
-  | Float32Array
-  | Float64Array;
+  | Uint8ClampedArray<ArrayBuffer>
+  | Uint8Array<ArrayBuffer>
+  | Uint16Array<ArrayBuffer>
+  | Uint32Array<ArrayBuffer>
+  | Int8Array<ArrayBuffer>
+  | Int16Array<ArrayBuffer>
+  | Int32Array<ArrayBuffer>
+  | Float32Array<ArrayBuffer>
+  | Float64Array<ArrayBuffer>;
 /** Types of output constructors */
 export type ArrayTypesConstructors =
   | Uint8ClampedArrayConstructor
@@ -130,14 +130,14 @@ export function needsNormalization(format: number, bitsPerSample: number): boole
  * @returns - the normalized array
  */
 export function normalizeArray(
-  inBuffer: ArrayBufferLike,
+  inBuffer: ArrayBuffer,
   format: number,
   planarConfiguration: number,
   samplesPerPixel: number,
   bitsPerSample: number,
   tileWidth: number,
   tileHeight: number,
-): ArrayBufferLike {
+): ArrayBuffer {
   // const inByteArray = new Uint8Array(inBuffer);
   const view = new DataView(inBuffer);
   const outSize =

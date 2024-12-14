@@ -29,10 +29,10 @@ export interface Reader {
   getUint32: (byteOffset: number, littleEndian?: boolean) => number;
   getUint8: (byteOffset: number) => number;
   // Methods
-  slice: (begin: number, end: number) => DataView;
+  slice: (begin: number, end: number) => DataView<ArrayBuffer>;
   setStringEncoding: (encoding: string) => void;
   parseString: (byteOffset: number, byteLength: number) => string;
-  getRange: (offset: number, length: number) => Promise<Uint8Array>;
+  getRange: (offset: number, length: number) => Promise<Uint8Array<ArrayBuffer>>;
 }
 
 /** Feature iteration interface. Implemented by readers to iterate over features */
@@ -41,7 +41,7 @@ export interface FeatureIterator<M = Record<string, unknown>> {
 }
 
 /** A buffer reader is an extension of a DataView with some extra methods */
-export class BufferReader extends DataView implements Reader {
+export class BufferReader extends DataView<ArrayBuffer> implements Reader {
   textDecoder = new TextDecoder('utf-8');
 
   /**
@@ -49,13 +49,7 @@ export class BufferReader extends DataView implements Reader {
    * @param byteOffset - offset in the buffer
    * @param byteLength - length of the buffer
    */
-  constructor(
-    buffer: ArrayBufferLike & {
-      BYTES_PER_ELEMENT?: never;
-    },
-    byteOffset?: number,
-    byteLength?: number,
-  ) {
+  constructor(buffer: ArrayBuffer, byteOffset?: number, byteLength?: number) {
     super(buffer, byteOffset, byteLength);
   }
 
@@ -64,7 +58,7 @@ export class BufferReader extends DataView implements Reader {
    * @param end - end of the slice. If not provided, the end of the data is used
    * @returns - a DataView of the slice
    */
-  slice(begin: number, end: number): DataView {
+  slice(begin: number, end: number): DataView<ArrayBuffer> {
     return new DataView(
       this.buffer.slice(this.byteOffset + begin, this.byteOffset + (end ?? this.byteLength)),
     );
@@ -95,7 +89,7 @@ export class BufferReader extends DataView implements Reader {
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length: number): Promise<Uint8Array> {
+  async getRange(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
     return await new Uint8Array(this.buffer).slice(offset, offset + length);
   }
 }

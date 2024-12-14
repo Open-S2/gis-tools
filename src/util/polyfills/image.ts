@@ -13,7 +13,7 @@ declare global {
 
   /** Declare the ImageData class globally */
   interface ImageData {
-    readonly data: Uint8ClampedArray;
+    readonly data: Uint8ClampedArray<ArrayBuffer>;
     readonly width: number;
     readonly height: number;
   }
