@@ -20,7 +20,8 @@ export function buildServer() {
       if (rangeHeader !== null) {
         const [unit, range] = rangeHeader.split('=');
         if (unit === 'bytes') {
-          const [start, end] = range.split('-').map(Number);
+          const [start, endParsed] = range.split('-').map(Number);
+          const end = !isNaN(endParsed) && endParsed !== 0 ? endParsed : undefined;
 
           const fileSize = file.size;
           const endByte = end !== undefined ? Math.min(end, fileSize - 1) : fileSize - 1;

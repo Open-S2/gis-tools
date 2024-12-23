@@ -233,12 +233,12 @@ function updateBuilder(metaBuilder: MetadataBuilder, buildGuide: BuildGuide): vo
  * TODO: explinations of how to correct them.
  * TODO: - metadata must be correct. -
  * Check and display errors
- * @param layerGuides - the user defined guide on building the vector tiles
+ * @param _layerGuides - the user defined guide on building the vector tiles
  */
-function findErrors(layerGuides: LayerGuide[]): void {
-  for (const layerGuide of layerGuides) {
-    const { metadata } = layerGuide;
-  }
+function _findErrors(_layerGuides: LayerGuide[]): void {
+  // for (const layerGuide of layerGuides) {
+  //   // const { metadata } = layerGuide;
+  // }
 }
 
 // TODO:

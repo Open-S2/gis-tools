@@ -1,8 +1,8 @@
-[ ] - reimagine the pointIndex system, its too slow for javascript (perfect for lower langauges that have u64 support)
+[ ] - reimagine the pointIndex system, its too slow for javascript (but perfect for lower langauges
+that have u64 support)
 [ ] - bin -> toS2JSON, toRasterTiles, & toVectorTiles
 [ ] - toVectorTiles
 [ ] - readers
-[ ] - - grib2
 [ ] - - KML, KMZ, GML, & GPX
 [ ] - - raster tile reader including DEM for z-data
 [ ] - - LAS/LAZ

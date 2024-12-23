@@ -132,7 +132,9 @@ export class MMapReader implements Reader {
    * @param end - End of the slice. If not provided, the end of the data is used
    * @returns - The data as a DataView
    */
-  slice(begin: number, end: number): DataView<ArrayBuffer> {
+  slice(begin?: number, end?: number): DataView<ArrayBuffer> {
+    if (begin === undefined) begin = 0;
+    if (end === undefined) end = this.byteLength;
     if (begin < 0 || end > this.byteLength || begin >= end) {
       throw new RangeError('Invalid slice range');
     }

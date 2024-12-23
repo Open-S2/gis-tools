@@ -316,5 +316,5 @@ test('server - s2 example', async () => {
   // const tile3 = await reader.getTileS2(3, 2, 1, 1);
   // expect(tile3).toEqual(uint8_2);
 
-  server.stop();
+  await server.stop();
 });

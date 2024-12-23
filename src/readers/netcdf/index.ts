@@ -1,14 +1,10 @@
 import type { FeatureIterator, Reader } from '..';
 import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
 
-/**
- *
- */
+/** The kind of data that can be stored in a NetCDF file */
 export type CDFValue = string | number | number[];
 
-/**
- *
- */
+/** The kind of attributes that can be stored in a NetCDF file. Similar to a GeoJSON Properties object */
 export type CDFAttributes = Record<string, CDFValue>;
 
 /** Track the dimension and its max value (can be infinity) */
@@ -30,9 +26,7 @@ export interface CDFRecordDimension {
   recordStep?: number;
 }
 
-/**
- *
- */
+/** A NetCDF variable */
 export interface CDFVariable {
   /** name of the variable */
   name: string;
@@ -67,7 +61,8 @@ export enum CDFDataType {
 }
 
 /**
- * @param type
+ * @param type - the NetCDF data type
+ * @returns the number of bytes for the data type
  */
 function typeToBytes(type: CDFDataType): number {
   switch (type) {
@@ -124,7 +119,7 @@ export class NetCDFReader implements FeatureIterator {
 
   /**
    * @param reader - The data as either a buffer or file reader
-   * @param options
+   * @param options - User defined options to apply when reading the NetCDF file
    */
   constructor(
     private reader: Reader,
@@ -197,7 +192,7 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to Parse the header
    */
   #parseHeader(): void {
     // build dimension list
@@ -210,7 +205,7 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to build the dimension list
    */
   #buildDimensionList() {
     const dimListTag = this.#getU32();
@@ -245,7 +240,8 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to build attributes including global attributes
+   * @returns - attributes from a block of data at a given offset
    */
   #buildAttributes(): CDFAttributes {
     const atrributes: CDFAttributes = {};
@@ -272,7 +268,7 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to build a variable list from a block of data at a given offset
    */
   #buildVariablesList(): void {
     const varTag = this.#getU32();
@@ -321,7 +317,8 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to get the current offset
+   * @returns - the current offset
    */
   #getOffset(): number {
     if (this.is64) return Number(this.#getU64());
@@ -329,7 +326,8 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to get a 32 but value under the cursor
+   * @returns - a 32 bit value
    */
   #getU32() {
     const data = this.reader.getUint32(this.#cursor);
@@ -338,7 +336,8 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to get a 64 but value under the cursor
+   * @returns - a 64 bit value
    */
   #getU64() {
     const data = this.reader.getBigUint64(this.#cursor);
@@ -347,7 +346,8 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   *
+   * Internal method to read a string under the cursor
+   * @returns - a string
    */
   #getName() {
     const nameLength = this.#getU32();
@@ -358,8 +358,9 @@ export class NetCDFReader implements FeatureIterator {
   }
 
   /**
-   * @param type
-   * @param size
+   * @param type - the data type
+   * @param size - the data size
+   * @returns - the data
    */
   #getType(type: CDFDataType, size: number): string | number | number[] {
     let res: string | number | number[];
@@ -403,7 +404,6 @@ export class NetCDFReader implements FeatureIterator {
 
   /**
    * Read data for the given non-record variable
-   * @param buffer - Buffer for the file data
    * @param variable - Variable metadata
    * @returns - Data of the element
    */
@@ -421,9 +421,7 @@ export class NetCDFReader implements FeatureIterator {
 
   /**
    * Read data for the given record variable
-   * @param buffer - Buffer for the file data
    * @param variable - Variable metadata
-   * @param recordDimension - Record dimension metadata
    * @returns - Data of the element
    */
   #getRecord(variable: CDFVariable): CDFValue[] {

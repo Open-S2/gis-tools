@@ -225,7 +225,7 @@ test('fromURL', async () => {
   const server = buildServer();
   const shp = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.zip`);
   const shp2 = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.shp`);
-  server.stop();
+  await server.stop();
 
   expect(shp.getHeader()).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],

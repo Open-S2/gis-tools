@@ -6,8 +6,7 @@ declare let self: Worker;
 
 /**
  * A worker that sorts a chunk of a file and sends it to an output directory
- * @param event - the sort chunk message
- * @param _event
+ * @param _event - the sort chunk message
  */
 self.onmessage = (_event: Bun.MessageEvent<unknown>): void => {
   // void sortChunk(event.data as SortChunk).then((outFile): void => {

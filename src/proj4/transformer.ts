@@ -4,12 +4,12 @@ import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
-import type { VectorPoint } from '../geometry';
 import type {
   ProjectionParams,
   ProjectionTransform,
   ProjectionTransformDefinition,
 } from './projections';
+import type { Properties, VectorPoint } from '../geometry';
 
 /**
  * A Transformer class contains all projections necessary for converting coordinates from one
@@ -111,7 +111,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
    */
-  forward(p: VectorPoint, enforceAxis = false): VectorPoint {
+  forward<M extends Properties>(p: VectorPoint<M>, enforceAxis = false): VectorPoint<M> {
     return this.#transformPoint(p, this.source, this.destination, enforceAxis);
   }
 
@@ -120,7 +120,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "source" projection
    */
-  inverse(p: VectorPoint, enforceAxis = false): VectorPoint {
+  inverse<M extends Properties>(p: VectorPoint<M>, enforceAxis = false): VectorPoint<M> {
     return this.#transformPoint(p, this.destination, this.source, enforceAxis);
   }
 
@@ -131,14 +131,14 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - transformed point
    */
-  #transformPoint(
-    sourcePoint: VectorPoint,
+  #transformPoint<M extends Properties>(
+    sourcePoint: VectorPoint<M>,
     src: ProjectionTransform,
     dest: ProjectionTransform,
     enforceAxis: boolean,
-  ): VectorPoint {
+  ): VectorPoint<M> {
     // Workaround for datum shifts towgs84, if either source or destination projection is not wgs84
-    let res = { ...sourcePoint };
+    let res: VectorPoint<M> = { ...sourcePoint };
     if (src === dest) return res;
     const hasZ = sourcePoint.z !== undefined;
     if (checkNotWGS(src, dest)) {
@@ -204,7 +204,11 @@ export function injectAllEPSGCodes(transformer: Transformer): void {
  * @param prj - the projection
  * @param denorm - denormalizes z if true
  */
-function adjustAxis(point: VectorPoint, prj: ProjectionTransform, denorm: boolean): void {
+function adjustAxis<M extends Properties>(
+  point: VectorPoint<M>,
+  prj: ProjectionTransform,
+  denorm: boolean,
+): void {
   const xin = point.x;
   const yin = point.y;
   const zin = point.z ?? 0;

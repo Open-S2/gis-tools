@@ -61,9 +61,10 @@ export class Uint64CellGenerator {
   }
 
   /**
-   * @param type
-   * @param bits
-   * @param input
+   * @param type - left shift or right shift
+   * @param bits - number of bits
+   * @param input - Uint64 to shift
+   * @returns - shifted Uint64
    */
   shift(type: 'LEFT' | 'RIGHT', bits: number, input: Uint64Cell): Uint64Cell {
     const shift =
@@ -78,9 +79,10 @@ export class Uint64CellGenerator {
   }
 
   /**
-   * @param type
-   * @param a
-   * @param b
+   * @param type - `ADD` | `SUB` | `DIV` | `MUL` | `BIT_AND` | `BIT_OR` | `BIT_XOR`
+   * @param a - first Uint64
+   * @param b - second Uint64
+   * @returns - resultant Uint64
    */
   math(type: MathTypes, a: Uint64Cell, b: Uint64Cell): Uint64Cell {
     const math = this.#getMath(type);
@@ -92,7 +94,8 @@ export class Uint64CellGenerator {
   }
 
   /**
-   * @param type
+   * @param type - `ADD` | `SUB` | `DIV` | `MUL` | `BIT_AND` | `BIT_OR` | `BIT_XOR`
+   * @returns - the appropriate wasm function
    */
   #getMath(type: MathTypes): WasmArithmetic {
     if (type === 'ADD') return this.instance.exports.add as WasmArithmetic;
@@ -106,7 +109,8 @@ export class Uint64CellGenerator {
   }
 
   /**
-   * @param input
+   * @param input - Uint64 to invert
+   * @returns - inverted Uint64
    */
   not(input: Uint64Cell): Uint64Cell {
     const bit_not = this.instance.exports.bit_not as WasmNot;
@@ -137,16 +141,15 @@ export class Uint64CellGenerator {
 const cellGen = new Uint64CellGenerator();
 
 /**
- *
+ * A 64 bit unsigned integer
  */
 export class Uint64Cell {
-  /**
-   * @param id
-   */
+  /** @param id - a number to convert */
   constructor(readonly id: Uint64Ref) {}
 
   /**
-   * @param id
+   * @param id - a number to convert
+   * @returns - an Uint64Cell with the appropriate id and functions
    */
   static fromNumber(id: number): Uint64Cell {
     return cellGen.fromLowHigh(id >>> 0, Math.floor(id / 0x100000000) >>> 0);
@@ -163,39 +166,40 @@ export class Uint64Cell {
   }
 
   /**
-   * @param low
-   * @param high
+   * @param low - low 32 bits
+   * @param high - high 32 bits
+   * @returns - an Uint64Cell with the appropriate id and functions
    */
   static fromLowHigh(low: number, high: number): Uint64Cell {
     return cellGen.fromLowHigh(low, high);
   }
 
   /**
-   * @param id
-   * @param bits
+   * @param bits - number of bits
+   * @returns - shifted Uint64
    */
   shiftLeft(bits: number): Uint64Cell {
     return cellGen.shift('LEFT', bits, this);
   }
 
   /**
-   * @param id
-   * @param bits
+   * @param bits - number of bits
+   * @returns - shifted Uint64
    */
   shiftRight(bits: number): Uint64Cell {
     return cellGen.shift('RIGHT', bits, this);
   }
 
   /**
-   *
+   * @returns - inverted Uint64
    */
   not(): Uint64Cell {
     return cellGen.not(this);
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the sum of `this` and `b`
    */
   add(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -203,8 +207,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the difference of `this` and `b`
    */
   sub(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -212,8 +216,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the product of `this` and `b`
    */
   mul(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -221,8 +225,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the quotient of `this` and `b`
    */
   div(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -230,8 +234,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the and of `this` and `b`
    */
   bitAnd(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -239,8 +243,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the or of `this` and `b`
    */
   bitOr(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -248,8 +252,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - the xor of `this` and `b`
    */
   bitXor(b: number | Uint64Cell): Uint64Cell {
     b = typeof b === 'number' ? Uint64(b) : b;
@@ -257,7 +261,7 @@ export class Uint64Cell {
   }
 
   /**
-   * @param id
+   * @returns - low and high bits of `this`
    */
   toLoHi(): Uint64LoHi {
     const low_bits = cellGen.instance.exports.low_bits as WasmLoBits;
@@ -286,8 +290,8 @@ export class Uint64Cell {
   }
 
   /**
-   * @param a
-   * @param b
+   * @param b - the number to compare
+   * @returns - -1 if `this` is less than `b`, 0 if `this` is equal to `b`, 1 if `this` is greater than `b`
    */
   compare(b: number | Uint64Cell): -1 | 0 | 1 {
     const comparitor = cellGen.instance.exports.compare_uint64 as WasmUint64Comparitor;
@@ -296,42 +300,48 @@ export class Uint64Cell {
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is equal to `b`
    */
   eq(b: number | Uint64Cell): boolean {
     return this.compare(b) === 0;
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is not equal to `b`
    */
   neq(b: number | Uint64Cell): boolean {
     return this.compare(b) !== 0;
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is less than `b`
    */
   lt(b: number | Uint64Cell): boolean {
     return this.compare(b) === -1;
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is less than or equal to `b`
    */
   lte(b: number | Uint64Cell): boolean {
     return this.compare(b) <= 0;
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is greater than `b`
    */
   gt(b: number | Uint64Cell): boolean {
     return this.compare(b) === 1;
   }
 
   /**
-   * @param b
+   * @param b - the number to compare
+   * @returns - true if `this` is greater than or equal to `b`
    */
   gte(b: number | Uint64Cell): boolean {
     return this.compare(b) >= 0;
@@ -349,8 +359,9 @@ export function Uint64(input: number | Uint64Cell): Uint64Cell {
 }
 
 /**
- * @param lo
- * @param hi
+ * @param lo - low 32 bits
+ * @param hi - high 32 bits
+ * @returns - an Uint64Cell with the appropriate id and functions
  */
 export function Uint64LoHi(lo: number, hi: number): Uint64Cell {
   return cellGen.fromLowHigh(lo, hi);

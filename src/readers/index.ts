@@ -2,6 +2,7 @@ import type { Features } from '../geometry';
 
 export * from './csv';
 export * from './geotiff';
+export * from './grib2';
 export * from './json';
 export * from './osm';
 export * from './pmtiles';
@@ -29,7 +30,7 @@ export interface Reader {
   getUint32: (byteOffset: number, littleEndian?: boolean) => number;
   getUint8: (byteOffset: number) => number;
   // Methods
-  slice: (begin: number, end: number) => DataView<ArrayBuffer>;
+  slice: (begin?: number, end?: number) => DataView<ArrayBuffer>;
   setStringEncoding: (encoding: string) => void;
   parseString: (byteOffset: number, byteLength: number) => string;
   getRange: (offset: number, length: number) => Promise<Uint8Array<ArrayBuffer>>;
@@ -58,9 +59,9 @@ export class BufferReader extends DataView<ArrayBuffer> implements Reader {
    * @param end - end of the slice. If not provided, the end of the data is used
    * @returns - a DataView of the slice
    */
-  slice(begin: number, end: number): DataView<ArrayBuffer> {
+  slice(begin?: number, end?: number): DataView<ArrayBuffer> {
     return new DataView(
-      this.buffer.slice(this.byteOffset + begin, this.byteOffset + (end ?? this.byteLength)),
+      this.buffer.slice(this.byteOffset + (begin ?? 0), this.byteOffset + (end ?? this.byteLength)),
     );
   }
 

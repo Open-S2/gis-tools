@@ -13,16 +13,12 @@ export class SGP4GPU {
   #bindGroup0!: GPUBindGroup;
   #bindGroup1!: GPUBindGroup;
   #size = 0;
-  /**
-   * @param device
-   */
+  /** @param device - The GPU device */
   constructor(device: GPUDevice) {
     this.#device = device;
   }
 
-  /**
-   *
-   */
+  /** Initialize the GPU */
   async init(): Promise<void> {
     const layout = (this.#layout = this.#device.createBindGroupLayout({
       entries: [
@@ -87,9 +83,9 @@ export class SGP4GPU {
     });
   }
 
-  // returns the distance GPU Buffer incase you want to use it
   /**
-   * @param sats
+   * @param sats - an array of Satellites
+   * @returns - the distance GPU Buffer incase you want to use it
    */
   prepareData(sats: Satellite[]): GPUBuffer {
     const size = (this.#size = sats.length);
@@ -181,9 +177,9 @@ export class SGP4GPU {
     return gpuBufferOut;
   }
 
-  // returns the distance GPU Buffer incase you want to use it
   /**
-   * @param tsince
+   * Sets the current time for future calculations
+   * @param tsince - seconds
    */
   setTime(tsince: number): void {
     // ? Prep buffer
@@ -211,15 +207,18 @@ export class SGP4GPU {
     this.#bindGroup1 = this.#device.createBindGroup({ layout: this.#layout, entries });
   }
 
-  // const commandEncoder = device.createCommandEncoder()
-  // const passEncoder = commandEncoder.beginComputePass()
-  // do stuff...
-  // this.run(passEncoder)
-  // do stuff...
-  // passEncoder.end()
   /**
-   * @param passEncoder
-   * @param blockSize
+   * Runner for the GPU
+   * ```ts
+   *  const commandEncoder = device.createCommandEncoder()
+   * const passEncoder = commandEncoder.beginComputePass()
+   * do stuff...
+   * this.run(passEncoder)
+   * do stuff...
+   * passEncoder.end()
+   * ```
+   * @param passEncoder - GPUComputePassEncoder
+   * @param blockSize - number to use as block size on the GPU for parallel computations
    */
   run(passEncoder: GPUComputePassEncoder, blockSize = 256): void {
     const numBlocks = Math.ceil((this.#size + blockSize - 1) / blockSize);
@@ -230,19 +229,22 @@ export class SGP4GPU {
     passEncoder.dispatchWorkgroups(numBlocks);
   }
 
-  // run this command after sending all instructions to passEncoder but BEFORE submitting to the queue
-  // const gpuBufferOut = this.prepareData({ ... })
-  // ...
-  // this.run(passEncoder)
-  // passEncoder.end()
-  // this.createReadDistBuffer(gpuBufferOut)
-  // device.queue.submit([commandEncoder.finish()])
-  // await gpuReadBufferDist.mapAsync(GPUMapMode.READ)
-  // const resultDist = gpuReadBufferDist.getMappedRange()
-  // const resultAB = new Float32Array(resultDist)
   /**
-   * @param commandEncoder
-   * @param gpuBufferOut
+   * run this command after sending all instructions to passEncoder but BEFORE submitting to the queue
+   * ```ts
+   * const gpuBufferOut = this.prepareData({ ... })
+   * ...
+   * this.run(passEncoder)
+   * passEncoder.end()
+   * this.createReadDistBuffer(gpuBufferOut)
+   * device.queue.submit([commandEncoder.finish()])
+   * await gpuReadBufferDist.mapAsync(GPUMapMode.READ)
+   * const resultDist = gpuReadBufferDist.getMappedRange()
+   * const resultAB = new Float32Array(resultDist)
+   * ```
+   * @param commandEncoder - GPUCommandEncoder
+   * @param gpuBufferOut - source GPU Buffer
+   * @returns - the resultant GPU Buffer
    */
   createReadDistBuffer(commandEncoder: GPUCommandEncoder, gpuBufferOut: GPUBuffer): GPUBuffer {
     const size = this.#size * 7 * 4;
