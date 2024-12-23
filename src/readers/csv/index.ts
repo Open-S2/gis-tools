@@ -1,4 +1,6 @@
-import type { FeatureIterator, Reader } from '..';
+import { toReader } from '..';
+
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
 
 /** User defined options on how to parse the CSV file */
@@ -17,6 +19,7 @@ export interface CSVReaderOptions {
 
 /** Parse (Geo|S2)JSON from a file that is in the CSV format */
 export class CSVReader implements FeatureIterator {
+  reader: Reader;
   #delimiter: string;
   #lineDelimiter: string;
   #lonKey = 'lon';
@@ -25,13 +28,11 @@ export class CSVReader implements FeatureIterator {
   #firstLine = true;
   #fields: string[] = [];
   /**
-   * @param reader - the reader to parse from
+   * @param input - the input data to parse from
    * @param options - user defined options on how to parse the CSV file
    */
-  constructor(
-    public reader: Reader,
-    options?: CSVReaderOptions,
-  ) {
+  constructor(input: ReaderInputs, options?: CSVReaderOptions) {
+    this.reader = toReader(input);
     this.#delimiter = options?.delimiter ?? ',';
     this.#lineDelimiter = options?.lineDelimiter ?? '\n';
     this.#lonKey = options?.lonKey ?? 'lon';

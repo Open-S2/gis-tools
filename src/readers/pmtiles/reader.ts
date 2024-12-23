@@ -1,12 +1,12 @@
 import { Cache as DirCache } from '../../dataStructures/cache';
-import { FetchReader } from '..';
 import { concatUint8Arrays } from '../../util';
 import { Compression, bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
+import { FetchReader, toReader } from '..';
 import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles';
 
-import type { Reader } from '..';
 import type { Entry, Header } from './pmtiles';
 import type { Face, Metadata } from 's2-tilejson';
+import type { Reader, ReaderInputs } from '..';
 import type { S2Entries, S2Header } from './s2pmtiles';
 
 /** The File reader is to be used by bun/node/deno on the local filesystem. */
@@ -27,14 +27,14 @@ export class S2PMTilesReader {
    * @param maxSize - the max size of the cache before dumping old data. Defaults to 20.
    */
   constructor(
-    readonly path: string | Reader,
+    readonly path: string | ReaderInputs,
     rangeRequests: boolean = false,
     maxSize = 20,
   ) {
     if (typeof path === 'string') {
       this.#reader = new FetchReader(path, rangeRequests);
     } else {
-      this.#reader = path;
+      this.#reader = toReader(path);
     }
     this.#dirCache = new DirCache(maxSize);
   }

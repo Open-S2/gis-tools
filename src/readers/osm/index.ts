@@ -6,11 +6,12 @@ import { intermediateRelationToVectorFeature } from './relation';
 import { intermediateWayToVectorFeature } from './way';
 import { mergeRelationIfExists } from './node';
 import { tmpdir } from 'os';
+import { toReader } from '..';
 import { Blob, BlobHeader } from './blob';
 
 import type { Metadata } from './primitive';
 import type { OSMHeader } from './headerBlock';
-import type { FeatureIterator, Reader } from '..';
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { IntermediateNodeMember, IntermediateRelation } from './relation';
 import type { IntermediateWay, WayNodes } from './way';
 import type { KVStore, KVStoreConstructor } from '../../dataStore';
@@ -131,6 +132,7 @@ export interface OsmReaderOptions {
  * https://wiki.openstreetmap.org/wiki/PBF_Format
  */
 export class OSMReader implements FeatureIterator<Metadata> {
+  reader: Reader;
   /** if true, remove nodes that have no tags [Default = true] */
   removeEmptyNodes: boolean;
   /** If provided, filters of the  */
@@ -159,13 +161,14 @@ export class OSMReader implements FeatureIterator<Metadata> {
   #offset = 0;
 
   /**
-   * @param reader - The reader input (may be a local memory filter or file reader)
+   * @param input - The input (may be a local memory filter or file reader)
    * @param options - User defined options to apply when reading the OSM file
    */
   constructor(
-    public reader: Reader,
+    input: ReaderInputs,
     public options?: OsmReaderOptions,
   ) {
+    this.reader = toReader(input);
     this.removeEmptyNodes = options?.removeEmptyNodes ?? true;
     this.tagFilter = options?.tagFilter;
     this.skipNodes = options?.skipNodes ?? false;

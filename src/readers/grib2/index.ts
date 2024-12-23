@@ -1,9 +1,9 @@
-import { BufferReader } from '..';
 import { splitSectionChunks } from './sections';
+import { BufferReader, toReader } from '..';
 
-import type { Reader } from '..';
 import type { ProductDefinition, Sections } from './sections';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
+import type { Reader, ReaderInputs } from '..';
 
 export * from './jpeg2000';
 
@@ -170,8 +170,8 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
 export class GRIB2Reader {
   packets: Sections[] = [];
   /** @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file */
-  constructor(readers: Reader | Reader[]) {
-    const gribChunks = Array.isArray(readers) ? readers : splitGribChunks(readers);
+  constructor(readers: ReaderInputs | Reader[]) {
+    const gribChunks = Array.isArray(readers) ? readers : splitGribChunks(toReader(readers));
     for (const gribChunk of gribChunks) this.packets.push(splitSectionChunks(gribChunk));
   }
 

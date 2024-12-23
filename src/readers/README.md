@@ -11,7 +11,6 @@
 ### OTHERS
 
 - [ ] GTFS
-- [ ] netCDF
 - [ ] gdb (in gzipped form)
 - [ ] Images (.png, .jpg, .gif)
 - [ ] LAS/LAZ

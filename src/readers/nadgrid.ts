@@ -1,6 +1,7 @@
-import type { Reader } from '.';
+import { toReader } from '.';
 
 import type { FeatureCollection, VectorFeature, VectorMultiPoint, VectorPoint } from '../geometry';
+import type { Reader, ReaderInputs } from '.';
 
 /**
  * Resources for details of NTv2 file formats:
@@ -50,12 +51,12 @@ export class NadGridStore {
   }
 
   /**
-   * Add a grid given a reader input
+   * Add a grid given a data input
    * @param key - the key or name of the grid
-   * @param reader - the input data to parse
+   * @param input - the input data to parse
    */
-  addGridFromReader(key: string, reader: Reader): void {
-    const grid = new NadGrid(key, reader);
+  addGridFromReader(key: string, input: ReaderInputs): void {
+    const grid = new NadGrid(key, input);
     this.addGrid(grid);
   }
 
@@ -138,18 +139,20 @@ export interface NadGridMetadata {
 
 /** Load a binary NTv2 file (.gsb) */
 export class NadGrid {
+  reader: Reader;
   #isLittleEndian = false;
   #header!: NadGridHeader;
   subgrids: NadSubGrid[] = [];
 
   /**
    * @param key - the key or name of the grid
-   * @param reader - the input data to parse
+   * @param input - the input data to parse
    */
   constructor(
     public key: string,
-    public reader: Reader,
+    input: ReaderInputs,
   ) {
+    this.reader = toReader(input);
     this.#isLittleEndian = this.#detectLittleEndian();
     this.#readHeader();
     this.#readSubGrids();

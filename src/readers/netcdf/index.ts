@@ -1,4 +1,6 @@
-import type { FeatureIterator, Reader } from '..';
+import { toReader } from '..';
+
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
 
 /** The kind of data that can be stored in a NetCDF file */
@@ -101,6 +103,7 @@ export interface NetCDFReaderOptions {
  * @param data - ArrayBuffer or any Typed Array (including Node.js' Buffer from v4) with the data
  */
 export class NetCDFReader implements FeatureIterator {
+  private reader: Reader;
   readonly recordDimension: CDFRecordDimension = { size: 0 };
   /** List of dimensions */
   readonly dimensions: CDFDimension[] = [];
@@ -118,18 +121,16 @@ export class NetCDFReader implements FeatureIterator {
   #propFields: string[];
 
   /**
-   * @param reader - The data as either a buffer or file reader
+   * @param input - The data as either a buffer or file reader
    * @param options - User defined options to apply when reading the NetCDF file
    */
-  constructor(
-    private reader: Reader,
-    options?: NetCDFReaderOptions,
-  ) {
+  constructor(input: ReaderInputs, options?: NetCDFReaderOptions) {
+    this.reader = toReader(input);
     // Validate that it's a NetCDF file
     const magic = this.reader.parseString(0, 3);
     if (magic !== 'CDF') throw new TypeError('Not a valid NetCDF file: should start with CDF');
     // Check the NetCDF format
-    this.is64 = reader.getUint8(3) === 1 ? false : true;
+    this.is64 = this.reader.getUint8(3) === 1 ? false : true;
     // Read the header
     this.#parseHeader();
 

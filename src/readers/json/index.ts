@@ -1,4 +1,6 @@
-import type { FeatureIterator, Reader } from '..';
+import { toReader } from '..';
+
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { Features, JSONCollection } from '../../geometry';
 
 /** Standard Buffer Reader for (Geo|S2)JSON */
@@ -41,8 +43,11 @@ export class BufferJSONReader implements FeatureIterator {
 
 /** Parse (Geo|S2)JSON from a file that is in a newline-delimited format */
 export class NewLineDelimitedJSONReader implements FeatureIterator {
-  /** @param reader - the reader to parse from */
-  constructor(public reader: Reader) {}
+  reader: Reader;
+  /** @param input - the input to parse from */
+  constructor(input: ReaderInputs) {
+    this.reader = toReader(input);
+  }
 
   /**
    * Generator to iterate over each (Geo|S2)JSON object in the file
@@ -81,6 +86,7 @@ const STRING = 0x22;
 
 /** A File Reader is designed to read millions of JSON objects if necessary. */
 export class JSONReader {
+  reader: Reader;
   #chunkSize = 65_536;
   #buffer: Uint8Array = new Uint8Array();
   #offset = 0;
@@ -93,15 +99,13 @@ export class JSONReader {
   #isObject = true;
 
   /**
-   * @param reader - the reader to parse from
+   * @param input - the input to parse from
    * @param chunkSize - the number of bytes to read at a time from the reader. [Default: 65_536]
    */
-  constructor(
-    public reader: Reader,
-    chunkSize?: number,
-  ) {
+  constructor(input: ReaderInputs, chunkSize?: number) {
+    this.reader = toReader(input);
     if (chunkSize !== undefined) this.#chunkSize = chunkSize;
-    this.#length = reader.byteLength;
+    this.#length = this.reader.byteLength;
   }
 
   /**

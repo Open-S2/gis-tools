@@ -1,5 +1,7 @@
+import { toReader } from '..';
+
 import type { Properties } from '../../geometry';
-import type { Reader } from '..';
+import type { Reader, ReaderInputs } from '..';
 
 /** The Header data explaining the contents of the DBF file */
 export interface DBFHeader {
@@ -27,18 +29,17 @@ export interface DBFRow {
 
 /** A DBF file class to parse the data from a DBF */
 export class DataBaseFile {
+  reader: Reader;
   #header!: DBFHeader;
   #rows: DBFRow[];
 
   /**
-   * @param reader - the input data structure to parse
+   * @param input - the input data structure to parse
    * @param encoding - the encoding of the raw data. defaults to 'utf-8'
    */
-  constructor(
-    public reader: Reader,
-    encoding?: string,
-  ) {
-    if (encoding !== undefined) reader.setStringEncoding(encoding);
+  constructor(input: ReaderInputs, encoding?: string) {
+    this.reader = toReader(input);
+    if (encoding !== undefined) this.reader.setStringEncoding(encoding);
     this.#parseHeader();
     this.#rows = this.#parseRowHeader();
   }

@@ -41,6 +41,32 @@ export interface FeatureIterator<M = Record<string, unknown>> {
   [Symbol.asyncIterator]: () => AsyncGenerator<Features<M>>;
 }
 
+/** All input types that can be placed into a reader */
+export type ReaderInputs =
+  | Reader
+  | BufferReader
+  | Buffer<ArrayBuffer>
+  | ArrayBuffer
+  | Uint8Array<ArrayBuffer>
+  | Uint8ClampedArray<ArrayBuffer>
+  | Uint16Array<ArrayBuffer>
+  | Uint32Array<ArrayBuffer>
+  | Int8Array<ArrayBuffer>
+  | Int16Array<ArrayBuffer>
+  | Int32Array<ArrayBuffer>
+  | DataView<ArrayBuffer>;
+
+/**
+ * @param input - the input data
+ * @returns - a BufferReader
+ */
+export function toReader(input: ReaderInputs): Reader {
+  if (input instanceof BufferReader) return input;
+  else if ('buffer' in input) return new BufferReader(input.buffer);
+  else if (input instanceof ArrayBuffer) return new BufferReader(input);
+  else return input;
+}
+
 /** A buffer reader is an extension of a DataView with some extra methods */
 export class BufferReader extends DataView<ArrayBuffer> implements Reader {
   textDecoder = new TextDecoder('utf-8');

@@ -2,10 +2,11 @@
 import '../../util/polyfills/dataview';
 import { GeoTIFFHeaderReader } from './header';
 import { GeoTIFFImage } from './image';
+import { toReader } from '..';
 
-import type { Reader } from '..';
 import type { GeoTIFFMetadata, RGBA } from './image';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
+import type { Reader, ReaderInputs } from '..';
 
 export * from './color';
 export * from './constants';
@@ -26,17 +27,19 @@ export interface GridReader {
  */
 export class GeoTIFFReader extends GeoTIFFHeaderReader {
   gridStore: GridReader[] = [];
-  /** @param reader - the geotiff reader to parse data from */
-  constructor(reader: Reader) {
+  /** @param input - the geotiff input to parse data from */
+  constructor(input: ReaderInputs) {
+    const reader = toReader(input);
     super(reader);
   }
 
   /**
    * Add a grid reader
    * @param key - the key or name of the grid
-   * @param reader - the input data to parse
+   * @param input - the input data to parse
    */
-  addGridReader(key: string, reader: Reader): void {
+  addGridReader(key: string, input: ReaderInputs): void {
+    const reader = toReader(input);
     this.gridStore.push({ key, reader });
   }
 

@@ -1,5 +1,6 @@
 // Implements https://www.esri.com/content/dam/esrisites/sitecore-archive/Files/Pdfs/library/whitepapers/pdfs/shapefile.pdf
 import { extendBBox } from '../../geometry';
+import { toReader } from '..';
 
 import type { DataBaseFile } from './dbf';
 import type { Transformer } from '../../proj4';
@@ -19,7 +20,7 @@ import type {
   VectorPointGeometry,
   VectorPolygonGeometry,
 } from '../../geometry';
-import type { FeatureIterator, Reader } from '..';
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 
 /** A Shapefile Header describing the internal data */
 export interface SHPHeader {
@@ -39,18 +40,20 @@ export interface SHPRow {
 
 /** The Shapefile Reader */
 export class ShapeFile implements FeatureIterator {
+  reader: Reader;
   #header!: SHPHeader;
   rows: number[] = [];
   /**
-   * @param reader - the input data structure to parse
+   * @param input - the input data structure to parse
    * @param dbf - the dbf file
    * @param transform - transform mechanics if they exist
    */
   constructor(
-    public reader: Reader,
+    input: ReaderInputs,
     public dbf?: DataBaseFile,
     public transform?: Transformer,
   ) {
+    this.reader = toReader(input);
     this.#parseHeader();
     this.#getRows();
   }
