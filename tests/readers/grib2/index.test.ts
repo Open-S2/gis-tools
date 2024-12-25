@@ -158,10 +158,10 @@ test('GRIB2Reader using GFS Atmosphere data tooling', async () => {
     '14',
     '12',
     '003',
-    [':TMP:3 mb:3 hour fcst:', ':UGRD:125 mb:3 hour fcst:', ':VGRD:125 mb:3 hour fcst:'],
+    ['TMP:2 m'],
   );
 
-  expect(grib2Reader.packets.length).toEqual(3);
+  expect(grib2Reader.packets.length).toEqual(1);
 
   const packetProducts = grib2Reader.packets.map((packet) => {
     const { paramater } = packet.productDefinition?.values ?? {};
@@ -175,22 +175,27 @@ test('GRIB2Reader using GFS Atmosphere data tooling', async () => {
       parameter: 'Temperature',
       units: 'K',
     },
-    {
-      abbrev: 'UGRD',
-      category: 'Momentum (see Table 4.2-0-2)',
-      parameter: 'U-Component of Wind',
-      units: 'm s-1',
-    },
-    {
-      abbrev: 'VGRD',
-      category: 'Momentum (see Table 4.2-0-2)',
-      parameter: 'V-Component of Wind',
-      units: 'm s-1',
-    },
   ]);
 
-  // const first = grib2Reader.packets[0];
-  // console.log(first);
-
   await server.stop();
+
+  // build expected
+  const expectedRaw = await Bun.file(
+    `${__dirname}/fixtures/gfs.20241214/12/atmos/expected_tmp2m.csv`,
+  ).text();
+  const expected: VectorPoint<{ TMP: number }>[] = [];
+  const expectedLines = expectedRaw.split('\n');
+  for (const line of expectedLines.slice(1)) {
+    const [lat, lon, tmp] = line.split(',');
+    expected.push({ x: parseFloat(lon), y: parseFloat(lat), m: { TMP: parseFloat(tmp) } });
+  }
+
+  const features = await Array.fromAsync(grib2Reader);
+  const { coordinates } = features[0].geometry;
+  // compare coordinates against expected
+  for (let i = 0; i < coordinates.length; i++) {
+    expect(coordinates[i].x).toBeCloseTo(expected[i].x);
+    expect(coordinates[i].y).toBeCloseTo(expected[i].y);
+    expect(coordinates[i].m?.TMP).toBeCloseTo(expected[i].m?.TMP ?? 0);
+  }
 });

@@ -96,9 +96,9 @@ function template52(section: Reader) {
   const referenceForGroupWidths = section.getUint8(35); // Octet 36
   const groupWidthsBits = section.getUint8(36); // Octet 37
   const referenceForGroupLengths = section.getUint32(37); // Octets 38–41
-  const lengthIncrement = section.getUint8(41); // Octet 42
+  const groupLengthFactor = section.getUint8(41); // Octet 42
   const trueLengthOfLastGroup = section.getUint32(42); // Octets 43–46
-  const scaledGroupLengthsBits = section.getUint8(46); // Octet 47
+  const nBitsGroupLength = section.getUint8(46); // Octet 47
 
   return {
     /** Reference value (R) (IEEE 32-bit floating-point). Octets 12–15 in the GRIB2 documentation. */
@@ -154,7 +154,7 @@ function template52(section: Reader) {
      * Length increment for group lengths. Octet 42.
      * Used in the formula: Lₙ = ref + Kₙ × len_inc.
      */
-    lengthIncrement,
+    groupLengthFactor,
     /**
      * True length of the last group. Octets 43–46.
      * A special-case group length if the sequence doesn’t fit the formula.
@@ -164,7 +164,7 @@ function template52(section: Reader) {
      * Number of bits used for scaled group lengths (after subtracting ref
      * and dividing by the length increment). Octet 47.
      */
-    scaledGroupLengthsBits,
+    nBitsGroupLength,
   };
 }
 
@@ -202,9 +202,9 @@ function template53(section: Reader) {
   const referenceForGroupWidths = section.getUint8(35);
   const groupWidthsBits = section.getUint8(36);
   const referenceForGroupLengths = section.getUint32(37);
-  const lengthIncrement = section.getUint8(41);
+  const groupLengthFactor = section.getUint8(41);
   const trueLengthOfLastGroup = section.getUint32(42);
-  const scaledGroupLengthsBits = section.getUint8(46);
+  const nBitsGroupLength = section.getUint8(46);
   const orderOfSpatialDifferenceCode = section.getUint8(47);
   const extraDescriptorOctets = section.getUint8(48);
 
@@ -267,7 +267,7 @@ function template53(section: Reader) {
      * Length increment for group lengths. Octet 42.
      * Used in the formula: Lₙ = ref + Kₙ × len_inc.
      */
-    lengthIncrement,
+    groupLengthFactor,
     /**
      * True length of the last group. Octets 43–46.
      * A special-case group length if the sequence doesn’t fit the formula.
@@ -277,7 +277,7 @@ function template53(section: Reader) {
      * Number of bits used for scaled group lengths (after subtracting ref
      * and dividing by the length increment). Octet 47.
      */
-    scaledGroupLengthsBits,
+    nBitsGroupLength,
     /** Order of spatial difference. See Code Table 5.6. Octet 48. */
     orderOfSpatialDifference: {
       code: orderOfSpatialDifferenceCode,
@@ -299,6 +299,7 @@ function template53(section: Reader) {
  * @returns - Parsed Data Representation Information
  */
 function template540(section: Reader) {
+  const originalTypeCode = section.getUint8(20);
   const compressionType = section.getUint8(21);
   return {
     /** Reference value (R) (IEEE 32-bit floating-point value) */
@@ -310,7 +311,10 @@ function template540(section: Reader) {
     /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
     numberOfBits: section.getUint8(19),
     /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
-    originalType: section.getUint8(20),
+    originalType: {
+      code: originalTypeCode,
+      description: lookupTable51[originalTypeCode],
+    },
     /** Type of Compression used. (see [Code Table 5.40](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-40.shtml)) */
     compressionType: {
       code: compressionType,

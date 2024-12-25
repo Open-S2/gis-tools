@@ -22,7 +22,7 @@ export function convertData(reader: Reader, sections: Sections): number[] {
       return simpleUnpacking(reader, drs);
     case 2:
     case 3:
-      return complexUnpacking(reader, drs);
+      return complexUnpacking(reader, sections);
     case 40:
     case 40000: {
       const bms = sections.bitMap;
