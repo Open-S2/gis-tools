@@ -116,6 +116,8 @@ export interface SectionLocations {
   end?: number;
   /** The entire line detailing the section */
   line: string;
+  /** The name of the filter */
+  name: string;
 }
 
 /**
@@ -149,7 +151,7 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
     if (line.length === 0) continue;
     const pieces = line.split(':');
     const offset = parseInt(pieces[offsetPosition], 10);
-    res.push({ start: offset, line });
+    res.push({ start: offset, line, name: line });
   }
   // now add the "end"s
   for (let i = 0; i < res.length - 1; i++) res[i].end = res[i + 1].start;
@@ -157,6 +159,8 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
   if (filters.length > 0) {
     res = res.filter((sL) => filters.some((f) => sL.line.includes(f)));
   }
+  // set names to filter names
+  for (let i = 0; i < res.length; i++) res[i].name = filters[i];
 
   return res;
 }
@@ -169,8 +173,14 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
  */
 export class GRIB2Reader {
   packets: Sections[] = [];
-  /** @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file */
-  constructor(readers: ReaderInputs | Reader[]) {
+  /**
+   * @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file
+   * @param idxs - The list of section locations we will be parsing
+   */
+  constructor(
+    readers: ReaderInputs | Reader[],
+    private idxs?: SectionLocations[],
+  ) {
     const gribChunks = Array.isArray(readers) ? readers : splitGribChunks(toReader(readers));
     for (const gribChunk of gribChunks) this.packets.push(splitSectionChunks(gribChunk));
   }
@@ -195,7 +205,7 @@ export class GRIB2Reader {
         readers.push(new BufferReader(source.slice(idx.start, idx.end).buffer));
       }
     }
-    return new GRIB2Reader(readers);
+    return new GRIB2Reader(readers, idxs);
   }
 
   /**
@@ -213,9 +223,10 @@ export class GRIB2Reader {
     const geometry = this.packets[0].gridDefinition?.values.buildGrid();
     if (geometry === undefined) return;
     // add M-Values from each packet
-    for (const packet of this.packets) {
-      const { abbrev } = packet.productDefinition?.values.paramater ?? {};
-      if (abbrev === undefined) continue;
+    // for (const packet of this.packets) {
+    for (let i = 0; i < this.packets.length; i++) {
+      const packet = this.packets[i];
+      const name = this.idxs?.[i]?.name ?? String(i);
       const data = packet.data?.getData();
       if (data === undefined) continue;
       for (let i = 0; i < data.length; i++) {
@@ -223,7 +234,7 @@ export class GRIB2Reader {
         if (mValue === undefined) continue;
         const geo = geometry[i];
         if (geo.m === undefined) geo.m = {};
-        geo.m[abbrev] = mValue;
+        geo.m[name] = mValue;
       }
     }
 

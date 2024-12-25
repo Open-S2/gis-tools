@@ -36,7 +36,7 @@ test('Basic GRIB2 case', async () => {
   for (let i = 0; i < coordinates.length; i++) {
     expect(coordinates[i].x).toBeCloseTo(expected[i].x);
     expect(coordinates[i].y).toBeCloseTo(expected[i].y);
-    expect(coordinates[i].m?.TMP).toBeCloseTo(expected[i].m?.TMP ?? 0);
+    expect(coordinates[i].m?.['0']).toBeCloseTo(expected[i].m?.TMP ?? 0);
   }
 });
 
@@ -53,15 +53,18 @@ test('parseIDX', async () => {
       start: 1231864,
       line: '12:1231864:d=2024042612:DZDT:0.01 mb:anl:',
       end: 1337928,
+      name: ':DZDT:0.01 mb:',
     },
     {
       start: 7024838,
       line: '68:7024838:d=2024042612:TMP:0.4 mb:anl:',
       end: 7122757,
+      name: ':TMP:0.4 mb:',
     },
     {
       start: 7710271,
       line: '75:7710271:d=2024042612:ABSV:0.4 mb:anl:',
+      name: ':ABSV:0.4 mb:anl:',
     },
   ]);
 });
@@ -183,19 +186,20 @@ test('GRIB2Reader using GFS Atmosphere data tooling', async () => {
   const expectedRaw = await Bun.file(
     `${__dirname}/fixtures/gfs.20241214/12/atmos/expected_tmp2m.csv`,
   ).text();
-  const expected: VectorPoint<{ TMP: number }>[] = [];
+  const expected: VectorPoint<{ 'TMP:2 m': number }>[] = [];
   const expectedLines = expectedRaw.split('\n');
   for (const line of expectedLines.slice(1)) {
     const [lat, lon, tmp] = line.split(',');
-    expected.push({ x: parseFloat(lon), y: parseFloat(lat), m: { TMP: parseFloat(tmp) } });
+    expected.push({ x: parseFloat(lon), y: parseFloat(lat), m: { 'TMP:2 m': parseFloat(tmp) } });
   }
 
   const features = await Array.fromAsync(grib2Reader);
+  // console.log('grib2Reader', grib2Reader);
   const { coordinates } = features[0].geometry;
   // compare coordinates against expected
   for (let i = 0; i < coordinates.length; i++) {
     expect(coordinates[i].x).toBeCloseTo(expected[i].x);
     expect(coordinates[i].y).toBeCloseTo(expected[i].y);
-    expect(coordinates[i].m?.TMP).toBeCloseTo(expected[i].m?.TMP ?? 0);
+    expect(coordinates[i].m?.['TMP:2 m']).toBeCloseTo(expected[i].m?.['TMP:2 m'] ?? 0);
   }
 });
