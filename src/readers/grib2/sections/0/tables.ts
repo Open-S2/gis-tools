@@ -3,7 +3,7 @@
  *
  * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/on388/table0.html)
  */
-export const lookupTable0: Record<number, string> = {
+export const grib2LookupTable0: Record<number, string> = {
   1: 'Melbourne (WMC)',
   2: 'Melbourne (WMC)',
   3: 'Melbourne (WMC)',
@@ -238,7 +238,7 @@ export const lookupTable0: Record<number, string> = {
  * This table is used to indicate the discipline of the processed data contained within a GRIB message.
  * This number is coded in octet 7 of section 0 of the GRIB2 message.
  */
-export const lookupTable00: Record<number, string> = {
+export const grib2LookupTable00: Record<number, string> = {
   0: 'Meteorological Products',
   1: 'Hydrological Products',
   2: 'Land Surface Products',

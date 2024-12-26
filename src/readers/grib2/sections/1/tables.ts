@@ -21,7 +21,7 @@
  * ## Notes
  * - Revised 12/07/2023
  */
-export const lookupTable10: Record<number, string> = {
+export const grib2LookupTable10: Record<number, string> = {
   0: 'Experimental',
   1: 'Version Implemented on 7 November 2001',
   2: 'Version Implemented on 4 November 2003',
@@ -84,7 +84,7 @@ export const lookupTable10: Record<number, string> = {
  * ## Notes
  * - Created 05/11/2005
  */
-export const lookupTable11: Record<number, string> = {
+export const grib2LookupTable11: Record<number, string> = {
   0: 'Local tables not used. Only table entries and templates from the current master table are valid.',
   // 1-254: Number of local table versions used
   255: 'Missing',
@@ -114,7 +114,7 @@ export const lookupTable11: Record<number, string> = {
  * ## Notes
  * - Revised 06/16/2022
  */
-export const lookupTable12: Record<number, string> = {
+export const grib2LookupTable12: Record<number, string> = {
   0: 'Analysis',
   1: 'Start of Forecast',
   2: 'Verifying Time of Forecast',
@@ -148,7 +148,7 @@ export const lookupTable12: Record<number, string> = {
  * ## Notes
  * - Revised 07/12/2024
  */
-export const lookupTable13: Record<number, string> = {
+export const grib2LookupTable13: Record<number, string> = {
   0: 'Operational Products',
   1: 'Operational Test Products',
   2: 'Research Products',
@@ -193,7 +193,7 @@ export const lookupTable13: Record<number, string> = {
  * ## Notes
  * - Revised 08/23/2023
  */
-export const lookupTable14: Record<number, string> = {
+export const grib2LookupTable14: Record<number, string> = {
   0: 'Analysis Products',
   1: 'Forecast Products',
   2: 'Analysis and Forecast Products',
@@ -233,7 +233,7 @@ export const lookupTable14: Record<number, string> = {
  * ## Notes
  * - Created 07/01/2014
  */
-export const lookupTable15: Record<number, string> = {
+export const grib2LookupTable15: Record<number, string> = {
   0: 'Calendar Definition',
   1: 'Paleontological Offset',
   2: 'Calendar Definition and Paleontological Offset',
@@ -267,7 +267,7 @@ export const lookupTable15: Record<number, string> = {
  * - (1). Essentially a non-leap year
  * - (2). Extends the Gregorian calendar indefinitely in the past
  */
-export const lookupTable16: Record<number, string> = {
+export const grib2LookupTable16: Record<number, string> = {
   0: 'Gregorian',
   1: '360-day',
   2: '365-day (see Note 1)',

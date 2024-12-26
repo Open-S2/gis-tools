@@ -4,7 +4,15 @@ that have u64 support)
 [ ] - toVectorTiles
 [ ] - readers
 [ ] - - KML, KMZ, GML, & GPX
+[ ] - - GBFS
 [ ] - - raster tile reader including DEM for z-data
 [ ] - - LAS/LAZ
 [ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
+
+[ ] - restructure all image based content into a reader folder 'image'
+[ ] - 'png' reader
+
+[ ] - all main functions and classes need example code in the jsdocs
+
+[ ] - translations [BCP-47 language code] [ISO 639-1 language code]

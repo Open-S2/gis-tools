@@ -1,11 +1,14 @@
 import { splitSectionChunks } from './sections';
 import { BufferReader, toReader } from '..';
 
-import type { ProductDefinition, Sections } from './sections';
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
+import type { Grib2ProductDefinition, Grib2Sections } from './sections';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
-import type { Reader, ReaderInputs } from '..';
 
 export * from './jpeg2000';
+export * from './sections';
+
+export type { Grib2ProductDefinition, getGrib2Template4 } from './sections';
 
 /** GFS sources available for download */
 export type Grib2GFSSource = 'aws' | 'ftpprd' | 'nomads' | 'google' | 'azure' | string;
@@ -171,8 +174,8 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
  * @param reader
  * @returns Parsed GRIB file object
  */
-export class GRIB2Reader {
-  packets: Sections[] = [];
+export class GRIB2Reader implements FeatureIterator<Grib2ProductDefinition[]> {
+  packets: Grib2Sections[] = [];
   /**
    * @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file
    * @param idxs - The list of section locations we will be parsing
@@ -213,10 +216,15 @@ export class GRIB2Reader {
    * @yields {VectorFeature}
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
-    VectorFeature<ProductDefinition[], Record<string, number>, Properties, VectorMultiPointGeometry>
+    VectorFeature<
+      Grib2ProductDefinition[],
+      Record<string, number>,
+      Properties,
+      VectorMultiPointGeometry
+    >
   > {
     // setup metadata
-    const productMetadata: ProductDefinition[] = this.packets
+    const productMetadata: Grib2ProductDefinition[] = this.packets
       .map((packet) => packet.productDefinition?.values)
       .filter((p) => p !== undefined);
     // setup geometry

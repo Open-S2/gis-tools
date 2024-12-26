@@ -1,14 +1,19 @@
 import { toReader } from '..';
 
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Features, JSONCollection } from '../../geometry';
+import type { Features, JSONCollection, MValue, Properties } from '../../geometry';
 
 /** Standard Buffer Reader for (Geo|S2)JSON */
-export class BufferJSONReader implements FeatureIterator {
-  data: JSONCollection;
+export class BufferJSONReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
+  data: JSONCollection<M, D, P>;
 
   /** @param data - the JSON data to parase */
-  constructor(data: string | JSONCollection) {
+  constructor(data: string | JSONCollection<M, D, P>) {
     if (typeof data === 'string') {
       this.data = JSON.parse(data);
     } else {
@@ -20,7 +25,7 @@ export class BufferJSONReader implements FeatureIterator {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {Features}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
     const { type } = this.data;
 
     if (type === 'FeatureCollection') {
@@ -42,7 +47,12 @@ export class BufferJSONReader implements FeatureIterator {
 }
 
 /** Parse (Geo|S2)JSON from a file that is in a newline-delimited format */
-export class NewLineDelimitedJSONReader implements FeatureIterator {
+export class NewLineDelimitedJSONReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
   reader: Reader;
   /** @param input - the input to parse from */
   constructor(input: ReaderInputs) {
@@ -53,7 +63,7 @@ export class NewLineDelimitedJSONReader implements FeatureIterator {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {Features}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
     const { reader } = this;
     let cursor = 0;
     let offset = 0;
@@ -85,7 +95,12 @@ const BACKSLASH = 0x5c;
 const STRING = 0x22;
 
 /** A File Reader is designed to read millions of JSON objects if necessary. */
-export class JSONReader {
+export class JSONReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
   reader: Reader;
   #chunkSize = 65_536;
   #buffer: Uint8Array = new Uint8Array();
@@ -112,9 +127,9 @@ export class JSONReader {
    * Generator to iterate over each (Geo|S2)JSON object in the reader.
    * @yields {Features}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
     if (this.#length <= this.#chunkSize) {
-      const reader = new BufferJSONReader(this.reader.parseString(0, this.#length));
+      const reader = new BufferJSONReader<M, D, P>(this.reader.parseString(0, this.#length));
       for await (const feature of reader) yield feature;
       return;
     }
@@ -178,7 +193,7 @@ export class JSONReader {
    * out of the buffer, but we still have file left to read, just read into the buffer and continue on
    * @returns - the feature or nothing if we hit the end of the file
    */
-  nextValue(): undefined | Features {
+  nextValue(): undefined | Features<M, D, P> {
     // get started
     while (this.#pos < this.#chunkSize) {
       if (this.#buffer[this.#pos] === BACKSLASH) {

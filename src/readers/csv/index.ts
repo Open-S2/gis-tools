@@ -1,7 +1,7 @@
 import { toReader } from '..';
 
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
+import type { MValue, Properties, VectorFeature, VectorPoint } from '../../geometry';
 
 /** User defined options on how to parse the CSV file */
 export interface CSVReaderOptions {
@@ -18,7 +18,12 @@ export interface CSVReaderOptions {
 }
 
 /** Parse (Geo|S2)JSON from a file that is in the CSV format */
-export class CSVReader implements FeatureIterator {
+export class CSVReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
   reader: Reader;
   #delimiter: string;
   #lineDelimiter: string;
@@ -44,7 +49,7 @@ export class CSVReader implements FeatureIterator {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {VectorFeature}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<M, D, P>> {
     const { reader } = this;
     let cursor = 0;
     let offset = 0;
@@ -80,12 +85,12 @@ export class CSVReader implements FeatureIterator {
    * @param line - the values mapped to the first lines fields
    * @returns - a GeoJSON Vector Feature
    */
-  #parseLine(line: string): VectorFeature {
+  #parseLine(line: string): VectorFeature<M, D, P> {
     const values = line.split(this.#delimiter).map((v) => v.trim());
 
     let is3D = false;
     const properties: Properties = {};
-    const coordinates: VectorPoint = { x: 0, y: 0 };
+    const coordinates: VectorPoint<D> = { x: 0, y: 0 };
 
     for (let i = 0; i < this.#fields.length; i++) {
       const field = this.#fields[i];
@@ -109,7 +114,7 @@ export class CSVReader implements FeatureIterator {
         is3D,
         coordinates,
       },
-      properties,
+      properties: properties as P,
     };
   }
 
@@ -117,4 +122,29 @@ export class CSVReader implements FeatureIterator {
   #parseFirstLine(line: string): void {
     this.#fields = line.split(this.#delimiter).map((v) => v.trim());
   }
+}
+
+/**
+ * Parse CSV data into a record
+ * @param source - the source of the CSV data
+ * @returns - an object with key-value pairs whose keys and values are both strings
+ */
+export function parseCSVAsRecord(source: string): Record<string, string>[] {
+  const res: Record<string, string>[] = [];
+  const split = source.split('\n');
+  const firstLine = split[0].split(',').map((s) => s.trim());
+  for (let line of split.slice(1)) {
+    line = line.trim();
+    if (line.length === 0) continue;
+    const record: Record<string, string> = {};
+    const values = line.split(',');
+    for (let i = 0; i < firstLine.length; i++) {
+      const value: string | undefined = values[i].replaceAll('"', '');
+      if (value === '' || value === ' ') continue;
+      record[firstLine[i]] = value;
+    }
+    res.push(record);
+  }
+
+  return res;
 }

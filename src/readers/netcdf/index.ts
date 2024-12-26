@@ -1,7 +1,7 @@
 import { toReader } from '..';
 
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Properties, VectorFeature, VectorPoint } from '../../geometry';
+import type { MValue, Properties, VectorFeature, VectorPoint } from '../../geometry';
 
 /** The kind of data that can be stored in a NetCDF file */
 export type CDFValue = string | number | number[];
@@ -102,7 +102,12 @@ export interface NetCDFReaderOptions {
  * [See specification](https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html)
  * @param data - ArrayBuffer or any Typed Array (including Node.js' Buffer from v4) with the data
  */
-export class NetCDFReader implements FeatureIterator {
+export class NetCDFReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
   private reader: Reader;
   readonly recordDimension: CDFRecordDimension = { size: 0 };
   /** List of dimensions */
@@ -165,7 +170,7 @@ export class NetCDFReader implements FeatureIterator {
    * Generator to iterate over each (Geo|S2)JSON object in the file
    * @yields {VectorFeature}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<M, D, P>> {
     const lat = this.getDataVariable(this.#latKey)?.flat() as number[] | undefined;
     const lon = this.getDataVariable(this.#lonKey)?.flat() as number[] | undefined;
     const height =
@@ -177,7 +182,7 @@ export class NetCDFReader implements FeatureIterator {
       fieldProps[field] = this.getDataVariable(field)?.flat() ?? [];
     if (lat === undefined || lon === undefined) return;
     for (let index = 0; index < lat.length; index++) {
-      const point: VectorPoint = { x: lon[index], y: lat[index], z: height?.[index] };
+      const point: VectorPoint<D> = { x: lon[index], y: lat[index], z: height?.[index] };
       const properties: Properties = {};
       for (const field of this.#propFields) properties[field] = fieldProps[field][index];
       yield {
@@ -187,7 +192,7 @@ export class NetCDFReader implements FeatureIterator {
           is3D: point.z !== undefined,
           coordinates: point,
         },
-        properties,
+        properties: properties as P,
       };
     }
   }

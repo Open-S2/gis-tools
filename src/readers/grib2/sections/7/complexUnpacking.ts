@@ -1,5 +1,5 @@
+import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
-import type { Sections } from '..';
 import type { ComplexPackingTemplate, ComplexSpatialPackingTemplate } from '../5';
 
 /**
@@ -64,7 +64,7 @@ import type { ComplexPackingTemplate, ComplexSpatialPackingTemplate } from '../5
  * @param sections - A collection of all sections in the GRIB file.
  * @returns An array of decoded values.
  */
-export function complexUnpacking(reader: Reader, sections: Sections): number[] {
+export function complexUnpacking(reader: Reader, sections: Grib2Sections): number[] {
   // Implementation: https://github.com/NOAA-EMC/wgrib2/blob/a9a04f0e81ff1630b41ebf55ae77ec79474c1845/wgrib2/unpk_complex.c#L24
   // cleaner impl: https://github.com/NOAA-EMC/NCEPLIBS-g2c/blob/develop/src/comunpack.c
   const res: number[] = [];

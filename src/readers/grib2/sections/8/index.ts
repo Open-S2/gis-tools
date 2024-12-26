@@ -1,7 +1,7 @@
 import type { Reader } from '../../..';
 
 /** End Section Return Type */
-export type EndSection = ReturnType<typeof parseSection8>;
+export type Grib2EndSection = ReturnType<typeof parseGrib2Section8>;
 
 /**
  * # SECTION 8 - END SECTION
@@ -11,7 +11,7 @@ export type EndSection = ReturnType<typeof parseSection8>;
  * @param section - byte block for section 8
  * @returns - parsed end section
  */
-export function parseSection8(section: Reader) {
+export function parseGrib2Section8(section: Reader) {
   return {
     /** Name of Grib section */
     sectionName: 'End Section',

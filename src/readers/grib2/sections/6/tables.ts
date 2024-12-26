@@ -19,7 +19,7 @@
  * ## Notes
  * - Revised 05/17/2005
  */
-export const lookupTable60: Record<number, string> = {
+export const grib2LookupTable60: Record<number, string> = {
   0: 'A bit map applies to this product and is specified in this section.',
   // 1-253: A bit map pre-determined by the originating/generating center applies to this product and is not specified in this section.
   254: 'A bit map previously defined in the same GRIB2 message applies to this product.',

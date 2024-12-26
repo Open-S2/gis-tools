@@ -27,7 +27,7 @@
  * - Created 05/11/2005
  * - Red text depicts changes made since 05/11/2005.
  */
-export const lookupTable70: Record<number, string> = {
+export const grib2LookupTable70: Record<number, string> = {
   /** [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-0.shtml) */
   0: 'Grid Point Data - Simple Packing (see Template 7.0)',
   /** [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-1.shtml) */

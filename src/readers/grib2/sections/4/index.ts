@@ -1,13 +1,15 @@
-import { getTemplate4 } from './templates';
-import { lookupTable40 } from './tables';
+import { getGrib2Template4 } from './templates';
+import { grib2LookupTable40 } from './tables';
 
+import type { Grib2Sections } from '../';
 import type { Reader } from '../../..';
-import type { Sections } from '../';
 
-/** The output of `parseSection4` */
-export type ProductDefinitionSection = ReturnType<typeof parseSection4>;
+export { getGrib2Template4 } from './templates';
 
-export type { ProductDefinition } from './templates';
+/** The output of `parseGrib2Section4` */
+export type Grib2ProductDefinitionSection = ReturnType<typeof parseGrib2Section4>;
+
+export type { Grib2ProductDefinition } from './templates';
 
 /**
  *  Product Definition Section
@@ -17,7 +19,7 @@ export type { ProductDefinition } from './templates';
  * @param sections - The other sections that have been parsed (1-3)
  * @returns - Parsed Product Definition Information
  */
-export function parseSection4(reader: Reader, sections: Sections) {
+export function parseGrib2Section4(reader: Reader, sections: Grib2Sections) {
   const productDefinitionTemplate = reader.getUint16(7);
 
   return {
@@ -32,9 +34,9 @@ export function parseSection4(reader: Reader, sections: Sections) {
     /** Product definition template number [Table 4.0](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-0.shtml) */
     productDefinitionTemplate: {
       code: productDefinitionTemplate,
-      definition: lookupTable40[productDefinitionTemplate],
+      definition: grib2LookupTable40[productDefinitionTemplate],
     },
     /** Product definition */
-    values: getTemplate4(productDefinitionTemplate, reader, sections),
+    values: getGrib2Template4(productDefinitionTemplate, reader, sections),
   };
 }

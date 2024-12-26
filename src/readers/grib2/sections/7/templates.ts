@@ -1,10 +1,10 @@
 import { JpxImage } from '../../jpeg2000';
 import { complexUnpacking } from './complexUnpacking';
 
-import type { BitMapSection } from '../6';
-import type { DataRepresentationSection } from '../5';
+import type { Grib2BitMapSection } from '../6';
+import type { Grib2DataRepresentationSection } from '../5';
+import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
-import type { Sections } from '..';
 
 /**
  * Converts data Buffer according to data representation section
@@ -12,7 +12,7 @@ import type { Sections } from '..';
  * @param sections - The sections of the GRIB2 message that have been parsed so far
  * @returns Converted data
  */
-export function convertData(reader: Reader, sections: Sections): number[] {
+export function getGrib2Template7(reader: Reader, sections: Grib2Sections): number[] {
   const drs = sections.dataRepresentation;
   if (drs === undefined) throw new Error('Data Representation Section is not defined');
   const { dataRepresentationTemplate } = drs;
@@ -42,7 +42,7 @@ export function convertData(reader: Reader, sections: Sections): number[] {
  * @param drs - The data representation section
  * @returns - The converted data
  */
-export function simpleUnpacking(reader: Reader, drs: DataRepresentationSection): number[] {
+export function simpleUnpacking(reader: Reader, drs: Grib2DataRepresentationSection): number[] {
   const { numberOfBits, decimalScaleFactor, referenceValue, binaryScaleFactor } =
     drs.dataRepresentation;
   const DD = Math.pow(10, decimalScaleFactor);
@@ -71,8 +71,8 @@ export function simpleUnpacking(reader: Reader, drs: DataRepresentationSection):
  */
 export function jpeg2000Unpacking(
   reader: Reader,
-  drs: DataRepresentationSection,
-  bms: BitMapSection,
+  drs: Grib2DataRepresentationSection,
+  bms: Grib2BitMapSection,
 ): number[] {
   const jpx = new JpxImage(reader);
 

@@ -320,9 +320,9 @@ export class S2PMTilesWriter implements TileWriter {
 /** The result of an optimized directory computation */
 interface OptimizedDirectory {
   /** The root directory bytes */
-  rootBytes: Uint8Array;
+  rootBytes: Uint8Array<ArrayBuffer>;
   /** The leaf directories bytes */
-  leavesBytes: Uint8Array;
+  leavesBytes: Uint8Array<ArrayBuffer>;
   /** The number of leaf directories */
   numLeaves: number;
 }

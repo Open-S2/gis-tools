@@ -1,5 +1,5 @@
 // TEMPLATE INFO: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-1.shtml
-import { lookupTable32, lookupTable33, lookupTable34 } from './tables';
+import { grib2LookupTable32, grib2LookupTable33, grib2LookupTable34 } from './tables';
 
 import type { Reader } from '../../..';
 import type { Transformer } from '../../../../proj4';
@@ -11,10 +11,10 @@ import type { VectorPoint } from '../../../../geometry';
  * @param section - byte block
  * @returns Template generator
  */
-export function getTemplate3(template: number, section: Reader) {
+export function getGrib2Template3(template: number, section: Reader) {
   switch (template) {
     case 0:
-      return template30(section);
+      return grib2Template30(section);
     default:
       throw new Error(`Template 3.${template} not defined`);
   }
@@ -56,7 +56,7 @@ export function getTemplate3(template: number, section: Reader) {
  * @param section - byte block for template 3.0
  * @returns - The parsed template
  */
-function template30(section: Reader) {
+export function grib2Template30(section: Reader) {
   const shape = section.getUint8(14);
   const basicAngle = section.getUint32(38);
   const subdivisions = section.getUint32(42);
@@ -79,7 +79,7 @@ function template30(section: Reader) {
     /** Shape of Earth [Table 3.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-2.shtml) */
     shape: {
       code: shape,
-      value: lookupTable32[shape],
+      value: grib2LookupTable32[shape],
     },
     /** Scale Factor of radius of spherical Earth */
     radiusScaleFactor: section.getUint8(15),
@@ -109,9 +109,9 @@ function template30(section: Reader) {
     resolution: {
       code: resolutionCode,
       value: {
-        iDirectionIncrements: { code: bit3, value: lookupTable33[3][bit3] },
-        jDirectionIncrements: { code: bit4, value: lookupTable33[4][bit4] },
-        vectorComponentResolution: { code: bit5, value: lookupTable33[5][bit5] },
+        iDirectionIncrements: { code: bit3, value: grib2LookupTable33[3][bit3] },
+        jDirectionIncrements: { code: bit4, value: grib2LookupTable33[4][bit4] },
+        vectorComponentResolution: { code: bit5, value: grib2LookupTable33[5][bit5] },
       },
     },
     /** Latitude of last grid point */
@@ -185,13 +185,13 @@ function parseScanMode(scanMode: number) {
   const bit8 = getBit(8);
 
   return {
-    xDir: { code: bit1, value: lookupTable34[1][bit1] },
-    yDir: { code: bit2, value: lookupTable34[2][bit2] },
-    adjacentDir: { code: bit3, value: lookupTable34[3][bit3] },
-    rowDir: { code: bit4, value: lookupTable34[4][bit4] },
-    rowOffset: { code: bit5, value: lookupTable34[5][bit5] },
-    pointOffsetX: { code: bit6, value: lookupTable34[6][bit6] },
-    pointOffsetY: { code: bit7, value: lookupTable34[7][bit7] },
-    rowGridRule: { code: bit8, value: lookupTable34[8][bit8] },
+    xDir: { code: bit1, value: grib2LookupTable34[1][bit1] },
+    yDir: { code: bit2, value: grib2LookupTable34[2][bit2] },
+    adjacentDir: { code: bit3, value: grib2LookupTable34[3][bit3] },
+    rowDir: { code: bit4, value: grib2LookupTable34[4][bit4] },
+    rowOffset: { code: bit5, value: grib2LookupTable34[5][bit5] },
+    pointOffsetX: { code: bit6, value: grib2LookupTable34[6][bit6] },
+    pointOffsetY: { code: bit7, value: grib2LookupTable34[7][bit7] },
+    rowGridRule: { code: bit8, value: grib2LookupTable34[8][bit8] },
   };
 }

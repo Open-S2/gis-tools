@@ -4,9 +4,9 @@ import { GeoTIFFHeaderReader } from './header';
 import { GeoTIFFImage } from './image';
 import { toReader } from '..';
 
+import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { GeoTIFFMetadata, RGBA } from './image';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
-import type { Reader, ReaderInputs } from '..';
 
 export * from './color';
 export * from './constants';
@@ -25,7 +25,7 @@ export interface GridReader {
 /**
  * GeoTIFF Reader
  */
-export class GeoTIFFReader extends GeoTIFFHeaderReader {
+export class GeoTIFFReader extends GeoTIFFHeaderReader implements FeatureIterator<GeoTIFFMetadata> {
   gridStore: GridReader[] = [];
   /** @param input - the geotiff input to parse data from */
   constructor(input: ReaderInputs) {

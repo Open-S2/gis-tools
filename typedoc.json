@@ -13,4 +13,15 @@
   "hideGenerator": true,
   "disableSources": true,
   "coverageOutputPath": "assets/doc-coverage.svg",
+  "highlightLanguages": [
+    "typescript",
+    "csv",
+    "json",
+    "toml",
+    "bash",
+    "html",
+    "css",
+    "markdown",
+    "yaml"
+  ]
 }

@@ -1,12 +1,12 @@
-import { getTemplate3 } from './templates';
-import { lookupTable31 } from './tables';
+import { getGrib2Template3 } from './templates';
+import { grib2LookupTable31 } from './tables';
 
 import type { Reader } from '../../..';
 
 export * from './tables';
 
-/** The output of `parseSection3` */
-export type GridDefinitionSection = ReturnType<typeof parseSection3>;
+/** The output of `parseGrib2Section3` */
+export type GridDefinitionSection = ReturnType<typeof parseGrib2Section3>;
 
 /**
  * # SECTION 3 - GRID DEFINITION SECTION
@@ -16,7 +16,7 @@ export type GridDefinitionSection = ReturnType<typeof parseSection3>;
  * @param section - byte block for section 3
  * @returns - parsed grid definition
  */
-export function parseSection3(section: Reader) {
+export function parseGrib2Section3(section: Reader) {
   const gridDefinitionTemplate = section.getUint16(12);
 
   return {
@@ -37,9 +37,9 @@ export function parseSection3(section: Reader) {
     /** Grid definition template number [Table 3.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-1.shtml) */
     gridDefinitionTemplate: {
       code: gridDefinitionTemplate,
-      description: lookupTable31[gridDefinitionTemplate],
+      description: grib2LookupTable31[gridDefinitionTemplate],
     },
     /** Grid definition values */
-    values: getTemplate3(gridDefinitionTemplate, section),
+    values: getGrib2Template3(gridDefinitionTemplate, section),
   };
 }

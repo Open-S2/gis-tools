@@ -37,7 +37,7 @@
  * ## Notes
  * - Red text depicts changes made since 01/25/2022
  */
-export const lookupTableA: Record<number, string> = {
+export const grib2LookupTableA: Record<number, string> = {
   // 0-1: Reserved
   2: 'Ultra Violet Index Model',
   3: 'NCEP/ARL Transport and Dispersion Model',
@@ -202,7 +202,7 @@ export const lookupTableA: Record<number, string> = {
  * ## Notes
  * - Red text depicts changes made since 06/25/2019
  */
-export const lookupTableC: Record<number, string> = {
+export const grib2LookupTableC: Record<number, string> = {
   // 0: Reserved
   1: 'NCEP Re-Analysis Project',
   2: 'NCEP Ensemble Products',

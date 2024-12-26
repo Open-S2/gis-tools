@@ -22,7 +22,7 @@
  * ## Notes
  * - Created 05/11/2005
  */
-export const lookupTable30: Record<number, string> = {
+export const grib2LookupTable30: Record<number, string> = {
   0: 'Specified in Code Table 3.1',
   1: 'Predetermined Grid Definition - Defined by Originating Center',
   // 2-191: Reserved
@@ -56,7 +56,7 @@ export const lookupTable30: Record<number, string> = {
  * - (1). WGS84 is a geodetic system that uses IAG-GRS80 as a basis.
  * - (2). With respect to code figures 0, 1, 3, 6, and 7, coordinates can only be unambiguously interpreted if the coordinate reference system in which they are embedded is known. Therefore, defining the shape of the Earth alone without coordinate system axis origins is ambiguous. Generally, the prime meridian defined in the geodetic system WGS-84 can be safely assumed to be the longitudinal origin. However, because these code figures do not specify the longitudinal origin explicitly, it is suggested to contact the originating center if high precision coordinates are needed to obtain the precise details of the coordinate system used (effective as from 16 November 2016).
  */
-export const lookupTable31: Record<number, string> = {
+export const grib2LookupTable31: Record<number, string> = {
   /** [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-0.shtml) */
   0: 'Latitude/Longitude (See Template 3.0) Also called Equidistant Cylindrical or Plate Caree',
   /** [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-1.shtml) */
@@ -184,7 +184,7 @@ export const lookupTable31: Record<number, string> = {
  * - (1) WGS84 is a geodetic system that uses IAG-GRS80 as a basis.
  * - (2) With respect to code figures 0, 1, 3, 6, and 7, coordinates can only be unambiguously interpreted if the coordinate reference system in which they are embedded is known. Therefore, defining the shape of the Earth alone without coordinate system axis origins is ambiguous. Generally, the prime meridian defined in the geodetic system WGS-84 can be safely assumed to be the longitudinal origin. However, because these code figures do not specify the longitudinal origin explicitly, it is suggested to contact the originating center if high precision coordinates are needed to obtain the precise details of the coordinate system used (effective as from 16 November 2016).
  */
-export const lookupTable32: Record<number, string> = {
+export const grib2LookupTable32: Record<number, string> = {
   0: 'Earth assumed spherical with radius = 6,367,470.0 m',
   1: 'Earth assumed spherical with radius specified (in m) by data producer',
   2: 'Earth assumed oblate spheroid with size as determined by IAU in 1965 (major axis = 6,378,160.0 m, minor axis = 6,356,775.0 m, f = 1/297.0)',
@@ -227,7 +227,7 @@ export const lookupTable32: Record<number, string> = {
  * ## Notes
  * - Created 05/11/2005
  */
-export const lookupTable33: Record<number, Record<number, string>> = {
+export const grib2LookupTable33: Record<number, Record<number, string>> = {
   /** Bit 3 - i Direction Increments */
   3: {
     0: 'i direction increments not given',
@@ -276,7 +276,7 @@ export const lookupTable33: Record<number, Record<number, string>> = {
  *        (see Attachment, Volume 1.2, Part A, Att. GRIB).
  * - (7).  If any of bits 5, 6, 7 or 8 are set, Di and Dj are not optional.
  */
-export const lookupTable34: Record<number, Record<number, string>> = {
+export const grib2LookupTable34: Record<number, Record<number, string>> = {
   1: {
     0: 'Points in the first row or column scan in the +i (+x) direction',
     1: 'Points in the first row or column scan in the -i (-x) direction',
@@ -335,7 +335,7 @@ export const lookupTable34: Record<number, Record<number, string>> = {
  * ## Notes
  * - Created 05/11/2005
  */
-export const lookupTable35: Record<number, Record<number, string>> = {
+export const grib2LookupTable35: Record<number, Record<number, string>> = {
   1: {
     0: 'North Pole is on the projection plane',
     1: 'South Pole is on the projection plane',
@@ -369,7 +369,7 @@ export const lookupTable35: Record<number, Record<number, string>> = {
  * ## Notes
  * - Revised 08/23/2023
  */
-export const lookupTable36: Record<number, string> = {
+export const grib2LookupTable36: Record<number, string> = {
   1: 'The Associated Legendre Functions of the first kind are defined by:',
   2: 'Bi-Fourier representation',
   // 3-254: Reserved
@@ -402,7 +402,7 @@ export const lookupTable36: Record<number, string> = {
  *   - Rhomboidal:     K = J + M,        N(m) = J + m
  *   - Trapezoidal:    K = J, K > M,     N(m) = J
  */
-export const lookupTable37: Record<number, string> = {
+export const grib2LookupTable37: Record<number, string> = {
   /** [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-6.shtml) */
   1: 'The complex numbers Fnm (See Code Table 3.6) are stored for M>=0 as pairs of real numbers Re(Fnm), lm(Fnm) ordered with n increasing from m to N(m), first for m=0 and then for m=1, 2, ... M (see note below).',
   // 0: Reserved
@@ -435,7 +435,7 @@ export const lookupTable37: Record<number, string> = {
  * ## Notes
  * - Revised 12/07/2023
  */
-export const lookupTable38: Record<number, string> = {
+export const grib2LookupTable38: Record<number, string> = {
   0: 'Grid points at triangle vertices',
   1: 'Grid points at centers of triangles',
   2: 'Grid points at midpoints of triangle sides',
@@ -471,7 +471,7 @@ export const lookupTable38: Record<number, string> = {
  * ## Notes
  * - Revised 12/07/2023
  */
-export const lookupTable39: Record<number, Record<number, string>> = {
+export const grib2LookupTable39: Record<number, Record<number, string>> = {
   1: {
     0: 'Clockwise orientation',
     1: 'Counter-clockwise orientation',
@@ -504,7 +504,7 @@ export const lookupTable39: Record<number, Record<number, string>> = {
  * ## Notes
  * - Created 05/11/2005
  */
-export const lookupTable310: Record<number, Record<number, string>> = {
+export const grib2LookupTable310: Record<number, Record<number, string>> = {
   1: {
     0: 'Points scan in the +i direction, i.e. from pole to Equator',
     1: 'Points scan in the -i direction, i.e. from Equator to pole',
@@ -545,7 +545,7 @@ export const lookupTable310: Record<number, Record<number, string>> = {
  * - (1) For entry 1, it should be noted that depending on values of extreme (first/last) coordinates, and regardless of bit-map, effective number of points per row may be less than the number of points on the current circle.
  * - (2) For value for the constant direction increment Di (or Dx) in the accompanying Grid Definition Template should be set to all ones (missing).
  */
-export const lookupTable311: Record<number, string> = {
+export const grib2LookupTable311: Record<number, string> = {
   0: 'There is no appended list',
   1: 'Numbers define number of points corresponding to full coordinate circles (i.e. parallels). Coordinate values on each circle are multiple of the circle mesh, and extreme coordinate values given in grid definition may not be reached in all rows.',
   2: 'Numbers define number of points corresponding to coordinate lines delimited by extreme coordinate values given in grid definition which are present in each row.',
@@ -579,7 +579,7 @@ export const lookupTable311: Record<number, string> = {
  * ## Notes
  * - Created 12/07/2023
  */
-export const lookupTable312: Record<number, string> = {
+export const grib2LookupTable312: Record<number, string> = {
   0: 'Reserved',
   1: 'Ring ordering',
   2: 'Nested ordering',
@@ -612,7 +612,7 @@ export const lookupTable312: Record<number, string> = {
  * ## Notes
  * - Created 12/07/2023
  */
-export const lookupTable313: Record<number, Record<number, string>> = {
+export const grib2LookupTable313: Record<number, Record<number, string>> = {
   1: {
     0: 'Points scan in the +i (+x) direction',
     1: 'Points scan in the -i (-x) direction',
@@ -657,7 +657,7 @@ export const lookupTable313: Record<number, Record<number, string>> = {
  * - (1) For entry 103, it should be noted that depending on values of extreme (first/last) coordinates, and regardless of bit-map, the effective number of points per row may be less than the number of points on the current circle.
  * - (2) For the value of the constant direction increment Di (or Dx) in the accompanying Grid Definition Template, it should be set to all ones (missing).
  */
-export const lookupTable315: Record<number, string> = {
+export const grib2LookupTable315: Record<number, string> = {
   0: 'Reserved',
   // 1-19: Reserved
   20: 'Temperature (K)',
@@ -709,7 +709,7 @@ export const lookupTable315: Record<number, string> = {
  * - Created 05/11/2005
  * - Red text in the original table depicts changes made since 05/11/2005.
  */
-export const lookupTable320: Record<number, string> = {
+export const grib2LookupTable320: Record<number, string> = {
   0: 'Rhumb',
   1: 'Great Circle',
   // 2-191: Reserved
@@ -746,7 +746,7 @@ export const lookupTable320: Record<number, string> = {
  * - (1) For entry 103, it should be noted that depending on values of extreme (first/last) coordinates, and regardless of bit-map, the effective number of points per row may be less than the number of points on the current circle.
  * - (2) For the value for the constant direction increment Di (or Dx) in the accompanying Grid Definition Template should be set to all ones (missing).
  */
-export const lookupTable321: Record<number, string> = {
+export const grib2LookupTable321: Record<number, string> = {
   // 0-19: Reserved
   20: 'Temperature (K)',
   // 21-99: Reserved
@@ -799,7 +799,7 @@ export const lookupTable321: Record<number, string> = {
  * ## Notes
  * - Created 06/22/2022
  */
-export const lookupTable325: Record<number, string> = {
+export const grib2LookupTable325: Record<number, string> = {
   77: 'Rectangular',
   88: 'Elliptic',
   99: 'Diamond',

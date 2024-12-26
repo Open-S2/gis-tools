@@ -1,13 +1,19 @@
-import { lookupTable0 } from '../0';
-import { lookupTableC } from '../other/tables';
-import { lookupTable10, lookupTable11, lookupTable12, lookupTable13, lookupTable14 } from '.';
+import { grib2LookupTable0 } from '../0';
+import { grib2LookupTableC } from '../other/tables';
+import {
+  grib2LookupTable10,
+  grib2LookupTable11,
+  grib2LookupTable12,
+  grib2LookupTable13,
+  grib2LookupTable14,
+} from '.';
 
 import type { Reader } from '../../..';
 
 export * from './tables';
 
-/** The output of `parseSection1` */
-export type IdentificationSection = ReturnType<typeof parseSection1>;
+/** The output of `parseGrib2Section1` */
+export type Grib2IdentificationSection = ReturnType<typeof parseGrib2Section1>;
 
 /**
  * # Identification Section
@@ -23,7 +29,7 @@ export type IdentificationSection = ReturnType<typeof parseSection1>;
  * @param section - The byte block to pull ideintification information
  * @returns - The parsed identification section
  */
-export function parseSection1(section: Reader) {
+export function parseGrib2Section1(section: Reader) {
   const center = section.getUint16(5);
   const subcenter = section.getUint16(7);
   const gribMasterTablesVersion = section.getUint8(9); // should be 2
@@ -55,39 +61,39 @@ export function parseSection1(section: Reader) {
     /** Identification of originating/generating center [Table 0](https://www.nco.ncep.noaa.gov/pmb/docs/on388/table0.html) */
     center: {
       code: center,
-      description: lookupTable0[center],
+      description: grib2LookupTable0[center],
     },
     /** Identification of originating/generating subcenter [Table C](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablec.html) */
     subcenter: {
       code: subcenter,
-      description: lookupTableC[subcenter],
+      description: grib2LookupTableC[subcenter],
     },
     /** GRIB master tables version number [Table 1.0](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table1-0.shtml) */
     gribMasterTablesVersion: {
       code: gribMasterTablesVersion,
-      description: lookupTable10[gribMasterTablesVersion],
+      description: grib2LookupTable10[gribMasterTablesVersion],
     },
     /** Version number of GRIB local tables used to augment Master Tables [Table 1.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table1-1.shtml) */
     gribLocalTablesVersion: {
       code: gribLocalTablesVersion,
-      description: lookupTable11[gribLocalTablesVersion],
+      description: grib2LookupTable11[gribLocalTablesVersion],
     },
     /** Significance of reference time [Table 1.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table1-2.shtml) */
     significanceOfRT: {
       code: significanceOfRT,
-      description: lookupTable12[significanceOfRT],
+      description: grib2LookupTable12[significanceOfRT],
     },
     /** Reference Time */
     refTime,
     /** Production Status of Processed data in the GRIB message [Table 1.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table1-3.shtml) */
     productionStatus: {
       code: productionStatus,
-      description: lookupTable13[productionStatus],
+      description: grib2LookupTable13[productionStatus],
     },
     /** Type of processed data in this GRIB message [Table 1.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table1-4.shtml) */
     typeOfProcessedData: {
       code: typeOfProcessedData,
-      description: lookupTable14[typeOfProcessedData],
+      description: grib2LookupTable14[typeOfProcessedData],
     },
   };
 }

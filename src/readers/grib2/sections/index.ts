@@ -1,25 +1,25 @@
 import { BufferReader } from '../../';
-import { parseSection0 } from './0';
-import { parseSection1 } from './1';
-import { parseSection2 } from './2';
-import { parseSection3 } from './3';
-import { parseSection4 } from './4';
-import { parseSection5 } from './5';
-import { parseSection6 } from './6';
-import { parseSection7 } from './7';
-import { parseSection8 } from './8';
+import { parseGrib2Section0 } from './0';
+import { parseGrib2Section1 } from './1';
+import { parseGrib2Section2 } from './2';
+import { parseGrib2Section3 } from './3';
+import { parseGrib2Section4 } from './4';
+import { parseGrib2Section5 } from './5';
+import { parseGrib2Section6 } from './6';
+import { parseGrib2Section7 } from './7';
+import { parseGrib2Section8 } from './8';
 
 import type { Reader } from '../..';
 import type {
-  BitMapSection,
-  DataRepresentationSection,
-  DataSection,
-  EndSection,
+  Grib2BitMapSection,
+  Grib2DataRepresentationSection,
+  Grib2DataSection,
+  Grib2EndSection,
+  Grib2IdentificationSection,
+  Grib2IndicatorSection,
+  Grib2LocalUseSection,
+  Grib2ProductDefinitionSection,
   GridDefinitionSection,
-  IdentificationSection,
-  IndicatorSection,
-  LocalUseSection,
-  ProductDefinitionSection,
 } from '.';
 
 export * from './0';
@@ -34,24 +34,24 @@ export * from './8';
 export * from './other';
 
 /** A parsed GRIB Section */
-export type Sections = {
-  indicator?: IndicatorSection;
-  identification?: IdentificationSection;
-  local?: LocalUseSection;
+export type Grib2Sections = {
+  indicator?: Grib2IndicatorSection;
+  identification?: Grib2IdentificationSection;
+  local?: Grib2LocalUseSection;
   gridDefinition?: GridDefinitionSection;
-  productDefinition?: ProductDefinitionSection;
-  dataRepresentation?: DataRepresentationSection;
-  bitMap?: BitMapSection;
-  data?: DataSection;
-  end?: EndSection;
+  productDefinition?: Grib2ProductDefinitionSection;
+  dataRepresentation?: Grib2DataRepresentationSection;
+  bitMap?: Grib2BitMapSection;
+  data?: Grib2DataSection;
+  end?: Grib2EndSection;
 };
 
 /**
  * @param gribChunk Buffer containing individual GRIB definition
  * @returns Array of Section Buffers where the index of the item corresponds to the section number. If a section is missing, it will be represented as null
  */
-export function splitSectionChunks(gribChunk: Reader): Sections {
-  const sections: Sections = {};
+export function splitSectionChunks(gribChunk: Reader): Grib2Sections {
+  const sections: Grib2Sections = {};
 
   let currentSection = gribChunk;
   // Split sections in file
@@ -64,7 +64,7 @@ export function splitSectionChunks(gribChunk: Reader): Sections {
     const section = new BufferReader(currentSection.slice(0, length).buffer);
     currentSection = new BufferReader(currentSection.slice(length).buffer);
 
-    parseSection(section, sections);
+    parseGrib2Section(section, sections);
   }
 
   return sections;
@@ -75,36 +75,36 @@ export function splitSectionChunks(gribChunk: Reader): Sections {
  * @param reader - The section to parse
  * @param sections - The result to write to
  */
-function parseSection(reader: Reader, sections: Sections): void {
+function parseGrib2Section(reader: Reader, sections: Grib2Sections): void {
   const sectionNumber = getSectionNumber(reader);
 
   switch (sectionNumber) {
     case 0:
-      sections.indicator = parseSection0(reader);
+      sections.indicator = parseGrib2Section0(reader);
       break;
     case 1:
-      sections.identification = parseSection1(reader);
+      sections.identification = parseGrib2Section1(reader);
       break;
     case 2:
-      sections.local = parseSection2(reader);
+      sections.local = parseGrib2Section2(reader);
       break;
     case 3:
-      sections.gridDefinition = parseSection3(reader);
+      sections.gridDefinition = parseGrib2Section3(reader);
       break;
     case 4:
-      sections.productDefinition = parseSection4(reader, sections);
+      sections.productDefinition = parseGrib2Section4(reader, sections);
       break;
     case 5:
-      sections.dataRepresentation = parseSection5(reader);
+      sections.dataRepresentation = parseGrib2Section5(reader);
       break;
     case 6:
-      sections.bitMap = parseSection6(reader);
+      sections.bitMap = parseGrib2Section6(reader);
       break;
     case 7:
-      sections.data = parseSection7(reader, sections);
+      sections.data = parseGrib2Section7(reader, sections);
       break;
     case 8:
-      sections.end = parseSection8(reader);
+      sections.end = parseGrib2Section8(reader);
       break;
     default:
       throw new Error(`Unknown section number: ${sectionNumber}`);

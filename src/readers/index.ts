@@ -1,9 +1,11 @@
-import type { Features } from '../geometry';
+import type { Features, MValue, Properties } from '../geometry';
 
 export * from './csv';
 export * from './geotiff';
 export * from './grib2';
+export * from './gtfs';
 export * from './json';
+export * from './netcdf';
 export * from './osm';
 export * from './pmtiles';
 export * from './protobuf';
@@ -37,8 +39,12 @@ export interface Reader {
 }
 
 /** Feature iteration interface. Implemented by readers to iterate over features */
-export interface FeatureIterator<M = Record<string, unknown>> {
-  [Symbol.asyncIterator]: () => AsyncGenerator<Features<M>>;
+export interface FeatureIterator<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> {
+  [Symbol.asyncIterator]: () => AsyncGenerator<Features<M, D, P>>;
 }
 
 /** All input types that can be placed into a reader */

@@ -1,10 +1,10 @@
 import { BufferReader } from '../../..';
-import { lookupTable60 } from './tables';
+import { grib2LookupTable60 } from './tables';
 
 import type { Reader } from '../../..';
 
-/** The output of `parseSection6` */
-export type BitMapSection = ReturnType<typeof parseSection6>;
+/** The output of `parseGrib2Section6` */
+export type Grib2BitMapSection = ReturnType<typeof parseGrib2Section6>;
 
 /**
  * # Bit-Map Section
@@ -15,7 +15,7 @@ export type BitMapSection = ReturnType<typeof parseSection6>;
  * @param section - The byte block to understan how to parse bit-map data
  * @returns - Parsed bit-map section
  */
-export function parseSection6(section: Reader) {
+export function parseGrib2Section6(section: Reader) {
   const bitMapIndicator = section.getUint8(5);
 
   if (![0, 255].includes(bitMapIndicator)) {
@@ -32,7 +32,7 @@ export function parseSection6(section: Reader) {
     /** Bit-map indicator (See [Table 6.0](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table6-0.shtml)) */
     bitMapIndicator: {
       code: bitMapIndicator,
-      description: lookupTable60[bitMapIndicator],
+      description: grib2LookupTable60[bitMapIndicator],
     },
     /** Bit-map */
     bitMap: bitMapIndicator === 0 ? new BufferReader(section.slice(6).buffer) : null,

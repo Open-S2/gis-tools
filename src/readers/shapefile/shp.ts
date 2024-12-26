@@ -8,6 +8,8 @@ import type {
   BBOX,
   BBox3D,
   FeatureCollection,
+  MValue,
+  Properties,
   VectorFeature,
   VectorGeometry,
   VectorLineString,
@@ -39,7 +41,12 @@ export interface SHPRow {
 }
 
 /** The Shapefile Reader */
-export class ShapeFile implements FeatureIterator {
+export class ShapeFile<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
   reader: Reader;
   #header!: SHPHeader;
   rows: number[] = [];
@@ -70,16 +77,14 @@ export class ShapeFile implements FeatureIterator {
    * Return all the features in the shapefile
    * @returns - a collection of VectorFeatures
    */
-  async getFeatureCollection(): Promise<FeatureCollection> {
-    const featureCollection: FeatureCollection = {
+  async getFeatureCollection(): Promise<FeatureCollection<M, D, P>> {
+    const featureCollection: FeatureCollection<M, D, P> = {
       type: 'FeatureCollection',
       features: [],
       bbox: this.#header.bbox,
     };
 
-    for await (const feature of this) {
-      featureCollection.features.push(feature);
-    }
+    for await (const feature of this) featureCollection.features.push(feature);
 
     return featureCollection;
   }
@@ -88,7 +93,7 @@ export class ShapeFile implements FeatureIterator {
    * Iterate over all features in the shapefile
    * @yields {VectorFeature}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<M, D, P>> {
     for (let i = 0; i < this.rows.length; i++) {
       const feature = this.#parseRow(this.rows[i], i);
       if (feature !== undefined) yield feature;
@@ -152,7 +157,7 @@ export class ShapeFile implements FeatureIterator {
    * @param index - the index of the feature
    * @returns - the parsed feature
    */
-  #parseRow(rowOffset: number, index: number): VectorFeature | undefined {
+  #parseRow(rowOffset: number, index: number): VectorFeature<M, D, P> | undefined {
     const row = this.#getRow(rowOffset);
     if (row === undefined) return;
     const { id, type, data } = row;
@@ -162,7 +167,7 @@ export class ShapeFile implements FeatureIterator {
     return {
       id,
       type: 'VectorFeature',
-      properties: this.dbf?.getProperties(index) ?? {},
+      properties: (this.dbf?.getProperties(index) ?? {}) as P,
       geometry,
     };
   }
@@ -172,7 +177,7 @@ export class ShapeFile implements FeatureIterator {
    * @param data - the shape data to parse
    * @returns - the parsed geometry if its valid
    */
-  #parseGeometry(type: number, data: DataView): undefined | VectorGeometry {
+  #parseGeometry(type: number, data: DataView): undefined | VectorGeometry<D> {
     const is3D = type === 11 || type === 13 || type === 15 || type === 18;
     if (type === 1 || type === 11) {
       return {
@@ -194,8 +199,8 @@ export class ShapeFile implements FeatureIterator {
    * @param offset3D - if provided, the offset of the Z value
    * @returns - the decoded point
    */
-  #parsePoint(data: DataView, offset: number, offset3D?: number): VectorPoint {
-    const point: VectorPoint = {
+  #parsePoint(data: DataView, offset: number, offset3D?: number): VectorPoint<D> {
+    const point: VectorPoint<D> = {
       x: data.getFloat64(offset, true),
       y: data.getFloat64(offset + 8, true),
       z: offset3D !== undefined ? data.getFloat64(offset3D, true) : undefined,
@@ -211,7 +216,7 @@ export class ShapeFile implements FeatureIterator {
   #parseMultiPoint(
     data: DataView,
     is3D = false,
-  ): undefined | VectorPointGeometry | VectorMultiPointGeometry {
+  ): undefined | VectorPointGeometry<D> | VectorMultiPointGeometry<D> {
     const numPoints = data.getInt32(32, true);
     if (numPoints === 0) return;
     let offset = 0;
@@ -227,7 +232,7 @@ export class ShapeFile implements FeatureIterator {
       zOffset += 16;
     }
 
-    const coordinates: VectorMultiPoint = [];
+    const coordinates: VectorMultiPoint<D> = [];
     let index = 0;
     while (index < numPoints) {
       const point = this.#parsePoint(data, offset, is3D ? zOffset : undefined);
@@ -257,7 +262,11 @@ export class ShapeFile implements FeatureIterator {
     data: DataView,
     isPoly: boolean,
     is3D: boolean,
-  ): undefined | VectorLineStringGeometry | VectorMultiLineStringGeometry | VectorPolygonGeometry {
+  ):
+    | undefined
+    | VectorLineStringGeometry<D>
+    | VectorMultiLineStringGeometry<D>
+    | VectorPolygonGeometry<D> {
     const numParts = data.getInt32(32, true); // The number of rings in the polygon.
     const numPoints = data.getInt32(36, true); // the total number of points in the polygon.
     if (numPoints === 0 || numParts === 0) return;
@@ -285,11 +294,11 @@ export class ShapeFile implements FeatureIterator {
 
     // build coordinates
     let index = 0;
-    const coordinates: VectorMultiLineString = [];
+    const coordinates: VectorMultiLineString<D> = [];
     for (let i = 0; i < numParts; i++) {
       const partEnd = parts[i + 1] ?? numPoints;
       // build a line for part
-      const line: VectorLineString = [];
+      const line: VectorLineString<D> = [];
       while (index < partEnd) {
         const point = this.#parsePoint(data, offset, is3D ? zOffset : undefined);
         line.push(point);

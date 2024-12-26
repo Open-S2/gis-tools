@@ -1,11 +1,14 @@
 import { BufferReader } from '../../..';
-import { convertData } from './templates';
+import { getGrib2Template7 } from './templates';
 
+import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
-import type { Sections } from '..';
+
+export * from './complexUnpacking';
+export * from './templates';
 
 /** Data Section Return Type */
-export type DataSection = ReturnType<typeof parseSection7>;
+export type Grib2DataSection = ReturnType<typeof parseGrib2Section7>;
 
 /**
  *  Data Section
@@ -15,7 +18,7 @@ export type DataSection = ReturnType<typeof parseSection7>;
  * @param sections - The other sections that have been parsed (1-6)
  * @returns - Parsed Data Information with a function to decode the data
  */
-export function parseSection7(section: Reader, sections: Sections) {
+export function parseGrib2Section7(section: Reader, sections: Grib2Sections) {
   const data = new BufferReader(section.slice(5).buffer);
 
   return {
@@ -33,7 +36,7 @@ export function parseSection7(section: Reader, sections: Sections) {
      * @returns - the raw parsed data
      */
     getData(): number[] {
-      return convertData(data, sections);
+      return getGrib2Template7(data, sections);
     },
   };
 }

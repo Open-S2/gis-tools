@@ -1,28 +1,28 @@
 import {
-  lookupTable51,
-  lookupTable54,
-  lookupTable540,
-  lookupTable55,
-  lookupTable56,
+  grib2LookupTable51,
+  grib2LookupTable54,
+  grib2LookupTable540,
+  grib2LookupTable55,
+  grib2LookupTable56,
 } from './tables';
 
 import type { Reader } from '../../..';
 
 /**
- * @description Returns a template generator for the given template number
+ * Returns a template generator for the given template number
  * @param template Template number
  * @returns Template generator
  */
-export function getTemplate5(template: number) {
+export function getGrib2Template5(template: number) {
   switch (template) {
     case 0:
-      return template50;
+      return grib2Template50;
     case 2:
-      return template52;
+      return grib2Template52;
     case 3:
-      return template53;
+      return grib2Template53;
     case 40:
-      return template540;
+      return grib2Template540;
     default:
       throw new Error(`Template 5.${template} not defined`);
   }
@@ -38,7 +38,7 @@ export function getTemplate5(template: number) {
  * - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
  * @returns - description of how to decode simple unpacked data
  */
-function template50(section: Reader) {
+export function grib2Template50(section: Reader) {
   const originalType = section.getUint8(20);
   let binaryScaleFactor = section.getUint16(15) & 0x7fff;
   if (section.getUint16(15) >> 15 > 0) binaryScaleFactor *= -1;
@@ -57,13 +57,13 @@ function template50(section: Reader) {
     /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
     originalType: {
       code: originalType,
-      description: lookupTable51[originalType],
+      description: grib2LookupTable51[originalType],
     },
   };
 }
 
 /** Complex packing return type */
-export type ComplexPackingTemplate = ReturnType<typeof template52>;
+export type ComplexPackingTemplate = ReturnType<typeof grib2Template52>;
 
 /**
  * Data Representation Template 5.2 – Complex packing (no spatial differencing).
@@ -75,7 +75,7 @@ export type ComplexPackingTemplate = ReturnType<typeof template52>;
  * @param section - Binary reader providing access to the section data.
  * @returns Object containing the fields of Template 5.2.
  */
-function template52(section: Reader) {
+export function grib2Template52(section: Reader) {
   /**
    * Binary and decimal scale factors can be negative.
    * They are stored with the sign bit in the high-order bit (bit 15).
@@ -116,7 +116,7 @@ function template52(section: Reader) {
     /** Type of original field values. See Code Table 5.1. Octet 21. */
     originalType: {
       code: originalTypeCode,
-      description: lookupTable51[originalTypeCode],
+      description: grib2LookupTable51[originalTypeCode],
     },
 
     // Fields specific to complex packing (no spatial differencing):
@@ -124,12 +124,12 @@ function template52(section: Reader) {
     /** Group splitting method used. See Code Table 5.4. Octet 22. */
     groupSplittingMethod: {
       code: groupSplittingMethodCode,
-      description: lookupTable54[groupSplittingMethodCode],
+      description: grib2LookupTable54[groupSplittingMethodCode],
     },
     /** Missing value management. See Code Table 5.5. Octet 23. */
     missingValueManagement: {
       code: missingValueManagementCode,
-      description: lookupTable55[missingValueManagementCode],
+      description: grib2LookupTable55[missingValueManagementCode],
     },
     /** Primary missing value substitute. Octets 24–27. */
     primaryMissingValueSubstitute,
@@ -169,7 +169,7 @@ function template52(section: Reader) {
 }
 
 /** Complex packing and spatial differencing return type */
-export type ComplexSpatialPackingTemplate = ReturnType<typeof template53>;
+export type ComplexSpatialPackingTemplate = ReturnType<typeof grib2Template53>;
 
 /**
  * Data Representation Template 5.3 – Complex packing and spatial differencing.
@@ -183,7 +183,7 @@ export type ComplexSpatialPackingTemplate = ReturnType<typeof template53>;
  * @param section - Binary reader providing access to the section data
  * @returns Object containing the fields of Template 5.3
  */
-function template53(section: Reader) {
+export function grib2Template53(section: Reader) {
   /**
    * Binary and decimal scale factors can be negative.
    * They are stored with the sign bit in the high-order bit (bit 15).
@@ -227,7 +227,7 @@ function template53(section: Reader) {
     /** Type of original field values. See Code Table 5.1. Octet 21. */
     originalType: {
       code: originalTypeCode,
-      description: lookupTable51[originalTypeCode],
+      description: grib2LookupTable51[originalTypeCode],
     },
 
     // Fields specific to complex packing and spatial differencing:
@@ -235,12 +235,12 @@ function template53(section: Reader) {
     /** Group splitting method used. See Code Table 5.4. Octet 22. */
     groupSplittingMethod: {
       code: groupSplittingMethodCode,
-      description: lookupTable54[groupSplittingMethodCode],
+      description: grib2LookupTable54[groupSplittingMethodCode],
     },
     /** Missing value management. See Code Table 5.5. Octet 23. */
     missingValueManagement: {
       code: missingValueManagementCode,
-      description: lookupTable55[missingValueManagementCode],
+      description: grib2LookupTable55[missingValueManagementCode],
     },
     /** Primary missing value substitute. Octets 24–27. */
     primaryMissingValueSubstitute,
@@ -281,7 +281,7 @@ function template53(section: Reader) {
     /** Order of spatial difference. See Code Table 5.6. Octet 48. */
     orderOfSpatialDifference: {
       code: orderOfSpatialDifferenceCode,
-      description: lookupTable56[orderOfSpatialDifferenceCode],
+      description: grib2LookupTable56[orderOfSpatialDifferenceCode],
     },
     /**
      * Number of extra descriptor octets needed for spatial differencing
@@ -298,7 +298,7 @@ function template53(section: Reader) {
  * @param section - The raw section data to parse
  * @returns - Parsed Data Representation Information
  */
-function template540(section: Reader) {
+export function grib2Template540(section: Reader) {
   const originalTypeCode = section.getUint8(20);
   const compressionType = section.getUint8(21);
   return {
@@ -313,12 +313,12 @@ function template540(section: Reader) {
     /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
     originalType: {
       code: originalTypeCode,
-      description: lookupTable51[originalTypeCode],
+      description: grib2LookupTable51[originalTypeCode],
     },
     /** Type of Compression used. (see [Code Table 5.40](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-40.shtml)) */
     compressionType: {
       code: compressionType,
-      description: lookupTable540[compressionType],
+      description: grib2LookupTable540[compressionType],
     },
     /**
      * Target compression ratio, M:1 (with respect to the bit-depth specified in octet 20),

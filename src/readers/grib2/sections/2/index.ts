@@ -2,8 +2,8 @@ import { BufferReader } from '../../..';
 
 import type { Reader } from '../../..';
 
-/** The output of `parseSection2` */
-export type LocalUseSection = ReturnType<typeof parseSection2>;
+/** The output of `parseGrib2Section2` */
+export type Grib2LocalUseSection = ReturnType<typeof parseGrib2Section2>;
 
 /**
  * # SECTION 2 - LOCAL USE SECTION
@@ -18,7 +18,7 @@ export type LocalUseSection = ReturnType<typeof parseSection2>;
  * @param section - The byte block to pull basic local information
  * @returns - a parsed explaination of local use.
  */
-export function parseSection2(section: Reader) {
+export function parseGrib2Section2(section: Reader) {
   return {
     /** Number of GRIB section */
     sectionNumber: section.getUint8(4),

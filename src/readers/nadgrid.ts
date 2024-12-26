@@ -1,7 +1,7 @@
 import { toReader } from '.';
 
 import type { FeatureCollection, VectorFeature, VectorMultiPoint, VectorPoint } from '../geometry';
-import type { Reader, ReaderInputs } from '.';
+import type { FeatureIterator, Reader, ReaderInputs } from '.';
 
 /**
  * Resources for details of NTv2 file formats:
@@ -138,7 +138,7 @@ export interface NadGridMetadata {
 }
 
 /** Load a binary NTv2 file (.gsb) */
-export class NadGrid {
+export class NadGrid implements FeatureIterator<NadGridMetadata> {
   reader: Reader;
   #isLittleEndian = false;
   #header!: NadGridHeader;
@@ -176,7 +176,7 @@ export class NadGrid {
    * Iterate over all features in the shapefile
    * @yields {VectorFeature<NadGridMetadata>}
    */
-  *[Symbol.iterator](): Generator<VectorFeature<NadGridMetadata>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<NadGridMetadata>> {
     for (const subgrid of this.subgrids) yield this.#subGrideToVectorFeature(subgrid);
   }
 

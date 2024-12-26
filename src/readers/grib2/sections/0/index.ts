@@ -1,11 +1,11 @@
-import { lookupTable00 } from './tables';
+import { grib2LookupTable00 } from './tables';
 
 import type { Reader } from '../../..';
 
 export * from './tables';
 
-/** The output of `parseSection0` */
-export type IndicatorSection = ReturnType<typeof parseSection0>;
+/** The output of `parseGrib2Section0` */
+export type Grib2IndicatorSection = ReturnType<typeof parseGrib2Section0>;
 
 /**
  * # SECTION 0 - INDICATOR SECTION
@@ -20,7 +20,7 @@ export type IndicatorSection = ReturnType<typeof parseSection0>;
  * @param section - the 16 byte metadata section
  * @returns - a parsed explination of the file
  */
-export function parseSection0(section: Reader) {
+export function parseGrib2Section0(section: Reader) {
   const discipline = section.getUint8(6);
   return {
     /** Number of GRIB section */
@@ -34,7 +34,7 @@ export function parseSection0(section: Reader) {
     /** Discipline [Table 0.0](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table0-0.shtml) */
     discipline: {
       code: discipline,
-      description: lookupTable00[discipline],
+      description: grib2LookupTable00[discipline],
     },
     /** Edition number - 2 for GRIB2 */
     gribEdition: section.getUint8(7),

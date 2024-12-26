@@ -7,7 +7,7 @@ import type { Entry, Header } from '../../readers/pmtiles';
  * @param header - the header object
  * @returns the raw header bytes
  */
-export function headerToBytes(header: Header): Uint8Array {
+export function headerToBytes(header: Header): Uint8Array<ArrayBuffer> {
   const dv = new DataView(new ArrayBuffer(HEADER_SIZE_BYTES));
   dv.setUint16(0, 0x4d50, true);
   dv.setUint8(7, header.specVersion);

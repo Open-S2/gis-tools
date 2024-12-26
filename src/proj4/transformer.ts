@@ -4,12 +4,12 @@ import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
+import type { MValue, VectorPoint } from '../geometry';
 import type {
   ProjectionParams,
   ProjectionTransform,
   ProjectionTransformDefinition,
 } from './projections';
-import type { Properties, VectorPoint } from '../geometry';
 
 /**
  * A Transformer class contains all projections necessary for converting coordinates from one
@@ -111,7 +111,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
    */
-  forward<M extends Properties>(p: VectorPoint<M>, enforceAxis = false): VectorPoint<M> {
+  forward<D extends MValue>(p: VectorPoint<D>, enforceAxis = false): VectorPoint<D> {
     return this.#transformPoint(p, this.source, this.destination, enforceAxis);
   }
 
@@ -120,7 +120,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "source" projection
    */
-  inverse<M extends Properties>(p: VectorPoint<M>, enforceAxis = false): VectorPoint<M> {
+  inverse<D extends MValue>(p: VectorPoint<D>, enforceAxis = false): VectorPoint<D> {
     return this.#transformPoint(p, this.destination, this.source, enforceAxis);
   }
 
@@ -131,7 +131,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - transformed point
    */
-  #transformPoint<M extends Properties>(
+  #transformPoint<M extends MValue>(
     sourcePoint: VectorPoint<M>,
     src: ProjectionTransform,
     dest: ProjectionTransform,
@@ -204,7 +204,7 @@ export function injectAllEPSGCodes(transformer: Transformer): void {
  * @param prj - the projection
  * @param denorm - denormalizes z if true
  */
-function adjustAxis<M extends Properties>(
+function adjustAxis<M extends MValue>(
   point: VectorPoint<M>,
   prj: ProjectionTransform,
   denorm: boolean,

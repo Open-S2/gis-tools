@@ -37,7 +37,7 @@ export interface TableCategory {
  * ## Notes
  * - Red text depicts changes made since 08/23/2023.
  */
-export const lookupTable40: Record<number, string> = {
+export const grib2LookupTable40: Record<number, string> = {
   /** [See more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp4-0.shtml) */
   0: 'Analysis or forecast at a horizontal level or in a horizontal layer at a point in time.',
   /** [See more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp4-1.shtml) */
@@ -279,7 +279,7 @@ export const lookupTable40: Record<number, string> = {
  * - When a new category is to be added to Code table 4.1 and more than one discipline applies,
  *   the choice of discipline should be made based on the intended use of the product.
  */
-export const lookupTable41: Record<number, Record<number, string>> = {
+export const grib2LookupTable41: Record<number, Record<number, string>> = {
   /** Product Discipline 0 - Meteorological Products */
   0: {
     0: 'Temperature (see Table 4.2-0-0)',
@@ -421,7 +421,7 @@ export const lookupTable41: Record<number, Record<number, string>> = {
  * (1) Parameter deprecated. See Regulation 92.6.2 and use another parameter instead.
  * (2) Apparent temperature is the perceived outdoor temperature, caused by a combination of phenomena, such as air temperature, relative humidity, and wind speed.
  */
-export const lookupTable42_00: Record<number, TableCategory> = {
+export const grib2LookupTable42_00: Record<number, TableCategory> = {
   0: { parameter: 'Temperature', units: 'K', abbrev: 'TMP' },
   1: { parameter: 'Virtual Temperature', units: 'K', abbrev: 'VTMP' },
   2: { parameter: 'Potential Temperature', units: 'K', abbrev: 'POT' },
@@ -553,7 +553,7 @@ export const lookupTable42_00: Record<number, TableCategory> = {
  * Local Use Notes:
  * (A) The numeric value is a reference to a weather string and key table stored in the Local Use Section (Section 2) of the same GRIB2 message. See MDL Template 2.1 page and this page for more details.
  */
-export const lookupTable42_01: Record<number, TableCategory> = {
+export const grib2LookupTable42_01: Record<number, TableCategory> = {
   0: { parameter: 'Specific Humidity', units: 'kg kg-1', abbrev: 'SPFH' },
   1: { parameter: 'Relative Humidity', units: '%', abbrev: 'RH' },
   2: { parameter: 'Humidity Mixing Ratio', units: 'kg kg-1', abbrev: 'MIXR' },
@@ -991,7 +991,7 @@ export const lookupTable42_01: Record<number, TableCategory> = {
  *
  * **Output type**: Numerical
  */
-export const lookupTable42_02: Record<number, TableCategory> = {
+export const grib2LookupTable42_02: Record<number, TableCategory> = {
   0: { parameter: 'Wind Direction (from which blowing)', units: '°', abbrev: 'WDIR' },
   1: { parameter: 'Wind Speed', units: 'm s-1', abbrev: 'WIND' },
   2: { parameter: 'U-Component of Wind', units: 'm s-1', abbrev: 'UGRD' },
@@ -1196,7 +1196,7 @@ export const lookupTable42_02: Record<number, TableCategory> = {
  * Red text depicts changes made since 06/23/2022
  * @see [GRIB2 - Table 4.2-0-3: Parameters for Discipline 0 Category 3 (Mass category)](https://www.example.com)
  */
-export const lookupTable42_03: Record<number, TableCategory> = {
+export const grib2LookupTable42_03: Record<number, TableCategory> = {
   0: { parameter: 'Pressure', units: 'Pa', abbrev: 'PRES' },
   1: { parameter: 'Pressure Reduced to MSL', units: 'Pa', abbrev: 'PRMSL' },
   2: { parameter: 'Pressure Tendency', units: 'Pa s-1', abbrev: 'PTEND' },
@@ -1329,7 +1329,7 @@ export const lookupTable42_03: Record<number, TableCategory> = {
  * Red text depicts changes made since 06/23/2022
  * @see [GRIB2 - Table 4.2-0-4: Parameters for Discipline 0 Category 4 (Short-wave radiation category)](https://www.example.com)
  */
-export const lookupTable42_04: Record<number, TableCategory> = {
+export const grib2LookupTable42_04: Record<number, TableCategory> = {
   0: { parameter: 'Net Short-Wave Radiation Flux (Surface)', units: 'W m-2', abbrev: 'NSWRS' },
   1: {
     parameter: 'Net Short-Wave Radiation Flux (Top of Atmosphere)',
@@ -1424,7 +1424,7 @@ export const lookupTable42_04: Record<number, TableCategory> = {
  * Red text depicts changes made since 11/02/2023
  * @see [GRIB2 - Table 4.2-0-5: Parameters for Discipline 0 Category 5 (Long-wave radiation category)](https://www.example.com)
  */
-export const lookupTable42_05: Record<number, TableCategory> = {
+export const grib2LookupTable42_05: Record<number, TableCategory> = {
   0: { parameter: 'Net Long-Wave Radiation Flux (Surface)', units: 'W m-2', abbrev: 'NLWRS' },
   1: {
     parameter: 'Net Long-Wave Radiation Flux (Top of Atmosphere)',
@@ -1485,7 +1485,7 @@ export const lookupTable42_05: Record<number, TableCategory> = {
  * - This parameter is the amount of sunshine in seconds over a given length of time in seconds. Sunshine is defined as a radiation intensity above 120 W m-2.
  * @see [GRIB2 - Table 4.2-0-6: Parameters for Discipline 0 Category 6 (Cloud category)](https://www.example.com)
  */
-export const lookupTable42_06: Record<number, TableCategory> = {
+export const grib2LookupTable42_06: Record<number, TableCategory> = {
   0: { parameter: 'Cloud Ice', units: 'kg m-2', abbrev: 'CICE' },
   1: { parameter: 'Total Cloud Cover', units: '%', abbrev: 'TCDC' },
   2: { parameter: 'Convective Cloud Cover', units: '%', abbrev: 'CDCON' },
@@ -1584,7 +1584,7 @@ export const lookupTable42_06: Record<number, TableCategory> = {
  * - Parameter deprecated - Use another parameter in parameter category 1: moisture instead.
  * @see [GRIB2 - Table 4.2-0-7: Parameters for Discipline 0 Category 7 (Thermodynamic Stability category)](https://www.example.com)
  */
-export const lookupTable42_07: Record<number, TableCategory> = {
+export const grib2LookupTable42_07: Record<number, TableCategory> = {
   0: { parameter: 'Parcel Lifted Index (to 500 hPa)', units: 'K', abbrev: 'PLI' },
   1: { parameter: 'Best Lifted Index (to 500 hPa)', units: 'K', abbrev: 'BLI' },
   2: { parameter: 'K Index', units: 'K', abbrev: 'KX' },
@@ -1664,7 +1664,7 @@ export const lookupTable42_07: Record<number, TableCategory> = {
  * - Aerosol Type is described in Table 4.205.
  * @see [GRIB2 - Table 4.2-0-13: Aerosols Category](https://www.example.com)
  */
-export const lookupTable42_013: Record<number, TableCategory> = {
+export const grib2LookupTable42_013: Record<number, TableCategory> = {
   0: { parameter: 'Aerosol Type', units: 'See Table 4.205', abbrev: 'AEROT' },
   // 1-191 Reserved
   192: { parameter: 'Particulate matter (coarse)', units: 'µg m-3', abbrev: 'PMTC' },
@@ -1691,7 +1691,7 @@ export const lookupTable42_013: Record<number, TableCategory> = {
  * - Trace gases parameters, including Ozone and PM2.5 related metrics.
  * @see [GRIB2 - Table 4.2-0-14: Trace Gases Category](https://www.example.com)
  */
-export const lookupTable42_014: Record<number, TableCategory> = {
+export const grib2LookupTable42_014: Record<number, TableCategory> = {
   0: { parameter: 'Total Ozone', units: 'DU', abbrev: 'TOZNE' },
   1: { parameter: 'Ozone Mixing Ratio', units: 'kg kg-1', abbrev: 'O3MR' },
   2: { parameter: 'Total Column Integrated Ozone', units: 'DU', abbrev: 'TCIOZ' },
@@ -1733,7 +1733,7 @@ export const lookupTable42_014: Record<number, TableCategory> = {
  * - Radar-related parameters such as reflectivity, velocity, and precipitation.
  * @see [GRIB2 - Table 4.2-0-15: Radar Category](https://www.example.com)
  */
-export const lookupTable42_015: Record<number, TableCategory> = {
+export const grib2LookupTable42_015: Record<number, TableCategory> = {
   0: { parameter: 'Base Spectrum Width', units: 'm s-1', abbrev: 'BSWID' },
   1: { parameter: 'Base Reflectivity', units: 'dB', abbrev: 'BREF' },
   2: { parameter: 'Base Radial Velocity', units: 'm s-1', abbrev: 'BRVEL' },
@@ -1770,7 +1770,7 @@ export const lookupTable42_015: Record<number, TableCategory> = {
  * - Decibel (dB) is a logarithmic measure of the relative power or radar reflectivity.
  * @see [GRIB2 - Table 4.2-0-16: Forecast Radar Imagery](https://www.example.com)
  */
-export const lookupTable42_016: Record<number, TableCategory> = {
+export const grib2LookupTable42_016: Record<number, TableCategory> = {
   0: {
     parameter: 'Equivalent radar reflectivity factor for rain',
     units: 'm m6 m-3',
@@ -1827,7 +1827,7 @@ export const lookupTable42_016: Record<number, TableCategory> = {
  * 3. The subgrid-scale lightning potential index is derived from subgrid-scale information for models with coarser resolution.
  * @see [GRIB2 - Table 4.2-0-17: Electrodynamics](https://www.example.com)
  */
-export const lookupTable42_017: Record<number, TableCategory> = {
+export const grib2LookupTable42_017: Record<number, TableCategory> = {
   0: { parameter: 'Lightning Strike Density', units: 'm-2 s-1', abbrev: 'LTNGSD' },
   1: { parameter: 'Lightning Potential Index (LPI)', units: 'J kg-1', abbrev: 'LTPINX' },
   2: {
@@ -1863,7 +1863,7 @@ export const lookupTable42_017: Record<number, TableCategory> = {
  * 3. Use the radionuclide release start date as baseline to determine activity arrival or activity end.
  * @see [GRIB2 - Table 4.2-0-18: Nuclear/Radiology Imagery](https://www.example.com)
  */
-export const lookupTable42_018: Record<number, TableCategory> = {
+export const grib2LookupTable42_018: Record<number, TableCategory> = {
   0: { parameter: 'Air Concentration of Caesium 137', units: 'Bq m-3', abbrev: 'ACCES' },
   1: { parameter: 'Air Concentration of Iodine 131', units: 'Bq m-3', abbrev: 'ACIOD' },
   2: { parameter: 'Air Concentration of Radioactive Pollutant', units: 'Bq m-3', abbrev: 'ACRADP' },
@@ -1926,7 +1926,7 @@ export const lookupTable42_018: Record<number, TableCategory> = {
  * 6. A duct layer is an atmospheric layer with a refractivity which leads to a trapping of electromagnetic waves. In a trapping layer the refractivity leads to a bending of EM waves, which is stronger than the Earth's curvature.
  * @see [GRIB2 - Table 4.2-0-19: Physical Atmospheric](https://www.example.com)
  */
-export const lookupTable42_019: Record<number, TableCategory> = {
+export const grib2LookupTable42_019: Record<number, TableCategory> = {
   0: { parameter: 'Visibility', units: 'm', abbrev: 'VIS' },
   1: { parameter: 'Albedo', units: '%', abbrev: 'ALBDO' },
   2: { parameter: 'Thunderstorm Probability', units: '%', abbrev: 'TSTM' },
@@ -2097,7 +2097,7 @@ export const lookupTable42_019: Record<number, TableCategory> = {
  * 3. Net source represents the sum of all atmospheric processes creating and destroying constituents or aerosols.
  * 4. Use Snow melt rate instead for certain processes (Discipline 2, Category 0, Number 41).
  */
-export const lookupTable42_020: Record<number, TableCategory> = {
+export const grib2LookupTable42_020: Record<number, TableCategory> = {
   0: { parameter: 'Mass Density (Concentration)', units: 'kg m-3', abbrev: 'MASSDEN' },
   1: { parameter: 'Column-Integrated Mass Density', units: 'kg m-2', abbrev: 'COLMD' },
   2: { parameter: 'Mass Mixing Ratio (Mass Fraction in Air)', units: 'kg kg-1', abbrev: 'MASSMR' },
@@ -2284,7 +2284,7 @@ export const lookupTable42_020: Record<number, TableCategory> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-0-21.shtml)
  */
-export const lookupTable42_021: Record<number, TableCategory> = {
+export const grib2LookupTable42_021: Record<number, TableCategory> = {
   0: {
     parameter: 'Column Integrated Potential + Internal Energy',
     units: 'J m-2',
@@ -2405,7 +2405,7 @@ export const lookupTable42_021: Record<number, TableCategory> = {
  * - [Handbook of Drought Indicators and Indices](https://library.wmo.int/idurl/4/55169)
  * - [Standardized Precipitation Index User Guide](https://library.wmo.int/idurl/4/39629)
  */
-export const lookupTable42_022: Record<number, TableCategory> = {
+export const grib2LookupTable42_022: Record<number, TableCategory> = {
   0: { parameter: 'Standard Precipitation Index (SPI)', units: 'dimensionless', abbrev: 'SPI' },
   1: {
     parameter: 'Standardized Precipitation Evapotranspiration Index (SPEI)',
@@ -2455,7 +2455,7 @@ export const lookupTable42_022: Record<number, TableCategory> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/)
  */
-export const lookupTable42_190: Record<number, TableCategory> = {
+export const grib2LookupTable42_190: Record<number, TableCategory> = {
   0: { parameter: 'Arbitrary Text String', units: 'CCITTIA5', abbrev: 'ATEXT' },
   // Reserved 1-191
   // Reserved for Local Use 192-254
@@ -2484,7 +2484,7 @@ export const lookupTable42_190: Record<number, TableCategory> = {
  * ## Notes
  * 1. Hurricane, tropical storm, and tropical depression tracks use spatiotemporal vicinity logic.
  */
-export const lookupTable42_191: Record<number, TableCategory> = {
+export const grib2LookupTable42_191: Record<number, TableCategory> = {
   0: {
     parameter: 'Seconds prior to initial reference time (defined in Section 1)',
     units: 's',
@@ -2538,7 +2538,7 @@ export const lookupTable42_191: Record<number, TableCategory> = {
  * ## Notes
  * Covariances are defined as `[XY]-[X][Y]`, where `[]` indicates the mean over the specified time span.
  */
-export const lookupTable42_192: Record<number, TableCategory> = {
+export const grib2LookupTable42_192: Record<number, TableCategory> = {
   1: {
     parameter: 'Covariance between zonal and meridional components of the wind',
     units: 'm2/s2',
@@ -2640,7 +2640,7 @@ export const lookupTable42_192: Record<number, TableCategory> = {
  * 2. Snow coverage by elevation portrays elevations with snow packs; see Table 4.216.
  * 3. Snow water equivalent percent of normal is stored in percent units (e.g., 110 = 110% of normal snow water equivalent).
  */
-export const lookupTable42_10: Record<number, TableCategory> = {
+export const grib2LookupTable42_10: Record<number, TableCategory> = {
   0: {
     parameter:
       'Flash Flood Guidance (Encoded as an accumulation over a floating subinterval of time between the reference time and valid time)',
@@ -2786,7 +2786,7 @@ export const lookupTable42_10: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_11: Record<number, TableCategory> = {
+export const grib2LookupTable42_11: Record<number, TableCategory> = {
   0: {
     parameter:
       'Conditional percent precipitation amount fractile for an overall period (encoded as an accumulation)',
@@ -2864,7 +2864,7 @@ export const lookupTable42_11: Record<number, TableCategory> = {
  * ## Notes
  * 1. The same parameter name may exist in multiple categories based on its intended use. For example, "Water Temperature" in this table applies to freshwater lakes and rivers, unlike its counterpart in oceanographic products.
  */
-export const lookupTable42_12: Record<number, TableCategory> = {
+export const grib2LookupTable42_12: Record<number, TableCategory> = {
   0: { parameter: 'Water Depth', units: 'm', abbrev: 'WDPTHIL' },
   1: { parameter: 'Water Temperature', units: 'K', abbrev: 'WTMPIL' },
   2: { parameter: 'Water Fraction', units: 'Proportion', abbrev: 'WFRACT' },
@@ -2935,7 +2935,7 @@ export const lookupTable42_12: Record<number, TableCategory> = {
  * 3. C4 plants use a specific photosynthesis mechanism to avoid photorespiration.
  * 4. Net ecosystem fluxes can specify chemical species (e.g., CO₂ or CH₄) with chemical constituent templates.
  */
-export const lookupTable42_20: Record<number, TableCategory> = {
+export const grib2LookupTable42_20: Record<number, TableCategory> = {
   0: { parameter: 'Land Cover (0=sea, 1=land)', units: 'Proportion', abbrev: 'LAND' },
   1: { parameter: 'Surface Roughness', units: 'm', abbrev: 'SFCR' },
   2: { parameter: 'Soil Temperature (Parameter Deprecated)', units: 'K', abbrev: 'TSOIL' },
@@ -3140,7 +3140,7 @@ export const lookupTable42_20: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_21: Record<number, TableCategory> = {
+export const grib2LookupTable42_21: Record<number, TableCategory> = {
   // Reserved 0-191
   192: { parameter: 'Cold Advisory for Newborn Livestock', units: '', abbrev: 'CANL' },
   // Reserved for Local Use 193-254
@@ -3170,7 +3170,7 @@ export const lookupTable42_21: Record<number, TableCategory> = {
  * 1. Deprecated parameters are marked. Refer to Regulation 92.6.2 for alternatives.
  * 2. It is recommended to avoid parameters flagged as less descriptive; alternatives are preferred.
  */
-export const lookupTable42_23: Record<number, TableCategory> = {
+export const grib2LookupTable42_23: Record<number, TableCategory> = {
   0: { parameter: 'Soil Type', units: 'See Table 4.213', abbrev: 'SOTYP' },
   1: { parameter: 'Upper Layer Soil Temperature (Deprecated)', units: 'K', abbrev: 'UPLST' },
   2: { parameter: 'Upper Layer Soil Moisture (Deprecated)', units: 'kg m-3', abbrev: 'UPLSM' },
@@ -3286,7 +3286,7 @@ export const lookupTable42_23: Record<number, TableCategory> = {
  * ## Notes
  * 1. The Fosberg index denotes the potential influence of weather on wildfire, factoring temperature, wind speed, relative humidity, and precipitation. Higher values indicate a greater potential impact.
  */
-export const lookupTable42_24: Record<number, TableCategory> = {
+export const grib2LookupTable42_24: Record<number, TableCategory> = {
   0: { parameter: 'Fire Outlook', units: 'See Table 4.224', abbrev: 'FIREOLK' },
   1: {
     parameter: 'Fire Outlook Due to Dry Thunderstorm',
@@ -3407,7 +3407,7 @@ export const lookupTable42_24: Record<number, TableCategory> = {
  * ## Notes
  * 1. A value strictly above 0.5 for Glacier Cover is treated as glacier. A value equal to or below 0.5 is treated as land without glacier.
  */
-export const lookupTable42_25: Record<number, TableCategory> = {
+export const grib2LookupTable42_25: Record<number, TableCategory> = {
   0: { parameter: 'Glacier Cover', units: 'Proportion', abbrev: 'GLACCOV' },
   1: { parameter: 'Glacier Temperature', units: 'K', abbrev: 'GLACTMP' },
   // Reserved 2-191
@@ -3434,7 +3434,7 @@ export const lookupTable42_25: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_26: Record<number, TableCategory> = {
+export const grib2LookupTable42_26: Record<number, TableCategory> = {
   0: { parameter: 'Urban Cover', units: 'Proportion', abbrev: 'URBCOVER' },
   1: { parameter: 'Road Cover', units: 'Proportion', abbrev: 'ROADCOVER' },
   2: { parameter: 'Building Cover', units: 'Proportion', abbrev: 'BUILDCOVER' },
@@ -3468,7 +3468,7 @@ export const lookupTable42_26: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_30: Record<number, TableCategory> = {
+export const grib2LookupTable42_30: Record<number, TableCategory> = {
   0: { parameter: 'Scaled Radiance', units: 'Numeric', abbrev: 'SRAD' },
   1: { parameter: 'Scaled Albedo', units: 'Numeric', abbrev: 'SALBEDO' },
   2: { parameter: 'Scaled Brightness Temperature', units: 'Numeric', abbrev: 'SBTMP' },
@@ -3510,7 +3510,7 @@ export const lookupTable42_30: Record<number, TableCategory> = {
  * 1. Bidirectional Reflectance Factor is the ratio of the radiant flux reflected by a surface to that reflected by an ideal, diffuse Lambertian standard surface under identical conditions.
  * 2. Scaled Radiance is the top-of-atmosphere radiance observed by a sensor, multiplied by π, divided by the in-band solar irradiance.
  */
-export const lookupTable42_31: Record<number, TableCategory> = {
+export const grib2LookupTable42_31: Record<number, TableCategory> = {
   0: { parameter: 'Estimated Precipitation', units: 'kg m-2', abbrev: 'ESTP' },
   1: { parameter: 'Instantaneous Rain Rate', units: 'kg m-2 s-1', abbrev: 'IRRATE' },
   2: { parameter: 'Cloud Top Height', units: 'm', abbrev: 'CTOPH' },
@@ -3598,7 +3598,7 @@ export const lookupTable42_31: Record<number, TableCategory> = {
  * ## Notes
  * 1. Numbers 31 to 40 are deprecated.
  */
-export const lookupTable42_32: Record<number, TableCategory> = {
+export const grib2LookupTable42_32: Record<number, TableCategory> = {
   0: { parameter: 'Clear Sky Probability', units: '%', abbrev: 'CSKPROB' },
   1: { parameter: 'Cloud Top Temperature', units: 'K', abbrev: 'CTOPTMP' },
   2: { parameter: 'Cloud Top Pressure', units: 'Pa', abbrev: 'CTOPRES' },
@@ -3667,7 +3667,7 @@ export const lookupTable42_32: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_33: Record<number, TableCategory> = {
+export const grib2LookupTable42_33: Record<number, TableCategory> = {
   0: {
     parameter: 'Probability of Encountering Marginal Visual Flight Rules Conditions',
     units: '%',
@@ -3707,7 +3707,7 @@ export const lookupTable42_33: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_34: Record<number, TableCategory> = {
+export const grib2LookupTable42_34: Record<number, TableCategory> = {
   0: { parameter: 'Volcanic Ash Probability', units: '%', abbrev: 'VOLAPROB' },
   1: { parameter: 'Volcanic Ash Cloud Top Temperature', units: 'K', abbrev: 'VOLACDTT' },
   2: { parameter: 'Volcanic Ash Cloud Top Pressure', units: 'Pa', abbrev: 'VOLACDTP' },
@@ -3751,7 +3751,7 @@ export const lookupTable42_34: Record<number, TableCategory> = {
  * 3. Sub-Skin Sea-Surface Temperature: Temperature at the base of the thermal skin layer.
  * 4. Foundation Sea-Surface Temperature: Temperature in the water column free of diurnal variability.
  */
-export const lookupTable42_35: Record<number, TableCategory> = {
+export const grib2LookupTable42_35: Record<number, TableCategory> = {
   0: { parameter: 'Interface Sea-Surface Temperature', units: 'K', abbrev: 'ISSTMP' },
   1: { parameter: 'Skin Sea-Surface Temperature', units: 'K', abbrev: 'SKSSTMP' },
   2: { parameter: 'Sub-Skin Sea-Surface Temperature', units: 'K', abbrev: 'SSKSSTMP' },
@@ -3798,7 +3798,7 @@ export const lookupTable42_35: Record<number, TableCategory> = {
  * 5. Diffuse Solar Irradiance: Solar flux per unit area received from 2π sr, excluding the Sun's disc, on a horizontal surface.
  * 6. Diffuse Solar Exposure: Time integral of diffuse solar irradiance.
  */
-export const lookupTable42_36: Record<number, TableCategory> = {
+export const grib2LookupTable42_36: Record<number, TableCategory> = {
   0: { parameter: 'Global Solar Irradiance', units: 'W m-2', abbrev: 'GSOLIRR' },
   1: { parameter: 'Global Solar Exposure', units: 'J m-2', abbrev: 'GSOLEXP' },
   2: { parameter: 'Direct Solar Irradiance', units: 'W m-2', abbrev: 'DIRSOLIR' },
@@ -3829,7 +3829,7 @@ export const lookupTable42_36: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_3192: Record<number, TableCategory> = {
+export const grib2LookupTable42_3192: Record<number, TableCategory> = {
   0: {
     parameter: 'Simulated Brightness Temperature for GOES 12, Channel 2',
     units: 'K',
@@ -4284,7 +4284,7 @@ export const lookupTable42_3192: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_40: Record<number, TableCategory> = {
+export const grib2LookupTable42_40: Record<number, TableCategory> = {
   0: { parameter: 'Temperature', units: 'K', abbrev: 'TMPSWP' },
   1: { parameter: 'Electron Temperature', units: 'K', abbrev: 'ELECTMP' },
   2: { parameter: 'Proton Temperature', units: 'K', abbrev: 'PROTTMP' },
@@ -4315,7 +4315,7 @@ export const lookupTable42_40: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_41: Record<number, TableCategory> = {
+export const grib2LookupTable42_41: Record<number, TableCategory> = {
   0: { parameter: 'Velocity Magnitude (Speed)', units: 'm s-1', abbrev: 'SPEED' },
   1: {
     parameter: '1st Vector Component of Velocity (Coordinate system dependent)',
@@ -4356,7 +4356,7 @@ export const lookupTable42_41: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_42: Record<number, TableCategory> = {
+export const grib2LookupTable42_42: Record<number, TableCategory> = {
   0: { parameter: 'Particle Number Density', units: 'm-3', abbrev: 'PLSMDEN' },
   1: { parameter: 'Electron Density', units: 'm-3', abbrev: 'ELCDEN' },
   2: { parameter: 'Proton Density', units: 'm-3', abbrev: 'PROTDEN' },
@@ -4395,7 +4395,7 @@ export const lookupTable42_42: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_43: Record<number, TableCategory> = {
+export const grib2LookupTable42_43: Record<number, TableCategory> = {
   0: { parameter: 'Magnetic Field Magnitude', units: 'T', abbrev: 'BTOT' },
   1: { parameter: '1st Vector Component of Magnetic Field', units: 'T', abbrev: 'BVEC1' },
   2: { parameter: '2nd Vector Component of Magnetic Field', units: 'T', abbrev: 'BVEC2' },
@@ -4428,7 +4428,7 @@ export const lookupTable42_43: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_44: Record<number, TableCategory> = {
+export const grib2LookupTable42_44: Record<number, TableCategory> = {
   0: { parameter: 'Proton Flux (Differential)', units: '(m2 s sr eV)-1', abbrev: 'DIFPFLUX' },
   1: { parameter: 'Proton Flux (Integral)', units: '(m2 s sr)-1', abbrev: 'INTPFLUX' },
   2: { parameter: 'Electron Flux (Differential)', units: '(m2 s sr eV)-1', abbrev: 'DIFEFLUX' },
@@ -4464,7 +4464,7 @@ export const lookupTable42_44: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_45: Record<number, TableCategory> = {
+export const grib2LookupTable42_45: Record<number, TableCategory> = {
   0: { parameter: 'Amplitude', units: 'rad', abbrev: 'AMPL' },
   1: { parameter: 'Phase', units: 'rad', abbrev: 'PHASE' },
   2: { parameter: 'Frequency', units: 'Hz', abbrev: 'FREQ' },
@@ -4493,7 +4493,7 @@ export const lookupTable42_45: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_46: Record<number, TableCategory> = {
+export const grib2LookupTable42_46: Record<number, TableCategory> = {
   0: { parameter: 'Integrated Solar Irradiance', units: 'W m-2', abbrev: 'TSI' },
   1: { parameter: 'Solar X-ray Flux (XRS Long)', units: 'W m-2', abbrev: 'XLONG' },
   2: { parameter: 'Solar X-ray Flux (XRS Short)', units: 'W m-2', abbrev: 'XSHRT' },
@@ -4525,7 +4525,7 @@ export const lookupTable42_46: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_47: Record<number, TableCategory> = {
+export const grib2LookupTable42_47: Record<number, TableCategory> = {
   0: { parameter: 'Limb Intensity', units: 'J m-2 s-1', abbrev: 'LMBINT' },
   1: { parameter: 'Disk Intensity', units: 'J m-2 s-1', abbrev: 'DSKINT' },
   2: { parameter: 'Disk Intensity Day', units: 'J m-2 s-1', abbrev: 'DSKDAY' },
@@ -4554,7 +4554,7 @@ export const lookupTable42_47: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_48: Record<number, TableCategory> = {
+export const grib2LookupTable42_48: Record<number, TableCategory> = {
   0: { parameter: 'X-Ray Radiance', units: 'W sr-1 m-2', abbrev: 'XRAYRAD' },
   1: { parameter: 'EUV Radiance', units: 'W sr-1 m-2', abbrev: 'EUVRAD' },
   2: { parameter: 'H-Alpha Radiance', units: 'W sr-1 m-2', abbrev: 'HARAD' },
@@ -4588,7 +4588,7 @@ export const lookupTable42_48: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_49: Record<number, TableCategory> = {
+export const grib2LookupTable42_49: Record<number, TableCategory> = {
   0: { parameter: 'Pedersen Conductivity', units: 'S m-1', abbrev: 'SIGPED' },
   1: { parameter: 'Hall Conductivity', units: 'S m-1', abbrev: 'SIGHAL' },
   2: { parameter: 'Parallel Conductivity', units: 'S m-1', abbrev: 'SIGPAR' },
@@ -4616,7 +4616,7 @@ export const lookupTable42_49: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_410: Record<number, TableCategory> = {
+export const grib2LookupTable42_410: Record<number, TableCategory> = {
   0: { parameter: 'Scintillation Index (sigma phi)', units: 'rad', abbrev: 'SCINIDX' },
   1: { parameter: 'Scintillation Index S4', units: 'Numeric', abbrev: 'SCIDEXS4' },
   2: { parameter: 'Rate of Change of TEC Index (ROTI)', units: 'TECU/min', abbrev: 'ROTIDX' },
@@ -4662,7 +4662,7 @@ export const lookupTable42_410: Record<number, TableCategory> = {
  * 2. The Charnock parameter accounts for increased aerodynamic roughness as wave heights grow due to increasing surface stress. It depends on the wind speed, wave age, and other aspects of the sea state.
  * 3. Parameters are normalized by being divided by the product of air density and the square of the friction velocity.
  */
-export const lookupTable42_100: Record<number, TableCategory> = {
+export const grib2LookupTable42_100: Record<number, TableCategory> = {
   0: { parameter: 'Wave Spectra (1)', units: '-', abbrev: 'WVSP1' },
   1: { parameter: 'Wave Spectra (2)', units: '-', abbrev: 'WVSP2' },
   2: { parameter: 'Wave Spectra (3)', units: '-', abbrev: 'WVSP3' },
@@ -4880,7 +4880,7 @@ export const lookupTable42_100: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_101: Record<number, TableCategory> = {
+export const grib2LookupTable42_101: Record<number, TableCategory> = {
   0: { parameter: 'Current Direction', units: 'degree True', abbrev: 'DIRC' },
   1: { parameter: 'Current Speed', units: 'm s-1', abbrev: 'SPC' },
   2: { parameter: 'U-Component of Current', units: 'm s-1', abbrev: 'UOGRD' },
@@ -4920,7 +4920,7 @@ export const lookupTable42_101: Record<number, TableCategory> = {
  * ## Notes:
  * 1. Ice internal pressure or stress (Pa m) is the integrated pressure across the vertical thickness of a layer of ice. It is produced when concentrated ice reacts to external forces such as wind and ocean currents.
  */
-export const lookupTable42_102: Record<number, TableCategory> = {
+export const grib2LookupTable42_102: Record<number, TableCategory> = {
   0: { parameter: 'Ice Cover', units: 'Proportion', abbrev: 'ICEC' },
   1: { parameter: 'Ice Thickness', units: 'm', abbrev: 'ICETK' },
   2: { parameter: 'Direction of Ice Drift', units: 'degree True', abbrev: 'DICED' },
@@ -4999,7 +4999,7 @@ export const lookupTable42_102: Record<number, TableCategory> = {
  * 1. The x- and y- components of surface stress are not necessarily equivalent to the u- and v- components (eastward/northward).
  *    The x- and y- components strictly follow the defined coordinate system which may or may not follow the eastward and northward directions.
  */
-export const lookupTable42_103: Record<number, TableCategory> = {
+export const grib2LookupTable42_103: Record<number, TableCategory> = {
   0: { parameter: 'Water Temperature', units: 'K', abbrev: 'WTMP' },
   1: { parameter: 'Deviation of Sea Level from Mean', units: 'm', abbrev: 'DSLM' },
   2: { parameter: 'Heat Exchange Coefficient', units: '', abbrev: 'CH' },
@@ -5108,7 +5108,7 @@ export const lookupTable42_103: Record<number, TableCategory> = {
  * 2. The x- and y- components of water velocity are not necessarily equivalent to the u- and v- components (eastward/northward).
  *    The x- and y- components strictly follow the defined coordinate system which may or may not follow the eastward and northward directions.
  */
-export const lookupTable42_104: Record<number, TableCategory> = {
+export const grib2LookupTable42_104: Record<number, TableCategory> = {
   0: { parameter: 'Main Thermocline Depth', units: 'm', abbrev: 'MTHD' },
   1: { parameter: 'Main Thermocline Anomaly', units: 'm', abbrev: 'MTHA' },
   2: { parameter: 'Transient Thermocline Depth', units: 'm', abbrev: 'TTHDP' },
@@ -5257,7 +5257,7 @@ export const lookupTable42_104: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_10191: Record<number, TableCategory> = {
+export const grib2LookupTable42_10191: Record<number, TableCategory> = {
   0: {
     parameter: 'Seconds Prior To Initial Reference Time (Defined In Section 1)',
     units: 's',
@@ -5294,7 +5294,7 @@ export const lookupTable42_10191: Record<number, TableCategory> = {
  * ## Notes:
  * - Wet-bulb Globe Temperature (parameter 2) and Globe Temperature (parameter 3) may require additional environmental conditions to calculate.
  */
-export const lookupTable42_2000: Record<number, TableCategory> = {
+export const grib2LookupTable42_2000: Record<number, TableCategory> = {
   0: { parameter: 'Universal Thermal Climate Index', units: 'K', abbrev: 'UTHCIDX' },
   1: { parameter: 'Mean Radiant Temperature', units: 'K', abbrev: 'MEANRTMP' },
   2: { parameter: 'Wet-bulb Globe Temperature', units: 'K', abbrev: 'WETBGTMP' },
@@ -5328,7 +5328,7 @@ export const lookupTable42_2000: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_2001: Record<number, TableCategory> = {
+export const grib2LookupTable42_2001: Record<number, TableCategory> = {
   0: { parameter: 'Malaria Cases', units: 'Fraction', abbrev: 'MALACASE' },
   1: { parameter: 'Malaria Circumsporozoite Protein Rate', units: 'Fraction', abbrev: 'MACPRATE' },
   2: {
@@ -5379,7 +5379,7 @@ export const lookupTable42_2001: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_2002: Record<number, TableCategory> = {
+export const grib2LookupTable42_2002: Record<number, TableCategory> = {
   0: { parameter: 'Population Density', units: 'Person m-2', abbrev: 'POPDEN' },
   // Reserved 1-191
   // Reserved for Local Use 192-254
@@ -5405,7 +5405,7 @@ export const lookupTable42_2002: Record<number, TableCategory> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable42_2003: Record<number, TableCategory> = {
+export const grib2LookupTable42_2003: Record<number, TableCategory> = {
   0: { parameter: 'Renewable power capacity', units: 'W', abbrev: 'RENPCAP' },
   1: { parameter: 'Renewable power production rate', units: 'W', abbrev: 'RENPPROD' },
   2: { parameter: 'Wind power capacity', units: 'W', abbrev: 'WINDPCAP' },
@@ -5452,102 +5452,102 @@ export const lookupTable42_2003: Record<number, TableCategory> = {
  * ## Reads as
  * `{ [discipline]: { [param catagory]: { TableCategory } }}`
  */
-export const lookupTable42: Record<number, Record<number, Record<number, TableCategory>>> = {
+export const grib2LookupTable42: Record<number, Record<number, Record<number, TableCategory>>> = {
   /** Product Discipline 0 - Meteorological products */
   0: {
-    0: lookupTable42_00,
-    1: lookupTable42_01,
-    2: lookupTable42_02,
-    3: lookupTable42_03,
-    4: lookupTable42_04,
-    5: lookupTable42_05,
-    6: lookupTable42_06,
-    7: lookupTable42_07,
-    13: lookupTable42_013,
-    14: lookupTable42_014,
-    15: lookupTable42_015,
-    16: lookupTable42_016,
-    17: lookupTable42_017,
-    18: lookupTable42_018,
-    19: lookupTable42_019,
-    20: lookupTable42_020,
-    21: lookupTable42_021,
-    22: lookupTable42_022,
-    190: lookupTable42_190,
-    191: lookupTable42_191,
+    0: grib2LookupTable42_00,
+    1: grib2LookupTable42_01,
+    2: grib2LookupTable42_02,
+    3: grib2LookupTable42_03,
+    4: grib2LookupTable42_04,
+    5: grib2LookupTable42_05,
+    6: grib2LookupTable42_06,
+    7: grib2LookupTable42_07,
+    13: grib2LookupTable42_013,
+    14: grib2LookupTable42_014,
+    15: grib2LookupTable42_015,
+    16: grib2LookupTable42_016,
+    17: grib2LookupTable42_017,
+    18: grib2LookupTable42_018,
+    19: grib2LookupTable42_019,
+    20: grib2LookupTable42_020,
+    21: grib2LookupTable42_021,
+    22: grib2LookupTable42_022,
+    190: grib2LookupTable42_190,
+    191: grib2LookupTable42_191,
     // 192-254 Reserved for Local Use
-    192: lookupTable42_192,
+    192: grib2LookupTable42_192,
     255: {},
   },
   /** Product Discipline 1, Hydrologic products */
   1: {
-    0: lookupTable42_10,
-    1: lookupTable42_11,
-    2: lookupTable42_12,
+    0: grib2LookupTable42_10,
+    1: grib2LookupTable42_11,
+    2: grib2LookupTable42_12,
     // 3-191 Reserved
     // 192-254 Reserved for Local Use
     255: {},
   },
   /** Product Discipline 2, Land Surface products */
   2: {
-    0: lookupTable42_20,
-    1: lookupTable42_21,
-    3: lookupTable42_23,
-    4: lookupTable42_24,
-    5: lookupTable42_25,
-    6: lookupTable42_26,
+    0: grib2LookupTable42_20,
+    1: grib2LookupTable42_21,
+    3: grib2LookupTable42_23,
+    4: grib2LookupTable42_24,
+    5: grib2LookupTable42_25,
+    6: grib2LookupTable42_26,
     // 7-191 Reserved
     // 192-254 Reserved for Local Use
     255: {},
   },
   /** Product Discipline 3, Space products */
   3: {
-    0: lookupTable42_30,
-    1: lookupTable42_31,
-    2: lookupTable42_32,
-    3: lookupTable42_33,
-    4: lookupTable42_34,
-    5: lookupTable42_35,
-    6: lookupTable42_36,
+    0: grib2LookupTable42_30,
+    1: grib2LookupTable42_31,
+    2: grib2LookupTable42_32,
+    3: grib2LookupTable42_33,
+    4: grib2LookupTable42_34,
+    5: grib2LookupTable42_35,
+    6: grib2LookupTable42_36,
     // 7-191 Reserved
     // 192-254 Reserved for Local Use
-    192: lookupTable42_192,
+    192: grib2LookupTable42_192,
     255: {},
   },
   /** Product Discipline 4, Space Weather products */
   4: {
-    0: lookupTable42_40,
-    1: lookupTable42_41,
-    2: lookupTable42_42,
-    3: lookupTable42_43,
-    4: lookupTable42_44,
-    5: lookupTable42_45,
-    6: lookupTable42_46,
-    7: lookupTable42_47,
-    8: lookupTable42_48,
-    9: lookupTable42_49,
-    10: lookupTable42_410,
+    0: grib2LookupTable42_40,
+    1: grib2LookupTable42_41,
+    2: grib2LookupTable42_42,
+    3: grib2LookupTable42_43,
+    4: grib2LookupTable42_44,
+    5: grib2LookupTable42_45,
+    6: grib2LookupTable42_46,
+    7: grib2LookupTable42_47,
+    8: grib2LookupTable42_48,
+    9: grib2LookupTable42_49,
+    10: grib2LookupTable42_410,
     // 11-191 Reserved
     // 192-254 Reserved for Local Use
     255: {},
   },
   /** Product Discipline 10, Oceanographic products */
   10: {
-    0: lookupTable42_100,
-    1: lookupTable42_101,
-    2: lookupTable42_102,
-    3: lookupTable42_103,
-    4: lookupTable42_104,
-    191: lookupTable42_10191,
+    0: grib2LookupTable42_100,
+    1: grib2LookupTable42_101,
+    2: grib2LookupTable42_102,
+    3: grib2LookupTable42_103,
+    4: grib2LookupTable42_104,
+    191: grib2LookupTable42_10191,
     // 192-254 Reserved for Local Use
     255: {},
   },
   /** Product Discipline 20, Health and Socioeconomic impacts */
   20: {
-    0: lookupTable42_2000,
-    1: lookupTable42_2001,
-    2: lookupTable42_2002,
-    3: lookupTable42_2003,
+    0: grib2LookupTable42_2000,
+    1: grib2LookupTable42_2001,
+    2: grib2LookupTable42_2002,
+    3: grib2LookupTable42_2003,
     // 4-191 Reserved
     // 192-254 Reserved for Local Use
     255: {},
@@ -5577,7 +5577,7 @@ export const lookupTable42: Record<number, Record<number, Record<number, TableCa
  * 2. Analysis increment represents "analysis minus first guess."
  * 3. Initialized analysis increment represents "initialized analysis minus analysis."
  */
-export const lookupTable43: Record<number, string> = {
+export const grib2LookupTable43: Record<number, string> = {
   0: 'Analysis',
   1: 'Initialization',
   2: 'Forecast',
@@ -5635,7 +5635,7 @@ export const lookupTable43: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable44: Record<number, string> = {
+export const grib2LookupTable44: Record<number, string> = {
   0: 'Minute',
   1: 'Hour',
   2: 'Day',
@@ -5693,7 +5693,7 @@ export interface TypeAndUnit {
  * 7. Ocean level types are defined by property differences from the near-surface.
  * 8. This level differs from entry 13, which is vertically accumulated from the surface.
  */
-export const lookupTable45: Record<number, TypeAndUnit> = {
+export const grib2LookupTable45: Record<number, TypeAndUnit> = {
   0: { type: 'Reserved', unit: '' },
   1: { type: 'Ground or Water Surface', unit: '' },
   2: { type: 'Cloud Base Level', unit: '' },
@@ -5886,7 +5886,7 @@ export const lookupTable45: Record<number, TypeAndUnit> = {
  * ## Notes
  * None.
  */
-export const lookupTable46: Record<number, string> = {
+export const grib2LookupTable46: Record<number, string> = {
   0: 'Unperturbed High-Resolution Control Forecast',
   1: 'Unperturbed Low-Resolution Control Forecast',
   2: 'Negatively Perturbed Forecast',
@@ -5923,7 +5923,7 @@ export const lookupTable46: Record<number, string> = {
  * 2. The reference for "minimum of all ensemble members" and "maximum of all ensemble members" is the set of ensemble members
  *    and not a time interval; this differs from Product Definition Template 4.8.
  */
-export const lookupTable47: Record<number, string> = {
+export const grib2LookupTable47: Record<number, string> = {
   0: 'Unweighted Mean of All Members',
   1: 'Weighted Mean of All Members',
   2: 'Standard Deviation with respect to Cluster Mean',
@@ -5974,7 +5974,7 @@ export const lookupTable47: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable48: Record<number, string> = {
+export const grib2LookupTable48: Record<number, string> = {
   0: 'Anomoly Correlation',
   1: 'Root Mean Square',
   // 2-191: Reserved
@@ -6008,7 +6008,7 @@ export const lookupTable48: Record<number, string> = {
  * 3. Scale Factor and Scaled Values for lower/upper limits must be set to missing for entry `9`.
  *    This is primarily for categorical boolean counts.
  */
-export const lookupTable49: Record<number, string> = {
+export const grib2LookupTable49: Record<number, string> = {
   0: 'Probability of event below lower limit',
   1: 'Probability of event above upper limit',
   2: 'Probability of event between upper and lower limits (range includes lower limit but not the upper limit)',
@@ -6049,7 +6049,7 @@ export const lookupTable49: Record<number, string> = {
  * 3. Ratio (Code 9) is a non-dimensional number without units.
  * 4. For code number 102, the drought index is defined by discipline 0, parameter category 22, and the corresponding parameter number.
  */
-export const lookupTable410: Record<number, string> = {
+export const grib2LookupTable410: Record<number, string> = {
   0: 'Average',
   1: 'Accumulation',
   2: 'Maximum',
@@ -6113,7 +6113,7 @@ export const lookupTable410: Record<number, string> = {
  * 1. Code figure `5` applies when a single time subinterval is used to calculate the statistically processed field.
  *    The exact starting and ending times of the subinterval are not specified but are inclusively within the overall interval.
  */
-export const lookupTable411: Record<number, string> = {
+export const grib2LookupTable411: Record<number, string> = {
   0: 'Reserved',
   1: 'Successive times processed have same forecast time, start time of forecast is incremented.',
   2: 'Successive times processed have same start time of forecast, forecast time is incremented.',
@@ -6146,7 +6146,7 @@ export const lookupTable411: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable412: Record<number, string> = {
+export const grib2LookupTable412: Record<number, string> = {
   0: 'Maintenance Mode',
   1: 'Clear Air',
   2: 'Precipitation',
@@ -6176,7 +6176,7 @@ export const lookupTable412: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable413: Record<number, string> = {
+export const grib2LookupTable413: Record<number, string> = {
   0: 'No Quality Control Applied',
   1: 'Quality Control Applied',
   // 2-191: Reserved
@@ -6205,7 +6205,7 @@ export const lookupTable413: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable414: Record<number, string> = {
+export const grib2LookupTable414: Record<number, string> = {
   0: 'No Clutter Filter Used',
   1: 'Clutter Filter Used',
   // 2-191: Reserved
@@ -6235,7 +6235,7 @@ export const lookupTable414: Record<number, string> = {
  *    interpolated values within a square array of points distributed in each output grid box.
  * 3. Neighbor-budget interpolation performs a budget interpolation at the grid point nearest to the nominal grid point.
  */
-export const lookupTable415: Record<number, string> = {
+export const grib2LookupTable415: Record<number, string> = {
   0: 'Data is calculated directly from the source grid with no interpolation',
   1: 'Bilinear interpolation using the 4 source grid-point values surrounding the nominal grid-point',
   2: 'Bicubic interpolation using the 4 source grid-point values surrounding the nominal grid-point',
@@ -6273,7 +6273,7 @@ export const lookupTable415: Record<number, string> = {
  * 4. "Correlation of Product with used Calibration Product" (Code 2) is a non-dimensional value without units.
  * 5. For "Standard deviation" (Code 3) and "Random error" (Code 4), the value uses the same units as the parameter defined by octets 10 and 11.
  */
-export const lookupTable416: Record<number, string> = {
+export const grib2LookupTable416: Record<number, string> = {
   0: 'Confidence index',
   1: 'Quality indicator',
   2: 'Correlation of Product with used Calibration Product',
@@ -6304,7 +6304,7 @@ export const lookupTable416: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable491: Record<number, string> = {
+export const grib2LookupTable491: Record<number, string> = {
   0: 'Smaller than first limit',
   1: 'Greater than second limit',
   2: 'Between first and second limit (includes first limit but not the second)',
@@ -6341,7 +6341,7 @@ export const lookupTable491: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4100: Record<number, string> = {
+export const grib2LookupTable4100: Record<number, string> = {
   0: 'Analysis',
   1: 'Forecast',
   2: 'Reforecast (Hindcast)',
@@ -6378,7 +6378,7 @@ export const lookupTable4100: Record<number, string> = {
  * 5. Entry `22` (Anomaly of probabilities) applies to templates `4.112` and `4.123`.
  * 6. Entry `23` (Standardized Drought Index) follows definitions from the WMO Handbook on Drought Indicators and Indices.
  */
-export const lookupTable4101: Record<number, string> = {
+export const grib2LookupTable4101: Record<number, string> = {
   0: 'Anomaly',
   1: 'Standardized Anomaly',
   2: 'Significance (Wilcoxon-Mann-Whitney)',
@@ -6413,7 +6413,7 @@ export const lookupTable4101: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4102: Record<number, string> = {
+export const grib2LookupTable4102: Record<number, string> = {
   0: 'Average',
   1: 'Accumulation',
   2: 'Maximum',
@@ -6463,7 +6463,7 @@ export const lookupTable4102: Record<number, string> = {
  *    - **Span of grid cells**: 2 arguments for grid cells: 1. west-east span `i +/- x`
  *      and 2. south-north span `j +/- y`.
  */
-export const lookupTable4103: Record<number, string> = {
+export const grib2LookupTable4103: Record<number, string> = {
   0: 'Circle [m]',
   1: 'Rectangle [m, m]',
   2: 'Square [m]',
@@ -6498,7 +6498,7 @@ export const lookupTable4103: Record<number, string> = {
  *    - The total number of quantiles.
  *    - The quantile value.
  */
-export const lookupTable4104: Record<number, string> = {
+export const grib2LookupTable4104: Record<number, string> = {
   0: 'Average',
   1: 'Reserved',
   2: 'Maximum',
@@ -6534,7 +6534,7 @@ export const lookupTable4104: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4105: Record<number, string> = {
+export const grib2LookupTable4105: Record<number, string> = {
   0: 'Ignore missing data',
   1: 'No data',
   // 2-191: Reserved
@@ -6561,7 +6561,7 @@ export const lookupTable4105: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4201: Record<number, string> = {
+export const grib2LookupTable4201: Record<number, string> = {
   0: 'Reserved',
   1: 'Rain',
   2: 'Thunderstorm',
@@ -6599,7 +6599,7 @@ export const lookupTable4201: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4202: Record<number, string> = {
+export const grib2LookupTable4202: Record<number, string> = {
   // 0-191: Reserved
   // 192-254: Reserved for Local Use
   255: 'Missing',
@@ -6625,7 +6625,7 @@ export const lookupTable4202: Record<number, string> = {
  * ## Notes
  * 1. Code figures `11-20` indicate all four layers were used and ground-based fog is below the lowest layer.
  */
-export const lookupTable4203: Record<number, string> = {
+export const grib2LookupTable4203: Record<number, string> = {
   0: 'Clear',
   1: 'Cumulonimbus',
   2: 'Stratus',
@@ -6672,7 +6672,7 @@ export const lookupTable4203: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4204: Record<number, string> = {
+export const grib2LookupTable4204: Record<number, string> = {
   0: 'None',
   1: 'Isolated (1-2%)',
   2: 'Few (3-5%)',
@@ -6702,7 +6702,7 @@ export const lookupTable4204: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4205: Record<number, string> = {
+export const grib2LookupTable4205: Record<number, string> = {
   0: 'Aerosol not present',
   1: 'Aerosol present',
   // 2-191: Reserved
@@ -6729,7 +6729,7 @@ export const lookupTable4205: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4206: Record<number, string> = {
+export const grib2LookupTable4206: Record<number, string> = {
   0: 'Not Present',
   1: 'Present',
   // 2-191: Reserved
@@ -6756,7 +6756,7 @@ export const lookupTable4206: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4207: Record<number, string> = {
+export const grib2LookupTable4207: Record<number, string> = {
   0: 'None',
   1: 'Light',
   2: 'Moderate',
@@ -6787,7 +6787,7 @@ export const lookupTable4207: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4208: Record<number, string> = {
+export const grib2LookupTable4208: Record<number, string> = {
   0: 'None',
   1: 'Light',
   2: 'Moderate',
@@ -6817,7 +6817,7 @@ export const lookupTable4208: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4209: Record<number, string> = {
+export const grib2LookupTable4209: Record<number, string> = {
   0: 'Reserved',
   1: 'Stable',
   2: 'Mechanically-Driven Turbulence',
@@ -6847,7 +6847,7 @@ export const lookupTable4209: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4210: Record<number, string> = {
+export const grib2LookupTable4210: Record<number, string> = {
   0: 'Contrail Not Present',
   1: 'Contrail Present',
   // 2-191: Reserved
@@ -6874,7 +6874,7 @@ export const lookupTable4210: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4211: Record<number, string> = {
+export const grib2LookupTable4211: Record<number, string> = {
   0: 'Low Bypass',
   1: 'High Bypass',
   2: 'Non-Bypass',
@@ -6902,7 +6902,7 @@ export const lookupTable4211: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4212: Record<number, string> = {
+export const grib2LookupTable4212: Record<number, string> = {
   0: 'Reserved',
   1: 'Urban Land',
   2: 'Agricultural',
@@ -6941,7 +6941,7 @@ export const lookupTable4212: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4213: Record<number, string> = {
+export const grib2LookupTable4213: Record<number, string> = {
   0: 'Reserved',
   1: 'Sand',
   2: 'Loamy Sand',
@@ -6979,7 +6979,7 @@ export const lookupTable4213: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4214: Record<number, string> = {
+export const grib2LookupTable4214: Record<number, string> = {
   0: 'Worst',
   1: 'Very poor',
   2: 'Poor',
@@ -7016,7 +7016,7 @@ export const lookupTable4214: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4215: Record<number, string> = {
+export const grib2LookupTable4215: Record<number, string> = {
   // 0-49: Reserved
   50: 'No-Snow/No-Cloud',
   // 51-99: Reserved
@@ -7047,7 +7047,7 @@ export const lookupTable4215: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4216: Record<number, string> = {
+export const grib2LookupTable4216: Record<number, string> = {
   // 0-90: Elevation in increments of 100 m
   254: 'Clouds',
   // 91-253: Reserved
@@ -7073,7 +7073,7 @@ export const lookupTable4216: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4217: Record<number, string> = {
+export const grib2LookupTable4217: Record<number, string> = {
   0: 'Clear over water',
   1: 'Clear over land',
   2: 'Cloud',
@@ -7103,7 +7103,7 @@ export const lookupTable4217: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4218: Record<number, string> = {
+export const grib2LookupTable4218: Record<number, string> = {
   0: 'No Scene Identified',
   1: 'Green Needle-Leafed Forest',
   2: 'Green Broad-Leafed Forest',
@@ -7170,7 +7170,7 @@ export const lookupTable4218: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4219: Record<number, string> = {
+export const grib2LookupTable4219: Record<number, string> = {
   0: 'Nominal Cloud Top Height Quality',
   1: 'Fog In Segment',
   2: 'Poor Quality Height Estimation',
@@ -7199,7 +7199,7 @@ export const lookupTable4219: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4220: Record<number, string> = {
+export const grib2LookupTable4220: Record<number, string> = {
   0: 'Latitude',
   1: 'Longitude',
   // 2-191: Reserved
@@ -7226,7 +7226,7 @@ export const lookupTable4220: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4221: Record<number, string> = {
+export const grib2LookupTable4221: Record<number, string> = {
   0: 'Not included',
   1: 'Extrapolated',
   // 2-191: Reserved
@@ -7253,7 +7253,7 @@ export const lookupTable4221: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4222: Record<number, string> = {
+export const grib2LookupTable4222: Record<number, string> = {
   0: 'No',
   1: 'Yes',
   // 2-191: Reserved
@@ -7280,7 +7280,7 @@ export const lookupTable4222: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4223: Record<number, string> = {
+export const grib2LookupTable4223: Record<number, string> = {
   0: 'No Fire Detected',
   1: 'Possible Fire Detected',
   2: 'Probable Fire Detected',
@@ -7316,7 +7316,7 @@ export const lookupTable4223: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4224: Record<number, string> = {
+export const grib2LookupTable4224: Record<number, string> = {
   0: 'No Risk Area',
   2: 'General Thunderstorm Risk Area',
   4: 'Slight Risk Area',
@@ -7351,7 +7351,7 @@ export const lookupTable4224: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4227: Record<number, string> = {
+export const grib2LookupTable4227: Record<number, string> = {
   0: 'None',
   1: 'General',
   2: 'Convective',
@@ -7381,7 +7381,7 @@ export const lookupTable4227: Record<number, string> = {
  * ## Notes
  * None.
  */
-export const lookupTable4228: Record<number, string> = {
+export const grib2LookupTable4228: Record<number, string> = {
   0: 'None',
   1: 'Trace',
   2: 'Light',
@@ -7415,7 +7415,7 @@ export const lookupTable4228: Record<number, string> = {
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-230.shtml)
  * - [More data...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/WMO306_vI2_CommonTable_en_v23.0.0.pdf)
  */
-export const lookupTable4230: Record<number, string> = {
+export const grib2LookupTable4230: Record<number, string> = {
   0: 'Ozone - O3',
   1: 'Water Vapour - H2O',
   2: 'Methane - CH4',
@@ -7556,7 +7556,7 @@ export const lookupTable4230: Record<number, string> = {
  * ## Notes
  * Red text depicts changes made since 05/29/2019.
  */
-export const lookupTable4233: Record<number, string> = {
+export const grib2LookupTable4233: Record<number, string> = {
   0: 'Ozone - O3',
   1: 'Water Vapour - H2O',
   2: 'Methane - CH4',
@@ -7703,7 +7703,7 @@ export const lookupTable4233: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-234.shtml)
  */
-export const lookupTable4234: Record<number, string> = {
+export const grib2LookupTable4234: Record<number, string> = {
   1: 'Crops, mixed farming',
   2: 'Short grass',
   3: 'Evergreen needleleaf trees',
@@ -7737,7 +7737,7 @@ export const lookupTable4234: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-235.shtml)
  */
-export const lookupTable4235: Record<number, string> = {
+export const grib2LookupTable4235: Record<number, string> = {
   0: 'Total Wave Spectrum (combined wind waves and swell)',
   1: 'Generalized Partition',
   // 2-191 Reserved
@@ -7754,7 +7754,7 @@ export const lookupTable4235: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-236.shtml)
  */
-export const lookupTable4236: Record<number, string> = {
+export const grib2LookupTable4236: Record<number, string> = {
   1: 'Coarse',
   2: 'Medium',
   3: 'Medium-fine',
@@ -7776,7 +7776,7 @@ export const lookupTable4236: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-238.shtml)
  */
-export const lookupTable4238: Record<number, string> = {
+export const grib2LookupTable4238: Record<number, string> = {
   0: 'Reserved',
   1: 'Aviation',
   2: 'Lightning',
@@ -7820,7 +7820,7 @@ export const lookupTable4238: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-239.shtml)
  */
-export const lookupTable4239: Record<number, string> = {
+export const grib2LookupTable4239: Record<number, string> = {
   0: 'Reserved',
   1: 'Bog',
   2: 'Drained',
@@ -7878,7 +7878,7 @@ export const lookupTable4239: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-240.shtml)
  */
-export const lookupTable4240: Record<number, string> = {
+export const grib2LookupTable4240: Record<number, string> = {
   0: 'No specific distribution function given',
   1: 'Delta functions with spatially variable concentration and fixed diameters Dl(p1) in meter',
   2: 'Delta functions with spatially variable concentration and fixed masses Ml(p1) in kg',
@@ -7901,7 +7901,7 @@ export const lookupTable4240: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-241.shtml)
  */
-export const lookupTable4241: Record<number, string> = {
+export const grib2LookupTable4241: Record<number, string> = {
   0: 'Undefined',
   1: 'Unmodified',
   2: 'Snow-covered',
@@ -7923,7 +7923,7 @@ export const lookupTable4241: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-242.shtml)
  */
-export const lookupTable4242: Record<number, string> = {
+export const grib2LookupTable4242: Record<number, string> = {
   0: 'Reserved',
   1: 'Land use classes according to ESA-GLOBCOVER GCV2009',
   2: 'Land use classes according to European Commission-Global Land Cover Project GLC2000',
@@ -7943,7 +7943,7 @@ export const lookupTable4242: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-243.shtml)
  */
-export const lookupTable4243: Record<number, string> = {
+export const grib2LookupTable4243: Record<number, string> = {
   0: 'Reserved',
   1: 'Evergreen broadleaved forest',
   2: 'Deciduous broadleaved closed forest',
@@ -7997,7 +7997,7 @@ export const lookupTable4243: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-244.shtml)
  */
-export const lookupTable4244: Record<number, string> = {
+export const grib2LookupTable4244: Record<number, string> = {
   0: 'No Quality Information Available',
   1: 'Failed',
   2: 'Passed',
@@ -8014,7 +8014,7 @@ export const lookupTable4244: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-246.shtml)
  */
-export const lookupTable4246: Record<number, string> = {
+export const grib2LookupTable4246: Record<number, string> = {
   0: 'No thunderstorm occurrence',
   1: 'Weak thunderstorm',
   2: 'Moderate thunderstorm',
@@ -8032,7 +8032,7 @@ export const lookupTable4246: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-247.shtml)
  */
-export const lookupTable4247: Record<number, string> = {
+export const grib2LookupTable4247: Record<number, string> = {
   0: 'No precipitation occurrence',
   1: 'Light precipitation',
   2: 'Moderate precipitation',
@@ -8050,7 +8050,7 @@ export const lookupTable4247: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-248.shtml)
  */
-export const lookupTable4248: Record<number, string> = {
+export const grib2LookupTable4248: Record<number, string> = {
   0: 'Nearest forecast or analysis time to specified local time',
   1: 'Interpolated to be valid at the specified local time',
   // 2-191 Reserved
@@ -8066,7 +8066,7 @@ export const lookupTable4248: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-249.shtml)
  */
-export const lookupTable4249: Record<number, string> = {
+export const grib2LookupTable4249: Record<number, string> = {
   0: 'None',
   1: 'Showers',
   2: 'Intermittent',
@@ -8084,7 +8084,7 @@ export const lookupTable4249: Record<number, string> = {
  * ## Links
  * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-250.shtml)
  */
-export const lookupTable4250: Record<number, string> = {
+export const grib2LookupTable4250: Record<number, string> = {
   0: 'Reserved',
   1: 'South-West',
   2: 'South',
@@ -8112,7 +8112,7 @@ export const lookupTable4250: Record<number, string> = {
  * (1).  Geometric sequence: x_n = x_0 * r^(n-1) with 'x_0' first parameter and 'r' second parameter.
  * (2).  Arithmetic sequence: a_n = a_1 + (n-1) d with 'a_1' first parameter and 'd' second parameter.
  */
-export const lookupTable4251: Record<number, string> = {
+export const grib2LookupTable4251: Record<number, string> = {
   0: 'Undefined Sequence',
   1: 'Geometric sequence (see Note 1)',
   2: 'Arithmetic sequence (see Note 2)',
@@ -8132,7 +8132,7 @@ export const lookupTable4251: Record<number, string> = {
  * ## Notes
  * (No additional notes provided for this table)
  */
-export const lookupTable4333: Record<number, string> = {
+export const grib2LookupTable4333: Record<number, string> = {
   0: 'Reserved',
   1: 'DERMA (Danish Emergency Response Model of the Atmosphere)',
   2: 'E-EMEP (Emergency EMEP model)',
@@ -8158,7 +8158,7 @@ export const lookupTable4333: Record<number, string> = {
  * ## Notes
  * (No additional notes provided for this table)
  */
-export const lookupTable4335: Record<number, string> = {
+export const grib2LookupTable4335: Record<number, string> = {
   0: 'Reserved',
   1: 'ARGOS (Accident Reporting and Guiding Operational System)',
   2: 'JRODOS (Java version of Real time Online Decision SuppOrt System)',
@@ -8179,7 +8179,7 @@ export const lookupTable4335: Record<number, string> = {
  * ## Notes
  * (No additional notes provided for this table)
  */
-export const lookupTable4336: Record<number, string> = {
+export const grib2LookupTable4336: Record<number, string> = {
   0: 'Reserved',
   1: 'AROME (Meso scale NWP, Meteo-France)',
   2: 'ARPEGE (Global scale NWP, Meteo-France)',

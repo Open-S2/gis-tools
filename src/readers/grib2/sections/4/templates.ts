@@ -1,19 +1,19 @@
-import { lookupTableA } from '../other/tables';
+import { grib2LookupTableA } from '../other/tables';
 import {
-  lookupTable41,
-  lookupTable42,
-  lookupTable43,
-  lookupTable44,
-  lookupTable45,
-  lookupTable46,
-  lookupTable47,
+  grib2LookupTable41,
+  grib2LookupTable42,
+  grib2LookupTable43,
+  grib2LookupTable44,
+  grib2LookupTable45,
+  grib2LookupTable46,
+  grib2LookupTable47,
 } from './tables';
 
+import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
-import type { Sections } from '..';
 
-/** The output of `getTemplate4` */
-export type ProductDefinition = ReturnType<typeof getTemplate4>;
+/** The output of `getGrib2Template4` */
+export type Grib2ProductDefinition = ReturnType<typeof getGrib2Template4>;
 
 /**
  * Returns a template generator for the given template number
@@ -22,14 +22,14 @@ export type ProductDefinition = ReturnType<typeof getTemplate4>;
  * @param sections - the sections of the GRIB2 message that have been parsed so far
  * @returns - generated template data
  */
-export function getTemplate4(template: number, reader: Reader, sections: Sections) {
+export function getGrib2Template4(template: number, reader: Reader, sections: Grib2Sections) {
   switch (template) {
     case 0:
-      return template40(reader, sections);
+      return grib2Template40(reader, sections);
     case 1:
-      return template41(reader, sections);
+      return grib2Template41(reader, sections);
     case 2:
-      return template42(reader, sections);
+      return grib2Template42(reader, sections);
 
     default:
       throw new Error(`Template 4.${template} not defined`);
@@ -47,7 +47,7 @@ export function getTemplate4(template: number, reader: Reader, sections: Section
  * @param sections - the sections of the GRIB2 message that have been parsed so far
  * @returns - the parsed template
  */
-function template40(section: Reader, sections: Sections) {
+export function grib2Template40(section: Reader, sections: Grib2Sections) {
   const discipline = sections.indicator?.discipline.code ?? 0;
   const refTime = sections.identification?.refTime ?? new Date();
   const parameterCategory = section.getUint8(9);
@@ -65,11 +65,19 @@ function template40(section: Reader, sections: Sections) {
   const surface2Type = section.getUint8(28);
   const surface2Scale = section.getUint8(29);
   const surface2Value = section.getUint32(30);
-  const category = lookupTable41[discipline][parameterCategory];
-  const values = lookupTable42[discipline][parameterCategory][parameterNumber];
-  const surface1 = { ...lookupTable45[surface1Type], scale: surface1Scale, value: surface1Value };
-  const surface2 = { ...lookupTable45[surface2Type], scale: surface2Scale, value: surface2Value };
-  const unitOfTimeRangeIndicatorLookup = lookupTable44[unitOfTimeRangeIndicator];
+  const category = grib2LookupTable41[discipline][parameterCategory];
+  const values = grib2LookupTable42[discipline][parameterCategory][parameterNumber];
+  const surface1 = {
+    ...grib2LookupTable45[surface1Type],
+    scale: surface1Scale,
+    value: surface1Value,
+  };
+  const surface2 = {
+    ...grib2LookupTable45[surface2Type],
+    scale: surface2Scale,
+    value: surface2Value,
+  };
+  const unitOfTimeRangeIndicatorLookup = grib2LookupTable44[unitOfTimeRangeIndicator];
 
   return {
     /** Paramater */
@@ -81,14 +89,14 @@ function template40(section: Reader, sections: Sections) {
     /** Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml)) */
     genProcessType: {
       code: genProcessType,
-      value: lookupTable43[genProcessType],
+      value: grib2LookupTable43[genProcessType],
     },
     /** Background generating process identifier (defined by originating centre) */
     backgroundGenProcess,
     /** Analysis or forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html)) */
     forecastGenProcess: {
       code: forecastGenProcess,
-      value: lookupTableA[forecastGenProcess],
+      value: grib2LookupTableA[forecastGenProcess],
     },
     /** Hours after reference time data cutoff (see Notes) */
     hoursAfterRefTime,
@@ -134,7 +142,7 @@ function template40(section: Reader, sections: Sections) {
  * @param sections - the sections of the GRIB2 message that have been parsed so far
  * @returns - the parsed template
  */
-function template41(section: Reader, sections: Sections) {
+export function grib2Template41(section: Reader, sections: Grib2Sections) {
   const discipline = sections.indicator?.discipline.code ?? 0;
   const refTime = sections.identification?.refTime ?? new Date();
   const parameterCategory = section.getUint8(9);
@@ -155,11 +163,19 @@ function template41(section: Reader, sections: Sections) {
   const ensembleForecastType = section.getUint8(34);
   const perturbationNumber = section.getUint8(35);
   const numForecastsInEnsemble = section.getUint8(36);
-  const category = lookupTable41[discipline][parameterCategory];
-  const values = lookupTable42[discipline][parameterCategory][parameterNumber];
-  const surface1 = { ...lookupTable45[surface1Type], scale: surface1Scale, value: surface1Value };
-  const surface2 = { ...lookupTable45[surface2Type], scale: surface2Scale, value: surface2Value };
-  const unitOfTimeRangeIndicatorLookup = lookupTable44[unitOfTimeRangeIndicator];
+  const category = grib2LookupTable41[discipline][parameterCategory];
+  const values = grib2LookupTable42[discipline][parameterCategory][parameterNumber];
+  const surface1 = {
+    ...grib2LookupTable45[surface1Type],
+    scale: surface1Scale,
+    value: surface1Value,
+  };
+  const surface2 = {
+    ...grib2LookupTable45[surface2Type],
+    scale: surface2Scale,
+    value: surface2Value,
+  };
+  const unitOfTimeRangeIndicatorLookup = grib2LookupTable44[unitOfTimeRangeIndicator];
 
   return {
     /** Paramater */
@@ -171,14 +187,14 @@ function template41(section: Reader, sections: Sections) {
     /** Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml)) */
     genProcessType: {
       code: genProcessType,
-      value: lookupTable43[genProcessType],
+      value: grib2LookupTable43[genProcessType],
     },
     /** Background generating process identifier (defined by originating centre) */
     backgroundGenProcess,
     /** Forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html)) */
     forecastGenProcess: {
       code: forecastGenProcess,
-      value: lookupTableA[forecastGenProcess],
+      value: grib2LookupTableA[forecastGenProcess],
     },
     /** Hours after reference time data cutoff (see Notes) */
     hoursAfterRefTime,
@@ -213,7 +229,7 @@ function template41(section: Reader, sections: Sections) {
     /** Type of ensemble forecast (see Code [Table 4.6](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-6.shtml)) */
     ensembleForecastType: {
       code: ensembleForecastType,
-      value: lookupTable46[ensembleForecastType],
+      value: grib2LookupTable46[ensembleForecastType],
     },
     /** Perturbation number */
     perturbationNumber,
@@ -233,7 +249,7 @@ function template41(section: Reader, sections: Sections) {
  * @param sections - the sections of the GRIB2 message that have been parsed so far
  * @returns - the parsed template
  */
-function template42(section: Reader, sections: Sections) {
+export function grib2Template42(section: Reader, sections: Grib2Sections) {
   const discipline = sections.indicator?.discipline.code ?? 0;
   const refTime = sections.identification?.refTime ?? new Date();
   const parameterCategory = section.getUint8(9);
@@ -253,11 +269,19 @@ function template42(section: Reader, sections: Sections) {
   const surface2Value = section.getUint32(30);
   const derivedForecastType = section.getUint8(34);
   const numForecastsInEnsemble = section.getUint8(35);
-  const category = lookupTable41[discipline][parameterCategory];
-  const values = lookupTable42[discipline][parameterCategory][parameterNumber];
-  const surface1 = { ...lookupTable45[surface1Type], scale: surface1Scale, value: surface1Value };
-  const surface2 = { ...lookupTable45[surface2Type], scale: surface2Scale, value: surface2Value };
-  const unitOfTimeRangeIndicatorLookup = lookupTable44[unitOfTimeRangeIndicator];
+  const category = grib2LookupTable41[discipline][parameterCategory];
+  const values = grib2LookupTable42[discipline][parameterCategory][parameterNumber];
+  const surface1 = {
+    ...grib2LookupTable45[surface1Type],
+    scale: surface1Scale,
+    value: surface1Value,
+  };
+  const surface2 = {
+    ...grib2LookupTable45[surface2Type],
+    scale: surface2Scale,
+    value: surface2Value,
+  };
+  const unitOfTimeRangeIndicatorLookup = grib2LookupTable44[unitOfTimeRangeIndicator];
 
   return {
     /** Paramater */
@@ -269,14 +293,14 @@ function template42(section: Reader, sections: Sections) {
     /** Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml)) */
     genProcessType: {
       code: genProcessType,
-      value: lookupTable43[genProcessType],
+      value: grib2LookupTable43[genProcessType],
     },
     /** Background generating process identifier (defined by originating centre) */
     backgroundGenProcess,
     /** Forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html)) */
     forecastGenProcess: {
       code: forecastGenProcess,
-      value: lookupTableA[forecastGenProcess],
+      value: grib2LookupTableA[forecastGenProcess],
     },
     /** Hours after reference time data cutoff (see Notes) */
     hoursAfterRefTime,
@@ -311,7 +335,7 @@ function template42(section: Reader, sections: Sections) {
     /** Derived forecast type (see Code [Table 4.7](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-7.shtml)) */
     derivedForecastType: {
       code: derivedForecastType,
-      value: lookupTable47[derivedForecastType],
+      value: grib2LookupTable47[derivedForecastType],
     },
     /** Number of forecasts in the ensemble */
     numForecastsInEnsemble,

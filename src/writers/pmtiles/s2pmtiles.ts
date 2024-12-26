@@ -7,7 +7,7 @@ import type { S2Header } from '../../readers/pmtiles';
  * @param header - the header object
  * @returns the raw header bytes
  */
-export function s2HeaderToBytes(header: S2Header): Uint8Array {
+export function s2HeaderToBytes(header: S2Header): Uint8Array<ArrayBuffer> {
   const defaultHeader: Uint8Array = headerToBytes(header);
   const base = new Uint8Array(S2_HEADER_SIZE_BYTES);
   base.set(defaultHeader, 0);

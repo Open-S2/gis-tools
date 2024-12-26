@@ -20,7 +20,7 @@
  *
  * ## Notes
  */
-export const lookupTable50: Record<number, string> = {
+export const grib2LookupTable50: Record<number, string> = {
   /** [See more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-0.shtml) */
   0: 'Grid Point Data - Simple Packing (see Template 5.0)',
   /** [See more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-1.shtml) */
@@ -70,7 +70,7 @@ export const lookupTable50: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable51: Record<number, string> = {
+export const grib2LookupTable51: Record<number, string> = {
   0: 'Floating Point',
   1: 'Integer',
   // 2-191: Reserved
@@ -92,7 +92,7 @@ export const lookupTable51: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable52: Record<number, string> = {
+export const grib2LookupTable52: Record<number, string> = {
   0: 'Explicit Coordinate Values Set',
   1: 'Linear Coordinates: f(1) = C1, f(n) = f(n-1) + C2',
   // 2-10: Reserved
@@ -115,7 +115,7 @@ export const lookupTable52: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable53: Record<number, string> = {
+export const grib2LookupTable53: Record<number, string> = {
   // 0: Reserved
   1: 'Direction Degrees True',
   2: 'Frequency (s-1)',
@@ -138,7 +138,7 @@ export const lookupTable53: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable54: Record<number, string> = {
+export const grib2LookupTable54: Record<number, string> = {
   0: 'Row by Row Splitting',
   1: 'General Group Splitting',
   // 2-191: Reserved
@@ -159,7 +159,7 @@ export const lookupTable54: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable55: Record<number, string> = {
+export const grib2LookupTable55: Record<number, string> = {
   0: 'No explicit missing values included within the data values',
   1: 'Primary missing values included within the data values',
   2: 'Primary and secondary missing values included within the data values',
@@ -181,7 +181,7 @@ export const lookupTable55: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable56: Record<number, string> = {
+export const grib2LookupTable56: Record<number, string> = {
   // 0: Reserved
   1: 'First-Order Spatial Differencing',
   2: 'Second-Order Spatial Differencing',
@@ -202,7 +202,7 @@ export const lookupTable56: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable57: Record<number, string> = {
+export const grib2LookupTable57: Record<number, string> = {
   // 0: Reserved
   1: 'IEEE 32-bit (I=4 in Section 7)',
   2: 'IEEE 64-bit (I=8 in Section 7)',
@@ -226,7 +226,7 @@ export const lookupTable57: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable525: Record<number, string> = {
+export const grib2LookupTable525: Record<number, string> = {
   // 0-76: Reserved
   77: 'Rectangular',
   // 78-87: Reserved
@@ -249,7 +249,7 @@ export const lookupTable525: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable526: Record<number, string> = {
+export const grib2LookupTable526: Record<number, string> = {
   0: 'Spectral coefficients for axes are packed',
   1: 'Spectral coefficients for axes included in the unpacked subset',
   // 2-254: Reserved for Local Use
@@ -268,7 +268,7 @@ export const lookupTable526: Record<number, string> = {
  * **Special Value**:
  * - `255`: Missing
  */
-export const lookupTable540: Record<number, string> = {
+export const grib2LookupTable540: Record<number, string> = {
   0: 'Lossless',
   1: 'Lossy',
   // 2-254: Reserved
