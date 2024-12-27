@@ -1,0 +1,177 @@
+{
+    "data": {
+      "plans": [
+        {
+          "currency": "EUR",
+          "description": [
+            {
+              "language": "fr",
+              "text": "Louez un v\u00e9lo en toute simplicit\u00e9 : 1 \u20ac de l'heure. Si vous souhaitez souscrire \u00e0 un forfait, terminez l'abonnement \"OCCASIONNEL\" dans l'onglet \"Mon abonnement\"."
+            }
+          ],
+          "is_taxable": false,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Occasionnel "
+            }
+          ],
+          "per_km_pricing": [],
+          "per_min_pricing": [
+            {
+              "interval": 60,
+              "rate": 100,
+              "start": 0
+            }
+          ],
+          "plan_id": "forf_CcVXjRZMMhckTFmMytj5z7",
+          "price": 0,
+          "surge_pricing": false,
+          "url": "https://capcotentin.ecovelo.mobi/#/forfaits"
+        },
+        {
+          "currency": "EUR",
+          "description": [
+            {
+              "language": "fr",
+              "text": "Forfait Mensuel : 9 \u20ac/mois + par trajet : 20 minutes gratuites puis 0,05 \u20ac/min"
+            }
+          ],
+          "is_taxable": false,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Mensuel"
+            }
+          ],
+          "per_km_pricing": [],
+          "per_min_pricing": [
+            {
+              "end": 20,
+              "interval": 20,
+              "rate": 0,
+              "start": 0
+            },
+            {
+              "end": 0,
+              "interval": 1,
+              "rate": 5,
+              "start": 20
+            }
+          ],
+          "plan_id": "forf_SVhsenTU6EmjCqd2n4eCXV",
+          "price": 0,
+          "surge_pricing": false,
+          "url": "https://capcotentin.ecovelo.mobi/#/forfaits"
+        },
+        {
+          "currency": "EUR",
+          "description": [
+            {
+              "language": "fr",
+              "text": "Forfait Annuel: 40 \u20ac/an + par trajet : 20 minutes gratuites puis 0,05 \u20ac/min"
+            }
+          ],
+          "is_taxable": false,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Annuel"
+            }
+          ],
+          "per_km_pricing": [],
+          "per_min_pricing": [
+            {
+              "end": 20,
+              "interval": 20,
+              "rate": 0,
+              "start": 0
+            },
+            {
+              "end": 0,
+              "interval": 1,
+              "rate": 5,
+              "start": 20
+            }
+          ],
+          "plan_id": "forf_WS2hkMsTMfcqJvbUxu4Gh9",
+          "price": 0,
+          "surge_pricing": false,
+          "url": "https://capcotentin.ecovelo.mobi/#/forfaits"
+        },
+        {
+          "currency": "EUR",
+          "description": [
+            {
+              "language": "fr",
+              "text": "Forfait Mensuel - Tarif r\u00e9duit : 4,50 \u20ac/mois + par trajet : 20 minutes gratuites puis 0,05 \u20ac/min"
+            }
+          ],
+          "is_taxable": false,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Mensuel Tarif r\u00e9duit (-26 ans, QF<650, Abonn\u00e9 CapCotentin)"
+            }
+          ],
+          "per_km_pricing": [],
+          "per_min_pricing": [
+            {
+              "end": 20,
+              "interval": 20,
+              "rate": 0,
+              "start": 0
+            },
+            {
+              "end": 0,
+              "interval": 1,
+              "rate": 5,
+              "start": 20
+            }
+          ],
+          "plan_id": "forf_iSnZnGY2bcn6sbLHYjBhPR",
+          "price": 0,
+          "surge_pricing": false,
+          "url": "https://capcotentin.ecovelo.mobi/#/forfaits"
+        },
+        {
+          "currency": "EUR",
+          "description": [
+            {
+              "language": "fr",
+              "text": "Forfait Annuel - Tarif r\u00e9duit : 20 \u20ac/an + par trajet : 20 minutes gratuites puis 0,05 \u20ac/min"
+            }
+          ],
+          "is_taxable": false,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Annuel Tarif r\u00e9duit (-26 ans, QF<650, Abonn\u00e9 CapCotentin)"
+            }
+          ],
+          "per_km_pricing": [],
+          "per_min_pricing": [
+            {
+              "end": 20,
+              "interval": 20,
+              "rate": 0,
+              "start": 0
+            },
+            {
+              "end": 0,
+              "interval": 1,
+              "rate": 5,
+              "start": 20
+            }
+          ],
+          "plan_id": "forf_dKsJK4vDfUnnLhs3AZZUwL",
+          "price": 0,
+          "surge_pricing": false,
+          "url": "https://capcotentin.ecovelo.mobi/#/forfaits"
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T13:12:32+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

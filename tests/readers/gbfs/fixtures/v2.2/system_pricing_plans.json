@@ -1,0 +1,57 @@
+{
+    "last_updated": 1735301884,
+    "ttl": 0,
+    "version": "2.2",
+    "data": {
+      "plans": [
+        {
+          "plan_id": "price_scooter",
+          "name": "Scooters price",
+          "currency": "USD",
+          "price": 1,
+          "is_taxable": true,
+          "description": "",
+          "per_min_pricing": [
+            {
+              "start": 0,
+              "rate": 0.35,
+              "interval": 1,
+              "surge_pricing": false
+            }
+          ]
+        },
+        {
+          "plan_id": "price_bicycle",
+          "name": "Bicycle price",
+          "currency": "USD",
+          "price": 0.35,
+          "is_taxable": true,
+          "description": "",
+          "per_min_pricing": [
+            {
+              "start": 0,
+              "rate": 1,
+              "interval": 1,
+              "surge_pricing": false
+            }
+          ]
+        },
+        {
+          "plan_id": "price_moped",
+          "name": "Moped price",
+          "currency": "USD",
+          "price": 0,
+          "is_taxable": true,
+          "description": "",
+          "per_min_pricing": [
+            {
+              "start": 0,
+              "rate": 0.37,
+              "interval": 1,
+              "surge_pricing": false
+            }
+          ]
+        }
+      ]
+    }
+}

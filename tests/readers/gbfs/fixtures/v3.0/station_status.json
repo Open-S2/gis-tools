@@ -1,0 +1,560 @@
+{
+    "data": {
+      "stations": [
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 6,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 4,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 4,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 5,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 5,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 5,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 7,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 2,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_TnogdLnTnM8F22DLNzsEMn",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 2,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 8,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 3,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 3,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 10,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 3,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_2b3itDpsqNMNwk9vnvdNmW",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 3,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 6,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 1,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_ihEEDBJn3hLPveLFoFf6Ng",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 1,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 9,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 5,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 5,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 6,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 3,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_ZcCiFSJhvuLtyigV8ZLDWK",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 3,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 8,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 5,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 5,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 11,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 0,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_6fT32XhckLHoumBPq7i34s",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 13,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 5,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 5,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 10,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 9,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 9,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 7,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 5,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 5,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 9,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 8,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 8,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 10,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 8,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 8,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 6,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 3,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_86zieqaWyGavjwab7Tgn2o",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 3,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 10,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 8,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 8,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 9,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 4,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 4,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        },
+        {
+          "is_installed": true,
+          "is_renting": true,
+          "is_returning": true,
+          "last_reported": "2024-12-27T13:11:41+01:00",
+          "num_docks_available": 6,
+          "num_docks_disabled": 0,
+          "num_vehicles_available": 2,
+          "num_vehicles_disabled": 0,
+          "station_id": "stn_EpfsDgRjKArscpt6ZzpNCt",
+          "vehicle_types_available": [
+            {
+              "count": 0,
+              "vehicle_type_id": "titibike"
+            },
+            {
+              "count": 2,
+              "vehicle_type_id": "x2"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "knot"
+            },
+            {
+              "count": 0,
+              "vehicle_type_id": "pony"
+            }
+          ]
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T13:11:41+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

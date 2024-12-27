@@ -4,7 +4,7 @@ import { getDistance } from '../ll';
 import { degToRad, radToDeg } from '..';
 
 import type { LonLat } from '../ll';
-import type { Point3D } from 's2json-spec';
+import type { Point3D } from '../';
 
 /**
  * This class represents a one-dimensional angle (as opposed to a

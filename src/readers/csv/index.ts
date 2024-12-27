@@ -129,8 +129,8 @@ export class CSVReader<
  * @param source - the source of the CSV data
  * @returns - an object with key-value pairs whose keys and values are both strings
  */
-export function parseCSVAsRecord(source: string): Record<string, string>[] {
-  const res: Record<string, string>[] = [];
+export function parseCSVAsRecord<T = Record<string, string>>(source: string): T[] {
+  const res: T[] = [];
   const split = source.split('\n');
   const firstLine = split[0].split(',').map((s) => s.trim());
   for (let line of split.slice(1)) {
@@ -143,7 +143,7 @@ export function parseCSVAsRecord(source: string): Record<string, string>[] {
       if (value === '' || value === ' ') continue;
       record[firstLine[i]] = value;
     }
-    res.push(record);
+    res.push(record as T);
   }
 
   return res;

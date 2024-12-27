@@ -72,6 +72,8 @@
     "@types/node": "^22.10.2",
     "@types/tmp": "^0.2.6",
     "@webgpu/types": "^0.1.51",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "all-the-cities": "^3.1.0",
     "coveralls": "^3.1.1",
     "eslint": "^9.16.0",

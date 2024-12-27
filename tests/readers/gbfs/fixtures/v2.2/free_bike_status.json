@@ -1,0 +1,39 @@
+{
+    "last_updated": 1735301830,
+    "ttl": 0,
+    "version": "2.2",
+    "data": {
+      "bikes": [
+        {
+          "bike_id": "015136001118103",
+          "lat": 35.968015,
+          "lon": -78.90667,
+          "is_reserved": true,
+          "is_disabled": true,
+          "vehicle_type_id": "scooter",
+          "rental_uris": {
+            "android": "https://deeplink.helbiz.com/startRide?code=U3YXAT",
+            "ios": "https://deeplink.helbiz.com/startRide?code=U3YXAT"
+          },
+          "last_reported": 1651014967,
+          "current_range_meters": 0.45,
+          "pricing_plan_id": "price_scooter"
+        },
+        {
+          "bike_id": "P8S0C2149C0095@SD02",
+          "lat": 38.875526,
+          "lon": -77.234484,
+          "is_reserved": false,
+          "is_disabled": true,
+          "vehicle_type_id": "scooter",
+          "rental_uris": {
+            "android": "https://deeplink.helbiz.com/startRide?code=T60A2",
+            "ios": "https://deeplink.helbiz.com/startRide?code=T60A2"
+          },
+          "last_reported": 1654612083,
+          "current_range_meters": 1.35,
+          "pricing_plan_id": "price_scooter"
+        }
+      ]
+    }
+}

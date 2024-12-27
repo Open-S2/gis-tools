@@ -1,0 +1,59 @@
+{
+    "last_updated": 1735292756,
+    "ttl": 0,
+    "version": "2.2",
+    "data": {
+      "en": {
+        "feeds": [
+          {
+            "name": "gbfs_versions",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/gbfs_versions.json"
+          },
+          {
+            "name": "system_information",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_information.json"
+          },
+          {
+            "name": "vehicle_types",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/vehicle_types.json"
+          },
+          {
+            "name": "station_information",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/station_information.json"
+          },
+          {
+            "name": "station_status",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/station_status.json"
+          },
+          {
+            "name": "free_bike_status",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/free_bike_status.json"
+          },
+          {
+            "name": "system_hours",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_hours.json"
+          },
+          {
+            "name": "system_calendar",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_calendar.json"
+          },
+          {
+            "name": "system_regions",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_regions.json"
+          },
+          {
+            "name": "system_pricing_plans",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_pricing_plans.json"
+          },
+          {
+            "name": "system_alerts",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/system_alerts.json"
+          },
+          {
+            "name": "geofencing_zones",
+            "url": "https://gbfs.helbiz.com/v2.2/durham/geofencing_zones.json"
+          }
+        ]
+      }
+    }
+}

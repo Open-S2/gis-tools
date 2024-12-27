@@ -1,0 +1,33 @@
+{
+    "data": {
+      "email": "support@ecovelo.com",
+      "feed_contact_email": "gbfs@ecovelo.com",
+      "languages": [
+        "fr"
+      ],
+      "manifest_url": "https://api.gbfs.ecovelo.mobi/manifest.json",
+      "name": [
+        {
+          "language": "fr",
+          "text": "CapCotentin"
+        }
+      ],
+      "opening_hours": "24/7",
+      "phone_number": "+33974591314",
+      "purchase_url": "https://capcotentin.ecovelo.mobi//#/forfaits",
+      "start_date": "2024-04-22",
+      "system_id": "capcotentin",
+      "terms_last_updated": "2024-05-21",
+      "terms_url": [
+        {
+          "language": "fr",
+          "text": "https://capcotentin.ecovelo.mobi//#/cgu"
+        }
+      ],
+      "timezone": "Europe/Paris",
+      "url": "https://capcotentin.ecovelo.mobi/"
+    },
+    "last_updated": "2024-12-27T13:12:18+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

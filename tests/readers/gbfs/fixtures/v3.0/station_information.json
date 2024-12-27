@@ -1,0 +1,332 @@
+{
+    "data": {
+      "stations": [
+        {
+          "capacity": 12,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.646536,
+          "lon": -1.643192,
+          "name": [
+            {
+              "language": "fr",
+              "text": "H\u00f4tel des Imp\u00f4ts"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_XLN88vWNhaeHAMXa8jgxer"
+          },
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer"
+        },
+        {
+          "capacity": 10,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.513363,
+          "lon": -1.471325,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES Complexe Marcel Lechanoine"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_cMCAfjiTLEwaDrXncMrMJC"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC"
+        },
+        {
+          "capacity": 14,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.503611,
+          "lon": -1.485198,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES Centre Aquatique"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_TnogdLnTnM8F22DLNzsEMn"
+          },
+          "station_id": "stn_TnogdLnTnM8F22DLNzsEMn"
+        },
+        {
+          "capacity": 16,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.638696,
+          "lon": -1.613255,
+          "name": [
+            {
+              "language": "fr",
+              "text": "H\u00f4pital Pasteur"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_faSBnVHyVkrFK4WiopZw9Q"
+          },
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q"
+        },
+        {
+          "capacity": 20,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.505071,
+          "lon": -1.478978,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES Gare SNCF"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_2b3itDpsqNMNwk9vnvdNmW"
+          },
+          "station_id": "stn_2b3itDpsqNMNwk9vnvdNmW"
+        },
+        {
+          "capacity": 12,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.513057,
+          "lon": -1.497834,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES ZA Armanville"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_ihEEDBJn3hLPveLFoFf6Ng"
+          },
+          "station_id": "stn_ihEEDBJn3hLPveLFoFf6Ng"
+        },
+        {
+          "capacity": 18,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.641148,
+          "lon": -1.593861,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Bagatelle"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_VGDevhrNR49SyfPZHP9CoW"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW"
+        },
+        {
+          "capacity": 12,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.632868,
+          "lon": -1.648295,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Campus Schmitt"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_ZcCiFSJhvuLtyigV8ZLDWK"
+          },
+          "station_id": "stn_ZcCiFSJhvuLtyigV8ZLDWK"
+        },
+        {
+          "capacity": 16,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.641467,
+          "lon": -1.580095,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Tourlaville Mairie"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_94o8HytCmq2SCB5G4wWvmQ"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ"
+        },
+        {
+          "capacity": 22,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.503849,
+          "lon": -1.463368,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES H\u00f4pital"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_6fT32XhckLHoumBPq7i34s"
+          },
+          "station_id": "stn_6fT32XhckLHoumBPq7i34s"
+        },
+        {
+          "capacity": 26,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.657299,
+          "lon": -1.669434,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Centre Aquatique"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_PkouuNtY57LYTbp9nhkvzX"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX"
+        },
+        {
+          "capacity": 20,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.644838,
+          "lon": -1.635875,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Porte du Midi"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_33gwXvS4LnX7HZBLEDUw95"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95"
+        },
+        {
+          "capacity": 14,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.638956,
+          "lon": -1.621347,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Odeon"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_2pFkjCzGixSmz7yLugVQDN"
+          },
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN"
+        },
+        {
+          "capacity": 18,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.634214,
+          "lon": -1.622082,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Agence Cap Cotentin"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_BLaBaaHxwnbfBirs9GCH7w"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w"
+        },
+        {
+          "capacity": 20,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.633601,
+          "lon": -1.622147,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Cherbourg - Gare"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_KFsHUNDZYsyWSNFd7n5ju4"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4"
+        },
+        {
+          "capacity": 12,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.62678,
+          "lon": -1.63598,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Anjou"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_86zieqaWyGavjwab7Tgn2o"
+          },
+          "station_id": "stn_86zieqaWyGavjwab7Tgn2o"
+        },
+        {
+          "capacity": 20,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.642728,
+          "lon": -1.624147,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Napol\u00e9on"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_VLq4tuQLsAh7NsKHKHhxBU"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU"
+        },
+        {
+          "capacity": 18,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.509143,
+          "lon": -1.471829,
+          "name": [
+            {
+              "language": "fr",
+              "text": "VALOGNES Place du Ch\u00e2teau"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_YQvJnA7NAWop3kbYv29XAD"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD"
+        },
+        {
+          "capacity": 12,
+          "is_valet_station": false,
+          "is_virtual_station": false,
+          "lat": 49.638989,
+          "lon": -1.606426,
+          "name": [
+            {
+              "language": "fr",
+              "text": "Octroi"
+            }
+          ],
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/station/stn_EpfsDgRjKArscpt6ZzpNCt"
+          },
+          "station_id": "stn_EpfsDgRjKArscpt6ZzpNCt"
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T13:11:30+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

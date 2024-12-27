@@ -2,7 +2,7 @@ import { lonLatToXYZ } from '../s2/coords';
 import { degToRad, radToDeg } from '../util';
 
 import type { S1Angle } from '../s1/angle';
-import type { Point, Point3D } from 's2json-spec';
+import type { Point, Point3D } from '../';
 
 /** Just another way of defining a standard 2D point. */
 export type LonLat = Point;

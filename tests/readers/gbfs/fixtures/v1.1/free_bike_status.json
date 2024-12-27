@@ -1,0 +1,31 @@
+{
+    "last_updated": 1735301987,
+    "ttl": 0,
+    "version": "1.1",
+    "data": {
+      "bikes": [
+        {
+          "bike_id": "U3YXAT",
+          "lat": 35.968015,
+          "lon": -78.90667,
+          "is_reserved": 1,
+          "is_disabled": 1,
+          "rental_uris": {
+            "android": "https://deeplink.helbiz.com/startRide?code=U3YXAT",
+            "ios": "https://deeplink.helbiz.com/startRide?code=U3YXAT"
+          }
+        },
+        {
+          "bike_id": "T60A2",
+          "lat": 38.875526,
+          "lon": -77.234484,
+          "is_reserved": 0,
+          "is_disabled": 1,
+          "rental_uris": {
+            "android": "https://deeplink.helbiz.com/startRide?code=T60A2",
+            "ios": "https://deeplink.helbiz.com/startRide?code=T60A2"
+          }
+        }
+      ]
+    }
+}

@@ -1,0 +1,1284 @@
+{
+    "data": {
+      "vehicles": [
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641489,
+          "lon": -1.580006,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_id": "vhcl_2oAcCDMSskBrEctt7DoGTG",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.86,
+          "current_range_meters": 61920,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.51338,
+          "lon": -1.471313,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_3sbzWuJsSancTiQHtcszFz",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.509293,
+          "lon": -1.47182,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_id": "vhcl_HcJcCZiswCNhdgrHCG7Gym",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.632995,
+          "lon": -1.648396,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_ZcCiFSJhvuLtyigV8ZLDWK",
+          "vehicle_id": "vhcl_LUFU6mRkgn8VPQpLZbdbLm",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.7,
+          "current_range_meters": 50400,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513311,
+          "lon": -1.471501,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_N2xSV6S6oBPXnqVwuFxSRv",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.73,
+          "current_range_meters": 52560,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513382,
+          "lon": -1.471361,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_XiRiPfwQ6ecH5Hf8JyuexM",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.503872,
+          "lon": -1.48501,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_TnogdLnTnM8F22DLNzsEMn",
+          "vehicle_id": "vhcl_5fjMSPdBVwFMVtNyPCUvaV",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.82,
+          "current_range_meters": 59040,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.504911,
+          "lon": -1.478702,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2b3itDpsqNMNwk9vnvdNmW",
+          "vehicle_id": "vhcl_novHz2gS9gcbXV2JBQc8b2",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.509024,
+          "lon": -1.471794,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_id": "vhcl_jb3UWJ3xb9VLXAyPmBk8d6",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.84,
+          "current_range_meters": 60480,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513284,
+          "lon": -1.471396,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_d7BeNDVuh86xGnegjj4BBA",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.73,
+          "current_range_meters": 52560,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513326,
+          "lon": -1.471528,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_GqpDScviaa9bmnTyWUwtc2",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.75,
+          "current_range_meters": 54000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.505137,
+          "lon": -1.479017,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2b3itDpsqNMNwk9vnvdNmW",
+          "vehicle_id": "vhcl_oPMz5GzXsBKk7rdChN3rvM",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.86,
+          "current_range_meters": 61920,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513486,
+          "lon": -1.46044,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_j9FEbnQRQWytiehAiTPHCo",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.96,
+          "current_range_meters": 69120,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.503759,
+          "lon": -1.485112,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_TnogdLnTnM8F22DLNzsEMn",
+          "vehicle_id": "vhcl_7BvgDM4c8qWzhnEpDVCpRt",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.9,
+          "current_range_meters": 64800,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513361,
+          "lon": -1.471402,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_cMCAfjiTLEwaDrXncMrMJC",
+          "vehicle_id": "vhcl_Q3Lg4EVYtTpQ5pkaWzeNhE",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.73,
+          "current_range_meters": 52560,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.505057,
+          "lon": -1.479026,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2b3itDpsqNMNwk9vnvdNmW",
+          "vehicle_id": "vhcl_SvEZAtQMyoFFMNgu7cYBdX",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.50912,
+          "lon": -1.471883,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_id": "vhcl_Z4akktwMSWwEmM2VDcVxZ4",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.632777,
+          "lon": -1.648208,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_ZcCiFSJhvuLtyigV8ZLDWK",
+          "vehicle_id": "vhcl_MNa5zyeC8FzYc2GuAbjZNW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.94,
+          "current_range_meters": 67680,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.509049,
+          "lon": -1.471801,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_id": "vhcl_gxCodxC5oNRiHcpAioocmU",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.509042,
+          "lon": -1.471889,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_YQvJnA7NAWop3kbYv29XAD",
+          "vehicle_id": "vhcl_GKLvXWvZC9Hnk4CcwpQ3gp",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634223,
+          "lon": -1.622046,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_QhiPzoUVr7XukHWJtHVWdW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.62678,
+          "lon": -1.63598,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_86zieqaWyGavjwab7Tgn2o",
+          "vehicle_id": "vhcl_Rn9t3kKLjrFe7wWKQ7tBR4",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.639023,
+          "lon": -1.621434,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN",
+          "vehicle_id": "vhcl_J7jirHsjekpQtaTbGB7kk6",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.97,
+          "current_range_meters": 69840,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638848,
+          "lon": -1.606084,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_EpfsDgRjKArscpt6ZzpNCt",
+          "vehicle_id": "vhcl_TJCJaNsdNsf646RMEyg4v9",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.95,
+          "current_range_meters": 68400,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644868,
+          "lon": -1.635966,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_R4AhubqbdggC9KBRN2oiYu",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.51,
+          "current_range_meters": 36720,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.513,
+          "lon": -1.497844,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_ihEEDBJn3hLPveLFoFf6Ng",
+          "vehicle_id": "vhcl_8AcPs2WrThMjyHKWaeTajH",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.95,
+          "current_range_meters": 68400,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634255,
+          "lon": -1.622345,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_feomv5JzvfxdnspMJiWi69",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633619,
+          "lon": -1.622064,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_ErwDwP5jNLvrpuAVSRvt5t",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.51,
+          "current_range_meters": 36720,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.657479,
+          "lon": -1.669112,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_dyGaVJnSLzuz3iGiMKw4Y9",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.94,
+          "current_range_meters": 67680,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644774,
+          "lon": -1.635778,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_Br9Ur6beryH2j9wMQ2rcc5",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.626795,
+          "lon": -1.636009,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_86zieqaWyGavjwab7Tgn2o",
+          "vehicle_id": "vhcl_FJ4RE5KVUCiKa8mqBkcP46",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.64272,
+          "lon": -1.624192,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_LLou3boCJ3E3C3s2LgXPdb",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.89,
+          "current_range_meters": 64080,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641542,
+          "lon": -1.580128,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_id": "vhcl_gpvustwZMktCX9DYME6YNk",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.640629,
+          "lon": -1.592901,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_id": "vhcl_TCaLi9ALicJd9BXWajsaRG",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.94,
+          "current_range_meters": 67680,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641467,
+          "lon": -1.580095,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_id": "vhcl_af7emJEyPYodvsju2XcANn",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.96,
+          "current_range_meters": 69120,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642751,
+          "lon": -1.624314,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_NjfFE3g6zML7kpfTtpwK7e",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642692,
+          "lon": -1.624238,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_Ye2tAwMrrSanX4aKKKdtJs",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.88,
+          "current_range_meters": 63360,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644818,
+          "lon": -1.635877,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_mtDXioc4Yem7V97h5Fkj8Z",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.646648,
+          "lon": -1.643142,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "vehicle_id": "vhcl_Jx7izMJ72dkaNAKTcd2CpU",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.48,
+          "current_range_meters": 34560,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.657438,
+          "lon": -1.669131,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_Rqg8EaNScMAD2ucRS8AZUM",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.646666,
+          "lon": -1.643485,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "vehicle_id": "vhcl_ikkU7wx9dcJz36bzxJYimi",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.91,
+          "current_range_meters": 65520,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633695,
+          "lon": -1.62184,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_6WzVWQ5pv3aukfprt5cpLh",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641133,
+          "lon": -1.593887,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_id": "vhcl_K2s7F4bhdWXjvU3SfcxAqg",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642655,
+          "lon": -1.624264,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_8ko5PQFEfRNR6DAzQoHMDg",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.85,
+          "current_range_meters": 61200,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644886,
+          "lon": -1.635939,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_UHAPWZpUNsnRnXSrHQkoUT",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.63861,
+          "lon": -1.613005,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q",
+          "vehicle_id": "vhcl_Maj8sNhgijE9dkwDbsVeUK",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.91,
+          "current_range_meters": 65520,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.657578,
+          "lon": -1.669281,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_NUP2qe7GXbu9eDWpXreCRD",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641446,
+          "lon": -1.58003,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_id": "vhcl_2sVkadLdstbAtwVrGZs3vA",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.85,
+          "current_range_meters": 61200,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644838,
+          "lon": -1.635875,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_GZVshgyezXu2GbD65qUCn8",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.9,
+          "current_range_meters": 64800,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634214,
+          "lon": -1.622082,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_3vPgo8o4hzRGgASh6kFLkA",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634214,
+          "lon": -1.622082,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_FQUMZRqWnVNbKZv3n6b6uE",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.646605,
+          "lon": -1.643172,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "vehicle_id": "vhcl_nDgN8VpueC4yV88hRuJVq5",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633589,
+          "lon": -1.622235,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_P3wHtT9S83nUAgms54EMfF",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.65,
+          "current_range_meters": 46800,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.657408,
+          "lon": -1.669013,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_BTcgbjKKYcAwmrMwoeZVmV",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634214,
+          "lon": -1.622082,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_QcfWsuEAVHXmEu8YUe5Jjm",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633475,
+          "lon": -1.621794,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_YLzeiuvXdYs3VpfckqWbdW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633178,
+          "lon": -1.62217,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_QpbSxfdb9hSjcZzgKruyKw",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.9,
+          "current_range_meters": 64800,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633521,
+          "lon": -1.622062,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_LwVam9xGkrBoN3UwW7QHbr",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.646489,
+          "lon": -1.643231,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "vehicle_id": "vhcl_RaHpvUu823WuKjbSbfsJZd",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.640705,
+          "lon": -1.593565,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_id": "vhcl_973kDhxbocuVehUmFFhPQw",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.95,
+          "current_range_meters": 68400,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633602,
+          "lon": -1.622241,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_WedARAhUoCV5ejk7uRXB4n",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.3,
+          "current_range_meters": 21600,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.65745,
+          "lon": -1.669277,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_85GeJjiWnk7XmHZfNQeqqb",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642728,
+          "lon": -1.624147,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_cL9BFRZohhtHabsVxhniEr",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642608,
+          "lon": -1.624154,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_Xg4mSQaVVXwcCqWrAZjcd8",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638906,
+          "lon": -1.60641,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_EpfsDgRjKArscpt6ZzpNCt",
+          "vehicle_id": "vhcl_Dc7dmFo3GghfELq3AkXFx7",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633374,
+          "lon": -1.621964,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_YWXoWzdeJiVHiN6pG6EqcW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638956,
+          "lon": -1.621347,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN",
+          "vehicle_id": "vhcl_auVTXhuGTAovir6grGohpd",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642764,
+          "lon": -1.62438,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_9GfXuUyzYmTMgr56y2PmrW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.91,
+          "current_range_meters": 65520,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644809,
+          "lon": -1.635853,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_mvj8bEYwew8Sk69VBVhSKP",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.97,
+          "current_range_meters": 69840,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638908,
+          "lon": -1.621387,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN",
+          "vehicle_id": "vhcl_8336bzuasSTR65SyEQApZS",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.99,
+          "current_range_meters": 71280,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.626789,
+          "lon": -1.63589,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_86zieqaWyGavjwab7Tgn2o",
+          "vehicle_id": "vhcl_GycRpET3P7E9FoQgoRWiS8",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641215,
+          "lon": -1.593945,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_id": "vhcl_bvsEyVhjj2w5v3fKd8bvBf",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641216,
+          "lon": -1.593808,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VGDevhrNR49SyfPZHP9CoW",
+          "vehicle_id": "vhcl_R9B4QK4GRrog8A8eSQ27mZ",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644887,
+          "lon": -1.635835,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_NBophCzbsJf3sKtQX9KLMn",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.641478,
+          "lon": -1.58006,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_94o8HytCmq2SCB5G4wWvmQ",
+          "vehicle_id": "vhcl_AyXEMnQerNoufu43vp9CqY",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.657457,
+          "lon": -1.669114,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_PkouuNtY57LYTbp9nhkvzX",
+          "vehicle_id": "vhcl_7765kLNCtvRDmPScVwRobZ",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.67,
+          "current_range_meters": 48240,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638956,
+          "lon": -1.621347,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_2pFkjCzGixSmz7yLugVQDN",
+          "vehicle_id": "vhcl_Y4WjMYnsAjkheuv7MX8o6L",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.96,
+          "current_range_meters": 69120,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.63296,
+          "lon": -1.648467,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_ZcCiFSJhvuLtyigV8ZLDWK",
+          "vehicle_id": "vhcl_GSYNifjeVqmWGHCuiKGKY5",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.98,
+          "current_range_meters": 70560,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638696,
+          "lon": -1.613255,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q",
+          "vehicle_id": "vhcl_EZgoAax4BqgpRi7vBBBmji",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.639384,
+          "lon": -1.614365,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q",
+          "vehicle_id": "vhcl_9QRzDX7KiiYmHbxPke93eJ",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.93,
+          "current_range_meters": 66960,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.634154,
+          "lon": -1.621904,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_BLaBaaHxwnbfBirs9GCH7w",
+          "vehicle_id": "vhcl_Fc4zX3jgzUneFCSxwEMdkc",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.633234,
+          "lon": -1.622027,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_KFsHUNDZYsyWSNFd7n5ju4",
+          "vehicle_id": "vhcl_Vh6MKuNTLbGfuACeWrrkrq",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 0.95,
+          "current_range_meters": 68400,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.644838,
+          "lon": -1.635875,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_33gwXvS4LnX7HZBLEDUw95",
+          "vehicle_id": "vhcl_QVfgbz3GpAaYiYDfCnK3tW",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.638763,
+          "lon": -1.613177,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_faSBnVHyVkrFK4WiopZw9Q",
+          "vehicle_id": "vhcl_a8cGJuJNtmh3XbKMXq3dZb",
+          "vehicle_type_id": "x2"
+        },
+        {
+          "current_fuel_percent": 1.0,
+          "current_range_meters": 72000,
+          "is_disabled": false,
+          "is_reserved": false,
+          "last_reported": "2024-12-27T13:12:57+01:00",
+          "lat": 49.642772,
+          "lon": -1.624211,
+          "rental_uris": {
+            "web": "https://capcotentin.ecovelo.mobi//#/trip/start"
+          },
+          "station_id": "stn_VLq4tuQLsAh7NsKHKHhxBU",
+          "vehicle_id": "vhcl_Ye3sun4z2SrYLZb7ssC48A",
+          "vehicle_type_id": "x2"
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T13:12:57+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

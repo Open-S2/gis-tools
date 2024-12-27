@@ -1,0 +1,23 @@
+{
+    "last_updated": 1735301783,
+    "ttl": 0,
+    "version": "2.2",
+    "data": {
+      "vehicle_types": [
+        {
+          "vehicle_type_id": "bicycle",
+          "form_factor": "bicycle",
+          "propulsion_type": "electric_assist",
+          "name": "Electric assist bike",
+          "max_range_meters": 60000
+        },
+        {
+          "vehicle_type_id": "scooter",
+          "form_factor": "scooter",
+          "propulsion_type": "electric",
+          "name": "E-scooter",
+          "max_range_meters": 45000
+        }
+      ]
+    }
+}

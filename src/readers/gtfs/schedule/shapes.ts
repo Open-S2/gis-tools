@@ -1,6 +1,6 @@
 import { parseCSVAsRecord } from '../../';
 
-import type { Feature, LineStringGeometry, MValue, Properties } from 's2json-spec';
+import type { Feature, LineStringGeometry, MValue, Properties } from '../../../geometry';
 
 /** Internal type for shape data for future use */
 interface GTFSShape {

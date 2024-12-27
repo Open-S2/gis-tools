@@ -1,0 +1,30 @@
+{
+    "last_updated": 1735301769,
+    "ttl": 0,
+    "version": "2.2",
+    "data": {
+      "system_id": "HELBIZ-US",
+      "timezone": "-5",
+      "language": "en",
+      "name": "Helbiz USA",
+      "short_name": "Helbiz",
+      "operator": "Helbiz",
+      "url": "https://helbiz.com/",
+      "purchase_url": "https://helbiz.com/go",
+      "phone_number": "+1 (619) 313-5812",
+      "start_date": "2019-10-15",
+      "email": "support@helbiz.com",
+      "feed_contact_email": "support@helbiz.com",
+      "license_url": "https://helbiz.com/terms",
+      "rental_apps": {
+        "android": {
+          "store_uri": "https://play.google.com/store/apps/details?id=com.helbiz.android",
+          "discovery_uri": "helbiz://com.helbiz.android/scanQr"
+        },
+        "ios": {
+          "store_uri": "https://apps.apple.com/us/app/helbiz-live/id1570423369",
+          "discovery_uri": "com.fabrika.helbiz.ios://scanQr"
+        }
+      }
+    }
+}

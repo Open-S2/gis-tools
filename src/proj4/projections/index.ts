@@ -38,7 +38,7 @@ import { ProjectionBase } from './base';
 
 import type { DatumParams } from '../../readers/wkt';
 import type { GridDefinition } from '../../readers/nadgrid';
-import type { VectorPoint } from 's2json-spec';
+import type { VectorPoint } from '../../geometry';
 
 export * from './aea';
 export * from './aeqd';

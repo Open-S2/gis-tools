@@ -1,6 +1,7 @@
 import type { Features, MValue, Properties } from '../geometry';
 
 export * from './csv';
+export * from './gbfs';
 export * from './geotiff';
 export * from './grib2';
 export * from './gtfs';

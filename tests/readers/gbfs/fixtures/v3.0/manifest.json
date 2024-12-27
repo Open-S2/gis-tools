@@ -1,0 +1,412 @@
+{
+    "data": {
+      "datasets": [
+        {
+          "system_id": "thea",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/thea/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/thea/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "capcotentin",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/capcotentin/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/capcotentin/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "rhoule",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/rhoule/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/rhoule/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "ogalo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/ogalo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/ogalo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "impulsyon",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/impulsyon/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/impulsyon/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "vernouvelo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/vernouvelo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/vernouvelo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "altervelo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/altervelo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/altervelo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "cyclam",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/cyclam/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/cyclam/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "labresse",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/labresse/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/labresse/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "calivelo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/calivelo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/calivelo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "velibeo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/velibeo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/velibeo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "velodaqui",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/velodaqui/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/velodaqui/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "petitesreines",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/petitesreines/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/petitesreines/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "perivelo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/perivelo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/perivelo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "cyclolibre",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/cyclolibre/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/cyclolibre/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "choletbus",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/choletbus/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/choletbus/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "vertuose",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/vertuose/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/vertuose/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "chantrerie",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/chantrerie/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/chantrerie/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "semo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/semo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/semo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "lemarcel",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/lemarcel/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/lemarcel/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "cyclovis",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/cyclovis/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/cyclovis/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "karu",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/karu/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/karu/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "velocite",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/velocite/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/velocite/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "tlpmobilites",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/tlpmobilites/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/tlpmobilites/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "velyceo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/velyceo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/velyceo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "tanlib",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/tanlib/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/tanlib/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "tempovelo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/tempovelo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/tempovelo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "calais",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/calais/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/calais/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "beb",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/beb/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/beb/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "zebullo",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/zebullo/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/zebullo/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        },
+        {
+          "system_id": "labaule",
+          "versions": [
+            {
+              "url": "https://api.gbfs.v2.2.ecovelo.mobi/labaule/gbfs.json",
+              "version": "2.2"
+            },
+            {
+              "url": "https://api.gbfs.v3.0.ecovelo.mobi/labaule/gbfs.json",
+              "version": "3.0"
+            }
+          ]
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T14:08:02+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

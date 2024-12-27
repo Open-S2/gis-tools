@@ -1,0 +1,17 @@
+{
+    "last_updated": 1735302051,
+    "ttl": 0,
+    "version": "1.1",
+    "data": {
+      "plans": [
+        {
+          "plan_id": "scooter-unlock",
+          "name": "Unlock",
+          "currency": "USD",
+          "price": 1,
+          "is_taxable": 1,
+          "description": "Scooter unlock price"
+        }
+      ]
+    }
+}

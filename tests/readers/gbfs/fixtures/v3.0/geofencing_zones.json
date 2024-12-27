@@ -1,0 +1,60 @@
+{
+    "data": {
+      "geofencing_zones": {
+        "features": [
+          {
+            "geometry": {
+              "coordinates": [
+                [
+                  [
+                    [
+                      -1.479902,
+                      49.505429
+                    ],
+                    [
+                      -1.48033,
+                      49.505745
+                    ],
+                    [
+                      -1.480513,
+                      49.505572
+                    ],
+                    [
+                      -1.480105,
+                      49.50527
+                    ],
+                    [
+                      -1.479902,
+                      49.505429
+                    ]
+                  ]
+                ]
+              ],
+              "type": "MultiPolygon"
+            },
+            "properties": {
+              "name": [
+                {
+                  "language": "fr",
+                  "text": "Gare de Valogne"
+                }
+              ],
+              "rules": [
+                {
+                  "ride_end_allowed": false,
+                  "ride_start_allowed": false,
+                  "ride_through_allowed": false
+                }
+              ]
+            },
+            "type": "Feature"
+          }
+        ],
+        "type": "FeatureCollection"
+      },
+      "global_rules": []
+    },
+    "last_updated": "2024-12-27T13:10:57+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}

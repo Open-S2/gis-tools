@@ -1,0 +1,17 @@
+{
+    "data": {
+      "versions": [
+        {
+          "url": "https://api.gbfs.v2.2.ecovelo.mobi/capcotentin/gbfs.json",
+          "version": "2.2"
+        },
+        {
+          "url": "https://api.gbfs.v3.0.ecovelo.mobi/capcotentin/gbfs.json",
+          "version": "3.0"
+        }
+      ]
+    },
+    "last_updated": "2024-12-27T13:10:41+01:00",
+    "ttl": 300,
+    "version": "3.0"
+}
