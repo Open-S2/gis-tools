@@ -1,4 +1,4 @@
-import { decode, jpegDecoder } from '../../../../src/readers/geotiff/jpeg';
+import { decode, jpegDecoder } from '../../../../src';
 import { expect, test } from 'bun:test';
 
 const SUPER_LARGE_JPEG_BASE64 = '/9j/wfFRBf//BdgC/9p/2P/E4d4=';

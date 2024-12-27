@@ -23,7 +23,7 @@ import { type GTFSPathway, parseGTFSPathways } from './pathways';
 import { type GTFSRoute, parseGTFSRoutes } from './routes';
 import { type GTFSRouteNetwork, parseGTFSRouteNetworks } from './routeNetworks';
 import { GTFSShapeProperties, parseGTFSShapes } from './shapes';
-import { type GTFSStop, parseGTFSStops } from './stops';
+import { type GTFSStop, type GTFSStopProperties, parseGTFSStops } from './stops';
 import { type GTFSStopArea, parseGTFSStopAreas } from './stopAreas';
 import { type GTFSStopTime, parseGTFSStopTimes } from './stopTimes';
 import { type GTFSTimeframe, parseGTFSTimeframes } from './timeframes';
@@ -39,6 +39,7 @@ import type {
   LineStringGeometry,
   MValue,
   MultiPolygonGeometry,
+  PointGeometry,
   PolygonGeometry,
   Properties,
 } from '../../../geometry';
@@ -75,8 +76,6 @@ export * from './translations';
 export * from './trips';
 
 // TODO: postprocess all interactions like `Trips -> shape_id [Link]` & `StopTime -> On-demand Service Routing Behavior [Link]`
-// TODO: `geojson(schedule: Schedule) => Feature[]` functions for those that need it like `Stop` objects.
-// TODO: get all geojson objects
 
 /** A piece of the GTFS schedule */
 export interface Piece {
@@ -178,12 +177,14 @@ export class GTFSSchedule implements FeatureIterator {
   }
 
   /**
+   * TODO: Add proeprties from other files like "color"
    * Yields all of the shapes
    * @yields an iterator that contains shapes, stops, location data, and routes
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
     | Feature<undefined, MValue, GTFSShapeProperties, LineStringGeometry>
     | Feature<undefined, MValue, GTFSLocationsProperties, MultiPolygonGeometry | PolygonGeometry>
+    | Feature<undefined, MValue, GTFSStopProperties, PointGeometry>
   > {
     if (this.geojson !== undefined) {
       for await (const feature of this.geojson)
@@ -195,7 +196,20 @@ export class GTFSSchedule implements FeatureIterator {
         >;
     }
     if (this.shapes !== undefined) {
-      for (const shape of Object.values(this.shapes ?? {})) yield shape;
+      for (const shape of Object.values(this.shapes)) yield shape;
+    }
+    if (this.stops !== undefined) {
+      for (const stop of Object.values(this.stops)) {
+        const { lon, lat } = stop;
+        if (lon !== undefined && lat !== undefined) {
+          const stopFeature: Feature<undefined, MValue, GTFSStopProperties, PointGeometry> = {
+            type: 'Feature',
+            properties: stop.properties(),
+            geometry: { type: 'Point', coordinates: [lon, lat] },
+          };
+          yield stopFeature;
+        }
+      }
     }
   }
 }

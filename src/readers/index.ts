@@ -5,6 +5,7 @@ export * from './gbfs';
 export * from './geotiff';
 export * from './grib2';
 export * from './gtfs';
+export * from './image';
 export * from './json';
 export * from './netcdf';
 export * from './osm';

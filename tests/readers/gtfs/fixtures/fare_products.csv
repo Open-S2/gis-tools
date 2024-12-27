@@ -1,0 +1,5 @@
+fare_product_id,fare_product_name,amount,currency
+core_local_oneway_fare,One Way Full Fare,2.00,USD
+core_local_1_day_fare,1-Day Pass - Core Service,4.60,USD
+core_local_31_day_fare,31-Day Pass - Core Service,77.00,USD
+core_local_7_day_fare,7-Day Pass - Core Service,22.00,USD

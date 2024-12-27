@@ -1,26 +1,617 @@
-import { buildGTFSSchedule, parseGTFSAttributions } from '../../../src';
+import {
+  buildGTFSSchedule,
+  parseGTFSAreas,
+  parseGTFSAttributions,
+  parseGTFSBookingRules,
+  parseGTFSFareLegJoinRules,
+  parseGTFSFareLegRules,
+  parseGTFSFareMedias,
+  parseGTFSFareProducts,
+  parseGTFSFareTransferRules,
+  parseGTFSFeedInfos,
+  parseGTFSFrequencies,
+  parseGTFSLevels,
+  parseGTFSLocationGroupStops,
+  parseGTFSLocationGroups,
+  parseGTFSNetworks,
+  parseGTFSPathways,
+  parseGTFSRouteNetworks,
+  parseGTFSStopAreas,
+  parseGTFSTimeframes,
+  parseGTFSTransfers,
+  parseGTFSTranslations,
+} from '../../../src';
 import { expect, test } from 'bun:test';
 
 // TODO:
 // - [ ] pull all geometry features
-// - [ ] areas
-// - [ ] bookingRules
-// - [ ] fareLegJoinRules
-// - [ ] fareLegRules
-// - [ ] fareMedia
-// - [ ] fareProducts
-// - [ ] fareTransferRules
-// - [ ] feedInfo
-// - [ ] frequencies
-// - [ ] levels
-// - [ ] locationGroupStops
-// - [ ] networks
-// - [ ] pathways
-// - [ ] routeNetworks
-// - [ ] stopAreas
-// - [ ] timeframes
-// - [ ] transfers
-// - [ ] translations
+
+test('transfers', async () => {
+  const transfers = parseGTFSTransfers(
+    await Bun.file(`${__dirname}/fixtures/transfers.csv`).text(),
+  );
+  expect(transfers).toEqual([
+    {
+      fromRouteId: 'ROUTE1',
+      fromStopId: 'STOP1',
+      fromTripId: undefined,
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE2',
+      toStopId: 'STOP2',
+      toTripId: undefined,
+      transferType: 0,
+    },
+    {
+      fromRouteId: 'ROUTE3',
+      fromStopId: 'STOP3',
+      fromTripId: 'TRIP3',
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE4',
+      toStopId: 'STOP4',
+      toTripId: 'TRIP4',
+      transferType: 1,
+    },
+    {
+      fromRouteId: 'ROUTE5',
+      fromStopId: 'STOP5',
+      fromTripId: undefined,
+      minTransferTime: 300,
+      toRouteId: 'ROUTE6',
+      toStopId: 'STOP6',
+      toTripId: undefined,
+      transferType: 2,
+    },
+    {
+      fromRouteId: 'ROUTE7',
+      fromStopId: 'STOP7',
+      fromTripId: 'TRIP7',
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE8',
+      toStopId: 'STOP8',
+      toTripId: 'TRIP8',
+      transferType: 3,
+    },
+    {
+      fromRouteId: 'ROUTE9',
+      fromStopId: 'STOP9',
+      fromTripId: 'TRIP9',
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE10',
+      toStopId: 'STOP10',
+      toTripId: 'TRIP10',
+      transferType: 4,
+    },
+    {
+      fromRouteId: 'ROUTE11',
+      fromStopId: 'STOP11',
+      fromTripId: 'TRIP11',
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE12',
+      toStopId: 'STOP12',
+      toTripId: 'TRIP12',
+      transferType: 5,
+    },
+    {
+      fromRouteId: undefined,
+      fromStopId: 'STOP13',
+      fromTripId: undefined,
+      minTransferTime: undefined,
+      toRouteId: undefined,
+      toStopId: 'STOP14',
+      toTripId: undefined,
+      transferType: 0,
+    },
+    {
+      fromRouteId: 'ROUTE13',
+      fromStopId: undefined,
+      fromTripId: 'TRIP13',
+      minTransferTime: undefined,
+      toRouteId: 'ROUTE14',
+      toStopId: 'STOP15',
+      toTripId: 'TRIP14',
+      transferType: 1,
+    },
+    {
+      fromRouteId: 'ROUTE15',
+      fromStopId: 'STOP16',
+      fromTripId: 'TRIP15',
+      minTransferTime: 180,
+      toRouteId: 'ROUTE16',
+      toStopId: undefined,
+      toTripId: 'TRIP16',
+      transferType: 2,
+    },
+    {
+      fromRouteId: 'ROUTE17',
+      fromStopId: 'STOP17',
+      fromTripId: 'TRIP17',
+      minTransferTime: NaN,
+      toRouteId: 'ROUTE18',
+      toStopId: 'STOP18',
+      toTripId: 'TRIP18',
+      transferType: 0,
+    },
+    {
+      fromRouteId: 'ROUTE19',
+      fromStopId: 'STOP19',
+      fromTripId: 'TRIP19',
+      minTransferTime: NaN,
+      toRouteId: 'ROUTE20',
+      toStopId: 'STOP20',
+      toTripId: 'TRIP20',
+      transferType: 2,
+    },
+  ]);
+});
+
+test('timeframes', async () => {
+  const timeframes = parseGTFSTimeframes(
+    await Bun.file(`${__dirname}/fixtures/timeframes.csv`).text(),
+  );
+  expect(timeframes).toEqual({
+    TF1: {
+      endTime: '14:00:00',
+      serviceId: 'SVC1',
+      startTime: '10:00:00',
+      timeframeGroupId: 'TF1',
+    },
+    TF2: {
+      endTime: undefined,
+      serviceId: 'SVC2',
+      startTime: undefined,
+      timeframeGroupId: 'TF2',
+    },
+    TF3: {
+      endTime: undefined,
+      serviceId: 'SVC3',
+      startTime: '18:00:00',
+      timeframeGroupId: 'TF3',
+    },
+    TF4: {
+      endTime: '24:00:00',
+      serviceId: 'SVC4',
+      startTime: '22:00:00',
+      timeframeGroupId: 'TF4',
+    },
+    TF5: {
+      endTime: '24:00:00',
+      serviceId: 'SVC5',
+      startTime: '00:00:00',
+      timeframeGroupId: 'TF5',
+    },
+    TF6: {
+      endTime: '15:45:00',
+      serviceId: 'SVC6',
+      startTime: '12:30:00',
+      timeframeGroupId: 'TF6',
+    },
+    TF7: {
+      endTime: '09:00:00',
+      serviceId: 'SVC7',
+      startTime: '09:00:00',
+      timeframeGroupId: 'TF7',
+    },
+  });
+});
+
+test('levels', async () => {
+  const levels = parseGTFSLevels(await Bun.file(`${__dirname}/fixtures/levels.csv`).text());
+  expect(levels).toEqual({
+    L1: {
+      id: 'L1',
+      levelIndex: 0,
+      levelName: 'Ground',
+    },
+    L2: {
+      id: 'L2',
+      levelIndex: 1,
+      levelName: 'Mezzanine',
+    },
+    L3: {
+      id: 'L3',
+      levelIndex: -1,
+      levelName: 'Basement',
+    },
+    L4: {
+      id: 'L4',
+      levelIndex: 2,
+      levelName: undefined,
+    },
+    L5: {
+      id: 'L5',
+      levelIndex: 3,
+      levelName: 'Upper Level, East',
+    },
+    L6: {
+      id: 'L6',
+      levelIndex: 4,
+      levelName: 'Observation Deck, West',
+    },
+    L7: {
+      id: 'L7',
+      levelIndex: 5,
+      levelName: undefined,
+    },
+  });
+});
+
+test('fareLegJoinRules', async () => {
+  const fareLegJoinRules = parseGTFSFareLegJoinRules(
+    await Bun.file(`${__dirname}/fixtures/fare_leg_join_rules.csv`).text(),
+  );
+  expect(fareLegJoinRules).toEqual([
+    {
+      fromNetworkId: 'networkA',
+      fromStopId: 'stop1',
+      toNetworkId: 'networkB',
+      toStopId: 'stop2',
+    },
+    {
+      fromNetworkId: 'networkC',
+      fromStopId: undefined,
+      toNetworkId: 'networkD',
+      toStopId: undefined,
+    },
+    {
+      fromNetworkId: 'networkE',
+      fromStopId: 'stop3',
+      toNetworkId: 'networkF',
+      toStopId: 'stop4',
+    },
+    {
+      fromNetworkId: 'networkG',
+      fromStopId: 'stop5',
+      toNetworkId: 'networkH',
+      toStopId: 'stop6',
+    },
+    {
+      fromNetworkId: 'networkI',
+      fromStopId: undefined,
+      toNetworkId: 'networkJ',
+      toStopId: undefined,
+    },
+  ]);
+});
+
+test('locationGroups', async () => {
+  const locationGroups = parseGTFSLocationGroups(
+    await Bun.file(`${__dirname}/fixtures/location_groups.csv`).text(),
+  );
+  expect(locationGroups).toEqual({
+    '476_stops': {
+      id: '476_stops',
+      name: 'durch den RufBus 476 bedientes Gebiet im Raum Angermünde',
+    },
+  });
+});
+
+test('networks', async () => {
+  const networks = parseGTFSNetworks(await Bun.file(`${__dirname}/fixtures/networks.csv`).text());
+  expect(networks).toEqual({
+    mnr_hudson: {
+      id: 'mnr_hudson',
+      name: 'MNR Hudson Line',
+    },
+  });
+});
+
+test('routeNetworks', async () => {
+  const routeNetworks = parseGTFSRouteNetworks(
+    await Bun.file(`${__dirname}/fixtures/route_networks.csv`).text(),
+  );
+  expect(routeNetworks).toEqual([
+    {
+      networkId: 'mnr_hudson',
+      routeId: '669',
+    },
+  ]);
+});
+
+test('stopAreas', async () => {
+  const stopAreas = parseGTFSStopAreas(
+    await Bun.file(`${__dirname}/fixtures/stop_areas.csv`).text(),
+  );
+  expect(stopAreas).toEqual([
+    {
+      areaId: 'mnr_1',
+      stopId: 'ITO1887',
+    },
+    {
+      areaId: 'mnr_1',
+      stopId: 'ITO2383',
+    },
+    {
+      areaId: 'mnr_HUD-5',
+      stopId: 'ITO1804',
+    },
+    {
+      areaId: 'mnr_HUD-6',
+      stopId: 'ITO1669',
+    },
+    {
+      areaId: 'mnr_HUD-6',
+      stopId: 'ITO1824',
+    },
+    {
+      areaId: 'mnr_HUD-7',
+      stopId: 'ITO1856',
+    },
+    {
+      areaId: 'mnr_HUD-7',
+      stopId: 'ITO1897',
+    },
+    {
+      areaId: 'mnr_HUD-8',
+      stopId: 'ITO1777',
+    },
+    {
+      areaId: 'mnr_HUD-8',
+      stopId: 'ITO1789',
+    },
+    {
+      areaId: 'mnr_HUD-9',
+      stopId: 'ITO2096',
+    },
+  ]);
+});
+
+test('translations', async () => {
+  const translations = parseGTFSTranslations(
+    await Bun.file(`${__dirname}/fixtures/translations.csv`).text(),
+  );
+  expect(translations).toEqual([
+    {
+      fieldName: 'stop_name',
+      fieldValue: undefined,
+      language: 'nl',
+      recordId: 'S8815040',
+      recordSubId: undefined,
+      tableName: 'stops',
+      translation: 'Brussel-West',
+    },
+  ]);
+});
+
+test('fareTransferRules', async () => {
+  const fareTransferRules = parseGTFSFareTransferRules(
+    await Bun.file(`${__dirname}/fixtures/fare_transfer_rules.csv`).text(),
+  );
+  expect(fareTransferRules).toEqual([
+    {
+      durationLimit: 5400,
+      durationLimitType: 1,
+      fareProductId: undefined,
+      fareTransferType: 0,
+      fromLegGroupId: 'core_local_one_way_trip',
+      toLegGroupId: 'core_local_one_way_trip',
+      transferCount: -1,
+    },
+  ]);
+});
+
+test('feedInfo', async () => {
+  const feedInfo = parseGTFSFeedInfos(await Bun.file(`${__dirname}/fixtures/feed_info.csv`).text());
+  expect(feedInfo).toEqual({
+    'Transport for Cairo': {
+      defaultLang: undefined,
+      feedContactEmail: undefined,
+      feedContactUrl: undefined,
+      feedEndDate: '20161201',
+      feedLang: 'en',
+      feedPublisherName: 'Transport for Cairo',
+      feedPublisherUrl: 'http://transportforcairo.com/',
+      feedStartDate: '20160101',
+      feedVersion: '0.5',
+    },
+  });
+});
+
+test('frequencies', async () => {
+  const frequencies = parseGTFSFrequencies(
+    await Bun.file(`${__dirname}/fixtures/frequencies.csv`).text(),
+  );
+  expect(frequencies).toEqual([
+    {
+      endTime: '16:19:25',
+      exactTimes: undefined,
+      headwaySecs: 180,
+      startTime: '16:01:25',
+      tripId: '22M-GLOBAUX-00-S_1_2',
+    },
+    {
+      endTime: '17:03:25',
+      exactTimes: undefined,
+      headwaySecs: 165,
+      startTime: '16:19:25',
+      tripId: '22M-GLOBAUX-00-S_1_2',
+    },
+  ]);
+});
+
+test('areas', async () => {
+  const areas = parseGTFSAreas(await Bun.file(`${__dirname}/fixtures/areas.csv`).text());
+  expect(areas).toEqual([
+    {
+      areaId: 'ASHB',
+      areaName: undefined,
+    },
+    {
+      areaId: 'GLEN',
+      areaName: undefined,
+    },
+    {
+      areaId: 'OAKL',
+      areaName: undefined,
+    },
+  ]);
+});
+
+test('fareMedia', async () => {
+  const fareMedia = parseGTFSFareMedias(
+    await Bun.file(`${__dirname}/fixtures/fare_media.csv`).text(),
+  );
+  expect(fareMedia).toEqual({
+    cash: {
+      id: 'cash',
+      name: 'Cash',
+      type: 0,
+    },
+    clipper: {
+      id: 'clipper',
+      name: 'Clipper',
+      type: 2,
+    },
+    munimobile: {
+      id: 'munimobile',
+      name: 'SFMTA MuniMobile',
+      type: 4,
+    },
+  });
+});
+
+test('fareLegRules', async () => {
+  const fareLegRules = parseGTFSFareLegRules(
+    await Bun.file(`${__dirname}/fixtures/fare_leg_rules.csv`).text(),
+  );
+  expect(fareLegRules).toEqual([
+    {
+      fareProductId: 'core_local_oneway_fare',
+      fromAreaId: undefined,
+      fromTimeframeGroupId: undefined,
+      legGroupId: 'core_local_one_way_trip',
+      networkId: 'core',
+      rulePriority: undefined,
+      toAreaId: undefined,
+      toTimeframeGroupId: undefined,
+    },
+    {
+      fareProductId: 'core_local_1_day_fare',
+      fromAreaId: undefined,
+      fromTimeframeGroupId: undefined,
+      legGroupId: 'core_local_one_way_trip',
+      networkId: 'core',
+      rulePriority: undefined,
+      toAreaId: undefined,
+      toTimeframeGroupId: undefined,
+    },
+    {
+      fareProductId: 'core_local_31_day_fare',
+      fromAreaId: undefined,
+      fromTimeframeGroupId: undefined,
+      legGroupId: 'core_local_one_way_trip',
+      networkId: 'core',
+      rulePriority: undefined,
+      toAreaId: undefined,
+      toTimeframeGroupId: undefined,
+    },
+    {
+      fareProductId: 'core_local_7_day_fare',
+      fromAreaId: undefined,
+      fromTimeframeGroupId: undefined,
+      legGroupId: 'core_local_one_way_trip',
+      networkId: 'core',
+      rulePriority: undefined,
+      toAreaId: undefined,
+      toTimeframeGroupId: undefined,
+    },
+  ]);
+});
+
+test('fareProducts', async () => {
+  const fareProducts = parseGTFSFareProducts(
+    await Bun.file(`${__dirname}/fixtures/fare_products.csv`).text(),
+  );
+  expect(fareProducts).toEqual({
+    core_local_1_day_fare: {
+      amount: 4.6,
+      currency: 'USD',
+      fareMediaId: undefined,
+      fareProductName: '1-Day Pass - Core Service',
+      id: 'core_local_1_day_fare',
+    },
+    core_local_31_day_fare: {
+      amount: 77,
+      currency: 'USD',
+      fareMediaId: undefined,
+      fareProductName: '31-Day Pass - Core Service',
+      id: 'core_local_31_day_fare',
+    },
+    core_local_7_day_fare: {
+      amount: 22,
+      currency: 'USD',
+      fareMediaId: undefined,
+      fareProductName: '7-Day Pass - Core Service',
+      id: 'core_local_7_day_fare',
+    },
+    core_local_oneway_fare: {
+      amount: 2,
+      currency: 'USD',
+      fareMediaId: undefined,
+      fareProductName: 'One Way Full Fare',
+      id: 'core_local_oneway_fare',
+    },
+  });
+});
+
+test('bookingRules', async () => {
+  const bookingRules = parseGTFSBookingRules(
+    await Bun.file(`${__dirname}/fixtures/booking_rules.csv`).text(),
+  );
+  expect(bookingRules).toEqual({
+    flächenrufbus_angermünde_weekdays: {
+      bookingType: 1,
+      bookingUrl: 'https://uvg.tdimo.net/bapp/#/astBuchungenView',
+      dropOffMessage: undefined,
+      id: 'flächenrufbus_angermünde_weekdays',
+      infoUrl: 'https://uvg-online.com/rufbus-angermuende/',
+      message:
+        'Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 und 24:00 möglich, oder online rund um die Uhr',
+      phoneNumber: '+49 3332 442 755',
+      pickupMessage: undefined,
+      priorNoticeDurationMax: undefined,
+      priorNoticeDurationMin: 60,
+      priorNoticeLastDay: undefined,
+      priorNoticeLastTime: undefined,
+      priorNoticeServiceId: undefined,
+      priorNoticeStartDay: undefined,
+      priorNoticeStartTime: undefined,
+    },
+    flächenrufbus_angermünde_weekends: {
+      bookingType: 1,
+      bookingUrl: 'https://uvg.tdimo.net/bapp/#/astBuchungenView',
+      dropOffMessage: undefined,
+      id: 'flächenrufbus_angermünde_weekends',
+      infoUrl: 'https://uvg-online.com/rufbus-angermuende/',
+      message:
+        '1€ Komfortzuschlag pro Person; Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 und 24:00 möglich, oder online rund um die Uhr',
+      phoneNumber: '+49 3332 442 755',
+      pickupMessage: undefined,
+      priorNoticeDurationMax: undefined,
+      priorNoticeDurationMin: 60,
+      priorNoticeLastDay: undefined,
+      priorNoticeLastTime: undefined,
+      priorNoticeServiceId: undefined,
+      priorNoticeStartDay: undefined,
+      priorNoticeStartTime: undefined,
+    },
+  });
+});
+
+test('locationGroupStops', async () => {
+  const locationGroupStops = parseGTFSLocationGroupStops(
+    await Bun.file(`${__dirname}/fixtures/location_group_stops.csv`).text(),
+  );
+  expect(locationGroupStops).toEqual([
+    {
+      locationGroupId: '476_stops',
+      stopId: 'de:12073:900340004::1',
+    },
+    {
+      locationGroupId: '476_stops',
+      stopId: 'de:12073:900340004::2',
+    },
+  ]);
+});
 
 test('attributions', async () => {
   const attributions = parseGTFSAttributions(
@@ -39,6 +630,42 @@ test('attributions', async () => {
       organizationName: 'Rejseplanen',
       routeId: undefined,
       tripId: undefined,
+    },
+  });
+});
+
+test('pathways', async () => {
+  const pathways = parseGTFSPathways(await Bun.file(`${__dirname}/fixtures/pathways.csv`).text());
+  expect(pathways).toEqual({
+    escalatorA: {
+      fromStopId: '96',
+      id: 'escalatorA',
+      // @ts-expect-error - enums can be ignored for testing
+      isBidirectional: 4,
+      length: undefined,
+      maxSlope: undefined,
+      minWidth: undefined,
+      mode: 1,
+      reversedSignpostedAs: undefined,
+      signpostedAs: undefined,
+      stairCount: undefined,
+      toStopId: '91',
+      traversalTime: undefined,
+    },
+    stairsA: {
+      fromStopId: '90',
+      id: 'stairsA',
+      // @ts-expect-error - enums can be ignored for testing
+      isBidirectional: 2,
+      length: undefined,
+      maxSlope: undefined,
+      minWidth: undefined,
+      mode: 1,
+      reversedSignpostedAs: undefined,
+      signpostedAs: undefined,
+      stairCount: undefined,
+      toStopId: '95',
+      traversalTime: undefined,
     },
   });
 });
@@ -81,6 +708,9 @@ test('build schedule', async () => {
     'trips',
     'geojson',
   ]);
+
+  const data = await Array.fromAsync(schedule);
+  expect(data.length).toEqual(103);
 
   expect(schedule.agencies).toEqual({
     CT: {
@@ -592,6 +1222,7 @@ test('build schedule', async () => {
   ]);
 
   expect(schedule.stops).toEqual({
+    // @ts-expect-error - we dont care
     '70011': {
       code: '70011',
       desc: undefined,
@@ -609,6 +1240,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70012': {
       code: '70012',
       desc: undefined,
@@ -626,6 +1258,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70021': {
       code: '70021',
       desc: undefined,
@@ -643,6 +1276,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70022': {
       code: '70022',
       desc: undefined,
@@ -660,6 +1294,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70031': {
       code: '70031',
       desc: undefined,
@@ -677,6 +1312,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70032': {
       code: '70032',
       desc: undefined,
@@ -694,6 +1330,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70041': {
       code: '70041',
       desc: undefined,
@@ -711,6 +1348,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70042': {
       code: '70042',
       desc: undefined,
@@ -728,6 +1366,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70051': {
       code: '70051',
       desc: undefined,
@@ -745,6 +1384,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70052': {
       code: '70052',
       desc: undefined,
@@ -762,6 +1402,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
+    // @ts-expect-error - we dont care
     '70061': {
       code: '70061',
       desc: undefined,
@@ -779,6 +1420,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70062': {
       code: '70062',
       desc: undefined,
@@ -796,6 +1438,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70071': {
       code: '70071',
       desc: undefined,
@@ -813,6 +1456,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70072': {
       code: '70072',
       desc: undefined,
@@ -830,6 +1474,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70081': {
       code: '70081',
       desc: undefined,
@@ -847,6 +1492,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70082': {
       code: '70082',
       desc: undefined,
@@ -864,6 +1510,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70091': {
       code: '70091',
       desc: undefined,
@@ -881,6 +1528,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70092': {
       code: '70092',
       desc: undefined,
@@ -898,6 +1546,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70101': {
       code: '70101',
       desc: undefined,
@@ -915,6 +1564,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70102': {
       code: '70102',
       desc: undefined,
@@ -932,6 +1582,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70111': {
       code: '70111',
       desc: undefined,
@@ -949,6 +1600,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70112': {
       code: '70112',
       desc: undefined,
@@ -966,6 +1618,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70121': {
       code: '70121',
       desc: undefined,
@@ -983,6 +1636,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70122': {
       code: '70122',
       desc: undefined,
@@ -1000,6 +1654,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70131': {
       code: '70131',
       desc: undefined,
@@ -1017,6 +1672,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70132': {
       code: '70132',
       desc: undefined,
@@ -1034,6 +1690,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70141': {
       code: '70141',
       desc: undefined,
@@ -1051,6 +1708,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70142': {
       code: '70142',
       desc: undefined,
@@ -1068,6 +1726,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
+    // @ts-expect-error - we dont care
     '70151': {
       code: '70151',
       desc: undefined,
@@ -1085,6 +1744,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70152': {
       code: '70152',
       desc: undefined,
@@ -1102,6 +1762,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70161': {
       code: '70161',
       desc: undefined,
@@ -1119,6 +1780,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70162': {
       code: '70162',
       desc: undefined,
@@ -1136,6 +1798,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70171': {
       code: '70171',
       desc: undefined,
@@ -1153,6 +1816,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70172': {
       code: '70172',
       desc: undefined,
@@ -1170,6 +1834,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70191': {
       code: '70191',
       desc: undefined,
@@ -1187,6 +1852,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70192': {
       code: '70192',
       desc: undefined,
@@ -1204,6 +1870,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70201': {
       code: '70201',
       desc: undefined,
@@ -1221,6 +1888,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70202': {
       code: '70202',
       desc: undefined,
@@ -1238,6 +1906,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70211': {
       code: '70211',
       desc: undefined,
@@ -1255,6 +1924,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70212': {
       code: '70212',
       desc: undefined,
@@ -1272,6 +1942,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70221': {
       code: '70221',
       desc: undefined,
@@ -1289,6 +1960,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70222': {
       code: '70222',
       desc: undefined,
@@ -1306,6 +1978,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
+    // @ts-expect-error - we dont care
     '70231': {
       code: '70231',
       desc: undefined,
@@ -1323,6 +1996,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70232': {
       code: '70232',
       desc: undefined,
@@ -1340,6 +2014,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70241': {
       code: '70241',
       desc: undefined,
@@ -1357,6 +2032,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70242': {
       code: '70242',
       desc: undefined,
@@ -1374,6 +2050,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70251': {
       code: '70251',
       desc: undefined,
@@ -1391,6 +2068,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70252': {
       code: '70252',
       desc: undefined,
@@ -1408,6 +2086,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70261': {
       code: '70261',
       desc: undefined,
@@ -1425,6 +2104,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70262': {
       code: '70262',
       desc: undefined,
@@ -1442,6 +2122,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70271': {
       code: '70271',
       desc: undefined,
@@ -1459,6 +2140,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70272': {
       code: '70272',
       desc: undefined,
@@ -1476,6 +2158,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '70281': {
       code: '70281',
       desc: undefined,
@@ -1493,6 +2176,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
+    // @ts-expect-error - we dont care
     '70282': {
       code: '70282',
       desc: undefined,
@@ -1510,6 +2194,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
+    // @ts-expect-error - we dont care
     '70291': {
       code: '70291',
       desc: undefined,
@@ -1527,6 +2212,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
+    // @ts-expect-error - we dont care
     '70292': {
       code: '70292',
       desc: undefined,
@@ -1544,6 +2230,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
+    // @ts-expect-error - we dont care
     '70301': {
       code: '70301',
       desc: undefined,
@@ -1561,6 +2248,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '70302': {
       code: '70302',
       desc: undefined,
@@ -1578,6 +2266,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '70311': {
       code: '70311',
       desc: undefined,
@@ -1595,6 +2284,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '70312': {
       code: '70312',
       desc: undefined,
@@ -1612,6 +2302,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '70321': {
       code: '70321',
       desc: undefined,
@@ -1629,6 +2320,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '70322': {
       code: '70322',
       desc: undefined,
@@ -1646,6 +2338,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
+    // @ts-expect-error - we dont care
     '777402': {
       code: '777402',
       desc: undefined,
@@ -1663,6 +2356,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     '777403': {
       code: '777403',
       desc: undefined,
@@ -1680,6 +2374,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
+    // @ts-expect-error - we dont care
     ct22: {
       code: undefined,
       desc: undefined,
@@ -1697,6 +2392,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctat: {
       code: undefined,
       desc: undefined,
@@ -1714,6 +2410,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctba: {
       code: undefined,
       desc: undefined,
@@ -1731,6 +2428,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctbe: {
       code: undefined,
       desc: undefined,
@@ -1748,6 +2446,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctbl: {
       code: undefined,
       desc: undefined,
@@ -1765,6 +2464,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctbr: {
       code: undefined,
       desc: undefined,
@@ -1782,6 +2482,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctbu: {
       code: undefined,
       desc: undefined,
@@ -1799,6 +2500,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctca: {
       code: undefined,
       desc: undefined,
@@ -1816,6 +2518,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctcap: {
       code: undefined,
       desc: undefined,
@@ -1833,6 +2536,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctco: {
       code: undefined,
       desc: undefined,
@@ -1850,6 +2554,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctgi: {
       code: undefined,
       desc: undefined,
@@ -1867,6 +2572,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctha: {
       code: undefined,
       desc: undefined,
@@ -1884,6 +2590,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     cthi: {
       code: undefined,
       desc: undefined,
@@ -1901,6 +2608,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctla: {
       code: undefined,
       desc: undefined,
@@ -1918,6 +2626,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctmh: {
       code: undefined,
       desc: undefined,
@@ -1935,6 +2644,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctmi: {
       code: undefined,
       desc: undefined,
@@ -1952,6 +2662,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctmp: {
       code: undefined,
       desc: undefined,
@@ -1969,6 +2680,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctmv: {
       code: undefined,
       desc: undefined,
@@ -1986,6 +2698,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctpa: {
       code: undefined,
       desc: undefined,
@@ -2003,6 +2716,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctrwc: {
       code: undefined,
       desc: undefined,
@@ -2020,6 +2734,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsa: {
       code: undefined,
       desc: undefined,
@@ -2037,6 +2752,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsb: {
       code: undefined,
       desc: undefined,
@@ -2054,6 +2770,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsc: {
       code: undefined,
       desc: undefined,
@@ -2071,6 +2788,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctscl: {
       code: undefined,
       desc: undefined,
@@ -2088,6 +2806,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsf: {
       code: undefined,
       desc: undefined,
@@ -2105,6 +2824,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsj: {
       code: undefined,
       desc: undefined,
@@ -2122,6 +2842,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsmar: {
       code: undefined,
       desc: undefined,
@@ -2139,6 +2860,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsmat: {
       code: undefined,
       desc: undefined,
@@ -2156,6 +2878,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctssf: {
       code: undefined,
       desc: undefined,
@@ -2173,6 +2896,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctsu: {
       code: undefined,
       desc: undefined,
@@ -2190,6 +2914,7 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
+    // @ts-expect-error - we dont care
     ctta: {
       code: undefined,
       desc: undefined,

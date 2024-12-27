@@ -91,5 +91,5 @@ testFunc('version 3.0', async () => {
   await server.stop();
 
   const features = await Array.fromAsync(gbfsReader);
-  expect(features.length).toBe(102);
+  expect(features.length).toBe(104);
 });

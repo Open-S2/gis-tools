@@ -1,0 +1,6 @@
+from_network_id,to_network_id,from_stop_id,to_stop_id
+networkA,networkB,stop1,stop2
+networkC,networkD,,
+networkE,networkF,stop3,stop4
+networkG,networkH,stop5,stop6
+networkI,networkJ,,

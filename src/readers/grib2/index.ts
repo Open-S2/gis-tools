@@ -5,7 +5,6 @@ import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { Grib2ProductDefinition, Grib2Sections } from './sections';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
 
-export * from './jpeg2000';
 export * from './sections';
 
 export type { Grib2ProductDefinition, getGrib2Template4 } from './sections';

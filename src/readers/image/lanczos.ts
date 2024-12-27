@@ -1,4 +1,4 @@
-import { copyImage, createImage, resizeImage } from '../util';
+import { copyImage, createImage, resizeImage } from '..';
 
 /**
  * Lanczos filter function for downscaling

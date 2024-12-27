@@ -127,7 +127,7 @@ export class GTFSPathway {
   constructor(data: Record<string, string>) {
     this.id = data.pathway_id;
     this.fromStopId = data.from_stop_id;
-    this.toStopId = data.to_stop_id;
+    this.toStopId = data.to_stop_id ?? data.to_stop_id_pathway_mode;
     // Required numeric fields
     this.mode =
       data.pathway_mode !== undefined

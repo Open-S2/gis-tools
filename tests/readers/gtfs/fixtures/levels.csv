@@ -1,0 +1,8 @@
+level_id,level_index,level_name
+L1,0,Ground
+L2,1,Mezzanine
+L3,-1,Basement
+L4,2,
+L5,3,"Upper Level, East"
+L6,4,"Observation Deck, West"
+L7,5,

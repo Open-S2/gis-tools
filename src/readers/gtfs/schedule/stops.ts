@@ -1,5 +1,26 @@
 import { parseCSVAsRecord } from '../../';
 
+import type { Properties } from '../../..';
+
+/**
+ * Properties object from GTFS stops
+ */
+export interface GTFSStopProperties extends Properties {
+  id: string;
+  code: string;
+  name: string;
+  ttsName: string;
+  desc: string;
+  zoneId: string;
+  url: string;
+  locationType: number;
+  parentStation: string;
+  timezone: string;
+  wheelchairBoarding: number;
+  levelId: string;
+  platformCode: string;
+}
+
 /**
  * # Stop Information
  *
@@ -116,6 +137,28 @@ export class GTFSStop {
       data.wheelchair_boarding !== undefined ? parseInt(data.wheelchair_boarding, 10) : undefined;
     this.levelId = data.level_id;
     this.platformCode = data.platform_code;
+  }
+
+  /**
+   * Returns the properties of this stop
+   * @returns - the properties of this stop
+   */
+  properties(): GTFSStopProperties {
+    return {
+      id: this.id,
+      code: this.code ?? '',
+      name: this.name ?? '',
+      ttsName: this.ttsName ?? '',
+      desc: this.desc ?? '',
+      zoneId: this.zoneId ?? '',
+      url: this.url ?? '',
+      locationType: this.locationType ?? -1,
+      parentStation: this.parentStation ?? '',
+      timezone: this.timezone ?? '',
+      wheelchairBoarding: this.wheelchairBoarding ?? -1,
+      levelId: this.levelId ?? '',
+      platformCode: this.platformCode ?? '',
+    };
   }
 }
 

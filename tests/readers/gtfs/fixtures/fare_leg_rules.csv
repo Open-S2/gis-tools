@@ -1,0 +1,5 @@
+leg_group_id,network_id,fare_product_id
+core_local_one_way_trip,core,core_local_oneway_fare
+core_local_one_way_trip,core,core_local_1_day_fare
+core_local_one_way_trip,core,core_local_31_day_fare
+core_local_one_way_trip,core,core_local_7_day_fare

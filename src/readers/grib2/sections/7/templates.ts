@@ -1,4 +1,4 @@
-import { JpxImage } from '../../jpeg2000';
+import { JpxImage } from '../../../image';
 import { complexUnpacking } from './complexUnpacking';
 
 import type { Grib2BitMapSection } from '../6';

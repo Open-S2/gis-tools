@@ -1,0 +1,3 @@
+booking_rule_id,booking_type,prior_notice_duration_min,message,phone_number,info_url,booking_url
+flächenrufbus_angermünde_weekdays,1,60,"Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 und 24:00 möglich, oder online rund um die Uhr",+49 3332 442 755,https://uvg-online.com/rufbus-angermuende/,https://uvg.tdimo.net/bapp/#/astBuchungenView
+flächenrufbus_angermünde_weekends,1,60,"1€ Komfortzuschlag pro Person; Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 und 24:00 möglich, oder online rund um die Uhr",+49 3332 442 755,https://uvg-online.com/rufbus-angermuende/,https://uvg.tdimo.net/bapp/#/astBuchungenView

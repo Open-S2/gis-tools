@@ -1,0 +1,3 @@
+pathway_id,from_stop_id,to_stop_id_pathway_mode,is_bidirectional
+stairsA,90,95,2,1
+escalatorA,96,91,4,0

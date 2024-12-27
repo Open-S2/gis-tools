@@ -131,20 +131,66 @@ export class CSVReader<
  */
 export function parseCSVAsRecord<T = Record<string, string>>(source: string): T[] {
   const res: T[] = [];
-  const split = source.split('\n');
-  const firstLine = split[0].split(',').map((s) => s.trim());
-  for (let line of split.slice(1)) {
-    line = line.trim();
+  const lines = source.split('\n');
+  const header = parseCSVLine(lines[0]);
+
+  for (const rawLine of lines.slice(1)) {
+    const line = rawLine.trim();
     if (line.length === 0) continue;
+
     const record: Record<string, string> = {};
-    const values = line.split(',');
-    for (let i = 0; i < firstLine.length; i++) {
-      const value: string | undefined = values[i].replaceAll('"', '');
+    const values = parseCSVLine(line);
+
+    for (let i = 0; i < header.length; i++) {
+      const value = values[i];
       if (value === '' || value === ' ') continue;
-      record[firstLine[i]] = value;
+      record[header[i]] = values[i] ?? '';
     }
+
     res.push(record as T);
   }
 
   return res;
+}
+
+/**
+ * @param line
+ */
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let quoteChar = '';
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    // If we encounter a quote and we aren't in quoted text yet
+    if ((ch === '"' || ch === "'") && !inQuotes) {
+      inQuotes = true;
+      quoteChar = ch;
+    }
+    // If we see the same quote again, it might be the closing quote
+    else if (ch === quoteChar && inQuotes) {
+      // Check if it's an escaped quote by looking at the next character
+      if (i < line.length - 1 && line[i + 1] === quoteChar) {
+        current += quoteChar;
+        i++;
+      } else {
+        inQuotes = false;
+      }
+    }
+    // Split by commas only if not inside quotes
+    else if (ch === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+
+  // Push the final field
+  if (current !== undefined) result.push(current.trim());
+
+  return result;
 }

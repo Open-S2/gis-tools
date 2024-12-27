@@ -1,4 +1,4 @@
-import { jpegDecoder } from './jpeg';
+import { jpegDecoder } from '../image';
 import { decompressStream, lzwDecoder } from '../../util';
 
 /** What to expect from the decoder */
