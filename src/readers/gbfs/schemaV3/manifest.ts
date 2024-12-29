@@ -197,7 +197,7 @@ export interface GBFSManifestV31RC {
 
       /**
        * The ISO 3166-1 alpha-2 country code of the operating area.
-       * **Pattern**: ^[A-Z]{2}
+       * **Pattern**: `^[A-Z]{2}`
        */
       country_code?: string;
     }>;

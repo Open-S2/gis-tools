@@ -87,7 +87,7 @@ export class GBFSReaderV3 implements FeatureIterator {
    * @param gbfs - the GBFS schema
    * @param feeds - the feeds for the GBFS
    */
-  constructor(gbfs: GBFSV3, feeds?: FeedRes) {
+  constructor(gbfs: GBFSV3, feeds?: FeedResV3) {
     this.gbfs = gbfs;
     this.gbfsVersions = feeds?.gbfs_versions;
     this.systemInformation = feeds?.system_information as GBFSSystemInformationV3;
@@ -164,10 +164,8 @@ export class GBFSReaderV3 implements FeatureIterator {
   }
 }
 
-/**
- * Parsing all the available feeds
- */
-interface FeedRes {
+/** Parsing all the available feeds */
+export interface FeedResV3 {
   gbfs_versions?: GBFSVersionsV3;
   system_information?: GBFSSystemInformationV3;
   vehicle_types?: GBFSVehicleTypesV3;
@@ -188,7 +186,7 @@ export async function buildGBFSReaderV3(gbfs: GBFSV3): Promise<GBFSReaderV3> {
   const {
     data: { feeds },
   } = gbfs;
-  const feedData: FeedRes = {};
+  const feedData: FeedResV3 = {};
   await Promise.allSettled(
     feeds.map(async (feed) => {
       if (feed.name === 'gbfs') return;

@@ -1,6 +1,26 @@
+import { TIMEZONE_IDENTIFIER_LIST } from '../../..';
+
+import type { TimeZone } from '../../..';
+
 /**
- * # GBFS System Information V2
+ * # GBFS System Information Schema V2.3, V2.2, V2.1, OR V2.0
  * Details including system operator, system location, year implemented, URL, contact info, time zone.
+ *
+ * ## Links
+ * - [GBFS Specification V2.3](https://github.com/MobilityData/gbfs/blob/v2.3/gbfs.md#system_informationjson)
+ * - [GBFS Specification V2.2](https://github.com/MobilityData/gbfs/blob/v2.2/gbfs.md#system_informationjson)
+ * - [GBFS Specification V2.1](https://github.com/MobilityData/gbfs/blob/v2.1/gbfs.md#system_informationjson)
+ * - [GBFS Specification V2.0](https://github.com/MobilityData/gbfs/blob/v2.0/gbfs.md#system_informationjson)
+ */
+export type GBFSSystemInformationV2 =
+  | GBFSSystemInformationV23
+  | GBFSSystemInformationV22
+  | GBFSSystemInformationV21
+  | GBFSSystemInformationV20;
+
+/**
+ * # GBFS System Information Schema V2.3
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
  *
  * ## Links
  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.3/gbfs.md#system_informationjson)
@@ -91,605 +111,7 @@ export const gbfsSystemInformationSchemaV2 = {
         timezone: {
           description: 'The time zone where the system is located.',
           type: 'string',
-          enum: [
-            'Africa/Abidjan',
-            'Africa/Accra',
-            'Africa/Addis_Ababa',
-            'Africa/Algiers',
-            'Africa/Asmara',
-            'Africa/Asmera',
-            'Africa/Bamako',
-            'Africa/Bangui',
-            'Africa/Banjul',
-            'Africa/Bissau',
-            'Africa/Blantyre',
-            'Africa/Brazzaville',
-            'Africa/Bujumbura',
-            'Africa/Cairo',
-            'Africa/Casablanca',
-            'Africa/Ceuta',
-            'Africa/Conakry',
-            'Africa/Dakar',
-            'Africa/Dar_es_Salaam',
-            'Africa/Djibouti',
-            'Africa/Douala',
-            'Africa/El_Aaiun',
-            'Africa/Freetown',
-            'Africa/Gaborone',
-            'Africa/Harare',
-            'Africa/Johannesburg',
-            'Africa/Juba',
-            'Africa/Kampala',
-            'Africa/Khartoum',
-            'Africa/Kigali',
-            'Africa/Kinshasa',
-            'Africa/Lagos',
-            'Africa/Libreville',
-            'Africa/Lome',
-            'Africa/Luanda',
-            'Africa/Lubumbashi',
-            'Africa/Lusaka',
-            'Africa/Malabo',
-            'Africa/Maputo',
-            'Africa/Maseru',
-            'Africa/Mbabane',
-            'Africa/Mogadishu',
-            'Africa/Monrovia',
-            'Africa/Nairobi',
-            'Africa/Ndjamena',
-            'Africa/Niamey',
-            'Africa/Nouakchott',
-            'Africa/Ouagadougou',
-            'Africa/Porto-Novo',
-            'Africa/Sao_Tome',
-            'Africa/Timbuktu',
-            'Africa/Tripoli',
-            'Africa/Tunis',
-            'Africa/Windhoek',
-            'America/Adak',
-            'America/Anchorage',
-            'America/Anguilla',
-            'America/Antigua',
-            'America/Araguaina',
-            'America/Argentina/Buenos_Aires',
-            'America/Argentina/Catamarca',
-            'America/Argentina/ComodRivadavia',
-            'America/Argentina/Cordoba',
-            'America/Argentina/Jujuy',
-            'America/Argentina/La_Rioja',
-            'America/Argentina/Mendoza',
-            'America/Argentina/Rio_Gallegos',
-            'America/Argentina/Salta',
-            'America/Argentina/San_Juan',
-            'America/Argentina/San_Luis',
-            'America/Argentina/Tucuman',
-            'America/Argentina/Ushuaia',
-            'America/Aruba',
-            'America/Asuncion',
-            'America/Atikokan',
-            'America/Atka',
-            'America/Bahia',
-            'America/Bahia_Banderas',
-            'America/Barbados',
-            'America/Belem',
-            'America/Belize',
-            'America/Blanc-Sablon',
-            'America/Boa_Vista',
-            'America/Bogota',
-            'America/Boise',
-            'America/Buenos_Aires',
-            'America/Cambridge_Bay',
-            'America/Campo_Grande',
-            'America/Cancun',
-            'America/Caracas',
-            'America/Catamarca',
-            'America/Cayenne',
-            'America/Cayman',
-            'America/Chicago',
-            'America/Chihuahua',
-            'America/Ciudad_Juarez',
-            'America/Coral_Harbour',
-            'America/Cordoba',
-            'America/Costa_Rica',
-            'America/Creston',
-            'America/Cuiaba',
-            'America/Curacao',
-            'America/Danmarkshavn',
-            'America/Dawson',
-            'America/Dawson_Creek',
-            'America/Denver',
-            'America/Detroit',
-            'America/Dominica',
-            'America/Edmonton',
-            'America/Eirunepe',
-            'America/El_Salvador',
-            'America/Ensenada',
-            'America/Fort_Nelson',
-            'America/Fort_Wayne',
-            'America/Fortaleza',
-            'America/Glace_Bay',
-            'America/Godthab',
-            'America/Goose_Bay',
-            'America/Grand_Turk',
-            'America/Grenada',
-            'America/Guadeloupe',
-            'America/Guatemala',
-            'America/Guayaquil',
-            'America/Guyana',
-            'America/Halifax',
-            'America/Havana',
-            'America/Hermosillo',
-            'America/Indiana/Indianapolis',
-            'America/Indiana/Knox',
-            'America/Indiana/Marengo',
-            'America/Indiana/Petersburg',
-            'America/Indiana/Tell_City',
-            'America/Indiana/Vevay',
-            'America/Indiana/Vincennes',
-            'America/Indiana/Winamac',
-            'America/Indianapolis',
-            'America/Inuvik',
-            'America/Iqaluit',
-            'America/Jamaica',
-            'America/Jujuy',
-            'America/Juneau',
-            'America/Kentucky/Louisville',
-            'America/Kentucky/Monticello',
-            'America/Knox_IN',
-            'America/Kralendijk',
-            'America/La_Paz',
-            'America/Lima',
-            'America/Los_Angeles',
-            'America/Louisville',
-            'America/Lower_Princes',
-            'America/Maceio',
-            'America/Managua',
-            'America/Manaus',
-            'America/Marigot',
-            'America/Martinique',
-            'America/Matamoros',
-            'America/Mazatlan',
-            'America/Mendoza',
-            'America/Menominee',
-            'America/Merida',
-            'America/Metlakatla',
-            'America/Mexico_City',
-            'America/Miquelon',
-            'America/Moncton',
-            'America/Monterrey',
-            'America/Montevideo',
-            'America/Montreal',
-            'America/Montserrat',
-            'America/Nassau',
-            'America/New_York',
-            'America/Nipigon',
-            'America/Nome',
-            'America/Noronha',
-            'America/North_Dakota/Beulah',
-            'America/North_Dakota/Center',
-            'America/North_Dakota/New_Salem',
-            'America/Nuuk',
-            'America/Ojinaga',
-            'America/Panama',
-            'America/Pangnirtung',
-            'America/Paramaribo',
-            'America/Phoenix',
-            'America/Port-au-Prince',
-            'America/Port_of_Spain',
-            'America/Porto_Acre',
-            'America/Porto_Velho',
-            'America/Puerto_Rico',
-            'America/Punta_Arenas',
-            'America/Rainy_River',
-            'America/Rankin_Inlet',
-            'America/Recife',
-            'America/Regina',
-            'America/Resolute',
-            'America/Rio_Branco',
-            'America/Rosario',
-            'America/Santa_Isabel',
-            'America/Santarem',
-            'America/Santiago',
-            'America/Santo_Domingo',
-            'America/Sao_Paulo',
-            'America/Scoresbysund',
-            'America/Shiprock',
-            'America/Sitka',
-            'America/St_Barthelemy',
-            'America/St_Johns',
-            'America/St_Kitts',
-            'America/St_Lucia',
-            'America/St_Thomas',
-            'America/St_Vincent',
-            'America/Swift_Current',
-            'America/Tegucigalpa',
-            'America/Thule',
-            'America/Thunder_Bay',
-            'America/Tijuana',
-            'America/Toronto',
-            'America/Tortola',
-            'America/Vancouver',
-            'America/Virgin',
-            'America/Whitehorse',
-            'America/Winnipeg',
-            'America/Yakutat',
-            'America/Yellowknife',
-            'Antarctica/Casey',
-            'Antarctica/Davis',
-            'Antarctica/DumontDUrville',
-            'Antarctica/Macquarie',
-            'Antarctica/Mawson',
-            'Antarctica/McMurdo',
-            'Antarctica/Palmer',
-            'Antarctica/Rothera',
-            'Antarctica/South_Pole',
-            'Antarctica/Syowa',
-            'Antarctica/Troll',
-            'Antarctica/Vostok',
-            'Arctic/Longyearbyen',
-            'Asia/Aden',
-            'Asia/Almaty',
-            'Asia/Amman',
-            'Asia/Anadyr',
-            'Asia/Aqtau',
-            'Asia/Aqtobe',
-            'Asia/Ashgabat',
-            'Asia/Ashkhabad',
-            'Asia/Atyrau',
-            'Asia/Baghdad',
-            'Asia/Bahrain',
-            'Asia/Baku',
-            'Asia/Bangkok',
-            'Asia/Barnaul',
-            'Asia/Beirut',
-            'Asia/Bishkek',
-            'Asia/Brunei',
-            'Asia/Calcutta',
-            'Asia/Chita',
-            'Asia/Choibalsan',
-            'Asia/Chongqing',
-            'Asia/Chungking',
-            'Asia/Colombo',
-            'Asia/Dacca',
-            'Asia/Damascus',
-            'Asia/Dhaka',
-            'Asia/Dili',
-            'Asia/Dubai',
-            'Asia/Dushanbe',
-            'Asia/Famagusta',
-            'Asia/Gaza',
-            'Asia/Harbin',
-            'Asia/Hebron',
-            'Asia/Ho_Chi_Minh',
-            'Asia/Hong_Kong',
-            'Asia/Hovd',
-            'Asia/Irkutsk',
-            'Asia/Istanbul',
-            'Asia/Jakarta',
-            'Asia/Jayapura',
-            'Asia/Jerusalem',
-            'Asia/Kabul',
-            'Asia/Kamchatka',
-            'Asia/Karachi',
-            'Asia/Kashgar',
-            'Asia/Kathmandu',
-            'Asia/Katmandu',
-            'Asia/Khandyga',
-            'Asia/Kolkata',
-            'Asia/Krasnoyarsk',
-            'Asia/Kuala_Lumpur',
-            'Asia/Kuching',
-            'Asia/Kuwait',
-            'Asia/Macao',
-            'Asia/Macau',
-            'Asia/Magadan',
-            'Asia/Makassar',
-            'Asia/Manila',
-            'Asia/Muscat',
-            'Asia/Nicosia',
-            'Asia/Novokuznetsk',
-            'Asia/Novosibirsk',
-            'Asia/Omsk',
-            'Asia/Oral',
-            'Asia/Phnom_Penh',
-            'Asia/Pontianak',
-            'Asia/Pyongyang',
-            'Asia/Qatar',
-            'Asia/Qostanay',
-            'Asia/Qyzylorda',
-            'Asia/Rangoon',
-            'Asia/Riyadh',
-            'Asia/Saigon',
-            'Asia/Sakhalin',
-            'Asia/Samarkand',
-            'Asia/Seoul',
-            'Asia/Shanghai',
-            'Asia/Singapore',
-            'Asia/Srednekolymsk',
-            'Asia/Taipei',
-            'Asia/Tashkent',
-            'Asia/Tbilisi',
-            'Asia/Tehran',
-            'Asia/Tel_Aviv',
-            'Asia/Thimbu',
-            'Asia/Thimphu',
-            'Asia/Tokyo',
-            'Asia/Tomsk',
-            'Asia/Ujung_Pandang',
-            'Asia/Ulaanbaatar',
-            'Asia/Ulan_Bator',
-            'Asia/Urumqi',
-            'Asia/Ust-Nera',
-            'Asia/Vientiane',
-            'Asia/Vladivostok',
-            'Asia/Yakutsk',
-            'Asia/Yangon',
-            'Asia/Yekaterinburg',
-            'Asia/Yerevan',
-            'Atlantic/Azores',
-            'Atlantic/Bermuda',
-            'Atlantic/Canary',
-            'Atlantic/Cape_Verde',
-            'Atlantic/Faeroe',
-            'Atlantic/Faroe',
-            'Atlantic/Jan_Mayen',
-            'Atlantic/Madeira',
-            'Atlantic/Reykjavik',
-            'Atlantic/South_Georgia',
-            'Atlantic/St_Helena',
-            'Atlantic/Stanley',
-            'Australia/ACT',
-            'Australia/Adelaide',
-            'Australia/Brisbane',
-            'Australia/Broken_Hill',
-            'Australia/Canberra',
-            'Australia/Currie',
-            'Australia/Darwin',
-            'Australia/Eucla',
-            'Australia/Hobart',
-            'Australia/LHI',
-            'Australia/Lindeman',
-            'Australia/Lord_Howe',
-            'Australia/Melbourne',
-            'Australia/North',
-            'Australia/NSW',
-            'Australia/Perth',
-            'Australia/Queensland',
-            'Australia/South',
-            'Australia/Sydney',
-            'Australia/Tasmania',
-            'Australia/Victoria',
-            'Australia/West',
-            'Australia/Yancowinna',
-            'Brazil/Acre',
-            'Brazil/DeNoronha',
-            'Brazil/East',
-            'Brazil/West',
-            'Canada/Atlantic',
-            'Canada/Central',
-            'Canada/Eastern',
-            'Canada/Mountain',
-            'Canada/Newfoundland',
-            'Canada/Pacific',
-            'Canada/Saskatchewan',
-            'Canada/Yukon',
-            'CET',
-            'Chile/Continental',
-            'Chile/EasterIsland',
-            'CST6CDT',
-            'Cuba',
-            'EET',
-            'Egypt',
-            'Eire',
-            'EST',
-            'EST5EDT',
-            'Etc/GMT',
-            'Etc/GMT+0',
-            'Etc/GMT+1',
-            'Etc/GMT+10',
-            'Etc/GMT+11',
-            'Etc/GMT+12',
-            'Etc/GMT+2',
-            'Etc/GMT+3',
-            'Etc/GMT+4',
-            'Etc/GMT+5',
-            'Etc/GMT+6',
-            'Etc/GMT+7',
-            'Etc/GMT+8',
-            'Etc/GMT+9',
-            'Etc/GMT-0',
-            'Etc/GMT-1',
-            'Etc/GMT-10',
-            'Etc/GMT-11',
-            'Etc/GMT-12',
-            'Etc/GMT-13',
-            'Etc/GMT-14',
-            'Etc/GMT-2',
-            'Etc/GMT-3',
-            'Etc/GMT-4',
-            'Etc/GMT-5',
-            'Etc/GMT-6',
-            'Etc/GMT-7',
-            'Etc/GMT-8',
-            'Etc/GMT-9',
-            'Etc/GMT0',
-            'Etc/Greenwich',
-            'Etc/UCT',
-            'Etc/Universal',
-            'Etc/UTC',
-            'Etc/Zulu',
-            'Europe/Amsterdam',
-            'Europe/Andorra',
-            'Europe/Astrakhan',
-            'Europe/Athens',
-            'Europe/Belfast',
-            'Europe/Belgrade',
-            'Europe/Berlin',
-            'Europe/Bratislava',
-            'Europe/Brussels',
-            'Europe/Bucharest',
-            'Europe/Budapest',
-            'Europe/Busingen',
-            'Europe/Chisinau',
-            'Europe/Copenhagen',
-            'Europe/Dublin',
-            'Europe/Gibraltar',
-            'Europe/Guernsey',
-            'Europe/Helsinki',
-            'Europe/Isle_of_Man',
-            'Europe/Istanbul',
-            'Europe/Jersey',
-            'Europe/Kaliningrad',
-            'Europe/Kiev',
-            'Europe/Kirov',
-            'Europe/Kyiv',
-            'Europe/Lisbon',
-            'Europe/Ljubljana',
-            'Europe/London',
-            'Europe/Luxembourg',
-            'Europe/Madrid',
-            'Europe/Malta',
-            'Europe/Mariehamn',
-            'Europe/Minsk',
-            'Europe/Monaco',
-            'Europe/Moscow',
-            'Europe/Nicosia',
-            'Europe/Oslo',
-            'Europe/Paris',
-            'Europe/Podgorica',
-            'Europe/Prague',
-            'Europe/Riga',
-            'Europe/Rome',
-            'Europe/Samara',
-            'Europe/San_Marino',
-            'Europe/Sarajevo',
-            'Europe/Saratov',
-            'Europe/Simferopol',
-            'Europe/Skopje',
-            'Europe/Sofia',
-            'Europe/Stockholm',
-            'Europe/Tallinn',
-            'Europe/Tirane',
-            'Europe/Tiraspol',
-            'Europe/Ulyanovsk',
-            'Europe/Uzhgorod',
-            'Europe/Vaduz',
-            'Europe/Vatican',
-            'Europe/Vienna',
-            'Europe/Vilnius',
-            'Europe/Volgograd',
-            'Europe/Warsaw',
-            'Europe/Zagreb',
-            'Europe/Zaporozhye',
-            'Europe/Zurich',
-            'Factory',
-            'GB',
-            'GB-Eire',
-            'GMT',
-            'GMT+0',
-            'GMT-0',
-            'GMT0',
-            'Greenwich',
-            'Hongkong',
-            'HST',
-            'Iceland',
-            'Indian/Antananarivo',
-            'Indian/Chagos',
-            'Indian/Christmas',
-            'Indian/Cocos',
-            'Indian/Comoro',
-            'Indian/Kerguelen',
-            'Indian/Mahe',
-            'Indian/Maldives',
-            'Indian/Mauritius',
-            'Indian/Mayotte',
-            'Indian/Reunion',
-            'Iran',
-            'Israel',
-            'Jamaica',
-            'Japan',
-            'Kwajalein',
-            'Libya',
-            'MET',
-            'Mexico/BajaNorte',
-            'Mexico/BajaSur',
-            'Mexico/General',
-            'MST',
-            'MST7MDT',
-            'Navajo',
-            'NZ',
-            'NZ-CHAT',
-            'Pacific/Apia',
-            'Pacific/Auckland',
-            'Pacific/Bougainville',
-            'Pacific/Chatham',
-            'Pacific/Chuuk',
-            'Pacific/Easter',
-            'Pacific/Efate',
-            'Pacific/Enderbury',
-            'Pacific/Fakaofo',
-            'Pacific/Fiji',
-            'Pacific/Funafuti',
-            'Pacific/Galapagos',
-            'Pacific/Gambier',
-            'Pacific/Guadalcanal',
-            'Pacific/Guam',
-            'Pacific/Honolulu',
-            'Pacific/Johnston',
-            'Pacific/Kanton',
-            'Pacific/Kiritimati',
-            'Pacific/Kosrae',
-            'Pacific/Kwajalein',
-            'Pacific/Majuro',
-            'Pacific/Marquesas',
-            'Pacific/Midway',
-            'Pacific/Nauru',
-            'Pacific/Niue',
-            'Pacific/Norfolk',
-            'Pacific/Noumea',
-            'Pacific/Pago_Pago',
-            'Pacific/Palau',
-            'Pacific/Pitcairn',
-            'Pacific/Pohnpei',
-            'Pacific/Ponape',
-            'Pacific/Port_Moresby',
-            'Pacific/Rarotonga',
-            'Pacific/Saipan',
-            'Pacific/Samoa',
-            'Pacific/Tahiti',
-            'Pacific/Tarawa',
-            'Pacific/Tongatapu',
-            'Pacific/Truk',
-            'Pacific/Wake',
-            'Pacific/Wallis',
-            'Pacific/Yap',
-            'Poland',
-            'Portugal',
-            'PRC',
-            'PST8PDT',
-            'ROC',
-            'ROK',
-            'Singapore',
-            'Turkey',
-            'UCT',
-            'Universal',
-            'US/Alaska',
-            'US/Aleutian',
-            'US/Arizona',
-            'US/Central',
-            'US/East-Indiana',
-            'US/Eastern',
-            'US/Hawaii',
-            'US/Indiana-Starke',
-            'US/Michigan',
-            'US/Mountain',
-            'US/Pacific',
-            'US/Samoa',
-            'UTC',
-            'W-SU',
-            'WET',
-            'Zulu',
-          ],
+          enum: TIMEZONE_IDENTIFIER_LIST,
         },
         license_url: {
           description:
@@ -813,3 +235,628 @@ export const gbfsSystemInformationSchemaV2 = {
   },
   required: ['last_updated', 'ttl', 'version', 'data'],
 };
+
+/**
+ * # GBFS System Information V2.3
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.3/gbfs.md#system_informationjson)
+ */
+export interface GBFSSystemInformationV23 {
+  last_updated: number;
+  ttl: number;
+  version: '2.3';
+  data: {
+    system_id: string;
+    language: string; // Matches BCP-47 language tags
+    name: string;
+    short_name?: string;
+    operator?: string;
+    url?: string;
+    purchase_url?: string;
+    start_date?: string; // ISO 8601 format
+    phone_number?: string;
+    email?: string;
+    feed_contact_email?: string;
+    timezone: TimeZone;
+    license_url?: string;
+    brand_assets?: {
+      brand_last_modified: string; // ISO 8601 format
+      brand_terms_url?: string;
+      brand_image_url: string;
+      brand_image_url_dark?: string;
+      color?: string; // Hexadecimal color code
+    };
+    terms_url?: string;
+    terms_last_updated?: string; // ISO 8601 format
+    privacy_url?: string;
+    privacy_last_updated?: string; // ISO 8601 format
+    rental_apps?: {
+      android?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+      ios?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+    };
+  };
+}
+
+/**
+ * # GBFS System Information Schema V2.2
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.2/gbfs.md#system_informationjson)
+ */
+export const gbfsSystemInformationSchemaV22 = {
+  $schema: 'http://json-schema.org/draft-07/schema',
+  $id: 'https://github.com/MobilityData/gbfs/blob/v2.2/gbfs.md#system_informationjson',
+  description:
+    'Details including system operator, system location, year implemented, URL, contact info, and time zone.',
+  type: 'object',
+  properties: {
+    last_updated: {
+      description: 'Last time the data in the feed was updated in POSIX time.',
+      type: 'integer',
+      minimum: 1450155600,
+    },
+    ttl: {
+      description:
+        'Number of seconds before the data in the feed will be updated again (0 if the data should always be refreshed).',
+      type: 'integer',
+      minimum: 0,
+    },
+    version: {
+      description:
+        'GBFS version number to which the feed conforms, according to the versioning framework (added in v1.1).',
+      type: 'string',
+      const: '2.2',
+    },
+    data: {
+      description: 'Response data in the form of name:value pairs.',
+      type: 'object',
+      properties: {
+        system_id: {
+          description:
+            'Identifier for this vehicle share system. This should be globally unique (even between different systems).',
+          type: 'string',
+        },
+        language: {
+          description:
+            'The language that will be used throughout the rest of the files. It must match the value in the gbfs.json file.',
+          type: 'string',
+          pattern: '^[a-z]{2,3}(-[A-Z]{2})?$',
+        },
+        name: {
+          description: 'Name of the system to be displayed to customers.',
+          type: 'string',
+        },
+        short_name: {
+          description: 'Optional abbreviation for a system.',
+          type: 'string',
+        },
+        operator: {
+          description: 'Name of the operator.',
+          type: 'string',
+        },
+        url: {
+          description: 'The URL of the vehicle share system.',
+          type: 'string',
+          format: 'uri',
+        },
+        purchase_url: {
+          description: 'URL where a customer can purchase a membership.',
+          type: 'string',
+          format: 'uri',
+        },
+        start_date: {
+          description: 'Date that the system began operations.',
+          type: 'string',
+          format: 'date',
+        },
+        phone_number: {
+          description:
+            "A single voice telephone number for the specified system that presents the telephone number as typical for the system's service area.",
+          type: 'string',
+        },
+        email: {
+          description:
+            "Email address actively monitored by the operator's customer service department.",
+          type: 'string',
+          format: 'email',
+        },
+        feed_contact_email: {
+          description:
+            'A single contact email address for consumers of this feed to report technical issues (added in v1.1).',
+          type: 'string',
+          format: 'email',
+        },
+        timezone: {
+          description: 'The time zone where the system is located.',
+          type: 'string',
+          enum: TIMEZONE_IDENTIFIER_LIST,
+        },
+        license_url: {
+          description:
+            'A fully qualified URL of a page that defines the license terms for the GBFS data for this system.',
+          type: 'string',
+          format: 'uri',
+        },
+        rental_apps: {
+          description:
+            'Contains rental app information in the android and ios JSON objects (added in v1.1).',
+          type: 'object',
+          properties: {
+            android: {
+              description:
+                'Contains rental app download and app discovery information for the Android platform. (added in v1.1)',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental Android app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental Android app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+            ios: {
+              description: 'Contains rental information for the iOS platform (added in v1.1).',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental iOS app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental iOS app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+          },
+        },
+      },
+      required: ['system_id', 'language', 'name', 'timezone'],
+    },
+  },
+  required: ['last_updated', 'ttl', 'version', 'data'],
+};
+
+/**
+ * # GBFS System Information Schema V2.2
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.2/gbfs.md#system_informationjson)
+ */
+export interface GBFSSystemInformationV22 {
+  last_updated: number;
+  ttl: number;
+  version: '2.2';
+  data: {
+    system_id: string;
+    language: string; // Matches BCP-47 language tags
+    name: string;
+    short_name?: string;
+    operator?: string;
+    url?: string;
+    purchase_url?: string;
+    start_date?: string; // ISO 8601 format
+    phone_number?: string;
+    email?: string;
+    feed_contact_email?: string;
+    timezone: TimeZone;
+    license_url?: string;
+    rental_apps?: {
+      android?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+      ios?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+    };
+  };
+}
+
+/**
+ * # GBFS System Information Schema V2.1
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.1/gbfs.md#system_informationjson)
+ */
+export const gbfsSystemInformationSchemaV21 = {
+  $schema: 'http://json-schema.org/draft-07/schema',
+  $id: 'https://github.com/MobilityData/gbfs/blob/v2.1/gbfs.md#system_informationjson',
+  description:
+    'Details including system operator, system location, year implemented, URL, contact info, and time zone.',
+  type: 'object',
+  properties: {
+    last_updated: {
+      description: 'Last time the data in the feed was updated in POSIX time.',
+      type: 'integer',
+      minimum: 1450155600,
+    },
+    ttl: {
+      description:
+        'Number of seconds before the data in the feed will be updated again (0 if the data should always be refreshed).',
+      type: 'integer',
+      minimum: 0,
+    },
+    version: {
+      description:
+        'GBFS version number to which the feed conforms, according to the versioning framework (added in v1.1).',
+      type: 'string',
+      const: '2.1',
+    },
+    data: {
+      description: 'Response data in the form of name:value pairs.',
+      type: 'object',
+      properties: {
+        system_id: {
+          description:
+            'Identifier for this vehicle share system. This should be globally unique (even between different systems).',
+          type: 'string',
+        },
+        language: {
+          description:
+            'The language that will be used throughout the rest of the files. It must match the value in the gbfs.json file.',
+          type: 'string',
+          pattern: '^[a-z]{2,3}(-[A-Z]{2})?$',
+        },
+        name: {
+          description: 'Name of the system to be displayed to customers.',
+          type: 'string',
+        },
+        short_name: {
+          description: 'Optional abbreviation for a system.',
+          type: 'string',
+        },
+        operator: {
+          description: 'Name of the operator.',
+          type: 'string',
+        },
+        url: {
+          description: 'The URL of the vehicle share system.',
+          type: 'string',
+          format: 'uri',
+        },
+        purchase_url: {
+          description: 'URL where a customer can purchase a membership.',
+          type: 'string',
+          format: 'uri',
+        },
+        start_date: {
+          description: 'Date that the system began operations.',
+          type: 'string',
+          format: 'date',
+        },
+        phone_number: {
+          description:
+            "A single voice telephone number for the specified system that presents the telephone number as typical for the system's service area.",
+          type: 'string',
+        },
+        email: {
+          description:
+            "Email address actively monitored by the operator's customer service department.",
+          type: 'string',
+          format: 'email',
+        },
+        feed_contact_email: {
+          description:
+            'A single contact email address for consumers of this feed to report technical issues (added in v1.1).',
+          type: 'string',
+          format: 'email',
+        },
+        timezone: {
+          description: 'The time zone where the system is located.',
+          type: 'string',
+          enum: TIMEZONE_IDENTIFIER_LIST,
+        },
+        license_url: {
+          description:
+            'A fully qualified URL of a page that defines the license terms for the GBFS data for this system.',
+          type: 'string',
+          format: 'uri',
+        },
+        rental_apps: {
+          description:
+            'Contains rental app information in the android and ios JSON objects (added in v1.1).',
+          type: 'object',
+          properties: {
+            android: {
+              description:
+                'Contains rental app download and app discovery information for the Android platform. (added in v1.1)',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental Android app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental Android app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+            ios: {
+              description: 'Contains rental information for the iOS platform (added in v1.1).',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental iOS app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental iOS app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+          },
+        },
+      },
+      required: ['system_id', 'language', 'name', 'timezone'],
+    },
+  },
+  required: ['last_updated', 'ttl', 'version', 'data'],
+};
+
+/**
+ * # GBFS System Information Schema V2.1
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.1/gbfs.md#system_informationjson)
+ */
+export interface GBFSSystemInformationV21 {
+  last_updated: number;
+  ttl: number;
+  version: '2.1';
+  data: {
+    system_id: string;
+    language: string; // Matches BCP-47 language tags
+    name: string;
+    short_name?: string;
+    operator?: string;
+    url?: string;
+    purchase_url?: string;
+    start_date?: string; // ISO 8601 format
+    phone_number?: string;
+    email?: string;
+    feed_contact_email?: string;
+    timezone: TimeZone;
+    license_url?: string;
+    rental_apps?: {
+      android?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+      ios?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+    };
+  };
+}
+
+/**
+ * # GBFS System Information Schema V2.0
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.0/gbfs.md#system_informationjson)
+ */
+export const gbfsSystemInformationSchemaV20 = {
+  $schema: 'http://json-schema.org/draft-07/schema',
+  $id: 'https://github.com/MobilityData/gbfs/blob/v2.0/gbfs.md#system_informationjson',
+  description:
+    'Details including system operator, system location, year implemented, URL, contact info, and time zone.',
+  type: 'object',
+  properties: {
+    last_updated: {
+      description: 'Last time the data in the feed was updated in POSIX time.',
+      type: 'integer',
+      minimum: 1450155600,
+    },
+    ttl: {
+      description:
+        'Number of seconds before the data in the feed will be updated again (0 if the data should always be refreshed).',
+      type: 'integer',
+      minimum: 0,
+    },
+    version: {
+      description:
+        'GBFS version number to which the feed conforms, according to the versioning framework (added in v1.1).',
+      type: 'string',
+      const: '2.0',
+    },
+    data: {
+      description: 'Response data in the form of name:value pairs.',
+      type: 'object',
+      properties: {
+        system_id: {
+          description:
+            'Identifier for this vehicle share system. This should be globally unique (even between different systems).',
+          type: 'string',
+        },
+        language: {
+          description:
+            'The language that will be used throughout the rest of the files. It must match the value in the gbfs.json file.',
+          type: 'string',
+          pattern: '^[a-z]{2,3}(-[A-Z]{2})?$',
+        },
+        name: {
+          description: 'Name of the system to be displayed to customers.',
+          type: 'string',
+        },
+        short_name: {
+          description: 'Optional abbreviation for a system.',
+          type: 'string',
+        },
+        operator: {
+          description: 'Name of the operator.',
+          type: 'string',
+        },
+        url: {
+          description: 'The URL of the vehicle share system.',
+          type: 'string',
+          format: 'uri',
+        },
+        purchase_url: {
+          description: 'URL where a customer can purchase a membership.',
+          type: 'string',
+          format: 'uri',
+        },
+        start_date: {
+          description: 'Date that the system began operations.',
+          type: 'string',
+          format: 'date',
+        },
+        phone_number: {
+          description:
+            "A single voice telephone number for the specified system that presents the telephone number as typical for the system's service area.",
+          type: 'string',
+        },
+        email: {
+          description:
+            "Email address actively monitored by the operator's customer service department.",
+          type: 'string',
+          format: 'email',
+        },
+        feed_contact_email: {
+          description:
+            'A single contact email address for consumers of this feed to report technical issues (added in v1.1).',
+          type: 'string',
+          format: 'email',
+        },
+        timezone: {
+          description: 'The time zone where the system is located.',
+          type: 'string',
+          enum: TIMEZONE_IDENTIFIER_LIST,
+        },
+        license_url: {
+          description:
+            'A fully qualified URL of a page that defines the license terms for the GBFS data for this system.',
+          type: 'string',
+          format: 'uri',
+        },
+        rental_apps: {
+          description:
+            'Contains rental app information in the android and ios JSON objects (added in v1.1).',
+          type: 'object',
+          properties: {
+            android: {
+              description:
+                'Contains rental app download and app discovery information for the Android platform. (added in v1.1)',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental Android app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental Android app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+            ios: {
+              description: 'Contains rental information for the iOS platform (added in v1.1).',
+              type: 'object',
+              properties: {
+                store_uri: {
+                  description:
+                    'URI where the rental iOS app can be downloaded from (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+                discovery_uri: {
+                  description:
+                    'URI that can be used to discover if the rental iOS app is installed on the device (added in v1.1).',
+                  type: 'string',
+                  format: 'uri',
+                },
+              },
+              required: ['store_uri', 'discovery_uri'],
+            },
+          },
+        },
+      },
+      required: ['system_id', 'language', 'name', 'timezone'],
+    },
+  },
+  required: ['last_updated', 'ttl', 'version', 'data'],
+};
+
+/**
+ * # GBFS System Information Schema V2.0
+ * Details including system operator, system location, year implemented, URL, contact info, and time zone.
+ *
+ * ## Links
+ * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v2.0/gbfs.md#system_informationjson)
+ */
+export interface GBFSSystemInformationV20 {
+  last_updated: number;
+  ttl: number;
+  version: '2.0';
+  data: {
+    system_id: string;
+    language: string; // Matches BCP-47 language tags
+    name: string;
+    short_name?: string;
+    operator?: string;
+    url?: string;
+    purchase_url?: string;
+    start_date?: string; // ISO 8601 format
+    phone_number?: string;
+    email?: string;
+    feed_contact_email?: string;
+    timezone: TimeZone;
+    license_url?: string;
+    rental_apps?: {
+      android?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+      ios?: {
+        store_uri: string;
+        discovery_uri: string;
+      };
+    };
+  };
+}

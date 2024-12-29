@@ -286,7 +286,7 @@ export interface GBFSVehicleV3 extends Properties {
 
   /**
    * The date and time when any rental of the vehicle must be completed.
-   * **Pattern**: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(([+-]([0-9]{2}):([0-9]{2}))|Z)$
+   * **Pattern**: `^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(([+-]([0-9]{2}):([0-9]{2}))|Z)$`
    */
   // @ts-expect-error - This is ok for now
   available_until?: string;

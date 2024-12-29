@@ -265,14 +265,14 @@ export interface GBFSSystemPricingPlansV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;
 
       /**
        * Currency used to pay the fare in ISO 4217 code.
-       * **Pattern**: ^\w{3}$
+       * **Pattern**: `^\w{3}$`
        */
       currency: string;
 
@@ -310,7 +310,7 @@ export interface GBFSSystemPricingPlansV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;

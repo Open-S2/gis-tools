@@ -436,7 +436,7 @@ export interface GBFSVehicleTypesV31RC {
       eco_labels?: Array<{
         /**
          * Country code following the ISO 3166-1 alpha-2 notation.
-         * **Pattern**: ^[A-Z]{2}$
+         * **Pattern**: `^[A-Z]{2}$`
          */
         country_code: string;
 
@@ -457,7 +457,7 @@ export interface GBFSVehicleTypesV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;
@@ -496,7 +496,7 @@ export interface GBFSVehicleTypesV31RC {
        */
       make?: Array<{
         text: string;
-        language: string; // **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+        language: string; // **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
       }>;
 
       /**
@@ -504,7 +504,7 @@ export interface GBFSVehicleTypesV31RC {
        */
       model?: Array<{
         text: string;
-        language: string; // **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+        language: string; // **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
       }>;
 
       /**
@@ -517,7 +517,7 @@ export interface GBFSVehicleTypesV31RC {
        */
       description?: Array<{
         text: string;
-        language: string; // **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+        language: string; // **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
       }>;
 
       /**

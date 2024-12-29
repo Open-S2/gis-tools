@@ -1,13 +1,17 @@
 import { parseCSVAsRecord } from '..';
+import { GBFSReaderV1, GBFSV1, buildGBFSReaderV1 } from './schemaV1';
+import { GBFSReaderV2, GBFSV2, buildGBFSReaderV2 } from './schemaV2';
 import { GBFSReaderV3, GBFSV3, buildGBFSReaderV3 } from './schemaV3';
 
+export * from './schemaV1';
+export * from './schemaV2';
 export * from './schemaV3';
 
 /** The versions of GBFS reader classes this data could be */
-export type GBFSReaders = GBFSReaderV3;
+export type GBFSReaders = GBFSReaderV1 | GBFSReaderV2 | GBFSReaderV3;
 
 /** The versions of GBFS schemas this data could be */
-export type GBFSTypess = GBFSV3;
+export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
 
 /**
  * Given a link to a GBFS feed, build the appropriate reader for the feed.
@@ -20,17 +24,15 @@ export type GBFSTypess = GBFSV3;
  */
 export async function buildGBFSReader(url: string): Promise<GBFSReaders> {
   const data = await fetch(url).then(async (res) => (await res.json()) as GBFSTypess);
-  const versionMajor = data.version[0];
-  if (versionMajor === '3') {
-    return await buildGBFSReaderV3(data);
+  const versionMajor = 'version' in data ? data.version[0] : '1';
+  if (versionMajor === '1') {
+    return await buildGBFSReaderV1(data as GBFSV1);
+  } else if (versionMajor === '2') {
+    return await buildGBFSReaderV2(data as GBFSV2);
+  } else if (versionMajor === '3') {
+    return await buildGBFSReaderV3(data as GBFSV3);
   } else throw Error('Unsupported GBFS version');
 }
-
-// TODO:
-// - [ ] create schema for v1.1 and v2.3
-// - [ ] convert each schema to typescript interfaces/enums/types
-// - [ ] given a link, fetch all associated data and put in GBFSReaderV1/GBFSReaderV2/GBFSReaderV3
-// - [ ] build VectorFeatures from data
 
 /** System Definition that is returned from the github CSV file. */
 export interface System {

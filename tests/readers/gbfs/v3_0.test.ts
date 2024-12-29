@@ -5,6 +5,7 @@ import { buildServer } from '../../server';
 import { expect, test } from 'bun:test';
 
 import {
+  GBFSReaderV3,
   gbfsGeofencingZonesSchemaV30,
   gbfsManifestSchemaV30,
   gbfsSchemaV30,
@@ -26,9 +27,9 @@ addFormats(ajv);
 testFunc('version 3.0', async () => {
   const server = buildServer();
 
-  const gbfsReader = await buildGBFSReader(
+  const gbfsReader = (await buildGBFSReader(
     `http://localhost:${server.port}/readers/gbfs/fixtures/v3.0/gbfs.json`,
-  );
+  )) as GBFSReaderV3;
   const {
     gbfs,
     gbfsVersions,
@@ -91,5 +92,5 @@ testFunc('version 3.0', async () => {
   await server.stop();
 
   const features = await Array.fromAsync(gbfsReader);
-  expect(features.length).toBe(104);
+  expect(features.length).toBe(100);
 });

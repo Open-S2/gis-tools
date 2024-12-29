@@ -250,7 +250,7 @@ export interface GBFSSystemAlertsV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;
@@ -266,7 +266,7 @@ export interface GBFSSystemAlertsV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;
@@ -282,7 +282,7 @@ export interface GBFSSystemAlertsV31RC {
 
         /**
          * IETF BCP 47 language code.
-         * **Pattern**: ^[a-z]{2,3}(-[A-Z]{2})?$
+         * **Pattern**: `^[a-z]{2,3}(-[A-Z]{2})?$`
          */
         language: string;
       }>;

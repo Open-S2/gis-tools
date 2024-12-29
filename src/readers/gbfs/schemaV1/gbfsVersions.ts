@@ -1,15 +1,24 @@
 /**
- * # GBFS V1
- * Lists all feed endpoints published according to version sof the GBFS documentation. (added in v1.1)
+ * # GBFS Versions Schema V1.1
+ * Lists all feed endpoints published according to versions of the GBFS documentation.
  *
  * ## Links
- * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#gbfs_versionsjson-added-in-v11)
+ * - [GBFS Specification V1.1](https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#gbfs_versionsjson-added-in-v11)
  */
-export const gbfsVersionsSchemaV1 = {
+export type GBFSVersionsV1 = GBFSVersionsV11;
+
+/**
+ * # GBFS Versions Schema V1.1
+ * Lists all feed endpoints published according to versions of the GBFS documentation. (added in v1.1)
+ *
+ * ## Links
+ * - [GBFS Specification V1.1](https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#gbfs_versionsjson-added-in-v11)
+ */
+export const gbfsVersionsSchemaV11 = {
   $schema: 'http://json-schema.org/draft-07/schema',
   $id: 'https://github.com/MobilityData/gbfs/blob/v1.1/gbfs.md#gbfs_versionsjson-added-in-v11',
   description:
-    'Lists all feed endpoints published according to version sof the GBFS documentation. (added in v1.1)',
+    'Lists all feed endpoints published according to versions of the GBFS documentation. (added in v1.1)',
   type: 'object',
   properties: {
     last_updated: {
@@ -46,7 +55,7 @@ export const gbfsVersionsSchemaV1 = {
                 enum: ['1.0', '1.1', '2.0', '2.1', '2.2', '2.3', '3.0'],
               },
               url: {
-                description: 'URL of the corresponding gbfs.json endpoint',
+                description: 'URL of the corresponding gbfs.json endpoint.',
                 type: 'string',
                 format: 'uri',
               },
@@ -61,3 +70,25 @@ export const gbfsVersionsSchemaV1 = {
   },
   required: ['last_updated', 'ttl', 'version', 'data'],
 };
+
+/**
+ * GBFS Versions Schema V1.1 Interface
+ */
+export interface GBFSVersionsV11 {
+  /** Last time the data in the feed was updated in POSIX time. */
+  last_updated: number;
+
+  /** Number of seconds before the data in the feed will be updated again. */
+  ttl: number;
+
+  /** GBFS version number (1.1). */
+  version: '1.1';
+
+  /** Data containing available feed versions. */
+  data: {
+    versions: Array<{
+      version: '1.0' | '1.1' | '2.0' | '2.1' | '2.2' | '2.3' | '3.0';
+      url: string;
+    }>;
+  };
+}
