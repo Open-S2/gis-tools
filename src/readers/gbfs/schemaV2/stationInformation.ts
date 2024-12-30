@@ -1,3 +1,5 @@
+import type { MultiPolygonGeometry } from '../../..';
+
 /**
  * # GBFS Station Information Schema V2.3, V2.2, V2.1, OR V2.0
  * List of all stations, their capacities, and locations. REQUIRED for systems utilizing docks.
@@ -286,10 +288,7 @@ export interface GBFSStationInformationV23 {
         | 'phone'
       >;
       is_virtual_station?: boolean;
-      station_area?: {
-        type: 'MultiPolygon';
-        coordinates: number[][][][];
-      };
+      station_area?: MultiPolygonGeometry;
       parking_type?:
         | 'parking_lot'
         | 'street_parking'
@@ -560,10 +559,7 @@ export interface GBFSStationInformationV22 {
         | 'phone'
       >;
       is_virtual_station?: boolean;
-      station_area?: {
-        type: 'MultiPolygon';
-        coordinates: number[][][][];
-      };
+      station_area?: MultiPolygonGeometry;
       capacity?: number;
       vehicle_capacity?: Record<string, number>;
       is_valet_station?: boolean;
@@ -825,10 +821,7 @@ export interface GBFSStationInformationV21 {
         | 'phone'
       >;
       is_virtual_station?: boolean;
-      station_area?: {
-        type: 'MultiPolygon';
-        coordinates: number[][][][];
-      };
+      station_area?: MultiPolygonGeometry;
       capacity?: number;
       vehicle_capacity?: Record<string, number>;
       is_valet_station?: boolean;

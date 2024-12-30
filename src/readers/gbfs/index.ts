@@ -20,7 +20,7 @@ export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
  * - v2: https://gbfs.helbiz.com/v2.2/durham/gbfs.json
  * - v1: https://gbfs.urbansharing.com/gbfs/gbfs.json
  * @param url - The link to the GBFS feed
- * @param locale - The locale to use if provided, otherwise default to en
+ * @param locale - The locale to use if provided, otherwise default to "en" (e.g., "en", "en-US").
  * @returns - a GBFSReader of the appropriate version
  */
 export async function buildGBFSReader(url: string, locale = 'en'): Promise<GBFSReader> {

@@ -1,6 +1,7 @@
 import {
   GBFSFreeBikeStatusV2,
   GBFSGeofencingZonesV2,
+  GBFSGeofencingZonesV2Properties,
   GBFSStationInformationV2,
   GBFSStationStatusV2,
   GBFSSystemAlertsV2,
@@ -13,6 +14,14 @@ import {
   GBFSVehicleTypesV2,
   GBFSVersionsV2,
 } from '.';
+
+import type {
+  Feature,
+  FeatureIterator,
+  MultiPolygonGeometry,
+  PointGeometry,
+  Properties,
+} from '../../..';
 
 export * from './freeBikeStatus';
 export * from './gbfs';
@@ -28,13 +37,97 @@ export * from './systemPricingPlans';
 export * from './systemRegions';
 export * from './vehicleTypes';
 
+/** Geofencing Feature */
+export type GBFSGeofencingFeatureV2 = Feature<
+  undefined,
+  Properties,
+  GBFSGeofencingZonesV2Properties,
+  MultiPolygonGeometry<Properties>
+>;
+
+/** Station Information feature properties */
+export interface GBFSStationV2FeaturesV2Properties extends Properties {
+  station_id: string;
+  name: string;
+  short_name?: string;
+  address?: string;
+  cross_street?: string;
+  region_id?: string;
+  post_code?: string;
+  rental_methods?: Array<
+    | 'key'
+    | 'creditcard'
+    | 'paypass'
+    | 'applepay'
+    | 'androidpay'
+    | 'transitcard'
+    | 'accountnumber'
+    | 'phone'
+    | 'KEY'
+    | 'CREDITCARD'
+    | 'PAYPASS'
+    | 'APPLEPAY'
+    | 'ANDROIDPAY'
+    | 'TRANSITCARD'
+    | 'ACCOUNTNUMBER'
+    | 'PHONE'
+  >;
+  is_virtual_station?: boolean;
+  parking_type?:
+    | 'parking_lot'
+    | 'street_parking'
+    | 'underground_parking'
+    | 'sidewalk_parking'
+    | 'other';
+  parking_hoop?: boolean;
+  contact_phone?: string;
+  capacity?: number;
+  is_valet_station?: boolean;
+  is_charging_station?: boolean;
+  rental_uris?: {
+    android?: string;
+    ios?: string;
+    web?: string;
+  };
+}
+
+/** Station Information Point Feature */
+export type GBFSStationPointFeatureV2 = Feature<
+  undefined,
+  Properties,
+  GBFSStationV2FeaturesV2Properties,
+  PointGeometry<Properties>
+>;
+
+/** Station Information Area Feature */
+export type GBFSStationAreaFeatureV2 = Feature<
+  undefined,
+  Properties,
+  GBFSStationV2FeaturesV2Properties,
+  MultiPolygonGeometry
+>;
+
+/** All potential feature types in a GBFS V2 specification */
+export type GBFSFeaturesV2 =
+  | GBFSGeofencingFeatureV2
+  | GBFSStationPointFeatureV2
+  | GBFSStationAreaFeatureV2;
+
+/** All potential feature property types in a GBFS V2 specification */
+export type GBFSFeaturePropertiesV2 =
+  | GBFSGeofencingZonesV2Properties
+  | GBFSStationV2FeaturesV2Properties;
+
 /**
  * GBFS Version 1 Reader
  */
-export class GBFSReaderV2 {
+export class GBFSReaderV2
+  implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV2>
+{
+  version = 2;
   freeBikeStatus?: GBFSFreeBikeStatusV2;
   gbfs: GBFSV2;
-  versions?: GBFSVersionsV2;
+  gbfsVersions?: GBFSVersionsV2;
   geofencingZones?: GBFSGeofencingZonesV2;
   stationInformation?: GBFSStationInformationV2;
   stationStatus?: GBFSStationStatusV2;
@@ -52,7 +145,7 @@ export class GBFSReaderV2 {
    */
   constructor(gbfs: GBFSV2, feeds?: FeedResV2) {
     this.gbfs = gbfs;
-    this.versions = feeds?.gbfs_versions;
+    this.gbfsVersions = feeds?.gbfs_versions;
     this.geofencingZones = feeds?.geofencing_zones;
     this.systemInformation = feeds?.system_information as GBFSSystemInformationV2;
     this.stationInformation = feeds?.station_information;
@@ -64,6 +157,76 @@ export class GBFSReaderV2 {
     this.systemPricingPlans = feeds?.system_pricing_plans;
     this.systemRegions = feeds?.system_regions;
     this.vehicleTypes = feeds?.vehicle_types;
+  }
+
+  /**
+   * Yields all of the shapes
+   * @yields an iterator that contains shapes, stops, location data, and routes
+   */
+  async *[Symbol.asyncIterator](): AsyncGenerator<GBFSFeaturesV2> {
+    const { geofencingZones, stationInformation } = this;
+    if (geofencingZones !== undefined) {
+      const {
+        data: { geofencing_zones },
+      } = geofencingZones;
+      for (const feature of geofencing_zones.features) yield feature as GBFSGeofencingFeatureV2;
+    }
+    if (stationInformation !== undefined) {
+      const {
+        data: { stations },
+      } = stationInformation;
+      for (const station of stations) {
+        const {
+          lat,
+          lon,
+          station_id,
+          name,
+          short_name,
+          address,
+          cross_street,
+          region_id,
+          post_code,
+          rental_methods,
+          capacity,
+          rental_uris,
+        } = station;
+        const stationProperties: GBFSStationV2FeaturesV2Properties = {
+          station_id,
+          name,
+          short_name,
+          address,
+          cross_street,
+          region_id,
+          post_code,
+          rental_methods,
+          is_virtual_station: 'is_virtual_station' in station && station.is_virtual_station,
+          parking_type: 'parking_type' in station ? station.parking_type : undefined,
+          parking_hoop: 'parking_hoop' in station && station.parking_hoop,
+          contact_phone: 'contact_phone' in station ? station.contact_phone : undefined,
+          capacity,
+          is_valet_station: 'is_valet_station' in station && station.is_valet_station,
+          is_charging_station: 'is_charging_station' in station && station.is_charging_station,
+          rental_uris,
+        };
+        const stationPoint: GBFSStationPointFeatureV2 = {
+          type: 'Feature',
+          properties: stationProperties,
+          geometry: {
+            type: 'Point',
+            coordinates: [lon, lat],
+          },
+        };
+        yield stationPoint;
+        if ('station_area' in station && station.station_area !== undefined) {
+          const stationArea: GBFSStationAreaFeatureV2 = {
+            type: 'Feature',
+            properties: stationProperties,
+            geometry: station.station_area,
+          };
+          yield stationArea;
+        }
+      }
+    }
   }
 }
 

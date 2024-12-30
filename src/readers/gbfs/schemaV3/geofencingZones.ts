@@ -1,4 +1,4 @@
-import type { FeatureCollection, MValue, Properties } from '../../..';
+import type { FeatureCollection, MValue, Properties, ValueArrayObject } from '../../..';
 
 /**
  * # GBFS Geofencing Zones Schema V3.1-RC & V3.0
@@ -230,7 +230,7 @@ export const gbfsGeofencingZonesSchemaV31RC = {
 /**
  * GBFS V3: Public name of the geofencing zone.
  */
-export interface GBFSGeofencingZonesV3PropertiesName {
+export interface GBFSGeofencingZonesV3PropertiesName extends ValueArrayObject {
   /**
    * The translated text.
    */
@@ -245,10 +245,11 @@ export interface GBFSGeofencingZonesV3PropertiesName {
 /**
  * GBFS V3: Restrictions that apply within the area of the polygon.
  */
-export interface GBFSGeofencingZonesV3PropertiesRule {
+export interface GBFSGeofencingZonesV3PropertiesRule extends ValueArrayObject {
   /**
    * Array of vehicle type IDs for which these restrictions apply.
    */
+  // @ts-expect-error - we need to clean this / remove it
   vehicle_type_ids?: string[];
   /**
    * Is the ride allowed to start in this zone?
@@ -276,22 +277,18 @@ export interface GBFSGeofencingZonesV3PropertiesRule {
 /** Properties of a geofencing zone */
 export interface GBFSGeofencingZonesV3Properties extends Properties {
   /** Public name of the geofencing zone. */
-  // @ts-expect-error - this is ok
   name: GBFSGeofencingZonesV3PropertiesName[];
   /**
    * Start time of the geofencing zone in RFC3339 format.
    * **format** date-time
    */
-  // @ts-expect-error - this is ok
   start?: string;
   /**
    * End time of the geofencing zone in RFC3339 format.
    * **format** date-time
    */
-  // @ts-expect-error - this is ok
   end?: string;
   /** Array of rules defining restrictions within the geofence. */
-  // @ts-expect-error - this is ok
   rules?: GBFSGeofencingZonesV3PropertiesRule[];
 }
 

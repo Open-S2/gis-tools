@@ -30,6 +30,7 @@ test('version 3.0', async () => {
   )) as GBFSReaderV3;
   const {
     gbfs,
+    version,
     gbfsVersions,
     systemInformation,
     stationInformation,
@@ -39,7 +40,10 @@ test('version 3.0', async () => {
     systemRegions,
     systemPricingPlans,
     geofencingZones,
+    manifest,
   } = gbfsReader;
+
+  expect(version).toEqual(3);
 
   // gbfs
   expect(gbfs).toBeDefined();
@@ -81,9 +85,8 @@ test('version 3.0', async () => {
   expect(geofencingZones).toBeDefined();
   const validGeofencingZones = ajv.compile(gbfsGeofencingZonesSchemaV30);
   expect(validGeofencingZones(geofencingZones)).toBeTrue();
-
-  // test manifest
-  const manifest = await Bun.file(`${__dirname}/fixtures/v3.0/manifest.json`).json();
+  // manifest
+  expect(manifest).toBeDefined();
   const validManifest = ajv.compile(gbfsManifestSchemaV30);
   expect(validManifest(manifest)).toBeTrue();
 

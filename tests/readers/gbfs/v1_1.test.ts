@@ -23,7 +23,7 @@ import type { GBFSReaderV1 } from '../../../src';
 const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
-test('version 1.1', async () => {
+test('version 1.1', async (): Promise<void> => {
   const server = buildServer();
 
   const gbfsReader = (await buildGBFSReader(
@@ -32,7 +32,8 @@ test('version 1.1', async () => {
   const {
     freeBikeStatus,
     gbfs,
-    versions,
+    version,
+    gbfsVersions,
     stationInformation,
     stationStatus,
     systemAlerts,
@@ -43,6 +44,8 @@ test('version 1.1', async () => {
     systemRegions,
   } = gbfsReader;
 
+  expect(version).toEqual(1);
+
   // freeBikeStatus
   expect(freeBikeStatus).toBeDefined();
   const validFreeBikeStatus = ajv.compile(gbfsFreeBikeStatusSchemaV11);
@@ -52,12 +55,12 @@ test('version 1.1', async () => {
   const validGBFS = ajv.compile(gbfsSchemaV11);
   expect(validGBFS(gbfs)).toBeTrue();
   // versions
-  if (versions === undefined) throw new Error('versions is undefined');
-  expect(versions).toBeDefined();
+  if (gbfsVersions === undefined) throw new Error('versions is undefined');
+  expect(gbfsVersions).toBeDefined();
   // @ts-expect-error - version 2.2-google is not supported
-  versions.data.versions = versions.data.versions.filter((v) => v.version !== '2.2-google');
+  gbfsVersions.data.versions = gbfsVersions.data.versions.filter((v) => v.version !== '2.2-google');
   const validGBFSVersions = ajv.compile(gbfsVersionsSchemaV11);
-  expect(validGBFSVersions(versions)).toBeTrue();
+  expect(validGBFSVersions(gbfsVersions)).toBeTrue();
   // systemInformation
   expect(systemInformation).toBeDefined();
   const validSystemInformation = ajv.compile(gbfsSystemInformationSchemaV11);
@@ -93,6 +96,6 @@ test('version 1.1', async () => {
 
   await server.stop();
 
-  // const features = await Array.fromAsync(gbfsReader);
-  // expect(features.length).toBe(104);
+  const features = await Array.fromAsync(gbfsReader);
+  expect(features.length).toBe(0);
 });

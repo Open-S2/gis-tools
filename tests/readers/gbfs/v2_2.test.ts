@@ -34,7 +34,8 @@ test('version 2.2', async () => {
   const {
     freeBikeStatus,
     gbfs,
-    versions,
+    version,
+    gbfsVersions,
     geofencingZones,
     stationInformation,
     stationStatus,
@@ -47,6 +48,8 @@ test('version 2.2', async () => {
     vehicleTypes,
   } = gbfsReader;
 
+  expect(version).toEqual(2);
+
   // freeBikeStatus
   expect(freeBikeStatus).toBeDefined();
   const validFreeBikeStatus = ajv.compile(gbfsFreeBikeStatusSchemaV22);
@@ -56,12 +59,12 @@ test('version 2.2', async () => {
   const validGBFS = ajv.compile(gbfsSchemaV22);
   expect(validGBFS(gbfs)).toBeTrue();
   // versions
-  if (versions === undefined) throw new Error('versions is undefined');
-  expect(versions).toBeDefined();
+  if (gbfsVersions === undefined) throw new Error('versions is undefined');
+  expect(gbfsVersions).toBeDefined();
   // @ts-expect-error - version 2.2-google is not supported
-  versions.data.versions = versions.data.versions.filter((v) => v.version !== '2.2-google');
+  gbfsVersions.data.versions = gbfsVersions.data.versions.filter((v) => v.version !== '2.2-google');
   const validGBFSVersions = ajv.compile(gbfsVersionsSchemaV22);
-  expect(validGBFSVersions(versions)).toBeTrue();
+  expect(validGBFSVersions(gbfsVersions)).toBeTrue();
   // geofencingZones
   expect(geofencingZones).toBeDefined();
   const validGeofencingZones = ajv.compile(gbfsGeofencingZonesSchemaV22);
@@ -107,6 +110,6 @@ test('version 2.2', async () => {
 
   await server.stop();
 
-  // const features = await Array.fromAsync(gbfsReader);
-  // expect(features.length).toBe(104);
+  const features = await Array.fromAsync(gbfsReader);
+  expect(features.length).toBe(92);
 });

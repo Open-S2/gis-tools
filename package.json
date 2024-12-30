@@ -99,9 +99,9 @@
   },
   "dependencies": {
     "earclip": "^1.1.1",
-    "open-vector-tile": "^1.6.0",
+    "open-vector-tile": "^1.6.1",
     "s2-tilejson": "^1.7.0",
-    "s2json-spec": "^1.6.0",
+    "s2json-spec": "^1.6.2",
     "sharp": "^0.33.5"
   }
 }

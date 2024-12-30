@@ -1,3 +1,5 @@
+import type { FeatureCollection, MValue, Properties, ValueArrayObject } from '../../..';
+
 /**
  * # GBFS Geofencing Zones Schema V2.3, V2.2, V2.1, OR V2.0
  * Describes geofencing zones and their associated rules and attributes (added in v2.1-RC).
@@ -169,6 +171,52 @@ export const gbfsGeofencingZonesSchemaV23 = {
 };
 
 /**
+ * GBFS V3: Restrictions that apply within the area of the polygon.
+ */
+export interface GBFSGeofencingZonesV2PropertiesRule extends ValueArrayObject {
+  /**
+   * Array of vehicle type IDs for which these restrictions apply.
+   */
+  // @ts-expect-error - we need to clean this / remove it
+  vehicle_type_id?: string[];
+  /**
+   * Is the undocked ride allowed to start and end in this zone?
+   */
+  ride_allowed: boolean;
+  /**
+   * Is the ride allowed to travel through this zone?
+   */
+  ride_through_allowed: boolean;
+  /**
+   * Maximum speed allowed, in kilometers per hour.
+   * **Minimum**: 0
+   */
+  maximum_speed_kph?: number;
+  /**
+   * Vehicle MUST be parked at stations defined in station_information.json within this geofence zone.
+   */
+  station_parking?: boolean;
+}
+
+/** Properties of a geofencing zone */
+export interface GBFSGeofencingZonesV2Properties extends Properties {
+  /** Public name of the geofencing zone. */
+  name: string;
+  /**
+   * Start time of the geofencing zone in RFC3339 format.
+   * **format** date-time
+   */
+  start?: string;
+  /**
+   * End time of the geofencing zone in RFC3339 format.
+   * **format** date-time
+   */
+  end?: string;
+  /** Array of rules defining restrictions within the geofence. */
+  rules?: GBFSGeofencingZonesV2PropertiesRule[];
+}
+
+/**
  * # GBFS Geofencing Zones V2.3
  * Describes geofencing zones and their associated rules and attributes (added in v2.1-RC).
  *
@@ -198,91 +246,7 @@ export interface GBFSGeofencingZonesV23 {
    * Contains geofencing information for the system.
    */
   data: {
-    geofencing_zones: {
-      /**
-       * FeatureCollection as per IETF RFC 7946.
-       * **Enum**: "FeatureCollection"
-       */
-      type: 'FeatureCollection';
-
-      /**
-       * Array of GeoJSON features.
-       */
-      features: Array<{
-        /**
-         * **Type**: "Feature"
-         */
-        type: 'Feature';
-
-        /**
-         * Properties describing travel allowances and limitations.
-         */
-        properties: {
-          /**
-           * Public name of the geofencing zone.
-           */
-          name?: string;
-
-          /**
-           * Start time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          start?: number;
-
-          /**
-           * End time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          end?: number;
-
-          /**
-           * Array of rules for the geofencing zone.
-           */
-          rules?: Array<{
-            /**
-             * Array of vehicle type IDs for which these restrictions apply.
-             */
-            vehicle_type_id?: string[];
-
-            /**
-             * Is the undocked ride allowed to start and end in this zone?
-             */
-            ride_allowed: boolean;
-
-            /**
-             * Is the ride allowed to travel through this zone?
-             */
-            ride_through_allowed: boolean;
-
-            /**
-             * Maximum speed allowed, in kilometers per hour.
-             * **Minimum**: 0
-             */
-            maximum_speed_kph?: number;
-
-            /**
-             * Vehicle MUST be parked at stations defined in station_information.json within this geofence zone.
-             */
-            station_parking?: boolean;
-          }>;
-        };
-
-        /**
-         * A polygon that describes geofencing boundaries.
-         */
-        geometry: {
-          /**
-           * **Type**: "MultiPolygon"
-           */
-          type: 'MultiPolygon';
-
-          /**
-           * Array of coordinates following the right-hand rule.
-           */
-          coordinates: number[][][][];
-        };
-      }>;
-    };
+    geofencing_zones: FeatureCollection<undefined, MValue, GBFSGeofencingZonesV2Properties>;
   };
 }
 
@@ -464,86 +428,7 @@ export interface GBFSGeofencingZonesV22 {
    * Contains geofencing information for the system.
    */
   data: {
-    geofencing_zones: {
-      /**
-       * FeatureCollection as per IETF RFC 7946.
-       * **Enum**: "FeatureCollection"
-       */
-      type: 'FeatureCollection';
-
-      /**
-       * Array of GeoJSON features.
-       */
-      features: Array<{
-        /**
-         * **Type**: "Feature"
-         */
-        type: 'Feature';
-
-        /**
-         * Properties describing travel allowances and limitations.
-         */
-        properties: {
-          /**
-           * Public name of the geofencing zone.
-           */
-          name?: string;
-
-          /**
-           * Start time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          start?: number;
-
-          /**
-           * End time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          end?: number;
-
-          /**
-           * Array of rules for the geofencing zone.
-           */
-          rules?: Array<{
-            /**
-             * Array of vehicle type IDs for which these restrictions apply.
-             */
-            vehicle_type_id?: string[];
-
-            /**
-             * Is the undocked ride allowed to start and end in this zone?
-             */
-            ride_allowed: boolean;
-
-            /**
-             * Is the ride allowed to travel through this zone?
-             */
-            ride_through_allowed: boolean;
-
-            /**
-             * Maximum speed allowed, in kilometers per hour.
-             * **Minimum**: 0
-             */
-            maximum_speed_kph?: number;
-          }>;
-        };
-
-        /**
-         * A polygon that describes geofencing boundaries.
-         */
-        geometry: {
-          /**
-           * **Type**: "MultiPolygon"
-           */
-          type: 'MultiPolygon';
-
-          /**
-           * Array of coordinates following the right-hand rule.
-           */
-          coordinates: number[][][][];
-        };
-      }>;
-    };
+    geofencing_zones: FeatureCollection<undefined, MValue, GBFSGeofencingZonesV2Properties>;
   };
 }
 
@@ -725,85 +610,6 @@ export interface GBFSGeofencingZonesV21 {
    * Contains geofencing information for the system.
    */
   data: {
-    geofencing_zones: {
-      /**
-       * FeatureCollection as per IETF RFC 7946.
-       * **Enum**: "FeatureCollection"
-       */
-      type: 'FeatureCollection';
-
-      /**
-       * Array of GeoJSON features.
-       */
-      features: Array<{
-        /**
-         * **Type**: "Feature"
-         */
-        type: 'Feature';
-
-        /**
-         * Properties describing travel allowances and limitations.
-         */
-        properties: {
-          /**
-           * Public name of the geofencing zone.
-           */
-          name?: string;
-
-          /**
-           * Start time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          start?: number;
-
-          /**
-           * End time of the geofencing zone in POSIX time.
-           * **Minimum**: 1450155600
-           */
-          end?: number;
-
-          /**
-           * Array of rules for the geofencing zone.
-           */
-          rules?: Array<{
-            /**
-             * Array of vehicle type IDs for which these restrictions apply.
-             */
-            vehicle_type_id?: string[];
-
-            /**
-             * Is the undocked ride allowed to start and end in this zone?
-             */
-            ride_allowed: boolean;
-
-            /**
-             * Is the ride allowed to travel through this zone?
-             */
-            ride_through_allowed: boolean;
-
-            /**
-             * Maximum speed allowed, in kilometers per hour.
-             * **Minimum**: 0
-             */
-            maximum_speed_kph?: number;
-          }>;
-        };
-
-        /**
-         * A polygon that describes geofencing boundaries.
-         */
-        geometry: {
-          /**
-           * **Type**: "MultiPolygon"
-           */
-          type: 'MultiPolygon';
-
-          /**
-           * Array of coordinates following the right-hand rule.
-           */
-          coordinates: number[][][][];
-        };
-      }>;
-    };
+    geofencing_zones: FeatureCollection<undefined, MValue, GBFSGeofencingZonesV2Properties>;
   };
 }

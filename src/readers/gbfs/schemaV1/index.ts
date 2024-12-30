@@ -12,6 +12,8 @@ import {
   GBFSVersionsV1,
 } from '.';
 
+import type { Feature, FeatureIterator, PointGeometry, Properties } from '../../..';
+
 export * from './freeBikeStatus';
 export * from './gbfs';
 export * from './gbfsVersions';
@@ -24,13 +26,60 @@ export * from './systemInformation';
 export * from './systemPricingPlans';
 export * from './systemRegions';
 
+/** Station Information feature properties */
+export interface GBFSStationV1FeaturesV1Properties extends Properties {
+  station_id: string;
+  name: string;
+  short_name?: string;
+  address?: string;
+  cross_street?: string;
+  region_id?: string;
+  post_code?: string;
+  rental_methods?: Array<
+    | 'key'
+    | 'creditcard'
+    | 'paypass'
+    | 'applepay'
+    | 'androidpay'
+    | 'transitcard'
+    | 'accountnumber'
+    | 'phone'
+    | 'KEY'
+    | 'CREDITCARD'
+    | 'PAYPASS'
+    | 'APPLEPAY'
+    | 'ANDROIDPAY'
+    | 'TRANSITCARD'
+    | 'ACCOUNTNUMBER'
+    | 'PHONE'
+  >;
+  capacity?: number;
+}
+
+/** Station Information Point Feature */
+export type GBFSStationPointFeatureV1 = Feature<
+  undefined,
+  Properties,
+  GBFSStationV1FeaturesV1Properties,
+  PointGeometry<Properties>
+>;
+
+/** All potential feature types in a GBFS V1 specification */
+export type GBFSFeaturesV1 = GBFSStationPointFeatureV1;
+
+/** All potential feature property types in a GBFS V1 specification */
+export type GBFSFeaturePropertiesV1 = GBFSStationV1FeaturesV1Properties;
+
 /**
  * GBFS Version 1 Reader
  */
-export class GBFSReaderV1 {
+export class GBFSReaderV1
+  implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV1>
+{
+  version = 1;
   freeBikeStatus?: GBFSFreeBikeStatusV1;
   gbfs: GBFSV1;
-  versions?: GBFSVersionsV1;
+  gbfsVersions?: GBFSVersionsV1;
   stationInformation?: GBFSStationInformationV1;
   stationStatus?: GBFSStationStatusV1;
   systemAlerts?: GBFSSystemAlertsV1;
@@ -46,7 +95,7 @@ export class GBFSReaderV1 {
    */
   constructor(gbfs: GBFSV1, feeds?: FeedResV1) {
     this.gbfs = gbfs;
-    this.versions = feeds?.gbfs_versions;
+    this.gbfsVersions = feeds?.gbfs_versions;
     this.systemInformation = feeds?.system_information as GBFSSystemInformationV1;
     this.stationInformation = feeds?.station_information;
     this.stationStatus = feeds?.station_status;
@@ -56,6 +105,54 @@ export class GBFSReaderV1 {
     this.systemCalendar = feeds?.system_calendar;
     this.systemPricingPlans = feeds?.system_pricing_plans;
     this.systemRegions = feeds?.system_regions;
+  }
+
+  /**
+   * Yields all of the shapes
+   * @yields an iterator that contains shapes, stops, location data, and routes
+   */
+  async *[Symbol.asyncIterator](): AsyncGenerator<GBFSFeaturesV1> {
+    const { stationInformation } = this;
+    if (stationInformation !== undefined) {
+      const {
+        data: { stations },
+      } = stationInformation;
+      for (const station of stations) {
+        const {
+          lat,
+          lon,
+          station_id,
+          name,
+          short_name,
+          address,
+          cross_street,
+          region_id,
+          post_code,
+          rental_methods,
+          capacity,
+        } = station;
+        const stationProperties: GBFSStationV1FeaturesV1Properties = {
+          station_id,
+          name,
+          short_name,
+          address,
+          cross_street,
+          region_id,
+          post_code,
+          rental_methods,
+          capacity,
+        };
+        const stationPoint: GBFSStationPointFeatureV1 = {
+          type: 'Feature',
+          properties: stationProperties,
+          geometry: {
+            type: 'Point',
+            coordinates: [lon, lat],
+          },
+        };
+        yield stationPoint;
+      }
+    }
   }
 }
 

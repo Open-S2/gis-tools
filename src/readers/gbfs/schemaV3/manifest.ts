@@ -1,3 +1,5 @@
+import type { MultiPolygonGeometry } from '../../..';
+
 /**
  * # GBFS Manifest Schema V3.1-RC & V3.0
  * An index of gbfs.json URLs for each GBFS data set produced by a publisher. A single instance of
@@ -182,18 +184,7 @@ export interface GBFSManifestV31RC {
       /**
        * A GeoJSON MultiPolygon that describes the operating area.
        */
-      area?: {
-        /**
-         * GeoJSON MultiPolygon type.
-         * **Enum**: ['MultiPolygon']
-         */
-        type: 'MultiPolygon';
-
-        /**
-         * Coordinates of the MultiPolygon.
-         */
-        coordinates: Array<Array<Array<[number, number]>>>;
-      };
+      area?: MultiPolygonGeometry;
 
       /**
        * The ISO 3166-1 alpha-2 country code of the operating area.

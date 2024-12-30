@@ -200,14 +200,12 @@ export interface GBFSVehicleV3 extends Properties {
    * The latitude of the vehicle.
    * **Range**: [-90, 90]
    */
-  // @ts-expect-error - This is ok for now
   lat?: number;
 
   /**
    * The longitude of the vehicle.
    * **Range**: [-180, 180]
    */
-  // @ts-expect-error - This is ok for now
   lon?: number;
 
   /**
@@ -223,7 +221,6 @@ export interface GBFSVehicleV3 extends Properties {
   /**
    * Contains rental URIs for Android, iOS, and web.
    */
-  // @ts-expect-error - This is ok for now
   rental_uris?: {
     android?: string; // **Format**: uri
     ios?: string; // **Format**: uri
@@ -233,53 +230,45 @@ export interface GBFSVehicleV3 extends Properties {
   /**
    * The vehicle_type_id of this vehicle (added in v2.1-RC).
    */
-  // @ts-expect-error - This is ok for now
   vehicle_type_id?: string;
 
   /**
    * The last time this vehicle reported its status to the operator's backend.
    * **Format**: date-time
    */
-  // @ts-expect-error - This is ok for now
   last_reported?: string;
 
   /**
    * The furthest distance in meters the vehicle can travel without recharging or refueling.
    * **Minimum**: 0
    */
-  // @ts-expect-error - This is ok for now
   current_range_meters?: number;
 
   /**
    * Current percentage of fuel or battery power remaining in the vehicle.
    * **Range**: [0, 1]
    */
-  // @ts-expect-error - This is ok for now
   current_fuel_percent?: number;
 
   /**
    * Identifier referencing the station_id if the vehicle is currently at a station.
    */
-  // @ts-expect-error - This is ok for now
   station_id?: string;
 
   /**
    * The station_id of the station this vehicle must be returned to.
    */
-  // @ts-expect-error - This is ok for now
   home_station_id?: string;
 
   /**
    * The plan_id of the pricing plan this vehicle is eligible for.
    */
-  // @ts-expect-error - This is ok for now
   pricing_plan_id?: string;
 
   /**
    * List of vehicle equipment provided by the operator.
    * **Enum**: ['child_seat_a', 'child_seat_b', 'child_seat_c', 'winter_tires', 'snow_chains']
    */
-  // @ts-expect-error - This is ok for now
   vehicle_equipment?: Array<
     'child_seat_a' | 'child_seat_b' | 'child_seat_c' | 'winter_tires' | 'snow_chains'
   >;
@@ -288,7 +277,6 @@ export interface GBFSVehicleV3 extends Properties {
    * The date and time when any rental of the vehicle must be completed.
    * **Pattern**: `^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(([+-]([0-9]{2}):([0-9]{2}))|Z)$`
    */
-  // @ts-expect-error - This is ok for now
   available_until?: string;
 }
 

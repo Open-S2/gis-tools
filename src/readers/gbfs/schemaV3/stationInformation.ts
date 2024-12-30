@@ -1,4 +1,4 @@
-import type { MultiPolygonGeometry, Properties } from '../../..';
+import type { MultiPolygonGeometry } from '../../..';
 
 /**
  * # GBFS Station Information Schema V3.1-RC & V3.0
@@ -299,7 +299,7 @@ export const gbfsStationInformationSchemaV31RC = {
 /**
  * Information about a single station.
  */
-export interface GBFSStationV3 extends Properties {
+export interface GBFSStationV3 {
   /**
    * Identifier of the station.
    */
@@ -338,7 +338,6 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Short name or alternative identifier for the station.
    */
-  // @ts-expect-error - allow for now
   short_name?: Array<{
     text: string;
     language: string;
@@ -347,38 +346,32 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Address where the station is located.
    */
-  // @ts-expect-error - allow for now
   address?: string;
 
   /**
    * Cross street or landmark where the station is located.
    */
-  // @ts-expect-error - allow for now
   cross_street?: string;
 
   /**
    * Identifier of the region where the station is located.
    */
-  // @ts-expect-error - allow for now
   region_id?: string;
 
   /**
    * Postal code where the station is located.
    */
-  // @ts-expect-error - allow for now
   post_code?: string;
 
   /**
    * Hours of operation for the station in OSM opening_hours format.
    */
-  // @ts-expect-error - allow for now
   station_opening_hours?: string;
 
   /**
    * Payment methods accepted at the station.
    * **Enum**: ['key', 'creditcard', 'paypass', 'applepay', 'androidpay', 'transitcard', 'accountnumber', 'phone']
    */
-  // @ts-expect-error - allow for now
   rental_methods?: Array<
     | 'key'
     | 'creditcard'
@@ -393,20 +386,17 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Is this station a location with or without physical infrastructure? (added in v2.1-RC)
    */
-  // @ts-expect-error - allow for now
   is_virtual_station?: boolean;
 
   /**
    * A multipolygon describing the area of a virtual station. (added in v2.1-RC)
    */
-  // @ts-expect-error - allow for now
   station_area?: MultiPolygonGeometry;
 
   /**
    * Type of parking station. (added in v2.3)
    * **Enum**: ['parking_lot', 'street_parking', 'underground_parking', 'sidewalk_parking', 'other']
    */
-  // @ts-expect-error - allow for now
   parking_type?:
     | 'parking_lot'
     | 'street_parking'
@@ -417,26 +407,22 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Are parking hoops present at this station? (added in v2.3)
    */
-  // @ts-expect-error - allow for now
   parking_hoop?: boolean;
 
   /**
    * Contact phone of the station. (added in v2.3)
    */
-  // @ts-expect-error - allow for now
   contact_phone?: string;
 
   /**
    * Total docking points installed at the station, both available and unavailable.
    * **Minimum**: 0
    */
-  // @ts-expect-error - allow for now
   capacity?: number;
 
   /**
    * Parking capacity for virtual stations per vehicle type.
    */
-  // @ts-expect-error - allow for now
   vehicle_types_capacity?: Array<{
     vehicle_type_ids: string[];
     count: number;
@@ -445,7 +431,6 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Docking capacity per vehicle type at the station.
    */
-  // @ts-expect-error - allow for now
   vehicle_docks_capacity?: Array<{
     vehicle_type_ids: string[];
     count: number;
@@ -454,19 +439,16 @@ export interface GBFSStationV3 extends Properties {
   /**
    * Are valet services provided at the station? (added in v2.1-RC)
    */
-  // @ts-expect-error - allow for now
   is_valet_station?: boolean;
 
   /**
    * Does the station support charging of electric vehicles? (added in v2.3-RC)
    */
-  // @ts-expect-error - allow for now
   is_charging_station?: boolean;
 
   /**
    * Rental URIs for Android, iOS, and web.
    */
-  // @ts-expect-error - allow for now
   rental_uris?: {
     /**
      * URI for Android apps. (added in v1.1)
