@@ -134,8 +134,9 @@ export class AreaMetric extends Metric {
  * Linear -> 1
  * Tan -> pi / 2.0         (1.571)
  * Quadratic -> 4.0 / 3.0  (1.333) [Default]
+ * @returns - `new LengthMetric(4 / 3)`
  */
-export const K_MIN_ANGLE_SPAN = new LengthMetric(4 / 3);
+export const K_MIN_ANGLE_SPAN = () => new LengthMetric(4 / 3);
 /**
  * Each cell is bounded by four planes passing through its four edges and
  * the center of the sphere.  These metrics relate to the angle between each
@@ -147,9 +148,11 @@ export const K_MIN_ANGLE_SPAN = new LengthMetric(4 / 3);
  * Linear -> 2
  * Tan -> pi / 2.0                   (1.571)
  * Quadratic -> 1.704897179199218452 [Default]
+ * @returns - `new LengthMetric(1.704897179199218)`
  */
-export const K_MAX_ANGLE_SPAN = new LengthMetric(1.704897179199218);
-export const K_AVG_ANGLE_SPAN = new LengthMetric(Math.PI / 2); // 1.571
+export const K_MAX_ANGLE_SPAN = () => new LengthMetric(1.704897179199218);
+/** @returns - `new LengthMetric(Math.PI / 2)` */
+export const K_AVG_ANGLE_SPAN = () => new LengthMetric(Math.PI / 2); // 1.571
 
 /**
  * The width of geometric figure is defined as the distance between two
@@ -178,15 +181,18 @@ export const K_AVG_ANGLE_SPAN = new LengthMetric(Math.PI / 2); // 1.571
  * Linear -> sqrt(2.0 / 3.0)            (0.816)
  * Tan ->  pi / (2.0 * @sqrt(2.0))      (1.111)
  * Quadratic -> 2.0 * @sqrt(2.0) / 3.0  (0.943) [Default]
+ * @returns - `new LengthMetric((2 * Math.sqrt(2)) / 3.0)`
  */
-export const K_MIN_WIDTH = new LengthMetric((2 * Math.sqrt(2)) / 3.0);
-export const K_MAX_WIDTH = new LengthMetric(K_MAX_ANGLE_SPAN.deriv);
+export const K_MIN_WIDTH = () => new LengthMetric((2 * Math.sqrt(2)) / 3.0);
+/** @returns - `new LengthMetric(4 / 3)` */
+export const K_MAX_WIDTH = () => new LengthMetric(1.704897179199218); // K_MAX_ANGLE_SPAN.deriv
 /**
  * Linear -> 1.411459345844456965
  * Tan -> 1.437318638925160885
  * Quadratic -> 1.434523672886099389
+ * @returns - `new LengthMetric(1.4345236728860993)`
  */
-export const K_AVG_WIDTH = new LengthMetric(1.4345236728860993);
+export const K_AVG_WIDTH = () => new LengthMetric(1.4345236728860993);
 
 /**
  * The minimum edge length of any cell at level k is at least
@@ -202,10 +208,13 @@ export const K_AVG_WIDTH = new LengthMetric(1.4345236728860993);
  * linear -> 2.0 * sqrt(2.0) / 3.0     (0.943)
  * tan -> pi / (2.0 * sqrt(2.0))       (1.111)
  * quadratic -> 2.0 * sqrt(2.0) / 3.0  (0.943) [Default]
+ * @returns - `new LengthMetric((2 * Math.sqrt(2)) / 3)`
  */
-export const K_MIN_EDGE = new LengthMetric((2 * Math.sqrt(2)) / 3);
-export const K_MAX_EDGE = new LengthMetric(K_MAX_ANGLE_SPAN.deriv);
-export const K_AVG_EDGE = new LengthMetric(1.459213746386106);
+export const K_MIN_EDGE = () => new LengthMetric((2 * Math.sqrt(2)) / 3);
+/** @returns - `new LengthMetric(4 / 3)` */
+export const K_MAX_EDGE = () => new LengthMetric(1.704897179199218); // K_MAX_ANGLE_SPAN.deriv
+/** @returns - `new LengthMetric(1.459213746386106)` */
+export const K_AVG_EDGE = () => new LengthMetric(1.459213746386106);
 
 /**
  * The minimum diagonal length of any cell at level k is at least
@@ -220,20 +229,23 @@ export const K_AVG_EDGE = new LengthMetric(1.459213746386106);
  * Linear -> 2.0 * @sqrt(2.0) / 3.0     (0.943)
  * Tan -> pi * @sqrt(2.0) / 3.0         (1.481)
  * Quadratic -> 8.0 * @sqrt(2.0) / 9.0  (1.257) [Default]
+ * @returns - `new LengthMetric((8 * Math.sqrt(2)) / 9)`
  */
-export const K_MIN_DIAG = new LengthMetric((8 * Math.sqrt(2)) / 9);
+export const K_MIN_DIAG = () => new LengthMetric((8 * Math.sqrt(2)) / 9);
 /**
  * Linear -> 2.0 * @sqrt(2.0)        (2.828)
  * Tan -> pi * @sqrt(2.0 / 3.0)      (2.565)
  * Quadratic -> 2.438654594434021032 [Default]
+ * @returns - `new LengthMetric(2.438654594434021)`
  */
-export const K_MAX_DIAG = new LengthMetric(2.438654594434021);
+export const K_MAX_DIAG = () => new LengthMetric(2.438654594434021);
 /**
  * Linear -> 2.031817866418812674
  * Tan -> 2.063623197195635753
  * Quadratic -> 2.060422738998471683 [Default]
+ * @returns - `new LengthMetric(2.060422738998471)`
  */
-export const K_AVG_DIAG = new LengthMetric(2.060422738998471);
+export const K_AVG_DIAG = () => new LengthMetric(2.060422738998471);
 
 /**
  * The minimum area of any cell at level k is at least kMinArea.getValue(k),
@@ -243,15 +255,18 @@ export const K_AVG_DIAG = new LengthMetric(2.060422738998471);
  * Linear -> 4.0 / (3.0 * @sqrt(3.0))   (0.770)
  * Tan -> pi * pi / (4.0 * @sqrt(2.0))  (1.745)
  * Quadratic -> 8.0 * @sqrt(2.0) / 9.0  (1.257) [Default]
+ * @returns - `new AreaMetric((8 * Math.sqrt(2)) / 9)`
  */
-export const K_MIN_AREA = new AreaMetric((8 * Math.sqrt(2)) / 9);
+export const K_MIN_AREA = () => new AreaMetric((8 * Math.sqrt(2)) / 9);
 /**
  * Linear -> 4.0
  * Tan -> pi * pi / 4.0              (2.467)
  * Quadratic -> 2.635799256963161491 [Default]
+ * @returns - `new AreaMetric(2.6357992569631614)`
  */
-export const K_MAX_AREA = new AreaMetric(2.6357992569631614);
-export const K_AVG_AREA = new AreaMetric((4 * Math.PI) / 6); // 2.094
+export const K_MAX_AREA = () => new AreaMetric(2.6357992569631614);
+/** @returns - `new AreaMetric(4 * Math.PI / 6)` */
+export const K_AVG_AREA = () => new AreaMetric((4 * Math.PI) / 6); // 2.094
 
 /**
  * This is the maximum edge aspect ratio over all cells at any level, where
@@ -261,11 +276,11 @@ export const K_AVG_AREA = new AreaMetric((4 * Math.PI) / 6); // 2.094
  * tan -> sqrt(2)
  * quadratic -> 1.4426 [default]
  */
-export const K_MAX_EDGE_ASPECT = Math.sqrt(1.442615274452682);
+export const K_MAX_EDGE_ASPECT = 1.2010892033702918; // Math.sqrt(1.442615274452682);
 
 /**
  * This is the maximum diagonal aspect ratio over all cells at any level,
  * where the diagonal aspect ratio of a cell is defined as the ratio of its
  * longest diagonal length to its shortest diagonal length.
  */
-export const K_MAX_DIAG_ASPECT = Math.sqrt(3);
+export const K_MAX_DIAG_ASPECT = 1.7320508075688772; // Math.sqrt(3);

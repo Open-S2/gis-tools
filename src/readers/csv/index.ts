@@ -154,7 +154,8 @@ export function parseCSVAsRecord<T = Record<string, string>>(source: string): T[
 }
 
 /**
- * @param line
+ * @param line - a line of a CSV file
+ * @returns - the values split by the delimiter
  */
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];

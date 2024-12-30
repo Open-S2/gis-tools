@@ -2,8 +2,6 @@ import { incirclefast, orient2d } from '../geometry/predicates';
 
 import type { Point, VectorPoint } from '../geometry';
 
-const EPSILON = Math.pow(2, -52);
-
 /** An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points. */
 export class Delaunator {
   edgeStack = new Array(512);
@@ -99,6 +97,7 @@ export class Delaunator {
     const hullTri = this.#hullTri;
     const hullHash = this.#hullHash;
     const n = coords.length >> 1;
+    const EPSILON = Math.pow(2, -52);
 
     // populate an array of point indices; calculate input data bbox
     let minX = Infinity;

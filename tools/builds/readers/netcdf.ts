@@ -1,0 +1,1 @@
+export { NetCDFReader } from '../../../src';

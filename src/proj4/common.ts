@@ -1,15 +1,13 @@
 /* eslint-disable no-loss-of-precision */
 import { EPSLN, HALF_PI, SPI, TWO_PI } from './constants';
 
-const { PI, log, sqrt, abs, floor, asin, sin, cos, exp, tan, atan, min, max, pow } = Math;
-
 /**
  * Returns the arc hyperbolic cosine of x.
  * @param x - input
  * @returns - acosh(x)
  */
 export function acosh(x: number): number {
-  return 2 * log(sqrt((x + 1) / 2) + sqrt((x - 1) / 2));
+  return 2 * Math.log(Math.sqrt((x + 1) / 2) + Math.sqrt((x - 1) / 2));
 }
 
 /**
@@ -18,7 +16,7 @@ export function acosh(x: number): number {
  * @returns - the adjusted latitude
  */
 export function adjustLat(x: number): number {
-  return abs(x) < HALF_PI ? x : x - sign(x) * PI;
+  return Math.abs(x) < HALF_PI ? x : x - sign(x) * Math.PI;
 }
 
 /**
@@ -27,7 +25,7 @@ export function adjustLat(x: number): number {
  * @returns - the adjusted longitude
  */
 export function adjustLon(x: number): number {
-  return abs(x) <= SPI ? x : x - sign(x) * TWO_PI;
+  return Math.abs(x) <= SPI ? x : x - sign(x) * TWO_PI;
 }
 
 /**
@@ -37,7 +35,7 @@ export function adjustLon(x: number): number {
  * @returns - the adjusted zone
  */
 export function adjustZone(zone: number | undefined, lon: number): number {
-  zone = zone ?? floor(((adjustLon(lon) + PI) * 30) / PI) + 1;
+  zone = zone ?? Math.floor(((adjustLon(lon) + Math.PI) * 30) / Math.PI) + 1;
 
   if (zone < 0) {
     return 0;
@@ -55,7 +53,7 @@ export function adjustZone(zone: number | undefined, lon: number): number {
  */
 export function asinh(x: number): number {
   const s = x >= 0 ? 1 : -1;
-  return s * log(abs(x) + sqrt(x * x + 1));
+  return s * Math.log(Math.abs(x) + Math.sqrt(x * x + 1));
 }
 
 /**
@@ -64,7 +62,7 @@ export function asinh(x: number): number {
  * @returns - asinhy(x)
  */
 export function asinhy(x: number): number {
-  let y = abs(x);
+  let y = Math.abs(x);
   y = log1py(y * (1 + y / (hypot(1, y) + 1)));
 
   return x < 0 ? -y : y;
@@ -76,8 +74,8 @@ export function asinhy(x: number): number {
  * @returns - asinz(x)
  */
 export function asinz(x: number): number {
-  if (abs(x) > 1) x = x > 1 ? 1 : -1;
-  return asin(x);
+  if (Math.abs(x) > 1) x = x > 1 ? 1 : -1;
+  return Math.asin(x);
 }
 
 /**
@@ -88,8 +86,8 @@ export function asinz(x: number): number {
  * @returns the complex result as a 2D array
  */
 export function clensCmplx(pp: number[], arg_r: number, arg_i: number): [number, number] {
-  const sin_arg_r = sin(arg_r);
-  const cos_arg_r = cos(arg_r);
+  const sin_arg_r = Math.sin(arg_r);
+  const cos_arg_r = Math.cos(arg_r);
   const sinh_arg_i = sinh(arg_i);
   const cosh_arg_i = cosh(arg_i);
   let r = 2 * cos_arg_r * cosh_arg_i;
@@ -124,7 +122,7 @@ export function clensCmplx(pp: number[], arg_r: number, arg_i: number): [number,
  * @returns the resultant compex number
  */
 export function clens(pp: number[], arg_r: number): number {
-  const r = 2 * cos(arg_r);
+  const r = 2 * Math.cos(arg_r);
   let i = pp.length - 1;
   let hr1 = pp[i];
   let hr2 = 0;
@@ -136,7 +134,7 @@ export function clens(pp: number[], arg_r: number): number {
     hr1 = hr;
   }
 
-  return sin(arg_r) * hr;
+  return Math.sin(arg_r) * hr;
 }
 
 /**
@@ -145,7 +143,7 @@ export function clens(pp: number[], arg_r: number): number {
  * @returns - cosh(x)
  */
 export function cosh(x: number): number {
-  let r = exp(x);
+  let r = Math.exp(x);
   r = (r + 1 / r) / 2;
   return r;
 }
@@ -193,7 +191,7 @@ export function e3fn(x: number): number {
  * @returns - fL(x, L)
  */
 export function fL(x: number, L: number): number {
-  return 2 * atan(x * exp(L)) - HALF_PI;
+  return 2 * Math.atan(x * Math.exp(L)) - HALF_PI;
 }
 
 /**
@@ -203,7 +201,7 @@ export function fL(x: number, L: number): number {
  * @returns - gatg(pp, B)
  */
 export function gatg(pp: number[], B: number): number {
-  const cos_2B = 2 * cos(2 * B);
+  const cos_2B = 2 * Math.cos(2 * B);
   let i = pp.length - 1;
   let h1 = pp[i];
   let h2 = 0;
@@ -215,7 +213,7 @@ export function gatg(pp: number[], B: number): number {
     h1 = h;
   }
 
-  return B + h * sin(2 * B);
+  return B + h * Math.sin(2 * B);
 }
 
 /**
@@ -227,7 +225,7 @@ export function gatg(pp: number[], B: number): number {
  */
 export function gN(a: number, e: number, sinphi: number): number {
   const temp = e * sinphi;
-  return a / sqrt(1 - temp * temp);
+  return a / Math.sqrt(1 - temp * temp);
 }
 
 /**
@@ -237,12 +235,12 @@ export function gN(a: number, e: number, sinphi: number): number {
  * @returns - hypot(x, y)
  */
 export function hypot(x: number, y: number): number {
-  x = abs(x);
-  y = abs(y);
-  const a = max(x, y);
-  const b = min(x, y) / (a !== 0 ? a : 1);
+  x = Math.abs(x);
+  y = Math.abs(y);
+  const a = Math.max(x, y);
+  const b = Math.min(x, y) / (a !== 0 ? a : 1);
 
-  return a * sqrt(1 + pow(b, 2));
+  return a * Math.sqrt(1 + Math.pow(b, 2));
 }
 
 /**
@@ -261,10 +259,10 @@ export function imlfn(ml: number, e0: number, e1: number, e2: number, e3: number
   phi = ml / e0;
   for (let i = 0; i < 15; i++) {
     dphi =
-      (ml - (e0 * phi - e1 * sin(2 * phi) + e2 * sin(4 * phi) - e3 * sin(6 * phi))) /
-      (e0 - 2 * e1 * cos(2 * phi) + 4 * e2 * cos(4 * phi) - 6 * e3 * cos(6 * phi));
+      (ml - (e0 * phi - e1 * Math.sin(2 * phi) + e2 * Math.sin(4 * phi) - e3 * Math.sin(6 * phi))) /
+      (e0 - 2 * e1 * Math.cos(2 * phi) + 4 * e2 * Math.cos(4 * phi) - 6 * e3 * Math.cos(6 * phi));
     phi += dphi;
-    if (abs(dphi) <= 0.0000000001) {
+    if (Math.abs(dphi) <= 0.0000000001) {
       return phi;
     }
   }
@@ -284,9 +282,9 @@ export function invlatiso(eccent: number, ts: number): number {
   let con = 0;
   do {
     Iphi = phi;
-    con = eccent * sin(Iphi);
-    phi = fL(exp((eccent * log((1 + con) / (1 - con))) / 2), ts);
-  } while (abs(phi - Iphi) > 1.0e-12);
+    con = eccent * Math.sin(Iphi);
+    phi = fL(Math.exp((eccent * Math.log((1 + con) / (1 - con))) / 2), ts);
+  } while (Math.abs(phi - Iphi) > 1.0e-12);
   return phi;
 }
 
@@ -297,8 +295,8 @@ export function invlatiso(eccent: number, ts: number): number {
  * @returns - iqsfnz(eccent, q)
  */
 export function iqsfnz(eccent: number, q: number): number {
-  const temp = 1 - ((1 - eccent * eccent) / (2 * eccent)) * log((1 - eccent) / (1 + eccent));
-  if (abs(abs(q) - temp) < 1.0e-6) {
+  const temp = 1 - ((1 - eccent * eccent) / (2 * eccent)) * Math.log((1 - eccent) / (1 + eccent));
+  if (Math.abs(Math.abs(q) - temp) < 1.0e-6) {
     if (q < 0) {
       return -1 * HALF_PI;
     } else {
@@ -306,22 +304,22 @@ export function iqsfnz(eccent: number, q: number): number {
     }
   }
   //var phi = 0.5* q/(1-eccent*eccent);
-  let phi = asin(0.5 * q);
+  let phi = Math.asin(0.5 * q);
   let dphi;
   let sin_phi;
   let cos_phi;
   let con;
   for (let i = 0; i < 30; i++) {
-    sin_phi = sin(phi);
-    cos_phi = cos(phi);
+    sin_phi = Math.sin(phi);
+    cos_phi = Math.cos(phi);
     con = eccent * sin_phi;
     dphi =
-      (pow(1 - con * con, 2) / (2 * cos_phi)) *
+      (Math.pow(1 - con * con, 2) / (2 * cos_phi)) *
       (q / (1 - eccent * eccent) -
         sin_phi / (1 - con * con) +
-        (0.5 / eccent) * log((1 - con) / (1 + con)));
+        (0.5 / eccent) * Math.log((1 - con) / (1 + con)));
     phi += dphi;
-    if (abs(dphi) <= 0.0000000001) {
+    if (Math.abs(dphi) <= 0.0000000001) {
       return phi;
     }
   }
@@ -337,12 +335,12 @@ export function iqsfnz(eccent: number, q: number): number {
  * @returns - latiso(eccent, phi, sinphi)
  */
 export function latiso(eccent: number, phi: number, sinphi: number): number {
-  if (abs(phi) > HALF_PI) return Number.NaN;
+  if (Math.abs(phi) > HALF_PI) return Number.NaN;
   if (phi === HALF_PI) return Number.POSITIVE_INFINITY;
   if (phi === -1 * HALF_PI) return Number.NEGATIVE_INFINITY;
 
   const con = eccent * sinphi;
-  return log(tan((HALF_PI + phi) / 2)) + (eccent * log((1 - con) / (1 + con))) / 2;
+  return Math.log(Math.tan((HALF_PI + phi) / 2)) + (eccent * Math.log((1 - con) / (1 + con))) / 2;
 }
 
 /**
@@ -354,7 +352,7 @@ export function log1py(x: number): number {
   const y = 1 + x;
   const z = y - 1;
 
-  return z === 0 ? x : (x * log(y)) / z;
+  return z === 0 ? x : (x * Math.log(y)) / z;
 }
 
 /**
@@ -367,7 +365,7 @@ export function log1py(x: number): number {
  * @returns - mlfn(e0, e1, e2, e3, phi)
  */
 export function mlfn(e0: number, e1: number, e2: number, e3: number, phi: number): number {
-  return e0 * phi - e1 * sin(2 * phi) + e2 * sin(4 * phi) - e3 * sin(6 * phi);
+  return e0 * phi - e1 * Math.sin(2 * phi) + e2 * Math.sin(4 * phi) - e3 * Math.sin(6 * phi);
 }
 
 /**
@@ -379,7 +377,7 @@ export function mlfn(e0: number, e1: number, e2: number, e3: number, phi: number
  */
 export function msfnz(eccent: number, sinphi: number, cosphi: number): number {
   const con = eccent * sinphi;
-  return cosphi / sqrt(1 - con * con);
+  return cosphi / Math.sqrt(1 - con * con);
 }
 
 /**
@@ -391,12 +389,12 @@ export function msfnz(eccent: number, sinphi: number, cosphi: number): number {
 export function phi2z(eccent: number, ts: number): number {
   const eccnth = 0.5 * eccent;
   let con, dphi;
-  let phi = HALF_PI - 2 * atan(ts);
+  let phi = HALF_PI - 2 * Math.atan(ts);
   for (let i = 0; i <= 15; i++) {
-    con = eccent * sin(phi);
-    dphi = HALF_PI - 2 * atan(ts * pow((1 - con) / (1 + con), eccnth)) - phi;
+    con = eccent * Math.sin(phi);
+    dphi = HALF_PI - 2 * Math.atan(ts * Math.pow((1 - con) / (1 + con), eccnth)) - phi;
     phi += dphi;
-    if (abs(dphi) <= 0.0000000001) {
+    if (Math.abs(dphi) <= 0.0000000001) {
       return phi;
     }
   }
@@ -450,13 +448,13 @@ export function pjInvMlfn(arg: number, es: number, en: En): number {
   let phi = arg;
   for (let i = MAX_ITER; i !== 0; --i) {
     /* rarely goes over 2 iterations */
-    const s = sin(phi);
+    const s = Math.sin(phi);
     let t = 1 - es * s * s;
-    //t = this.pj_mlfn(phi, s, cos(phi), en) - arg;
-    //phi -= t * (t * sqrt(t)) * k;
-    t = (pjMlfn(phi, s, cos(phi), en) - arg) * (t * sqrt(t)) * k;
+    //t = this.pj_mlfn(phi, s, Math.cos(phi), en) - arg;
+    //phi -= t * (t * Math.sqrt(t)) * k;
+    t = (pjMlfn(phi, s, Math.cos(phi), en) - arg) * (t * Math.sqrt(t)) * k;
     phi -= t;
-    if (abs(t) < EPSLN) {
+    if (Math.abs(t) < EPSLN) {
       return phi;
     }
   }
@@ -490,7 +488,7 @@ export function qsfnz(eccent: number, sinphi: number): number {
     con = eccent * sinphi;
     return (
       (1 - eccent * eccent) *
-      (sinphi / (1 - con * con) - (0.5 / eccent) * log((1 - con) / (1 + con)))
+      (sinphi / (1 - con * con) - (0.5 / eccent) * Math.log((1 - con) / (1 + con)))
     );
   } else {
     return 2 * sinphi;
@@ -512,7 +510,7 @@ export function sign(x: number): 1 | -1 {
  * @returns - sinh(x)
  */
 export function sinh(x: number): number {
-  let r = exp(x);
+  let r = Math.exp(x);
   r = (r - 1 / r) / 2;
   return r;
 }
@@ -524,7 +522,7 @@ export function sinh(x: number): number {
  * @returns - srat(esinp, exp)
  */
 export function srat(esinp: number, exp: number): number {
-  return pow((1 - esinp) / (1 + esinp), exp);
+  return Math.pow((1 - esinp) / (1 + esinp), exp);
 }
 
 /**
@@ -533,7 +531,7 @@ export function srat(esinp: number, exp: number): number {
  * @returns - tanh(x)
  */
 export function tanh(x: number): number {
-  let r = exp(x);
+  let r = Math.exp(x);
   r = (r - 1 / r) / (r + 1 / r);
   return r;
 }
@@ -542,12 +540,12 @@ export function tanh(x: number): number {
  * Apply the spherical formulae to obtain the conformal latitude
  * @param eccent - eccentricity
  * @param phi - latitude
- * @param sinphi - sin(latitude)
+ * @param sinphi - Math.sin(latitude)
  * @returns - conformal latitude
  */
 export function tsfnz(eccent: number, phi: number, sinphi: number): number {
   let con = eccent * sinphi;
   const com = 0.5 * eccent;
-  con = pow((1 - con) / (1 + con), com);
-  return tan(0.5 * (HALF_PI - phi)) / con;
+  con = Math.pow((1 - con) / (1 + con), com);
+  return Math.tan(0.5 * (HALF_PI - phi)) / con;
 }

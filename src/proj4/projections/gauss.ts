@@ -5,8 +5,6 @@ import { HALF_PI, QUART_PI } from '../constants';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, asin, tan, atan } = Math;
-
 /**
  * Gauss Kruger (deprecated form of Transverse Mercator)
  */
@@ -25,6 +23,7 @@ export class GaussKruger extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { pow, sin, cos, sqrt, asin, tan } = Math;
     super(params);
 
     const sphi = sin(this.lat0);
@@ -44,6 +43,7 @@ export class GaussKruger extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { pow, sin, tan, atan } = Math;
     const { x: lon, y: lat } = p;
     p.y =
       2 *
@@ -59,6 +59,7 @@ export class GaussKruger extends ProjectionBase implements ProjectionTransform {
    * @param p - GaussKruger point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, tan, atan } = Math;
     const DEL_TOL = 1e-14;
     const lon = p.x / this.C;
     let lat = p.y;

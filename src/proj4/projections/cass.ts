@@ -5,8 +5,6 @@ import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '.
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, asin, atan2, tan, pow } = Math;
-
 /**
  * # Cassini (Cassini-Soldner) Projection
  *
@@ -75,6 +73,7 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, asin, atan2, tan } = Math;
     let x, y;
     let lam = p.x;
     const phi = p.y;
@@ -107,6 +106,7 @@ export class CassiniSoldner extends ProjectionBase implements ProjectionTransfor
    * @param p - A Cassini Soldner point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, asin, atan2, tan, pow } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     const x = p.x / this.a;

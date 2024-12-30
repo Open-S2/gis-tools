@@ -1,0 +1,1 @@
+export { buildGBFSReader } from '../../../src';

@@ -3,8 +3,6 @@ import { ProjectionBase } from '.';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, asin, atan, exp, log, tan, PI } = Math;
-
 /**
  * # Swiss Oblique Mercator
  *
@@ -61,6 +59,7 @@ export class SwissObliqueMercator extends ProjectionBase implements ProjectionTr
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { pow, sin, cos, sqrt, asin, log, tan, PI } = Math;
     super(params);
 
     const phy0 = this.lat0;
@@ -85,6 +84,7 @@ export class SwissObliqueMercator extends ProjectionBase implements ProjectionTr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, asin, atan, exp, log, tan, PI } = Math;
     const Sa1 = log(tan(PI / 4 - p.y / 2));
     const Sa2 = (this.e / 2) * log((1 + this.e * sin(p.y)) / (1 - this.e * sin(p.y)));
     const S = -this.alpha * (Sa1 + Sa2) + this.K;
@@ -104,6 +104,7 @@ export class SwissObliqueMercator extends ProjectionBase implements ProjectionTr
    * @param p - SwissObliqueMercator point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, asin, atan, exp, log, tan, PI } = Math;
     const Y = p.x - this.x0;
     const X = p.y - this.y0;
     const rotI = Y / this.R;

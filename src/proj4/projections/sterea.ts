@@ -4,8 +4,6 @@ import { adjustLon, hypot } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { sin, cos, atan2, asin } = Math;
-
 /**
  * # Oblique Stereographic Alternative
  *
@@ -68,6 +66,7 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
 
     if (this.rc === undefined) throw new Error('rc must be defined');
@@ -81,6 +80,7 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos } = Math;
     p.x = adjustLon(p.x - this.long0);
     super.forward(p);
     const sinc = sin(p.y);
@@ -98,6 +98,7 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
    * @param p - StereographicNorthPole point
    */
   inverse(p: VectorPoint): void {
+    const { sin, cos, atan2, asin } = Math;
     let sinc, cosc, lon, lat;
     p.x = (p.x - this.x0) / this.a;
     p.y = (p.y - this.y0) / this.a;

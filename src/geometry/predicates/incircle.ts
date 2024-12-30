@@ -1,50 +1,89 @@
-import {
-  epsilon,
-  estimate,
-  predSum,
-  predSumThree,
-  resulterrbound,
-  scale,
-  splitter,
-  vec,
-} from './util.js';
+import { estimate, predSum, predSumThree, resulterrbound, scale, splitter, vec } from './util';
 
-const iccerrboundA = (10 + 96 * epsilon) * epsilon;
-const iccerrboundB = (4 + 48 * epsilon) * epsilon;
-const iccerrboundC = (44 + 576 * epsilon) * epsilon * epsilon;
+const iccerrboundA = 1.1102230246251577e-15; // (10 + 96 * epsilon) * epsilon;
+const iccerrboundB = 4.440892098500632e-16; // (4 + 48 * epsilon) * epsilon;
+const iccerrboundC = 5.423418723394464e-31; // (44 + 576 * epsilon) * epsilon * epsilon;
 
-const bc = vec(4);
-const ca = vec(4);
-const ab = vec(4);
-const aa = vec(4);
-const bb = vec(4);
-const cc = vec(4);
-const u = vec(4);
-const v = vec(4);
-const axtbc = vec(8);
-const aytbc = vec(8);
-const bxtca = vec(8);
-const bytca = vec(8);
-const cxtab = vec(8);
-const cytab = vec(8);
-const abt = vec(8);
-const bct = vec(8);
-const cat = vec(8);
-const abtt = vec(4);
-const bctt = vec(4);
-const catt = vec(4);
+/**
+ * Constants for incircle
+ */
+export interface InCircleConstants {
+  bc: Float64Array;
+  ca: Float64Array;
+  ab: Float64Array;
+  aa: Float64Array;
+  bb: Float64Array;
+  cc: Float64Array;
+  u: Float64Array;
+  v: Float64Array;
+  axtbc: Float64Array;
+  aytbc: Float64Array;
+  bxtca: Float64Array;
+  bytca: Float64Array;
+  cxtab: Float64Array;
+  cytab: Float64Array;
+  abt: Float64Array;
+  bct: Float64Array;
+  cat: Float64Array;
+  abtt: Float64Array;
+  bctt: Float64Array;
+  catt: Float64Array;
 
-const _8 = vec(8);
-const _16 = vec(16);
-const _16b = vec(16);
-const _16c = vec(16);
-const _32 = vec(32);
-const _32b = vec(32);
-const _48 = vec(48);
-const _64 = vec(64);
+  _8: Float64Array;
+  _16: Float64Array;
+  _16b: Float64Array;
+  _16c: Float64Array;
+  _32: Float64Array;
+  _32b: Float64Array;
+  _48: Float64Array;
+  _64: Float64Array;
 
-let fin = vec(1152);
-let fin2 = vec(1152);
+  fin: Float64Array;
+  fin2: Float64Array;
+}
+
+let constants: undefined | InCircleConstants;
+
+/**
+ * build constants for future reuse
+ * @returns - the constants
+ */
+function buildConstants(): InCircleConstants {
+  return {
+    bc: vec(4),
+    ca: vec(4),
+    ab: vec(4),
+    aa: vec(4),
+    bb: vec(4),
+    cc: vec(4),
+    u: vec(4),
+    v: vec(4),
+    axtbc: vec(8),
+    aytbc: vec(8),
+    bxtca: vec(8),
+    bytca: vec(8),
+    cxtab: vec(8),
+    cytab: vec(8),
+    abt: vec(8),
+    bct: vec(8),
+    cat: vec(8),
+    abtt: vec(4),
+    bctt: vec(4),
+    catt: vec(4),
+
+    _8: vec(8),
+    _16: vec(16),
+    _16b: vec(16),
+    _16c: vec(16),
+    _32: vec(32),
+    _32b: vec(32),
+    _48: vec(48),
+    _64: vec(64),
+
+    fin: vec(1152),
+    fin2: vec(1152),
+  };
+}
 
 /**
  * @param finlen - length of array
@@ -53,10 +92,11 @@ let fin2 = vec(1152);
  * @returns - updated finlen
  */
 function finadd(finlen: number, a: number, alen: number[] | Float64Array): number {
-  finlen = predSum(finlen, fin, a, alen, fin2);
-  const tmp = fin;
-  fin = fin2;
-  fin2 = tmp;
+  if (constants === undefined) constants = buildConstants();
+  finlen = predSum(finlen, constants.fin, a, alen, constants.fin2);
+  const tmp = constants.fin;
+  constants.fin = constants.fin2;
+  constants.fin2 = tmp;
   return finlen;
 }
 
@@ -85,6 +125,40 @@ function incircleadapt(
   dy: number,
   permanent: number,
 ): number {
+  if (constants === undefined) constants = buildConstants();
+  const {
+    bc,
+    ca,
+    ab,
+    aa,
+    bb,
+    cc,
+    u,
+    v,
+    axtbc,
+    aytbc,
+    bxtca,
+    bytca,
+    cxtab,
+    cytab,
+    abt,
+    bct,
+    cat,
+    abtt,
+    bctt,
+    catt,
+
+    _8,
+    _16,
+    _16b,
+    _16c,
+    _32,
+    _32b,
+    _48,
+    _64,
+
+    fin,
+  } = constants;
   let finlen;
   let axtbclen = 0,
     aytbclen = 0,

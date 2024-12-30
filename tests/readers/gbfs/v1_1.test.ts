@@ -20,12 +20,10 @@ import {
 
 import type { GBFSReaderV1 } from '../../../src';
 
-const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
-
 const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
-testFunc('version 1.1', async () => {
+test('version 1.1', async () => {
   const server = buildServer();
 
   const gbfsReader = (await buildGBFSReader(

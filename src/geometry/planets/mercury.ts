@@ -5,4 +5,4 @@ export const MERCURY_RADIUS_EQUATORIAL = 2_440_500;
 /** Mercury's polar radius in meters */
 export const MERCURY_RADIUS_POLAR = 2_438_300;
 /** The average circumference of Jupiter in meters. */
-export const MERCURY_CIRCUMFERENCE = 2.0 * Math.PI * MERCURY_RADIUS;
+export const MERCURY_CIRCUMFERENCE = 15_329_087.193926036; // 2.0 * Math.PI * MERCURY_RADIUS;

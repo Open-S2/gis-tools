@@ -8,7 +8,7 @@ export const SRS_WGS84_SEMIMAJOR = 6378137.0; // only used in grid shift transfo
 export const SRS_WGS84_SEMIMINOR = 6356752.314; // only used in grid shift transforms
 export const SRS_WGS84_ESQUARED = 0.0066943799901413165; // only used in grid shift transforms
 export const SEC_TO_RAD = 4.84813681109535993589914102357e-6;
-export const HALF_PI = Math.PI / 2;
+export const HALF_PI = 1.5707963267948966; // Math.PI / 2;
 // ellipoid pj_set_ell.c
 export const SIXTH = 0.1666666666666666667;
 /* 1/6 */
@@ -40,9 +40,9 @@ export const GRD2R = 0.015707963267948967;
  */
 export const GON2R = GRD2R;
 /** 1/4 π */
-export const QUART_PI = Math.PI / 4;
+export const QUART_PI = 0.7853981633974483; // Math.PI / 4;
 /** 2 π */
-export const TWO_PI = Math.PI * 2;
+export const TWO_PI = 6.283185307179586; // Math.PI * 2;
 /**
  * SPI is slightly greater than Math.PI, so values that exceed the -180..180
  * degree range by a tiny amount don't get wrapped. This prevents points that
@@ -52,5 +52,5 @@ export const TWO_PI = Math.PI * 2;
 export const SPI = 3.14159265359;
 
 export const FT_TO_M = 0.3048;
-export const US_FT_TO_M = 1200 / 3937;
+export const US_FT_TO_M = 0.3048006096012192; // 1200 / 3937;
 export const US_MOD_FT_TO_M = 0.30481225298450597;

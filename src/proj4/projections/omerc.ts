@@ -5,8 +5,6 @@ import { adjustLon, phi2z, tsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, log, atan, PI, tan, exp } = Math;
-
 /**
  * # Oblique Mercator
  *
@@ -97,6 +95,7 @@ export class HotineObliqueMercator extends ProjectionBase implements ProjectionT
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, pow, sin, cos, sqrt, asin, log, atan, PI, tan } = Math;
     super(params);
     const { TOL } = this;
 
@@ -249,6 +248,7 @@ export class HotineObliqueMercator extends ProjectionBase implements ProjectionT
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, pow, sin, cos, atan2, log } = Math;
     let S, T, U, V, W, temp, u, v;
     p.x = p.x - this.lam0;
     if (abs(abs(p.y) - HALF_PI) > EPSLN) {
@@ -289,6 +289,7 @@ export class HotineObliqueMercator extends ProjectionBase implements ProjectionT
    * @param p - HotineObliqueMercator point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, atan2, exp } = Math;
     let u, v;
     p.x = (p.x - this.x0) * (1.0 / this.a);
     p.y = (p.y - this.y0) * (1.0 / this.a);

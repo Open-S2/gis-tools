@@ -1,14 +1,35 @@
-import { epsilon, estimate, predSum, resulterrbound, splitter, vec } from './util.js';
+import { estimate, predSum, resulterrbound, splitter, vec } from './util';
 
-const ccwerrboundA = (3 + 16 * epsilon) * epsilon;
-const ccwerrboundB = (2 + 12 * epsilon) * epsilon;
-const ccwerrboundC = (9 + 64 * epsilon) * epsilon * epsilon;
+const ccwerrboundA = 3.3306690738754716e-16; // (3 + 16 * epsilon) * epsilon;
+const ccwerrboundB = 2.2204460492503146e-16; // (2 + 12 * epsilon) * epsilon;
+const ccwerrboundC = 1.1093356479670487e-31; // (9 + 64 * epsilon) * epsilon * epsilon;
 
-const B = vec(4);
-const C1 = vec(8);
-const C2 = vec(12);
-const D = vec(16);
-const u = vec(4);
+/**
+ * Constants for orient2d
+ */
+export interface Orient2dConstants {
+  B: Float64Array;
+  C1: Float64Array;
+  C2: Float64Array;
+  D: Float64Array;
+  u: Float64Array;
+}
+
+let constants: Orient2dConstants | undefined;
+
+/**
+ * build constants for future reuse
+ * @returns - the constants
+ */
+function buildConstants(): Orient2dConstants {
+  return {
+    B: vec(4),
+    C1: vec(8),
+    C2: vec(12),
+    D: vec(16),
+    u: vec(4),
+  };
+}
 
 /**
  * @param ax - x coordinate of first point
@@ -32,6 +53,8 @@ function orient2dadapt(
   cy: number,
   detsum: number,
 ): number {
+  if (constants === undefined) constants = buildConstants();
+  const { B, C1, C2, D, u } = constants;
   let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
 
   const acx = ax - cx;

@@ -1,0 +1,1 @@
+export { GeoTIFFReader } from '../../../src';

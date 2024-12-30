@@ -1,0 +1,1 @@
+export { polylabel } from '../../../src';

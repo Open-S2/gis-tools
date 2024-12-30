@@ -5,8 +5,6 @@ import { adjustLon, msfnz, phi2z, tsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, log, tan, atan, exp } = Math;
-
 /**
  * # Mercator Projection
  *
@@ -127,6 +125,7 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos, sqrt } = Math;
     super(params);
     const con = this.b / this.a;
     this.es = 1 - con * con;
@@ -153,6 +152,7 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, log, tan } = Math;
     const { x: lon, y: lat } = p;
     // convert to radians
     // if (lat * R2D > 90 && lat * R2D < -90 && lon * R2D > 180 && lon * R2D < -180) {
@@ -182,6 +182,7 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
    * @param p - Mercator point
    */
   inverse(p: VectorPoint): void {
+    const { atan, exp } = Math;
     const x = p.x - this.x0;
     const y = p.y - this.y0;
     let lat: number;

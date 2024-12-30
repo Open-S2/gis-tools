@@ -21,7 +21,7 @@ interface NodeQuery<T> {
   maxLat?: number;
 }
 
-const RAD = Math.PI / 180;
+const RAD = 0.017453292519943295; // Math.PI / 180;
 
 /** An index of cells with radius queries */
 export class PointIndexFast<T = Stringifiable> {

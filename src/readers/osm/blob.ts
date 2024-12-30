@@ -2,10 +2,10 @@ import { decompressStream } from '../../util';
 
 import type { Pbf as Protobuf } from '../../readers/protobuf';
 
-export const MAX_HEADER_SIZE = 64 * 1024;
-
+// headers have a max size of 64KB
+export const OSM_MAX_HEADER_SIZE = 64 * 1024;
 // blobs have a max size of 32MB
-export const MAX_BLOB_SIZE = 32 * 1024 * 1024;
+export const OSM_MAX_BLOB_SIZE = 32 * 1024 * 1024;
 
 /**
  * A file contains an sequence of fileblock headers, each prefixed by

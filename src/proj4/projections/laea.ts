@@ -19,8 +19,6 @@ const P10 = 0.06388888888888888;
 const P11 = 0.0664021164021164;
 const P20 = 0.01641501294219154;
 
-const { abs, sin, cos, sqrt, atan2, asin } = Math;
-
 /** Lambert Azimuthal Equal Area projection parameters */
 export type APA = [number, number, number];
 
@@ -94,6 +92,7 @@ export class LambertAzimuthalEqualArea extends ProjectionBase implements Project
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, sin, cos, sqrt } = Math;
     super(params);
 
     const t = abs(this.lat0);
@@ -146,6 +145,7 @@ export class LambertAzimuthalEqualArea extends ProjectionBase implements Project
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt } = Math;
     let x, y, coslam, sinlam, sinphi, q, sinb, cosb, b, cosphi;
     let lam = p.x;
     const phi = p.y;
@@ -245,6 +245,7 @@ export class LambertAzimuthalEqualArea extends ProjectionBase implements Project
    * @param p - LambertAzimuthalEqualArea point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, atan2, asin } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     let x = p.x / this.a;
@@ -355,6 +356,7 @@ function authset(es: number): APA {
  * @returns authalic latitude
  */
 function authlat(beta: number, APA: APA): number {
+  const { sin } = Math;
   const t = beta + beta;
   return beta + APA[0] * sin(t) + APA[1] * sin(t + t) + APA[2] * sin(t + t + t);
 }

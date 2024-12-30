@@ -25,9 +25,12 @@ import {
   norm2 as s2PointNorm2,
 } from '../s2/point';
 
+import type { LengthMetric } from './metrics';
 import type { S1Angle } from '../s1/angle';
 import type { S1ChordAngle } from '../s1/chordAngle';
 import type { Face, Point3D, S2CellId, Vertices } from '../';
+
+let kMaxEdge: LengthMetric | undefined;
 
 /**
  * S2Cap represents a disc-shaped region defined by a center and radius.
@@ -315,6 +318,7 @@ export function intersectsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId, vertices: Ver
  * @returns - the cells that intersect the cap
  */
 export function getIntersectingCells<T>(cap: S2Cap<T>): S2CellId[] {
+  if (kMaxEdge === undefined) kMaxEdge = K_MAX_EDGE();
   const res: S2CellId[] = [];
   // Find appropriate max depth for radius
   // while loop:
@@ -327,7 +331,7 @@ export function getIntersectingCells<T>(cap: S2Cap<T>): S2CellId[] {
   if (isEmpty(cap)) return res;
   const queue: S2CellId[] = ([0, 1, 2, 3, 4, 5] as Face[]).map(fromFace);
   if (isFull(cap)) return queue;
-  const maxDepth = K_MAX_EDGE.getClosestLevel(toAngle(cap.radius));
+  const maxDepth = kMaxEdge.getClosestLevel(toAngle(cap.radius));
   while (true) {
     const cell = queue.pop();
     if (cell === undefined) break;

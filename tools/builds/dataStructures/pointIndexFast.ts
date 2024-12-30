@@ -1,0 +1,1 @@
+export { PointIndexFast } from '../../../src';

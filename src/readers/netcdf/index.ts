@@ -54,11 +54,17 @@ const NC_ATTRIBUTE = 12;
 
 /** Enum of the NetCDF data types available */
 export enum CDFDataType {
+  /** Byte size (1 byte) */
   BYTE = 1,
+  /** Char size (1 byte) */
   CHAR = 2,
+  /** Short size (2 bytes) */
   SHORT = 3,
+  /** Integer size (4 bytes) */
   INT = 4,
+  /** Float size (4 bytes) */
   FLOAT = 5,
+  /** Double size (8 bytes) */
   DOUBLE = 6,
 }
 
@@ -69,13 +75,11 @@ export enum CDFDataType {
 function typeToBytes(type: CDFDataType): number {
   switch (type) {
     case CDFDataType.BYTE:
-      return 1;
     case CDFDataType.CHAR:
       return 1;
     case CDFDataType.SHORT:
       return 2;
     case CDFDataType.INT:
-      return 4;
     case CDFDataType.FLOAT:
       return 4;
     case CDFDataType.DOUBLE:

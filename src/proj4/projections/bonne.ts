@@ -6,9 +6,6 @@ import type { En } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const EPS10 = 1e-10;
-const { abs, sin, cos, sqrt, atan2, tan } = Math;
-
 /**
  * # Bonne (Werner lat_1=90) Projection
  *
@@ -58,6 +55,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const EPS10 = 1e-10;
+    const { abs, sin, cos, sqrt, tan } = Math;
     super(params);
     let c;
 
@@ -88,6 +87,7 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - an Bonne Werner point
    */
   eFwd(p: VectorPoint): VectorPoint {
+    const { sin, cos, sqrt } = Math;
     const lam = adjustLon(p.x - (this.long0 ?? 0));
     const phi = p.y;
     let E, c;
@@ -107,6 +107,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - lon-lat WGS84 point
    */
   eInv(p: VectorPoint): VectorPoint {
+    const EPS10 = 1e-10;
+    const { abs, sin, cos, sqrt, atan2 } = Math;
     p.x = (p.x - (this.x0 ?? 0)) / this.a;
     p.y = (p.y - (this.y0 ?? 0)) / this.a;
 
@@ -132,6 +134,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - an Bonne Werner point
    */
   sFwd(p: VectorPoint): VectorPoint {
+    const EPS10 = 1e-10;
+    const { abs, sin, cos } = Math;
     const lam = adjustLon(p.x - (this.long0 ?? 0));
     const phi = p.y;
     let E: number;
@@ -154,6 +158,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
    * @returns - lon-lat WGS84 point
    */
   sInv(p: VectorPoint): VectorPoint {
+    const EPS10 = 1e-10;
+    const { abs, cos, atan2 } = Math;
     p.x = (p.x - (this.x0 ?? 0)) / this.a;
     p.y = (p.y - (this.y0 ?? 0)) / this.a;
 

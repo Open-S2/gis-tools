@@ -32,6 +32,11 @@ exclude = [
     "/test",
     "/tools",
     "/src",
+    "/coverage",
+    "/dist",
+    "/experiments",
+    "/node_modules",
+    "/build_bundle_tmp",
     ".github",
     ".helix"
 ]

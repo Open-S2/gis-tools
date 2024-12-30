@@ -6,8 +6,6 @@ import type { En } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, asin } = Math;
-
 /**
  * # Sinusoidal (Sanson-Flamsteed)
  *
@@ -90,7 +88,7 @@ export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
       this.n = 1;
       this.m = 0;
       this.es = 0;
-      this.Cy = sqrt((this.m + 1) / this.n);
+      this.Cy = Math.sqrt((this.m + 1) / this.n);
       this.Cx = this.Cy / (this.m + 1);
     }
   }
@@ -100,6 +98,7 @@ export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, asin } = Math;
     let x, y;
     let lon = p.x;
     let lat = p.y;
@@ -136,6 +135,7 @@ export class Sinusoidal extends ProjectionBase implements ProjectionTransform {
    * @param p - Sinusoidal point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt } = Math;
     let lat, temp, lon, s;
     p.x -= this.x0;
     lon = p.x / this.a;

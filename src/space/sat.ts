@@ -69,11 +69,6 @@ export interface TLEDataCelestrak {
   DATA_SOURCE: string;
 }
 
-// TLE example
-// STARLINK-1007
-// 1 44713C 19074A   23048.53451389 -.00009219  00000+0 -61811-3 0   482
-// 2 44713  53.0512 157.2379 0001140  81.3827  74.7980 15.06382459    15
-
 /**
  * Satellite Orbit Class
  *

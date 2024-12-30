@@ -5,8 +5,6 @@ import { adjustLon, msfnz, phi2z, sign, tsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, log, PI } = Math;
-
 /**
  * # Lambert Conformal Conic
  *
@@ -88,6 +86,7 @@ export class LambertConformalConic extends ProjectionBase implements ProjectionT
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, pow, sin, cos, sqrt, log } = Math;
     super(params);
 
     // double lat0;                    /* the reference latitude               */
@@ -141,6 +140,7 @@ export class LambertConformalConic extends ProjectionBase implements ProjectionT
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, pow, sin, cos, PI } = Math;
     const lon = p.x;
     let lat = p.y;
     // singular cases :
@@ -169,6 +169,7 @@ export class LambertConformalConic extends ProjectionBase implements ProjectionT
    * @param p - LambertConformalConic point
    */
   inverse(p: VectorPoint): void {
+    const { pow, sqrt, atan2 } = Math;
     let rh1, con, ts;
     let lat;
     const x = (p.x - this.x0) / this.k0;

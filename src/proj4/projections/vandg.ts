@@ -5,8 +5,6 @@ import { adjustLon, asinz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, PI, sin, cos, sqrt, tan, acos } = Math;
-
 /**
  * # van der Grinten (I)
  *
@@ -62,6 +60,7 @@ export class VanDerGrinten extends ProjectionBase implements ProjectionTransform
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, PI, sin, cos, sqrt, tan } = Math;
     const { x: lon, y: lat } = p;
     const dlon = adjustLon(lon - this.long0);
     let x, y;
@@ -115,6 +114,7 @@ export class VanDerGrinten extends ProjectionBase implements ProjectionTransform
    * @param p - VanDerGrinten point
    */
   inverse(p: VectorPoint): void {
+    const { abs, PI, cos, sqrt, acos } = Math;
     let lon, lat;
     p.x -= this.x0;
     p.y -= this.y0;

@@ -5,8 +5,6 @@ import { adjustLon, asinz, msfnz, qsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, log } = Math;
-
 /**
  * # Albers Conic Equal Area Projection
  *
@@ -71,6 +69,7 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, pow, sin, cos, sqrt } = Math;
     super(params);
     if (abs(this.lat1 + this.lat2) < EPSLN) {
       throw new Error('cass:pj_init_aea: lat1 == lat2');
@@ -111,6 +110,7 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, sqrt } = Math;
     const lon = p.x;
     const lat = p.y;
 
@@ -131,6 +131,7 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
    * @param p - Albers Conic Equal Area point
    */
   inverse(p: VectorPoint): void {
+    const { sqrt, atan2, asin } = Math;
     let rh1, qs, con, theta;
     let lat = 0;
 
@@ -168,6 +169,7 @@ export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTr
  * @returns - phi1
  */
 export function phi1z(eccent: number, qs: number): number {
+  const { abs, sin, cos, log } = Math;
   let sinphi, cosphi, con, com, dphi;
   let phi = asinz(0.5 * qs);
   if (eccent < EPSLN) {

@@ -180,9 +180,10 @@ export interface FeedResV3 {
 
 /**
  * @param gbfs - the GBFS schema to parse
+ * @param path - if provided, will use this path instead of the url (for testing)
  * @returns - the GBFS reader
  */
-export async function buildGBFSReaderV3(gbfs: GBFSV3): Promise<GBFSReaderV3> {
+export async function buildGBFSReaderV3(gbfs: GBFSV3, path?: string): Promise<GBFSReaderV3> {
   const {
     data: { feeds },
   } = gbfs;
@@ -190,7 +191,8 @@ export async function buildGBFSReaderV3(gbfs: GBFSV3): Promise<GBFSReaderV3> {
   await Promise.allSettled(
     feeds.map(async (feed) => {
       if (feed.name === 'gbfs') return;
-      const json = await fetch(feed.url).then(async (res) => await res.json());
+      const url = path !== undefined ? `${path}/${feed.name}.json` : feed.url;
+      const json = await fetch(url).then(async (res) => await res.json());
       // @ts-expect-error - We really don't care, we know it categorizes correctly
       feedData[feed.name] = json;
     }),

@@ -5,8 +5,6 @@ import { adjustLon } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, PI, sin, cos, asin } = Math;
-
 /**
  * # Mollweide
  *
@@ -61,6 +59,7 @@ export class Mollweide extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, PI, sin, cos } = Math;
     const lon = p.x;
     const lat = p.y;
     let delta_lon = adjustLon(lon - this.long0);
@@ -91,6 +90,7 @@ export class Mollweide extends ProjectionBase implements ProjectionTransform {
    * @param p - Mollweide point
    */
   inverse(p: VectorPoint): void {
+    const { abs, PI, sin, cos, asin } = Math;
     let arg;
     /* Inverse equations
           -----------------*/

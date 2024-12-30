@@ -1,0 +1,1 @@
+export { PointIndex } from '../../../src';

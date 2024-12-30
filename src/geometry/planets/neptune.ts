@@ -5,4 +5,4 @@ export const NEPTUNE_RADIUS_EQUATORIAL = 24_764_000;
 /** Neptune's polar radius in meters */
 export const NEPTUNE_RADIUS_POLAR = 24_341_000;
 /** The average circumference of Neptune in meters. */
-export const NEPTUNE_CIRCUMFERENCE = 2.0 * Math.PI * NEPTUNE_RADIUS;
+export const NEPTUNE_CIRCUMFERENCE = 154_704_588.63337576; // 2.0 * Math.PI * NEPTUNE_RADIUS;

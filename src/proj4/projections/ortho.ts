@@ -5,8 +5,6 @@ import { adjustLon, asinz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, atan2 } = Math;
-
 /**
  * # Orthographic
  *
@@ -63,6 +61,7 @@ export class Orthographic extends ProjectionBase implements ProjectionTransform 
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
 
     this.sinP14 = sin(this.lat0);
@@ -74,6 +73,7 @@ export class Orthographic extends ProjectionBase implements ProjectionTransform 
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos } = Math;
     const { x: lon, y: lat } = p;
     let x, y;
     const dlon = adjustLon(lon - this.long0); /* delta longitude value      */
@@ -97,6 +97,7 @@ export class Orthographic extends ProjectionBase implements ProjectionTransform 
    * @param p - Orthographic point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, atan2 } = Math;
     let lon, lat;
     p.x -= this.x0;
     p.y -= this.y0;

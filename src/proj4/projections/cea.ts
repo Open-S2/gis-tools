@@ -4,8 +4,6 @@ import { adjustLon, iqsfnz, msfnz, qsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { sin, cos, asin } = Math;
-
 /**
  * # Equal Area Cylindrical Projection
  *
@@ -69,6 +67,7 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
     if (this.latTs === undefined) this.latTs = 0;
     if (!this.sphere) {
@@ -81,6 +80,7 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos } = Math;
     const lon = p.x;
     const lat = p.y;
     let x, y;
@@ -105,6 +105,7 @@ export class CylindricalEqualArea extends ProjectionBase implements ProjectionTr
    * @param p - Equal Area Cylindrical point
    */
   inverse(p: VectorPoint): void {
+    const { cos, asin } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     let lon, lat;

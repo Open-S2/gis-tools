@@ -1,0 +1,1 @@
+export { KDStore } from '../../../src';

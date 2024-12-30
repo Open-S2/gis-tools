@@ -5,4 +5,4 @@ export const VENUS_RADIUS_EQUATORIAL = 6_051_800;
 /** Venus' polar radius in meters */
 export const VENUS_RADIUS_POLAR = 6_051_800;
 /** The average circumference of Venus in meters. */
-export const VENUS_CIRCUMFERENCE = 2.0 * Math.PI * VENUS_RADIUS;
+export const VENUS_CIRCUMFERENCE = 38_024_580.84198942; // 2.0 * Math.PI * VENUS_RADIUS;

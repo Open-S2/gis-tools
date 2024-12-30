@@ -21,12 +21,6 @@
 //   in PostScript Level 2, Technical Note #5116
 //   (partners.adobe.com/public/developer/en/ps/sdk/5116.DCT_Filter.pdf)
 
-const dctZigZag = new Int32Array([
-  0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
-  13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52,
-  45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
-]);
-
 const dctCos1 = 4017; // cos(pi/16)
 const dctSin1 = 799; // sin(pi/16)
 const dctCos3 = 3406; // cos(3*pi/16)
@@ -58,6 +52,7 @@ export interface JPEGComponent {
   huffmanTableAC: HuffmanNode[];
   quantizationTable: Int32Array;
   pred: number;
+  dctZigZag: Int32Array;
 }
 
 /** A Component of a JPEG image organized into lines */
@@ -176,6 +171,11 @@ export class JpegStreamReader {
   jfif: JFIF | null = null;
   exifBuffer: Uint8Array<ArrayBuffer> | null = null;
   frames: Frame[] = [];
+  dctZigZag = new Int32Array([
+    0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
+    13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59,
+    52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
+  ]);
 
   /**
    * @param opts - The user provided options
@@ -224,6 +224,7 @@ export class JpegStreamReader {
   }
 
   /**
+   * Parse the data into the frames
    * @param data - The individual block of JPEG data to parse
    */
   parse(data: Uint8Array<ArrayBuffer>): void {
@@ -400,13 +401,13 @@ export class JpegStreamReader {
             if (quantizationTableSpec >> 4 === 0) {
               // 8 bit values
               for (let j = 0; j < 64; j++) {
-                const z = dctZigZag[j];
+                const z = this.dctZigZag[j];
                 tableData[z] = data[offset++];
               }
             } else if (quantizationTableSpec >> 4 === 1) {
               // 16 bit
               for (let j = 0; j < 64; j++) {
-                const z = dctZigZag[j];
+                const z = this.dctZigZag[j];
                 tableData[z] = readUint16();
               }
             } else {
@@ -466,6 +467,7 @@ export class JpegStreamReader {
               huffmanTableAC: [],
               pred: 0,
               quantizationTable: new Int32Array(0),
+              dctZigZag: this.dctZigZag,
             };
             offset += 3;
           }
@@ -1017,7 +1019,7 @@ function decodeScan(
         continue;
       }
       k += r;
-      const z = dctZigZag[k];
+      const z = component.dctZigZag[k];
       zz[z] = receiveAndExtend(s);
       k++;
     }
@@ -1066,7 +1068,7 @@ function decodeScan(
         continue;
       }
       k += r;
-      const z = dctZigZag[k];
+      const z = component.dctZigZag[k];
       zz[z] = receiveAndExtend(s) * (1 << successive);
       k++;
     }
@@ -1083,7 +1085,7 @@ function decodeScan(
     const e = spectralEnd;
     let r = 0;
     while (k <= e) {
-      const z = dctZigZag[k];
+      const z = component.dctZigZag[k];
       const direction = zz[z] < 0 ? -1 : 1;
       switch (successiveACState) {
         case 0: {

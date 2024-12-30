@@ -4,8 +4,6 @@ import { cosh, invlatiso, latiso, sinh } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { pow, sin, cos, sqrt, atan, asin } = Math;
-
 /**
  * # Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
  *
@@ -70,6 +68,7 @@ export class GaussSchreiberTransverseMercator
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { pow, sin, cos, sqrt, asin } = Math;
     super(params);
 
     const temp = this.b / this.a;
@@ -100,6 +99,7 @@ export class GaussSchreiberTransverseMercator
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, atan, asin } = Math;
     const { x: lon, y: lat } = p;
     const L = this.n1 * (lon - this.longc);
     const Ls = this.cp + this.n1 * latiso(this.e, lat, sin(lat));
@@ -114,6 +114,7 @@ export class GaussSchreiberTransverseMercator
    * @param p - GaussSchreiberTransverseMercator point
    */
   inverse(p: VectorPoint): void {
+    const { sin, cos, atan, asin } = Math;
     const { x, y } = p;
     const L = atan(sinh((x - this.xs) / this.n2) / cos((y - this.ys) / this.n2));
     const lat1 = asin(sin((y - this.ys) / this.n2) / cosh((x - this.xs) / this.n2));

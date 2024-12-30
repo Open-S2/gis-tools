@@ -5,8 +5,6 @@ import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, mlfn } from '../commo
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, asin, tan } = Math;
-
 /**
  * # Polyconic (American)
  *
@@ -57,6 +55,7 @@ export class Polyconic extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { pow, sqrt } = Math;
     super(params);
 
     this.temp = this.b / this.a;
@@ -74,6 +73,7 @@ export class Polyconic extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, tan } = Math;
     const { x: lon, y: lat } = p;
     let x, y;
     const dlon = adjustLon(lon - this.long0);
@@ -105,6 +105,7 @@ export class Polyconic extends ProjectionBase implements ProjectionTransform {
    * @param p - Polyconic point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, asin, tan } = Math;
     let lon, i;
     let lat = 0;
     let al, bl;

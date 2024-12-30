@@ -1,0 +1,1 @@
+export { Delaunator } from '../../../src';

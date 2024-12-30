@@ -5,8 +5,6 @@ import { D2R, EPSLN, HALF_PI, R2D } from '../constants';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, floor } = Math;
-
 const COEFS_X = [
   [1.0, 2.2199e-17, -7.15515e-5, 3.1103e-6],
   [0.9986, -0.000482243, -2.4897e-5, -1.3309e-6],
@@ -53,8 +51,6 @@ const COEFS_Y = [
 
 const FXC = 0.8487;
 const FYC = 1.3523;
-const C1 = R2D / 5; // rad to 5-degree interval
-const RC1 = 1 / C1;
 const NODES = 18;
 
 /**
@@ -117,6 +113,9 @@ export class Robinson extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, floor } = Math;
+    const C1 = R2D / 5; // rad to 5-degree interval
+    const RC1 = 1 / C1;
     const lon = adjustLon(p.x - this.long0);
     let dphi = abs(p.y);
     let i = floor(dphi * C1);
@@ -144,6 +143,7 @@ export class Robinson extends ProjectionBase implements ProjectionTransform {
    * @param p - Robinson point
    */
   inverse(p: VectorPoint): void {
+    const { abs, floor } = Math;
     const ll = {
       x: (p.x - this.x0) / (this.a * FXC),
       y: abs(p.y - this.y0) / (this.a * FYC),
@@ -229,7 +229,7 @@ function newtonRapshon(
   for (; iters !== 0; --iters) {
     const upd = fDf(x);
     x -= upd;
-    if (abs(upd) < max_err) {
+    if (Math.abs(upd) < max_err) {
       break;
     }
   }

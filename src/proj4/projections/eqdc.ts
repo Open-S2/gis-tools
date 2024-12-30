@@ -5,8 +5,6 @@ import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, imlfn, mlfn, msfnz } from
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, atan2 } = Math;
-
 /**
  * # Equidistant Conic
  *
@@ -69,6 +67,7 @@ export class EquidistantConic extends ProjectionBase implements ProjectionTransf
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, sin, cos } = Math;
     super(params);
 
     if (abs(this.lat1 + this.lat2) < EPSLN)
@@ -107,6 +106,7 @@ export class EquidistantConic extends ProjectionBase implements ProjectionTransf
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos } = Math;
     const { x: lon, y: lat } = p;
     let rh1;
     if (this.sphere) {
@@ -127,6 +127,7 @@ export class EquidistantConic extends ProjectionBase implements ProjectionTransf
    * @param p - EquidistantConic point
    */
   inverse(p: VectorPoint): void {
+    const { sqrt, atan2 } = Math;
     p.x -= this.x0;
     p.y = this.rh - p.y + this.y0;
     let con, rh1, lat, lon;

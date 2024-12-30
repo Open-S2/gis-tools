@@ -41,7 +41,8 @@ export async function shapefileFromPath(
 ): Promise<ShapeFile> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
-    return fromGzip(gzipData.buffer);
+    // need to ass `as ArrayBuffer` to avoid typescript error via github actions
+    return fromGzip(gzipData.buffer as ArrayBuffer);
   }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;

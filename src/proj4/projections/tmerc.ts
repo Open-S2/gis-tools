@@ -9,8 +9,6 @@ import type { En } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, log, tan, acos, exp } = Math;
-
 /**
  * # Transverse Mercator
  *
@@ -58,6 +56,7 @@ export class TransverseMercator extends ProjectionBase implements ProjectionTran
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
 
     this.x0 = this.x0 !== undefined ? this.x0 : 0;
@@ -76,6 +75,7 @@ export class TransverseMercator extends ProjectionBase implements ProjectionTran
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, log, tan, acos } = Math;
     const { x: lon, y: lat } = p;
     const delta_lon = adjustLon(lon - this.long0);
     let con;
@@ -166,6 +166,7 @@ export class TransverseMercator extends ProjectionBase implements ProjectionTran
    * @param p - TransverseMercator point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, atan2, asin, tan, exp } = Math;
     let con, phi;
     let lat, lon;
     const x = (p.x - this.x0) * (1 / this.a);

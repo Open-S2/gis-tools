@@ -33,8 +33,6 @@ import { adjustLon } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, asin } = Math;
-
 /**
  * # Equal Earth
  *
@@ -92,7 +90,7 @@ export class EqualEarth extends ProjectionBase implements ProjectionTransform {
   A2 = -0.081106;
   A3 = 0.000893;
   A4 = 0.003796;
-  M = sqrt(3) / 2.0;
+  M = Math.sqrt(3) / 2.0;
 
   /**
    * Preps an EqualEarth projection
@@ -109,6 +107,7 @@ export class EqualEarth extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, asin } = Math;
     const { M, A1, A2, A3, A4, a, x0, y0, long0 } = this;
     const lam = adjustLon(p.x - long0);
     const phi = p.y;
@@ -128,6 +127,7 @@ export class EqualEarth extends ProjectionBase implements ProjectionTransform {
    * @param p - EqualEarth point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, asin } = Math;
     const { M, A1, A2, A3, A4, a, x0, y0, long0 } = this;
     p.x = (p.x - x0) / a;
     p.y = (p.y - y0) / a;

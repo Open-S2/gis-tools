@@ -8,9 +8,13 @@ import { parseCSVAsRecord } from '../../';
  * 3 = Must coordinate with driver to arrange pickup
  */
 export enum GTFSPickupType {
+  /** Regularly scheduled pickup */
   Regular = 0,
+  /** No pickup available */
   None = 1,
+  /** Must phone agency to arrange pickup */
   PhoneAgency = 2,
+  /** Must coordinate with driver to arrange pickup */
   CoordinateDriver = 3,
 }
 
@@ -22,9 +26,13 @@ export enum GTFSPickupType {
  * 3 = Must coordinate with driver to arrange drop off
  */
 export enum GTFSDropOffType {
+  /** Regularly scheduled drop off */
   Regular = 0,
+  /** No drop off available */
   None = 1,
+  /** Must phone agency to arrange drop off */
   PhoneAgency = 2,
+  /** Must coordinate with driver to arrange drop off */
   CoordinateDriver = 3,
 }
 
@@ -36,9 +44,13 @@ export enum GTFSDropOffType {
  * 3 = Must coordinate with driver
  */
 export enum ContinuousPickup {
+  /** Continuous stopping pickup */
   Continuous = 0,
+  /** No continuous stopping pickup */
   None = 1,
+  /** Must phone agency */
   PhoneAgency = 2,
+  /** Must coordinate with driver */
   CoordinateDriver = 3,
 }
 
@@ -50,9 +62,13 @@ export enum ContinuousPickup {
  * 3 = Must coordinate with driver
  */
 export enum ContinuousDropOff {
+  /** Continuous stopping drop off */
   Continuous = 0,
+  /** No continuous stopping drop off */
   None = 1,
+  /** Must phone agency */
   PhoneAgency = 2,
+  /** Must coordinate with driver */
   CoordinateDriver = 3,
 }
 
@@ -62,7 +78,9 @@ export enum ContinuousDropOff {
  * 1 = Exact times
  */
 export enum Timepoint {
+  /** Approximate times */
   Approximate = 0,
+  /** Exact times */
   Exact = 1,
 }
 

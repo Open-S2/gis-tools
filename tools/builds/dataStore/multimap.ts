@@ -1,0 +1,1 @@
+export { MultiMapStore } from '../../../src';

@@ -4,8 +4,6 @@ import { adjustLon } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { tan, atan, PI, log, exp } = Math;
-
 /**
  * # Miller Cylindrical
  *
@@ -83,6 +81,7 @@ export class MillerCylindrical extends ProjectionBase implements ProjectionTrans
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { tan, PI, log } = Math;
     const { x: lon, y: lat } = p;
     const dlon = adjustLon(lon - this.long0);
     const x = this.x0 + this.a * dlon;
@@ -96,6 +95,7 @@ export class MillerCylindrical extends ProjectionBase implements ProjectionTrans
    * @param p - MillerCylindrical point
    */
   inverse(p: VectorPoint): void {
+    const { atan, PI, exp } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     const lon = adjustLon(this.long0 + p.x / this.a);

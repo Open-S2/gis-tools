@@ -86,9 +86,14 @@ export interface FeedResV2 {
 /**
  * @param gbfs - the GBFS schema to parse
  * @param locale - the locale to use if provided, otherwise default to en
+ * @param path - if provided, will use this path instead of the url (for testing)
  * @returns - the GBFS reader
  */
-export async function buildGBFSReaderV2(gbfs: GBFSV2, locale = 'en'): Promise<GBFSReaderV2> {
+export async function buildGBFSReaderV2(
+  gbfs: GBFSV2,
+  locale = 'en',
+  path?: string,
+): Promise<GBFSReaderV2> {
   const { data } = gbfs;
   const firstLocale = Object.keys(data)[0];
   const { feeds } = data[locale] ?? data[firstLocale];
@@ -96,7 +101,8 @@ export async function buildGBFSReaderV2(gbfs: GBFSV2, locale = 'en'): Promise<GB
   await Promise.allSettled(
     feeds.map(async (feed) => {
       if (feed.name === 'gbfs') return;
-      const json = await fetch(feed.url).then(async (res) => await res.json());
+      const url = path !== undefined ? `${path}/${feed.name}.json` : feed.url;
+      const json = await fetch(url).then(async (res) => await res.json());
       // @ts-expect-error - We really don't care, we categorize naturally
       feedData[feed.name] = json;
     }),

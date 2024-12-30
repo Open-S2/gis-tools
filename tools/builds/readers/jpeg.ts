@@ -1,0 +1,1 @@
+export { jpegDecoder } from '../../../src';

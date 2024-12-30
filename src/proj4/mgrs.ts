@@ -25,7 +25,7 @@ const NORTHING_OFFFSET = 10000000;
 /** UTM zone width in degrees */
 const UTM_ZONE_WIDTH = 6;
 /** Half the width of a UTM zone in degrees */
-const HALF_UTM_ZONE_WIDTH = UTM_ZONE_WIDTH / 2;
+const HALF_UTM_ZONE_WIDTH = 3; // UTM_ZONE_WIDTH / 2;
 
 const A = 65; // A
 const I = 73; // I

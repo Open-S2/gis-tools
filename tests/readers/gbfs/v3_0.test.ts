@@ -19,12 +19,10 @@ import {
   gbfsVersionsSchemaV30,
 } from '../../../src';
 
-const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
-
 const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
-testFunc('version 3.0', async () => {
+test('version 3.0', async () => {
   const server = buildServer();
 
   const gbfsReader = (await buildGBFSReader(
@@ -92,5 +90,5 @@ testFunc('version 3.0', async () => {
   await server.stop();
 
   const features = await Array.fromAsync(gbfsReader);
-  expect(features.length).toBe(100);
+  expect(features.length).toBe(105);
 });

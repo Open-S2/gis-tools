@@ -1,0 +1,1 @@
+export { OSMReader } from '../../../src';

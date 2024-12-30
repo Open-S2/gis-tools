@@ -413,7 +413,10 @@ export class JpxImage {
     if (reader !== undefined) this.parse(reader);
   }
 
-  /** @param reader - the reader to parse from */
+  /**
+   * parse the input data into components
+   * @param reader - the reader to parse from
+   */
   parse(reader: Reader) {
     const head = reader.getUint16(0);
     // No box header, immediate start of codestream (SOC)
@@ -502,6 +505,7 @@ export class JpxImage {
   }
 
   /**
+   * parse the input data into components
    * @param data - compressed data
    * @param start - start index
    * @param end - end index
@@ -2315,24 +2319,6 @@ class InclusionTree {
 
 const UNIFORM_CONTEXT = 17;
 const RUNLENGTH_CONTEXT = 18;
-// Table D-1
-// The index is binary presentation: 0dddvvhh, ddd - sum of Di (0..4),
-// vv - sum of Vi (0..2), and hh - sum of Hi (0..2)
-const LLAndLHContextsLabel = new Uint8Array([
-  0, 5, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 1, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 2,
-  6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 2, 6,
-  8, 0, 3, 7, 8, 0, 4, 7, 8,
-]);
-const HLContextLabel = new Uint8Array([
-  0, 3, 4, 0, 5, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 1, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 2,
-  3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 2, 3,
-  4, 0, 6, 7, 7, 0, 8, 8, 8,
-]);
-const HHContextLabel = new Uint8Array([
-  0, 1, 2, 0, 1, 2, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 3, 4, 5, 0, 4, 5, 5, 0, 5, 5, 5, 0, 0, 0, 0, 0, 6,
-  7, 7, 0, 7, 7, 7, 0, 7, 7, 7, 0, 0, 0, 0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8,
-  8, 0, 8, 8, 8, 0, 8, 8, 8,
-]);
 
 /**
  * Section D. Coefficient bit modeling
@@ -2362,12 +2348,27 @@ class BitModel {
     mb: number,
   ) {
     let contextLabelTable;
+    // Table D-1
+    // The index is binary presentation: 0dddvvhh, ddd - sum of Di (0..4),
+    // vv - sum of Vi (0..2), and hh - sum of Hi (0..2)
     if (subband === 'HH') {
-      contextLabelTable = HHContextLabel;
+      contextLabelTable = new Uint8Array([
+        0, 1, 2, 0, 1, 2, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 3, 4, 5, 0, 4, 5, 5, 0, 5, 5, 5, 0, 0, 0, 0,
+        0, 6, 7, 7, 0, 7, 7, 7, 0, 7, 7, 7, 0, 0, 0, 0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8, 0, 0, 0,
+        0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8,
+      ]);
     } else if (subband === 'HL') {
-      contextLabelTable = HLContextLabel;
+      contextLabelTable = new Uint8Array([
+        0, 3, 4, 0, 5, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 1, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0,
+        0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0,
+        0, 0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8,
+      ]);
     } else {
-      contextLabelTable = LLAndLHContextsLabel;
+      contextLabelTable = new Uint8Array([
+        0, 5, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 1, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0,
+        0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0,
+        0, 0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8,
+      ]);
     }
     this.contextLabelTable = contextLabelTable;
 

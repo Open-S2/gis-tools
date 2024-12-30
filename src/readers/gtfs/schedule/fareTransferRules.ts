@@ -11,9 +11,13 @@ import { parseCSVAsRecord } from '../../';
  * 3 - Between arrival of current leg & arrival of next leg
  */
 export enum GTFSDurationLimitType {
+  /** Between departure of current leg & arrival of next leg */
   DepCurrentArrNext = 0,
+  /** Between departure of current leg & departure of next leg */
   DepCurrentDepNext = 1,
+  /** Between arrival of current leg & departure of next leg */
   ArrCurrentDepNext = 2,
+  /** Between arrival of current leg & arrival of next leg */
   ArrCurrentArrNext = 3,
 }
 
@@ -26,8 +30,11 @@ export enum GTFSDurationLimitType {
  * 2 = (AB)
  */
 export enum GTFSFareTransferType {
+  /** A + AB */
   FromLegPlusTransfer = 0, // A + AB
+  /** A + AB + B */
   FromLegTransferToLeg = 1, // A + AB + B
+  /** AB */
   TransferOnly = 2, // AB
 }
 

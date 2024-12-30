@@ -5,8 +5,6 @@ import { adjustLon, asinz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, atan2 } = Math;
-
 /**
  * # Gnomonic (gnom)
  *
@@ -71,6 +69,7 @@ export class Gnomonic extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
 
     this.sinP14 = sin(this.lat0);
@@ -85,6 +84,7 @@ export class Gnomonic extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos } = Math;
     const { x: lon, y: lat } = p;
     let x, y;
     /* Forward equations
@@ -117,6 +117,7 @@ export class Gnomonic extends ProjectionBase implements ProjectionTransform {
    * @param p - Gnomonic point
    */
   inverse(p: VectorPoint): void {
+    const { sin, cos, sqrt, atan2 } = Math;
     let sinc, cosc;
     let c;
     let lon, lat;

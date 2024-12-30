@@ -4,8 +4,6 @@ import { adjustLon } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, tan, atan } = Math;
-
 /**
  * # Krovak
  *
@@ -82,6 +80,7 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { pow, sin, cos, sqrt, asin, tan } = Math;
     super(params);
 
     this.a = 6377397.155;
@@ -123,6 +122,7 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { pow, sin, cos, asin, tan, atan } = Math;
     const { x: lon, y: lat } = p;
     const delta_lon = adjustLon(lon - this.long0);
     /* Transformation */
@@ -147,6 +147,7 @@ export class Krovak extends ProjectionBase implements ProjectionTransform {
    * @param p - Krovak point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, atan2, asin, tan, atan } = Math;
     let ok;
     /* Transformation */
     /* revert y, x*/

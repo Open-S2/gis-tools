@@ -5,8 +5,6 @@ import { D2R, EPSLN, HALF_PI } from '../constants';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, atan2, asin } = Math;
-
 /**
  * The 4 possible modes of the TiltedPerspective projection
  * - North Pole (0)
@@ -92,6 +90,7 @@ export class TiltedPerspective extends ProjectionBase implements ProjectionTrans
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, sin, cos } = Math;
     super(params);
 
     if (this.h === undefined) this.h = 100_000;
@@ -140,6 +139,7 @@ export class TiltedPerspective extends ProjectionBase implements ProjectionTrans
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos } = Math;
     p.x -= this.long0;
     const sinphi = sin(p.y);
     const cosphi = cos(p.y);
@@ -189,6 +189,7 @@ export class TiltedPerspective extends ProjectionBase implements ProjectionTrans
    * @param p - TiltedPerspective point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, sqrt, atan2, asin } = Math;
     p.x /= this.a;
     p.y /= this.a;
     const r = { x: p.x, y: p.y };

@@ -52,8 +52,8 @@ import type { BBox, Face, Point3D } from '.';
 export type S2CellId = bigint;
 
 /** CONSTANTS */
-const LOOKUP_POS: S2CellId[] = [];
-const LOOKUP_IJ: number[] = [];
+let LOOKUP_POS: S2CellId[] | undefined;
+let LOOKUP_IJ: number[] | undefined;
 export const K_FACE_BITS = 3;
 export const FACE_BITS = 3n;
 export const K_NUM_FACES = 6;
@@ -64,8 +64,6 @@ export const POS_BITS = 61n;
 export const K_WRAP_OFFSET = 13835058055282163712n;
 export const K_MAX_SIZE = 1073741824;
 
-/** INITIALIZATION */
-for (let i = 0; i < 4; i++) initLookupCell(0, 0, 0, i, 0, i);
 /**
  * @param level - zoom level of the cell
  * @param i - x coord
@@ -82,6 +80,8 @@ function initLookupCell(
   pos: number,
   orientation: number,
 ): void {
+  if (LOOKUP_POS === undefined) LOOKUP_POS = [];
+  if (LOOKUP_IJ === undefined) LOOKUP_IJ = [];
   const kPosToOriengation = [1, 0, 0, 3];
   const kPosToIJ = [
     [0, 1, 3, 2],
@@ -237,6 +237,10 @@ export function toFaceIJ(id: S2CellId): [face: Face, zoom: number, i: number, j:
  * @returns the S2CellID
  */
 export function fromIJ(face: Face, i: number, j: number, level?: number): S2CellId {
+  if (LOOKUP_POS === undefined) {
+    LOOKUP_POS = [];
+    for (let i = 0; i < 4; i++) initLookupCell(0, 0, 0, i, 0, i);
+  }
   const bigFace = BigInt(face);
   let bigI = BigInt(i);
   let bigJ = BigInt(j);
@@ -281,6 +285,10 @@ export function toIJ(
   id: S2CellId,
   level?: number,
 ): [face: Face, i: number, j: number, orientation: number] {
+  if (LOOKUP_IJ === undefined) {
+    LOOKUP_IJ = [];
+    for (let i = 0; i < 4; i++) initLookupCell(0, 0, 0, i, 0, i);
+  }
   let i = 0;
   let j = 0;
   const face = Number(id >> POS_BITS);

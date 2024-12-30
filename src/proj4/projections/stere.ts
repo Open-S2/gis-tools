@@ -5,8 +5,6 @@ import { adjustLon, msfnz, phi2z, sign, tsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, tan, atan, PI } = Math;
-
 /**
  * # Stereographic
  *
@@ -73,6 +71,7 @@ export class StereographicSouthPole extends ProjectionBase implements Projection
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs, pow, sin, cos, sqrt, atan } = Math;
     super(params);
 
     this.x0 = this.x0 ?? 0;
@@ -123,6 +122,7 @@ export class StereographicSouthPole extends ProjectionBase implements Projection
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, atan, PI } = Math;
     const { x: lon, y: lat } = p;
     const sinlat = sin(lat);
     const coslat = cos(lat);
@@ -171,6 +171,7 @@ export class StereographicSouthPole extends ProjectionBase implements Projection
    * @param p - StereographicSouthPole point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, atan2, asin, tan, atan } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     let lon, lat, ts, ce, Chi;
@@ -241,6 +242,7 @@ export class StereographicSouthPole extends ProjectionBase implements Projection
    * @returns - tan(0.5*(HALF_PI+phit))
    */
   #ssfn(phit: number, sinphi: number, eccen: number): number {
+    const { pow, tan } = Math;
     sinphi *= eccen;
     return tan(0.5 * (HALF_PI + phit)) * pow((1 - sinphi) / (1 + sinphi), 0.5 * eccen);
   }

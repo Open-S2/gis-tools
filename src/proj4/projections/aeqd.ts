@@ -5,8 +5,6 @@ import { adjustLon, asinz, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../co
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;
-
 /**
  * # Azimuthal Equidistant Projection
  *
@@ -55,6 +53,7 @@ export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTr
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sin, cos } = Math;
     super(params);
     this.sinP12 = sin(this.lat0);
     this.cosP12 = cos(this.lat0);
@@ -65,6 +64,7 @@ export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, atan2, asin, acos, PI, tan, atan } = Math;
     const lon = p.x;
     const lat = p.y;
     const sinphi = sin(p.y);
@@ -174,6 +174,7 @@ export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTr
    * @param p - Azimuthal Equidistant point
    */
   inverse(p: VectorPoint): void {
+    const { abs, pow, sin, cos, sqrt, atan2, asin, tan } = Math;
     p.x -= this.x0;
     p.y -= this.y0;
     let rh,

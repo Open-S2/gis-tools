@@ -7,8 +7,6 @@ import { adjustLon, asinhy, clens, clensCmplx, gatg, hypot, sinh } from '../comm
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, pow, sin, cos, sqrt, atan2, tan, atan } = Math;
-
 /**
  * # Extended Transverse Mercator
  *
@@ -69,6 +67,7 @@ export class ExtendedTransverseMercator extends TransverseMercator implements Pr
     params?: ProjectionParams,
     precompute?: (etmerc: ExtendedTransverseMercator) => void,
   ) {
+    const { pow, sqrt } = Math;
     super(params);
     if (precompute !== undefined) precompute(this);
 
@@ -165,6 +164,7 @@ export class ExtendedTransverseMercator extends TransverseMercator implements Pr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { abs, sin, cos, atan2, tan } = Math;
     let Ce = adjustLon(p.x - this.long0);
     let Cn = p.y;
     Cn = gatg(this.cbg, Cn);
@@ -196,6 +196,7 @@ export class ExtendedTransverseMercator extends TransverseMercator implements Pr
    * @param p - ExtendedTransverseMercator point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, atan2, atan } = Math;
     let Ce = (p.x - this.x0) * (1 / this.a);
     let Cn = (p.y - this.y0) * (1 / this.a);
     Cn = (Cn - this.Zb) / this.Qn;

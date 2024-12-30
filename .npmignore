@@ -12,3 +12,4 @@ target/
 zig/
 coverage/
 docs/
+build_bundle_tmp/

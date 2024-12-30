@@ -56,7 +56,10 @@ export class FileTileWriter implements TileWriter {
     await writeFile(`${folders}/${y}.${this.fileType}`, data);
   }
 
-  /** @param metadata - the metadata about all the tiles to store */
+  /**
+   * Finish writing by building the header with root and leaf directories.
+   * @param metadata - the metadata about all the tiles to store
+   */
   async commit(metadata: Metadata): Promise<void> {
     await writeFile(`${this.path}/metadata.json`, JSON.stringify(metadata));
   }

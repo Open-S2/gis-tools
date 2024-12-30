@@ -8,7 +8,7 @@ export * from './schemaV2';
 export * from './schemaV3';
 
 /** The versions of GBFS reader classes this data could be */
-export type GBFSReaders = GBFSReaderV1 | GBFSReaderV2 | GBFSReaderV3;
+export type GBFSReader = GBFSReaderV1 | GBFSReaderV2 | GBFSReaderV3;
 
 /** The versions of GBFS schemas this data could be */
 export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
@@ -20,22 +20,24 @@ export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
  * - v2: https://gbfs.helbiz.com/v2.2/durham/gbfs.json
  * - v1: https://gbfs.urbansharing.com/gbfs/gbfs.json
  * @param url - The link to the GBFS feed
+ * @param locale - The locale to use if provided, otherwise default to en
  * @returns - a GBFSReader of the appropriate version
  */
-export async function buildGBFSReader(url: string): Promise<GBFSReaders> {
+export async function buildGBFSReader(url: string, locale = 'en'): Promise<GBFSReader> {
   const data = await fetch(url).then(async (res) => (await res.json()) as GBFSTypess);
+  const path = url.includes('localhost') ? url.split('/').slice(0, -1).join('/') : undefined;
   const versionMajor = 'version' in data ? data.version[0] : '1';
   if (versionMajor === '1') {
-    return await buildGBFSReaderV1(data as GBFSV1);
+    return await buildGBFSReaderV1(data as GBFSV1, locale, path);
   } else if (versionMajor === '2') {
-    return await buildGBFSReaderV2(data as GBFSV2);
+    return await buildGBFSReaderV2(data as GBFSV2, locale, path);
   } else if (versionMajor === '3') {
-    return await buildGBFSReaderV3(data as GBFSV3);
+    return await buildGBFSReaderV3(data as GBFSV3, path);
   } else throw Error('Unsupported GBFS version');
 }
 
 /** System Definition that is returned from the github CSV file. */
-export interface System {
+export interface GBFSSystem {
   /** [**Required**] ISO 3166-1 alpha-2 code designating the country where the system is located. */
   countryCode: string;
   /** [**Required**] Name of the mobility system. This MUST match the name field in system_information.json */
@@ -76,8 +78,8 @@ export interface System {
  */
 export async function fetchGTFSSystems(
   url = 'https://raw.githubusercontent.com/MobilityData/gbfs/refs/heads/master/systems.csv',
-): Promise<System[]> {
-  const res: System[] = [];
+): Promise<GBFSSystem[]> {
+  const res: GBFSSystem[] = [];
   const data = await fetch(url).then(async (res) => await res.text());
   const parsed = parseCSVAsRecord(data);
 

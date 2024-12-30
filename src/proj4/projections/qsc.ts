@@ -4,8 +4,6 @@ import { EPSLN, HALF_PI, QUART_PI, SPI, TWO_PI } from '../constants';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { abs, sin, cos, sqrt, atan2, atan, tan, acos } = Math;
-
 /** Face enum */
 enum FACE_ENUM {
   FRONT = 1,
@@ -154,6 +152,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { abs } = Math;
     super(params);
 
     this.x0 = this.x0 ?? 0;
@@ -188,6 +187,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, sqrt, atan, tan, acos } = Math;
     const xy = { x: 0, y: 0 };
     let lat, lon;
     let theta, phi;
@@ -301,6 +301,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
    * @param p - QuadrilateralizedSphericalCube point
    */
   inverse(p: VectorPoint): void {
+    const { abs, sin, cos, sqrt, atan2, atan, tan, acos } = Math;
     const lp = { lam: 0, phi: 0 };
     let mu;
     let t;
@@ -448,6 +449,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
  * @returns - theta
  */
 function qscFwdEquatFaceTheta(phi: number, y: number, x: number, area: Area): number {
+  const { abs, atan2 } = Math;
   let theta;
   if (phi < EPSLN) {
     area.value = AREA_ENUM.AREA_0;

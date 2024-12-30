@@ -3,7 +3,7 @@ import { degToRad, radToDeg } from '../util';
 import type { LonLat } from '../ll';
 import type { BBox, Face, Point, Point3D } from '../';
 
-export const K_LIMIT_IJ = 1 << 30;
+export const K_LIMIT_IJ = 1073741824; // 1 << 30;
 
 /**
  * Convert a [0, 1] to a [-1, 1] in a linear fashion

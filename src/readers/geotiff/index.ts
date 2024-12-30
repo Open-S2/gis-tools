@@ -1,5 +1,4 @@
 // https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff
-import '../../util/polyfills/dataview';
 import { GeoTIFFHeaderReader } from './header';
 import { GeoTIFFImage } from './image';
 import { toReader } from '..';

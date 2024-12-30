@@ -18,8 +18,6 @@ import type { NadSubGrid } from '../readers/nadgrid';
 import type { VectorPoint } from '../geometry';
 import type { ProjectionParams, ProjectionTransform, Transformer } from '.';
 
-const { abs, sin, cos, sqrt, atan2, atan, PI, floor } = Math;
-
 /**
  * Modifies projection parameters to properly define a datum
  * @param params - projection specific parameters to be adjusted
@@ -78,7 +76,7 @@ export function buildDatum(params: ProjectionParams, transformer: Transformer): 
 export function compareDatums(source: ProjectionTransform, dest: ProjectionTransform): boolean {
   if (source.datumType !== dest.datumType) {
     return false; // false, datums are not equal
-  } else if (source.a !== dest.a || abs(source.es - dest.es) > 0.00000000005) {
+  } else if (source.a !== dest.a || Math.abs(source.es - dest.es) > 0.00000000005) {
     // the tolerance for es is to ensure that GRS80 and WGS84
     // are considered identical
     return false;
@@ -119,6 +117,7 @@ export function compareDatums(source: ProjectionTransform, dest: ProjectionTrans
  * @param a - semi-major axis
  */
 export function geodeticToGeocentric(p: VectorPoint, es: number, a: number): void {
+  const { sin, cos, sqrt, PI } = Math;
   let Longitude = p.x;
   let Latitude = p.y;
   const Height = p.z !== undefined ? p.z : 0; //Z value not always supplied
@@ -157,6 +156,7 @@ export function geodeticToGeocentric(p: VectorPoint, es: number, a: number): voi
  * @param b - ellipsoid semiminor axis
  */
 export function geocentricToGeodetic(p: VectorPoint, es: number, a: number, b: number): void {
+  const { abs, sqrt, atan2, atan } = Math;
   /* local defintions and variables */
   /* end-criterium of loop, accuracy of sin(Latitude) */
   const genau = 1e-12;
@@ -417,6 +417,7 @@ export function applyGridShift(
   inverse: boolean,
   point: VectorPoint,
 ): void {
+  const { abs } = Math;
   const { grids } = source;
   if (grids === undefined) throw new Error('Grid shift grids not found');
   const input = { x: -point.x, y: point.y };
@@ -472,6 +473,7 @@ export function applyGridShift(
  * @returns - the new point
  */
 function applySubgridShift(pin: VectorPoint, inverse: boolean, ct: NadSubGrid): VectorPoint {
+  const { abs, PI } = Math;
   const val = { x: Number.NaN, y: Number.NaN };
   const tb = { x: pin.x, y: pin.y };
   tb.x -= ct.ll.x;
@@ -515,6 +517,7 @@ function applySubgridShift(pin: VectorPoint, inverse: boolean, ct: NadSubGrid): 
  * @returns - the new point
  */
 function nadInterpolate(pin: VectorPoint, ct: NadSubGrid): VectorPoint {
+  const { floor } = Math;
   const t = { x: pin.x / ct.del.x, y: pin.y / ct.del.y };
   const indx: VectorPoint = { x: floor(t.x), y: floor(t.y) };
   const frct = { x: t.x - indx.x, y: t.y - indx.y };

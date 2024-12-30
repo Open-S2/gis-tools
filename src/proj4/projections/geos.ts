@@ -4,8 +4,6 @@ import { hypot } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-const { sin, cos, sqrt, tan, atan, atan2 } = Math;
-
 /**
  * # Geostationary Satellite View (geos)
  *
@@ -66,6 +64,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
+    const { sqrt } = Math;
     super(params);
     if (this.sweep === undefined) this.sweep = 'y';
     if (this.h === undefined) this.h = 35785831.0;
@@ -101,6 +100,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
    * @param p - lon-lat WGS84 point
    */
   forward(p: VectorPoint): void {
+    const { sin, cos, tan, atan } = Math;
     let { x: lon, y: lat } = p;
     let tmp, v_x, v_y, v_z;
     lon = lon - this.long0;
@@ -144,6 +144,7 @@ export class GeostationarySatelliteView extends ProjectionBase implements Projec
    * @param p - GeostationarySatelliteView point
    */
   inverse(p: VectorPoint): void {
+    const { cos, sqrt, tan, atan, atan2 } = Math;
     let v_x = -1.0;
     let v_y = 0.0;
     let v_z = 0.0;
