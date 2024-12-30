@@ -96,7 +96,7 @@ export interface GTFSLocationsProperties extends Properties {
 /**
  * Schedule class that pulls in all of the GTFS schedule files and parses them into a single object
  */
-export class GTFSSchedule implements FeatureIterator {
+export class GTFSScheduleReader implements FeatureIterator {
   agencies!: Record<string, GTFSAgency>;
   areas?: GTFSArea[];
   attributions?: Record<string, GTFSAttribution>;
@@ -218,7 +218,7 @@ export class GTFSSchedule implements FeatureIterator {
  * @param gzipData - the gzip folder to parse
  * @returns - a Schedule class
  */
-export async function buildGTFSSchedule(gzipData: ArrayBuffer): Promise<GTFSSchedule> {
+export async function buildGTFSSchedule(gzipData: ArrayBuffer): Promise<GTFSScheduleReader> {
   const pieces: Piece[] = [];
 
   for (const item of iterItems(new Uint8Array(gzipData))) {
@@ -227,5 +227,5 @@ export async function buildGTFSSchedule(gzipData: ArrayBuffer): Promise<GTFSSche
     pieces.push({ filename, data: chunk });
   }
 
-  return new GTFSSchedule(pieces);
+  return new GTFSScheduleReader(pieces);
 }

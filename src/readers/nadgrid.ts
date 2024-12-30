@@ -25,19 +25,19 @@ export interface NadSubGrid {
 export interface GridDefinition {
   name: string;
   mandatory: boolean;
-  grid?: NadGrid;
+  grid?: NadGridReader;
   isNull: boolean;
 }
 
 /** Store Grids from a NTv2 file (.gsb) */
 export class NadGridStore {
-  grids = new Map<string, NadGrid>();
+  grids = new Map<string, NadGridReader>();
 
   /**
    * Insert a new NadGrid into the store
    * @param grid - a nadgrid class to store
    */
-  addGrid(grid: NadGrid): void {
+  addGrid(grid: NadGridReader): void {
     this.grids.set(grid.key, grid);
   }
 
@@ -46,7 +46,7 @@ export class NadGridStore {
    * @param key - the key or name of the grid
    * @returns - the grid
    */
-  getGrid(key: string): NadGrid | undefined {
+  getGrid(key: string): NadGridReader | undefined {
     return this.grids.get(key);
   }
 
@@ -56,7 +56,7 @@ export class NadGridStore {
    * @param input - the input data to parse
    */
   addGridFromReader(key: string, input: ReaderInputs): void {
-    const grid = new NadGrid(key, input);
+    const grid = new NadGridReader(key, input);
     this.addGrid(grid);
   }
 
@@ -138,7 +138,7 @@ export interface NadGridMetadata {
 }
 
 /** Load a binary NTv2 file (.gsb) */
-export class NadGrid implements FeatureIterator<NadGridMetadata> {
+export class NadGridReader implements FeatureIterator<NadGridMetadata> {
   reader: Reader;
   #isLittleEndian = false;
   #header!: NadGridHeader;

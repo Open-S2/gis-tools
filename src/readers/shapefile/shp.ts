@@ -41,7 +41,7 @@ export interface SHPRow {
 }
 
 /** The Shapefile Reader */
-export class ShapeFile<
+export class ShapeFileReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,

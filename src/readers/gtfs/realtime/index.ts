@@ -37,7 +37,7 @@ export * from './vehiclePosition';
  * const firstFeature = landuse.features(0);
  * ```
  */
-export class GTFSRealtime {
+export class GTFSRealtimeReader {
   header!: GTFSRealtimeHeader;
   entities: GTFSRealtimeEntity[] = [];
   /**
@@ -55,7 +55,7 @@ export class GTFSRealtime {
    * @param message - the GTFSRealtime object to modify
    * @param pbf - the Protobuf to pull the appropriate data from
    */
-  #readMessage(tag: number, message: GTFSRealtime, pbf: Protobuf): void {
+  #readMessage(tag: number, message: GTFSRealtimeReader, pbf: Protobuf): void {
     if (tag === 1) {
       message.header = new GTFSRealtimeHeader(pbf, pbf.readVarint() + pbf.pos);
     } else if (tag === 2) {

@@ -1,1 +1,1 @@
-export { ShapeFile } from '../../../src';
+export { ShapeFileReader } from '../../../src';

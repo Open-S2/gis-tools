@@ -1,13 +1,13 @@
 import { FileReader } from '../../../src/file';
 import { MMapReader } from '../../../src/mmap';
 import { buildServer } from '../../server';
-import { BufferReader, DataBaseFile, ShapeFile, fromGzip, fromURL } from '../../../src';
+import { BufferReader, DataBaseFile, ShapeFileReader, fromGzip, fromURL } from '../../../src';
 // import { fromPath } from '../../../src/readers/shapefile/file';
 import { expect, test } from 'bun:test';
 
 test('utf shp', async () => {
   const data = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.shp`).arrayBuffer());
-  const shp = new ShapeFile(data);
+  const shp = new ShapeFileReader(data);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
@@ -49,7 +49,7 @@ test('utf shp with dbf', async () => {
   const shpData = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.shp`).arrayBuffer());
   const dbfData = new BufferReader(await Bun.file(`${__dirname}/fixtures/utf.dbf`).arrayBuffer());
   const dbf = new DataBaseFile(dbfData, 'utf-8');
-  const shp = new ShapeFile(shpData, dbf);
+  const shp = new ShapeFileReader(shpData, dbf);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
@@ -89,7 +89,7 @@ test('utf shp with dbf', async () => {
 
 test('utf shp - file', () => {
   const data = new FileReader(`${__dirname}/fixtures/utf.shp`);
-  const shp = new ShapeFile(data);
+  const shp = new ShapeFileReader(data);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
@@ -102,7 +102,7 @@ test('utf shp - file', () => {
 
 test('multipointz shp', async () => {
   const data = new MMapReader(`${__dirname}/fixtures/export_multipointz.shp`);
-  const shp = new ShapeFile(data);
+  const shp = new ShapeFileReader(data);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-123, 46, -121, 48, 0, 0],
@@ -140,7 +140,7 @@ test('polylinez shp', async () => {
   const data = new BufferReader(
     await Bun.file(`${__dirname}/fixtures/export_polylinez.shp`).arrayBuffer(),
   );
-  const shp = new ShapeFile(data);
+  const shp = new ShapeFileReader(data);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-120, 38, -113, 45, 0, 0],

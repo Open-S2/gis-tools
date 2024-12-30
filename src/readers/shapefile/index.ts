@@ -1,6 +1,6 @@
 import { BufferReader } from '..';
 import { DataBaseFile } from './dbf';
-import { ShapeFile } from './shp';
+import { ShapeFileReader } from './shp';
 import { Transformer } from '../../proj4';
 import { iterItems } from '../../util';
 
@@ -18,7 +18,7 @@ export * from './shp';
 export async function fromGzip(
   input: ArrayBuffer,
   defs?: ProjectionTransformDefinition[],
-): Promise<ShapeFile> {
+): Promise<ShapeFileReader> {
   let encoding = 'utf8';
   let transform: Transformer | undefined = undefined;
   let dbfReader: DataBaseFile | undefined = undefined;
@@ -40,7 +40,7 @@ export async function fromGzip(
     }
   }
   if (shpData === undefined) throw new Error('Shapefile not found');
-  return new ShapeFile(new BufferReader(shpData.buffer), dbfReader, transform);
+  return new ShapeFileReader(new BufferReader(shpData.buffer), dbfReader, transform);
 }
 
 /**
@@ -48,10 +48,10 @@ export async function fromGzip(
  * @param url - the url to the shapefile
  * @returns - a Shapefile
  */
-export async function fromURL(url: string): Promise<ShapeFile> {
+export async function fromURL(url: string): Promise<ShapeFileReader> {
   const data = await fetchShapefile(url);
   if (url.endsWith('.zip')) return fromGzip(data);
-  return new ShapeFile(new BufferReader(data));
+  return new ShapeFileReader(new BufferReader(data));
 }
 
 /**

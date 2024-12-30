@@ -1,6 +1,6 @@
 import { DataBaseFile } from './dbf';
 import { FileReader } from '../file';
-import { ShapeFile } from './shp';
+import { ShapeFileReader } from './shp';
 import { Transformer } from '../../proj4';
 import { fromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
@@ -38,7 +38,7 @@ export interface Definition {
 export async function shapefileFromPath(
   input: string,
   defs?: ProjectionTransformDefinition[],
-): Promise<ShapeFile> {
+): Promise<ShapeFileReader> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
     // need to ass `as ArrayBuffer` to avoid typescript error via github actions
@@ -68,7 +68,7 @@ export async function shapefileFromPath(
 export async function shapefileFromDefinition(
   def: Definition,
   defs?: ProjectionTransformDefinition[],
-): Promise<ShapeFile> {
+): Promise<ShapeFileReader> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
   const transform =
@@ -80,5 +80,5 @@ export async function shapefileFromDefinition(
     for (const def of defs) transform.insertDefinition(def);
   }
 
-  return new ShapeFile(new FileReader(shp), databaseFile, transform);
+  return new ShapeFileReader(new FileReader(shp), databaseFile, transform);
 }

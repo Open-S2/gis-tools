@@ -1,1 +1,1 @@
-export { GTFSRealtime, GTFSSchedule } from '../../../src';
+export { GTFSRealtimeReader, GTFSScheduleReader } from '../../../src';

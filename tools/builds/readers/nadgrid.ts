@@ -1,1 +1,1 @@
-export { NadGrid } from '../../../src';
+export { NadGridReader } from '../../../src';

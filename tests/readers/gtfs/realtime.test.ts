@@ -1,4 +1,4 @@
-import { GTFSRealtime } from '../../../src';
+import { GTFSRealtimeReader } from '../../../src';
 import { expect, test } from 'bun:test';
 
 // TODO:
@@ -10,7 +10,7 @@ import { expect, test } from 'bun:test';
 
 test('vehicle position', async () => {
   const data = await Bun.file(`${__dirname}/fixtures/vehicle_position.pb`).arrayBuffer();
-  const realtimeMessage = new GTFSRealtime(new Uint8Array(data));
+  const realtimeMessage = new GTFSRealtimeReader(new Uint8Array(data));
 
   const { header, entities } = realtimeMessage;
 
