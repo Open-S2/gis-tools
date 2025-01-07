@@ -4,15 +4,10 @@ import { getDecoder } from './decoder';
 import { buildSamples, convertColorSpace } from './color';
 import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil';
 
-import type { Reader } from '..';
-import type { Transformer } from '../../proj4';
 import type { ArrayTypes, Decoder, GridReader, ImageFileDirectory } from '.';
-import type {
-  Properties,
-  VectorMultiPoint,
-  VectorMultiPointGeometry,
-  VectorPoint,
-} from '../../geometry';
+import type { ProjectionTransformDefinition, Transformer } from '../../proj4';
+import type { RGBA, Reader } from '..';
+import type { VectorMultiPoint, VectorMultiPointGeometry, VectorPoint } from '../../geometry';
 
 /** Metadata for a GeoTIFF image */
 export interface GeoTIFFMetadata {
@@ -27,14 +22,6 @@ export interface VectorMultiPointResult {
   width: number;
   height: number;
   alpha: boolean;
-}
-
-/** An RGBA color */
-export interface RGBA extends Properties {
-  r: number;
-  g: number;
-  b: number;
-  a: number;
 }
 
 /** Raster data */
@@ -68,12 +55,16 @@ export class GeoTIFFImage {
    * @param imageDirectory - the image directory
    * @param littleEndian - true if little endian false if big endian
    * @param gridStore - the grid readers to utilize if needed
+   * @param definitions - an array of projection definitions for the transformer if needed
+   * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
    */
   constructor(
     reader: Reader,
     imageDirectory: ImageFileDirectory,
     littleEndian: boolean,
     gridStore: GridReader[],
+    definitions: ProjectionTransformDefinition[] = [],
+    epsgCodes: Record<string, string> = {},
   ) {
     this.#reader = reader;
     this.#imageDirectory = imageDirectory;
@@ -81,7 +72,12 @@ export class GeoTIFFImage {
     if (imageDirectory.StripOffsets === undefined) this.#isTiled = true;
     if (imageDirectory.PlanarConfiguration !== undefined)
       this.#planarConfiguration = imageDirectory.PlanarConfiguration;
-    this.#transformer = buildTransform(this.#imageDirectory.geoKeyDirectory, gridStore);
+    this.#transformer = buildTransform(
+      this.#imageDirectory.geoKeyDirectory,
+      gridStore,
+      definitions,
+      epsgCodes,
+    );
   }
 
   /**
@@ -358,7 +354,7 @@ export class GeoTIFFImage {
     const maxYTile = Math.ceil(height / tileHeight);
     for (let yTile = 0; yTile < maxYTile; ++yTile) {
       for (let xTile = 0; xTile < maxXTile; ++xTile) {
-        let data: ArrayBuffer | undefined;
+        let data: ArrayBufferLike | undefined;
         if (this.#planarConfiguration === 1) {
           data = await this.getTileOrStrip(xTile, yTile, 0, decodeFn);
         }
@@ -527,7 +523,7 @@ export class GeoTIFFImage {
     y: number,
     sample: number,
     decodeFn: Decoder,
-  ): Promise<ArrayBuffer> {
+  ): Promise<ArrayBufferLike> {
     const { TileOffsets, TileByteCounts, StripOffsets, StripByteCounts } = this.#imageDirectory;
     const numTilesPerRow = Math.ceil(this.width / this.tileWidth);
     const numTilesPerCol = Math.ceil(this.height / this.tileHeight);
@@ -566,7 +562,7 @@ export class GeoTIFFImage {
    * @param data - the raw data
    * @returns - the data with the predictor applied
    */
-  maybeApplyPredictor(data: ArrayBuffer): ArrayBuffer {
+  maybeApplyPredictor(data: ArrayBufferLike): ArrayBufferLike {
     const predictor = this.#imageDirectory.Predictor ?? 1;
     if (predictor === 1) {
       return data;

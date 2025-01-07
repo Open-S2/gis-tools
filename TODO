@@ -1,17 +1,17 @@
+# LIST OF TODOs
+
 [ ] - reimagine the pointIndex system, its too slow for javascript (but perfect for lower langauges
 that have u64 support)
 [ ] - bin -> toS2JSON, toRasterTiles, & toVectorTiles
 [ ] - toVectorTiles
 [ ] - readers
 [ ] - - KML, KMZ, GML, & GPX
-[ ] - - GBFS
-[ ] - - raster tile reader including DEM for z-data
 [ ] - - LAS/LAZ
+[ ] - - image -> png
 [ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
 
-[ ] - restructure all image based content into a reader folder 'image'
-[ ] - 'png' reader
+[ ] - interpolation tools
 
 [ ] - all main functions and classes need example code in the jsdocs
 

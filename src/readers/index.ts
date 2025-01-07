@@ -16,6 +16,7 @@ export * from './wkt';
 export * from './xml';
 export * from './fetch';
 export * from './nadgrid';
+export * from './tile';
 
 /** Reader interface. Implemented to read data from either a buffer or a filesystem */
 export interface Reader {
@@ -34,10 +35,10 @@ export interface Reader {
   getUint32: (byteOffset: number, littleEndian?: boolean) => number;
   getUint8: (byteOffset: number) => number;
   // Methods
-  slice: (begin?: number, end?: number) => DataView<ArrayBuffer>;
+  slice: (begin?: number, end?: number) => DataView;
   setStringEncoding: (encoding: string) => void;
   parseString: (byteOffset: number, byteLength: number) => string;
-  getRange: (offset: number, length: number) => Promise<Uint8Array<ArrayBuffer>>;
+  getRange: (offset: number, length: number) => Promise<Uint8Array>;
 }
 
 /** Feature iteration interface. Implemented by readers to iterate over features */
@@ -53,30 +54,34 @@ export interface FeatureIterator<
 export type ReaderInputs =
   | Reader
   | BufferReader
-  | Buffer<ArrayBuffer>
-  | ArrayBuffer
-  | Uint8Array<ArrayBuffer>
-  | Uint8ClampedArray<ArrayBuffer>
-  | Uint16Array<ArrayBuffer>
-  | Uint32Array<ArrayBuffer>
-  | Int8Array<ArrayBuffer>
-  | Int16Array<ArrayBuffer>
-  | Int32Array<ArrayBuffer>
-  | DataView<ArrayBuffer>;
+  | Buffer
+  | ArrayBufferLike
+  | Uint8Array
+  | Uint8ClampedArray
+  | Uint16Array
+  | Uint32Array
+  | Int8Array
+  | Int16Array
+  | Int32Array
+  | Float32Array
+  | Float64Array
+  | DataView;
 
 /**
+ * Convenience function that ensures the input is a usable reader
  * @param input - the input data
  * @returns - a BufferReader
  */
 export function toReader(input: ReaderInputs): Reader {
   if (input instanceof BufferReader) return input;
   else if ('buffer' in input) return new BufferReader(input.buffer);
-  else if (input instanceof ArrayBuffer) return new BufferReader(input);
+  else if (input instanceof ArrayBuffer || input instanceof SharedArrayBuffer)
+    return new BufferReader(input);
   else return input;
 }
 
 /** A buffer reader is an extension of a DataView with some extra methods */
-export class BufferReader extends DataView<ArrayBuffer> implements Reader {
+export class BufferReader extends DataView<ArrayBufferLike> implements Reader {
   textDecoder = new TextDecoder('utf-8');
 
   /**
@@ -84,16 +89,17 @@ export class BufferReader extends DataView<ArrayBuffer> implements Reader {
    * @param byteOffset - offset in the buffer
    * @param byteLength - length of the buffer
    */
-  constructor(buffer: ArrayBuffer, byteOffset?: number, byteLength?: number) {
+  constructor(buffer: ArrayBufferLike, byteOffset?: number, byteLength?: number) {
     super(buffer, byteOffset, byteLength);
   }
 
   /**
+   * Get a slice of the buffer
    * @param begin - beginning of the slice
    * @param end - end of the slice. If not provided, the end of the data is used
    * @returns - a DataView of the slice
    */
-  slice(begin?: number, end?: number): DataView<ArrayBuffer> {
+  slice(begin?: number, end?: number): DataView {
     return new DataView(
       this.buffer.slice(this.byteOffset + (begin ?? 0), this.byteOffset + (end ?? this.byteLength)),
     );
@@ -108,6 +114,7 @@ export class BufferReader extends DataView<ArrayBuffer> implements Reader {
   }
 
   /**
+   * Reads a string from the buffer
    * @param byteOffset - Start of the string
    * @param byteLength - Length of the string
    * @returns - The string
@@ -115,16 +122,17 @@ export class BufferReader extends DataView<ArrayBuffer> implements Reader {
   parseString(byteOffset: number, byteLength: number): string {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
-    const out = textDecoder.decode(data, { stream: true }) + textDecoder.decode();
+    const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
     return out.replace(/\0/g, '').trim();
   }
 
   /**
+   * Reads a range from the buffer
    * @param offset - the offset of the range
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  async getRange(offset: number, length: number): Promise<Uint8Array> {
     return await new Uint8Array(this.buffer).slice(offset, offset + length);
   }
 }

@@ -110,11 +110,11 @@ export class S2CellGenerator {
  * @param base64 - base64 encoded string
  * @returns converted ArrayBuffer of the string data
  */
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
+function base64ToArrayBuffer(base64: string): ArrayBufferLike {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
 
-  return bytes.buffer as ArrayBuffer;
+  return bytes.buffer;
 }

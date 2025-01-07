@@ -4,10 +4,11 @@ import { writeVarint } from './varint';
 import type { Entry, Header } from '../../readers/pmtiles';
 
 /**
+ * Create raw header bytes from a Header object.
  * @param header - the header object
  * @returns the raw header bytes
  */
-export function headerToBytes(header: Header): Uint8Array<ArrayBuffer> {
+export function headerToBytes(header: Header): Uint8Array {
   const dv = new DataView(new ArrayBuffer(HEADER_SIZE_BYTES));
   dv.setUint16(0, 0x4d50, true);
   dv.setUint8(7, header.specVersion);
@@ -33,10 +34,11 @@ export function headerToBytes(header: Header): Uint8Array<ArrayBuffer> {
 }
 
 /**
+ * Serialize a directory of entires into a buffer
  * @param entries - the directory entries
  * @returns - the serialized directory
  */
-export function serializeDir(entries: Entry[]): Uint8Array<ArrayBuffer> {
+export function serializeDir(entries: Entry[]): Uint8Array {
   const data = { buf: new Uint8Array(0), pos: 0 };
 
   writeVarint(entries.length, data);

@@ -5,7 +5,9 @@ import {
   chordAngleTan,
   fastUpperBoundFrom,
   fromAngle,
+  fromKM,
   fromLength2,
+  fromMeters,
   fromS2Points,
   isSpecial,
   negativeAngle,
@@ -70,6 +72,12 @@ test('fromAngle', () => {
   expect(fromAngle(Infinity)).toEqual(Infinity);
 });
 
+test('fromKM', () => {
+  expect(fromKM(0)).toEqual(0);
+  expect(fromKM(6371.0088)).toEqual(0.9193953882637206);
+  expect(fromKM(6371008.8)).toEqual(4);
+});
+
 test('fromLength2', () => {
   expect(fromLength2(0)).toEqual(0);
   expect(fromLength2(1)).toEqual(1);
@@ -77,6 +85,12 @@ test('fromLength2', () => {
   expect(fromLength2(3)).toEqual(3);
   expect(fromLength2(4)).toEqual(4);
   expect(fromLength2(5)).toEqual(4);
+});
+
+test('fromMeters', () => {
+  expect(fromMeters(0)).toEqual(0);
+  expect(fromMeters(6371.0088)).toEqual(9.999999166666694e-7);
+  expect(fromMeters(6371008.8)).toEqual(0.9193953882637206);
 });
 
 test('fromS2Points', () => {

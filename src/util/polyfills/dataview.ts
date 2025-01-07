@@ -39,6 +39,7 @@ declare global {
 }
 
 /**
+ * Converts a 32-bit floating point number to a 16-bit floating point number
  * @param value - the float 32 value
  * @returns - the float 16 value
  */
@@ -66,6 +67,7 @@ function float32ToFloat16(value: number): number {
 }
 
 /**
+ * Converts a 16-bit floating point number to a 32-bit floating point number
  * @param hbits - float 16 bits
  * @returns - float32
  */

@@ -13,7 +13,7 @@ declare global {
 
   /** Declare the ImageData class globally */
   interface ImageData {
-    readonly data: Uint8ClampedArray<ArrayBuffer>;
+    readonly data: Uint8ClampedArray;
     readonly width: number;
     readonly height: number;
   }
@@ -100,7 +100,7 @@ class OffscreenCanvasPolyfill {
 
 /** An offscreen canvas rendering context polyfill */
 class OffscreenCanvasRenderingContext2D {
-  data: Uint8ClampedArray;
+  data = new Uint8ClampedArray();
   /**
    * @param width - the canvas width
    * @param height - the canvas height
@@ -108,9 +108,7 @@ class OffscreenCanvasRenderingContext2D {
   constructor(
     public width: number,
     public height: number,
-  ) {
-    this.data = new Uint8ClampedArray(width * height * 4);
-  }
+  ) {}
 
   /**
    * Draw an ImageBitmap onto the canvas at position (dx, dy).
@@ -121,21 +119,23 @@ class OffscreenCanvasRenderingContext2D {
    */
   drawImage(image: ImageBitmap, dx: number, dy: number): void {
     const { width: imgWidth, height: imgHeight, data: imgData } = image;
+    const channels = imgData.length / (imgWidth * imgHeight);
+    this.data = new Uint8ClampedArray(imgWidth * imgHeight * channels);
 
     for (let y = 0; y < imgHeight; y++) {
       for (let x = 0; x < imgWidth; x++) {
-        const imgIndex = (y * imgWidth + x) * 4; // Index in the image data (RGBA)
+        const imgIndex = (y * imgWidth + x) * channels; // Index in the image data (RGBA)
         const canvasX = dx + x;
         const canvasY = dy + y;
 
         if (canvasX >= 0 && canvasX < this.width && canvasY >= 0 && canvasY < this.height) {
-          const canvasIndex = (canvasY * this.width + canvasX) * 4; // Index in the canvas data
+          const canvasIndex = (canvasY * this.width + canvasX) * channels; // Index in the canvas data
 
           // Copy RGBA values from the image to the canvas
           this.data[canvasIndex] = imgData[imgIndex]; // R
           this.data[canvasIndex + 1] = imgData[imgIndex + 1]; // G
           this.data[canvasIndex + 2] = imgData[imgIndex + 2]; // B
-          this.data[canvasIndex + 3] = imgData[imgIndex + 3]; // A
+          if (channels === 4) this.data[canvasIndex + 3] = imgData[imgIndex + 3]; // A
         }
       }
     }
@@ -150,7 +150,8 @@ class OffscreenCanvasRenderingContext2D {
    * @returns the ImageData
    */
   getImageData(x: number, y: number, width: number, height: number): ImageData {
-    const size = width * height * 4;
+    const channels = this.data.length / (this.width * this.height);
+    const size = width * height * channels;
     if (this.data.length === size) return { data: this.data.slice(0, size), width, height };
 
     const imageData = new Uint8ClampedArray(size);
@@ -158,14 +159,14 @@ class OffscreenCanvasRenderingContext2D {
       for (let col = 0; col < width; col++) {
         const canvasX = x + col;
         const canvasY = y + row;
-        const canvasIndex = (canvasY * this.width + canvasX) * 4;
-        const imageDataIndex = (row * width + col) * 4;
+        const canvasIndex = (canvasY * this.width + canvasX) * channels;
+        const imageDataIndex = (row * width + col) * channels;
 
         // Copy RGBA values from the canvas to the imageData
         imageData[imageDataIndex] = this.data[canvasIndex]; // R
         imageData[imageDataIndex + 1] = this.data[canvasIndex + 1]; // G
         imageData[imageDataIndex + 2] = this.data[canvasIndex + 2]; // B
-        imageData[imageDataIndex + 3] = this.data[canvasIndex + 3]; // A
+        if (channels === 4) imageData[imageDataIndex + 3] = this.data[canvasIndex + 3]; // A
       }
     }
 

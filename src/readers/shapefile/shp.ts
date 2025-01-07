@@ -40,7 +40,34 @@ export interface SHPRow {
   data: DataView;
 }
 
-/** The Shapefile Reader */
+/**
+ * # The Shapefile Reader
+ *
+ * ## Description
+ * Reads data from a shapefile implementing the {@link FeatureIterator} interface
+ *
+ * NOTE: It's recommended to not parse the shapefile directly but instead:
+ * - `import { shapefileFromURL } from 's2-tools';`
+ * - `import { shapefileFromPath } from 's2-tools/file';`
+ *
+ * This ensures the other files paired with the shapefile are loaded to properly handle the
+ * projection and properties data.
+ *
+ * ## Usage
+ * ```ts
+ * import { ShapeFileReader, DataBaseFile, Transformer } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const transform = new Transformer();
+ * const dbf = new DataBaseFile(new FileReader('./data.dbf'), 'utf-8');
+ * const reader = new ShapeFileReader(new FileReader('./data.shp'), dbf, transform);
+ *
+ * // read all the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
 export class ShapeFileReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
@@ -136,6 +163,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Get a row
    * @param offset - offset of the row
    * @returns - the row if it exists
    */
@@ -153,6 +181,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Parse a row
    * @param rowOffset - the row to get and parse
    * @param index - the index of the feature
    * @returns - the parsed feature
@@ -173,6 +202,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Parse a shape geometry
    * @param type - the shape type
    * @param data - the shape data to parse
    * @returns - the parsed geometry if its valid
@@ -194,6 +224,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Parse a point
    * @param data - the raw data to decode
    * @param offset - the offset of the point to decode
    * @param offset3D - if provided, the offset of the Z value
@@ -209,6 +240,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Parse a multi-point
    * @param data - the raw data to decode
    * @param is3D - is the shape a 3D shape
    * @returns - the decoded point or multi-point
@@ -253,6 +285,7 @@ export class ShapeFileReader<
   }
 
   /**
+   * Parse a multi-line
    * @param data - the raw data to decode
    * @param isPoly - is the shape a polygon or line(s)
    * @param is3D - is the shape a 3D shape

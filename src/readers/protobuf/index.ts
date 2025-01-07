@@ -20,25 +20,31 @@ export interface Tag {
 }
 
 /**
+ * # Protobuffer
+ *
+ * ## Description
  * Create a new PBF instance and either read or write to it.
  * Follows the early Protobuf spec supporting various types of encoding
  * including messages (which are usually representative of class objects).
  *
- * Reading:
+ * ## Usage
+ *
+ * ### Reading:
  * ```ts
  * const data = fs.readFileSync(path);
  * const pbf = new Pbf(data);
  * ```
  *
- * Writing:
+ * ### Writing:
  * ```ts
  * const pbf = new Pbf();
  * pbf.writeVarintField(1, 1);
  * // ...
+ * const result = pbf.commit();
  * ```
  */
 export class Pbf {
-  buf: Uint8Array<ArrayBuffer>;
+  buf: Uint8Array;
   pos: number;
   length: number;
   type: number;
@@ -51,7 +57,7 @@ export class Pbf {
    * @param buf - an optional Uint8Array to use for reading. otherwise defaults to an empty
    * Uint8Array for writing
    */
-  constructor(buf: Uint8Array<ArrayBuffer> = new Uint8Array(0)) {
+  constructor(buf: Uint8Array = new Uint8Array(0)) {
     this.buf = buf;
     this.pos = 0;
     this.type = 0;
@@ -292,7 +298,7 @@ export class Pbf {
    * The bytes themselves are presumed to be u8s and therefore don't need to be decoded
    * @returns - the decoded byte array
    */
-  readBytes(): Uint8Array<ArrayBuffer> {
+  readBytes(): Uint8Array {
     const end = this.readVarint() + this.pos;
     const buffer = this.buf.subarray(this.pos, end);
     this.pos = end;
@@ -863,6 +869,7 @@ export class Pbf {
 }
 
 /**
+ * Read a varint from the buffer
  * @param l - the low 32 bits of the number
  * @param s - the signedness
  * @param p - the protobuf
@@ -896,6 +903,7 @@ function readVarintRemainder(l: number, s: boolean, p: Pbf): number {
 }
 
 /**
+ * Read the end of the packed array
  * @param pbf - the protobuf
  * @returns - the end of the packed array
  */
@@ -904,6 +912,7 @@ function readPackedEnd(pbf: Pbf): number {
 }
 
 /**
+ * Decode a varint
  * @param low - the low 32 bits of the number
  * @param high - the high 32 bits of the number
  * @param isSigned - whether the number is signed
@@ -918,6 +927,7 @@ function toNum(low: number, high: number, isSigned: boolean): number {
 }
 
 /**
+ * Write a varint
  * @param val - the number
  * @param pbf - the protobuf
  */
@@ -948,6 +958,7 @@ function writeBigVarint(val: number, pbf: Pbf): void {
 }
 
 /**
+ * Write the low 32 bits of a varint
  * @param low - lower 32 bits
  * @param _high - unused "high" bits
  * @param pbf - the Protobuf class
@@ -965,6 +976,7 @@ function writeBigVarintLow(low: number, _high: number, pbf: Pbf): void {
 }
 
 /**
+ * Write the high 32 bits of a varint
  * @param high - the high 32 bits
  * @param pbf - the Protobuf class
  */
@@ -985,6 +997,7 @@ function writeBigVarintHigh(high: number, pbf: Pbf): void {
 }
 
 /**
+ * Make room for extra length
  * @param startPos - the start position
  * @param len - the length to make room for
  * @param pbf - the Protobuf class
@@ -1007,6 +1020,7 @@ function makeRoomForExtraLength(startPos: number, len: number, pbf: Pbf): void {
 }
 
 /**
+ * Write a packed varint
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1014,6 +1028,7 @@ function writePackedVarint(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeVarint(arr[i]);
 }
 /**
+ * Write a packed signed varint
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1021,6 +1036,7 @@ function writePackedSVarint(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeSVarint(arr[i]);
 }
 /**
+ * Write a packed float
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1028,6 +1044,7 @@ function writePackedFloat(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeFloat(arr[i]);
 }
 /**
+ * Write a packed double
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1035,6 +1052,7 @@ function writePackedDouble(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeDouble(arr[i]);
 }
 /**
+ * Write a packed boolean
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1042,6 +1060,7 @@ function writePackedBoolean(arr: (number | boolean)[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeBoolean(arr[i]);
 }
 /**
+ * Write a packed fixed32
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1049,6 +1068,7 @@ function writePackedFixed32(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeFixed32(arr[i]);
 }
 /**
+ * Write a packed sfixed32
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1056,6 +1076,7 @@ function writePackedSFixed32(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeSFixed32(arr[i]);
 }
 /**
+ * Write a packed fixed64
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1063,6 +1084,7 @@ function writePackedFixed64(arr: number[], pbf: Pbf): void {
   for (let i = 0; i < arr.length; i++) pbf.writeFixed64(arr[i]);
 }
 /**
+ * Write a packed sfixed64
  * @param arr - the array of numbers to write
  * @param pbf - the Protobuf class
  */
@@ -1073,6 +1095,7 @@ function writePackedSFixed64(arr: number[], pbf: Pbf): void {
 // Buffer code below from https://github.com/feross/buffer, MIT-licensed
 
 /**
+ * Read in a 32-bit unsigned integer from the buffer. There are no compression advantages
  * @param buf - the buffer of bytes to read
  * @param pos - the position in the buffer to read from
  * @returns - the unsigned 32-bit number
@@ -1082,6 +1105,7 @@ function readUInt32(buf: Uint8Array, pos: number): number {
 }
 
 /**
+ * Write a 32-bit unsigned integer to the buffer
  * @param buf - the buffer of bytes to write
  * @param val - the unsigned 32-bit number
  * @param pos - the position in the buffer to write
@@ -1094,6 +1118,7 @@ function writeInt32(buf: Uint8Array, val: number, pos: number): void {
 }
 
 /**
+ * Read in a 32-bit signed integer from the buffer
  * @param buf - the buffer of bytes to read
  * @param pos - the position in the buffer to read from
  * @returns - the signed 32-bit number

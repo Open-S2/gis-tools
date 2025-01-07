@@ -3,7 +3,9 @@ import {
   e6,
   e7,
   fromDegrees,
+  fromKM,
   fromLonLat,
+  fromMeters,
   fromS2Points,
   normalize,
   toDegrees,
@@ -47,11 +49,27 @@ test('fromDegrees', () => {
   expect(fromDegrees(360)).toBe(6.283185307179586);
 });
 
+test('fromKM', () => {
+  expect(fromKM(0)).toBe(0);
+  expect(fromKM(1)).toBe(0.00015696101377226163);
+  expect(fromKM(10)).toBe(0.0015696101377226162);
+  expect(fromKM(100)).toBe(0.015696101377226164);
+  expect(fromKM(1000)).toBe(0.15696101377226163);
+});
+
 test('fromLonLat', () => {
   expect(fromLonLat([0, 0], [0, 0])).toBe(0);
   expect(fromLonLat([1, 0], [0, 0])).toBe(0.017453292519943295);
   expect(fromLonLat([90, 0], [0, 0])).toBe(1.5707963267948963);
   expect(fromLonLat([45, 20], [60, 40])).toBe(0.4148806056779849);
+});
+
+test('fromMeters', () => {
+  expect(fromMeters(0)).toBe(0);
+  expect(fromMeters(1)).toBe(1.5696101377226164e-7);
+  expect(fromMeters(10)).toBe(0.0000015696101377226163);
+  expect(fromMeters(100)).toBe(0.000015696101377226163);
+  expect(fromMeters(1000)).toBe(0.00015696101377226163);
 });
 
 test('fromS2Points', () => {

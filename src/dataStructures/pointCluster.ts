@@ -17,7 +17,7 @@ import type { PointShape } from './pointIndex';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type { Face, JSONCollection, Point3D, Projection, Properties, S2CellId } from '../geometry';
 
-import type { VectorStoreConstructor } from '../dataStore/vector';
+import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
 
 /** The kind of input required to store a point for proper indexing */
 export type ClusterStore = VectorStoreConstructor<PointShape<Cluster>>;
@@ -54,6 +54,7 @@ function newCluster(properties: Properties): Cluster {
 }
 
 /**
+ * Create a cluster with the correct sum
  * @param properties - the properties associated with the cluster
  * @param sum - the sum of the cluster
  * @returns - a new cluster with the correct sum and properties data
@@ -65,7 +66,31 @@ function sumToCluster(properties: Properties, sum: number): Cluster {
 /** Compare two data items, return true to merge data */
 export type Comparitor = (a: Properties, b: Properties) => boolean;
 
-/** A cluster store to index points at each zoom level */
+/**
+ * # Point Cluster
+ *
+ * ## Description
+ * A cluster store to index points at each zoom level
+ *
+ * ## Usage
+ * ```ts
+ * import { PointCluster } from 's2-tools';
+ * const pointCluster = new PointCluster();
+ *
+ * // add a lon-lat
+ * pointCluster.insertLonLat(lon, lat, data);
+ * // add an STPoint
+ * pointCluster.insertFaceST(face, s, t, data);
+ *
+ * // after adding data build the clusters
+ * await pointCluster.buildClusters();
+ *
+ * // get the clusters for a tile
+ * const tile = await pointCluster.getTile(id);
+ * // or get the raw cluster data
+ * const clusters = await pointCluster.getCellData(id);
+ * ```
+ */
 export class PointCluster {
   projection: Projection;
   layerName: string;
@@ -78,8 +103,13 @@ export class PointCluster {
   /**
    * @param data - if provided, the data to index
    * @param options - cluster options on how to build the cluster
+   * @param maxzoomStore - the store to use for the maxzoom index
    */
-  constructor(data?: JSONCollection, options?: ClusterOptions) {
+  constructor(
+    data?: JSONCollection,
+    options?: ClusterOptions,
+    maxzoomStore?: VectorStore<PointShape<Cluster>>,
+  ) {
     this.projection = options?.projection ?? 'S2';
     this.layerName = options?.layerName ?? 'default';
     this.minzoom = Math.max(options?.minzoom ?? 0, 0);
@@ -87,6 +117,10 @@ export class PointCluster {
     this.radius = options?.radius ?? 40;
     for (let zoom = this.minzoom; zoom <= this.maxzoom; zoom++) {
       this.indexes.set(zoom, new PointIndex<Cluster>(options?.store));
+    }
+    if (maxzoomStore !== undefined) {
+      const maxzoomIndex = this.indexes.get(this.maxzoom);
+      maxzoomIndex?.setStore(maxzoomStore);
     }
     // convert features if provided
     if (data !== undefined) {
@@ -139,7 +173,6 @@ export class PointCluster {
    */
   async buildClusters(cmp_?: Comparitor): Promise<void> {
     const { minzoom, maxzoom } = this;
-    // const cmp = cmp_ orelse defaultCmp;
     const cmp: Comparitor = cmp_ ?? ((_a: Properties, _b: Properties) => true);
     for (let zoom = maxzoom - 1; zoom >= minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
@@ -147,6 +180,8 @@ export class PointCluster {
       if (curIndex === undefined || queryIndex === undefined) throw new Error('Index not found');
       await this.#cluster(zoom, queryIndex, curIndex, cmp);
     }
+    // ensure all point indexes are sorted
+    for (const index of this.indexes.values()) await index.sort();
   }
 
   /**

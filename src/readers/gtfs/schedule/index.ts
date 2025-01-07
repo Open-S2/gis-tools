@@ -94,7 +94,18 @@ export interface GTFSLocationsProperties extends Properties {
 }
 
 /**
+ * # GTFS Schedule Reader
+ *
+ * ## Description
  * Schedule class that pulls in all of the GTFS schedule files and parses them into a single object
+ * implements the {@link FeatureIterator} interface.
+ *
+ * ## Usage
+ * ```ts
+ * import { buildGTFSSchedule } from 's2-tools';
+ *
+ * const schedule = await buildGTFSSchedule(gzipData);
+ * ```
  */
 export class GTFSScheduleReader implements FeatureIterator {
   agencies!: Record<string, GTFSAgency>;
@@ -178,6 +189,7 @@ export class GTFSScheduleReader implements FeatureIterator {
 
   /**
    * TODO: Add proeprties from other files like "color"
+   * TODO: All features should be parsed as VectorGeometry
    * Yields all of the shapes
    * @yields an iterator that contains shapes, stops, location data, and routes
    */
@@ -215,10 +227,11 @@ export class GTFSScheduleReader implements FeatureIterator {
 }
 
 /**
+ * Builds a GTFSScheduleReader from a gzip folder
  * @param gzipData - the gzip folder to parse
  * @returns - a Schedule class
  */
-export async function buildGTFSSchedule(gzipData: ArrayBuffer): Promise<GTFSScheduleReader> {
+export async function buildGTFSSchedule(gzipData: ArrayBufferLike): Promise<GTFSScheduleReader> {
   const pieces: Piece[] = [];
 
   for (const item of iterItems(new Uint8Array(gzipData))) {

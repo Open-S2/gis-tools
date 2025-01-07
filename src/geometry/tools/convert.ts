@@ -11,6 +11,7 @@ import type {
 } from '..';
 
 /**
+ * Convert a GeoJSON Feature to a GeoJSON Vector Feature in either a WebMercator or S2 projection
  * @param projection - output either S2 or WM
  * @param data - the data to convert
  * @param buildBBox - optional - build a bbox for the feature if desired
@@ -53,6 +54,7 @@ export function convert(
 }
 
 /**
+ * Convert a GeoJSON Feature to a GeoJSON Vector Feature in either a WebMercator or S2 projection
  * @param projection - either S2 or WM is the end goal feature
  * @param data - input feature data
  * @param toUS - convert to unit scale if true
@@ -79,6 +81,7 @@ function convertFeature(
 }
 
 /**
+ * Convert a GeoJSON Vector Feature to the appropriate projection and adjust to a unit scale if desired.
  * @param projection - either S2 or WM is the end goal feature
  * @param data - input feature data
  * @param toUS - convert to unit scale if true
@@ -102,6 +105,7 @@ function convertVectorFeature(
 }
 
 /**
+ * Convert a GeoJSON S2 Feature to the appropriate projection and adjust to a unit scale if desired.
  * @param projection - either S2 or WM is the end goal feature
  * @param data - input feature data
  * @param toUS - convert to unit scale if true

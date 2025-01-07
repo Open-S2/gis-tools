@@ -3,7 +3,27 @@ import { toReader } from '..';
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { Features, JSONCollection, MValue, Properties } from '../../geometry';
 
-/** Standard Buffer Reader for (Geo|S2)JSON */
+/**
+ * # JSON Buffer Reader
+ *
+ * ## Description
+ * Standard Buffer Reader for (Geo|S2)JSON
+ * implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { BufferJSONReader } from 's2-tools';
+ *
+ * const reader = new BufferJSONReader('{ type: 'FeatureCollection', features: [...] }');
+ * // OR
+ * const reader = new BufferJSONReader({ type: 'FeatureCollection', features: [...] });
+ *
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
 export class BufferJSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
@@ -29,9 +49,7 @@ export class BufferJSONReader<
     const { type } = this.data;
 
     if (type === 'FeatureCollection') {
-      for (const feature of this.data.features) {
-        yield feature;
-      }
+      for (const feature of this.data.features) yield feature;
     } else if (type === 'Feature') {
       yield this.data;
     } else if (type === 'VectorFeature') {
@@ -46,7 +64,25 @@ export class BufferJSONReader<
   }
 }
 
-/** Parse (Geo|S2)JSON from a file that is in a newline-delimited format */
+/**
+ * # NewLine Delimited JSON Reader
+ *
+ * ## Description
+ * Parse (Geo|S2)JSON from a file that is in a newline-delimited format
+ * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { NewLineDelimitedJSONReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const reader = new NewLineDelimitedJSONReader(new FileReader('./data.geojsonld'));
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
 export class NewLineDelimitedJSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
@@ -94,7 +130,25 @@ const RIGHT_BRACE = 0x7d;
 const BACKSLASH = 0x5c;
 const STRING = 0x22;
 
-/** A File Reader is designed to read millions of JSON objects if necessary. */
+/**
+ * # JSON Reader
+ *
+ * ## Description
+ * Parse (Geo|S2)JSON. Can handle millions of features.
+ * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { JSONReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const reader = new JSONReader(new FileReader('./data.geojsonld'));
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
 export class JSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
@@ -130,16 +184,16 @@ export class JSONReader<
   async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
     if (this.#length <= this.#chunkSize) {
       const reader = new BufferJSONReader<M, D, P>(this.reader.parseString(0, this.#length));
-      for await (const feature of reader) yield feature;
+      yield* reader;
       return;
     }
     // buffer the first chunk
     this.#buffer = new Uint8Array(this.reader.slice(0, this.#chunkSize).buffer);
     // find out starting position
-    const set = this.setStartPosition();
+    const set = this.#setStartPosition();
     if (!set) throw Error('File is not geojson or s2json');
     while (true) {
-      const feature = this.nextValue();
+      const feature = this.#nextValue();
       if (feature !== undefined) yield feature;
       else break;
     }
@@ -151,7 +205,7 @@ export class JSONReader<
    * This is a modified Knuth–Morris–Pratt algorithm
    * @returns - true if the start position was found
    */
-  setStartPosition(): boolean {
+  #setStartPosition(): boolean {
     const features = Buffer.from('"features":');
     const featuresSize = features.length;
 
@@ -180,7 +234,7 @@ export class JSONReader<
       this.#buffer = new Uint8Array(
         this.reader.slice(this.#offset, this.#offset + this.#chunkSize).buffer,
       );
-      return this.setStartPosition();
+      return this.#setStartPosition();
     } else {
       return false;
     }
@@ -193,7 +247,7 @@ export class JSONReader<
    * out of the buffer, but we still have file left to read, just read into the buffer and continue on
    * @returns - the feature or nothing if we hit the end of the file
    */
-  nextValue(): undefined | Features<M, D, P> {
+  #nextValue(): undefined | Features<M, D, P> {
     // get started
     while (this.#pos < this.#chunkSize) {
       if (this.#buffer[this.#pos] === BACKSLASH) {
@@ -257,7 +311,7 @@ export class JSONReader<
         this.#buffer = new Uint8Array(
           this.reader.slice(this.#offset, this.#offset + this.#chunkSize).buffer,
         );
-        return this.nextValue();
+        return this.#nextValue();
       } else {
         return;
       } // end of file

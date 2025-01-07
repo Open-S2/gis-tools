@@ -2,7 +2,29 @@ import { incirclefast, orient2d } from '../geometry/predicates';
 
 import type { Point, VectorPoint } from '../geometry';
 
-/** An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points. */
+/**
+ * # Delaunator
+ *
+ * ## Description
+ * An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points.
+ *
+ * ## Usage
+ * ```ts
+ * import { Delaunator } from 's2-tools'
+ * import type { Point, VectorPoint } from 's2-tools'
+ *
+ * // its recommended to stereotypically use `fromPoints` to construct a Delaunator
+ * const points: Point[] = [...]
+ * const delaunator = Delaunator.fromPoints(points)
+ *
+ * // or you can construct from vector points with `fromVectorPoints`
+ * const points: VectorPoint[] = [...]
+ * const delaunator = Delaunator.fromVectorPoints(points)
+ *
+ * // you can now use the triangulation
+ * const { triangles } = delaunator
+ * ```
+ */
 export class Delaunator {
   edgeStack = new Array(512);
   coords: number[];

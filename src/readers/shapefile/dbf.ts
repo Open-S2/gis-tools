@@ -27,7 +27,7 @@ export interface DBFRow {
   decimal: number;
 }
 
-/** A DBF file class to parse the data from a DBF */
+/** A DBF data class to parse the data from a DBF */
 export class DataBaseFile {
   reader: Reader;
   #header!: DBFHeader;
@@ -53,6 +53,7 @@ export class DataBaseFile {
   }
 
   /**
+   * Get the properties for the given index
    * @param index - the index of the properties data we want
    * @returns - the properties for the given index
    */
@@ -135,6 +136,7 @@ export class DataBaseFile {
   }
 
   /**
+   * Parse the value at the given offset
    * @param offset - offset of the value
    * @param len - length of the value
    * @param type - the type of the value

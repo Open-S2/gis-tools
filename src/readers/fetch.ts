@@ -1,6 +1,20 @@
 import type { Reader } from '.';
 
-/** The browser reader that fetches data from a URL. */
+/**
+ * # Fetch Reader
+ *
+ * ## Description
+ * The browser reader that fetches data from a URL.
+ *
+ * ## Usage
+ * ```ts
+ * import { FetchReader } from 's2-tools';
+ *
+ * const reader = new FetchReader('https://example.com/BETA2007.gsb', true);
+ *
+ * const data = await reader.getRange(0, 100);
+ * ```
+ */
 export class FetchReader implements Reader {
   byteLength = 0;
   byteOffset = 0;
@@ -107,7 +121,7 @@ export class FetchReader implements Reader {
    * @param _end - end
    * @returns - empty DataView
    */
-  slice(_begin?: number, _end?: number): DataView<ArrayBuffer> {
+  slice(_begin?: number, _end?: number): DataView {
     return new DataView(new Uint8Array([]).buffer);
   }
   /**
@@ -126,11 +140,12 @@ export class FetchReader implements Reader {
   }
 
   /**
+   * Reads a range from the file
    * @param offset - the offset of the range
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length?: number): Promise<Uint8Array<ArrayBuffer>> {
+  async getRange(offset: number, length?: number): Promise<Uint8Array> {
     const bytes = String(offset) + '-' + (length !== undefined ? String(offset + length) : '');
     const fetchReq = this.rangeRequests
       ? fetch(this.path, {

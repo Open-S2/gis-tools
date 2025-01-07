@@ -4,7 +4,26 @@ import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util
 import type { Satellite } from '../sat';
 
 /**
+ * # SGP4GPU
+ *
+ * ## Description
+ * A GPU implementation of the SGP4 algorithm.
  * Note: After creating the class you must call `await bfGPU.init()`
+ *
+ * ## Usage
+ * ```ts
+ * const bfGPU = new SGP4GPU(device);
+ * await bfGPU.init();
+ * const gpuBufferOut = bfGPU.prepareData({ ... })
+ * ...
+ * bfGPU.run(passEncoder)
+ * passEncoder.end()
+ * bfGPU.createReadDistBuffer(gpuBufferOut)
+ * device.queue.submit([commandEncoder.finish()])
+ * await gpuReadBufferDist.mapAsync(GPUMapMode.READ)
+ * const resultDist = gpuReadBufferDist.getMappedRange()
+ * const resultAB = new Float32Array(resultDist)
+ * ```
  */
 export class SGP4GPU {
   #device: GPUDevice;

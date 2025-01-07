@@ -1,4 +1,4 @@
-import { EARTH_RADIUS } from '../geometry';
+import { EARTH_RADIUS } from '..';
 import { KDSpatialIndex } from '../dataStore';
 import { PriorityQueue } from './priorityQueue';
 import { fromST } from '../geometry/s2/point';
@@ -23,8 +23,42 @@ interface NodeQuery<T> {
 
 const RAD = 0.017453292519943295; // Math.PI / 180;
 
-/** An index of cells with radius queries */
-export class PointIndexFast<T = Stringifiable> {
+/**
+ * # Point Index Fast
+ *
+ * ## Description
+ * An index of cells with radius queries
+ * Assumes the data is {@link Stringifiable}
+ * Because of the nature of low level language like Javascript, using u64 is slow. This index
+ * uses f64 which Number supports. So it is fast and efficient.
+ *
+ * ## Usage
+ * ```ts
+ * import { PointIndexFast } from 's2-tools';
+ * import { KDMMapSpatialIndex } from 's2-tools/mmap';
+ *
+ * const pointIndex = new PointIndexFast();
+ * // or used a mmap based store
+ * const pointIndex = new PointIndex(KDMMapSpatialIndex);
+ *
+ * // insert a lon-lat
+ * pointIndex.insertLonLat(lon, lat, data);
+ * // insert an STPoint
+ * pointIndex.insertFaceST(face, s, t, data);
+ *
+ * // after adding data build the index. NOTE: You don't have to call this, it will be called
+ * // automatically when making a query
+ * await pointIndex.sort();
+ *
+ * // you can search a range
+ * const points = await pointIndex.searchRange(minX, minY, maxX, maxY);
+ * // or a standard radius search
+ * const points = await pointIndex.searchRadius(qx, qy, r);
+ * // or a spherical radius search that wraps around the -180/180 boundary
+ * const points = await pointIndex.searchRadiusSphere(lon, lat, dist);
+ * ```
+ */
+export class PointIndexFast<T extends Stringifiable = Stringifiable> {
   #store: KDStore<T>;
   #sorted: boolean = false;
 

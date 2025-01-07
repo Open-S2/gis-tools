@@ -1,7 +1,30 @@
 /** How the comparison function needs to work */
 export type PriorityCompare<T> = (a: T, b: T) => number;
 
-/** A Priority Queue */
+/**
+ * # Priority Queue
+ *
+ * ## Description
+ * A priority queue is a data structure that stores elements in a specific order.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { PriorityQueue } from 's2-tools';
+ *
+ * const queue = new PriorityQueue<number>();
+ *
+ * queue.push(1);
+ * queue.push(2);
+ *
+ * const current = queue.peek(); // 1
+ * console.log(queue.length); // 2
+ * let next = queue.pop(); // 1
+ * console.log(queue.length); // 1
+ * next = queue.pop(); // 2
+ * console.log(queue.length); // 0
+ * ```
+ */
 export class PriorityQueue<T = number> {
   #length: number = 0;
   /**

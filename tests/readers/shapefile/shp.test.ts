@@ -1,7 +1,13 @@
 import { FileReader } from '../../../src/file';
 import { MMapReader } from '../../../src/mmap';
 import { buildServer } from '../../server';
-import { BufferReader, DataBaseFile, ShapeFileReader, fromGzip, fromURL } from '../../../src';
+import {
+  BufferReader,
+  DataBaseFile,
+  ShapeFileReader,
+  shapefileFromGzip,
+  shapefileFromURL,
+} from '../../../src';
 // import { fromPath } from '../../../src/readers/shapefile/file';
 import { expect, test } from 'bun:test';
 
@@ -181,9 +187,9 @@ test('polylinez shp', async () => {
   });
 });
 
-test('fromGzip', async () => {
+test('shapefileFromGzip', async () => {
   const data = await Bun.file(`${__dirname}/fixtures/utf.zip`).arrayBuffer();
-  const shp = await fromGzip(data);
+  const shp = await shapefileFromGzip(data);
 
   expect(shp.getHeader()).toEqual({
     bbox: [-108.97956848144531, 41.244772343082076, -108.6328125, 41.253032440653186, 0, 0],
@@ -221,10 +227,14 @@ test('fromGzip', async () => {
   });
 });
 
-test('fromURL', async () => {
+test('shapefileFromURL', async () => {
   const server = buildServer();
-  const shp = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.zip`);
-  const shp2 = await fromURL(`http://localhost:${server.port}/readers/shapefile/fixtures/utf.shp`);
+  const shp = await shapefileFromURL(
+    `http://localhost:${server.port}/readers/shapefile/fixtures/utf.zip`,
+  );
+  const shp2 = await shapefileFromURL(
+    `http://localhost:${server.port}/readers/shapefile/fixtures/utf.shp`,
+  );
   await server.stop();
 
   expect(shp.getHeader()).toEqual({

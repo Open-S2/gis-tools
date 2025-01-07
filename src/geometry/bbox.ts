@@ -9,6 +9,7 @@ import type {
 } from './';
 
 /**
+ * Creates a bounding box from a point
  * @param point - input vector point
  * @returns - BBox of the point
  */
@@ -19,6 +20,7 @@ export function fromPoint(point: VectorPoint): BBOX {
 }
 
 /**
+ * Creates a bounding box from a linestring
  * @param line - input vector line
  * @returns - BBox of the line
  */
@@ -31,6 +33,7 @@ export function fromLineString(line: VectorLineString): BBOX {
 }
 
 /**
+ * Creates a bounding box from a multilinestring
  * @param multiLines - input vector multilinestring
  * @returns - BBox of the multilinestring
  */
@@ -43,6 +46,7 @@ export function fromMultiLineString(multiLines: VectorMultiLineString): BBOX {
 }
 
 /**
+ * Creates a bounding box from a multipolygon
  * @param multiPolygon - input vector multipolygon
  * @returns - BBox of the multipolygon
  */
@@ -62,7 +66,7 @@ export function fromMultiPolygon(multiPolygon: VectorMultiPolygon): BBOX {
  * @param point - point to test if it exists within the bbox
  * @returns - true if the point is within the bbox, false otherwise
  */
-export function pointOverlap(bbox: BBox, point: VectorPoint): boolean {
+export function pointOverlap(bbox: BBOX, point: VectorPoint): boolean {
   const [left, bottom, right, top] = bbox;
   return point.x >= left && point.x <= right && point.y >= bottom && point.y <= top;
 }
@@ -74,7 +78,7 @@ export function pointOverlap(bbox: BBox, point: VectorPoint): boolean {
  * @param b2 - second bounding box
  * @returns - undefined if no overlap, or a bbox of the overlap
  */
-export function bboxOverlap(b1: BBox, b2: BBox): undefined | BBox {
+export function bboxOverlap(b1: BBOX, b2: BBOX): undefined | BBOX {
   // check if the bboxes overlap at all
   if (b2[2] < b1[0] || b1[2] < b2[0] || b2[3] < b1[1] || b1[3] < b2[1]) return;
   // find the middle two X values
@@ -88,6 +92,7 @@ export function bboxOverlap(b1: BBox, b2: BBox): undefined | BBox {
 }
 
 /**
+ * Extends a bounding box to include a point
  * @param bbox - the bounding box to extend, if it doesn't exist it will be created otherwise just modified
  * @param point - the point to add to the bbox
  * @returns - the extended bbox

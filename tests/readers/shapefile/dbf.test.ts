@@ -1,5 +1,5 @@
-import { FileReader } from '../../../src/readers/file';
-import { MMapReader } from '../../../src/readers/mmap';
+import { FileReader } from '../../../src/file';
+import { MMapReader } from '../../../src/mmap';
 import { BufferReader, DataBaseFile } from '../../../src';
 import { expect, test } from 'bun:test';
 

@@ -1,3 +1,4 @@
+/** Known Timezones, their names, abbreviations, offsets, utc codes, and whether they are DST */
 export const TIMEZONES = [
   {
     value: 'Dateline Standard Time',
@@ -1207,6 +1208,7 @@ export const TIMEZONES = [
   },
 ];
 
+/** Timezone identifier list */
 export const TIMEZONE_IDENTIFIER_LIST = [
   'Africa/Abidjan',
   'Africa/Accra',

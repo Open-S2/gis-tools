@@ -2,7 +2,19 @@ import { mmap } from 'bun';
 
 import type { Reader } from '.';
 
-/** Reads data from a file */
+/**
+ * # MMap Reader
+ *
+ * ## Description
+ * Reads data from a file implementing the {@link Reader} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { MMapReader } from 's2-tools/mmap';
+ *
+ * const reader = new MMapReader('./BETA2007.gsb');
+ * ```
+ */
 export class MMapReader implements Reader {
   #buffer: Uint8Array;
   byteOffset: number = 0;
@@ -132,7 +144,7 @@ export class MMapReader implements Reader {
    * @param end - End of the slice. If not provided, the end of the data is used
    * @returns - The data as a DataView
    */
-  slice(begin?: number, end?: number): DataView<ArrayBuffer> {
+  slice(begin?: number, end?: number): DataView {
     if (begin === undefined) begin = 0;
     if (end === undefined) end = this.byteLength;
     if (begin < 0 || end > this.byteLength || begin >= end) {
@@ -153,6 +165,7 @@ export class MMapReader implements Reader {
   }
 
   /**
+   * Reads a string from the buffer
    * @param byteOffset - Start of the string
    * @param byteLength - Length of the string
    * @returns - The string
@@ -160,16 +173,17 @@ export class MMapReader implements Reader {
   parseString(byteOffset: number, byteLength: number): string {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
-    const out = textDecoder.decode(data, { stream: true }) + textDecoder.decode();
+    const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
     return out.replace(/\0/g, '').trim();
   }
 
   /**
+   * Reads a range from the buffer
    * @param offset - the offset of the range
    * @param length - the length of the range
    * @returns - the ranged buffer
    */
-  async getRange(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  async getRange(offset: number, length: number): Promise<Uint8Array> {
     return await this.#buffer.slice(offset, offset + length);
   }
 }

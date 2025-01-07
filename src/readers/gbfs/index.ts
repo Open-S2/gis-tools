@@ -7,11 +7,23 @@ export * from './schemaV1';
 export * from './schemaV2';
 export * from './schemaV3';
 
-/** The versions of GBFS reader classes this data could be */
+/**
+ * # General Bikeshare Feed Specification (GBFS) Reader
+ *
+ * ## Description
+ * The versions of GBFS reader classes this data could be (1, 2, or 3)
+ * Implements the {@link FeatureIterator} interface.
+ *
+ * ## Links
+ * - https://github.com/MobilityData/gbfs
+ * - https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.0
+ */
 export type GBFSReader = GBFSReaderV1 | GBFSReaderV2 | GBFSReaderV3;
 
 /** The versions of GBFS schemas this data could be */
 export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
+
+// TODO: All features should be parsed as VectorGeometry
 
 /**
  * Given a link to a GBFS feed, build the appropriate reader for the feed.

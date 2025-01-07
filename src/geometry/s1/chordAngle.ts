@@ -1,4 +1,10 @@
-import { toKM as angleToKM, toMeters as angleToMeters } from './angle';
+import { EARTH_RADIUS } from '../../space/planets';
+import {
+  fromKM as angleFromKM,
+  fromMeters as angleFromMeters,
+  toKM as angleToKM,
+  toMeters as angleToMeters,
+} from './angle';
 import { norm2, sub } from '../s2/point';
 
 import type { Point3D } from '../';
@@ -232,12 +238,32 @@ export function toMeters(cAngle: S1ChordAngle): number {
 }
 
 /**
+ * Convert from meters.
+ * @param meters - distance in meters
+ * @param radius - radius of the planet (defaults to Earth's radius)
+ * @returns - the ChordAngle
+ */
+export function fromMeters(meters: number, radius = EARTH_RADIUS): S1ChordAngle {
+  return fromAngle(angleFromMeters(meters, radius));
+}
+
+/**
  * Convert to kilometers.
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding number of kilometers.
  */
 export function toKM(cAngle: S1ChordAngle): number {
   return angleToKM(toAngle(cAngle));
+}
+
+/**
+ * Convert from kilometers.
+ * @param km - distance in kilometers
+ * @param radius - radius of the planet (defaults to Earth's radius)
+ * @returns - the ChordAngle
+ */
+export function fromKM(km: number, radius = EARTH_RADIUS): S1ChordAngle {
+  return fromAngle(angleFromKM(km, radius));
 }
 
 // Trigonmetric functions.  It is more accurate and efficient to call these

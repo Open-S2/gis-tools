@@ -4,11 +4,12 @@ import { headerToBytes, setUint64 } from './pmtiles';
 import type { S2Header } from '../../readers/pmtiles';
 
 /**
+ * Create raw header bytes from an S2Header object.
  * @param header - the header object
  * @returns the raw header bytes
  */
-export function s2HeaderToBytes(header: S2Header): Uint8Array<ArrayBuffer> {
-  const defaultHeader: Uint8Array = headerToBytes(header);
+export function s2HeaderToBytes(header: S2Header): Uint8Array {
+  const defaultHeader = headerToBytes(header);
   const base = new Uint8Array(S2_HEADER_SIZE_BYTES);
   base.set(defaultHeader, 0);
   const dv = new DataView(base.buffer);

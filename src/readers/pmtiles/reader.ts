@@ -1,5 +1,5 @@
 import { Cache as DirCache } from '../../dataStructures/cache';
-import { concatUint8Arrays } from '../../util';
+import { decompressStream } from '../../util';
 import { Compression, bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
 import { FetchReader, toReader } from '..';
 import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles';
@@ -8,6 +8,12 @@ import type { Entry, Header } from './pmtiles';
 import type { Face, Metadata } from 's2-tilejson';
 import type { Reader, ReaderInputs } from '..';
 import type { S2Entries, S2Header } from './s2pmtiles';
+
+/** A description of where a tile can be found in the archive. Both offset and length are in bytes */
+export interface S2PMTilesTileEntry {
+  offset: number;
+  length: number;
+}
 
 /** The File reader is to be used by bun/node/deno on the local filesystem. */
 export class S2PMTilesReader {
@@ -40,6 +46,7 @@ export class S2PMTilesReader {
   }
 
   /**
+   * Get the metadata for the archive
    * @returns - the header of the archive along with the root directory,
    * including information such as tile type, min/max zoom, bounds, and summary statistics.
    */
@@ -59,7 +66,7 @@ export class S2PMTilesReader {
       header.jsonMetadataOffset + header.jsonMetadataLength,
     );
     this.#metadata = JSON.parse(
-      this.#arrayBufferToString(await decompress(jsonMetadata, header.internalCompression)),
+      this.#decoder.decode(await decompress(jsonMetadata, header.internalCompression)),
     );
 
     // root directory data
@@ -96,18 +103,37 @@ export class S2PMTilesReader {
     }
   }
 
-  /** @returns - the header of the archive */
+  /**
+   * Get the header of the archive
+   * @returns - the header of the archive
+   */
   async getHeader(): Promise<Header> {
     return await this.#getMetadata();
   }
 
-  /** @returns - the metadata of the archive */
+  /**
+   * Get the metadata of the archive
+   * @returns - the metadata of the archive
+   */
   async getMetadata(): Promise<Metadata> {
     await this.#getMetadata(); // ensure loaded first
     return this.#metadata;
   }
 
   /**
+   * Check if an S2 tile exists in the archive
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level of the tile
+   * @param x - the x coordinate of the tile
+   * @param y - the y coordinate of the tile
+   * @returns - true if the tile exists in the archive
+   */
+  async hasTileS2(face: Face, zoom: number, x: number, y: number): Promise<boolean> {
+    return (await this.#getTileEntry(face, zoom, x, y)) !== undefined;
+  }
+
+  /**
+   * Get the bytes of the tile at the given (face, zoom, x, y) coordinates
    * @param face - the Open S2 projection face
    * @param zoom - the zoom level of the tile
    * @param x - the x coordinate of the tile
@@ -119,6 +145,18 @@ export class S2PMTilesReader {
   }
 
   /**
+   * Check if a tile exists in the archive
+   * @param zoom - the zoom level of the tile
+   * @param x - the x coordinate of the tile
+   * @param y - the y coordinate of the tile
+   * @returns - true if the tile exists in the archive
+   */
+  async hasTile(zoom: number, x: number, y: number): Promise<boolean> {
+    return (await this.#getTileEntry(-1, zoom, x, y)) !== undefined;
+  }
+
+  /**
+   * Get the bytes of the tile at the given (zoom, x, y) coordinates
    * @param zoom - the zoom level of the tile
    * @param x - the x coordinate of the tile
    * @param y - the y coordinate of the tile
@@ -129,6 +167,7 @@ export class S2PMTilesReader {
   }
 
   /**
+   * Get the bytes of the tile at the given (zoom, x, y) coordinates
    * @param face - the Open S2 projection face
    * @param zoom - the zoom level of the tile
    * @param x - the x coordinate of the tile
@@ -141,6 +180,28 @@ export class S2PMTilesReader {
     x: number,
     y: number,
   ): Promise<Uint8Array | undefined> {
+    const { tileCompression } = await this.#getMetadata();
+    const entry = await this.#getTileEntry(face, zoom, x, y);
+    if (entry === undefined) return undefined;
+    const { offset, length } = entry;
+    const entryData = await this.#reader.getRange(offset, length);
+    return await decompress(entryData, tileCompression);
+  }
+
+  /**
+   * Find the tile entry relative to the root directory
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level of the tile
+   * @param x - the x coordinate of the tile
+   * @param y - the y coordinate of the tile
+   * @returns - the position and length of bytes for the tile. Undefined if it does not exist
+   */
+  async #getTileEntry(
+    face: number,
+    zoom: number,
+    x: number,
+    y: number,
+  ): Promise<S2PMTilesTileEntry | undefined> {
     const header = await this.#getMetadata();
     const tileID = zxyToTileID(zoom, x, y);
     const { minZoom, maxZoom, rootDirectoryOffset, rootDirectoryLength, tileDataOffset } = header;
@@ -155,11 +216,7 @@ export class S2PMTilesReader {
       const entry = findTile(directory, tileID);
       if (entry !== null) {
         if (entry.runLength > 0) {
-          const entryData = await this.#reader.getRange(
-            tileDataOffset + entry.offset,
-            entry.length,
-          );
-          return await decompress(entryData, header.tileCompression);
+          return { offset: tileDataOffset + entry.offset, length: entry.length };
         }
         dO = header.leafDirectoryOffset + entry.offset;
         dL = entry.length;
@@ -169,6 +226,7 @@ export class S2PMTilesReader {
   }
 
   /**
+   * Get the directory at the given offset
    * @param offset - the offset of the directory
    * @param length - the length of the directory
    * @param face - -1 for WM root, 0-5 for S2
@@ -193,17 +251,10 @@ export class S2PMTilesReader {
 
     return directory;
   }
-
-  /**
-   * @param buffer - the buffer to convert
-   * @returns - the string result
-   */
-  #arrayBufferToString(buffer: Uint8Array): string {
-    return this.#decoder.decode(buffer);
-  }
 }
 
 /**
+ * Decompress the data
  * @param data - the data to decompress
  * @param compression - the compression type
  * @returns - the decompressed data
@@ -211,7 +262,7 @@ export class S2PMTilesReader {
 async function decompress(data: Uint8Array, compression: Compression): Promise<Uint8Array> {
   switch (compression) {
     case Compression.Gzip:
-      return await decompressGzip(data);
+      return await decompressStream(data);
     case Compression.Brotli:
       throw new Error('Brotli decompression not implemented');
     case Compression.Zstd:
@@ -220,20 +271,4 @@ async function decompress(data: Uint8Array, compression: Compression): Promise<U
     default:
       return data;
   }
-}
-
-/**
- * @param compressedBytes - the data to decompress
- * @returns - the decompressed data
- */
-async function decompressGzip(compressedBytes: Uint8Array): Promise<Uint8Array> {
-  // Convert the bytes to a stream.
-  const stream = new Blob([compressedBytes]).stream();
-  // Create a decompressed stream.
-  const decompressedStream = stream.pipeThrough(new DecompressionStream('gzip'));
-  // Read all the bytes from this stream.
-  const chunks = [];
-  for await (const chunk of decompressedStream) chunks.push(chunk);
-
-  return await concatUint8Arrays(chunks);
 }

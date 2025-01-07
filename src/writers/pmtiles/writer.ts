@@ -1,4 +1,3 @@
-import { concatUint8Arrays } from '../../util';
 import { s2HeaderToBytes } from './s2pmtiles';
 import {
   Compression,
@@ -7,13 +6,58 @@ import {
   S2_ROOT_SIZE,
   zxyToTileID,
 } from '../../readers/pmtiles';
+import { compressStream, concatUint8Arrays } from '../../util';
 import { headerToBytes, serializeDir } from './pmtiles';
 
 import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles';
 import type { Face, Metadata } from 's2-tilejson';
 import type { TileWriter, Writer } from '..';
 
-/** Write a PMTiles file. */
+/**
+ * # S2 PMTiles Writer
+ *
+ * ## About
+ * Writes data via the [S2-PMTiles specification](https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md).
+ *
+ * A Modified TypeScript implementation of the [PMTiles](https://github.com/protomaps/PMTiles) library. It is backwards compatible but
+ * offers support for the S2 Projection.
+ *
+ * ## Usage
+ *
+ * ### Browser Compatible
+ * ```typescript
+ * import { TileType, BufferWriter, S2PMTilesWriter, Compression } from 's2-tools';
+ *
+ * import type { Metadata } from 's2-tools';
+ *
+ * // Setup the writers
+ * const bufWriter = new BufferWriter();
+ * const writer = new S2PMTilesWriter(bufWriter, TileType.Unknown, Compression.Gzip);
+ * // example data
+ * const txtEncoder = new TextEncoder();
+ * const str = 'hello world';
+ * const uint8 = txtEncoder.encode(str);
+ * const str2 = 'hello world 2';
+ * const uint8_2 = txtEncoder.encode(str2);
+ * // write data in tile
+ * await writer.writeTileWM(0, 0, 0, uint8);
+ * await writer.writeTileWM(1, 0, 1, uint8);
+ * await writer.writeTileWM(5, 2, 9, uint8_2);
+ * // finish
+ * await writer.commit({ metadata: true } as unknown as Metadata);
+ * // Get the result Uint8Array
+ * const resultData = bufWriter.commit();
+ * ```
+ *
+ * ### Node/Deno/Bun using the filesystem
+ * ```typescript
+ * import { S2PMTilesWriter, TileType } from 's2-tools';
+ * import { FileWriter } from 's2-tools/file';
+ *
+ * const writer = new S2PMTilesWriter(new FileWriter('./output.pmtiles'), TileType.Pbf);
+ * // SAME AS ABOVE
+ * ```
+ */
 export class S2PMTilesWriter implements TileWriter {
   #tileEntries: Entry[] = [];
   #s2tileEntries: S2Entries = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [] };
@@ -42,12 +86,7 @@ export class S2PMTilesWriter implements TileWriter {
    * @param y - the tile Y coordinate
    * @param data - the tile data to store
    */
-  async writeTileXYZ(
-    zoom: number,
-    x: number,
-    y: number,
-    data: Uint8Array<ArrayBuffer>,
-  ): Promise<void> {
+  async writeTileWM(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
     this.#minZoom = Math.min(this.#minZoom, zoom);
     this.#maxZoom = Math.max(this.#maxZoom, zoom);
     const tileID = zxyToTileID(zoom, x, y);
@@ -67,7 +106,7 @@ export class S2PMTilesWriter implements TileWriter {
     zoom: number,
     x: number,
     y: number,
-    data: Uint8Array<ArrayBuffer>,
+    data: Uint8Array,
   ): Promise<void> {
     this.#minZoom = Math.min(this.#minZoom, zoom);
     this.#maxZoom = Math.max(this.#maxZoom, zoom);
@@ -81,7 +120,7 @@ export class S2PMTilesWriter implements TileWriter {
    * @param data - the tile data
    * @param face - If it exists, then we are storing S2 data
    */
-  async writeTile(tileID: number, data: Uint8Array<ArrayBuffer>, face?: Face): Promise<void> {
+  async writeTile(tileID: number, data: Uint8Array, face?: Face): Promise<void> {
     data = await compress(data, this.compression);
     const length = data.length;
     const tileEntries = face !== undefined ? this.#s2tileEntries[face] : this.#tileEntries;
@@ -116,7 +155,11 @@ export class S2PMTilesWriter implements TileWriter {
     tileEntries.sort((a, b) => a.tileID - b.tileID);
     // build metadata
     const metaBuffer = Buffer.from(JSON.stringify(metadata));
-    let metauint8 = new Uint8Array(metaBuffer.buffer, metaBuffer.byteOffset, metaBuffer.byteLength);
+    let metauint8: Uint8Array<ArrayBufferLike> = new Uint8Array(
+      metaBuffer.buffer,
+      metaBuffer.byteOffset,
+      metaBuffer.byteLength,
+    );
     metauint8 = await compress(metauint8, this.compression);
 
     // optimize directories
@@ -186,7 +229,11 @@ export class S2PMTilesWriter implements TileWriter {
     tileEntries5.sort((a, b) => a.tileID - b.tileID);
     // build metadata
     const metaBuffer = Buffer.from(JSON.stringify(metadata));
-    let metauint8 = new Uint8Array(metaBuffer.buffer, metaBuffer.byteOffset, metaBuffer.byteLength);
+    let metauint8: Uint8Array<ArrayBufferLike> = new Uint8Array(
+      metaBuffer.buffer,
+      metaBuffer.byteOffset,
+      metaBuffer.byteLength,
+    );
     metauint8 = await compress(metauint8, this.compression);
 
     // optimize directories
@@ -320,14 +367,15 @@ export class S2PMTilesWriter implements TileWriter {
 /** The result of an optimized directory computation */
 interface OptimizedDirectory {
   /** The root directory bytes */
-  rootBytes: Uint8Array<ArrayBuffer>;
+  rootBytes: Uint8Array;
   /** The leaf directories bytes */
-  leavesBytes: Uint8Array<ArrayBuffer>;
+  leavesBytes: Uint8Array;
   /** The number of leaf directories */
   numLeaves: number;
 }
 
 /**
+ * Builds the root and leaf directories
  * @param entries - the tile entries
  * @param leafSize - the max leaf size
  * @param compression - the compression
@@ -339,7 +387,7 @@ async function buildRootsLeaves(
   compression: Compression,
 ): Promise<OptimizedDirectory> {
   const rootEntries: Entry[] = [];
-  let leavesBytes = new Uint8Array(0);
+  let leavesBytes: Uint8Array<ArrayBufferLike> = new Uint8Array(0);
   let numLeaves = 0;
 
   let i = 0;
@@ -364,6 +412,7 @@ async function buildRootsLeaves(
 }
 
 /**
+ * Optimizes the directories
  * @param entries - the tile entries
  * @param targetRootLength - the max leaf size
  * @param compression - the compression
@@ -386,46 +435,14 @@ async function optimizeDirectories(
   }
 }
 
-// /**
-//  * @param a - the first array
-//  * @param b - the second array
-//  * @returns - the combined array of the two starting with "a"
-//  */
-// function concatUint8Arrays(a: Uint8Array, b: Uint8Array): Uint8Array {
-//   const result = new Uint8Array(a.length + b.length);
-//   result.set(a, 0);
-//   result.set(b, a.length);
-//   return result;
-// }
-
 /**
+ * Compresses a Uint8Array if a compression method is specified
  * @param input - the input Uint8Array
  * @param compression - the compression
  * @returns - the compressed Uint8Array or the original if compression is None
  */
-async function compress(
-  input: Uint8Array<ArrayBuffer>,
-  compression: Compression,
-): Promise<Uint8Array<ArrayBuffer>> {
+async function compress(input: Uint8Array, compression: Compression): Promise<Uint8Array> {
   if (compression === Compression.None) return input;
-  else if (compression === Compression.Gzip) return await compressGzip(input);
+  else if (compression === Compression.Gzip) return await compressStream(input);
   else throw new Error(`Unsupported compression: ${compression}`);
-}
-
-/**
- * @param input - the input Uint8Array
- * @returns - the compressed Uint8Array
- */
-async function compressGzip(input: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
-  // Convert the string to a byte stream.
-  const stream = new Blob([input]).stream();
-
-  // Create a compressed stream.
-  const compressedStream = stream.pipeThrough(new CompressionStream('gzip'));
-
-  // Read all the bytes from this stream.
-  const chunks = [];
-  for await (const chunk of compressedStream) chunks.push(chunk);
-
-  return await concatUint8Arrays(chunks);
 }

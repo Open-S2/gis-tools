@@ -14,6 +14,17 @@ export interface ToJSONOptions {
 
 /**
  * Given a writer and an array of iterators, write the input features to the writer as a JSON object
+ *
+ * Usage:
+ * ```ts
+ * import { toJSON, JSONReader } from 's2-tools'
+ * import { FileReader, FileWriter } from 's2-tools/file'
+ *
+ * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
+ * const jsonReader = new JSONReader(fileReader);
+ * const bufWriter = new FileWriter(`${__dirname}/fixtures/points2.geojson`);
+ * await toJSON(bufWriter, [jsonReader], { projection: 'WM', buildBBox: true });
+ * ```
  * @param writer - the writer to append strings to
  * @param iterators - the collection of iterators to write
  * @param opts - user defined options [optional]
@@ -58,6 +69,21 @@ export async function toJSON(
 
 /**
  * Given a writer and an array of iterators, write the input features to the writer as JSON-LD
+ *
+ * Usage:
+ * ```ts
+ * import { toJSON, JSONReader } from 's2-tools'
+ * import { FileReader, FileWriter } from 's2-tools/file'
+ *
+ * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
+ * const jsonReader = new JSONReader(fileReader);
+ * const bufWriter = new FileWriter(`${__dirname}/fixtures/points.geojsonld`);
+ * const onFeature = (feature) => {
+ *  feature.metadata = { id: feature.id };
+ *  return feature;
+ * }
+ * await toJSONLD(bufWriter, [jsonReader], { projection: 'S2', buildBBox: true, onFeature });
+ * ```
  * @param writer - the writer to apppend strings to
  * @param iterators - the collection of iterators to write
  * @param opts - user defined options [optional]

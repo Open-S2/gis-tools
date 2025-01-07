@@ -1,13 +1,16 @@
 import { MetadataBuilder } from 's2-tilejson';
+import VectorTileWorker from './worker/tileWorker';
 
 import type { ClusterOptions } from '../../dataStructures/pointCluster';
+import type { Extents } from 'open-vector-tile';
 import type { FeatureIterator } from '../../readers';
 import type { Features } from '../../geometry';
 import type { TileStoreOptions } from '../../dataStructures/tile';
 import type { TileWriter } from '../../writers';
 import type { Attribution, Encoding, LayerMetaData, Scheme } from 's2-tilejson';
+import type { FeatureMessage, InitMessage } from './worker/tileWorker';
 
-import type { FeatureMessage, InitMessage } from './vectorWorker/vectorTileWorker';
+// NOTE: IF using workers in threads, it MUST be for local use filesytem. If using a buffer system it's single threaded
 
 /**
  * Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined
@@ -29,7 +32,7 @@ export interface BaseLayer {
 /** Guide to building Raster layer data */
 export interface RasterLayer extends BaseLayer {
   /** describes how the image will be stored */
-  outputType: 'webp' | 'png' | 'jpeg';
+  outputType: 'webp' | 'png' | 'jpeg' | 'avif';
 }
 /** Guide to building Raster layer data where the onFeature & filter is stringified to ship to workers */
 export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature' | 'filter'> {
@@ -40,7 +43,9 @@ export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature' | 
 /** Guide to building Cluster layer data */
 export interface ClusterLayer extends BaseLayer {
   /** If options are provided, the assumption is the point data is clustered */
-  clusterGuide?: ClusterOptions;
+  clusterGuide: ClusterOptions;
+  /** Extent at which the layer is storing its data */
+  extent: Extents;
 }
 /** Guide to building Cluster layer data where the onFeature & filter is stringified to ship to workers */
 export interface StringifiedClusterLayer extends Omit<ClusterLayer, 'onFeature' | 'filter'> {
@@ -52,6 +57,8 @@ export interface StringifiedClusterLayer extends Omit<ClusterLayer, 'onFeature' 
 export interface VectorLayer extends BaseLayer {
   /** Guide on how to splice the data into vector tiles */
   tileGuide: TileStoreOptions;
+  /** Extent at which the layer is storing its data */
+  extent: Extents;
 }
 /** Guide to building Vector layer data where the onFeature & filter is stringified to ship to workers */
 export interface StringifiedVectorLayer extends Omit<VectorLayer, 'onFeature' | 'filter'> {
@@ -89,13 +96,14 @@ export interface BuildGuide {
    * The vector format if applicable helps define how the vector data is stored.
    * - The more modern vector format is the 'open-v2' which supports things like m-values
    * and 3D geometries.
+   * - The new vector format is the 'open-v2' which only supports 2D & 3D geometries, supports M-Values,
+   * properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
    * - The legacy vector format is the 'open-v1' which only supports 2D geometries and works on
-   * older map engines like Mapbox-gl-js.
+   * older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
+   * - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
    * [Default: 'open-v2']
    */
-  vectorFormat?: 'open-v1' | 'open-v2';
-  //! Everything after this is crucial to properly build vector tiles
-  //! Take these next variables most seriously when building your data.
+  vectorFormat?: 'mapbox' | 'open-v1' | 'open-v2';
   /**
    * The vector sources that the tile is built from and how the layers are to be stored.
    * Created using `{ [sourceName: string]: FeatureIterator }`
@@ -103,6 +111,8 @@ export interface BuildGuide {
   vectorSources?: Record<string, FeatureIterator>;
   /** The raster sources that will be conjoined into a single rgba pixel index for tile extraction */
   rasterSources?: Record<string, FeatureIterator>;
+  /** The elevation sources that will be conjoined into a single elevation index for tile extraction */
+  elevationSources?: Record<string, FeatureIterator>;
   /** The guides on how to build the various data */
   layerGuides: LayerGuide[];
   /**
@@ -120,48 +130,59 @@ export interface BuildGuide {
  * @param buildGuide - the user defined guide on building the vector tiles
  */
 export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
-  const { tileWriter, vectorSources, rasterSources, layerGuides, threads } = buildGuide;
-  const totalThreads = Math.max(threads ?? 1, navigator.hardwareConcurrency ?? 1);
-  const featuresIterator = getFeature(vectorSources, rasterSources);
+  const { tileWriter, scheme } = buildGuide;
+  const vectorWorker = new VectorTileWorker();
 
-  await new Promise<void>((resolve) => {
-    let threadsComplete = 0;
-    for (let i = 0; i < totalThreads; i++) {
-      const worker = new Worker(new URL('./vectorWorker', import.meta.url).href, {
-        type: 'module',
-      });
-      /** A ready state has been submitted for work */
-      worker.onmessage = async (): Promise<void> => {
-        // iterate features and have workers split/store them
-        const nextFeature = await featuresIterator.next();
-        if (nextFeature.done === true) {
-          threadsComplete++;
-          if (threadsComplete === totalThreads) resolve();
-          worker.terminate();
-        } else {
-          const { sourceName, feature } = nextFeature.value;
-          const featureMessage: FeatureMessage = { type: 'feature', sourceName, feature };
-          worker.postMessage(featureMessage);
-        }
-      };
-      // Prepare workers with init messages
-      const stringifiedLayerGuides = prepareLayerGuides(layerGuides);
-      const initMessage: InitMessage = { type: 'init', id: i, layerGuides: stringifiedLayerGuides };
-      worker.postMessage(initMessage);
-    }
-  });
+  // STEP 1: Convert all features to tile slices of said features.
+  await toVectorTilesSliceFeatures(buildGuide, vectorWorker);
 
-  // TODO: externalSort on vector source data at this point.
+  // STEP 2: Ensure all data is prepped/sorted for reading/building tiles
+  await vectorWorker.sort();
 
-  // TODO: create workers and build tiles
+  // STEP 3: collect all existing multimap feature stores and build tiles
+  for await (const { face, zoom, x, y, data } of vectorWorker.buildTiles()) {
+    if (scheme === 'fzxy') await tileWriter.writeTileS2(face, zoom, x, y, data);
+    else await tileWriter.writeTileWM(zoom, x, y, data);
+  }
 
-  // build metadata based on the guide
+  // STEP 4: build metadata based on the guide
   const metaBuilder = new MetadataBuilder();
   updateBuilder(metaBuilder, buildGuide);
   const metadata = metaBuilder.commit();
 
-  // FINISH
+  // STEP 5: Commit the metadata
   await tileWriter.commit(metadata);
+}
+
+/**
+ * STEP 1: Convert all features to tile slices of said features.
+ * @param buildGuide - the user defined guide on building the vector tiles
+ * @param vectorWorker - the vector tile worker to use
+ */
+async function toVectorTilesSliceFeatures(
+  buildGuide: BuildGuide,
+  vectorWorker: VectorTileWorker,
+): Promise<void> {
+  const { vectorSources, rasterSources, layerGuides, scheme, encoding } = buildGuide;
+  const featuresIterator = getFeature(vectorSources, rasterSources);
+
+  // Prepare workers with init messages
+  const stringifiedLayerGuides = prepareLayerGuides(layerGuides);
+  const initMessage: InitMessage = {
+    type: 'init',
+    id: 0,
+    scheme,
+    encoding,
+    layerGuides: stringifiedLayerGuides,
+  };
+
+  vectorWorker.handleMessage(initMessage);
+
+  for await (const nextFeature of featuresIterator) {
+    const { sourceName, feature } = nextFeature;
+    const featureMessage: FeatureMessage = { type: 'feature', sourceName, feature };
+    vectorWorker.handleMessage(featureMessage);
+  }
 }
 
 /**
@@ -240,6 +261,9 @@ function _findErrors(_layerGuides: LayerGuide[]): void {
   //   // const { metadata } = layerGuide;
   // }
 }
+// TODO: tileGuide should be modifed to match metadata minzoom, maxzoom, and projection
+// minzoom and maxzoom can be left alone if they already exist, but projection MUST match the
+// output projection.
 
 // TODO:
 // VECTOR:

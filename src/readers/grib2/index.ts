@@ -35,10 +35,10 @@ export type Grib2GFSProduct =
   | 'sfluxgrb'
   | 'goesimpgrb2.0p25';
 
-// // TODO: Support GFS Wave
-// //  model: 'atmos' | 'wave',
-
 /**
+ * Fetch GFS data.
+ * You can find some data to reference what's available [here](https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/).
+ * An example of what variable data means can be found [here](https://www.nco.ncep.noaa.gov/pmb/products/gfs/gfs.t00z.pgrb2.0p50.f000.shtml).
  * @param source - The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
  * @param product - which product to fetch
  * @param year - The year to fetch given a 4 digit year
@@ -73,6 +73,7 @@ export async function fetchGFSAtmos(
 }
 
 /**
+ * Get the link to download GFS data
  * @param source - The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
  * @param product - which product to fetch
  * @param year - The year to fetch given a 4 digit year
@@ -168,10 +169,32 @@ export function parseIDX(data: string, filters: string[], offsetPosition = 1): S
 }
 
 /**
- * Reader for GRIB2
- * @param data Buffer containing entire GRIB file contents
- * @param reader
- * @returns Parsed GRIB file object
+ * # GRIB2 Reader
+ *
+ * ## Description
+ *
+ * This class reads a GRIB2 file and returns a list of GRIB2 products.
+ * Implements the {@link FeatureIterator} interface.
+ *
+ * ## Usage
+ *
+ * ### The recommended way to parse grib files is to filter out what you want:
+ * ```ts
+ * // pull .idx file FIRST and filter the ones you want
+ * const filters = [':DZDT:0.01 mb:', ':TMP:0.4 mb:', ':ABSV:0.4 mb:anl:'];
+ * const idxs = await parsedIDXFromURL(`${link}.idx`, filters);
+ * // now bulid the reader
+ * const gribReader =  await GRIB2Reader.fromIDX(link, idxs);
+ *
+ * for await (const feature of gribReader) {
+ *   console.log(feature);
+ * }
+ * ```
+ *
+ * ### Parsing the entire grib file:
+ * ```
+ * const gribReader = new GRIB2Reader(link);
+ * ```
  */
 export class GRIB2Reader implements FeatureIterator<Grib2ProductDefinition[]> {
   packets: Grib2Sections[] = [];

@@ -20,7 +20,33 @@ import type {
   VectorPoint,
 } from '../geometry';
 
-/** Tile Class to contain the tile information for splitting or simplifying */
+/**
+ * # Tile Class
+ *
+ * ## Description
+ * Tile Class to contain the tile information for splitting or simplifying
+ *
+ * ## Fields
+ *
+ * - `extent` - the extent of the tile
+ * - `face` - the tile's face
+ * - `zoom` - the tile's zoom
+ * - `i` - the tile's x position
+ * - `j` - the tile's y position
+ * - `layers` - the tile's layers
+ * - `transformed` - whether the tile feature geometry has been transformed to tile coordinates
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { Tile } from 's2-tools';
+ *  // create a tile
+ * const tile = new Tile(id);
+ * // add a feature
+ * tile.addFeature(feature);
+ *  // transform the geometry to be relative to the tile
+ * tile.transform();
+ */
 export class Tile {
   extent = 1;
   face: Face;
@@ -151,7 +177,28 @@ export interface TileStoreOptions {
   buildBBox?: boolean;
 }
 
-/** TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request */
+/**
+ * # Tile Store
+ *
+ * ## Description
+ * TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request
+ *
+ * ## Usage
+ * ```ts
+ * const tileStore = new TileStore(data, {
+ *  projection: 'WM',
+ *  minzoom: 0,
+ *  maxzoom: 9,
+ *  indexMaxzoom: 4,
+ *  tolerance: 3,
+ *  buffer: 0.0625
+ *  buildBBox: false
+ * });
+ *
+ * // get a tile
+ * const tile = tileStore.getTile(id);
+ * ```
+ */
 export class TileStore {
   minzoom = 0; // min zoom to preserve detail on
   maxzoom = 18; // max zoom to preserve detail on
@@ -190,18 +237,39 @@ export class TileStore {
       this.maxzoom,
       true,
     );
-    for (const feature of features) this.addFeature(feature);
+    for (const feature of features) this.#addFeature(feature);
     for (let face = 0; face < 6; face++) {
       const id = fromFace(face as Face);
-      this.splitTile(id);
+      this.#splitTile(id);
     }
+  }
+
+  /**
+   * @param id - the tile id to acquire
+   * @returns - the tile if it exists
+   */
+  getTile(id: bigint): undefined | Tile {
+    const { tiles, faces } = this;
+    const zoom = level(id);
+    const face = getFace(id);
+    // If the zoom is out of bounds, return nothing
+    if (zoom < 0 || zoom > 20 || !faces.has(face) || zoom < this.minzoom || zoom > this.maxzoom)
+      return;
+
+    // we want to find the closest tile to the data.
+    let pID = id;
+    while (!tiles.has(pID) && !isFace(pID)) pID = parentID(pID);
+    // split as necessary, the algorithm will know if the tile is already split
+    this.#splitTile(pID, id, zoom);
+
+    return tiles.get(id);
   }
 
   /**
    * Stores a feature to a tile, creating the tile if it doesn't exist and tracking the faces we use
    * @param feature - the feature to store to a face tile. Creates the tile if it doesn't exist
    */
-  addFeature(feature: VectorFeatures): void {
+  #addFeature(feature: VectorFeatures): void {
     const { faces, tiles } = this;
     const face = feature.face ?? 0;
     const id = fromFace(face);
@@ -220,7 +288,7 @@ export class TileStore {
    * @param endID - where to stop tiling
    * @param endZoom - stop tiling at this zoom
    */
-  splitTile(startID: bigint, endID?: bigint, endZoom: number = this.maxzoom): void {
+  #splitTile(startID: bigint, endID?: bigint, endZoom: number = this.maxzoom): void {
     const { buffer, tiles, tolerance, maxzoom, indexMaxzoom } = this;
     const stack: bigint[] = [startID];
     // avoid recursion by using a processing queue
@@ -258,26 +326,5 @@ export class TileStore {
       // push the new features to the stack
       stack.push(blID, brID, tlID, trID);
     }
-  }
-
-  /**
-   * @param id - the tile id to acquire
-   * @returns - the tile if it exists
-   */
-  getTile(id: bigint): undefined | Tile {
-    const { tiles, faces } = this;
-    const zoom = level(id);
-    const face = getFace(id);
-    // If the zoom is out of bounds, return nothing
-    if (zoom < 0 || zoom > 20 || !faces.has(face) || zoom < this.minzoom || zoom > this.maxzoom)
-      return;
-
-    // we want to find the closest tile to the data.
-    let pID = id;
-    while (!tiles.has(pID) && !isFace(pID)) pID = parentID(pID);
-    // split as necessary, the algorithm will know if the tile is already split
-    this.splitTile(pID, id, zoom);
-
-    return tiles.get(id);
   }
 }

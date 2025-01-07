@@ -1,10 +1,10 @@
-import { jpegDecoder } from '../image';
 import { decompressStream, lzwDecoder } from '../../util';
+import { imageDecoderBuffer, jpegDecoder } from '../image';
 
 /** What to expect from the decoder */
 export type Decoder =
-  | ((buffer: ArrayBuffer, tables?: number[]) => Promise<ArrayBuffer>)
-  | ((buffer: ArrayBuffer, tables?: number[]) => ArrayBuffer);
+  | ((buffer: ArrayBufferLike, tables?: number[]) => Promise<ArrayBufferLike>)
+  | ((buffer: ArrayBufferLike, tables?: number[]) => ArrayBufferLike);
 
 /**
  * @param compression - the encoded compression value
@@ -14,7 +14,7 @@ export function getDecoder(compression = 1): Decoder {
   if (compression === 1) return rawDecoder;
   else if (compression === 5) return lzwDecoder;
   else if (compression === 7) return jpegDecoder;
-  else if ([6, 50001].includes(compression)) return imageDecoder;
+  else if ([6, 50001].includes(compression)) return imageDecoderBuffer;
   else if ([8, 32946].includes(compression)) return deflateDecoder;
   else if (compression === 32773) return packbitsDecoder;
   throw new Error(`Unsupported compression: ${compression}`);
@@ -25,7 +25,7 @@ export function getDecoder(compression = 1): Decoder {
  * @param buffer - inflated data
  * @returns - the decoded buffer
  */
-async function deflateDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+async function deflateDecoder(buffer: ArrayBufferLike): Promise<ArrayBufferLike> {
   return (await decompressStream(new Uint8Array(buffer))).buffer;
 }
 
@@ -34,25 +34,8 @@ async function deflateDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
  * @param buffer - the input buffer
  * @returns - the decoded buffer
  */
-function rawDecoder(buffer: ArrayBuffer): ArrayBuffer {
+function rawDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
   return buffer;
-}
-/**
- * Image decoder
- * @param buffer - the input buffer
- * @returns - the decoded buffer
- */
-async function imageDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
-  const blob = new Blob([buffer as ArrayBuffer]); // e.g. { type: 'image/png' }
-  const imageBitmap = await createImageBitmap(blob);
-  // Create OffscreenCanvas and draw
-  const canvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
-  const ctx = canvas.getContext('2d');
-  if (ctx === null) throw new Error('Could not get 2d context');
-  ctx.drawImage(imageBitmap, 0, 0);
-
-  const imageData = ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
-  return imageData.data.buffer;
 }
 
 /**
@@ -60,7 +43,7 @@ async function imageDecoder(buffer: ArrayBuffer): Promise<ArrayBuffer> {
  * @param buffer - an array of packed bits in a block
  * @returns the decoded array
  */
-function packbitsDecoder(buffer: ArrayBuffer): ArrayBuffer {
+function packbitsDecoder(buffer: ArrayBufferLike): ArrayBufferLike {
   const dataView = new DataView(buffer);
   const out = [];
 

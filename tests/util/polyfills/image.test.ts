@@ -29,6 +29,7 @@ test('createImageBitmap', async () => {
   const imageData = ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
   expect(imageData.data).toEqual(new Uint8ClampedArray(rgbImage));
 
+  // just pull out red and green:
   const sliceData = ctx.getImageData(0, 0, 2, 1);
   expect(sliceData.data).toEqual(new Uint8ClampedArray([255, 0, 0, 255, 0, 255, 0, 255]));
 });

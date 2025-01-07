@@ -1,1 +1,1 @@
-export * from '../../../src/geometry/planets';
+export * from '../../../src/space/planets';

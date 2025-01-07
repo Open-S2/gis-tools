@@ -1,4 +1,4 @@
-import { EARTH_RADIUS } from '../planets/earth';
+import { EARTH_RADIUS } from '../../space/planets';
 import { angle } from '../s2/point';
 import { getDistance } from '../ll';
 import { degToRad, radToDeg } from '..';
@@ -113,6 +113,7 @@ export function toE7(e7_: number): S1Angle {
 export function fromS2Points(a: Point3D, b: Point3D): S1Angle {
   return angle(a, b);
 }
+
 /**
  * Like the constructor above, but return the angle (i.e., distance) between
  * two S2LatLng points.  This function has about 15 digits of accuracy for
@@ -129,19 +130,41 @@ export function fromLonLat(a: LonLat, b: LonLat): S1Angle {
 /**
  * convert an angle in radians to an angle in meters
  * @param angle - input angle in radians
+ * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
  */
-export function toMeters(angle: S1Angle): number {
-  return angle * EARTH_RADIUS;
+export function toMeters(angle: S1Angle, radius = EARTH_RADIUS): number {
+  return angle * radius;
+}
+
+/**
+ * convert an angle in meters to an angle in radians
+ * @param angle - angle in meters
+ * @param radius - radius of the planet (defaults to Earth's radius)
+ * @returns - angle in radians
+ */
+export function fromMeters(angle: number, radius = EARTH_RADIUS): S1Angle {
+  return angle / radius;
 }
 
 /**
  * convert an angle in radians to an angle in kilometers
  * @param angle - input angle in radians
+ * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
  */
-export function toKM(angle: S1Angle): number {
-  return (angle * EARTH_RADIUS) / 1_000;
+export function toKM(angle: S1Angle, radius = EARTH_RADIUS): number {
+  return (angle * radius) / 1_000;
+}
+
+/**
+ * convert an angle in kilometers to an angle in radians
+ * @param angle - angle in kilometers
+ * @param radius - radius of the planet (defaults to Earth's radius)
+ * @returns - angle in radians
+ */
+export function fromKM(angle: number, radius = EARTH_RADIUS): S1Angle {
+  return (angle * 1_000) / radius;
 }
 
 // Note that the E5, E6, and E7 conversion involve two multiplications rather

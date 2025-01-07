@@ -325,6 +325,7 @@ export function geocentricFromWgs84(
 }
 
 /**
+ * check if 1 or 2 (3 or 7 parameter datum)
  * @param type - datum type
  * @returns - true if 1 or 2 (3 or 7 parameter datum)
  */

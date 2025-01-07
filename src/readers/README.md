@@ -14,4 +14,3 @@
 - [ ] MDS
 - [ ] Images (.png) <https://github.com/pngjs/pngjs/tree/main> (used by grib2)
 - [ ] LAS/LAZ <https://github.com/laslibs/las-js/tree/master>
-- [ ] webmercator tile reader

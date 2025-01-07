@@ -2,7 +2,7 @@ import { DataBaseFile } from './dbf';
 import { FileReader } from '../file';
 import { ShapeFileReader } from './shp';
 import { Transformer } from '../../proj4';
-import { fromGzip } from '.';
+import { shapefileFromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
 
 import type { ProjectionTransformDefinition } from '../../proj4';
@@ -30,19 +30,20 @@ export interface Definition {
 
 /**
  * Assumes the input is pointing to a shapefile or name without the extension.
- * The algorithm will find the rest of the paths if they exist.
+ * The algorithm will find the rest of the paths if they exist. May also be a gzipped folder.
  * @param input - the path to the .shp file or name without the extension
  * @param defs - optional array of ProjectionTransformDefinitions to insert
+ * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
  * @returns - a Shapefile
  */
 export async function shapefileFromPath(
   input: string,
   defs?: ProjectionTransformDefinition[],
+  epsgCodes?: Record<string, string>,
 ): Promise<ShapeFileReader> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
-    // need to ass `as ArrayBuffer` to avoid typescript error via github actions
-    return fromGzip(gzipData.buffer as ArrayBuffer);
+    return shapefileFromGzip(gzipData.buffer);
   }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;
@@ -56,18 +57,21 @@ export async function shapefileFromPath(
     prj: (await exists(prj)) ? prj : undefined,
     cpg: (await exists(cpg)) ? cpg : undefined,
   };
-  return shapefileFromDefinition(definition, defs);
+
+  return shapefileFromDefinition(definition, defs, epsgCodes);
 }
 
 /**
  * Build a Shapefile from a Definition
  * @param def - a description of the data to parse
  * @param defs - optional array of ProjectionTransformDefinitions to insert
+ * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
  * @returns - a Shapefile
  */
 export async function shapefileFromDefinition(
   def: Definition,
-  defs?: ProjectionTransformDefinition[],
+  defs: ProjectionTransformDefinition[] = [],
+  epsgCodes: Record<string, string> = {},
 ): Promise<ShapeFileReader> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
@@ -76,8 +80,9 @@ export async function shapefileFromDefinition(
   const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
   const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
 
-  if (transform !== undefined && defs !== undefined) {
+  if (transform !== undefined) {
     for (const def of defs) transform.insertDefinition(def);
+    for (const [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
   }
 
   return new ShapeFileReader(new FileReader(shp), databaseFile, transform);

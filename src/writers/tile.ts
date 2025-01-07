@@ -26,7 +26,7 @@ export class FileTileWriter implements TileWriter {
    * @param y - the tile Y coordinate
    * @param data - the tile data to store
    */
-  async writeTileXYZ(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
+  async writeTileWM(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
     // if folders don't exist, create it
     const folders = `${this.path}/${zoom}/${x}`;
     if (!existsSync(folders)) await mkdir(folders, { recursive: true });

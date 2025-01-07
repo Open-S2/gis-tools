@@ -1,4 +1,4 @@
-import { EARTH_RADIUS_EQUATORIAL, EARTH_RADIUS_POLAR } from '../planets/earth';
+import { EARTH_RADIUS_EQUATORIAL, EARTH_RADIUS_POLAR } from '../../space/planets/earth';
 import {
   IJtoST,
   STtoIJ,

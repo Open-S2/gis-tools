@@ -1,4 +1,4 @@
-import { EARTH_CIRCUMFERENCE } from '../planets/earth';
+import { EARTH_CIRCUMFERENCE } from '../../space/planets/earth';
 import { degToRad, radToDeg } from '../util';
 
 import type { BBox, Point, Point3D } from '../';
@@ -210,7 +210,7 @@ export function xyzToBBOX(
 
 /**
  * Convert a bbox of the form `[w, s, e, n]` to a tile's bounding box
- * in the form of { minX, maxX, minY, maxY }
+ * in the form of [minX, maxX, minY, maxY]
  * The bbox can be in lon-lat (WGS84) or WebMercator (900913)
  * The default expectation is in WebMercator (900913)
  * @param bbox - the bounding box

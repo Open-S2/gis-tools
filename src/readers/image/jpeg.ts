@@ -47,7 +47,7 @@ export interface JPEGComponent {
   quantizationIdx: number;
   blocksPerLine: number;
   blocksPerColumn: number;
-  blocks: Int32Array<ArrayBuffer>[][];
+  blocks: Int32Array[][];
   huffmanTableDC: HuffmanNode[];
   huffmanTableAC: HuffmanNode[];
   quantizationTable: Int32Array;
@@ -98,7 +98,7 @@ export interface JFIF {
 
 /** The result of an individual parse */
 export interface ParseResult {
-  data: Uint8Array<ArrayBuffer>;
+  data: Uint8Array;
   outComponents: OutComponent[];
   ready: boolean;
 }
@@ -107,8 +107,8 @@ export interface ParseResult {
 export interface Image {
   width: number;
   height: number;
-  exifBuffer: Uint8Array<ArrayBuffer> | null;
-  data: Uint8Array<ArrayBuffer>;
+  exifBuffer: Uint8Array | null;
+  data: Uint8Array;
   comments?: string[];
 }
 
@@ -119,8 +119,8 @@ export interface Image {
  * @param jpegTables - The JPEG tables (if provided)
  * @returns - The decoded image
  */
-export function decode(
-  jpegData: ArrayBuffer,
+export function decodeJpegData(
+  jpegData: ArrayBufferLike,
   userOpts?: JPEGOptions,
   jpegTables?: number[],
 ): Image {
@@ -143,8 +143,8 @@ export function decode(
  * @param jpegTables - The JPEG tables (if provided)
  * @returns - The decoded image as a buffer
  */
-export function jpegDecoder(buffer: ArrayBuffer, jpegTables?: number[]): ArrayBuffer {
-  const { data } = decode(buffer, { skipMutation: true }, jpegTables);
+export function jpegDecoder(buffer: ArrayBufferLike, jpegTables?: number[]): ArrayBufferLike {
+  const { data } = decodeJpegData(buffer, { skipMutation: true }, jpegTables);
   return data.buffer;
 }
 
@@ -169,7 +169,7 @@ export class JpegStreamReader {
   comments: string[] = [];
   adobe: Adobe | null = null;
   jfif: JFIF | null = null;
-  exifBuffer: Uint8Array<ArrayBuffer> | null = null;
+  exifBuffer: Uint8Array | null = null;
   frames: Frame[] = [];
   dctZigZag = new Int32Array([
     0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
@@ -227,7 +227,7 @@ export class JpegStreamReader {
    * Parse the data into the frames
    * @param data - The individual block of JPEG data to parse
    */
-  parse(data: Uint8Array<ArrayBuffer>): void {
+  parse(data: Uint8Array): void {
     const maxResolutionInPixels = this.maxResolutionInMP * 1000 * 1000;
     let offset = 0;
     /**
@@ -241,7 +241,7 @@ export class JpegStreamReader {
     /**
      * @returns - The next block as a Uint8Array
      */
-    function readDataBlock(): Uint8Array<ArrayBuffer> {
+    function readDataBlock(): Uint8Array {
       const length = readUint16();
       const array = data.subarray(offset, offset + length - 2);
       offset += array.length;
@@ -866,10 +866,7 @@ interface Code {
  * @param values - array of values
  * @returns - the Huffman table
  */
-function buildHuffmanTable(
-  codeLengths: Uint8Array<ArrayBuffer>,
-  values: Uint8Array<ArrayBuffer>,
-): HuffmanNode[] {
+function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): HuffmanNode[] {
   let k = 0;
   const code: Code[] = [];
   let length = 16;
@@ -923,7 +920,7 @@ function buildHuffmanTable(
  * @returns - the decoded scan size
  */
 function decodeScan(
-  data: Uint8Array<ArrayBuffer>,
+  data: Uint8Array,
   offset: number,
   frame: Frame,
   components: JPEGComponent[],
@@ -1260,10 +1257,7 @@ function decodeScan(
  * @param reader - the jpeg stream reader
  * @returns - the component data
  */
-function buildComponentData(
-  component: JPEGComponent,
-  reader: JpegStreamReader,
-): Uint8Array<ArrayBuffer>[] {
+function buildComponentData(component: JPEGComponent, reader: JpegStreamReader): Uint8Array[] {
   const lines = [];
   const blocksPerLine = component.blocksPerLine;
   const blocksPerColumn = component.blocksPerColumn;
@@ -1282,11 +1276,7 @@ function buildComponentData(
    * @param dataOut - the 8x8 block
    * @param dataIn - the 8x8 block
    */
-  function quantizeAndInverse(
-    zz: Int32Array<ArrayBuffer>,
-    dataOut: Uint8Array<ArrayBuffer>,
-    dataIn: Int32Array<ArrayBuffer>,
-  ): void {
+  function quantizeAndInverse(zz: Int32Array, dataOut: Uint8Array, dataIn: Int32Array): void {
     const qt = component.quantizationTable;
     let v0, v1, v2, v3, v4, v5, v6, v7, t;
     const p = dataIn;

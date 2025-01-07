@@ -1,3 +1,4 @@
+/** Common Code Licenses */
 export const LICENSES = [
   '0BSD',
   'AAL',

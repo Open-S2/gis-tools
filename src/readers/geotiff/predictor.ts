@@ -58,13 +58,13 @@ function decodeRowFloatingPoint(
  * @returns - the modified block
  */
 export function applyPredictor(
-  block: ArrayBuffer,
+  block: ArrayBufferLike,
   predictor: number,
   width: number,
   height: number,
   bitsPerSample: number[],
   planarConfiguration: number,
-): ArrayBuffer {
+): ArrayBufferLike {
   if (predictor === 0 || predictor === 1) {
     return block;
   }

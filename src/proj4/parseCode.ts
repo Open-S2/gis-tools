@@ -15,7 +15,7 @@ import type { Transformer } from './transformer';
 
 /**
  * Parse a proj4 string or object into a projection object
- * TODO: Support json objects that use the https://proj.org/schemas/v0.7/projjson.schema.json
+ * TODO: Support json objects that use the jsonScheme.ts file
  * @param code - a proj4 projection definition string or object
  * @param transformer - the transformer to build the projection state around
  * @returns - a projection object

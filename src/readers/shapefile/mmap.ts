@@ -2,7 +2,7 @@ import { DataBaseFile } from './dbf';
 import { MMapReader } from '../mmap';
 import { ShapeFileReader } from './shp';
 import { Transformer } from '../../proj4';
-import { fromGzip } from '.';
+import { shapefileFromGzip } from '.';
 import { exists, readFile } from 'fs/promises';
 
 export * from './dbf';
@@ -35,8 +35,7 @@ export interface Definition {
 export async function shapefileFromPath(input: string) {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
-    // need to ass `as ArrayBuffer` to avoid typescript error via github actions
-    return fromGzip(gzipData.buffer as ArrayBuffer);
+    return shapefileFromGzip(gzipData.buffer);
   }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;

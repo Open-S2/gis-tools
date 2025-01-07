@@ -1,7 +1,6 @@
-import * as EPSG_Codes from './projections/references';
 import { NadGridStore } from '../readers/nadgrid';
 import { parseProj } from './parseCode';
-import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, WGS84 } from './projections';
+import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, EPSG_CODES, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
 import type { MValue, VectorPoint } from '../geometry';
@@ -12,10 +11,58 @@ import type {
 } from './projections';
 
 /**
+ * # PROJ4 Transformer
+ *
+ * ## Description
+ *
  * A Transformer class contains all projections necessary for converting coordinates from one
  * projection to another. This is a modular class that can be extended to add new projections
  * as needed to reduce code size and improve performance.
  * Both forward and inverse projections are default set to wgs84.
+ *
+ * Extends the {@link NadGridStore} class to support grid lookups
+ *
+ * ## Usage
+ *
+ * ### Full Example
+ *
+ * ```ts
+ * import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from 's2-tools';
+ *
+ * // Create a transform using a source and destination projection
+ * const transform = new Transformer();
+ * // inject all default definition projections. This is not memory efficient but ensures all
+ * // projections are available
+ * injectAllDefinitions(transform);
+ * // inject all common EPSG codes. This is not memory efficient but ensures all EPSG codes are available
+ * injectAllEPSGCodes(transform);
+ * // If the transform requires a grid, this is how you add it.
+ * transform.addGridFromReader(
+ *   'BETA2007.gsb',
+ *   new MMapReader(`${__dirname}/fixtures/BETA2007.gsb`),
+ * );
+ * // Set the source and destination projections
+ * transform.setSource('EPSG_31466');
+ * transform.setDestination('EPSG_25832');
+ * // example forward projection
+ * const forward = transform.forward({ x: 2559552, y: 5670982 });
+ * // example inverse projection
+ * const inverse = transform.inverse({ x: 349757.381712518, y: 5671004.06504954 });
+ * ```
+ *
+ * ### Minimal Example only adding the Oblique Mercator
+ *
+ * ```ts
+ * import { Transformer, HotineObliqueMercator, EPSG_8803 } from 's2-tools';
+ *
+ * const transform = new Transformer();
+ * transform.insertDefinition(HotineObliqueMercator);
+ * transform.insertEPSGCode('EPSG_8803', EPSG_8803);
+ *
+ * transform.setDestination('EPSG_8803');
+ *
+ * const forward = transform.forward({ x: 60.8, y: -132.2 });
+ * ```
  */
 export class Transformer extends NadGridStore {
   // EPSG code definitions
@@ -34,6 +81,7 @@ export class Transformer extends NadGridStore {
    */
   constructor(sourceCode?: string | ProjectionParams, destCode?: string | ProjectionParams) {
     super();
+    // by default supports the mercator and base (lon-lat) projection
     for (const def of DEFAULT_DEFINITIONS) this.insertDefinition(def);
     // defaults to a standard WGS84 lon-lat projection transform
     this.source = this.destination = this.wgs84 = this.#buildTransformer(WGS84);
@@ -58,6 +106,7 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Build a ProjectionTransform
    * @param code - can be a WKT object or proj4 encoded string
    * @returns - A ready to use ProjectionTransform
    */
@@ -88,6 +137,11 @@ export class Transformer extends NadGridStore {
 
   /**
    * Insert a projection definition
+   * ```ts
+   * import { HotineObliqueMercator } from 's2-tools';
+   * const transformer = new Transformer();
+   * transformer.insertDefinition(HotineObliqueMercator);
+   * ```
    * @param def - a class that may be instatiated with future setSource and setDestination
    * @param names - optionally add projection reference names to add lookups to the definition
    */
@@ -98,6 +152,11 @@ export class Transformer extends NadGridStore {
 
   /**
    * Insert an EPSG code definition
+   * ```ts
+   * import { EPSG_4326 } from 's2-tools';
+   * const transformer = new Transformer();
+   * transformer.insertEPSGCode('EPSG_4326', EPSG_4326);
+   * ```
    * @param code - EPSG code to insert e.g. "EPSG_4326" (uses underscore instead of colon)
    * @param value - the EPSG definition which is either a WKT string object or proj4 encoded string
    */
@@ -107,6 +166,11 @@ export class Transformer extends NadGridStore {
 
   /**
    * Forward projection from src projection to dest projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.forward({ x: 0, y: 0 });
+   * ```
    * @param p - vector point currently in the "source" projection
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
@@ -116,6 +180,12 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Inverse projection from dest projection to src projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.inverse({ x: 0, y: 0 });
+   * ```
    * @param p - vector point currently in the "destination" projection
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "source" projection
@@ -125,6 +195,7 @@ export class Transformer extends NadGridStore {
   }
 
   /**
+   * Transforms a point from one projection to another
    * @param sourcePoint - point to start transforming
    * @param src - source projection
    * @param dest - destination projection
@@ -195,7 +266,7 @@ export function injectAllDefinitions(transformer: Transformer): void {
  * @param transformer - the transformer to inject EPSG codes to
  */
 export function injectAllEPSGCodes(transformer: Transformer): void {
-  for (const [key, value] of Object.entries(EPSG_Codes)) transformer.insertEPSGCode(key, value);
+  for (const [key, value] of Object.entries(EPSG_CODES)) transformer.insertEPSGCode(key, value);
 }
 
 /**

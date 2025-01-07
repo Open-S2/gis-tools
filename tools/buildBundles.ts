@@ -60,6 +60,7 @@ await build({
     `${__dirname}/builds/readers/pmtiles.ts`,
     `${__dirname}/builds/readers/protobuf.ts`,
     `${__dirname}/builds/readers/shapefile.ts`,
+    `${__dirname}/builds/readers/tile.ts`,
     `${__dirname}/builds/readers/wkt.ts`,
     // SPACE
     `${__dirname}/builds/space/sat.ts`,

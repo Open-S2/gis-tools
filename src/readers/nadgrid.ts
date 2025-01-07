@@ -3,12 +3,6 @@ import { toReader } from '.';
 import type { FeatureCollection, VectorFeature, VectorMultiPoint, VectorPoint } from '../geometry';
 import type { FeatureIterator, Reader, ReaderInputs } from '.';
 
-/**
- * Resources for details of NTv2 file formats:
- * - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
- * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
- */
-
 /** Seconds to degrees (S / 3_600) */
 const SEC2DEG = 0.00000484813681109536;
 
@@ -22,14 +16,31 @@ export interface NadSubGrid {
 }
 
 /** A grid wrapper around a parsed .gsb file */
-export interface GridDefinition {
+export interface NadGridDefinition {
   name: string;
   mandatory: boolean;
   grid?: NadGridReader;
   isNull: boolean;
 }
 
-/** Store Grids from a NTv2 file (.gsb) */
+/**
+ * # NAD Grid V2 Reader
+ *
+ * ## Description
+ * Store Grids from a NTv2 file (.gsb)
+ *
+ * ## Usage
+ * ```ts
+ * import { NadGridReader } from 's2-tools';
+ * import { MMapReader } from 's2-tools/mmap';
+ *
+ * const store = new NadGridStore();
+ *
+ * store.addGridFromReader('BETA2007.gsb', new MMapReader(`${__dirname}/fixtures/BETA2007.gsb`));
+ *
+ * const grid = store.getGrid('BETA2007.gsb');
+ * ```
+ */
 export class NadGridStore {
   grids = new Map<string, NadGridReader>();
 
@@ -65,8 +76,8 @@ export class NadGridStore {
    * @param keys - complex string of grid keys to test against
    * @returns - an array of grid definitions
    */
-  getGridsFromString(keys?: string): GridDefinition[] {
-    const res: GridDefinition[] = [];
+  getGridsFromString(keys?: string): NadGridDefinition[] {
+    const res: NadGridDefinition[] = [];
     if (keys === undefined) return res;
     for (const grid of keys.split(',')) {
       const g = this.getGridFromString(grid);
@@ -80,7 +91,7 @@ export class NadGridStore {
    * @param name - a single grid name to test against
    * @returns - a grid definition
    */
-  getGridFromString(name: string): undefined | GridDefinition {
+  getGridFromString(name: string): undefined | NadGridDefinition {
     if (name.length === 0) return undefined;
     const optional = name[0] === '@';
     if (optional) name = name.slice(1);
@@ -137,7 +148,32 @@ export interface NadGridMetadata {
   count: number;
 }
 
-/** Load a binary NTv2 file (.gsb) */
+/**
+ * # NAD Grid Reader
+ *
+ * ## Description
+ * Loads/reads a binary NTv2 file (.gsb) implementing the {@link FeatureIterator} interface
+ *
+ * It should be noted that a proj4 Transformer usually uses this class internally. But if you want
+ * to manually parse a .gsb file, you can use this class directly.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { NadGridReader } from 's2-tools'
+ * // mmap is a Bun exclusive feature, consider using `s2-tools/file`'s `FileReader` instead.
+ * import { MMapReader } from 's2-tools/mmap';
+ *
+ * const reader = new NadGridReader('BETA2007.gsb', new MMapReader('./BETA2007.gsb'));
+ *
+ * // access all the vector features
+ * const data = await Array.fromAsync(reader);
+ * ```
+ *
+ * ## Links
+ * - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
+ * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
+ */
 export class NadGridReader implements FeatureIterator<NadGridMetadata> {
   reader: Reader;
   #isLittleEndian = false;

@@ -1,15 +1,15 @@
 import { FileReader } from '../../../src/file';
-import { GeoTIFFReader } from '../../../src/readers/geotiff';
+import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from '../../../src';
 import { expect, test } from 'bun:test';
 
 // import { fromArrayBuffer } from '../../../geotiff/src/geotiff';
 import { fromArrayBuffer } from 'geotiff';
 
-import type { ArrayTypes } from '../../../src/readers/geotiff';
+import type { ArrayTypes } from '../../../src';
 
 test('utm.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
 
   const image = geotiffReader.getImage();
   const raster = await image.rasterData();
@@ -47,7 +47,7 @@ test('utm.tif test', async (): Promise<void> => {
 
 test('pixel_is_point_wgs84.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/pixel_is_point_wgs84.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
 
   const image = geotiffReader.getImage();
   const raster = await image.rasterData();
@@ -101,7 +101,7 @@ test('pixel_is_point_wgs84.tif test', async (): Promise<void> => {
 test('albers_equal_area.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/albers_equal_area.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -143,7 +143,7 @@ test('albers_equal_area.tif test', async (): Promise<void> => {
 test('mercator1sp.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/mercator1sp.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -186,7 +186,7 @@ test('byte.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/byte.tif`);
   // const ntv2 = new MMapReader(`${__dirname}/fixtures/ntv2_0.gsb`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   // geotiffReader.addGridReader('NTv2_0.gsb', ntv2);
   const image = geotiffReader.getImage();
   // compare data
@@ -209,7 +209,7 @@ test('byte.tif test', async (): Promise<void> => {
 test('byte_v11.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/byte_v11.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -231,7 +231,7 @@ test('byte_v11.tif test', async (): Promise<void> => {
 test('cassini_soldner.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/cassini_soldner.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -253,7 +253,7 @@ test('cassini_soldner.tif test', async (): Promise<void> => {
 test('epsg_27563_allgeokeys.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/epsg_27563_allgeokeys.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -285,7 +285,7 @@ test('epsg_27563_only_pcs_code.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/epsg_27563_only_pcs_code.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -317,7 +317,7 @@ test('equidistant_cylindrical.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/equidistant_cylindrical.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -341,7 +341,7 @@ test('GeogAngularUnitsGeoKey_9114.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/GeogAngularUnitsGeoKey_9114.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -364,7 +364,7 @@ test('GeogGeodeticDatumGeoKey.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/GeogGeodeticDatumGeoKey.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -385,7 +385,7 @@ test('GeogPrimeMeridianGeoKey.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/GeogPrimeMeridianGeoKey.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -406,7 +406,7 @@ test('hotine_oblique_mercator_variant_a.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/hotine_oblique_mercator_variant_a.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -430,7 +430,7 @@ test('hotine_oblique_mercator_variant_a.tif test', async (): Promise<void> => {
 test('polyconic.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/polyconic.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -454,7 +454,7 @@ test('ProjectedCSTypeGeoKey_2046_transverse_mercator_south_oriented.tif test', a
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_2046_transverse_mercator_south_oriented.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -480,7 +480,7 @@ test('ProjectedCSTypeGeoKey_3032_polar_stereographic_variant_b.tif test', async 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3032_polar_stereographic_variant_b.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -506,7 +506,7 @@ test('ProjectedCSTypeGeoKey_3035_lambert_azimuthal_equal_area.tif test', async (
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3035_lambert_azimuthal_equal_area.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -532,7 +532,7 @@ test('ProjectedCSTypeGeoKey_3083_albers_equal_area.tif test', async (): Promise<
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3083_albers_equal_area.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -558,7 +558,7 @@ test('ProjectedCSTypeGeoKey_3410_lambert_cylindrical_equal_area.tif test', async
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3410_lambert_cylindrical_equal_area.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -584,7 +584,7 @@ test('ProjectedCSTypeGeoKey_3812_lcc2sp.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3812_lcc2sp.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -610,7 +610,7 @@ test('ProjectedCSTypeGeoKey_3814_transverse_mercator.tif test', async (): Promis
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_3814_transverse_mercator.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -636,7 +636,7 @@ test('ProjectedCSTypeGeoKey_4087_equidistant_cylindrical.tif test', async (): Pr
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_4087_equidistant_cylindrical.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -662,7 +662,7 @@ test('ProjectedCSTypeGeoKey_5329_mercator1sp.tif test', async (): Promise<void> 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_5329_mercator1sp.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -688,7 +688,7 @@ test('ProjectedCSTypeGeoKey_5456_lcc1sp.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_5456_lcc1sp.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -714,7 +714,7 @@ test('ProjectedCSTypeGeoKey_5482_polar_stereographic_variant_a.tif test', async 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_5482_polar_stereographic_variant_a.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -740,7 +740,7 @@ test('ProjectedCSTypeGeoKey_5588_oblique_stereographic.tif test', async (): Prom
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_5588_oblique_stereographic.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -766,7 +766,7 @@ test('ProjectedCSTypeGeoKey_5641_mercator2sp.tif test', async (): Promise<void> 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_5641_mercator2sp.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -792,7 +792,7 @@ test('ProjectedCSTypeGeoKey_6808_hotine_oblique_mercator_variant_a.tif test', as
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_6808_hotine_oblique_mercator_variant_a.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -820,7 +820,7 @@ test('ProjectedCSTypeGeoKey_8065_hotine_oblique_mercator_variant_b.tif test', as
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_8065_hotine_oblique_mercator_variant_b.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -847,7 +847,7 @@ test.skip('ProjectedCSTypeGeoKey_8441_oblique_mercator_laborde.tif test', async 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_8441_oblique_mercator_laborde.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -873,7 +873,7 @@ test('ProjectedCSTypeGeoKey_27200_new_zealand_mapping_grid.tif test', async (): 
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_27200_new_zealand_mapping_grid.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -899,7 +899,7 @@ test('ProjectedCSTypeGeoKey_28191_cassini_soldner.tif test', async (): Promise<v
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_28191_cassini_soldner.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -925,7 +925,7 @@ test('ProjectedCSTypeGeoKey_29101_polyconic.tif test', async (): Promise<void> =
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjectedCSTypeGeoKey_29101_polyconic.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -951,7 +951,7 @@ test('ProjLinearUnitsGeoKey_9036.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/ProjLinearUnitsGeoKey_9036.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -977,7 +977,7 @@ test('transverse_mercator_south_oriented.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(
     `${__dirname}/fixtures/projections/transverse_mercator_south_oriented.tif`,
   );
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(
@@ -1001,7 +1001,7 @@ test('transverse_mercator_south_oriented.tif test', async (): Promise<void> => {
 test('transverse_mercator.tif test', async (): Promise<void> => {
   // actual data
   const fileReader = new FileReader(`${__dirname}/fixtures/projections/transverse_mercator.tif`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+  const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
   const image = geotiffReader.getImage();
   // compare data
   const cmpTiff = await fromArrayBuffer(

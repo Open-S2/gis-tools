@@ -13,7 +13,9 @@ export * from './util';
 export * from './vehiclePosition';
 
 /**
- * A GTFS Realtime message.
+ * # GTFS Realtime message.
+ *
+ * ## Description
  * The input is a Uint8Array that has encoded protobuffer messages.
  * @see {@link Protobuf}.
  *
@@ -27,14 +29,16 @@ export * from './vehiclePosition';
  * https://github.com/google/transit/tree/master/gtfs-realtime for field
  * semantic cardinality.
  *
- * Example:
+ * ## Usage
  *
  * ```ts
- * import { GTFSRealtime } from 's2-tools';
+ * import { GTFSRealtimeReader } from 's2-tools';
  *
- * const vectorTile = new GTFSRealtime(data);
- * const { landuse } = vectorTile.layers;
- * const firstFeature = landuse.features(0);
+ * const gtfsRealtimeReader = new GTFSRealtimeReader(data);
+ * const { header, entities } = gtfsRealtimeReader;
+ * for (const entity of entities) {
+ *   console.log(entity);
+ * }
  * ```
  */
 export class GTFSRealtimeReader {
@@ -44,7 +48,7 @@ export class GTFSRealtimeReader {
    * @param data - the input data to parse
    * @param end - the size of the data, leave blank to parse the entire data
    */
-  constructor(data: Uint8Array<ArrayBuffer>, end = 0) {
+  constructor(data: Uint8Array, end = 0) {
     const pbf = new Protobuf(data);
     pbf.readFields(this.#readMessage, this, end);
   }

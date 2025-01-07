@@ -1,5 +1,5 @@
-import { polylabel } from '../../src';
 import { expect, test } from 'bun:test';
+import { polylabel, polylabels } from '../../src';
 
 import type { Polygon, VectorPolygon } from '../../src/geometry';
 
@@ -19,6 +19,28 @@ test('finds pole of inaccessibility for water1 and precision 1', async () => {
     y: 2123.828125,
     m: { distance: 278.5795872381558 },
   });
+});
+
+test('finds pole of inaccessibility for water1 and precision 1 as a collection', async () => {
+  const water1: Polygon = await Bun.file(`${__dirname}/fixtures/water1.json`).json();
+  const vectorWater1 = convertGeometry(water1);
+  const polylabelHighPrecision = polylabels([vectorWater1], 1);
+  expect(polylabelHighPrecision).toEqual([
+    {
+      x: 3865.85009765625,
+      y: 2124.87841796875,
+      m: { distance: 288.8493574779127 },
+    },
+  ]);
+
+  const polylabelLowPrecision = polylabels([vectorWater1], 50);
+  expect(polylabelLowPrecision).toEqual([
+    {
+      x: 3854.296875,
+      y: 2123.828125,
+      m: { distance: 278.5795872381558 },
+    },
+  ]);
 });
 
 test('finds pole of inaccessibility for water2 and default precision 1', async () => {

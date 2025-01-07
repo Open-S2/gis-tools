@@ -41,7 +41,7 @@ const Z = 90; // Z
  *      100 m, 2 for 1 km, 1 for 10 km or 0 for 100 km). Optional, default is 5.
  * @returns the MGRS string for the given location and accuracy.
  */
-export function forward(ll: VectorPoint, accuracy?: number): string {
+export function mgrsForward(ll: VectorPoint, accuracy?: number): string {
   accuracy = accuracy !== undefined ? accuracy : 5; // default accuracy 1m
 
   const { x, y } = ll;
@@ -68,7 +68,7 @@ export function forward(ll: VectorPoint, accuracy?: number): string {
  *    (longitude) and top (latitude) values in WGS84, representing the
  *    bounding box for the provided MGRS reference.
  */
-export function inverse(mgrs: string): undefined | BBox {
+export function mgrsInverse(mgrs: string): undefined | BBox {
   const bbox = UTMtoLL(decode(mgrs.toUpperCase()));
   if (bbox === undefined) return undefined;
   if (bbox.lat !== undefined && bbox.lon !== undefined) {
@@ -78,10 +78,11 @@ export function inverse(mgrs: string): undefined | BBox {
 }
 
 /**
+ * Convert MGRS to lat/lon.
  * @param mgrs - MGRS string.
  * @returns The center of the MGRS bounding box
  */
-export function toPoint(mgrs: string): undefined | VectorPoint {
+export function mgrsToPoint(mgrs: string): undefined | VectorPoint {
   const bbox = UTMtoLL(decode(mgrs.toUpperCase()));
   if (bbox === undefined) return undefined;
   if (bbox.lat !== undefined && bbox.lon !== undefined) return { x: bbox.lon, y: bbox.lat };
@@ -175,7 +176,7 @@ function LLtoUTM(ll: VectorPoint): UTM {
     northing: Math.trunc(UTMNorthing),
     easting: Math.trunc(UTMEasting),
     zoneNumber: ZoneNumber,
-    zoneLetter: getLetterDesignator(lat),
+    zoneLetter: mgrsGetLetterDesignator(lat),
   };
 }
 
@@ -324,7 +325,7 @@ function UTMtoLL(utm: UTM): PointBounds | undefined {
  *     for.
  * @returns The letter designator.
  */
-export function getLetterDesignator(latitude: number): string {
+export function mgrsGetLetterDesignator(latitude: number): string {
   if (latitude <= 84 && latitude >= 72) {
     // the X band is 12 degrees high
     return 'X';

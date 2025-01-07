@@ -131,7 +131,6 @@ function parseWKTArray(wktStr: string): WKTArray {
   return res.length > 0 ? (res[0] as WKTArray) : res;
 }
 
-// always return the endBracketIndex if we hit it
 /**
  * Parse a WKT array.
  * always return the endBracketIndex if we hit it

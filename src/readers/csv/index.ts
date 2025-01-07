@@ -17,7 +17,32 @@ export interface CSVReaderOptions {
   heightKey?: string;
 }
 
-/** Parse (Geo|S2)JSON from a file that is in the CSV format */
+/**
+ * # CSV Reader
+ *
+ * ## Description
+ * Parse (Geo|S2)JSON from a file that is in the CSV format
+ * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { CSVReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const fileReader = new FileReader(`${__dirname}/fixtures/basic3D.csv`);
+ * const csvReader = new CSVReader(fileReader, {
+ *  delimiter: ',',
+ *  lineDelimiter: '\n',
+ *  lonKey: 'Longitude',
+ *  latKey: 'Latitude',
+ *  heightKey: 'height',
+ * });
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
 export class CSVReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,

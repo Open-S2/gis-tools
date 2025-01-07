@@ -3,8 +3,9 @@ import { GeoTIFFHeaderReader } from './header';
 import { GeoTIFFImage } from './image';
 import { toReader } from '..';
 
-import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { GeoTIFFMetadata, RGBA } from './image';
+import type { GeoTIFFMetadata } from './image';
+import type { ProjectionTransformDefinition } from '../../proj4';
+import type { FeatureIterator, RGBA, Reader, ReaderInputs } from '..';
 import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
 
 export * from './color';
@@ -22,12 +23,33 @@ export interface GridReader {
 }
 
 /**
- * GeoTIFF Reader
+ * # GeoTIFF Reader
+ *
+ * ## Description
+ * This class reads a GeoTIFF file and returns a list of GeoTIFF images.
+ * Implements the {@link FeatureIterator} interface.
+ *
+ * ## Usage
+ * ```ts
+ * import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);
+ * const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
+ * ```
  */
 export class GeoTIFFReader extends GeoTIFFHeaderReader implements FeatureIterator<GeoTIFFMetadata> {
   gridStore: GridReader[] = [];
-  /** @param input - the geotiff input to parse data from */
-  constructor(input: ReaderInputs) {
+  /**
+   * @param input - the geotiff input to parse data from
+   * @param definitions - an array of projection definitions for the transformer if needed
+   * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
+   */
+  constructor(
+    input: ReaderInputs,
+    private definitions: ProjectionTransformDefinition[] = [],
+    private epsgCodes: Record<string, string> = {},
+  ) {
     const reader = toReader(input);
     super(reader);
   }
@@ -54,6 +76,8 @@ export class GeoTIFFReader extends GeoTIFFHeaderReader implements FeatureIterato
       this.imageDirectories[index],
       this.littleEndian,
       this.gridStore,
+      this.definitions,
+      this.epsgCodes,
     );
   }
 

@@ -102,9 +102,23 @@ export interface NetCDFReaderOptions {
 }
 
 /**
- * Reads a NetCDF v3.x file
+ * # NetCDF v3.x Reader
+ *
+ * ## Description
+ * Read the NetCDF v3.x file format
  * [See specification](https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html)
- * @param data - ArrayBuffer or any Typed Array (including Node.js' Buffer from v4) with the data
+ * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { NetCDFReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const reader = new NetCDFReader(new FileReader('./data.nc'));
+ * for (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
  */
 export class NetCDFReader<
   M = Record<string, unknown>,

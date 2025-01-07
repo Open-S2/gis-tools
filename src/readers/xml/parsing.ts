@@ -14,31 +14,33 @@ export interface XMLTag {
   end: number;
 }
 /** A Step is a name and an index */
-export interface Step {
+export interface XMLStep {
   name: string;
   index?: number | undefined | null;
 }
 /** A Path is an array of Steps or Strings */
-export type Path = Array<string | Step> | ReadonlyArray<string | Step>;
+export type XMLPath = Array<string | XMLStep> | ReadonlyArray<string | XMLStep>;
 
 /**
+ * Count the number of times a substring appears in a string
  * @param string - the string
  * @param substring - the substring
  * @returns the number of times the substring appears in the string
  */
-export function countSubstring(string: string, substring: string): number {
+export function xmlCountSubstring(string: string, substring: string): number {
   const pattern = new RegExp(substring, 'g');
   const match = string.match(pattern);
   return match !== null ? match.length : 0;
 }
 
 /**
+ * Find the first tag with the given name
  * @param xml - the xml string
  * @param tagName - the tag name
  * @param options - user defined options
  * @returns the first tag with the given name
  */
-export function findTagByName(
+export function xmlFindTagByName(
   xml: string,
   tagName: string,
   options?: XMLOptions,
@@ -50,13 +52,13 @@ export function findTagByName(
 
   if (debug) console.info('[xml-utils] starting findTagByName with', tagName, ' and ', options);
 
-  const start = indexOfMatch(xml, `<${tagName}[ \n>/]`, startIndex);
+  const start = xmlIndexOfMatch(xml, `<${tagName}[ \n>/]`, startIndex);
   if (debug) console.info('[xml-utils] start:', start);
   if (start === -1) return undefined;
 
   const afterStart = xml.slice(start + tagName.length);
 
-  let relativeEnd = indexOfMatchEnd(afterStart, '^[^<]*[ /]>', 0);
+  let relativeEnd = xmlIndexOfMatchEnd(afterStart, '^[^<]*[ /]>', 0);
 
   const selfClosing = relativeEnd !== -1 && afterStart[relativeEnd - 1] === '/';
   if (debug) console.info('[xml-utils] selfClosing:', selfClosing);
@@ -68,17 +70,17 @@ export function findTagByName(
       let openings = 1;
       let closings = 0;
       while (
-        (relativeEnd = indexOfMatchEnd(afterStart, '[ /]' + tagName + '>', startIndex)) !== -1
+        (relativeEnd = xmlIndexOfMatchEnd(afterStart, '[ /]' + tagName + '>', startIndex)) !== -1
       ) {
         const clip = afterStart.substring(startIndex, relativeEnd + 1);
-        openings += countSubstring(clip, '<' + tagName + '[ \n\t>]');
-        closings += countSubstring(clip, '</' + tagName + '>');
+        openings += xmlCountSubstring(clip, '<' + tagName + '[ \n\t>]');
+        closings += xmlCountSubstring(clip, '</' + tagName + '>');
         // we can't have more openings than closings
         if (closings >= openings) break;
         startIndex = relativeEnd;
       }
     } else {
-      relativeEnd = indexOfMatchEnd(afterStart, '[ /]' + tagName + '>', 0);
+      relativeEnd = xmlIndexOfMatchEnd(afterStart, '[ /]' + tagName + '>', 0);
     }
   }
 
@@ -100,31 +102,37 @@ export function findTagByName(
 }
 
 /**
+ * Find the first tag with the given path
  * @param xml - the xml string
  * @param path - the path
  * @param options - user defined options
  * @returns the first tag with the given path
  */
-export function findTagByPath(xml: string, path: Path, options?: XMLOptions): XMLTag | undefined {
+export function xmlFindTagByPath(
+  xml: string,
+  path: XMLPath,
+  options?: XMLOptions,
+): XMLTag | undefined {
   const debug = options?.debug ?? false;
-  const found = findTagsByPath(xml, path, { debug, returnOnFirst: true });
+  const found = xmlFindTagsByPath(xml, path, { debug, returnOnFirst: true });
   if (Array.isArray(found) && found.length === 1) return found[0];
   else return undefined;
 }
 
 /**
+ * Find all tags with the given name
  * @param xml - the xml string
  * @param tagName - the tag name
  * @param options - user defined options
  * @returns all tags with the given name
  */
-export function findTagsByName(xml: string, tagName: string, options?: XMLOptions): XMLTag[] {
+export function xmlFindTagsByName(xml: string, tagName: string, options?: XMLOptions): XMLTag[] {
   const tags = [];
   const debug = options?.debug ?? false;
   const nested = options?.nested ?? true;
   let startIndex = options?.startIndex ?? 0;
   while (true) {
-    const tag = findTagByName(xml, tagName, { debug, startIndex });
+    const tag = xmlFindTagByName(xml, tagName, { debug, startIndex });
     if (tag === undefined) break;
     if (nested) {
       startIndex = tag.start + 1 + tagName.length;
@@ -138,12 +146,13 @@ export function findTagsByName(xml: string, tagName: string, options?: XMLOption
 }
 
 /**
+ * Find all tags with the given path
  * @param xml - the xml string
  * @param path - the path
  * @param options - user defined options
  * @returns all tags with the given path
  */
-export function findTagsByPath(xml: string, path: Path, options?: XMLOptions): XMLTag[] {
+export function xmlFindTagsByPath(xml: string, path: XMLPath, options?: XMLOptions): XMLTag[] {
   const debug = options?.debug ?? false;
   if (debug) console.info('[xml-utils] starting findTagsByPath with: ', xml.substring(0, 500));
   const returnOnFirst = options?.returnOnFirst ?? false;
@@ -151,7 +160,7 @@ export function findTagsByPath(xml: string, path: Path, options?: XMLOptions): X
   if (Array.isArray(path) === false) throw new Error('[xml-utils] path should be an array');
 
   const path0 = typeof path[0] === 'string' ? { name: path[0] } : path[0];
-  let tags = findTagsByName(xml, path0.name, { debug, nested: false });
+  let tags = xmlFindTagsByName(xml, path0.name, { debug, nested: false });
   if (typeof tags !== 'undefined' && typeof path0.index === 'number') {
     if (typeof tags[path0.index] === 'undefined') {
       tags = [];
@@ -164,15 +173,15 @@ export function findTagsByPath(xml: string, path: Path, options?: XMLOptions): X
   path = path.slice(1);
 
   for (let pathIndex = 0; pathIndex < path.length; pathIndex++) {
-    const part: { name: string } | Step =
+    const part: { name: string } | XMLStep =
       typeof path[pathIndex] === 'string'
         ? { name: path[pathIndex] as string }
-        : (path[pathIndex] as Step);
+        : (path[pathIndex] as XMLStep);
     if (debug) console.info('part.name:', part.name);
     let allSubTags: XMLTag[] = [];
     for (let tagIndex = 0; tagIndex < tags.length; tagIndex++) {
       const tag = tags[tagIndex];
-      const subTags = findTagsByName(tag.outer, part.name, {
+      const subTags = xmlFindTagsByName(tag.outer, part.name, {
         debug,
         startIndex: 1,
       });
@@ -200,12 +209,13 @@ export function findTagsByPath(xml: string, path: Path, options?: XMLOptions): X
 }
 
 /**
+ * Get the value of an attribute
  * @param tag - the tag
  * @param attributeName - the attribute name
  * @param options - user defined options
  * @returns the attribute value
  */
-export function getAttribute(
+export function xmlGetAttribute(
   tag: string | XMLTag,
   attributeName: string,
   options?: XMLOptions,
@@ -232,12 +242,13 @@ export function getAttribute(
 }
 
 /**
+ * Find the index of the last match
  * @param xml - the xml string
  * @param pattern - the pattern
  * @param startIndex - the start index
  * @returns the index of the last match
  */
-export function indexOfMatchEnd(xml: string, pattern: string, startIndex: number): number {
+export function xmlIndexOfMatchEnd(xml: string, pattern: string, startIndex: number): number {
   const re = new RegExp(pattern);
   const match = re.exec(xml.slice(startIndex));
   if (match !== null) return startIndex + match.index + match[0].length - 1;
@@ -245,12 +256,13 @@ export function indexOfMatchEnd(xml: string, pattern: string, startIndex: number
 }
 
 /**
+ * Find the index of the first match
  * @param xml - the xml string
  * @param pattern - the pattern
  * @param startIndex - the start index
  * @returns the index of the first match
  */
-export function indexOfMatch(xml: string, pattern: string, startIndex: number): number {
+export function xmlIndexOfMatch(xml: string, pattern: string, startIndex: number): number {
   const re = new RegExp(pattern);
   const match = re.exec(xml.slice(startIndex));
   if (match !== null) return startIndex + match.index;
@@ -258,23 +270,25 @@ export function indexOfMatch(xml: string, pattern: string, startIndex: number): 
 }
 
 /**
+ * Remove comments
  * @param xml - the xml string
  * @returns the xml without comments
  */
-export function removeComments(xml: string): string {
+export function xmlRemoveComments(xml: string): string {
   return xml.replace(/<!--[^]*-->/g, '');
 }
 
 /**
+ * Remove tags
  * @param xml - the xml string
  * @param tagName - the tag name
  * @param options - user defined options
  * @returns the xml without the given tag
  */
-export function removeTagsByName(xml: string, tagName: string, options?: XMLOptions) {
+export function xmlRemoveTagsByName(xml: string, tagName: string, options?: XMLOptions) {
   const debug = options?.debug ?? false;
   while (true) {
-    const tag = findTagByName(xml, tagName, { debug });
+    const tag = xmlFindTagByName(xml, tagName, { debug });
     if (tag === undefined) break;
     xml = xml.substring(0, tag.start) + xml.substring(tag.end);
     if (debug) console.info('[xml-utils] removed:', tag);

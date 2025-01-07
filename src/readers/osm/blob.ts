@@ -40,7 +40,7 @@ export class BlobHeader {
 /** A Blob is a data block containing the actual data. */
 export class Blob {
   raw_size = 0;
-  data: Uint8Array<ArrayBuffer> | Promise<Uint8Array<ArrayBuffer>> = new Uint8Array(0);
+  data: Uint8Array | Promise<Uint8Array> = new Uint8Array(0);
 
   /** @param pbf - the Protobuf object to read from */
   constructor(pbf: Protobuf) {

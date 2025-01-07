@@ -19,14 +19,52 @@ export interface PointShape<T = Stringifiable> {
   data: T;
 }
 
-/** An index of cells with radius queries */
-export class PointIndex<T = Stringifiable> {
+/**
+ * # Point Index
+ *
+ * ## Description
+ * An index of cells with radius queries
+ * Assumes the data is {@link Stringifiable}
+ *
+ * ## Usage
+ * ```ts
+ * import { PointIndex } from 's2-tools';
+ * import { FileVector } from 's2-tools/file';
+ *
+ * const pointIndex = new PointIndex();
+ * // or used a file based store
+ * const pointIndex = new PointIndex(FileVector);
+ *
+ * // insert a lon-lat
+ * pointIndex.insertLonLat(lon, lat, data);
+ * // insert an STPoint
+ * pointIndex.insertFaceST(face, s, t, data);
+ *
+ * // after adding data build the index. NOTE: You don't have to call this, it will be called
+ * // automatically when making a query
+ * await pointIndex.sort();
+ *
+ * // you can search a range
+ * const points = await pointIndex.searchRange(low, high);
+ * // or a radius
+ * const points = await pointIndex.searchRadius(center, radius);
+ * ```
+ */
+export class PointIndex<T extends Stringifiable = Stringifiable> {
   #store: VectorStore<PointShape<T>>;
   #unsorted: boolean = false;
 
   /** @param store - the store to index. May be an in memory or disk */
   constructor(store: VectorStoreConstructor<PointShape<T>> = Vector) {
     this.#store = new store();
+  }
+
+  /**
+   * Set the index store to a defined one. Useful for file based stores where we want to reuse data
+   * @param store - the index store
+   */
+  setStore(store: VectorStore<PointShape<T>>): void {
+    this.#store = store;
   }
 
   /**
@@ -66,7 +104,7 @@ export class PointIndex<T = Stringifiable> {
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<T>> {
     await this.sort();
-    for await (const value of this.#store) yield value;
+    yield* this.#store;
   }
 
   /** Sort the index in place if unsorted */
@@ -103,6 +141,7 @@ export class PointIndex<T = Stringifiable> {
   }
 
   /**
+   * Search for points given a range of low and high ids
    * @param low - the lower bound
    * @param high - the upper bound
    * @param maxResults - the maximum number of results to return

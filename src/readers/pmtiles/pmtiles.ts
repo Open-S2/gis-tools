@@ -44,7 +44,7 @@ export type DecompressFunc = (buf: Uint8Array, compression: Compression) => Prom
 
 /**
  * Describe the type of tiles stored in the archive.
- * 0 is unknown/other, 1 is "MVT" vector tiles.
+ * 0 is unknown/other, 1 is a vector tile spec.
  */
 export enum TileType {
   /** unknown/other. */
@@ -91,6 +91,7 @@ export const HEADER_SIZE_BYTES = 127;
 export const ROOT_SIZE = 16_384;
 
 /**
+ * Rotate a point by n degrees.
  * @param n - the rotation size
  * @param xy - the point
  * @param rx - the x rotation
@@ -109,6 +110,7 @@ function rotate(n: number, xy: Point, rx: number, ry: number): void {
 }
 
 /**
+ * Get the tile ID on the given level.
  * @param zoom - the zoom level
  * @param pos - the tile position
  * @returns - the tile
@@ -253,6 +255,7 @@ export function bytesToHeader(bytes: Uint8Array): Header {
 }
 
 /**
+ * Deserialize a directory from a Uint8Array.
  * @param buffer - the buffer to deserialize
  * @returns - the deserialized entries
  */
@@ -285,6 +288,7 @@ export function deserializeDir(buffer: Uint8Array): Entry[] {
 }
 
 /**
+ * Get a 64-bit number from a DataView
  * @param dv - a DataView
  * @param offset - the offset in the DataView
  * @returns - the decoded 64-bit number

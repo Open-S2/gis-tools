@@ -1,5 +1,5 @@
 import { PriorityQueue } from '../dataStructures/priorityQueue';
-import { Properties, VectorPoint, VectorPolygon } from '../geometry';
+import { Properties, VectorMultiPolygon, VectorPoint, VectorPolygon } from '../geometry';
 
 /** The metadata inserted into the Vector Feature */
 export interface PolyLabelMetadata extends Properties {
@@ -7,6 +7,44 @@ export interface PolyLabelMetadata extends Properties {
 }
 
 /**
+ * # Polylabels
+ *
+ * ## Description
+ * Find the labels for a collection of vector polygons
+ *
+ * ## Usage
+ * ```ts
+ * import { polylabels } from 's2-tools'
+ * import type { VectorMultiPolygon } from 's2-tools'
+ *
+ * const vectorGeometry: VectorMultiPolygon = [];
+ * const polylabelHighPrecision = polylabels(vectorGeometry, 1);
+ * ```
+ * @param polygons - A collection of vector polygons to find the labels for
+ * @param precision - the precision of the label
+ * @returns - the labels
+ */
+export function polylabels(
+  polygons: VectorMultiPolygon,
+  precision = 1.0,
+): VectorPoint<PolyLabelMetadata>[] {
+  return polygons.map((polygon) => polylabel(polygon, precision));
+}
+
+/**
+ * # Polylabel
+ *
+ * ## Description
+ * Find the label for a vector polygon
+ *
+ * ## Usage
+ * ```ts
+ * import { polylabel } from 's2-tools'
+ * import type { VectorPolygon } from 's2-tools'
+ *
+ * const vectorGeometry: VectorPolygon = [];
+ * const polylabelHighPrecision = polylabel(vectorGeometry, 1);
+ * ```
  * @param polygon - the vector polygon to find the label for
  * @param precision - the precision of the label
  * @returns - the label
@@ -45,6 +83,7 @@ export function polylabel(polygon: VectorPolygon, precision = 1.0): VectorPoint<
   if (bboxCell.d > bestCell.d) bestCell = bboxCell;
 
   /**
+   * add a cell to the queue
    * @param x - the cell x coordinate
    * @param y - the cell y coordinate
    * @param h - the cell height
@@ -101,6 +140,7 @@ interface PolyLabelCell {
 }
 
 /**
+ * build a cell
  * @param x - the cell x coordinate
  * @param y - the cell y coordinate
  * @param h - half the cell size

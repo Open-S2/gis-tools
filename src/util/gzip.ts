@@ -3,15 +3,30 @@ import { concatUint8Arrays } from '.';
 import type { Format } from '..';
 
 /**
+ * A Browser compatible Gzip compression function
+ * @param bytes - the data to decompress
+ * @param format - the format of the data. Defaults to 'gzip'
+ * @returns - the decompressed data
+ */
+export async function compressStream(bytes: Uint8Array, format?: Format): Promise<Uint8Array> {
+  // Convert the string to a byte stream.
+  const stream = new Blob([bytes]).stream();
+  // Create a compressed stream.
+  const compressedStream = stream.pipeThrough(new CompressionStream(format ?? 'gzip'));
+  // Read all the bytes from this stream.
+  const chunks = [];
+  for await (const chunk of compressedStream) chunks.push(chunk);
+
+  return await concatUint8Arrays(chunks);
+}
+
+/**
  * A Browser compatible Gzip decompression function
  * @param bytes - the data to decompress
  * @param format - the format of the data. Defaults to 'gzip'
  * @returns - the decompressed data
  */
-export async function decompressStream(
-  bytes: Uint8Array<ArrayBuffer>,
-  format?: Format,
-): Promise<Uint8Array<ArrayBuffer>> {
+export async function decompressStream(bytes: Uint8Array, format?: Format): Promise<Uint8Array> {
   if (format === undefined) format = bytes[0] === 0x1f && bytes[1] === 0x8b ? 'gzip' : 'deflate';
   // Convert the bytes to a stream.
   const stream = new Blob([bytes]).stream();
@@ -26,6 +41,7 @@ export async function decompressStream(
 }
 
 /**
+ * Find the end of the central directory
  * @param raw - the raw data
  * @returns - the end of the central directory
  */
@@ -51,14 +67,15 @@ function findEndCentralDirectory(raw: Uint8Array): number {
 export interface ZipItem {
   filename: string;
   comment: string;
-  read: () => Promise<Uint8Array<ArrayBuffer>> | Uint8Array<ArrayBuffer>;
+  read: () => Promise<Uint8Array> | Uint8Array;
 }
 
 /**
+ * Iterate over the items in a zip file
  * @param raw - the raw data to read
  * @yields - {@link ZipItem}
  */
-export function* iterItems(raw: Uint8Array<ArrayBuffer>): Generator<ZipItem, void, void> {
+export function* iterItems(raw: Uint8Array): Generator<ZipItem, void, void> {
   const d = new TextDecoder();
   let at = findEndCentralDirectory(raw);
   if (at === -1) {
@@ -70,7 +87,7 @@ export function* iterItems(raw: Uint8Array<ArrayBuffer>): Generator<ZipItem, voi
    * @param endBy - ending index
    * @returns - the subarray
    */
-  const subarrayMove = (startBy: number, endBy: number): Uint8Array<ArrayBuffer> =>
+  const subarrayMove = (startBy: number, endBy: number): Uint8Array =>
     raw.subarray((at += startBy), (at += endBy));
 
   const dataView = new DataView(raw.buffer, raw.byteOffset); // we don't need byteLength, could be a longer buffer :shrug:

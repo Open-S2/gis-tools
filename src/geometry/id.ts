@@ -65,6 +65,7 @@ export const K_WRAP_OFFSET = 13835058055282163712n;
 export const K_MAX_SIZE = 1073741824;
 
 /**
+ * Initialize the lookup table for the Hilbert curve
  * @param level - zoom level of the cell
  * @param i - x coord
  * @param j - y coord

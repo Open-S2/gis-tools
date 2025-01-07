@@ -3,8 +3,22 @@ import { degToRad, radToDeg } from '../geometry';
 import type { VectorPoint } from '../geometry';
 
 /**
+ * # Orthodrome
+ *
+ * ## Description
  * Represents an orthodrome, which is the shortest path between two points on a sphere.
  * [Learn more here](http://www.movable-type.co.uk/scripts/latlong.html)
+ *
+ * ## Usage
+ * ```ts
+ * import { Orthodrome } from 's2-tools'
+ *
+ * // starting at lon-lat (-60, -40) and ending at (20, 10)
+ * const orthodrome = new Orthodrome(-60, -40, 20, 10);
+ * // { x: -39.13793657428956, y: -33.72852197561652 }
+ * const intermediatePoint = orthodrome.intermediatePoint(0.2);
+ * // Distance in KM: 1.5514126949321814
+ * const distance = orthodrome.distanceTo();
  */
 export class Orthodrome {
   /** start longitude */
@@ -67,6 +81,7 @@ export class Orthodrome {
   }
 
   /**
+   * Finds the distance between the two points in kilometers
    * projected normalized (0->1)
    * @returns - total distance between the two points
    */

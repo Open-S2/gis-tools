@@ -1,6 +1,11 @@
-import { TileType } from '../../../src/readers/pmtiles';
 import tmp from 'tmp';
-import { BufferReader, BufferWriter, S2PMTilesReader, S2PMTilesWriter } from '../../../src';
+import {
+  BufferReader,
+  BufferWriter,
+  S2PMTilesReader,
+  S2PMTilesWriter,
+  TileType,
+} from '../../../src';
 import { FileReader, FileWriter } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
@@ -24,9 +29,9 @@ test('File Writer WM', async () => {
   const buf2 = Buffer.from(str2, 'utf8');
   const uint8_2 = new Uint8Array(buf2.buffer, buf2.byteOffset, buf2.byteLength);
   // write data in tile
-  await writer.writeTileXYZ(0, 0, 0, uint8);
-  await writer.writeTileXYZ(1, 0, 1, uint8);
-  await writer.writeTileXYZ(5, 2, 9, uint8_2);
+  await writer.writeTileWM(0, 0, 0, uint8);
+  await writer.writeTileWM(1, 0, 1, uint8);
+  await writer.writeTileWM(5, 2, 9, uint8_2);
   // finish
   await writer.commit({ metadata: true } as unknown as Metadata);
 
@@ -71,12 +76,11 @@ test('File Writer S2', async () => {
   const tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
   const writer = new S2PMTilesWriter(new FileWriter(tmpFile1), TileType.Pbf);
   // setup data
+  const txtEncoder = new TextEncoder();
   const str = 'hello world';
-  const buf = Buffer.from(str, 'utf8');
-  const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+  const uint8 = txtEncoder.encode(str);
   const str2 = 'hello world 2';
-  const buf2 = Buffer.from(str2, 'utf8');
-  const uint8_2 = new Uint8Array(buf2.buffer, buf2.byteOffset, buf2.byteLength);
+  const uint8_2 = txtEncoder.encode(str2);
   // write data in tile
   await writer.writeTileS2(0, 0, 0, 0, uint8);
   await writer.writeTileS2(1, 0, 0, 0, uint8);
@@ -166,7 +170,7 @@ testFunc(
           const str = `${zoom}-${x}-${y}`;
           const buf = Buffer.from(str, 'utf8');
           const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-          await writer.writeTileXYZ(zoom, x, y, uint8);
+          await writer.writeTileWM(zoom, x, y, uint8);
         }
       }
     }

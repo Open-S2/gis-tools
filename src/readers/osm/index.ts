@@ -25,9 +25,6 @@ export type * from './primitive';
 export type * from './relation';
 export type * from './way';
 
-// https://wiki.openstreetmap.org/wiki/PBF_Format#File_format
-// https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
-
 // TODO: Add threads for reading the blocks
 
 /**
@@ -127,9 +124,31 @@ export interface OsmReaderOptions {
 }
 
 /**
- * OSM Reader
+ * # OSM Reader
+ *
+ * ## Description
  * Parses OSM PBF files
- * https://wiki.openstreetmap.org/wiki/PBF_Format
+ * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { OSMReader } from 's2-tools';
+ * import { FileReader } from 's2-tools/file';
+ *
+ * const reader = new OSMReader(new FileReader('./data.osm.pbf'));
+ * // pull out the header
+ * const header = reader.getHeader();
+ * // read the features
+ * for (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * // close the reader when done
+ * reader.close();
+ * ```
+ *
+ * ## Links
+ * - https://wiki.openstreetmap.org/wiki/PBF_Format
+ * - https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
  */
 export class OSMReader implements FeatureIterator<Metadata> {
   reader: Reader;
@@ -243,7 +262,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
    * Read the next blob
    * @returns - the next blob if it exists
    */
-  #next(): undefined | DataView<ArrayBuffer> {
+  #next(): undefined | DataView {
     const { reader } = this;
     // if we've already read all the data, return null
     if (this.#offset >= reader.byteLength) return;
@@ -268,7 +287,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
    * @param data - the data to parse
    * @returns - the parsed primitive block
    */
-  async #readBlob(data: DataView<ArrayBuffer>): Promise<PrimitiveBlock> {
+  async #readBlob(data: DataView): Promise<PrimitiveBlock> {
     // Blob data is PBF encoded and ?compressed, so we need to parse & decompress it first
     let pbf = new Protobuf(new Uint8Array(data.buffer));
     const blob = new Blob(pbf);

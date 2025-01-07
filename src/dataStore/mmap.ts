@@ -48,8 +48,8 @@ export class S2MMapStore<V = Stringifiable> {
   #keyFd: number = -1;
   #valueFd: number = -1;
   // readers
-  #keyReader!: Uint8Array<ArrayBuffer>;
-  #valueReader!: Uint8Array<ArrayBuffer>;
+  #keyReader!: Uint8Array;
+  #valueReader!: Uint8Array;
 
   /**
    * Builds a new File based KV
@@ -65,9 +65,8 @@ export class S2MMapStore<V = Stringifiable> {
     this.#tmpDir = options?.tmpDir;
     if (!this.#sorted) this.#switchToWriteState();
     else {
-      this.#keyReader = mmap(`${this.fileName}.sortedKeys`) as Uint8Array<ArrayBuffer>;
-      if (!this.#indexIsValues)
-        this.#valueReader = mmap(`${this.fileName}.values`) as Uint8Array<ArrayBuffer>;
+      this.#keyReader = mmap(`${this.fileName}.sortedKeys`) as Uint8Array;
+      if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`) as Uint8Array;
       this.#size = this.#keyReader.length / 16;
     }
   }
@@ -220,9 +219,8 @@ export class S2MMapStore<V = Stringifiable> {
     }
     if (this.#size === 0) return;
     await this.#sort();
-    this.#keyReader = mmap(`${this.fileName}.sortedKeys`) as Uint8Array<ArrayBuffer>;
-    if (!this.#indexIsValues)
-      this.#valueReader = mmap(`${this.fileName}.values`) as Uint8Array<ArrayBuffer>;
+    this.#keyReader = mmap(`${this.fileName}.sortedKeys`);
+    if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
   }
 
   /** Sort the data */

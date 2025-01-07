@@ -1,0 +1,21 @@
+{
+    "s2tilejson": "1.0.0",
+    "format": "webp",
+    "name": "Terrain-DEM",
+    "description": "height = (R * 256. + G + B / 256.) - 32768.",
+    "minzoom": 0,
+    "maxzoom": 3,
+    "scheme": "xyz",
+    "type": "raster",
+    "extension": "webp",
+    "encoding": "none",
+    "attributions": {
+        "Terrarium": "https://registry.opendata.aws/terrain-tiles/"
+    },
+    "bounds": [
+        -180,
+        -85,
+        180,
+        85
+    ]
+}

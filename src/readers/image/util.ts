@@ -188,8 +188,8 @@ export function copyImage(
 export function createImage(
   width: number,
   height: number,
-  data?: Uint8ClampedArray<ArrayBuffer>,
-  fill: number[] | Uint8ClampedArray<ArrayBuffer> = [0, 0, 0, 0],
+  data?: Uint8ClampedArray,
+  fill: number[] | Uint8ClampedArray = [0, 0, 0, 0],
   channels = 4,
 ): ImageData {
   width = Math.floor(width);

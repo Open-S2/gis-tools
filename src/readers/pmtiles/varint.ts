@@ -5,6 +5,7 @@ export interface VarintBufPos {
 }
 
 /**
+ * Decode a 64 bit number
  * @param low - the low 32 bits of the number
  * @param high - the high 32 bits of the number
  * @returns - the decoded number
@@ -14,6 +15,7 @@ function toNum(low: number, high: number): number {
 }
 
 /**
+ * Read a varint
  * @param bufPos - the buffer with it's position
  * @returns - the decoded number
  */
@@ -38,6 +40,7 @@ export function readVarint(bufPos: VarintBufPos): number {
 }
 
 /**
+ * Read the remainder of a varint
  * @param low - the low 32 bits of the number
  * @param bufPos - the buffer with it's position
  * @returns - the decoded remainder

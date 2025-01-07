@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 
 test('CSVReader - basic', async () => {
   const file = await Bun.file(`${__dirname}/fixtures/basic.csv`).arrayBuffer();
-  const buffer = Buffer.from(file);
+  const buffer = Buffer.from(file) as Buffer;
   const reader = new BufferReader(buffer.buffer, 0, buffer.byteLength);
   const csvReader = new CSVReader(reader);
   const data = await Array.fromAsync(csvReader);

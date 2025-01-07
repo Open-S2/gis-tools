@@ -416,6 +416,7 @@ function updateProj(wkt: WKTCRS): void {
     wkt.b = wkt.a;
   }
   /**
+   * Converts input data to meters
    * @param input - meters pre-conversion
    * @returns - meters
    */

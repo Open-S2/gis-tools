@@ -37,7 +37,7 @@ import { VanDerGrinten } from './vandg';
 import { ProjectionBase } from './base';
 
 import type { DatumParams } from '../../readers/wkt';
-import type { GridDefinition } from '../../readers/nadgrid';
+import type { NadGridDefinition } from '../../readers/nadgrid';
 import type { VectorPoint } from '../../geometry';
 
 export * from './aea';
@@ -68,6 +68,7 @@ export * from './ortho';
 export * from './poly';
 export * from './qsc';
 export * from './references';
+export * as EPSG_CODES from './references';
 export * from './robin';
 export * from './sinu';
 export * from './somerc';
@@ -89,7 +90,7 @@ export interface ProjectionTransform {
   toMeter?: number;
   fromGreenwich: number;
   datum?: string;
-  grids?: GridDefinition[];
+  grids?: NadGridDefinition[];
   datumCode: string;
   datumType: number;
   datumParams: DatumParams;

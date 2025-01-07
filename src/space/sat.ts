@@ -70,7 +70,7 @@ export interface TLEDataCelestrak {
 }
 
 /**
- * Satellite Orbit Class
+ * # Satellite Orbit Class
  *
  * Input TLE example
  * STARLINK-1007
