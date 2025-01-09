@@ -161,7 +161,7 @@ deno install gis-tools
 [projections]: /docs-ts/dataStructures/projections.md
 [projBadge]: /assets/badges/projections-gzip-cover.svg
 [transformers]: /docs-ts/dataStructures/transformers.md
-[transBadge]: /assets/badges/transformers-gzip-cover.svg
+[transBadge]: /assets/badges/transformer-gzip-cover.svg
 
 ### Readers
 
@@ -214,7 +214,7 @@ deno install gis-tools
 [shapefile]: /docs-ts/readers/shapefile.md
 [shapeBadge]: /assets/badges/shapefile-gzip-cover.svg
 [tileReader]: /docs-ts/readers/tileReader.md
-[trBadge]: /assets/badges/tile-gzip-cover.svg
+[trBadge]: /assets/badges/tileReader-gzip-cover.svg
 [wkt]: /docs-ts/readers/wkt.md
 [wktBadge]: /assets/badges/wkt-gzip-cover.svg
 [xml]: /docs-ts/readers/xml.md
