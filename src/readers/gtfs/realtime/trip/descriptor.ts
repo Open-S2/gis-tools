@@ -7,7 +7,7 @@ import type { Pbf as Protobuf } from '../../..';
  * in accordance with temporary schedule, not reflected in GTFS, then it
  * shouldn't be marked as SCHEDULED, but likely as ADDED.
  */
-export enum GTFSRealtimeScheduleRelationship {
+export const enum GTFSRealtimeScheduleRelationship {
   /**
    * Trip that is running in accordance with its GTFS schedule, or is close
    * enough to the scheduled trip to be associated with it.

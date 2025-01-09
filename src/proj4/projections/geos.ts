@@ -37,7 +37,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0`: False easting.
  * - `+y_0`: False northing.
  *
- * ![Geostationary Satellite View](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/geos.png?raw=true)
+ * ![Geostationary Satellite View](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/geos.png?raw=true)
  */
 export class GeostationarySatelliteView extends ProjectionBase implements ProjectionTransform {
   name = 'GeostationarySatelliteView';

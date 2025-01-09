@@ -39,7 +39,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Further reading
  * - [Wikipedia on Mollweide Projection](https://en.wikipedia.org/wiki/Mollweide_projection)
  *
- * ![Mollweide](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/moll.png?raw=true)
+ * ![Mollweide](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/moll.png?raw=true)
  */
 export class Mollweide extends ProjectionBase implements ProjectionTransform {
   name = 'Mollweide';

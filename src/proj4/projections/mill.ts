@@ -61,7 +61,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - [Wikipedia on Miller Cylindrical](https://en.wikipedia.org/wiki/Miller_cylindrical_projection)
  * - "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder, The American Cartographer, Vol 15, No. 4, October 1988, pp. 341-355.
  *
- * ![Miller Cylindrical](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/mill.png?raw=true)
+ * ![Miller Cylindrical](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/mill.png?raw=true)
  */
 export class MillerCylindrical extends ProjectionBase implements ProjectionTransform {
   name = 'MillerCylindrical';

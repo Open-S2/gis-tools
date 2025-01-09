@@ -10,7 +10,7 @@ import { parseCSVAsRecord } from '../../';
  * 4 = In-seat transfer (stay onboard, same vehicle)
  * 5 = In-seat transfers not allowed
  */
-export enum TransferType {
+export const enum TransferType {
   Recommended = 0,
   Timed = 1,
   MinTimeRequired = 2,

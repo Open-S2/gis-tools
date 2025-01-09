@@ -1,11 +1,11 @@
 import { S2MMapStore } from '../mmap';
 
 import type { KVStore } from '.';
-import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
+import type { Properties, Value } from '../..';
 
 /** MMap based multimap store */
-export class MMapKV<V = Stringifiable> implements KVStore<V> {
+export class MMapKV<V = Properties | Value> implements KVStore<V> {
   #store: S2MMapStore<V>;
 
   /**

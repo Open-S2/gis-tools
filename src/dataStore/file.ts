@@ -3,7 +3,7 @@ import { tmpdir } from 'os';
 import { closeSync, fstatSync, openSync, readSync, unlinkSync, writeSync } from 'fs';
 import { compare, toCell } from '../dataStructures/uint64';
 
-import type { Stringifiable } from '..';
+import type { Properties, Value, VectorKey } from '..';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
 /** Options to create a S2FileStore */
@@ -34,7 +34,7 @@ const KEY_LENGTH = 16;
  * - read-only. Once you have written everything, the first read will lock the file to be static
  * and read-only.
  */
-export class S2FileStore<V = Stringifiable> {
+export class S2FileStore<V = Properties | Value | VectorKey> {
   readonly fileName: string;
   #state: 'read' | 'write' = 'read';
   #size = 0;
@@ -188,8 +188,14 @@ export class S2FileStore<V = Stringifiable> {
    * @param cleanup - set to true if you want to remove the .keys and .values files upon closing
    */
   close(cleanup = false): void {
-    if (this.#keyFd >= 0) closeSync(this.#keyFd);
-    if (!this.#indexIsValues && this.#valueFd >= 0) closeSync(this.#valueFd);
+    if (this.#keyFd >= 0) {
+      closeSync(this.#keyFd);
+      this.#keyFd = -1;
+    }
+    if (!this.#indexIsValues && this.#valueFd >= 0) {
+      closeSync(this.#valueFd);
+      this.#valueFd = -1;
+    }
     if (cleanup) {
       unlinkSync(`${this.fileName}.keys`);
       if (!this.#indexIsValues) unlinkSync(`${this.fileName}.values`);

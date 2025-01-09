@@ -44,7 +44,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+ellps=<value>`: Ellipsoid used.
  * - `+R=<value>`: Radius of the projection sphere.
  *
- * ![Oblique Stereographic Alternative](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/sterea.png?raw=true)
+ * ![Oblique Stereographic Alternative](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/sterea.png?raw=true)
  */
 export class StereographicNorthPole extends GaussKruger implements ProjectionTransform {
   name = 'StereographicNorthPole';

@@ -37,7 +37,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0=<value>`: False easting.
  * - `+y_0=<value>`: False northing.
  *
- * ![Polyconic (American)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/poly.png?raw=true)
+ * ![Polyconic (American)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/poly.png?raw=true)
  */
 export class Polyconic extends ProjectionBase implements ProjectionTransform {
   name = 'Polyconic';

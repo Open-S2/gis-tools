@@ -5,7 +5,7 @@ import { parseGtfsDate } from '../utils';
  * Enumeration to represent day availability in the calendar.
  * 0 = Not available, 1 = Available
  */
-export enum GTFSDayAvailability {
+export const enum GTFSDayAvailability {
   /** 0 - Service not available on this day. */
   NotAvailable = 0,
   /** 1 - Service available on this day. */

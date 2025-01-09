@@ -89,7 +89,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - [Wikipedia](https://en.wikipedia.org/wiki/Equirectangular_projection)
  * - [Wolfram Mathworld](http://mathworld.wolfram.com/CylindricalEquidistantProjection.html)
  *
- * ![Equidistant Cylindrical](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/eqc.png?raw=true)
+ * ![Equidistant Cylindrical](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/eqc.png?raw=true)
  */
 export class EquidistantCylindrical extends ProjectionBase implements ProjectionTransform {
   name = 'Equidistant Cylindrical (Plate Carre)';

@@ -1,1 +1,1 @@
-export { KVStore } from '../../../src';
+export { KV } from '../../../src';

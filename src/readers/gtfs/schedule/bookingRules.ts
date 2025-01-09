@@ -7,7 +7,7 @@ import { parseCSVAsRecord } from '../../';
  * 1 - Same-day (with advance notice)
  * 2 - Prior day(s)
  */
-export enum GTFSBookingType {
+export const enum GTFSBookingType {
   RealTime = 0,
   SameDay = 1,
   PriorDays = 2,

@@ -45,7 +45,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0=<value>`: False easting.
  * - `+y_0=<value>`: False northing.
  *
- * ![Stereographic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/stere.png?raw=true)
+ * ![Stereographic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/stere.png?raw=true)
  */
 export class StereographicSouthPole extends ProjectionBase implements ProjectionTransform {
   name = 'StereographicSouthPole';

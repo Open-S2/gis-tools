@@ -102,7 +102,7 @@ export interface GTFSLocationsProperties extends Properties {
  *
  * ## Usage
  * ```ts
- * import { buildGTFSSchedule } from 's2-tools';
+ * import { buildGTFSSchedule } from 'gis-tools';
  *
  * const schedule = await buildGTFSSchedule(gzipData);
  * ```

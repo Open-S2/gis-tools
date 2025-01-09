@@ -55,7 +55,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Caveats
  * The two-point method with no rectification is probably only marginally useful.
  *
- * ![Oblique Mercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/omerc.png?raw=true)
+ * ![Oblique Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/omerc.png?raw=true)
  */
 export class HotineObliqueMercator extends ProjectionBase implements ProjectionTransform {
   name = 'HotineObliqueMercator';

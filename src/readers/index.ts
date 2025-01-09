@@ -10,7 +10,7 @@ export * from './json';
 export * from './netcdf';
 export * from './osm';
 export * from './pmtiles';
-export * from './protobuf';
+export * from 'pbf-ts';
 export * from './shapefile';
 export * from './wkt';
 export * from './xml';

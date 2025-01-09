@@ -12,7 +12,7 @@ import type { Features, JSONCollection, MValue, Properties } from '../../geometr
  *
  * ## Usage
  * ```ts
- * import { BufferJSONReader } from 's2-tools';
+ * import { BufferJSONReader } from 'gis-tools';
  *
  * const reader = new BufferJSONReader('{ type: 'FeatureCollection', features: [...] }');
  * // OR
@@ -73,8 +73,8 @@ export class BufferJSONReader<
  *
  * ## Usage
  * ```ts
- * import { NewLineDelimitedJSONReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { NewLineDelimitedJSONReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const reader = new NewLineDelimitedJSONReader(new FileReader('./data.geojsonld'));
  * // read the features
@@ -139,8 +139,8 @@ const STRING = 0x22;
  *
  * ## Usage
  * ```ts
- * import { JSONReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { JSONReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const reader = new JSONReader(new FileReader('./data.geojsonld'));
  * // read the features

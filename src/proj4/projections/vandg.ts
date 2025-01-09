@@ -36,7 +36,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0=<value>`: False easting.
  * - `+y_0=<value>`: False northing.
  *
- * ![van der Grinten (I)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/vandg.png?raw=true)
+ * ![van der Grinten (I)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/vandg.png?raw=true)
  */
 export class VanDerGrinten extends ProjectionBase implements ProjectionTransform {
   name = 'VanDerGrinten';

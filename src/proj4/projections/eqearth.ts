@@ -79,7 +79,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Further Reading
  * - [The Equal Earth map projection](https://www.researchgate.net/profile/Bojan_Savric2/publication/326879978_The_Equal_Earth_map_projection/links/5b69d0ae299bf14c6d951b77/The-Equal-Earth-map-projection.pdf) by Bojan Savric, Tom Patterson & Bernhard Jenny (2018)
  *
- * ![Equal Earth](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/eqearth.png?raw=true)
+ * ![Equal Earth](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/eqearth.png?raw=true)
  */
 export class EqualEarth extends ProjectionBase implements ProjectionTransform {
   name = 'EqualEarth';

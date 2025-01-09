@@ -7,7 +7,7 @@ import { parseCSVAsRecord } from '../../';
  *
  * At least one of is_producer, is_operator, or is_authority should be 1 in each record.
  */
-export enum GTFSAttributionRole {
+export const enum GTFSAttributionRole {
   None = 0,
   Yes = 1,
 }

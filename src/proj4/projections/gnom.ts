@@ -52,7 +52,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * http://mathworld.wolfram.com/GnomonicProjection.html
  * Accessed: 12th November 2009
  *
- * ![Gnomonic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/gnom.png?raw=true)
+ * ![Gnomonic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/gnom.png?raw=true)
  */
 export class Gnomonic extends ProjectionBase implements ProjectionTransform {
   name = 'GnomonicProjection';

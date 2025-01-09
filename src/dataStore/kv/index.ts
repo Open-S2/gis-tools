@@ -1,8 +1,8 @@
-import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
+import type { Properties, Value } from '../..';
 
 /** Represents a key-value store */
-export interface KVStore<V = Stringifiable> {
+export interface KVStore<V = Properties | Value> {
   length: number;
   get: ((key: Uint64) => V | undefined) | ((key: Uint64) => Promise<V | undefined>);
   set: (key: Uint64, value: V) => void;
@@ -12,10 +12,10 @@ export interface KVStore<V = Stringifiable> {
 }
 
 /** A constructor for a vector store */
-export type KVStoreConstructor<V = Stringifiable> = new (fileName?: string) => KVStore<V>;
+export type KVStoreConstructor<V = Properties | Value> = new (fileName?: string) => KVStore<V>;
 
 /** Just a placeholder to explain what a local key-value store essentially is */
-export class KV<V = Stringifiable> implements KVStore<V> {
+export class KV<V = Properties | Value> implements KVStore<V> {
   #store = new Map<Uint64, V>();
   /** @returns - the length of the map */
   get length(): number {

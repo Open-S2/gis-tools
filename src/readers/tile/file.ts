@@ -27,8 +27,8 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  *
  * ## Usage
  * ```ts
- * import { convertTerrariumElevationData } from 's2-tools';
- * import { RasterTilesFileReader } from 's2-tools/file';
+ * import { convertTerrariumElevationData } from 'gis-tools';
+ * import { RasterTilesFileReader } from 'gis-tools/file';
  *
  * // creates a reader for a tile set treating the max zoom as 3 instead of the metadata's max zoom
  * const reader = new RasterTilesFileReader('./raster-tiles-top-level-folder', 3);

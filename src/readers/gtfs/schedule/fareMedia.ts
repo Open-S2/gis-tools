@@ -9,7 +9,7 @@ import { parseCSVAsRecord } from '../../';
  * 3 - cEMV (contactless)
  * 4 - Mobile app
  */
-export enum GTFSFareMediaType {
+export const enum GTFSFareMediaType {
   None = 0,
   PhysicalPaperTicket = 1,
   PhysicalTransitCard = 2,

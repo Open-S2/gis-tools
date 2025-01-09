@@ -3,7 +3,7 @@ import { DenseNodes, Node } from './node';
 import { Relation, getNodeRelationPairs } from './relation';
 
 import type { IntermediateNodeMember } from './relation';
-import type { Pbf as Protobuf } from '../../readers/protobuf';
+import type { Pbf as Protobuf } from 'pbf-ts';
 import type { InfoBlock, OSMReader } from '.';
 
 /** The expected metadata in the VectorFeature for all types (node, way, relation) */

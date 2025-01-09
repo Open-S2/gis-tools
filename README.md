@@ -1,31 +1,31 @@
 <h1 style="text-align: center;">
-  <div align="center">s2-tools</div>
+  <div align="center">gis-tools</div>
 </h1>
 
 <p align="center">
-  <a href="https://img.shields.io/github/actions/workflow/status/Open-S2/s2-tools/test.yml?logo=github">
-    <img src="https://img.shields.io/github/actions/workflow/status/Open-S2/s2-tools/test.yml?logo=github" alt="GitHub Actions Workflow Status">
+  <a href="https://img.shields.io/github/actions/workflow/status/Open-S2/gis-tools/test.yml?logo=github">
+    <img src="https://img.shields.io/github/actions/workflow/status/Open-S2/gis-tools/test.yml?logo=github" alt="GitHub Actions Workflow Status">
   </a>
-  <a href="https://npmjs.org/package/s2-tools">
-    <img src="https://img.shields.io/npm/v/s2-tools.svg?logo=npm&logoColor=white" alt="npm">
+  <a href="https://npmjs.org/package/gis-tools">
+    <img src="https://img.shields.io/npm/v/gis-tools.svg?logo=npm&logoColor=white" alt="npm">
   </a>
-  <a href="https://crates.io/crates/s2-tools">
-    <img src="https://img.shields.io/crates/v/s2-tools.svg?logo=rust&logoColor=white" alt="crate">
+  <a href="https://crates.io/crates/gis-tools">
+    <img src="https://img.shields.io/crates/v/gis-tools.svg?logo=rust&logoColor=white" alt="crate">
   </a>
-  <a href="https://www.npmjs.com/package/s2-tools">
-    <img src="https://img.shields.io/npm/dm/s2-tools.svg" alt="downloads">
+  <a href="https://www.npmjs.com/package/gis-tools">
+    <img src="https://img.shields.io/npm/dm/gis-tools.svg" alt="downloads">
   </a>
-  <a href="https://bundlejs.com/?q=s2-tools">
-    <img src="https://img.shields.io/bundlejs/size/s2-tools" alt="bundle">
+  <a href="https://bundlejs.com/?q=gis-tools">
+    <img src="https://img.shields.io/bundlejs/size/gis-tools" alt="bundle">
   </a>
-  <a href="https://open-s2.github.io/s2-tools/">
+  <a href="https://open-s2.github.io/gis-tools/">
     <img src="https://img.shields.io/badge/docs-typescript-yellow.svg" alt="docs-ts">
   </a>
-  <a href="https://docs.rs/s2-tools">
+  <a href="https://docs.rs/gis-tools">
     <img src="https://img.shields.io/badge/docs-rust-yellow.svg" alt="docs-rust">
   </a>
-  <a href="https://coveralls.io/github/Open-S2/s2-tools?branch=master">
-    <img src="https://coveralls.io/repos/github/Open-S2/s2-tools/badge.svg?branch=master" alt="code-coverage">
+  <a href="https://coveralls.io/github/Open-S2/gis-tools?branch=master">
+    <img src="https://coveralls.io/repos/github/Open-S2/gis-tools/badge.svg?branch=master" alt="code-coverage">
   </a>
   <a href="https://discord.opens2.com">
     <img src="https://img.shields.io/discord/953563031701426206?logo=discord&logoColor=white" alt="Discord">
@@ -40,13 +40,15 @@ A collection of geospatial tools primarily designed for WGS84, Web Mercator, and
 
 ```bash
 # NPM
-npm install s2-tools
+npm install gis-tools
 # PNPM
-pnpm add s2-tools
+pnpm add gis-tools
 # Yarn
-yarn add s2-tools
+yarn add gis-tools
 # Bun
-bun add s2-tools
+bun add gis-tools
+# Deno
+deno install gis-tools
 ```
 
 ## Components
@@ -60,28 +62,217 @@ bun add s2-tools
 | [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
 | [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
 
-[toJSON]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/converters/toJSON.md
-[toJSONBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+toJSON,toJSONLD,BufferReader+}]
-[toTiles]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/converters/toTiles.md
-[toTilesBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+toTiles,BufferReader+}]
+[toJSON]: /docs-ts/converters/toJSON.md
+[toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
+[toTiles]: /docs-ts/converters/toTiles.md
+[toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
 
 ### Data Stores
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
-| [kv]                     | ![KV Badge][kvBadge]          | Collection of tools using the filesystem to read and write data. |
-| [multiMap]               | ![MM Badge][mmBadge]          | Collection of tools using the filesystem to read and write data. |
-| [vector]                 | ![Vec Badge][vecBadge]        | Collection of tools using the filesystem to read and write data. |
+| [kd]                     | ![KD Badge][kdBadge]          | KD Spatial index that works in the browser and the filesystem.   |
+| [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
+| [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
+| [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
 
-[externalSort]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/externalSort.md
-[esBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{+externalSort+}]
-[kv]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/kv.md
-[kvBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{KV}]
-[multiMap]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/multimap.md
-[mmBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{MultiMap}]
-[vector]: https://github.com/Open-S2/s2-tools/tree/master/docs-ts/dataStores/vector.md
-[vecBadge]: https://deno.bundlejs.com/badge?q=s2-tools&treeshake=[{Vector}]
+[externalSort]: /docs-ts/dataStore/externalSort.md
+[esBadge]: /assets/badges/externalSort-gzip-cover.svg
+[kd]: /docs-ts/dataStore/kd.md
+[kdBadge]: /assets/badges/kd-gzip-cover.svg
+[kv]: /docs-ts/dataStore/kv.md
+[kvBadge]: /assets/badges/kv-gzip-cover.svg
+[multiMap]: /docs-ts/dataStore/multimap.md
+[mmBadge]: /assets/badges/multimap-gzip-cover.svg
+[vector]: /docs-ts/dataStore/vector.md
+[vecBadge]: /assets/badges/vector-gzip-cover.svg
+
+### Data Structures
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
+| [pointCluster]           | ![PC Badge][pcBadge]          | Point cluster tool with indexing.                                |
+| [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
+| [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
+| [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
+| [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
+
+[cache]: /docs-ts/dataStructures/cache.md
+[cacheBadge]: /assets/badges/cache-gzip-cover.svg
+[pointCluster]: /docs-ts/dataStructures/pointCluster.md
+[pcBadge]: /assets/badges/pointCluster-gzip-cover.svg
+[pointIndex]: /docs-ts/dataStructures/pointIndex.md
+[piBadge]: /assets/badges/pointIndex-gzip-cover.svg
+[pointIndexFast]: /docs-ts/dataStructures/pointIndexFast.md
+[pifBadge]: /assets/badges/pointIndexFast-gzip-cover.svg
+[priorityQueue]: /docs-ts/dataStructures/priorityQueue.md
+[pqBadge]: /assets/badges/priorityQueue-gzip-cover.svg
+[tile]: /docs-ts/dataStructures/tile.md
+[tileBadge]: /assets/badges/dataTile-gzip-cover.svg
+
+### Geometry
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [angles]                 | ![Angle Badge][anglesBadge]   | Spherical geodetic angle methods.                                |
+| [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
+| [id]                     | ![ID Badge][idBadge]          | ID tools for S2 and WM.                                          |
+| [lonlat]                 | ![LonLat Badge][lonlanBadge]  | Longitude/Latitude convienience methods.                         |
+| [planets]                | ![Planet Badge][planetBadge]  | Collection of planet constants with observation tools.           |
+| [predicates]             | ![Pred Badge][predBadge]      | Reliability predicates for 2D and 3D orientation geometry.       |
+| [s2]                     | ![S2 Badge][s2Badge]          | S2 geometry convienience methods.                                |
+| [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
+| [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
+
+[angles]: /docs-ts/dataStructures/angles.md
+[anglesBadge]: /assets/badges/angles-gzip-cover.svg
+[bbox]: /docs-ts/dataStructures/bbox.md
+[bboxBadge]: /assets/badges/bbox-gzip-cover.svg
+[id]: /docs-ts/dataStructures/id.md
+[idBadge]: /assets/badges/id-gzip-cover.svg
+[lonlat]: /docs-ts/dataStructures/lonlat.md
+[lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
+[planets]: /docs-ts/dataStructures/planets.md
+[planetBadge]: /assets/badges/planets-gzip-cover.svg
+[predicates]: /docs-ts/dataStructures/predicates.md
+[predBadge]: /assets/badges/predicates-gzip-cover.svg
+[s2]: /docs-ts/dataStructures/s2.md
+[s2Badge]: /assets/badges/s2-gzip-cover.svg
+[tools]: /docs-ts/dataStructures/tools.md
+[toolsBadge]: /assets/badges/tools-gzip-cover.svg
+[wm]: /docs-ts/dataStructures/wm.md
+[wmBadge]: /assets/badges/wm-gzip-cover.svg
+
+### PROJ4
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [datums]                 | ![Datums Badge][datumsBadge]  | A collection of datums for easy access.                          |
+| [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
+| [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
+| [transformers]           | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
+
+[datums]: /docs-ts/dataStructures/datums.md
+[datumsBadge]: /assets/badges/datum-gzip-cover.svg
+[mgrs]: /docs-ts/dataStructures/mgrs.md
+[mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
+[projections]: /docs-ts/dataStructures/projections.md
+[projBadge]: /assets/badges/projections-gzip-cover.svg
+[transformers]: /docs-ts/dataStructures/transformers.md
+[transBadge]: /assets/badges/transformers-gzip-cover.svg
+
+### Readers
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [jpeg]                   | ![JPEG Badge][jpegBadge]      | Read/parse JPEG data.                                            |
+| [jpeg2000]               | ![JPEG2 Badge][jpeg2Badge]    | Read/parse JPEG 2000 data.                                       |
+| [lanczos]                | ![Lanc Badge][lancBadge]      | Apply a Lanczos filter that downsamples an image.                |
+| [csv]                    | ![CSV Badge][csvBadge]        | CSV data reader with options on parsing.                         |
+| [gbfs]                   | ![GBFS Badge][gbfsBadge]      | General Bikeshare Feed Specification reader.                     |
+| [geotiff]                | ![GTiff Badge][gtiffBadge]    | Geotiff image reader with projection support.                    |
+| [grib2]                  | ![grib2 Badge][grib2Badge]    | GRIB 2 data reader.                                              |
+| [json]                   | ![JSON Badge][jsonBadge]      | JSON data reader with line delimiter support.                    |
+| [nadgrid]                | ![NGrid Badge][ngridBadge]    | NAD Grid data reader.                                            |
+| [netcdf]                 | ![NetCDF Badge][netcdfBadge]  | NetCDF data reader.                                              |
+| [osm]                    | ![OSM Badge][osmBadge]        | OpenStreetMap PBF data reader                                    |
+| [pmtiles]                | ![PMT Badge][pmtBadge]        | (S2)PMTiles data reader.                                         |
+| [protobuf]               | ![Proto Badge][protoBadge]    | Protobuf data reader/writer.                                     |
+| [shapefile]              | ![Shape Badge][shapeBadge]    | Shapefile data reader supporting DBF and projections (PRJ).      |
+| [tileReader]             | ![TR Badge][trBadge]          | Tile data reader, usually from a local input folder.             |
+| [wkt]                    | ![wkt Badge][wktBadge]        | Well Known Text data reader.                                     |
+| [xml]                    | ![XML Badge][xmlBadge]        | XML data reader.                                                 |
+
+[jpeg]: /docs-ts/readers/image/jpeg.md
+[jpegBadge]: /assets/badges/jpeg-gzip-cover.svg
+[jpeg2000]: /docs-ts/readers/image/jpeg2000.md
+[jpeg2Badge]: /assets/badges/jpeg2000-gzip-cover.svg
+[lanczos]: /docs-ts/readers/image/lanczos.md
+[lancBadge]: /assets/badges/lanczos-gzip-cover.svg
+[csv]: /docs-ts/readers/csv.md
+[csvBadge]: /assets/badges/csv-gzip-cover.svg
+[gbfs]: /docs-ts/readers/gbfs.md
+[gbfsBadge]: /assets/badges/gbfs-gzip-cover.svg
+[geotiff]: /docs-ts/readers/geotiff.md
+[gtiffBadge]: /assets/badges/geotiff-gzip-cover.svg
+[grib2]: /docs-ts/readers/grib2.md
+[grib2Badge]: /assets/badges/grib2-gzip-cover.svg
+[json]: /docs-ts/readers/json.md
+[jsonBadge]: /assets/badges/json-gzip-cover.svg
+[nadgrid]: /docs-ts/readers/nadgrid.md
+[ngridBadge]: /assets/badges/nadgrid-gzip-cover.svg
+[netcdf]: /docs-ts/readers/netcdf.md
+[netcdfBadge]: /assets/badges/netcdf-gzip-cover.svg
+[osm]: /docs-ts/readers/osm.md
+[osmBadge]: /assets/badges/osm-gzip-cover.svg
+[pmtiles]: /docs-ts/readers/pmtiles.md
+[pmtBadge]: /assets/badges/pmtilesReader-gzip-cover.svg
+[protobuf]: /docs-ts/readers/protobuf.md
+[protoBadge]: /assets/badges/protobuf-gzip-cover.svg
+[shapefile]: /docs-ts/readers/shapefile.md
+[shapeBadge]: /assets/badges/shapefile-gzip-cover.svg
+[tileReader]: /docs-ts/readers/tileReader.md
+[trBadge]: /assets/badges/tile-gzip-cover.svg
+[wkt]: /docs-ts/readers/wkt.md
+[wktBadge]: /assets/badges/wkt-gzip-cover.svg
+[xml]: /docs-ts/readers/xml.md
+[xmlBadge]: /assets/badges/xml-gzip-cover.svg
+
+### Space
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [satellite]              | ![SAT Badge][satBadge]        | Satellite Orbit Class from TLE data                              |
+
+[satellite]: /docs-ts/space/satellite.md
+[satBadge]: /assets/badges/sat-gzip-cover.svg
+
+### Tools
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [delaunator]             | ![DEL Badge][delBadge]        | Delaunay triangulation of 2D points.                             |
+| [interpolators]          | ![INT Badge][intBadge]        | Interpolate values from points and weights.                      |
+| [orthodrome]             | ![ORT Badge][orthBadge]       | Find shortest path between two points or point on path.          |
+| [polylabel]              | ![POL Badge][polBadge]        | Find the labels for vector polygons                              |
+
+[delaunator]: /docs-ts/tools/delaunator.md
+[delBadge]: /assets/badges/delaunator-gzip-cover.svg
+[interpolators]: /docs-ts/tools/interpolators.md
+[intBadge]: /assets/badges/interpolators-gzip-cover.svg
+[orthodrome]: /docs-ts/tools/orthodrome.md
+[orthBadge]: /assets/badges/orthodrome-gzip-cover.svg
+[polylabel]: /docs-ts/tools/polylabel.md
+[polBadge]: /assets/badges/polylabel-gzip-cover.svg
+
+### Writers
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
+| [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
+
+[pmtilesWriter]: /docs-ts/writers/pmtilesWriter.md
+[pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
+[tileWriter]: /docs-ts/writers/tileWriter.md
+[twBadge]: /assets/badges/tileWriter-gzip-cover.svg
+
+### Utils
+
+| Main Modules             | Size                          | Description                                                      |
+| ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
+| [gzip]                   | ![GZ Badge][gzBadge]          | gzip compression/decompression convenience methods.              |
+| [lzw]                    | ![LZW Badge][lzwBadge]        | lzw decompression methods.                                       |
+
+[polyfills]: /docs-ts/utils/polyfills.md
+[pfBadge]: /assets/badges/polyfills-gzip-cover.svg
+[gzip]: /docs-ts/utils/gzip.md
+[gzBadge]: /assets/badges/gzip-gzip-cover.svg
+[lzw]: /docs-ts/utils/lzw.md
+[lzwBadge]: /assets/badges/lzw-gzip-cover.svg
 
 ---
 

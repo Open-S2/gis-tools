@@ -40,7 +40,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0`: False easting.
  * - `+y_0`: False northing.
  *
- * ![ExtendedTransverseMercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
+ * ![ExtendedTransverseMercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
  */
 export class ExtendedTransverseMercator extends TransverseMercator implements ProjectionTransform {
   name = 'ExtendedTransverseMercator';

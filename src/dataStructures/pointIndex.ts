@@ -7,13 +7,12 @@ import { fromS1ChordAngle, getIntersectingCells } from '../geometry/s2/cap';
 import { fromLonLat, fromST } from '../geometry/s2/point';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Stringifiable } from '../dataStore';
-import type { Face, Point3D } from '../geometry';
+import type { Face, Point3D, Properties } from '..';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 import type { VectorStore, VectorStoreConstructor } from '../dataStore';
 
 /** The kind of input required to store a point for proper indexing */
-export interface PointShape<T = Stringifiable> {
+export interface PointShape<T extends Properties = Properties> {
   cell: Uint64Cell;
   point: Point3D;
   data: T;
@@ -24,12 +23,12 @@ export interface PointShape<T = Stringifiable> {
  *
  * ## Description
  * An index of cells with radius queries
- * Assumes the data is {@link Stringifiable}
+ * Assumes the data is compatible with {@link Properties}
  *
  * ## Usage
  * ```ts
- * import { PointIndex } from 's2-tools';
- * import { FileVector } from 's2-tools/file';
+ * import { PointIndex } from 'gis-tools';
+ * import { FileVector } from 'gis-tools/file';
  *
  * const pointIndex = new PointIndex();
  * // or used a file based store
@@ -50,7 +49,7 @@ export interface PointShape<T = Stringifiable> {
  * const points = await pointIndex.searchRadius(center, radius);
  * ```
  */
-export class PointIndex<T extends Stringifiable = Stringifiable> {
+export class PointIndex<T extends Properties = Properties> {
   #store: VectorStore<PointShape<T>>;
   #unsorted: boolean = false;
 

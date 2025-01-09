@@ -35,7 +35,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - OSG Technical Report 4.1
  * http://www.linz.govt.nz/docs/miscellaneous/nzmg.pdf
  *
- * ![New Zealand Map Grid (EPSG:27200)](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/nzmg.png?raw=true)
+ * ![New Zealand Map Grid (EPSG:27200)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/nzmg.png?raw=true)
  */
 export class NewZealandMapGrid extends ProjectionBase implements ProjectionTransform {
   name = 'NewZealandMapGrid';

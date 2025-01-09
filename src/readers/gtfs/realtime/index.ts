@@ -1,6 +1,6 @@
 import { GTFSRealtimeEntity } from './entity';
 import { GTFSRealtimeHeader } from './header';
-import { Pbf as Protobuf } from '../..';
+import { Pbf as Protobuf } from 'pbf-ts';
 
 export * from './stop';
 export * from './trip';
@@ -32,7 +32,7 @@ export * from './vehiclePosition';
  * ## Usage
  *
  * ```ts
- * import { GTFSRealtimeReader } from 's2-tools';
+ * import { GTFSRealtimeReader } from 'gis-tools';
  *
  * const gtfsRealtimeReader = new GTFSRealtimeReader(data);
  * const { header, entities } = gtfsRealtimeReader;

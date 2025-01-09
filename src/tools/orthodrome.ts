@@ -11,7 +11,7 @@ import type { VectorPoint } from '../geometry';
  *
  * ## Usage
  * ```ts
- * import { Orthodrome } from 's2-tools'
+ * import { Orthodrome } from 'gis-tools'
  *
  * // starting at lon-lat (-60, -40) and ending at (20, 10)
  * const orthodrome = new Orthodrome(-60, -40, 20, 10);

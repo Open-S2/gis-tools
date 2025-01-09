@@ -1,1 +1,1 @@
-export { VectorStore } from '../../../src';
+export { Vector } from '../../../src';

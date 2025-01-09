@@ -41,7 +41,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## References
  * - https://en.wikipedia.org/wiki/Albers_projection
  *
- * ![Albers Conic Equal Area Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/aea.png?raw=true)
+ * ![Albers Conic Equal Area Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aea.png?raw=true)
  */
 export class AlbersConicEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Albers_Conic_Equal_Area';

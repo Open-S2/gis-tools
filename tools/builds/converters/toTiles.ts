@@ -1,0 +1,1 @@
+export { toVectorTiles } from '../../../src';

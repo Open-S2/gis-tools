@@ -26,8 +26,8 @@ export interface CSVReaderOptions {
  *
  * ## Usage
  * ```ts
- * import { CSVReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { CSVReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/basic3D.csv`);
  * const csvReader = new CSVReader(fileReader, {

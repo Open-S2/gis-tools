@@ -3,7 +3,7 @@ import { GTFSRealtimeEntitySelector, GTFSRealtimeTranslatedString } from '.';
 import type { Pbf as Protobuf } from '../..';
 
 /** Severity of this alert. */
-export enum GTFSRealtimeSeverityLevel {
+export const enum GTFSRealtimeSeverityLevel {
   UNKNOWN_SEVERITY = 1,
   INFO = 2,
   WARNING = 3,
@@ -14,7 +14,7 @@ export enum GTFSRealtimeSeverityLevel {
  * What is the effect of this problem on the affected entity. If effect_detail is included, then
  * Effect must also be included.
  */
-export enum GTFSRealtimeEffect {
+export const enum GTFSRealtimeEffect {
   NO_SERVICE = 1,
   REDUCED_SERVICE = 2,
 
@@ -34,7 +34,7 @@ export enum GTFSRealtimeEffect {
 }
 
 /** Cause of this alert. If cause_detail is included, then Cause must also be included. */
-export enum GTFSRealtimeCause {
+export const enum GTFSRealtimeCause {
   UNKNOWN_CAUSE = 1,
   OTHER_CAUSE = 2, // Not machine-representable.
   TECHNICAL_PROBLEM = 3,

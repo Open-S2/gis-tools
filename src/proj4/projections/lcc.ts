@@ -62,7 +62,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - [ArcGIS documentation on "Lambert Conformal Conic"](http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/lambert-conformal-conic.htm)
  * - [EPSG Guidance Note 7-2](http://www.epsg.org/Guidancenotes.aspx)
  *
- * ![Lambert Conformal Conic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/lcc.png?raw=true)
+ * ![Lambert Conformal Conic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/lcc.png?raw=true)
  */
 export class LambertConformalConic extends ProjectionBase implements ProjectionTransform {
   name = 'LambertConformalConic';

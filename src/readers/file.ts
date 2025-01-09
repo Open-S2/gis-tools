@@ -4,6 +4,7 @@ import { closeSync, openSync, read, readSync, statSync } from 'fs';
 import type { Reader } from '.';
 
 export * from './tile/file';
+export * from './osm/file';
 
 const readAsync = promisify(read);
 
@@ -15,7 +16,7 @@ const readAsync = promisify(read);
  *
  * ## Usage
  * ```ts
- * import { FileReader } from 's2-tools/file';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const reader = new FileReader('./BETA2007.gsb');
  *

@@ -54,7 +54,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * A User's Manual" by Gerald I. Evenden,
  * USGS Open File Report 90-284and Release 4 Interim Reports (2003)
  *
- * ![Equal Area Cylindrical Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/cae.png?raw=true)
+ * ![Equal Area Cylindrical Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/cae.png?raw=true)
  */
 export class CylindricalEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'Equal_Area_Cylindrical';

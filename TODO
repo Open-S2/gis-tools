@@ -10,9 +10,10 @@ that have u64 support)
 [ ] - - image -> png
 [ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
+[ ] - grib 2 has missing templates
 
 [ ] - interpolation tools
 
-[ ] - all main functions and classes need example code in the jsdocs
-
 [ ] - translations [BCP-47 language code] [ISO 639-1 language code]
+
+[ ] - fix all enums (search "enum not emitted esbuild" in ChatGPT for the answer on the build fix)

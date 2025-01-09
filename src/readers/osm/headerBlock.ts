@@ -1,5 +1,5 @@
 import type { BBox } from '../../geometry';
-import type { Pbf as Protobuf } from '../protobuf';
+import type { Pbf as Protobuf } from 'pbf-ts';
 
 /** OSM Header Block */
 export interface OSMHeader {

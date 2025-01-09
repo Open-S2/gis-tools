@@ -84,7 +84,7 @@ const NODES = 18;
  * - `+x_0=<value>`: False easting.
  * - `+y_0=<value>`: False northing.
  *
- * ![Robinson](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/robin.png?raw=true)
+ * ![Robinson](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/robin.png?raw=true)
  */
 export class Robinson extends ProjectionBase implements ProjectionTransform {
   name = 'Robinson';

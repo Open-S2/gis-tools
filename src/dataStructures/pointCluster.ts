@@ -39,7 +39,7 @@ export interface ClusterOptions {
 }
 
 /** A cluster is a storage device to maintain groups of information in a cluster */
-export interface Cluster {
+export interface Cluster extends Properties {
   properties: Properties;
   visited: boolean;
   sum: number;
@@ -74,7 +74,7 @@ export type Comparitor = (a: Properties, b: Properties) => boolean;
  *
  * ## Usage
  * ```ts
- * import { PointCluster } from 's2-tools';
+ * import { PointCluster } from 'gis-tools';
  * const pointCluster = new PointCluster();
  *
  * // add a lon-lat

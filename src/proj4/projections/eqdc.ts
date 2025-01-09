@@ -40,7 +40,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+x_0` (False easting)
  * - `+y_0` (False northing)
  *
- * ![Equidistant Conic](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/eqdc.png?raw=true)
+ * ![Equidistant Conic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/eqdc.png?raw=true)
  */
 export class EquidistantConic extends ProjectionBase implements ProjectionTransform {
   name = 'Equidistant_Conic';

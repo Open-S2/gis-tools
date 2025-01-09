@@ -2,8 +2,8 @@
 name = "geometry"
 version = "0.1.0"
 edition = "2021"
-repository = "https://github.com/OpenS2/s2-tools/rust/geometry"
-documentation = "https://docs.rs/s2-tools/geometry"
+repository = "https://github.com/OpenS2/gis-tools/rust/geometry"
+documentation = "https://docs.rs/gis-tools/geometry"
 license = "MIT"
 categories = ["encoding", "wasm", "embedded", "no-std", "gis"]
 keywords = ["open", "vector", "tile", "gis", "low-cost-code"]

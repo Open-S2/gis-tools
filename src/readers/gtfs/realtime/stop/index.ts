@@ -6,7 +6,7 @@ export * from './timeEvent';
 export * from './update';
 
 /** The type of wheelchair boarding accessibility at a stop. */
-export enum GTFSRealtimeWheelchairBoarding {
+export const enum GTFSRealtimeWheelchairBoarding {
   UNKNOWN = 0,
   AVAILABLE = 1,
   NOT_AVAILABLE = 2,

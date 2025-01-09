@@ -14,8 +14,8 @@ export interface PolyLabelMetadata extends Properties {
  *
  * ## Usage
  * ```ts
- * import { polylabels } from 's2-tools'
- * import type { VectorMultiPolygon } from 's2-tools'
+ * import { polylabels } from 'gis-tools'
+ * import type { VectorMultiPolygon } from 'gis-tools'
  *
  * const vectorGeometry: VectorMultiPolygon = [];
  * const polylabelHighPrecision = polylabels(vectorGeometry, 1);
@@ -39,8 +39,8 @@ export function polylabels(
  *
  * ## Usage
  * ```ts
- * import { polylabel } from 's2-tools'
- * import type { VectorPolygon } from 's2-tools'
+ * import { polylabel } from 'gis-tools'
+ * import type { VectorPolygon } from 'gis-tools'
  *
  * const vectorGeometry: VectorPolygon = [];
  * const polylabelHighPrecision = polylabel(vectorGeometry, 1);

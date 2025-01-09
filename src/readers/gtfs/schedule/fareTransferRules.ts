@@ -10,7 +10,7 @@ import { parseCSVAsRecord } from '../../';
  * 2 - Between arrival of current leg & departure of next leg
  * 3 - Between arrival of current leg & arrival of next leg
  */
-export enum GTFSDurationLimitType {
+export const enum GTFSDurationLimitType {
   /** Between departure of current leg & arrival of next leg */
   DepCurrentArrNext = 0,
   /** Between departure of current leg & departure of next leg */
@@ -29,7 +29,7 @@ export enum GTFSDurationLimitType {
  * 1 = (A) + (AB) + (B)
  * 2 = (AB)
  */
-export enum GTFSFareTransferType {
+export const enum GTFSFareTransferType {
   /** A + AB */
   FromLegPlusTransfer = 0, // A + AB
   /** A + AB + B */

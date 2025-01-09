@@ -2,6 +2,8 @@ import { mmap } from 'bun';
 
 import type { Reader } from '.';
 
+export * from './osm/mmap';
+
 /**
  * # MMap Reader
  *
@@ -10,7 +12,7 @@ import type { Reader } from '.';
  *
  * ## Usage
  * ```ts
- * import { MMapReader } from 's2-tools/mmap';
+ * import { MMapReader } from 'gis-tools/mmap';
  *
  * const reader = new MMapReader('./BETA2007.gsb');
  * ```

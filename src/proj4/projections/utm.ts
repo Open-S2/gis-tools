@@ -58,7 +58,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Further Reading
  * - [Wikipedia](https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system)
  *
- * ![Universal Transverse Mercator (UTM) zones](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/utm.png?raw=true)
+ * ![Universal Transverse Mercator (UTM) zones](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/utm.png?raw=true)
  */
 export class UniversalTransverseMercator
   extends ExtendedTransverseMercator

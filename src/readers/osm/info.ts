@@ -1,5 +1,5 @@
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from '../../readers/protobuf';
+import type { Pbf as Protobuf } from 'pbf-ts';
 
 /** Info Block - decoded into an object */
 export interface InfoBlock {

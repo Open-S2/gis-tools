@@ -3,7 +3,7 @@ import { GTFSRealtimeOccupancyStatus, GTFSRealtimeStopTimeEvent } from '..';
 import type { Pbf as Protobuf } from '../../..';
 
 /** The relation between the StopTimeEvents and the static schedule. */
-export enum GTFSRealtimeScheduleRelationshipUpdate {
+export const enum GTFSRealtimeScheduleRelationshipUpdate {
   /**
    * The vehicle is proceeding in accordance with its static schedule of
    * stops, although not necessarily according to the times of the schedule.

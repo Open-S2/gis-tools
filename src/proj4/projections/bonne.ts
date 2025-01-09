@@ -38,7 +38,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `x0`: False easting
  * - `y0`: False northing
  *
- * ![Bonne (Werner lat_1=90) Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/bonne.png?raw=true)
+ * ![Bonne (Werner lat_1=90) Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/bonne.png?raw=true)
  */
 export class BonneWerner extends ProjectionBase implements ProjectionTransform {
   name = 'Bonne (Werner lat_1=90)';

@@ -1,1 +1,1 @@
-export { MultiMapStore } from '../../../src';
+export { MultiMap } from '../../../src';

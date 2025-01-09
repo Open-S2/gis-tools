@@ -124,7 +124,7 @@ interface Area {
  * - [Wikipedia](https://en.wikipedia.org/wiki/Quadrilateralized_spherical_cube)
  * - [NASA](https://lambda.gsfc.nasa.gov/product/cobe/skymap_info_new.cfm)
  *
- * ![Quadrilateralized Spherical Cube](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/qsc.png?raw=true)
+ * ![Quadrilateralized Spherical Cube](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/qsc.png?raw=true)
  */
 export class QuadrilateralizedSphericalCube extends ProjectionBase implements ProjectionTransform {
   name = 'QuadrilateralizedSphericalCube';

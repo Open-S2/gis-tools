@@ -11,7 +11,7 @@ import { parseCSVAsRecord } from '../../';
  * 1505,...,Downtown,1
  * ```
  */
-export enum GTFSDirectionId {
+export const enum GTFSDirectionId {
   /** Outbound, e.g., "Airport" */
   Outbound = 0, // e.g., "Airport"
   /** Inbound, e.g., "Downtown" */
@@ -24,7 +24,7 @@ export enum GTFSDirectionId {
  * - 1 - Vehicle being used on this particular trip can accommodate at least one rider in a wheelchair.
  * - 2 - No riders in wheelchairs can be accommodated on this trip.
  */
-export enum GTFSWheelchairAccessibility {
+export const enum GTFSWheelchairAccessibility {
   /** Or empty */
   NoInfo = 0, // or empty
   /** At least one wheelchair */
@@ -39,7 +39,7 @@ export enum GTFSWheelchairAccessibility {
  * - 1 - Vehicle being used on this particular trip can accommodate at least one bicycle.
  * - 2 - No bicycles are allowed on this trip.
  */
-export enum GTFSBikesAllowed {
+export const enum GTFSBikesAllowed {
   /** Or empty */
   NoInfo = 0,
   /** at least one bicycle can be accommodated */

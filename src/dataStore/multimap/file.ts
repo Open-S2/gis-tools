@@ -2,12 +2,12 @@ import { S2FileStore } from '../file';
 import { compare } from '../../dataStructures/uint64';
 
 import type { FileEntry } from '../file';
-import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 import type { MMEntry, MultiMapStore } from '.';
+import type { Properties, Value } from '../..';
 
 /** File based multimap store */
-export class FileMultiMap<V = Stringifiable> implements MultiMapStore<V> {
+export class FileMultiMap<V = Properties | Value> implements MultiMapStore<V> {
   #store: S2FileStore<V>;
 
   /**

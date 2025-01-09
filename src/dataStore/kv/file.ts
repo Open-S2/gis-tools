@@ -1,11 +1,11 @@
 import { S2FileStore } from '../file';
 
 import type { KVStore } from '.';
-import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
+import type { Properties, Value } from '../..';
 
 /** File based multimap store */
-export class FileKV<V = Stringifiable> implements KVStore<V> {
+export class FileKV<V = Properties | Value> implements KVStore<V> {
   #store: S2FileStore<V>;
 
   /**

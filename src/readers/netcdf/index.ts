@@ -53,7 +53,7 @@ const NC_VARIABLE = 11;
 const NC_ATTRIBUTE = 12;
 
 /** Enum of the NetCDF data types available */
-export enum CDFDataType {
+export const enum CDFDataType {
   /** Byte size (1 byte) */
   BYTE = 1,
   /** Char size (1 byte) */
@@ -111,8 +111,8 @@ export interface NetCDFReaderOptions {
  *
  * ## Usage
  * ```ts
- * import { NetCDFReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { NetCDFReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const reader = new NetCDFReader(new FileReader('./data.nc'));
  * for (const feature of reader) {

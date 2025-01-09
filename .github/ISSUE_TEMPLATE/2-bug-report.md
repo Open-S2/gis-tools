@@ -8,7 +8,7 @@ body:
       value: |
         Thank you for submitting a bug report. It helps make Open S2 better.
 
-        If you need help or support using the s2-tools module, and are not reporting a bug, please join our [Discord](https://discord.opens2.com) server.
+        If you need help or support using the `gis-tools` module, and are not reporting a bug, please join our [Discord](https://discord.opens2.com) server.
 
         Please try to include as much information as possible.
 

@@ -21,18 +21,28 @@ export interface Entry {
  * 3 = brotli
  * 4 = zstd
  */
-export enum Compression {
-  /** unknown compression, for if you must use a different or unspecified algorithm. */
-  Unknown = 0,
-  /** no compression. */
-  None = 1,
-  /** gzip. */
-  Gzip = 2,
-  /** brotli. */
-  Brotli = 3,
-  /** zstd. */
-  Zstd = 4,
-}
+export const Compression = {
+  /** Unknown compression, for if you must use a different or unspecified algorithm. */
+  Unknown: 0,
+  /** No compression. */
+  None: 1,
+  /** Gzip compression. */
+  Gzip: 2,
+  /** Brotli compression. */
+  Brotli: 3,
+  /** Zstd compression. */
+  Zstd: 4,
+} as const;
+
+/**
+ * Enum representing a compression algorithm used.
+ * 0 = unknown compression, for if you must use a different or unspecified algorithm.
+ * 1 = no compression.
+ * 2 = gzip
+ * 3 = brotli
+ * 4 = zstd
+ */
+export type Compression = (typeof Compression)[keyof typeof Compression];
 
 /**
  * Provide a decompression implementation that acts on `buf` and returns decompressed data.
@@ -46,7 +56,7 @@ export type DecompressFunc = (buf: Uint8Array, compression: Compression) => Prom
  * Describe the type of tiles stored in the archive.
  * 0 is unknown/other, 1 is a vector tile spec.
  */
-export enum TileType {
+export const enum TileType {
   /** unknown/other. */
   Unknown = 0,
   /** Vector tiles. */
@@ -246,8 +256,8 @@ export function bytesToHeader(bytes: Uint8Array): Header {
     numTileEntries: getUint64(dv, 80),
     numTileContents: getUint64(dv, 88),
     clustered: dv.getUint8(96) === 1,
-    internalCompression: dv.getUint8(97),
-    tileCompression: dv.getUint8(98),
+    internalCompression: dv.getUint8(97) as Compression,
+    tileCompression: dv.getUint8(98) as Compression,
     tileType: dv.getUint8(99),
     minZoom: dv.getUint8(100),
     maxZoom: dv.getUint8(101),

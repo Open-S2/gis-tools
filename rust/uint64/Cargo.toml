@@ -2,7 +2,7 @@
 name = "uint64"
 version = "0.1.0"
 edition = "2021"
-repository = "https://github.com/OpenS2/s2-tools/rust/uint64"
+repository = "https://github.com/OpenS2/gis-tools/rust/uint64"
 license = "MIT"
 categories = ["web-programming", "no-std", "wasm"]
 

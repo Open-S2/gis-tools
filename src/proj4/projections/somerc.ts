@@ -42,7 +42,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * des systèmes de référence.
  * http://www.swisstopo.admin.ch/internet/swisstopo/fr/home/topics/survey/sys/refsys/switzerland.parsysrelated1.31216.downloadList.77004.DownloadFile.tmp/swissprojectionfr.pdf
  *
- * ![Swiss Oblique Mercator](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/somerc.png?raw=true)
+ * ![Swiss Oblique Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/somerc.png?raw=true)
  */
 export class SwissObliqueMercator extends ProjectionBase implements ProjectionTransform {
   name = 'SwissObliqueMercator';

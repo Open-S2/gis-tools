@@ -6,7 +6,7 @@ import { parseCSVAsRecord } from '../../';
  * 0 or empty = Frequency-based trips
  * 1 = Schedule-based trips (with identical headway)
  */
-export enum GTFSExactTimes {
+export const enum GTFSExactTimes {
   FrequencyBased = 0,
   ScheduleBased = 1,
 }

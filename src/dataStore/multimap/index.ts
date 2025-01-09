@@ -1,6 +1,6 @@
 import { compare, toCell } from '../../dataStructures/uint64';
 
-import type { Stringifiable } from '..';
+import type { Properties, Value } from '../..';
 import type { Uint64, Uint64Cell } from '../../dataStructures/uint64';
 
 /** A key-value entry in the multimap */
@@ -10,7 +10,7 @@ export interface MMEntry<V> {
 }
 
 /** Represents a key-value store */
-export interface MultiMapStore<V = Stringifiable> {
+export interface MultiMapStore<V = Properties | Value> {
   length: number;
   get: ((key: Uint64) => V[] | undefined) | ((key: Uint64) => Promise<V[] | undefined>);
   set: (key: Uint64, value: V) => void;
@@ -20,10 +20,10 @@ export interface MultiMapStore<V = Stringifiable> {
 }
 
 /** A constructor for a vector store */
-export type MultiMapStoreConstructor<V = Stringifiable> = new () => MultiMapStore<V>;
+export type MultiMapStoreConstructor<V = Properties | Value> = new () => MultiMapStore<V>;
 
 /** A local multimap key-value store */
-export class MultiMap<V = Stringifiable> implements MultiMapStore<V> {
+export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
   #store: Map<Uint64, V[]>;
   #count = 0;
 

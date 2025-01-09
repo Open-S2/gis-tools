@@ -4,13 +4,13 @@ import { PriorityQueue } from './priorityQueue';
 import { fromST } from '../geometry/s2/point';
 import { xyzToLonLat } from '../geometry/s2/coords';
 
-import type { Face } from '../geometry';
-import type { KDKV, KDStore, KDStoreConstructor, Stringifiable } from '../dataStore';
+import type { Face, Properties, VectorPoint } from '..';
+import type { KDStore, KDStoreConstructor } from '../dataStore';
 
 /** A query node in the kd-tree used by a spherical search */
-interface NodeQuery<T> {
+interface NodeQuery<T extends Properties = Properties> {
   // index?: number;
-  point?: KDKV<T>;
+  point?: VectorPoint<T>;
   left?: number; // left index in the kd-tree array
   right?: number; // right index
   axis?: number; // 0 for longitude axis and 1 for latitude axis
@@ -28,14 +28,14 @@ const RAD = 0.017453292519943295; // Math.PI / 180;
  *
  * ## Description
  * An index of cells with radius queries
- * Assumes the data is {@link Stringifiable}
+ * Assumes the data is compatible with {@link Properties}
  * Because of the nature of low level language like Javascript, using u64 is slow. This index
  * uses f64 which Number supports. So it is fast and efficient.
  *
  * ## Usage
  * ```ts
- * import { PointIndexFast } from 's2-tools';
- * import { KDMMapSpatialIndex } from 's2-tools/mmap';
+ * import { PointIndexFast } from 'gis-tools';
+ * import { KDMMapSpatialIndex } from 'gis-tools/mmap';
  *
  * const pointIndex = new PointIndexFast();
  * // or used a mmap based store
@@ -58,7 +58,7 @@ const RAD = 0.017453292519943295; // Math.PI / 180;
  * const points = await pointIndex.searchRadiusSphere(lon, lat, dist);
  * ```
  */
-export class PointIndexFast<T extends Stringifiable = Stringifiable> {
+export class PointIndexFast<T extends Properties = Properties> {
   #store: KDStore<T>;
   #sorted: boolean = false;
 
@@ -77,7 +77,7 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
    * Add a properly shaped point with it's x, y, and data values
    * @param point - the point to be indexed
    */
-  insert(point: KDKV<T>): void {
+  insert(point: VectorPoint<T>): void {
     this.#store.push(point);
     this.#sorted = false;
   }
@@ -89,7 +89,7 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
    * @param data - the data associated with the point
    */
   insertLonLat(lon: number, lat: number, data: T): void {
-    this.insert({ x: lon, y: lat, data });
+    this.insert({ x: lon, y: lat, m: data });
   }
 
   /**
@@ -101,14 +101,14 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
    */
   insertFaceST(face: Face, s: number, t: number, data: T): void {
     const [lon, lat] = xyzToLonLat(fromST(face, s, t));
-    this.insert({ x: lon, y: lat, data });
+    this.insert({ x: lon, y: lat, m: data });
   }
 
   /**
    * iterate through the points
    * @yields a PointShapeFast<T>
    */
-  *[Symbol.iterator](): Generator<KDKV<T>> {
+  *[Symbol.iterator](): Generator<VectorPoint<T>> {
     this.sort();
     for (const value of this.#store) yield value;
   }
@@ -136,14 +136,14 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
     maxX: number,
     maxY: number,
     maxResults = Infinity,
-  ): Array<KDKV<T>> {
+  ): Array<VectorPoint<T>> {
     this.sort();
 
     const { nodeSize } = this;
     const stack: Array<[left: number, right: number, axis: number]> = [
       [0, this.#store.length - 1, 0],
     ];
-    const result: Array<KDKV<T>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<T>> = []; // ids of items that are in range
 
     // recursively search for items in range in the kd-sorted arrays
     while (stack.length > 0) {
@@ -186,14 +186,14 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
    * @param maxResults - the maximum number of results
    * @returns - the items that are in range
    */
-  searchRadius(qx: number, qy: number, r: number, maxResults = Infinity): Array<KDKV<T>> {
+  searchRadius(qx: number, qy: number, r: number, maxResults = Infinity): Array<VectorPoint<T>> {
     this.sort();
 
     const { nodeSize } = this;
     const stack: Array<[left: number, right: number, axis: number]> = [
       [0, this.#store.length - 1, 0],
     ]; // left, right, axis
-    const result: Array<KDKV<T>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<T>> = []; // ids of items that are in range
     const r2 = r * r;
 
     // recursively search for items within radius in the kd-sorted arrays
@@ -246,11 +246,11 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
     dist: number,
     maxResults = Infinity,
     planetRadius = EARTH_RADIUS,
-  ): Array<KDKV<T>> {
+  ): Array<VectorPoint<T>> {
     this.sort();
 
     const { nodeSize } = this;
-    const result: Array<KDKV<T>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<T>> = []; // ids of items that are in range
     const maxHaverSinDist = haverSin(dist / planetRadius);
     const cosLat = Math.cos(lat * RAD);
     // a distance-sorted priority queue that will contain both points and kd-tree nodes
@@ -356,7 +356,12 @@ export class PointIndexFast<T extends Stringifiable = Stringifiable> {
  * @param node - the query node to test against
  * @returns - the box distance
  */
-function boxDist<T>(lon: number, lat: number, cosLat: number, node: NodeQuery<T>): number {
+function boxDist<T extends Properties = Properties>(
+  lon: number,
+  lat: number,
+  cosLat: number,
+  node: NodeQuery<T>,
+): number {
   const minLon = node.minLon ?? -180;
   const maxLon = node.maxLon ?? 180;
   const minLat = node.minLat ?? -90;

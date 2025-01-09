@@ -1,1 +1,1 @@
-export { KDStore } from '../../../src';
+export { KDSpatialIndex } from '../../../src';

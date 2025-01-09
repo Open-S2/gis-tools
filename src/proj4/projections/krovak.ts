@@ -49,7 +49,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - The ellipsoid used is Bessel by default.
  * - Before PROJ 9.4, using custom `x_0` or `y_0` without the `+czech` switch resulted in incorrect values.
  *
- * ![Krovak](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/krovak.png?raw=true)
+ * ![Krovak](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/krovak.png?raw=true)
  */
 export class Krovak extends ProjectionBase implements ProjectionTransform {
   name = 'Krovak';

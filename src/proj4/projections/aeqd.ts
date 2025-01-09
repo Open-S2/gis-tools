@@ -39,7 +39,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `ellps`: Ellipsoid name
  * - `R`: Radius of sphere
  *
- * ![Azimuthal Equidistant Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/aeqd.png?raw=true)
+ * ![Azimuthal Equidistant Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aeqd.png?raw=true)
  */
 export class AzimuthalEquidistant extends ProjectionBase implements ProjectionTransform {
   name = 'Azimuthal_Equidistant';

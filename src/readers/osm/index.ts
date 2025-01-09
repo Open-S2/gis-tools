@@ -1,20 +1,19 @@
 import { HeaderBlock } from './headerBlock';
 import { KV } from '../../dataStore';
 import { PrimitiveBlock } from './primitive';
-import { Pbf as Protobuf } from '../../readers/protobuf';
+import { Pbf as Protobuf } from 'pbf-ts';
 import { intermediateRelationToVectorFeature } from './relation';
 import { intermediateWayToVectorFeature } from './way';
 import { mergeRelationIfExists } from './node';
-import { tmpdir } from 'os';
 import { toReader } from '..';
 import { Blob, BlobHeader } from './blob';
 
+import type { KVStore } from '../../dataStore';
 import type { Metadata } from './primitive';
 import type { OSMHeader } from './headerBlock';
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { IntermediateNodeMember, IntermediateRelation } from './relation';
 import type { IntermediateWay, WayNodes } from './way';
-import type { KVStore, KVStoreConstructor } from '../../dataStore';
 import type { VectorFeature, VectorPoint } from '../../geometry';
 
 export type * from './blob';
@@ -119,8 +118,6 @@ export interface OsmReaderOptions {
   upgradeWaysToAreas?: boolean;
   /** If set to true, add a bbox property to each feature */
   addBBox?: boolean;
-  /** TODO: If defined, replace the stores with the provided class */
-  store?: KVStoreConstructor;
 }
 
 /**
@@ -132,8 +129,8 @@ export interface OsmReaderOptions {
  *
  * ## Usage
  * ```ts
- * import { OSMReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { OSMReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const reader = new OSMReader(new FileReader('./data.osm.pbf'));
  * // pull out the header
@@ -195,17 +192,6 @@ export class OSMReader implements FeatureIterator<Metadata> {
     this.skipRelations = options?.skipRelations ?? false;
     this.upgradeWaysToAreas = options?.upgradeWaysToAreas ?? false;
     this.addBBox = options?.addBBox ?? false;
-    const store = options?.store;
-    if (store !== undefined) {
-      this.nodeGeometry = new store(buildTmpFileName('nodeGeometry')) as KVStore<VectorPoint>;
-      this.nodes = new store(buildTmpFileName('nodes')) as KVStore<VectorFeature<Metadata>>;
-      this.wayGeometry = new store(buildTmpFileName('wayGeometry')) as KVStore<WayNodes>;
-      this.ways = new store(buildTmpFileName('ways')) as KVStore<IntermediateWay>;
-      this.relations = new store(buildTmpFileName('relations')) as KVStore<IntermediateRelation>;
-      this.nodeRelationPairs = new store(
-        buildTmpFileName('nodeRelationPairs'),
-      ) as KVStore<IntermediateNodeMember>;
-    }
   }
 
   /**
@@ -306,15 +292,4 @@ export class OSMReader implements FeatureIterator<Metadata> {
     this.relations.close();
     this.nodeRelationPairs.close();
   }
-}
-
-/**
- * Build a temporary file name
- * @param name - the name of the temporary file
- * @returns - a temporary file name based on a random number.
- */
-function buildTmpFileName(name: string): string {
-  const tmpd = tmpdir();
-  const randomName = Math.random().toString(36).slice(2);
-  return `${tmpd}/${name ?? ''}_${randomName}`;
 }

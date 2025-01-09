@@ -10,8 +10,8 @@ import type { Point, VectorPoint } from '../geometry';
  *
  * ## Usage
  * ```ts
- * import { Delaunator } from 's2-tools'
- * import type { Point, VectorPoint } from 's2-tools'
+ * import { Delaunator } from 'gis-tools'
+ * import type { Point, VectorPoint } from 'gis-tools'
  *
  * // its recommended to stereotypically use `fromPoints` to construct a Delaunator
  * const points: Point[] = [...]

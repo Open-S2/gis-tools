@@ -2,7 +2,7 @@ import { Info, InfoBlock } from './info';
 import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
 
 import type { OSMReader } from '.';
-import type { Pbf as Protobuf } from '../../readers/protobuf';
+import type { Pbf as Protobuf } from 'pbf-ts';
 import type { Metadata, PrimitiveBlock } from './primitive';
 
 import type {
@@ -100,7 +100,7 @@ export async function intermediateRelationToVectorFeature(
 }
 
 /** Member Type can be Node (0), Way (1) or Relation (2). */
-export enum MemberType {
+export const enum MemberType {
   /** Node Member */
   Node = 0,
   /** Way Member */

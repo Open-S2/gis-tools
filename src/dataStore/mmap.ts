@@ -4,7 +4,7 @@ import { tmpdir } from 'os';
 import { closeSync, openSync, unlinkSync, writeSync } from 'fs';
 import { compare, toCell } from '../dataStructures/uint64';
 
-import type { Stringifiable } from '..';
+import type { Properties, Value, VectorKey } from '..';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
 /** Options to create a S2MMapStore */
@@ -33,7 +33,7 @@ export interface MMapEntry<V> {
  * - read-only. Once you have written everything, the first read will lock the file to be static
  * and read-only.
  */
-export class S2MMapStore<V = Stringifiable> {
+export class S2MMapStore<V = Properties | Value | VectorKey> {
   readonly fileName: string;
   #state: 'read' | 'write' = 'read';
   #size = 0;

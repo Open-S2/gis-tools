@@ -6,7 +6,7 @@ import { parseGtfsDate } from '../utils';
  * 1 - Service added for this date.
  * 2 - Service removed for this date.
  */
-export enum GTFSExceptionType {
+export const enum GTFSExceptionType {
   Added = 1,
   Removed = 2,
 }

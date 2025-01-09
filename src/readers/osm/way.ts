@@ -3,7 +3,7 @@ import { extendBBox } from '../../geometry';
 
 import type { Metadata } from './primitive';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from '../../readers/protobuf';
+import type { Pbf as Protobuf } from 'pbf-ts';
 import type { InfoBlock, OSMReader } from '.';
 
 import type {

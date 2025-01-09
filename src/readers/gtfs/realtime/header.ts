@@ -7,7 +7,7 @@ import type { Pbf as Protobuf } from '../..';
  * list around fully specifying the behavior of DIFFERENTIAL mode and the
  * documentation will be updated when those discussions are finalized.
  */
-export enum Incrementality {
+export const enum Incrementality {
   FULL_DATASET = 0,
   DIFFERENTIAL = 1,
 }

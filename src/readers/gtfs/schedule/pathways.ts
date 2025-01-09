@@ -11,7 +11,7 @@ import { parseCSVAsRecord } from '../../';
  * 6 - Fare gate (payment gate)
  * 7 - Exit gate
  */
-export enum GTFSPathwayMode {
+export const enum GTFSPathwayMode {
   Walkway = 1,
   Stairs = 2,
   MovingSidewalk = 3,
@@ -29,7 +29,7 @@ export enum GTFSPathwayMode {
  *
  * Note: Exit gates (pathway_mode=7) must not be bidirectional.
  */
-export enum GTFSIsBidirectional {
+export const enum GTFSIsBidirectional {
   Unidirectional = 0,
   Bidirectional = 1,
 }

@@ -31,8 +31,8 @@ export interface GridReader {
  *
  * ## Usage
  * ```ts
- * import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 's2-tools';
- * import { FileReader } from 's2-tools/file';
+ * import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 'gis-tools';
+ * import { FileReader } from 'gis-tools/file';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);
  * const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);

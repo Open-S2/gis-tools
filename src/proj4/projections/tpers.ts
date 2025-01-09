@@ -12,7 +12,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - Equator (2)
  * - Oblique (3)
  */
-export enum MODE {
+export const enum MODE {
   /** North Pole */
   N_POLE = 0,
   /** South Pole */
@@ -61,7 +61,7 @@ export enum MODE {
  * - `+azi=<value>`: Bearing in degrees away from north. *Defaults to 0.0.*
  * - `+tilt=<value>`: Angle in degrees away from nadir. *Defaults to 0.0.*
  *
- * ![Tilted perspective](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/tpers.png?raw=true)
+ * ![Tilted perspective](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/tpers.png?raw=true)
  */
 export class TiltedPerspective extends ProjectionBase implements ProjectionTransform {
   name = 'TiltedPerspective';

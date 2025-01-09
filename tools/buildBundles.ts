@@ -5,20 +5,20 @@ import { mkdir, readdir, rm, stat } from 'node:fs/promises';
 
 await mkdir(`${__dirname}/../build_bundle_tmp`, { recursive: true });
 
-// TODO: node_modules/s2-tilejson/dist/index.js is getting included in builds on accident
-
 await build({
   bundle: true,
   platform: 'browser', // Treat Node.js built-in modules as external
-  external: ['os', 'path', 'fs'], // Exclude built-in and other unwanted modules
+  external: ['os', 'path', 'fs', 'node:zlib', 'util', 'node:*', 'child_process', 'sharp'], // Exclude built-in and other unwanted modules
   format: 'esm', // ESM output format
   treeShaking: true, // Ensure unused code is removed
   entryPoints: [
     // CONSTANTS
     `${__dirname}/builds/constants/index.ts`,
-    // TODO: CONVERTERS
-
+    // CONVERTERS
+    `${__dirname}/builds/converters/toJSON.ts`,
+    `${__dirname}/builds/converters/toTiles.ts`,
     // DATA STORES
+    `${__dirname}/builds/dataStore/externalSort.ts`,
     `${__dirname}/builds/dataStore/kd.ts`,
     `${__dirname}/builds/dataStore/kv.ts`,
     `${__dirname}/builds/dataStore/multimap.ts`,
@@ -29,6 +29,7 @@ await build({
     `${__dirname}/builds/dataStructures/pointIndex.ts`,
     `${__dirname}/builds/dataStructures/pointIndexFast.ts`,
     `${__dirname}/builds/dataStructures/priorityQueue.ts`,
+    `${__dirname}/builds/dataStructures/dataTile.ts`,
     // GEOMETRY
     `${__dirname}/builds/geometry/angles.ts`,
     `${__dirname}/builds/geometry/bbox.ts`,
@@ -57,23 +58,26 @@ await build({
     `${__dirname}/builds/readers/nadgrid.ts`,
     `${__dirname}/builds/readers/netcdf.ts`,
     `${__dirname}/builds/readers/osm.ts`,
-    `${__dirname}/builds/readers/pmtiles.ts`,
+    `${__dirname}/builds/readers/pmtilesReader.ts`,
     `${__dirname}/builds/readers/protobuf.ts`,
     `${__dirname}/builds/readers/shapefile.ts`,
-    `${__dirname}/builds/readers/tile.ts`,
+    `${__dirname}/builds/readers/tileReader.ts`,
     `${__dirname}/builds/readers/wkt.ts`,
+    `${__dirname}/builds/readers/xml.ts`,
     // SPACE
     `${__dirname}/builds/space/sat.ts`,
     // TOOLS
     `${__dirname}/builds/tools/delaunator.ts`,
+    `${__dirname}/builds/tools/interpolators.ts`,
     `${__dirname}/builds/tools/orthodrome.ts`,
     `${__dirname}/builds/tools/polylabel.ts`,
     // UTIL
     `${__dirname}/builds/util/gzip.ts`,
     `${__dirname}/builds/util/lzw.ts`,
+    `${__dirname}/builds/util/polyfills.ts`,
     // WRITERS
-    `${__dirname}/builds/writers/pmtiles.ts`,
-    `${__dirname}/builds/writers/tile.ts`,
+    `${__dirname}/builds/writers/pmtilesWriter.ts`,
+    `${__dirname}/builds/writers/tileWriter.ts`,
   ],
   // splitting: true,
   outdir: `${__dirname}/../build_bundle_tmp`,

@@ -1,30 +1,27 @@
-import type { Stringifiable } from '..';
+import type { Properties, VectorPoint } from '../..';
 
-/** The kind of input required to store a vector for proper indexing */
-export interface KDKV<T = Stringifiable> {
-  x: number;
-  y: number;
-  data: T;
-}
+// TODO: range, within (range needs to be min, max)
 
 /** Represents a vector store or an array */
-export interface KDStore<T = Stringifiable> {
-  push: (value: KDKV<T>) => void;
-  get: (index: number) => KDKV<T>;
-  getRange: (indexStart: number, indexEnd: number) => KDKV<T>[];
+export interface KDStore<T extends Properties = Properties> {
+  push: (value: VectorPoint<T>) => void;
+  get: (index: number) => VectorPoint<T>;
+  getRange: (indexStart: number, indexEnd: number) => VectorPoint<T>[];
   length: number;
-  values: () => Generator<KDKV<T>>;
+  values: () => Generator<VectorPoint<T>>;
   sort: () => void;
-  [Symbol.iterator]: () => Generator<KDKV<T>>;
+  [Symbol.iterator]: () => Generator<VectorPoint<T>>;
   close: () => void;
 }
 
 /** A constructor for a vector store */
-export type KDStoreConstructor<T = Stringifiable> = new (nodeSize: number) => KDStore<T>;
+export type KDStoreConstructor<T extends Properties = Properties> = new (
+  nodeSize: number,
+) => KDStore<T>;
 
 /** A local KD key-value store */
-export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
-  #store: KDKV<T>[] = [];
+export class KDSpatialIndex<T extends Properties = Properties> implements KDStore<T> {
+  #store: VectorPoint<T>[] = [];
 
   /**
    * @param nodeSize - the size of each kd-tree node
@@ -40,7 +37,7 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * Push a value into the store
    * @param value - the value to store
    */
-  push(value: KDKV<T>): void {
+  push(value: VectorPoint<T>): void {
     this.#store.push(value);
   }
 
@@ -49,7 +46,7 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  get(index: number): KDKV<T> {
+  get(index: number): VectorPoint<T> {
     return this.#store[index];
   }
 
@@ -59,7 +56,7 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * @param indexEnd - the end index
    * @returns the values
    */
-  getRange(indexStart: number, indexEnd: number): KDKV<T>[] {
+  getRange(indexStart: number, indexEnd: number): VectorPoint<T>[] {
     return this.#store.slice(indexStart, indexEnd);
   }
 
@@ -67,7 +64,7 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * iterate through the values
    * @yields an iterator
    */
-  *values(): Generator<KDKV<T>> {
+  *values(): Generator<VectorPoint<T>> {
     for (const value of this.#store) yield value;
   }
 
@@ -80,7 +77,7 @@ export class KDSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): Generator<KDKV<T>> {
+  [Symbol.iterator](): Generator<VectorPoint<T>> {
     return this.values();
   }
 

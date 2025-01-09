@@ -17,8 +17,8 @@ export interface ToJSONOptions {
  *
  * Usage:
  * ```ts
- * import { toJSON, JSONReader } from 's2-tools'
- * import { FileReader, FileWriter } from 's2-tools/file'
+ * import { toJSON, JSONReader } from 'gis-tools'
+ * import { FileReader, FileWriter } from 'gis-tools/file'
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);
@@ -72,8 +72,8 @@ export async function toJSON(
  *
  * Usage:
  * ```ts
- * import { toJSON, JSONReader } from 's2-tools'
- * import { FileReader, FileWriter } from 's2-tools/file'
+ * import { toJSON, JSONReader } from 'gis-tools'
+ * import { FileReader, FileWriter } from 'gis-tools/file'
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);

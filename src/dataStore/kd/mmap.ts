@@ -4,8 +4,8 @@ import { mmap } from 'bun';
 import { tmpdir } from 'os';
 import { closeSync, fstatSync, openSync, unlinkSync, writeSync } from 'fs';
 
-import type { Stringifiable } from '..';
-import type { KDKV, KDStore } from '.';
+import type { KDStore } from '.';
+import type { Properties, VectorPoint } from '../..';
 
 /** Options to create a S2FileStore */
 export interface MMapOptions {
@@ -22,7 +22,7 @@ export interface MMapOptions {
 const KEY_LENGTH = 24;
 
 /** A local KD key-value store */
-export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
+export class KDMMapSpatialIndex<T extends Properties = Properties> implements KDStore<T> {
   readonly fileName: string;
   #size = 0;
   // #threadCount?: number;
@@ -66,12 +66,12 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * Adds a value to be associated with a key
    * @param value - the value to store
    */
-  push(value: KDKV<T>): void {
+  push(value: VectorPoint<T>): void {
     // @ts-expect-error - we want to reset our map since it will be out of sync
     this.#keyMap = undefined;
-    const { x, y, data } = value;
+    const { x, y, m } = value;
     // prepare value
-    const valueBuf = Buffer.from(JSON.stringify(data));
+    const valueBuf = Buffer.from(JSON.stringify(m));
     // write key offset as a uint64
     const buffer = Buffer.alloc(KEY_LENGTH);
     buffer.writeDoubleLE(x, 0);
@@ -102,22 +102,22 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * @param index - the position in the store
    * @returns - the value
    */
-  get(index: number): KDKV<T> {
+  get(index: number): VectorPoint<T> {
     this.#setupMMap();
     const keySlice = this.#keyMap.subarray(index * KEY_LENGTH, index * KEY_LENGTH + KEY_LENGTH);
     const buffer = Buffer.from(keySlice);
     const x = buffer.readDoubleLE(0);
     const y = buffer.readDoubleLE(8);
     if (this.#indexIsValues) {
-      const data = buffer.readBigInt64LE(16) as T;
-      return { x, y, data };
+      const data = buffer.readBigInt64LE(16) as unknown as T;
+      return { x, y, m: data };
     } else {
       const valueOffset = buffer.readUInt32LE(16);
       const valueLength = buffer.readUInt32LE(20);
       const valueSlice = this.#valueMap.subarray(valueOffset, valueOffset + valueLength);
       const valueBuf = Buffer.from(valueSlice);
       const data = JSON.parse(valueBuf.toString()) as T;
-      return { x, y, data };
+      return { x, y, m: data };
     }
   }
 
@@ -127,9 +127,9 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * @param indexEnd - the end index
    * @returns - the values
    */
-  getRange(indexStart: number, indexEnd: number): KDKV<T>[] {
+  getRange(indexStart: number, indexEnd: number): VectorPoint<T>[] {
     this.#setupMMap();
-    const res: KDKV<T>[] = [];
+    const res: VectorPoint<T>[] = [];
 
     const length = indexEnd - indexStart;
     const keySlice = this.#keyMap.subarray(indexStart * KEY_LENGTH, indexEnd * KEY_LENGTH);
@@ -139,15 +139,15 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
       const x = buffer.readDoubleLE(i * KEY_LENGTH + 0);
       const y = buffer.readDoubleLE(i * KEY_LENGTH + 8);
       if (this.#indexIsValues) {
-        const data = buffer.readBigInt64LE(i * KEY_LENGTH + 16) as T;
-        res.push({ x, y, data });
+        const data = buffer.readBigInt64LE(i * KEY_LENGTH + 16) as unknown as T;
+        res.push({ x, y, m: data });
       } else {
         const valueOffset = buffer.readUInt32LE(i * KEY_LENGTH + 16);
         const valueLength = buffer.readUInt32LE(i * KEY_LENGTH + 20);
         const valueSlice = this.#valueMap.subarray(valueOffset, valueLength + valueOffset);
         const valueBuf = Buffer.from(valueSlice);
         const data = JSON.parse(valueBuf.toString()) as T;
-        res.push({ x, y, data });
+        res.push({ x, y, m: data });
       }
     }
 
@@ -159,7 +159,7 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * @param bigint - set to true if the value is a bigint stored in the index
    * @yields an iterator
    */
-  *values(bigint = false): Generator<KDKV<T>> {
+  *values(bigint = false): Generator<VectorPoint<T>> {
     this.#setupMMap();
     for (let i = 0; i < this.#size; i++) {
       const keySlice = this.#keyMap.subarray(i * KEY_LENGTH, i * KEY_LENGTH + KEY_LENGTH);
@@ -167,15 +167,15 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
       const x = buffer.readDoubleLE(0);
       const y = buffer.readDoubleLE(8);
       if (this.#indexIsValues) {
-        const data = (bigint ? buffer.readBigInt64LE(16) : buffer.readDoubleLE(16)) as T;
-        yield { x, y, data };
+        const data = (bigint ? buffer.readBigInt64LE(16) : buffer.readDoubleLE(16)) as unknown as T;
+        yield { x, y, m: data };
       } else {
         const valueOffset = buffer.readUInt32LE(16);
         const valueLength = buffer.readUInt32LE(20);
         const valueSlice = this.#valueMap.subarray(valueOffset, valueOffset + valueLength);
         const valueBuffer = Buffer.from(valueSlice);
         const data = JSON.parse(valueBuffer.toString()) as T;
-        yield { x, y, data };
+        yield { x, y, m: data };
       }
     }
   }
@@ -184,7 +184,7 @@ export class KDMMapSpatialIndex<T = Stringifiable> implements KDStore<T> {
    * iterate through the values
    * @returns an iterator
    */
-  [Symbol.iterator](): Generator<KDKV<T>> {
+  [Symbol.iterator](): Generator<VectorPoint<T>> {
     return this.values();
   }
 

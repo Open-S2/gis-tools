@@ -19,7 +19,7 @@ import { parseCSVAsRecord } from '../../';
  * - 0 = On board
  * - 1 = Before boarding
  */
-export enum GTFSPaymentMethod {
+export const enum GTFSPaymentMethod {
   OnBoard = 0,
   PreBoard = 1,
 }

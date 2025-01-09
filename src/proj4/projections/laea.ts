@@ -59,7 +59,7 @@ export type APA = [number, number, number];
  * "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder,
  * The American Cartographer, Vol 15, No. 4, October 1988, pp. 341-355.
  *
- * ![Lambert Azimuthal Equal Area](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/laea.png?raw=true)
+ * ![Lambert Azimuthal Equal Area](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/laea.png?raw=true)
  */
 export class LambertAzimuthalEqualArea extends ProjectionBase implements ProjectionTransform {
   name = 'LambertAzimuthalEqualArea';

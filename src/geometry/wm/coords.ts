@@ -1,4 +1,4 @@
-import { EARTH_CIRCUMFERENCE } from '../../space/planets/earth';
+import { EARTH_CIRCUMFERENCE } from '../..';
 import { degToRad, radToDeg } from '../util';
 
 import type { BBox, Point, Point3D } from '../';

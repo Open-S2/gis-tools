@@ -39,7 +39,7 @@ import type {
  * ## Usage
  *
  * ```ts
- * import { Tile } from 's2-tools';
+ * import { Tile } from 'gis-tools';
  *  // create a tile
  * const tile = new Tile(id);
  * // add a feature

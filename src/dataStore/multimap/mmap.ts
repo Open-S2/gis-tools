@@ -2,12 +2,12 @@ import { S2MMapStore } from '../mmap';
 import { compare } from '../../dataStructures/uint64';
 
 import type { MMapEntry } from '../mmap';
-import type { Stringifiable } from '..';
 import type { Uint64 } from '../../dataStructures/uint64';
 import type { MMEntry, MultiMapStore } from '.';
+import type { Properties, Value } from '../..';
 
 /** MMap based multimap store */
-export class MMapMultiMap<V = Stringifiable> implements MultiMapStore<V> {
+export class MMapMultiMap<V = Properties | Value> implements MultiMapStore<V> {
   #store: S2MMapStore<V>;
 
   /**

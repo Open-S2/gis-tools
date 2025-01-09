@@ -68,11 +68,11 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  *
  * Supports reading either RGB(A) data and/or RGB(A) encoded elevation data.
  *
- * NOTE: Consider using the RasterTilesFileReader from `s2-tools/file` instead for local access.
+ * NOTE: Consider using the RasterTilesFileReader from `gis-tools/file` instead for local access.
  *
  * ## Usage
  * ```ts
- * import { RasterTilesReader, convertTerrariumElevationData } from 's2-tools';
+ * import { RasterTilesReader, convertTerrariumElevationData } from 'gis-tools';
  *
  * // creates a reader for a tile set treating the max zoom as 3 instead of the metadata's max zoom
  * const reader = new RasterTilesReader('https://example.com/satellite-data', 3);

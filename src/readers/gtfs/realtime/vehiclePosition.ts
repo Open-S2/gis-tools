@@ -3,7 +3,7 @@ import { GTFSRealtimePosition, GTFSRealtimeTripDescriptor } from './..';
 import type { Pbf as Protobuf } from '../..';
 
 /** Status of the vehicle relative to the stop */
-export enum VehicleStopStatus {
+export const enum VehicleStopStatus {
   /**
    * The vehicle is just about to arrive at the stop (on a stop
    * display, the vehicle symbol typically flashes).
@@ -16,7 +16,7 @@ export enum VehicleStopStatus {
 }
 
 /** Congestion level that is affecting this vehicle. */
-export enum GTFSRealtimeCongestionLevel {
+export const enum GTFSRealtimeCongestionLevel {
   UNKNOWN_CONGESTION_LEVEL = 0,
   RUNNING_SMOOTHLY = 1,
   STOP_AND_GO = 2,
@@ -34,7 +34,7 @@ export enum GTFSRealtimeCongestionLevel {
  * For describing passenger occupancy levels on a linear scale, see `occupancy_percentage`.
  * This field is still experimental, and subject to change. It may be formally adopted in the future.
  */
-export enum GTFSRealtimeOccupancyStatus {
+export const enum GTFSRealtimeOccupancyStatus {
   /**
    * The vehicle or carriage is considered empty by most measures, and has few or no
    * passengers onboard, but is still accepting passengers.
@@ -178,7 +178,7 @@ export class GTFSRealtimeVehiclePosition {
 }
 
 /** Wheelchair accessibility of the trip */
-export enum GTFSRealtimeWheelchairAccessible {
+export const enum GTFSRealtimeWheelchairAccessible {
   // The trip doesn't have information about wheelchair accessibility.
   // This is the **default** behavior. If the static GTFS contains a
   // _wheelchair_accessible_ value, it won't be overwritten.

@@ -11,14 +11,14 @@ default-members = [
 ]
 
 [workspace.package]
-# name = "s2-tools"
+# name = "gis-tools"
 version = "1.0.0"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2."
-documentation = "https://docs.rs/s2-tools"
-homepage = "https://github.com/OpenS2/s2-tools"
-repository = "https://github.com/OpenS2/s2-tools"
+documentation = "https://docs.rs/gis-tools"
+homepage = "https://github.com/OpenS2/gis-tools"
+repository = "https://github.com/OpenS2/gis-tools"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
 keywords = ["tools", "s2", "gis", "low-cost-code"]

@@ -1,5 +1,5 @@
-import { FileReader } from '../../../src/file';
-import { MMapKV } from '../../../src/mmap';
+import { OSMMMapReader } from '../../../src/mmap';
+import { FileReader, OSMFileReader } from '../../../src/file';
 import { OSMReader, TagFilter } from '../../../src';
 import { expect, test } from 'bun:test';
 
@@ -216,14 +216,63 @@ test('parse basic case', async () => {
   ]);
 });
 
-test('parse basic case with mmap KV store', async () => {
-  const fileReader = new FileReader(`${__dirname}/fixtures/test.pbf`);
+test('parse basic case with mmap', async () => {
   const tagFilter = new TagFilter();
   tagFilter.addFilter('All', 'amenity', 'cafe');
 
-  const reader = new OSMReader(fileReader, {
+  const reader = new OSMMMapReader(`${__dirname}/fixtures/test.pbf`, {
     removeEmptyNodes: false,
-    store: MMapKV,
+    tagFilter,
+  });
+  const header = reader.getHeader();
+  expect(header).toEqual({
+    bbox: [-1, -1, -1, -1],
+    optional_features: [],
+    osmosis_replication_base_url: undefined,
+    osmosis_replication_sequence_number: -1,
+    osmosis_replication_timestamp: -1,
+    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    source: undefined,
+    writingprogram: undefined,
+  });
+  const features = await Array.fromAsync(reader);
+
+  expect(features.length).toBe(1);
+  expect(features).toEqual([
+    {
+      geometry: {
+        coordinates: { x: -0.10761860000000001, y: 51.5075933 },
+        is3D: false,
+        type: 'Point',
+      },
+      id: 275452090,
+      metadata: {
+        info: {
+          changeset: 2540257,
+          timestamp: 1256818475000,
+          uid: 1697,
+          user: 'service',
+          version: -2,
+          visible: true,
+        },
+      },
+      properties: {
+        amenity: 'cafe',
+        name: "Jam's Sandwich Bar",
+      },
+      type: 'VectorFeature',
+    },
+  ]);
+
+  reader.close();
+});
+
+test('parse basic case with filesystem', async () => {
+  const tagFilter = new TagFilter();
+  tagFilter.addFilter('All', 'amenity', 'cafe');
+
+  const reader = new OSMFileReader(`${__dirname}/fixtures/test.pbf`, {
+    removeEmptyNodes: false,
     tagFilter,
   });
   const header = reader.getHeader();

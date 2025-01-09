@@ -107,7 +107,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - [Wikipedia: Mercator Projection](https://en.wikipedia.org/wiki/Mercator_projection)
  * - [Wolfram Mathworld: Mercator Projection](http://mathworld.wolfram.com/MercatorProjection.html)
  *
- * ![Mercator Projection](https://github.com/Open-S2/s2-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
+ * ![Mercator Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
  */
 export class Mercator extends ProjectionBase implements ProjectionTransform {
   name = 'Mercator';
