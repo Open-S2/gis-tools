@@ -6,17 +6,14 @@
   <a href="https://img.shields.io/github/actions/workflow/status/Open-S2/gis-tools/test.yml?logo=github">
     <img src="https://img.shields.io/github/actions/workflow/status/Open-S2/gis-tools/test.yml?logo=github" alt="GitHub Actions Workflow Status">
   </a>
-  <a href="https://npmjs.org/package/gis-tools">
-    <img src="https://img.shields.io/npm/v/gis-tools.svg?logo=npm&logoColor=white" alt="npm">
+  <a href="https://npmjs.org/package/gis-tools-ts">
+    <img src="https://img.shields.io/npm/v/gis-tools-ts.svg?logo=npm&logoColor=white" alt="npm">
   </a>
   <a href="https://crates.io/crates/gis-tools">
     <img src="https://img.shields.io/crates/v/gis-tools.svg?logo=rust&logoColor=white" alt="crate">
   </a>
-  <a href="https://www.npmjs.com/package/gis-tools">
-    <img src="https://img.shields.io/npm/dm/gis-tools.svg" alt="downloads">
-  </a>
-  <a href="https://bundlejs.com/?q=gis-tools">
-    <img src="https://img.shields.io/bundlejs/size/gis-tools" alt="bundle">
+  <a href="https://www.npmjs.com/package/gis-tools-ts">
+    <img src="https://img.shields.io/npm/dm/gis-tools-ts.svg" alt="downloads">
   </a>
   <a href="https://open-s2.github.io/gis-tools/">
     <img src="https://img.shields.io/badge/docs-typescript-yellow.svg" alt="docs-ts">
@@ -40,15 +37,18 @@ A collection of geospatial tools primarily designed for WGS84, Web Mercator, and
 
 ```bash
 # NPM
-npm install gis-tools
+npm install gis-tools-ts
 # PNPM
-pnpm add gis-tools
+pnpm add gis-tools-ts
 # Yarn
-yarn add gis-tools
+yarn add gis-tools-ts
 # Bun
-bun add gis-tools
+bun add gis-tools-ts
 # Deno
-deno install gis-tools
+deno install gis-tools-ts
+
+# Cargo
+cargo add gis-tools
 ```
 
 ## Components

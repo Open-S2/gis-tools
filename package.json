@@ -1,5 +1,5 @@
 {
-  "name": "gis-tools",
+  "name": "gis-tools-ts",
   "version": "0.2.0",
   "description": "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.",
   "type": "module",
