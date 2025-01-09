@@ -82,7 +82,7 @@ export class KrigingInterpolator<T extends Properties = Properties> {
   constructor(
     private refData: VectorPoint<T>[],
     model: KrigingModel = 'gaussian',
-    getValue: GetInterpolateValue = defaultGetInterpolateCurrentValue,
+    getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
     sigma2 = 0,
     alpha = 100,
   ) {
@@ -105,12 +105,12 @@ export class KrigingInterpolator<T extends Properties = Properties> {
     let i, j, k, l;
     const { t } = this;
     let n = t.length;
-    const distance = Array((n * n - n) / 2);
+    const distance = new Array((n * n - n) / 2);
     for (i = 0, k = 0; i < n; i++) {
       const { x: xi, y: yi } = this.refData[i];
       for (j = 0; j < i; j++, k++) {
         const { x: xj, y: yj } = this.refData[j];
-        distance[k] = Array(2);
+        distance[k] = new Array(2);
         distance[k][0] = pow(pow(xi - xj, 2) + pow(yi - yj, 2), 0.5);
         distance[k][1] = abs(t[i] - t[j]);
       }
@@ -149,7 +149,7 @@ export class KrigingInterpolator<T extends Properties = Properties> {
     n = l;
     this.range = lag[n - 1] - lag[0];
     const X = rep([1], 2 * n);
-    const Y = Array(n);
+    const Y = new Array(n);
     const A = this.A;
 
     for (i = 0; i < n; i++) {
@@ -176,7 +176,8 @@ export class KrigingInterpolator<T extends Properties = Properties> {
     if (krigingMatrixChol(Z, 2)) {
       krigingMatrixChol2inv(Z, 2);
     } else {
-      krigingMatrixSolve(cloneZ, 2);
+      const solved = krigingMatrixSolve(cloneZ, 2);
+      if (!solved) throw Error('Cholesky decomposition failed');
       Z = cloneZ;
     }
     const W = krigingMatrixMultiply(krigingMatrixMultiply(Z, Xt, 2, 2, n), Y, 2, n, 1);
@@ -187,7 +188,7 @@ export class KrigingInterpolator<T extends Properties = Properties> {
     n = this.n = this.refData.length;
 
     // Gram matrix with prior
-    const K = Array(n * n);
+    const K = new Array(n * n);
     for (i = 0; i < n; i++) {
       const { x: refiX, y: refiY } = this.refData[i];
       for (j = 0; j < i; j++) {
@@ -223,11 +224,11 @@ export class KrigingInterpolator<T extends Properties = Properties> {
 
   /**
    * Model prediction
-   * @param x - x
-   * @param y - y
+   * @param point - point to interpolate to
    * @returns - predicted value
    */
-  predict(x: number, y: number): number {
+  predict(point: VectorPoint): number {
+    const { x, y } = point;
     const k = new Array(this.n);
     for (let i = 0; i < this.n; i++) {
       const { x: refX, y: refY } = this.refData[i];
@@ -245,13 +246,13 @@ export class KrigingInterpolator<T extends Properties = Properties> {
 
   /**
    * Variance prediction
-   * @param x - x value
-   * @param y - y value
+   * @param point - point to interpolate to
    * @returns - predicted variance
    */
-  variance(x: number, y: number): number {
+  variance(point: VectorPoint): number {
+    const { x, y } = point;
     let i;
-    const k = Array(this.n);
+    const k = new Array(this.n);
     for (i = 0; i < this.n; i++) {
       const { x: refX, y: refY } = this.refData[i];
       k[i] = this.model(
@@ -575,5 +576,5 @@ function krigingVariogramSpherical(
  * @returns - array all set to the first element of arr
  */
 function rep(arr: number[], n: number): number[] {
-  return new Array(n).map(Number.prototype.valueOf, arr[0]);
+  return Array(n).fill(arr[0]);
 }

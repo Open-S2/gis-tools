@@ -39,7 +39,7 @@ import type { Properties, VectorPoint } from '../..';
 export function idwInterpolation<T extends Properties = Properties>(
   point: VectorPoint,
   refData: VectorPoint<T>[],
-  getValue: GetInterpolateValue = defaultGetInterpolateCurrentValue,
+  getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
 ): number {
   let numerator = 0;
   let denom = 0;

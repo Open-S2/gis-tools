@@ -15,8 +15,6 @@ import type {
 } from '../..';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
-// TODO: Support timestamps
-
 /**
  * # Raster Tiles File Reader
  *

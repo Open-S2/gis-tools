@@ -4,8 +4,28 @@ import { mkdir, writeFile } from 'fs/promises';
 import type { Metadata } from 's2-tilejson';
 import type { TileWriter } from '.';
 
-/** This is a filesystem Tile writer that organizes data via folders. */
-export class FileTileWriter implements TileWriter {
+/**
+ * # Tile File Writer
+ *
+ * ## Description
+ * This is a filesystem Tile writer that organizes data via folders.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { TileFileWriter } from 'gis-tools-ts';
+ *
+ * const tileWriter = new TileFileWriter('./store', 'png');
+ *
+ * // store WM tiles
+ * await tileWriter.writeTileWM(0, 0, 0, data);
+ * // store S2 tiles
+ * await tileWriter.writeTileS2(0, 0, 0, 0, data);
+ *
+ * // after writing all the tiles, store the metadata
+ * await tileWriter.commit(metadata);
+ */
+export class TileFileWriter implements TileWriter {
   /**
    * @param path - the location to write the data
    * @param fileType - the file ending to write
@@ -20,7 +40,7 @@ export class FileTileWriter implements TileWriter {
   }
 
   /**
-   * Write a tile to the PMTiles file given its (z, x, y) coordinates.
+   * Write a tile to the folder location given its (z, x, y) coordinates.
    * @param zoom - the zoom level
    * @param x - the tile X coordinate
    * @param y - the tile Y coordinate
@@ -35,7 +55,7 @@ export class FileTileWriter implements TileWriter {
   }
 
   /**
-   * Write a tile to the PMTiles file given its (face, zoom, x, y) coordinates.
+   * Write a tile to the folder location given its (face, zoom, x, y) coordinates.
    * @param face - the Open S2 projection face
    * @param zoom - the zoom level
    * @param x - the tile X coordinate
@@ -51,6 +71,52 @@ export class FileTileWriter implements TileWriter {
   ): Promise<void> {
     // if folders don't exist, create it
     const folders = `${this.path}/${face}/${zoom}/${x}`;
+    if (!existsSync(folders)) await mkdir(folders, { recursive: true });
+
+    await writeFile(`${folders}/${y}.${this.fileType}`, data);
+  }
+
+  /**
+   * Write a time series tile to the folder location given its (t, z, x, y) coordinates.
+   * @param time - the date of the data
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTemporalTileWM(
+    time: Date,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    // if folders don't exist, create it
+    const folders = `${this.path}/${time.toISOString()}/${zoom}/${x}`;
+    if (!existsSync(folders)) await mkdir(folders, { recursive: true });
+
+    await writeFile(`${folders}/${y}.${this.fileType}`, data);
+  }
+
+  /**
+   * Write a time series tile to the folder location given its (face, zoom, x, y) coordinates.
+   * @param time - the date of the data
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTemporalTileS2(
+    time: Date,
+    face: number,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    // if folders don't exist, create it
+    const folders = `${this.path}/${time.toISOString()}/${face}/${zoom}/${x}`;
     if (!existsSync(folders)) await mkdir(folders, { recursive: true });
 
     await writeFile(`${folders}/${y}.${this.fileType}`, data);

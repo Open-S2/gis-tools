@@ -15,8 +15,6 @@ import type {
 } from '../..';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
-// TODO: Support timestamps
-
 /** Elevation point used by elevation readers */
 export interface ElevationPoint extends Properties {
   elev: number;
@@ -132,7 +130,7 @@ export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
    * @param y - the y coordinate of the tile
    * @returns - the tile
    */
-  async getTile(zoom: number, x: number, y: number): Promise<RasterTileReader<T> | undefined> {
+  async getTileWM(zoom: number, x: number, y: number): Promise<RasterTileReader<T> | undefined> {
     const { extension, scheme } = await this.getMetadata();
     const isTMS = scheme === 'tms';
     const data =
@@ -241,7 +239,7 @@ export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
         } else if (zoom === threshold) {
           const tile = isS2
             ? await this.getTileS2(face, zoom, x, y)
-            : await this.getTile(zoom, x, y);
+            : await this.getTileWM(zoom, x, y);
           if (tile === undefined) continue;
           yield* tile;
         }

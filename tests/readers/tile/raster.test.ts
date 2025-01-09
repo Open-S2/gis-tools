@@ -28,7 +28,7 @@ test('read in wm satellite', async () => {
 
   // has tile
   expect(await reader.hasTile(0, 0, 0)).toEqual(true);
-  const tile = await reader.getTile(0, 0, 0);
+  const tile = await reader.getTileWM(0, 0, 0);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
   const { image, zoom, x, y, tmsStyle } = tile;

@@ -84,7 +84,7 @@ export function getBilinearPoints<T extends Properties = Properties>(
 export function bilinearInterpolation<T extends Properties = Properties>(
   point: VectorPoint,
   corners: BilinearCorners<T>,
-  getValue: GetInterpolateValue = defaultGetInterpolateCurrentValue,
+  getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
 ): number {
   // 1) Extract corner points and values
   const [tl, tr, bl, br] = corners;

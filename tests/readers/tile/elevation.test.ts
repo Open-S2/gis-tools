@@ -48,7 +48,7 @@ test('read in wm terrain', async () => {
 
   // has tile
   expect(await reader.hasTile(0, 0, 0)).toEqual(true);
-  const tile = await reader.getTile(3, 6, 2);
+  const tile = await reader.getTileWM(3, 6, 2);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
   const { image, zoom, x, y, tmsStyle } = tile;
@@ -101,7 +101,7 @@ test('read in wm terrain-v2', async () => {
 
   // has tile
   expect(await reader.hasTile(0, 0, 0)).toEqual(true);
-  const tile = await reader.getTile(3, 6, 2);
+  const tile = await reader.getTileWM(3, 6, 2);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
   const { image, zoom, x, y, tmsStyle } = tile;
@@ -154,7 +154,7 @@ test('read in wm terrarium2x', async () => {
 
   // has tile
   expect(await reader.hasTile(0, 0, 0)).toEqual(true);
-  const tile = await reader.getTile(3, 6, 2);
+  const tile = await reader.getTileWM(3, 6, 2);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
   const { image, zoom, x, y, tmsStyle } = tile;
