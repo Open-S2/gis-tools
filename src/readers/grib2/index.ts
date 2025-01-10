@@ -242,7 +242,7 @@ export class GRIB2Reader implements FeatureIterator<Grib2ProductDefinition[]> {
       Grib2ProductDefinition[],
       Record<string, number>,
       Properties,
-      VectorMultiPointGeometry
+      VectorMultiPointGeometry<Record<string, number>>
     >
   > {
     // setup metadata

@@ -1,10 +1,10 @@
 import { defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
-import type { Properties, VectorPoint } from '../..';
+import type { MValue, Properties, VectorPoint } from '../..';
 
 /** The 4 corner points closest to a point */
-export type BilinearCorners<T extends Properties = Properties> = [
+export type BilinearCorners<T extends MValue = Properties> = [
   VectorPoint<T>,
   VectorPoint<T>,
   VectorPoint<T>,
@@ -18,7 +18,7 @@ export type BilinearCorners<T extends Properties = Properties> = [
  * @param refData - reference data to interpolate from
  * @returns - the corner points closest to the reference point
  */
-export function getBilinearPoints<T extends Properties = Properties>(
+export function getBilinearPoints<T extends MValue = Properties>(
   point: VectorPoint,
   refData: VectorPoint<T>[],
 ): BilinearCorners<T> {
@@ -81,7 +81,7 @@ export function getBilinearPoints<T extends Properties = Properties>(
  * defaults to function that returns the z value or 0 if the z value is undefined
  * @returns - the interpolated value
  */
-export function bilinearInterpolation<T extends Properties = Properties>(
+export function bilinearInterpolation<T extends MValue = Properties>(
   point: VectorPoint,
   corners: BilinearCorners<T>,
   getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,

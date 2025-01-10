@@ -1,11 +1,11 @@
-import type { Properties, VectorPoint } from '../..';
+import type { MValue, Properties, VectorPoint } from '../..';
 
 export * from './bilinear';
 export * from './idw';
 export * from './kriging';
 
 /** Function to get the value of a point */
-export type GetInterpolateValue<T extends Properties> = (point: VectorPoint<T>) => number;
+export type GetInterpolateValue<T extends MValue = Properties> = (point: VectorPoint<T>) => number;
 
 /**
  * Default function to get the value of a point

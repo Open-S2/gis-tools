@@ -95,7 +95,7 @@ export async function toJSONLD(
 ): Promise<void> {
   const projection = opts?.projection ?? 'S2';
   const onFeature = opts?.onFeature ?? ((feature) => feature);
-  const buildBBox = opts?.buildBBox ?? false;
+  const buildBBox = opts?.buildBBox ?? true;
 
   for (const iterator of iterators) {
     for await (const feature of iterator) {

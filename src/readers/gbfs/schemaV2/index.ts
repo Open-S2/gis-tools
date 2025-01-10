@@ -1,3 +1,4 @@
+import { toVector } from '../../..';
 import {
   GBFSFreeBikeStatusV2,
   GBFSGeofencingZonesV2,
@@ -16,11 +17,11 @@ import {
 } from '.';
 
 import type {
-  Feature,
   FeatureIterator,
-  MultiPolygonGeometry,
-  PointGeometry,
   Properties,
+  VectorFeature,
+  VectorMultiPolygonGeometry,
+  VectorPointGeometry,
 } from '../../..';
 
 export * from './freeBikeStatus';
@@ -38,11 +39,11 @@ export * from './systemRegions';
 export * from './vehicleTypes';
 
 /** Geofencing Feature */
-export type GBFSGeofencingFeatureV2 = Feature<
+export type GBFSGeofencingFeatureV2 = VectorFeature<
   undefined,
   Properties,
   GBFSGeofencingZonesV2Properties,
-  MultiPolygonGeometry<Properties>
+  VectorMultiPolygonGeometry<Properties>
 >;
 
 /** Station Information feature properties */
@@ -92,19 +93,19 @@ export interface GBFSStationV2FeaturesV2Properties extends Properties {
 }
 
 /** Station Information Point Feature */
-export type GBFSStationPointFeatureV2 = Feature<
+export type GBFSStationPointFeatureV2 = VectorFeature<
   undefined,
   Properties,
   GBFSStationV2FeaturesV2Properties,
-  PointGeometry<Properties>
+  VectorPointGeometry<Properties>
 >;
 
 /** Station Information Area Feature */
-export type GBFSStationAreaFeatureV2 = Feature<
+export type GBFSStationAreaFeatureV2 = VectorFeature<
   undefined,
   Properties,
   GBFSStationV2FeaturesV2Properties,
-  MultiPolygonGeometry
+  VectorMultiPolygonGeometry
 >;
 
 /** All potential feature types in a GBFS V2 specification */
@@ -169,7 +170,8 @@ export class GBFSReaderV2
       const {
         data: { geofencing_zones },
       } = geofencingZones;
-      for (const feature of geofencing_zones.features) yield feature as GBFSGeofencingFeatureV2;
+      for (const feature of geofencing_zones.features)
+        yield toVector(feature) as GBFSGeofencingFeatureV2;
     }
     if (stationInformation !== undefined) {
       const {
@@ -209,20 +211,21 @@ export class GBFSReaderV2
           rental_uris,
         };
         const stationPoint: GBFSStationPointFeatureV2 = {
-          type: 'Feature',
+          type: 'VectorFeature',
           properties: stationProperties,
           geometry: {
             type: 'Point',
-            coordinates: [lon, lat],
+            is3D: false,
+            coordinates: { x: lon, y: lat },
           },
         };
         yield stationPoint;
         if ('station_area' in station && station.station_area !== undefined) {
-          const stationArea: GBFSStationAreaFeatureV2 = {
+          const stationArea = toVector({
             type: 'Feature',
             properties: stationProperties,
             geometry: station.station_area,
-          };
+          }) as GBFSStationAreaFeatureV2;
           yield stationArea;
         }
       }

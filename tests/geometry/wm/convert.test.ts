@@ -359,7 +359,7 @@ test('toVector - Point', () => {
     properties: { a: 1 },
     geometry: { type: 'Point', coordinates: [0, 0] },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: { type: 'Point', is3D: false, coordinates: { x: 0, y: 0 } },
@@ -373,7 +373,7 @@ test('toVector - Point3D', () => {
     properties: { a: 1 },
     geometry: { type: 'Point3D', coordinates: [1, 1, 1] },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     id: 1,
     type: 'VectorFeature',
     properties: { a: 1 },
@@ -393,7 +393,7 @@ test('toVector - MultiPoint', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -419,7 +419,7 @@ test('toVector - MultiPoint3D', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -445,7 +445,7 @@ test('toVector - LineString', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -471,7 +471,7 @@ test('toVector - LineString3D', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -503,7 +503,7 @@ test('toVector - MultiLineString', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -541,7 +541,7 @@ test('toVector - MultiLineString3D', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -579,7 +579,7 @@ test('toVector - Polygon', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -617,7 +617,7 @@ test('toVector - Polygon3D', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -657,7 +657,7 @@ test('toVector - MultiPolygon', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {
@@ -699,7 +699,7 @@ test('toVector - MultiPolygon3D', () => {
       ],
     },
   };
-  expect(toVector(point)).toEqual({
+  expect(toVector(point, false)).toEqual({
     type: 'VectorFeature',
     properties: { a: 1 },
     geometry: {

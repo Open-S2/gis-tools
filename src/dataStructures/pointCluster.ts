@@ -1,5 +1,4 @@
 import { Tile } from '../dataStructures';
-import { convert } from '../geometry/tools/convert';
 import { fromS2Points } from '../geometry/s1/chordAngle';
 import { PointShape as Point, PointIndex } from './pointIndex';
 import {
@@ -11,21 +10,32 @@ import {
   normalize,
   toST,
 } from '../geometry/s2/point';
-import { fromFacePosLevel, getVertices, level, range } from '../geometry';
+import { convert, fromFacePosLevel, getVertices, level, range, toWM } from '../geometry';
 
+import type { FeatureIterator } from '..';
 import type { PointShape } from './pointIndex';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Face, JSONCollection, Point3D, Projection, Properties, S2CellId } from '../geometry';
+import type {
+  Face,
+  JSONCollection,
+  MValue,
+  Point3D,
+  Projection,
+  Properties,
+  S2CellId,
+} from '../geometry';
 
 import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
 
 /** The kind of input required to store a point for proper indexing */
-export type ClusterStore = VectorStoreConstructor<PointShape<Cluster>>;
+export type ClusterStore<P extends Properties = Properties> = VectorStoreConstructor<
+  PointShape<Cluster<P>>
+>;
 
 /** Options for point clustering */
-export interface ClusterOptions {
+export interface ClusterOptions<T extends Properties = Properties> {
   /** type of store to use. Defaults to an in memory store */
-  store?: ClusterStore;
+  store?: ClusterStore<T>;
   /** projection to use */
   projection?: Projection;
   /** Name of the layer to build when requesting a tile */
@@ -39,8 +49,8 @@ export interface ClusterOptions {
 }
 
 /** A cluster is a storage device to maintain groups of information in a cluster */
-export interface Cluster extends Properties {
-  properties: Properties;
+export interface Cluster<P extends Properties = Properties> extends Properties {
+  properties: P;
   visited: boolean;
   sum: number;
 }
@@ -49,7 +59,7 @@ export interface Cluster extends Properties {
  * @param properties - the properties associated with the cluster
  * @returns - a new cluster
  */
-function newCluster(properties: Properties): Cluster {
+function newCluster<P extends Properties = Properties>(properties: P): Cluster<P> {
   return { properties, visited: false, sum: 1 };
 }
 
@@ -59,12 +69,12 @@ function newCluster(properties: Properties): Cluster {
  * @param sum - the sum of the cluster
  * @returns - a new cluster with the correct sum and properties data
  */
-function sumToCluster(properties: Properties, sum: number): Cluster {
+function sumToCluster<P extends Properties = Properties>(properties: P, sum: number): Cluster<P> {
   return { properties, visited: false, sum };
 }
 
 /** Compare two data items, return true to merge data */
-export type Comparitor = (a: Properties, b: Properties) => boolean;
+export type Comparitor<P extends Properties = Properties> = (a: P, b: P) => boolean;
 
 /**
  * # Point Cluster
@@ -91,14 +101,18 @@ export type Comparitor = (a: Properties, b: Properties) => boolean;
  * const clusters = await pointCluster.getCellData(id);
  * ```
  */
-export class PointCluster {
+export class PointCluster<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+> {
   projection: Projection;
   layerName: string;
   minzoom: number;
   maxzoom: number;
   radius: number;
   extent = 512; // a 512x512 pixel tile
-  indexes = new Map<number, PointIndex<Cluster>>();
+  indexes = new Map<number, PointIndex<M, Cluster<D | P>, Cluster<D | P>>>();
 
   /**
    * @param data - if provided, the data to index
@@ -106,9 +120,9 @@ export class PointCluster {
    * @param maxzoomStore - the store to use for the maxzoom index
    */
   constructor(
-    data?: JSONCollection,
-    options?: ClusterOptions,
-    maxzoomStore?: VectorStore<PointShape<Cluster>>,
+    data?: JSONCollection<M, D, P>,
+    options?: ClusterOptions<D | P>,
+    maxzoomStore?: VectorStore<PointShape<Cluster<D | P>>>,
   ) {
     this.projection = options?.projection ?? 'S2';
     this.layerName = options?.layerName ?? 'default';
@@ -116,7 +130,7 @@ export class PointCluster {
     this.maxzoom = Math.min(options?.maxzoom ?? 16, 29);
     this.radius = options?.radius ?? 40;
     for (let zoom = this.minzoom; zoom <= this.maxzoom; zoom++) {
-      this.indexes.set(zoom, new PointIndex<Cluster>(options?.store));
+      this.indexes.set(zoom, new PointIndex<M, Cluster<D | P>, Cluster<D | P>>(options?.store));
     }
     if (maxzoomStore !== undefined) {
       const maxzoomIndex = this.indexes.get(this.maxzoom);
@@ -141,9 +155,28 @@ export class PointCluster {
    * @param point - the point to add
    * @param data - the data associated with the point
    */
-  insert(point: Point3D, data: Properties): void {
+  insert(point: Point3D, data: D | P): void {
     const maxzoomIndex = this.indexes.get(this.maxzoom);
     maxzoomIndex?.insert(point, newCluster(data));
+  }
+
+  /**
+   * Add all points from a reader. It will try to use the M-value first, but if it doesn't exist
+   * it will use the feature properties data
+   * @param reader - a reader containing the input data
+   */
+  async insertReader(reader: FeatureIterator<M, D, P>): Promise<void> {
+    for await (const feature of reader) {
+      if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') continue;
+      const {
+        geometry: { coordinates, type },
+      } = feature.type === 'S2Feature' ? toWM(feature) : feature;
+      if (type === 'Point') {
+        this.insertLonLat(coordinates.x, coordinates.y, coordinates.m ?? feature.properties);
+      } else if (type === 'MultiPoint') {
+        for (const { x, y, m } of coordinates) this.insertLonLat(x, y, m ?? feature.properties);
+      }
+    }
   }
 
   /**
@@ -152,7 +185,7 @@ export class PointCluster {
    * @param lat - latitude in degrees
    * @param data - the data associated with the point
    */
-  insertLonLat(lon: number, lat: number, data: Properties): void {
+  insertLonLat(lon: number, lat: number, data: D | P): void {
     this.insert(fromLonLat(lon, lat), data);
   }
 
@@ -163,7 +196,7 @@ export class PointCluster {
    * @param t - the t coordinate
    * @param data - the data associated with the point
    */
-  insertFaceST(face: Face, s: number, t: number, data: Properties): void {
+  insertFaceST(face: Face, s: number, t: number, data: D | P): void {
     this.insert(fromST(face, s, t), data);
   }
 
@@ -171,9 +204,9 @@ export class PointCluster {
    * Build the clusters when done adding points
    * @param cmp_ - custom compare function
    */
-  async buildClusters(cmp_?: Comparitor): Promise<void> {
+  async buildClusters(cmp_?: Comparitor<D | P>): Promise<void> {
     const { minzoom, maxzoom } = this;
-    const cmp: Comparitor = cmp_ ?? ((_a: Properties, _b: Properties) => true);
+    const cmp: Comparitor<D | P> = cmp_ ?? ((_a: D | P, _b: D | P) => true);
     for (let zoom = maxzoom - 1; zoom >= minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
       const queryIndex = this.indexes.get(zoom + 1);
@@ -192,9 +225,9 @@ export class PointCluster {
    */
   async #cluster(
     zoom: number,
-    queryIndex: PointIndex<Cluster>,
-    currIndex: PointIndex<Cluster>,
-    cmp: Comparitor,
+    queryIndex: PointIndex<M, Cluster<D | P>, Cluster<D | P>>,
+    currIndex: PointIndex<M, Cluster<D | P>, Cluster<D | P>>,
+    cmp: Comparitor<D | P>,
   ): Promise<void> {
     const radius = this.#getLevelRadius(zoom);
     for await (const clusterPoint of queryIndex) {
@@ -226,7 +259,7 @@ export class PointCluster {
    * @param id - the cell id
    * @returns - the data within the range of the tile id
    */
-  async getCellData(id: S2CellId): Promise<undefined | Point<Cluster>[]> {
+  async getCellData(id: S2CellId): Promise<undefined | Point<Cluster<D | P>>[]> {
     const { minzoom, maxzoom, indexes } = this;
     const zoom = level(id);
     if (zoom < minzoom) return;

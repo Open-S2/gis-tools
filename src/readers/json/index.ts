@@ -1,7 +1,8 @@
 import { toReader } from '..';
+import { toVector } from '../..';
 
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Features, JSONCollection, MValue, Properties } from '../../geometry';
+import type { Features, JSONCollection, MValue, Properties, VectorFeatures } from '../../geometry';
 
 /**
  * # JSON Buffer Reader
@@ -43,15 +44,18 @@ export class BufferJSONReader<
 
   /**
    * Generator to iterate over each (Geo|S2)JSON object in the file
-   * @yields {Features}
+   * @yields {VectorFeatures}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeatures<M, D, P>> {
     const { type } = this.data;
 
     if (type === 'FeatureCollection') {
-      for (const feature of this.data.features) yield feature;
+      for (const feature of this.data.features) {
+        if (feature.type === 'VectorFeature') yield feature;
+        else yield toVector(feature, true);
+      }
     } else if (type === 'Feature') {
-      yield this.data;
+      yield toVector(this.data, true);
     } else if (type === 'VectorFeature') {
       yield this.data;
     } else if (type === 'S2FeatureCollection') {
@@ -97,9 +101,9 @@ export class NewLineDelimitedJSONReader<
 
   /**
    * Generator to iterate over each (Geo|S2)JSON object in the file
-   * @yields {Features}
+   * @yields {VectorFeatures}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeatures<M, D, P>> {
     const { reader } = this;
     let cursor = 0;
     let offset = 0;
@@ -112,7 +116,11 @@ export class NewLineDelimitedJSONReader<
       partialLine = '';
       // Split the chunk by newlines and yield each complete line
       const lines = chunk.split('\n');
-      for (let i = 0; i < lines.length - 1; i++) yield JSON.parse(lines[i]);
+      for (let i = 0; i < lines.length - 1; i++) {
+        const feature: Features<M, D, P> = JSON.parse(lines[i]);
+        if (feature.type === 'Feature') yield toVector(feature, true);
+        else yield feature;
+      }
       // Store the remaining partial line for the next iteration
       partialLine = lines[lines.length - 1];
       // Update the cursor and offset
@@ -121,7 +129,11 @@ export class NewLineDelimitedJSONReader<
     }
 
     // Yield any remaining partial line after the loop
-    if (partialLine.length > 0) yield JSON.parse(partialLine);
+    if (partialLine.length > 0) {
+      const feature: Features<M, D, P> = JSON.parse(partialLine);
+      if (feature.type === 'Feature') yield toVector(feature, true);
+      else yield feature;
+    }
   }
 }
 
@@ -181,7 +193,7 @@ export class JSONReader<
    * Generator to iterate over each (Geo|S2)JSON object in the reader.
    * @yields {Features}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<Features<M, D, P>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeatures<M, D, P>> {
     if (this.#length <= this.#chunkSize) {
       const reader = new BufferJSONReader<M, D, P>(this.reader.parseString(0, this.#length));
       yield* reader;
@@ -194,8 +206,10 @@ export class JSONReader<
     if (!set) throw Error('File is not geojson or s2json');
     while (true) {
       const feature = this.#nextValue();
-      if (feature !== undefined) yield feature;
-      else break;
+      if (feature !== undefined) {
+        if (feature.type === 'Feature') yield toVector(feature, true);
+        else yield feature;
+      } else break;
     }
   }
 

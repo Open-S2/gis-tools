@@ -3,6 +3,7 @@ import { orient2d } from '../predicates';
 import { pointOverlap } from '../bbox';
 
 import type {
+  MValue,
   Properties,
   S2Feature,
   VectorFeature,
@@ -22,11 +23,15 @@ import type {
  * @param planetRadius - the radius of the planet (Earth by default)
  * @returns - the total area of the polygon
  */
-export function polygonsArea(
+export function polygonsArea<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   polygons:
-    | VectorMultiPolygon
-    | VectorMultiPolygonGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorMultiPolygonGeometry>,
+    | VectorMultiPolygon<D>
+    | VectorMultiPolygonGeometry<D>
+    | VectorFeature<M, D, P, VectorMultiPolygonGeometry<D>>,
   planetRadius = EARTH_RADIUS,
 ): number {
   const vectorPolygons: VectorMultiPolygon =
@@ -48,11 +53,15 @@ export function polygonsArea(
  * @param planetRadius - the radius of the planet (Earth by default)
  * @returns - The approximate signed geodesic area of the polygon in square meters.
  */
-export function polygonArea(
+export function polygonArea<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   polygon:
-    | VectorPolygon
-    | VectorPolygonGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorPolygonGeometry>,
+    | VectorPolygon<D>
+    | VectorPolygonGeometry<D>
+    | VectorFeature<M, D, P, VectorPolygonGeometry<D>>,
   planetRadius = EARTH_RADIUS,
 ): number {
   // check poly against the point
@@ -81,13 +90,17 @@ export function polygonArea(
  * @param ignoreBoundary - if true, ignore when the point is on the boundary
  * @returns - true if the point is in the polygon
  */
-export function pointInPolygons(
+export function pointInPolygons<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   point: VectorPoint,
   polygons:
-    | VectorMultiPolygon
-    | VectorMultiPolygonGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorMultiPolygonGeometry>
-    | S2Feature<Record<string, unknown>, Properties, Properties, VectorMultiPolygonGeometry>,
+    | VectorMultiPolygon<D>
+    | VectorMultiPolygonGeometry<D>
+    | VectorFeature<M, D, P, VectorMultiPolygonGeometry<D>>
+    | S2Feature<M, D, P, VectorMultiPolygonGeometry<D>>,
   ignoreBoundary = false,
 ): boolean {
   const vectorPolygons: VectorMultiPolygon =
@@ -109,13 +122,17 @@ export function pointInPolygons(
  * @param ignoreBoundary - if true, ignore when the point is on the boundary
  * @returns - true if the point is in the polygon
  */
-export function pointInPolygon(
+export function pointInPolygon<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   point: VectorPoint,
   polygon:
-    | VectorPolygon
-    | VectorPolygonGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorPolygonGeometry>
-    | S2Feature<Record<string, unknown>, Properties, Properties, VectorPolygonGeometry>,
+    | VectorPolygon<D>
+    | VectorPolygonGeometry<D>
+    | VectorFeature<M, D, P, VectorPolygonGeometry<D>>
+    | S2Feature<M, D, P, VectorPolygonGeometry<D>>,
   ignoreBoundary = false,
 ): boolean {
   // bbox test case - if it doesn't even fit within the bbox, we know it's not in the polygon
@@ -143,7 +160,10 @@ export function pointInPolygon(
  * @param polygon - the polygon
  * @returns - true if the point is in the polygon, 0 if on the boundary, false otherwise
  */
-function _pointInPolygon(point: VectorPoint, polygon: VectorPolygon): boolean | 0 {
+function _pointInPolygon<M extends MValue = Properties>(
+  point: VectorPoint<M>,
+  polygon: VectorPolygon<M>,
+): boolean | 0 {
   let i;
   let ii;
   let k = 0;
@@ -208,7 +228,10 @@ function _pointInPolygon(point: VectorPoint, polygon: VectorPolygon): boolean | 
  * @param planetRadius - the radius of the planet (Earth by default)
  * @returns - The approximate signed geodesic area of the polygon in square meters.
  */
-function _ringArea(coords: VectorLineString, planetRadius: number): number {
+function _ringArea<M extends MValue = Properties>(
+  coords: VectorLineString<M>,
+  planetRadius: number,
+): number {
   const RAD = 0.017453292519943295; // Math.PI / 180;
   const coordsLength = coords.length - 1;
   const factor = (planetRadius * planetRadius) / 2;

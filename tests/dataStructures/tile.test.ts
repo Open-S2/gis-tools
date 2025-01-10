@@ -1,4 +1,5 @@
-import { Tile, TileStore, transformPoint } from '../../src/dataStructures/tile';
+import { FileReader } from '../../src/file';
+import { JSONReader, Tile, TileStore, transformPoint } from '../../src';
 import { expect, test } from 'bun:test';
 
 import { childrenIJ, fromFace } from '../../src/geometry/id';
@@ -6,6 +7,86 @@ import { childrenIJ, fromFace } from '../../src/geometry/id';
 import type { FeatureCollection } from '../../src/geometry';
 
 const SIMPLIFY_MAXZOOM = 16;
+
+test('tile - from reader', async () => {
+  const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
+  const jsonReader = new JSONReader(fileReaderPoints);
+  const tile = new Tile(0n);
+  await tile.addReader(jsonReader);
+  expect(tile).toEqual({
+    extent: 1,
+    face: 0,
+    i: 0,
+    j: 0,
+    layers: {
+      default: {
+        extent: 1,
+        features: [
+          {
+            geometry: {
+              bbox: [144.9584, -37.8173, 144.9584, -37.8173],
+              coordinates: {
+                m: undefined,
+                x: 144.9584,
+                y: -37.8173,
+                z: undefined,
+              },
+              is3D: false,
+              type: 'Point',
+            },
+            id: undefined,
+            metadata: undefined,
+            properties: {
+              name: 'Melbourne',
+            },
+            type: 'VectorFeature',
+          },
+          {
+            geometry: {
+              bbox: [149.1009, -35.3039, 149.1009, -35.3039],
+              coordinates: {
+                m: undefined,
+                x: 149.1009,
+                y: -35.3039,
+                z: undefined,
+              },
+              is3D: false,
+              type: 'Point',
+            },
+            id: undefined,
+            metadata: undefined,
+            properties: {
+              name: 'Canberra',
+            },
+            type: 'VectorFeature',
+          },
+          {
+            geometry: {
+              bbox: [151.2144, -33.8766, 151.2144, -33.8766],
+              coordinates: {
+                m: undefined,
+                x: 151.2144,
+                y: -33.8766,
+                z: undefined,
+              },
+              is3D: false,
+              type: 'Point',
+            },
+            id: undefined,
+            metadata: undefined,
+            properties: {
+              name: 'Sydney',
+            },
+            type: 'VectorFeature',
+          },
+        ],
+        name: 'default',
+      },
+    },
+    transformed: false,
+    zoom: 0,
+  } as unknown as Tile);
+});
 
 test('transformPoint', () => {
   const p = { x: 0, y: 0 };

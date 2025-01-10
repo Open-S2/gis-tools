@@ -11,6 +11,7 @@ import type {
   MValue,
   Point,
   Point3D,
+  Properties,
   S2Feature,
   STPoint,
   VectorCoordinates,
@@ -25,7 +26,7 @@ import type {
   VectorPointGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '../';
+} from '..';
 
 /**
  * Convet a GeoJSON Feature to an S2Feature
@@ -35,17 +36,21 @@ import type {
  * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - S2Feature
  */
-export function toS2(
-  data: Feature | VectorFeature,
+export function toS2<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
+  data: Feature<M, D, P, Geometry<D>> | VectorFeature<M, D, P, VectorGeometry<D>>,
   tolerance?: number,
   maxzoom?: number,
   buildBBox?: boolean,
-): S2Feature[] {
+): S2Feature<M, D, P, VectorGeometry<D>>[] {
   const { id, properties, metadata } = data;
-  const res: S2Feature[] = [];
+  const res: S2Feature<M, D, P>[] = [];
   const vectorGeo =
-    data.type === 'VectorFeature' ? data.geometry : convertGeometry(data.geometry, buildBBox);
-  for (const { geometry, face } of convertVectorGeometry(vectorGeo, tolerance, maxzoom)) {
+    data.type === 'VectorFeature' ? data.geometry : convertGeometry<D>(data.geometry, buildBBox);
+  for (const { geometry, face } of convertVectorGeometry<D>(vectorGeo, tolerance, maxzoom)) {
     res.push({
       id,
       type: 'S2Feature',
@@ -65,9 +70,14 @@ export function toS2(
  * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - GeoJson Vector Feature
  */
-export function toVector(data: Feature, buildBBox?: boolean): VectorFeature {
+export function toVector<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+  G extends Geometry<D> = Geometry<D>,
+>(data: Feature<M, D, P, G>, buildBBox?: boolean): VectorFeature<M, D, P, VectorGeometry<D>> {
   const { id, properties, metadata } = data;
-  const vectorGeo = convertGeometry(data.geometry, buildBBox);
+  const vectorGeo = convertGeometry<D>(data.geometry, buildBBox);
   return {
     id,
     type: 'VectorFeature',
@@ -99,10 +109,13 @@ function convertPoint(point: Point | Point3D, m?: MValue, bbox?: BBOX): VectorPo
  * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - GeoJson Vector Geometry
  */
-function convertGeometry(geometry: Geometry, buildBBox?: boolean): VectorGeometry {
+function convertGeometry<M extends MValue = Properties>(
+  geometry: Geometry<M>,
+  buildBBox?: boolean,
+): VectorGeometry<M> {
   const { type, coordinates: coords, mValues, bbox } = geometry;
   const newBBox: BBOX | undefined =
-    buildBBox === true && bbox === undefined ? ([] as unknown as BBOX) : undefined;
+    buildBBox !== false && bbox === undefined ? ([] as unknown as BBOX) : undefined;
 
   let coordinates: VectorCoordinates;
   if (type === 'Point' || type === 'Point3D') coordinates = convertPoint(coords, mValues, newBBox);
@@ -133,14 +146,14 @@ function convertGeometry(geometry: Geometry, buildBBox?: boolean): VectorGeometr
 }
 
 /** The resultant geometry after conversion */
-export interface ConvertedGeometry {
+export interface ConvertedGeometry<M extends MValue = Properties> {
   /** The vector geometry that was converted */
-  geometry: VectorGeometry;
+  geometry: VectorGeometry<M>;
   /** The face of the vector geometry that was converted */
   face: Face;
 }
 /** A list of converted geometries */
-export type ConvertedGeometryList = ConvertedGeometry[];
+export type ConvertedGeometryList<M extends MValue = Properties> = ConvertedGeometry<M>[];
 
 /**
  * Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
@@ -149,13 +162,13 @@ export type ConvertedGeometryList = ConvertedGeometry[];
  * @param maxzoom - if provided, geometry will be prepared for simplification up to this zoom
  * @returns - S2Geometry
  */
-function convertVectorGeometry(
-  geometry: VectorGeometry,
+function convertVectorGeometry<M extends MValue = Properties>(
+  geometry: VectorGeometry<M>,
   tolerance?: number,
   maxzoom?: number,
-): ConvertedGeometryList {
+): ConvertedGeometryList<M> {
   const { type } = geometry;
-  let cGeo: ConvertedGeometryList;
+  let cGeo: ConvertedGeometryList<M>;
   if (type === 'Point') cGeo = convertGeometryPoint(geometry);
   else if (type === 'MultiPoint') cGeo = convertGeometryMultiPoint(geometry);
   else if (type === 'LineString') cGeo = convertGeometryLineString(geometry);
@@ -174,7 +187,9 @@ function convertVectorGeometry(
  * @param geometry - GeoJSON PointGeometry
  * @returns - S2 PointGeometry
  */
-function convertGeometryPoint(geometry: VectorPointGeometry): ConvertedGeometryList {
+function convertGeometryPoint<M extends MValue = Properties>(
+  geometry: VectorPointGeometry<M>,
+): ConvertedGeometryList<M> {
   const { type, is3D, coordinates, bbox } = geometry;
   const { x: lon, y: lat, z, m } = coordinates;
   const [face, s, t] = toST(fromLonLat(lon, lat));
@@ -186,7 +201,9 @@ function convertGeometryPoint(geometry: VectorPointGeometry): ConvertedGeometryL
  * @param geometry - GeoJSON PointGeometry
  * @returns - S2 PointGeometry
  */
-function convertGeometryMultiPoint(geometry: VectorMultiPointGeometry): ConvertedGeometryList {
+function convertGeometryMultiPoint<M extends MValue = Properties>(
+  geometry: VectorMultiPointGeometry<M>,
+): ConvertedGeometryList<M> {
   const { is3D, coordinates, bbox } = geometry;
   return coordinates.flatMap((coordinates) =>
     convertGeometryPoint({ type: 'Point', is3D, coordinates, bbox }),
@@ -197,7 +214,9 @@ function convertGeometryMultiPoint(geometry: VectorMultiPointGeometry): Converte
  * @param geometry - GeoJSON LineStringGeometry
  * @returns - S2 LineStringGeometry
  */
-function convertGeometryLineString(geometry: VectorLineStringGeometry): ConvertedGeometryList {
+function convertGeometryLineString<M extends MValue = Properties>(
+  geometry: VectorLineStringGeometry<M>,
+): ConvertedGeometryList<M> {
   const { type, is3D, coordinates, bbox } = geometry;
 
   return convertLineString(coordinates, false).map(({ face, line, offset, vecBBox }) => {
@@ -209,9 +228,9 @@ function convertGeometryLineString(geometry: VectorLineStringGeometry): Converte
  * @param geometry - GeoJSON MultiLineStringGeometry
  * @returns - S2 MultiLineStringGeometry
  */
-function convertGeometryMultiLineString(
-  geometry: VectorMultiLineStringGeometry,
-): ConvertedGeometryList {
+function convertGeometryMultiLineString<M extends MValue = Properties>(
+  geometry: VectorMultiLineStringGeometry<M>,
+): ConvertedGeometryList<M> {
   const { coordinates, is3D, bbox } = geometry;
   return coordinates
     .flatMap((line) => convertLineString(line, false))
@@ -225,9 +244,11 @@ function convertGeometryMultiLineString(
  * @param geometry - GeoJSON PolygonGeometry
  * @returns - S2 PolygonGeometry
  */
-function convertGeometryPolygon(geometry: VectorPolygonGeometry): ConvertedGeometryList {
+function convertGeometryPolygon<M extends MValue = Properties>(
+  geometry: VectorPolygonGeometry<M>,
+): ConvertedGeometryList<M> {
   const { type, is3D, coordinates, bbox } = geometry;
-  const res: ConvertedGeometryList = [];
+  const res: ConvertedGeometryList<M> = [];
 
   // conver all lines
   const outerRing = convertLineString(coordinates[0], true);
@@ -235,7 +256,7 @@ function convertGeometryPolygon(geometry: VectorPolygonGeometry): ConvertedGeome
 
   // for each face, build a new polygon
   for (const { face, line, offset, vecBBox: polyBBox } of outerRing) {
-    const polygon: VectorPolygon = [line];
+    const polygon: VectorPolygon<M> = [line];
     const polygonOffsets = [offset];
     for (const { face: innerFace, line: innerLine, offset: innerOffset, vecBBox } of innerRings) {
       if (innerFace === face) {
@@ -265,7 +286,9 @@ function convertGeometryPolygon(geometry: VectorPolygonGeometry): ConvertedGeome
  * @param geometry - GeoJSON MultiPolygonGeometry
  * @returns - S2 MultiPolygonGeometry
  */
-function convertGeometryMultiPolygon(geometry: VectorMultiPolygonGeometry): ConvertedGeometryList {
+function convertGeometryMultiPolygon<M extends MValue = Properties>(
+  geometry: VectorMultiPolygonGeometry<M>,
+): ConvertedGeometryList<M> {
   const { is3D, coordinates, bbox, offset } = geometry;
   return coordinates.flatMap((polygon, i) =>
     convertGeometryPolygon({
@@ -279,9 +302,9 @@ function convertGeometryMultiPolygon(geometry: VectorMultiPolygonGeometry): Conv
 }
 
 /** LineString converted from WM to S2 */
-interface ConvertedLineString {
+interface ConvertedLineString<M extends MValue = Properties> {
   face: Face;
-  line: VectorLineString;
+  line: VectorLineString<M>;
   offset: number;
   vecBBox: BBOX;
 }
@@ -291,10 +314,13 @@ interface ConvertedLineString {
  * @param isPolygon - true if the line originates from a polygon
  * @returns - S2 LineStrings clipped to it's 0->1 coordinate system
  */
-function convertLineString(line: VectorLineString, isPolygon: boolean): ConvertedLineString[] {
-  const res: ConvertedLineString[] = [];
+function convertLineString<M extends MValue = Properties>(
+  line: VectorLineString<M>,
+  isPolygon: boolean,
+): ConvertedLineString<M>[] {
+  const res: ConvertedLineString<M>[] = [];
   // first re-project all the coordinates to S2
-  const newGeometry: STPoint[] = [];
+  const newGeometry: STPoint<M>[] = [];
   for (const { x: lon, y: lat, z, m } of line) {
     const [face, s, t] = toST(fromLonLat(lon, lat));
     newGeometry.push({ face, s, t, z, m });
@@ -304,7 +330,7 @@ function convertLineString(line: VectorLineString, isPolygon: boolean): Converte
   newGeometry.forEach(({ face }) => faces.add(face));
   // for each face, build a line
   for (const face of faces) {
-    const line: VectorLineString = [];
+    const line: VectorLineString<M> = [];
     for (const stPoint of newGeometry) line.push(stPointToFace(face, stPoint));
     const clippedLines = clipLine(line, [0, 0, 1, 1], isPolygon);
     for (const { line, offset, vecBBox } of clippedLines) res.push({ face, line, offset, vecBBox });
@@ -319,7 +345,11 @@ function convertLineString(line: VectorLineString, isPolygon: boolean): Converte
  * @param tolerance - if provided, geometry will be prepared for simplification by this tolerance
  * @param maxzoom - if provided,
  */
-export function toUnitScale(feature: VectorFeature, tolerance?: number, maxzoom?: number): void {
+export function toUnitScale<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(feature: VectorFeature<M, D, P>, tolerance?: number, maxzoom?: number): void {
   const { geometry } = feature;
   const { type, coordinates } = geometry;
   if (type === 'Point') projectPoint(coordinates, geometry);
@@ -340,7 +370,11 @@ export function toUnitScale(feature: VectorFeature, tolerance?: number, maxzoom?
  * Reproject GeoJSON geometry coordinates from 0->1 coordinate system to lon-lat in place
  * @param feature - input GeoJSON
  */
-export function toLL(feature: VectorFeature): void {
+export function toLL<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(feature: VectorFeature<M, D, P>): void {
   const { type, coordinates } = feature.geometry;
   if (type === 'Point') unprojectPoint(coordinates);
   else if (type === 'MultiPoint') coordinates.map((p) => unprojectPoint(p));
@@ -359,7 +393,10 @@ export function toLL(feature: VectorFeature): void {
  * @param input - input point
  * @param geo - input geometry (used to update the bbox)
  */
-function projectPoint(input: VectorPoint, geo: VectorGeometry): void {
+function projectPoint<M extends MValue = Properties>(
+  input: VectorPoint<M>,
+  geo: VectorGeometry<M>,
+): void {
   const { x, y } = input;
   const sin = Math.sin((y * Math.PI) / 180);
   const y2 = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
@@ -373,7 +410,7 @@ function projectPoint(input: VectorPoint, geo: VectorGeometry): void {
  * Project a point from 0->1 coordinate space to lon-lat in place
  * @param input - input vector to mutate
  */
-function unprojectPoint(input: VectorPoint): void {
+function unprojectPoint<M extends MValue = Properties>(input: VectorPoint<M>): void {
   const { x, y } = input;
 
   // Revert the x coordinate
@@ -391,7 +428,10 @@ function unprojectPoint(input: VectorPoint): void {
  * @param stPoint - the point you want to project
  * @returns - the projected point
  */
-function stPointToFace(targetFace: Face, stPoint: STPoint): VectorPoint {
+function stPointToFace<M extends MValue = Properties>(
+  targetFace: Face,
+  stPoint: STPoint<M>,
+): VectorPoint<M> {
   const { face: curFace, s, t, z, m } = stPoint;
   if (targetFace === curFace) return { x: s, y: t, z, m };
 

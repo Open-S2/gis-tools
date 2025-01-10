@@ -1,3 +1,4 @@
+import { toVector } from '../../..';
 import {
   GBFSGeofencingZonesV3,
   GBFSGeofencingZonesV3Properties,
@@ -16,11 +17,11 @@ import {
 } from '.';
 
 import type {
-  Feature,
   FeatureIterator,
-  MultiPolygonGeometry,
-  PointGeometry,
   Properties,
+  VectorFeature,
+  VectorMultiPolygonGeometry,
+  VectorPointGeometry,
 } from '../../..';
 
 export * from './gbfs';
@@ -37,11 +38,11 @@ export * from './vehicleStatus';
 export * from './vehicleTypes';
 
 /** Geofencing Feature */
-export type GBFSGeofencingFeatureV3 = Feature<
+export type GBFSGeofencingFeatureV3 = VectorFeature<
   undefined,
   Properties,
   GBFSGeofencingZonesV3Properties,
-  MultiPolygonGeometry<Properties>
+  VectorMultiPolygonGeometry<Properties>
 >;
 
 /** Station Information feature properties */
@@ -90,27 +91,27 @@ export interface GBFSStationV3FeaturesV3Properties extends Properties {
 }
 
 /** Station Information Point Feature */
-export type GBFSStationPointFeatureV3 = Feature<
+export type GBFSStationPointFeatureV3 = VectorFeature<
   undefined,
   Properties,
   GBFSStationV3FeaturesV3Properties,
-  PointGeometry<Properties>
+  VectorPointGeometry<Properties>
 >;
 
 /** Station Information Area Feature */
-export type GBFSStationAreaFeatureV3 = Feature<
+export type GBFSStationAreaFeatureV3 = VectorFeature<
   undefined,
   Properties,
   GBFSStationV3FeaturesV3Properties,
-  MultiPolygonGeometry
+  VectorMultiPolygonGeometry
 >;
 
 /** Vehicle Point Feature */
-export type GBFSVehiclePointFeatureV3 = Feature<
+export type GBFSVehiclePointFeatureV3 = VectorFeature<
   undefined,
   Properties,
   GBFSVehicleV3,
-  PointGeometry
+  VectorPointGeometry
 >;
 
 /** Metadata Database Properties */
@@ -124,11 +125,11 @@ export interface GBFSDatasetAreaPropertiesV3 extends Properties {
 }
 
 /** Metadata Database Feature */
-export type GBFSDatasetAreaFeatureV3 = Feature<
+export type GBFSDatasetAreaFeatureV3 = VectorFeature<
   undefined,
   Properties,
   GBFSDatasetAreaPropertiesV3,
-  MultiPolygonGeometry
+  VectorMultiPolygonGeometry
 >;
 
 /** All potential feature types in a GBFS V3 specification */
@@ -192,7 +193,8 @@ export class GBFSReaderV3
       const {
         data: { geofencing_zones },
       } = geofencingZones;
-      for (const feature of geofencing_zones.features) yield feature as GBFSGeofencingFeatureV3;
+      for (const feature of geofencing_zones.features)
+        yield toVector(feature) as GBFSGeofencingFeatureV3;
     }
     if (stationInformation !== undefined) {
       const {
@@ -241,20 +243,21 @@ export class GBFSReaderV3
           rental_uris,
         };
         const stationPoint: GBFSStationPointFeatureV3 = {
-          type: 'Feature',
+          type: 'VectorFeature',
           properties: stationProperties,
           geometry: {
             type: 'Point',
-            coordinates: [lon, lat],
+            is3D: false,
+            coordinates: { x: lon, y: lat },
           },
         };
         yield stationPoint;
         if (station_area !== undefined) {
-          const stationArea: GBFSStationAreaFeatureV3 = {
+          const stationArea = toVector({
             type: 'Feature',
             properties: stationProperties,
             geometry: station_area,
-          };
+          }) as GBFSStationAreaFeatureV3;
           yield stationArea;
         }
       }
@@ -267,11 +270,12 @@ export class GBFSReaderV3
         const { lat, lon } = vehicle;
         if (lat === undefined || lon === undefined) continue;
         const vehiclePoint: GBFSVehiclePointFeatureV3 = {
-          type: 'Feature',
+          type: 'VectorFeature',
           properties: { ...vehicle },
           geometry: {
             type: 'Point',
-            coordinates: [lon, lat],
+            is3D: false,
+            coordinates: { x: lon, y: lat },
           },
         };
         yield vehiclePoint;
@@ -282,11 +286,11 @@ export class GBFSReaderV3
       for (const dataset of datasets) {
         if ('area' in dataset && dataset.area !== undefined) {
           const { system_id, versions, area, country_code } = dataset;
-          const areaFeature: GBFSDatasetAreaFeatureV3 = {
+          const areaFeature = toVector({
             type: 'Feature',
             properties: { system_id, versions, country_code },
             geometry: area,
-          };
+          }) as GBFSDatasetAreaFeatureV3;
           yield areaFeature;
         }
       }

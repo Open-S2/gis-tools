@@ -86,7 +86,7 @@ export class GeoTIFFReader extends GeoTIFFHeaderReader implements FeatureIterato
    * @yields {VectorFeature}
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
-    VectorFeature<GeoTIFFMetadata, RGBA, Properties, VectorMultiPointGeometry>
+    VectorFeature<GeoTIFFMetadata, RGBA, Properties, VectorMultiPointGeometry<RGBA>>
   > {
     for (let i = 0; i < this.length; i++) {
       const { geometry, width, height, alpha } = await this.getImage(i).getMultiPointVector();

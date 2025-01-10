@@ -4,10 +4,13 @@ import { toS2, toUnitScale, toVector } from '../wm';
 import type {
   Feature,
   JSONCollection,
+  MValue,
   Projection,
+  Properties,
   S2Feature,
   VectorFeature,
   VectorFeatures,
+  VectorGeometry,
 } from '..';
 
 /**
@@ -20,27 +23,34 @@ import type {
  * @param toUnitScale - optional - convert to unit scale. Assumed to be true if not specified
  * @returns - the converted data
  */
-export function convert(
+export function convert<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   projection: Projection,
-  data: JSONCollection,
+  data: JSONCollection<M, D, P>,
   buildBBox?: boolean,
   tolerance?: number,
   maxzoom?: number,
   toUnitScale = false,
-): VectorFeatures[] {
-  const res: VectorFeatures[] = [];
+): VectorFeatures<M, D, P, VectorGeometry<D>>[] {
+  const res: VectorFeatures<M, D, P, VectorGeometry<D>>[] = [];
 
   if (data.type === 'Feature') {
     res.push(...convertFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox));
   } else if (data.type === 'VectorFeature') {
-    res.push(...convertVectorFeature(projection, data, toUnitScale, tolerance, maxzoom));
+    res.push(...convertVectorFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox));
   } else if (data.type === 'FeatureCollection') {
     for (const feature of data.features) {
       if (feature.type === 'Feature')
         res.push(
           ...convertFeature(projection, feature, toUnitScale, tolerance, maxzoom, buildBBox),
         );
-      else res.push(...convertVectorFeature(projection, feature, toUnitScale, tolerance, maxzoom));
+      else
+        res.push(
+          ...convertVectorFeature(projection, feature, toUnitScale, tolerance, maxzoom, buildBBox),
+        );
     }
   } else if (data.type === 'S2Feature') {
     res.push(convertS2Feature(projection, data, toUnitScale, tolerance, maxzoom));
@@ -63,20 +73,24 @@ export function convert(
  * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - converted feature
  */
-function convertFeature(
+function convertFeature<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   projection: Projection,
-  data: Feature,
+  data: Feature<M, D, P>,
   toUS: boolean,
   tolerance?: number,
   maxzoom?: number,
   buildBBox?: boolean,
-): VectorFeatures[] {
+): VectorFeatures<M, D, P, VectorGeometry<D>>[] {
   if (projection === 'WM') {
     const vf = toVector(data, buildBBox);
     if (toUS) toUnitScale(vf, tolerance, maxzoom);
     return [vf];
   } else {
-    return toS2(data, tolerance, maxzoom, buildBBox);
+    return toS2<M, D, P>(data, tolerance, maxzoom, buildBBox);
   }
 }
 
@@ -87,20 +101,26 @@ function convertFeature(
  * @param toUS - convert to unit scale if true
  * @param tolerance - optionally specify a tolerance to prepare for future simplification
  * @param maxzoom - optionally specify a maxzoom to prepare for future simplification
+ * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - converted feature(s)
  */
-function convertVectorFeature(
+function convertVectorFeature<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   projection: Projection,
-  data: VectorFeature,
+  data: VectorFeature<M, D, P>,
   toUS: boolean,
   tolerance?: number,
   maxzoom?: number,
-): VectorFeatures[] {
+  buildBBox?: boolean,
+): VectorFeatures<M, D, P, VectorGeometry<D>>[] {
   if (projection === 'WM') {
     if (toUS) toUnitScale(data, tolerance, maxzoom);
     return [data];
   } else {
-    return toS2(data, tolerance, maxzoom);
+    return toS2(data, tolerance, maxzoom, buildBBox);
   }
 }
 
@@ -113,13 +133,17 @@ function convertVectorFeature(
  * @param maxzoom - optionally specify a maxzoom to prepare for future simplification
  * @returns - converted feature
  */
-function convertS2Feature(
+function convertS2Feature<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   projection: Projection,
-  data: S2Feature,
+  data: S2Feature<M, D, P>,
   toUS: boolean,
   tolerance?: number,
   maxzoom?: number,
-): VectorFeatures {
+): VectorFeatures<M, D, P> {
   if (projection === 'WM') {
     const vf = toWM(data);
     if (toUS) toUnitScale(vf, tolerance, maxzoom);

@@ -1,7 +1,7 @@
 import { defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
-import type { Properties, VectorPoint } from '../..';
+import type { MValue, Properties, VectorPoint } from '../..';
 
 /** Kriging Model function */
 export type KrigingFunction = (
@@ -62,7 +62,7 @@ export type KrigingModel = 'gaussian' | 'exponential' | 'spherical';
  * ## Links
  * - https://pro.arcgis.com/en/pro-app/latest/tool-reference/3d-analyst/how-kriging-works.htm
  */
-export class KrigingInterpolator<T extends Properties = Properties> {
+export class KrigingInterpolator<T extends MValue = Properties> {
   t: number[] = [];
   nugget = 0;
   range = 0;

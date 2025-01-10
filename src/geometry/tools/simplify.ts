@@ -6,13 +6,19 @@ import {
   VectorPolygon,
 } from '..';
 
+import type { MValue, Properties } from '../..';
+
 /**
  * Builds squared distances for the vector geometry using the Douglas-Peucker algorithm.
  * @param geometry - input vector geometry
  * @param tolerance - simplification tolerance
  * @param maxzoom - max zoom level to simplify
  */
-export function buildSqDists(geometry: VectorGeometry, tolerance: number, maxzoom = 16): void {
+export function buildSqDists<M extends MValue = Properties>(
+  geometry: VectorGeometry<M>,
+  tolerance: number,
+  maxzoom = 16,
+): void {
   const tol = Math.pow(tolerance / ((1 << maxzoom) * 4_096), 2);
   const { type, coordinates: coords } = geometry;
   if (type === 'LineString')
@@ -35,8 +41,8 @@ export function buildSqDists(geometry: VectorGeometry, tolerance: number, maxzoo
  * @param last - last points index
  * @param sqTolerance - simplification tolerance (higher means simpler)
  */
-export function buildSqDist(
-  coords: VectorLineString,
+export function buildSqDist<M extends MValue = Properties>(
+  coords: VectorLineString<M>,
   first: number,
   last: number,
   sqTolerance: number,
@@ -54,8 +60,8 @@ export function buildSqDist(
  * @param last - last points index
  * @param sqTolerance - simplification tolerance (higher means simpler)
  */
-function _buildSqDist(
-  coords: VectorLineString,
+function _buildSqDist<M extends MValue = Properties>(
+  coords: VectorLineString<M>,
   first: number,
   last: number,
   sqTolerance: number,
@@ -139,21 +145,26 @@ function getSqSegDist(
  * @param zoom - curent zoom
  * @param maxzoom - max zoom level
  */
-export function simplify(geometry: VectorGeometry, tolerance: number, zoom: number, maxzoom = 16) {
+export function simplify<M extends MValue = Properties>(
+  geometry: VectorGeometry<M>,
+  tolerance: number,
+  zoom: number,
+  maxzoom = 16,
+) {
   const zoomTol = zoom >= maxzoom ? 0 : tolerance / ((1 << zoom) * 4_096);
   const { type, coordinates: coords } = geometry;
   if (type === 'LineString')
-    geometry.coordinates = simplifyLine(coords as VectorLineString, zoomTol, false, false);
+    geometry.coordinates = simplifyLine(coords as VectorLineString<M>, zoomTol, false, false);
   else if (type === 'MultiLineString')
-    geometry.coordinates = (coords as VectorMultiLineString).map((line) =>
+    geometry.coordinates = (coords as VectorMultiLineString<M>).map((line) =>
       simplifyLine(line, zoomTol, false, false),
     );
   else if (type === 'Polygon')
-    geometry.coordinates = (coords as VectorPolygon).map((line, i) =>
+    geometry.coordinates = (coords as VectorPolygon<M>).map((line, i) =>
       simplifyLine(line, zoomTol, true, i === 0),
     );
   else if (type === 'MultiPolygon')
-    geometry.coordinates = (coords as VectorMultiPolygon).map((polygon) =>
+    geometry.coordinates = (coords as VectorMultiPolygon<M>).map((polygon) =>
       polygon.map((line, i) => simplifyLine(line, zoomTol, true, i === 0)),
     );
 }
@@ -165,17 +176,17 @@ export function simplify(geometry: VectorGeometry, tolerance: number, zoom: numb
  * @param isOuter - whether the line is an outer ring or inner ring (for polygons)
  * @returns - simplified line
  */
-function simplifyLine(
-  line: VectorLineString,
+function simplifyLine<M extends MValue = Properties>(
+  line: VectorLineString<M>,
   tolerance: number,
   isPolygon: boolean,
   isOuter: boolean,
-): VectorLineString {
+): VectorLineString<M> {
   const sqTolerance = tolerance * tolerance;
   const size = line.length;
   if (tolerance > 0 && size < (isPolygon ? sqTolerance : tolerance)) return line;
 
-  const ring: VectorLineString = [];
+  const ring: VectorLineString<M> = [];
   for (const point of line) {
     if (tolerance === 0 || (point.t ?? 0) > sqTolerance) ring.push({ ...point });
   }
@@ -189,7 +200,10 @@ function simplifyLine(
  * @param ring - the ring to rewind
  * @param clockwise - whether the ring needs to be clockwise
  */
-export function rewind(ring: VectorLineString, clockwise: boolean): void {
+export function rewind<M extends MValue = Properties>(
+  ring: VectorLineString<M>,
+  clockwise: boolean,
+): void {
   let area = 0;
   for (let i = 0, len = ring.length, j = len - 2; i < len; j = i, i += 2) {
     area += (ring[i].x - ring[j].x) * (ring[i].y + ring[j].y);
@@ -207,7 +221,11 @@ export function rewind(ring: VectorLineString, clockwise: boolean): void {
  * @param i - i position in the ring
  * @param j - j position in the ring
  */
-function swapPoints(ring: VectorLineString, i: number, j: number): void {
+function swapPoints<M extends MValue = Properties>(
+  ring: VectorLineString<M>,
+  i: number,
+  j: number,
+): void {
   const tmp = ring[i];
   ring[i] = ring[j];
   ring[j] = tmp;

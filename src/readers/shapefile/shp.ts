@@ -7,10 +7,10 @@ import type { Transformer } from '../../proj4';
 import type {
   BBOX,
   BBox3D,
-  FeatureCollection,
   MValue,
   Properties,
   VectorFeature,
+  VectorFeatureCollection,
   VectorGeometry,
   VectorLineString,
   VectorLineStringGeometry,
@@ -104,8 +104,8 @@ export class ShapeFileReader<
    * Return all the features in the shapefile
    * @returns - a collection of VectorFeatures
    */
-  async getFeatureCollection(): Promise<FeatureCollection<M, D, P>> {
-    const featureCollection: FeatureCollection<M, D, P> = {
+  async getFeatureCollection(): Promise<VectorFeatureCollection<M, D, P>> {
+    const featureCollection: VectorFeatureCollection<M, D, P> = {
       type: 'FeatureCollection',
       features: [],
       bbox: this.#header.bbox,

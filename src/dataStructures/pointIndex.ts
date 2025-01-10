@@ -1,13 +1,13 @@
 import { Vector } from '../dataStore';
 import { fromS2Points } from '../geometry/s1/chordAngle';
-import { range } from '../geometry';
 import { compare, fromS2Point, toCell } from '../dataStructures/uint64';
 import { fromS1ChordAngle, getIntersectingCells } from '../geometry/s2/cap';
+import { range, toWM } from '../geometry';
 
 import { fromLonLat, fromST } from '../geometry/s2/point';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
-import type { Face, Point3D, Properties } from '..';
+import type { Face, FeatureIterator, MValue, Point3D, Properties } from '..';
 import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 import type { VectorStore, VectorStoreConstructor } from '../dataStore';
 
@@ -49,12 +49,16 @@ export interface PointShape<T extends Properties = Properties> {
  * const points = await pointIndex.searchRadius(center, radius);
  * ```
  */
-export class PointIndex<T extends Properties = Properties> {
-  #store: VectorStore<PointShape<T>>;
+export class PointIndex<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+> {
+  #store: VectorStore<PointShape<D | P>>;
   #unsorted: boolean = false;
 
   /** @param store - the store to index. May be an in memory or disk */
-  constructor(store: VectorStoreConstructor<PointShape<T>> = Vector) {
+  constructor(store: VectorStoreConstructor<PointShape<D | P>> = Vector) {
     this.#store = new store();
   }
 
@@ -62,7 +66,7 @@ export class PointIndex<T extends Properties = Properties> {
    * Set the index store to a defined one. Useful for file based stores where we want to reuse data
    * @param store - the index store
    */
-  setStore(store: VectorStore<PointShape<T>>): void {
+  setStore(store: VectorStore<PointShape<D | P>>): void {
     this.#store = store;
   }
 
@@ -71,9 +75,28 @@ export class PointIndex<T extends Properties = Properties> {
    * @param point - the point to be indexed
    * @param data - the data associated with the point
    */
-  insert(point: Point3D, data: T): void {
+  insert(point: Point3D, data: D | P): void {
     this.#store.push({ cell: fromS2Point(point), point, data });
     this.#unsorted = true;
+  }
+
+  /**
+   * Add all points from a reader. It will try to use the M-value first, but if it doesn't exist
+   * it will use the feature properties data
+   * @param reader - a reader containing the input data
+   */
+  async insertReader(reader: FeatureIterator<M, D, P>): Promise<void> {
+    for await (const feature of reader) {
+      if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') continue;
+      const {
+        geometry: { coordinates, type },
+      } = feature.type === 'S2Feature' ? toWM(feature) : feature;
+      if (type === 'Point') {
+        this.insertLonLat(coordinates.x, coordinates.y, coordinates.m ?? feature.properties);
+      } else if (type === 'MultiPoint') {
+        for (const { x, y, m } of coordinates) this.insertLonLat(x, y, m ?? feature.properties);
+      }
+    }
   }
 
   /**
@@ -82,7 +105,7 @@ export class PointIndex<T extends Properties = Properties> {
    * @param lat - latitude in degrees
    * @param data - the data associated with the point
    */
-  insertLonLat(lon: number, lat: number, data: T): void {
+  insertLonLat(lon: number, lat: number, data: D | P): void {
     this.insert(fromLonLat(lon, lat), data);
   }
 
@@ -93,7 +116,7 @@ export class PointIndex<T extends Properties = Properties> {
    * @param t - the t coordinate
    * @param data - the data associated with the point
    */
-  insertFaceST(face: Face, s: number, t: number, data: T): void {
+  insertFaceST(face: Face, s: number, t: number, data: D | P): void {
     this.insert(fromST(face, s, t), data);
   }
 
@@ -101,7 +124,7 @@ export class PointIndex<T extends Properties = Properties> {
    * iterate through the points
    * @yields a PointShape<T>
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<T>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<D | P>> {
     await this.sort();
     yield* this.#store;
   }
@@ -146,9 +169,13 @@ export class PointIndex<T extends Properties = Properties> {
    * @param maxResults - the maximum number of results to return
    * @returns the points in the range
    */
-  async searchRange(low: Uint64, high: Uint64, maxResults = Infinity): Promise<PointShape<T>[]> {
+  async searchRange(
+    low: Uint64,
+    high: Uint64,
+    maxResults = Infinity,
+  ): Promise<PointShape<D | P>[]> {
     await this.sort();
-    const res: PointShape<T>[] = [];
+    const res: PointShape<D | P>[] = [];
     let loIdx = await this.lowerBound(low);
     const hiID = toCell(high);
 
@@ -174,9 +201,9 @@ export class PointIndex<T extends Properties = Properties> {
     target: Point3D,
     radius: S1ChordAngle,
     maxResults = Infinity,
-  ): Promise<PointShape<T>[]> {
+  ): Promise<PointShape<D | P>[]> {
     await this.sort();
-    const res: PointShape<T>[] = [];
+    const res: PointShape<D | P>[] = [];
     if (radius < 0) return res;
     const cap = fromS1ChordAngle<undefined>(target, radius, undefined);
     for (const cell of getIntersectingCells(cap)) {

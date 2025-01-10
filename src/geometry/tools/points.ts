@@ -1,15 +1,25 @@
-import type { Properties, VectorFeature, VectorMultiPointGeometry, VectorPoint } from '../..';
+import type {
+  MValue,
+  Properties,
+  VectorFeature,
+  VectorMultiPointGeometry,
+  VectorPoint,
+} from '../..';
 
 /**
  * Find the average of a collection of Vector points
  * @param vectorPoints - collection of Vector points, whether from a VectorFeature, geometry, or raw coordinates
  * @returns - the average of the vector points
  */
-export function averageOfPoints(
+export function averageOfPoints<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   vectorPoints:
-    | VectorPoint[]
-    | VectorMultiPointGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorMultiPointGeometry>,
+    | VectorPoint<D>[]
+    | VectorMultiPointGeometry<D>
+    | VectorFeature<M, D, P, VectorMultiPointGeometry<D>>,
 ): VectorPoint {
   const coords =
     'geometry' in vectorPoints
@@ -42,11 +52,15 @@ export function averageOfPoints(
  * @param vectorPoints - collection of Vector points, whether from a VectorFeature, geometry, or raw coordinates
  * @returns - the center of the vector points
  */
-export function centerOfPoints(
+export function centerOfPoints<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
   vectorPoints:
-    | VectorPoint[]
-    | VectorMultiPointGeometry
-    | VectorFeature<Record<string, unknown>, Properties, Properties, VectorMultiPointGeometry>,
+    | VectorPoint<D>[]
+    | VectorMultiPointGeometry<D>
+    | VectorFeature<M, D, P, VectorMultiPointGeometry<D>>,
 ): VectorPoint {
   const { min, max } = Math;
   const coords =

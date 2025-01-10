@@ -1,4 +1,5 @@
-import { PointIndex } from '../../src';
+import { FileReader } from '../../src/file';
+import { JSONReader, PointIndex } from '../../src';
 import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
@@ -59,6 +60,22 @@ test('point index', async () => {
       cell: { high: 3221225471, low: 4294967295 },
       data: { a: 4 },
       point: [1, -1, -1],
+    },
+  ]);
+});
+
+test('point index - from reader', async () => {
+  const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
+  const jsonReader = new JSONReader(fileReaderPoints);
+  const pointIndex = new PointIndex();
+  await pointIndex.insertReader(jsonReader);
+
+  const radiusRes = await pointIndex.searchRadius(pointFromLonLat(144.9584, -37.8173), 0.0001);
+  expect(radiusRes).toEqual([
+    {
+      cell: { high: 1792433484, low: 1484416611 },
+      data: { name: 'Melbourne' },
+      point: [-0.6467763171329769, 0.453577844062781, -0.6131456066639167],
     },
   ]);
 });

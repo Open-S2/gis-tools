@@ -12,7 +12,7 @@ test('toJSON', async () => {
   await toJSON(bufWriter, [jsonReader]);
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
-    '{\n\t"type": "S2FeatureCollection",\n\t"features": [\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Melbourne"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.980307055282927,"y":0.1191097721694171},"vecBBox":[0.980307055282927,0.1191097721694171,0.980307055282927,0.1191097721694171]}},\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Canberra"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.9321761149504832,"y":0.16402766817497416},"vecBBox":[0.9321761149504832,0.16402766817497416,0.9321761149504832,0.16402766817497416]}},\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Sydney"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.908036698755368,"y":0.18632281680962381},"vecBBox":[0.908036698755368,0.18632281680962381,0.908036698755368,0.18632281680962381]}}\n\t],\n\t"faces": [3]\n}',
+    '{\n\t"type": "S2FeatureCollection",\n\t"features": [\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Melbourne"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.980307055282927,"y":0.1191097721694171},"bbox":[144.9584,-37.8173,144.9584,-37.8173],"vecBBox":[0.980307055282927,0.1191097721694171,0.980307055282927,0.1191097721694171]}},\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Canberra"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.9321761149504832,"y":0.16402766817497416},"bbox":[149.1009,-35.3039,149.1009,-35.3039],"vecBBox":[0.9321761149504832,0.16402766817497416,0.9321761149504832,0.16402766817497416]}},\n\t\t{"type":"S2Feature","face":3,"properties":{"name":"Sydney"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.908036698755368,"y":0.18632281680962381},"bbox":[151.2144,-33.8766,151.2144,-33.8766],"vecBBox":[0.908036698755368,0.18632281680962381,0.908036698755368,0.18632281680962381]}}\n\t],\n\t"faces": [3]\n}',
   );
   expect(JSON.parse(string)).toEqual({
     faces: [3],
@@ -20,6 +20,7 @@ test('toJSON', async () => {
       {
         face: 3,
         geometry: {
+          bbox: [144.9584, -37.8173, 144.9584, -37.8173],
           coordinates: { x: 0.980307055282927, y: 0.1191097721694171 },
           is3D: false,
           type: 'Point',
@@ -33,6 +34,7 @@ test('toJSON', async () => {
       {
         face: 3,
         geometry: {
+          bbox: [149.1009, -35.3039, 149.1009, -35.3039],
           coordinates: { x: 0.9321761149504832, y: 0.16402766817497416 },
           is3D: false,
           type: 'Point',
@@ -48,6 +50,7 @@ test('toJSON', async () => {
       {
         face: 3,
         geometry: {
+          bbox: [151.2144, -33.8766, 151.2144, -33.8766],
           coordinates: { x: 0.908036698755368, y: 0.18632281680962381 },
           is3D: false,
           type: 'Point',
@@ -127,7 +130,7 @@ test('toJSONLD', async () => {
   await toJSONLD(bufWriter, [jsonReader]);
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
-    '{"type":"S2Feature","face":3,"properties":{"name":"Melbourne"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.980307055282927,"y":0.1191097721694171},"vecBBox":[0.980307055282927,0.1191097721694171,0.980307055282927,0.1191097721694171]}}\n{"type":"S2Feature","face":3,"properties":{"name":"Canberra"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.9321761149504832,"y":0.16402766817497416},"vecBBox":[0.9321761149504832,0.16402766817497416,0.9321761149504832,0.16402766817497416]}}\n{"type":"S2Feature","face":3,"properties":{"name":"Sydney"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.908036698755368,"y":0.18632281680962381},"vecBBox":[0.908036698755368,0.18632281680962381,0.908036698755368,0.18632281680962381]}}\n',
+    '{"type":"S2Feature","face":3,"properties":{"name":"Melbourne"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.980307055282927,"y":0.1191097721694171},"bbox":[144.9584,-37.8173,144.9584,-37.8173],"vecBBox":[0.980307055282927,0.1191097721694171,0.980307055282927,0.1191097721694171]}}\n{"type":"S2Feature","face":3,"properties":{"name":"Canberra"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.9321761149504832,"y":0.16402766817497416},"bbox":[149.1009,-35.3039,149.1009,-35.3039],"vecBBox":[0.9321761149504832,0.16402766817497416,0.9321761149504832,0.16402766817497416]}}\n{"type":"S2Feature","face":3,"properties":{"name":"Sydney"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":0.908036698755368,"y":0.18632281680962381},"bbox":[151.2144,-33.8766,151.2144,-33.8766],"vecBBox":[0.908036698755368,0.18632281680962381,0.908036698755368,0.18632281680962381]}}\n',
   );
 
   const bufReader = new BufferReader(bufWriter.commit().buffer);
@@ -137,6 +140,7 @@ test('toJSONLD', async () => {
     {
       face: 3,
       geometry: {
+        bbox: [144.9584, -37.8173, 144.9584, -37.8173],
         coordinates: {
           x: 0.980307055282927,
           y: 0.1191097721694171,
@@ -153,6 +157,7 @@ test('toJSONLD', async () => {
     {
       face: 3,
       geometry: {
+        bbox: [149.1009, -35.3039, 149.1009, -35.3039],
         coordinates: {
           x: 0.9321761149504832,
           y: 0.16402766817497416,
@@ -169,6 +174,7 @@ test('toJSONLD', async () => {
     {
       face: 3,
       geometry: {
+        bbox: [151.2144, -33.8766, 151.2144, -33.8766],
         coordinates: {
           x: 0.908036698755368,
           y: 0.18632281680962381,

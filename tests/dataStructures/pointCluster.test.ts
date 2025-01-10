@@ -1,4 +1,5 @@
-import { PointCluster } from '../../src';
+import { FileReader } from '../../src/file';
+import { JSONReader, PointCluster } from '../../src';
 import { expect, test } from 'bun:test';
 
 // helper functions
@@ -61,5 +62,51 @@ test('PointCluster', async () => {
       },
     },
     transformed: true,
+  } as unknown as Tile);
+});
+
+test('PointCluster', async () => {
+  const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
+  const jsonReader = new JSONReader(fileReaderPoints);
+  const cluster = new PointCluster();
+
+  await cluster.insertReader(jsonReader);
+
+  await cluster.buildClusters();
+
+  const tileFace = await cluster.getTile(fromFace(3));
+  expect(tileFace).toEqual({
+    extent: 1,
+    face: 3,
+    i: 0,
+    j: 0,
+    layers: {
+      default: {
+        extent: 1,
+        features: [
+          {
+            face: 3,
+            geometry: {
+              coordinates: {
+                m: {
+                  sum: 3,
+                },
+                x: 0.9391825486078326,
+                y: 0.15739240199815419,
+              },
+              is3D: false,
+              type: 'Point',
+            },
+            properties: {
+              name: 'Melbourne',
+            },
+            type: 'VectorFeature',
+          },
+        ],
+        name: 'default',
+      },
+    },
+    transformed: true,
+    zoom: 0,
   } as unknown as Tile);
 });

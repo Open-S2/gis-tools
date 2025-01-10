@@ -1,4 +1,5 @@
-import { PointIndexFast, sphericalDistance } from '../../src';
+import { FileReader } from '../../src/file';
+import { JSONReader, PointIndexFast, sphericalDistance } from '../../src';
 import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
@@ -6,7 +7,7 @@ import cities from 'all-the-cities';
 import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
 import { fromS2Points, toMeters } from '../../src/geometry/s1/chordAngle';
 
-test('point index', () => {
+test('point index fast', () => {
   const pointIndex = new PointIndexFast<{ a: number }>();
 
   pointIndex.insertLonLat(0, 0, { a: 0 });
@@ -49,7 +50,17 @@ test('point index', () => {
   ]);
 });
 
-test('point index spherical test across the -180/180 boundary', () => {
+test('point index fast - from reader', async () => {
+  const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
+  const jsonReader = new JSONReader(fileReaderPoints);
+  const pointIndex = new PointIndexFast();
+  await pointIndex.insertReader(jsonReader);
+
+  const radiusRes = pointIndex.searchRadius(144.9584, -37.8173, 1);
+  expect(radiusRes).toEqual([{ m: { name: 'Melbourne' }, x: 144.9584, y: -37.8173 }]);
+});
+
+test('point index fast spherical test across the -180/180 boundary', () => {
   const pointIndex = new PointIndexFast<{ a: number }>();
 
   pointIndex.insertLonLat(0, 0, { a: 0 });

@@ -1,4 +1,4 @@
-import type { Features, MValue, Properties } from '../geometry';
+import type { MValue, Properties, VectorFeatures, VectorGeometry } from '../geometry';
 
 export * from './csv';
 export * from './gbfs';
@@ -46,8 +46,9 @@ export interface FeatureIterator<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
+  G extends VectorGeometry<D> = VectorGeometry<D>,
 > {
-  [Symbol.asyncIterator]: () => AsyncGenerator<Features<M, D, P>>;
+  [Symbol.asyncIterator]: () => AsyncGenerator<VectorFeatures<M, D, P, G>>;
 }
 
 /** All input types that can be placed into a reader */

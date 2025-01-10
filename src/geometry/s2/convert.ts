@@ -1,15 +1,28 @@
 import { fromST, toLonLat } from './point';
 
-import type { Face, S2Feature, VectorFeature, VectorGeometry, VectorPoint } from '../';
+import type {
+  Face,
+  MValue,
+  Properties,
+  S2Feature,
+  VectorFeature,
+  VectorGeometry,
+  VectorPoint,
+} from '../';
 
 /**
  * Convert an S2Feature to a GeoJSON Feature
  * @param data - S2Feature
  * @returns - GeoJSON Feature
  */
-export function toWM(data: S2Feature): VectorFeature {
+export function toWM<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+  G extends VectorGeometry<D> = VectorGeometry<D>,
+>(data: S2Feature<M, D, P, G>): VectorFeature<M, D, P, G> {
   const { id, face, properties, metadata, geometry } = data;
-  convertGeometry(face, geometry);
+  convertGeometry<D>(face, geometry);
   return {
     id,
     type: 'VectorFeature',
@@ -24,7 +37,10 @@ export function toWM(data: S2Feature): VectorFeature {
  * @param face - Face
  * @param geometry - S2 Geometry
  */
-function convertGeometry(face: Face, geometry: VectorGeometry): void {
+function convertGeometry<M extends MValue = Properties>(
+  face: Face,
+  geometry: VectorGeometry<M>,
+): void {
   const { type, coordinates } = geometry;
   if (type === 'Point') convertGeometryPoint(face, coordinates);
   else if (type === 'MultiPoint') coordinates.forEach((point) => convertGeometryPoint(face, point));
@@ -47,7 +63,10 @@ function convertGeometry(face: Face, geometry: VectorGeometry): void {
  * @param face - Face
  * @param point - S2 Point
  */
-function convertGeometryPoint(face: Face, point: VectorPoint): void {
+function convertGeometryPoint<M extends MValue = Properties>(
+  face: Face,
+  point: VectorPoint<M>,
+): void {
   const { x: s, y: t } = point;
   const [lon, lat] = toLonLat(fromST(face, s, t));
   point.x = lon;

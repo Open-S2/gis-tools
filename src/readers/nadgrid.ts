@@ -1,7 +1,12 @@
 import { toReader } from '.';
 
-import type { FeatureCollection, VectorFeature, VectorMultiPoint, VectorPoint } from '../geometry';
 import type { FeatureIterator, Reader, ReaderInputs } from '.';
+import type {
+  VectorFeature,
+  VectorFeatureCollection,
+  VectorMultiPoint,
+  VectorPoint,
+} from '../geometry';
 
 /** Seconds to degrees (S / 3_600) */
 const SEC2DEG = 0.00000484813681109536;
@@ -203,7 +208,7 @@ export class NadGridReader implements FeatureIterator<NadGridMetadata> {
    * Return all the features in the shapefile
    * @returns - a collection of VectorFeatures
    */
-  getFeatureCollection(): FeatureCollection<NadGridMetadata> {
+  getFeatureCollection(): VectorFeatureCollection<NadGridMetadata> {
     const features = this.subgrids.map(this.#subGrideToVectorFeature);
     return { type: 'FeatureCollection', features };
   }

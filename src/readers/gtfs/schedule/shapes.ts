@@ -1,6 +1,11 @@
 import { parseCSVAsRecord } from '../../';
 
-import type { Feature, LineStringGeometry, MValue, Properties } from '../../../geometry';
+import type {
+  MValue,
+  Properties,
+  VectorFeature,
+  VectorLineStringGeometry,
+} from '../../../geometry';
 
 /** Internal type for shape data for future use */
 interface GTFSShape {
@@ -21,7 +26,10 @@ export interface GTFSShapeProperties extends Properties {
  */
 export function parseGTFSShapes(
   input: string,
-): Record<string, Feature<undefined, MValue, GTFSShapeProperties, LineStringGeometry>> {
+): Record<
+  string,
+  VectorFeature<Record<string, unknown>, MValue, GTFSShapeProperties, VectorLineStringGeometry>
+> {
   const data = parseCSVAsRecord(input);
   // 1) Group data by shape_id
   const groups: Record<string, GTFSShape[]> = {};
@@ -38,15 +46,17 @@ export function parseGTFSShapes(
   // 2) for each shape_id group, sort data by shape_pt_sequence geometry
   const features: Record<
     string,
-    Feature<undefined, MValue, GTFSShapeProperties, LineStringGeometry>
+    VectorFeature<Record<string, unknown>, MValue, GTFSShapeProperties, VectorLineStringGeometry>
   > = {};
   for (const [shapeId, shapes] of Object.entries(groups)) {
     shapes.sort((a, b) => a.sequence - b.sequence);
     features[shapeId] = {
-      type: 'Feature',
+      type: 'VectorFeature',
+      metadata: {},
       geometry: {
         type: 'LineString',
-        coordinates: shapes.map((s) => [s.lon, s.lat]),
+        is3D: false,
+        coordinates: shapes.map((s) => ({ x: s.lon, y: s.lat })),
       },
       properties: { id: shapeId },
     };

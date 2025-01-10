@@ -12,7 +12,7 @@ import {
   GBFSVersionsV1,
 } from '.';
 
-import type { Feature, FeatureIterator, PointGeometry, Properties } from '../../..';
+import type { FeatureIterator, Properties, VectorFeature, VectorPointGeometry } from '../../..';
 
 export * from './freeBikeStatus';
 export * from './gbfs';
@@ -57,11 +57,11 @@ export interface GBFSStationV1FeaturesV1Properties extends Properties {
 }
 
 /** Station Information Point Feature */
-export type GBFSStationPointFeatureV1 = Feature<
+export type GBFSStationPointFeatureV1 = VectorFeature<
   undefined,
   Properties,
   GBFSStationV1FeaturesV1Properties,
-  PointGeometry<Properties>
+  VectorPointGeometry<Properties>
 >;
 
 /** All potential feature types in a GBFS V1 specification */
@@ -143,11 +143,12 @@ export class GBFSReaderV1
           capacity,
         };
         const stationPoint: GBFSStationPointFeatureV1 = {
-          type: 'Feature',
+          type: 'VectorFeature',
           properties: stationProperties,
           geometry: {
             type: 'Point',
-            coordinates: [lon, lat],
+            is3D: false,
+            coordinates: { x: lon, y: lat },
           },
         };
         yield stationPoint;

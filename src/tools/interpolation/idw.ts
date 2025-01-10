@@ -1,7 +1,7 @@
 import { defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
-import type { Properties, VectorPoint } from '../..';
+import type { MValue, Properties, VectorPoint } from '../..';
 
 /**
  * # Inverse Distance Weighting Interpolation
@@ -36,7 +36,7 @@ import type { Properties, VectorPoint } from '../..';
  * defaults to function that returns the z value or 0 if the z value is undefined
  * @returns - the interpolated value
  */
-export function idwInterpolation<T extends Properties = Properties>(
+export function idwInterpolation<T extends MValue = Properties>(
   point: VectorPoint,
   refData: VectorPoint<T>[],
   getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,

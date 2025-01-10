@@ -6,6 +6,7 @@ import type {
   BBOX,
   BBox,
   MValue,
+  Properties,
   VectorFeatures,
   VectorGeometry,
   VectorLineString,
@@ -22,19 +23,27 @@ import type {
 } from '..';
 
 /** The child of a tile */
-export interface TileChild {
+export interface TileChild<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+> {
   /** The id of the child tile */
   id: bigint;
   /** The child tile */
-  tile: Tile;
+  tile: Tile<M, D, P>;
 }
 
 /** Split features into the 4 children of a tile */
-export type TileChildren = [
-  TileChild, // bottom left
-  TileChild, // bottom right
-  TileChild, // top left
-  TileChild, // top right
+export type TileChildren<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+> = [
+  TileChild<M, D, P>, // bottom left
+  TileChild<M, D, P>, // bottom right
+  TileChild<M, D, P>, // top left
+  TileChild<M, D, P>, // top right
 ];
 
 /**
@@ -42,14 +51,18 @@ export type TileChildren = [
  * @param buffer - the buffer around the tile for lines and polygons
  * @returns - the tile's children split into 4 sub-tiles
  */
-export function splitTile(tile: Tile, buffer: number = 0.0625): TileChildren {
+export function splitTile<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(tile: Tile<M, D, P>, buffer: number = 0.0625): TileChildren<M, D, P> {
   const { face, zoom, i, j } = tile;
   const [blID, brID, tlID, trID] = childrenIJ(face, zoom, i, j);
-  const children: TileChildren = [
-    { id: blID, tile: new Tile(blID) },
-    { id: brID, tile: new Tile(brID) },
-    { id: tlID, tile: new Tile(tlID) },
-    { id: trID, tile: new Tile(trID) },
+  const children: TileChildren<M, D, P> = [
+    { id: blID, tile: new Tile<M, D, P>(blID) },
+    { id: brID, tile: new Tile<M, D, P>(brID) },
+    { id: tlID, tile: new Tile<M, D, P>(tlID) },
+    { id: trID, tile: new Tile<M, D, P>(trID) },
   ];
   const scale = 1 << zoom;
   const k1 = 0;
@@ -57,13 +70,13 @@ export function splitTile(tile: Tile, buffer: number = 0.0625): TileChildren {
   const k3 = 0.5;
   const k4 = 1;
 
-  let tl: null | VectorFeatures[] = null;
-  let bl: null | VectorFeatures[] = null;
-  let tr: null | VectorFeatures[] = null;
-  let br: null | VectorFeatures[] = null;
+  let tl: null | VectorFeatures<M, D, P>[] = null;
+  let bl: null | VectorFeatures<M, D, P>[] = null;
+  let tr: null | VectorFeatures<M, D, P>[] = null;
+  let br: null | VectorFeatures<M, D, P>[] = null;
 
   for (const [name, { features }] of Object.entries(tile.layers)) {
-    const left = _clip(features, scale, i - k1, i + k3, 0, buffer);
+    const left = _clip<M, D, P>(features, scale, i - k1, i + k3, 0, buffer);
     const right = _clip(features, scale, i + k2, i + k4, 0, buffer);
 
     if (left !== null) {
@@ -93,14 +106,18 @@ export function splitTile(tile: Tile, buffer: number = 0.0625): TileChildren {
  * @param baseBuffer - the top level buffer value
  * @returns - the clipped features
  */
-function _clip(
-  features: VectorFeatures[],
+function _clip<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(
+  features: VectorFeatures<M, D, P>[],
   scale: number,
   k1: number,
   k2: number,
   axis: 0 | 1,
   baseBuffer: number,
-): null | VectorFeatures[] {
+): null | VectorFeatures<M, D, P>[] {
   // scale
   k1 /= scale;
   k2 /= scale;
@@ -108,13 +125,13 @@ function _clip(
   const buffer = baseBuffer / scale;
   const k1b = k1 - buffer;
   const k2b = k2 + buffer;
-  const clipped: VectorFeatures[] = [];
+  const clipped: VectorFeatures<M, D, P>[] = [];
 
   for (const feature of features) {
     const { geometry } = feature;
     const { type } = geometry;
     // build the new clipped geometry
-    let newGeometry: VectorGeometry | undefined = undefined;
+    let newGeometry: VectorGeometry<D> | undefined = undefined;
     if (type === 'Point') newGeometry = clipPoint(geometry, axis, k1, k2);
     else if (type === 'MultiPoint') newGeometry = clipMultiPoint(geometry, axis, k1, k2);
     else if (type === 'LineString') newGeometry = clipLineString(geometry, axis, k1b, k2b);
@@ -139,12 +156,12 @@ function _clip(
  * @param k2 - maximum accepted value of the axis
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-export function clipPoint(
-  geometry: VectorPointGeometry,
+export function clipPoint<M extends MValue = Properties>(
+  geometry: VectorPointGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
-): VectorPointGeometry | undefined {
+): VectorPointGeometry<M> | undefined {
   const { type, is3D, coordinates, bbox, vecBBox } = geometry;
   const value = axis === 0 ? coordinates.x : coordinates.y;
   if (value >= k1 && value < k2)
@@ -158,12 +175,12 @@ export function clipPoint(
  * @param k2 - maximum accepted value of the axis
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-function clipMultiPoint(
-  geometry: VectorMultiPointGeometry,
+function clipMultiPoint<M extends MValue = Properties>(
+  geometry: VectorMultiPointGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
-): VectorMultiPointGeometry | undefined {
+): VectorMultiPointGeometry<M> | undefined {
   const { type, is3D, coordinates, bbox } = geometry;
   let vecBBox: BBOX | undefined = undefined;
   const points = coordinates
@@ -184,16 +201,16 @@ function clipMultiPoint(
  * @param k2 - maximum accepted value of the axis
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-function clipLineString(
-  geometry: VectorLineStringGeometry,
+function clipLineString<M extends MValue = Properties>(
+  geometry: VectorLineStringGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
-): VectorMultiLineStringGeometry | undefined {
+): VectorMultiLineStringGeometry<M> | undefined {
   const { is3D, coordinates: line, bbox, vecBBox } = geometry;
   const initO = geometry.offset ?? 0;
   const newOffsets: VectorMultiLineOffset = [];
-  const newLines: VectorLineString[] = [];
+  const newLines: VectorLineString<M>[] = [];
   for (const clip of _clipLine({ line, offset: initO }, k1, k2, axis, false)) {
     newOffsets.push(clip.offset);
     newLines.push(clip.line);
@@ -217,17 +234,17 @@ function clipLineString(
  * @param isPolygon - true if the geometry is a polygon
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-function clipMultiLineString(
-  geometry: VectorMultiLineStringGeometry | VectorPolygonGeometry,
+function clipMultiLineString<M extends MValue = Properties>(
+  geometry: VectorMultiLineStringGeometry<M> | VectorPolygonGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
   isPolygon = false,
-): VectorMultiLineStringGeometry | VectorPolygonGeometry | undefined {
+): VectorMultiLineStringGeometry<M> | VectorPolygonGeometry<M> | undefined {
   const { is3D, coordinates, bbox, vecBBox } = geometry;
   const initO = geometry.offset ?? coordinates.map((_) => 0);
   const newOffsets: VectorMultiLineOffset = [];
-  const newLines: VectorLineString[] = [];
+  const newLines: VectorLineString<M>[] = [];
   coordinates.forEach((line, i) => {
     for (const clip of _clipLine({ line, offset: initO[i] }, k1, k2, axis, isPolygon)) {
       newOffsets.push(clip.offset);
@@ -252,13 +269,13 @@ function clipMultiLineString(
  * @param k2 - maximum accepted value of the axis
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-function clipPolygon(
-  geometry: VectorPolygonGeometry,
+function clipPolygon<M extends MValue = Properties>(
+  geometry: VectorPolygonGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
-): VectorPolygonGeometry | undefined {
-  return clipMultiLineString(geometry, axis, k1, k2, true) as VectorPolygonGeometry | undefined;
+): VectorPolygonGeometry<M> | undefined {
+  return clipMultiLineString(geometry, axis, k1, k2, true) as VectorPolygonGeometry<M> | undefined;
 }
 
 /**
@@ -268,15 +285,15 @@ function clipPolygon(
  * @param k2 - maximum accepted value of the axis
  * @returns - the clipped geometry or undefined if the geometry was not inside the range
  */
-function clipMultiPolygon(
-  geometry: VectorMultiPolygonGeometry,
+function clipMultiPolygon<M extends MValue = Properties>(
+  geometry: VectorMultiPolygonGeometry<M>,
   axis: 0 | 1,
   k1: number,
   k2: number,
-): VectorMultiPolygonGeometry | undefined {
+): VectorMultiPolygonGeometry<M> | undefined {
   const { is3D, coordinates, bbox, vecBBox } = geometry;
   const initO = geometry.offset ?? coordinates.map((l) => l.map(() => 0));
-  const newCoordinates: VectorPolygon[] = [];
+  const newCoordinates: VectorPolygon<M>[] = [];
   const newOffsets: VectorMultiPolygonOffset = [];
   coordinates.forEach((polygon, p) => {
     const newPolygon = clipPolygon(
@@ -306,14 +323,14 @@ function clipMultiPolygon(
  * the offset the new line starts at,
  * and if the line is ccw
  */
-export interface ClipLineResult {
-  line: VectorLineString;
+export interface ClipLineResult<M extends MValue = Properties> {
+  line: VectorLineString<M>;
   offset: number;
   vecBBox?: BBOX;
 }
 /** Ensuring `vecBBox` exists */
-export interface ClipLineResultWithBBox {
-  line: VectorLineString;
+export interface ClipLineResultWithBBox<M extends MValue = Properties> {
+  line: VectorLineString<M>;
   offset: number;
   vecBBox: BBOX;
 }
@@ -327,14 +344,14 @@ export interface ClipLineResultWithBBox {
  * @param buffer - the buffer to apply to the line (spacing outside the bounding box)
  * @returns - the clipped geometry
  */
-export function clipLine(
-  geom: VectorLineString,
+export function clipLine<M extends MValue = Properties>(
+  geom: VectorLineString<M>,
   bbox: BBox,
   isPolygon: boolean,
   offset: number = 0,
   buffer: number = 0.0625, // default for a full size tile. Assuming 1024 extent and a 64 point buffer
-): ClipLineResultWithBBox[] {
-  const res: ClipLineResult[] = [];
+): ClipLineResultWithBBox<M>[] {
+  const res: ClipLineResult<M>[] = [];
   const [left, bottom, right, top] = bbox;
   // clip horizontally
   const horizontalClips = _clipLine(
@@ -353,7 +370,7 @@ export function clipLine(
     for (const p of clip.line) vecBBox = extendBBox(vecBBox, p);
     clip.vecBBox = vecBBox;
     return clip;
-  }) as ClipLineResultWithBBox[];
+  }) as ClipLineResultWithBBox<M>[];
 }
 
 /**
@@ -364,16 +381,16 @@ export function clipLine(
  * @param isPolygon - true if the line comes from a polygon
  * @returns - the clipped geometry
  */
-function _clipLine(
-  input: ClipLineResult,
+function _clipLine<M extends MValue = Properties>(
+  input: ClipLineResult<M>,
   k1: number,
   k2: number,
   axis: 0 | 1,
   isPolygon: boolean,
-): ClipLineResult[] {
+): ClipLineResult<M>[] {
   const { line: geom, offset: startOffset } = input;
-  const newGeom: ClipLineResult[] = [];
-  let slice: VectorLineString = [];
+  const newGeom: ClipLineResult<M>[] = [];
+  let slice: VectorLineString<M> = [];
   let last = geom.length - 1;
   const intersect = axis === 0 ? intersectX : intersectY;
 
@@ -392,7 +409,7 @@ function _clipLine(
     const z = azNU && bzNU ? (az + bz) / 2 : azNU ? az : bzNU ? bz : undefined;
     let entered = false;
     let exited = false;
-    let intP: VectorPoint | undefined;
+    let intP: VectorPoint<M> | undefined;
 
     // ENTER OR CONTINUE CASES
     if (a < k1) {
@@ -479,15 +496,15 @@ function _clipLine(
  * @param m - the MValue
  * @returns - the intersecting point
  */
-function intersectX(
+function intersectX<M extends MValue = Properties>(
   ax: number,
   ay: number,
   bx: number,
   by: number,
   x: number,
   z?: number,
-  m?: MValue,
-): VectorPoint {
+  m?: M,
+): VectorPoint<M> {
   const t = (x - ax) / (bx - ax);
   return { x, y: ay + (by - ay) * t, z, m, t: 1 };
 }
@@ -502,15 +519,15 @@ function intersectX(
  * @param m - the MValue
  * @returns - the intersecting point
  */
-function intersectY(
+function intersectY<M extends MValue = Properties>(
   ax: number,
   ay: number,
   bx: number,
   by: number,
   y: number,
   z?: number,
-  m?: MValue,
-): VectorPoint {
+  m?: M,
+): VectorPoint<M> {
   const t = (y - ay) / (by - ay);
   return { x: ax + (bx - ax) * t, y, z, m, t: 1 };
 }
