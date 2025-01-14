@@ -10,7 +10,6 @@
 
 ### OTHERS
 
-- [ ] GBFS <https://github.com/MobilityData/gbfs?tab=readme-ov-file#systems-catalog---systems-implementing-gbfs>
 - [ ] MDS
 - [ ] Images (.png) <https://github.com/pngjs/pngjs/tree/main> (used by grib2)
 - [ ] LAS/LAZ <https://github.com/laslibs/las-js/tree/master>

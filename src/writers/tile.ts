@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 
 import type { Metadata } from 's2-tilejson';
-import type { TileWriter } from '.';
+import type { TemporalTileWriter } from '.';
 
 /**
  * # Tile File Writer
@@ -25,7 +25,7 @@ import type { TileWriter } from '.';
  * // after writing all the tiles, store the metadata
  * await tileWriter.commit(metadata);
  */
-export class TileFileWriter implements TileWriter {
+export class TileFileWriter implements TemporalTileWriter {
   /**
    * @param path - the location to write the data
    * @param fileType - the file ending to write

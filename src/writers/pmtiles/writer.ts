@@ -26,9 +26,9 @@ import type { TileWriter, Writer } from '..';
  *
  * ### Browser Compatible
  * ```typescript
- * import { TileType, BufferWriter, S2PMTilesWriter, Compression } from 'gis-tools';
+ * import { TileType, BufferWriter, S2PMTilesWriter, Compression } from 'gis-tools-ts';
  *
- * import type { Metadata } from 'gis-tools';
+ * import type { Metadata } from 'gis-tools-ts';
  *
  * // Setup the writers
  * const bufWriter = new BufferWriter();
@@ -51,8 +51,8 @@ import type { TileWriter, Writer } from '..';
  *
  * ### Node/Deno/Bun using the filesystem
  * ```typescript
- * import { S2PMTilesWriter, TileType } from 'gis-tools';
- * import { FileWriter } from 'gis-tools/file';
+ * import { S2PMTilesWriter, TileType } from 'gis-tools-ts';
+ * import { FileWriter } from 'gis-tools-ts/file';
  *
  * const writer = new S2PMTilesWriter(new FileWriter('./output.pmtiles'), TileType.Pbf);
  * // SAME AS ABOVE

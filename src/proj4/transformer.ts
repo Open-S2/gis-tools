@@ -27,7 +27,7 @@ import type {
  * ### Full Example
  *
  * ```ts
- * import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from 'gis-tools';
+ * import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from 'gis-tools-ts';
  *
  * // Create a transform using a source and destination projection
  * const transform = new Transformer();
@@ -53,7 +53,7 @@ import type {
  * ### Minimal Example only adding the Oblique Mercator
  *
  * ```ts
- * import { Transformer, HotineObliqueMercator, EPSG_8803 } from 'gis-tools';
+ * import { Transformer, HotineObliqueMercator, EPSG_8803 } from 'gis-tools-ts';
  *
  * const transform = new Transformer();
  * transform.insertDefinition(HotineObliqueMercator);
@@ -138,7 +138,7 @@ export class Transformer extends NadGridStore {
   /**
    * Insert a projection definition
    * ```ts
-   * import { HotineObliqueMercator } from 'gis-tools';
+   * import { Transformer, HotineObliqueMercator } from 'gis-tools-ts';
    * const transformer = new Transformer();
    * transformer.insertDefinition(HotineObliqueMercator);
    * ```
@@ -153,7 +153,7 @@ export class Transformer extends NadGridStore {
   /**
    * Insert an EPSG code definition
    * ```ts
-   * import { EPSG_4326 } from 'gis-tools';
+   * import { Transformer, EPSG_4326 } from 'gis-tools-ts';
    * const transformer = new Transformer();
    * transformer.insertEPSGCode('EPSG_4326', EPSG_4326);
    * ```

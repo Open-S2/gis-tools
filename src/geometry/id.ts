@@ -14,7 +14,8 @@ import {
 } from './s2/coords';
 import { toIJ as S2PointToIJ, invert, normalize, fromUV as s2PointFromUV } from './s2/point';
 
-import type { BBox, Face, Point3D } from '.';
+import type { LonLat } from './ll';
+import type { BBox, Face, MValue, Properties, VectorPoint } from '.';
 
 /**
  * An S2CellId is a 64-bit unsigned integer that uniquely identifies a
@@ -163,25 +164,25 @@ export function fromFacePosLevel(face: Face, pos: bigint, level: number): S2Cell
 
 /**
  * Create an S2CellID from a lon-lat coordinate
- * @param lon - longitude
- * @param lat - latitude
+ * @param ll - lon-lat vector point in degrees
  * @returns the S2CellID
  */
-export function fromLonLat(lon: number, lat: number): S2CellId {
-  const xyz = lonLatToXYZ(lon, lat);
+export function fromLonLat(ll: LonLat): S2CellId {
+  const xyz = lonLatToXYZ(ll);
   return fromS2Point(xyz);
 }
 
 /**
  * Create an S2CellID from an XYZ Point
  * @param xyz - 3D input vector
+ * @param level - zoom level
  * @returns the S2CellID
  */
-export function fromS2Point(xyz: Point3D): S2CellId {
+export function fromS2Point(xyz: VectorPoint, level?: number): S2CellId {
   // convert to face-i-j
   const [face, i, j] = S2PointToIJ(xyz);
   // now convert from ij
-  return fromIJ(face, i, j);
+  return fromIJ(face, i, j, level);
 }
 
 /**
@@ -201,11 +202,12 @@ export function fromUV(face: Face, u: number, v: number): S2CellId {
  * @param face - the face
  * @param s - s coordinate
  * @param t - t coordinate
+ * @param level - zoom level
  * @returns the S2CellID
  */
-export function fromST(face: Face, s: number, t: number): S2CellId {
+export function fromST(face: Face, s: number, t: number, level?: number): S2CellId {
   // now convert from ij
-  return fromIJ(face, STtoIJ(s), STtoIJ(t));
+  return fromIJ(face, STtoIJ(s), STtoIJ(t), level);
 }
 
 /**
@@ -352,24 +354,26 @@ export function toUV(id: S2CellId): [face: Face, u: number, v: number] {
 /**
  * Convert an S2CellID to an lon-lat coordinate
  * @param id - the S2CellID
+ * @param m - M-Value
  * @returns lon-lat coordinates
  */
-export function toLonLat(id: S2CellId): [lon: number, lat: number] {
-  const xyz = toS2Point(id);
+export function toLonLat<M extends MValue = Properties>(id: S2CellId, m?: M): LonLat<M> {
+  const xyz = toS2Point(id, m);
 
-  return xyzToLonLat(xyz);
+  return xyzToLonLat<M>(xyz);
 }
 
 /**
  * Convert an S2CellID to an XYZ Point
  * @param id - the S2CellID
+ * @param m - M-Value
  * @returns a 3D vector
  */
-export function toS2Point(id: S2CellId): Point3D {
+export function toS2Point<M extends MValue = Properties>(id: S2CellId, m?: M): VectorPoint<M> {
   // Decompose the S2CellID into its constituent parts: face, u, and v.
   const [face, u, v] = toUV(id);
   // Use the decomposed parts to construct an XYZ Point.
-  return s2PointFromUV(face, u, v);
+  return s2PointFromUV(face, u, v, m);
 }
 
 /**
@@ -543,10 +547,10 @@ export function contains(a: S2CellId, b: S2CellId): boolean {
 
 /**
  * @param a - the first S2CellID
- * @param p - the second Point3D
+ * @param p - the second VectorPoint
  * @returns true if a contains p
  */
-export function containsS2Point(a: S2CellId, p: Point3D): boolean {
+export function containsS2Point(a: S2CellId, p: VectorPoint): boolean {
   const b = fromS2Point(p);
   return contains(a, b);
 }
@@ -781,7 +785,7 @@ export function vertexNeighbors(id: S2CellId, lev?: number): S2CellId[] {
 }
 
 /** The four vertices of the cell. */
-export type Vertices = [Point3D, Point3D, Point3D, Point3D];
+export type Vertices = [VectorPoint, VectorPoint, VectorPoint, VectorPoint];
 
 /**
  * Returns the four vertices of the cell.  Vertices are returned
@@ -862,4 +866,15 @@ export function getBoundUV(id: S2CellId): BBox {
  */
 export function getSizeIJ(id: S2CellId): number {
   return 1 << (K_MAX_LEVEL - level(id));
+}
+
+/**
+ * @param a - the first cell
+ * @param b - the second cell
+ * @returns -1 | 0 | 1
+ */
+export function compareIDs(a: S2CellId, b: S2CellId): -1 | 0 | 1 {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
 }

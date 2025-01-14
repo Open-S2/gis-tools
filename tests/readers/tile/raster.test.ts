@@ -27,7 +27,7 @@ test('read in wm satellite', async () => {
   });
 
   // has tile
-  expect(await reader.hasTile(0, 0, 0)).toEqual(true);
+  expect(await reader.hasTileWM(0, 0, 0)).toEqual(true);
   const tile = await reader.getTileWM(0, 0, 0);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
@@ -123,8 +123,8 @@ test('read in wm satellite file', async () => {
   });
 
   // has tile
-  expect(await reader.hasTile(0, 0, 0)).toEqual(true);
-  const tile = await reader.getTile(0, 0, 0);
+  expect(await reader.hasTileWM(0, 0, 0)).toEqual(true);
+  const tile = await reader.getTileWM(0, 0, 0);
   expect(tile).toBeDefined();
   if (tile === undefined) throw Error('tile is undefined');
   const { image, zoom, x, y, tmsStyle } = tile;
@@ -402,7 +402,7 @@ test('read in pmtiles wm', async () => {
     ],
     version: '2',
   });
-  expect(await reader.hasTile(0, 0, 0)).toEqual(true);
+  expect(await reader.hasTileWM(0, 0, 0)).toEqual(true);
 
   // TODO: We need a pmtiles using WM that has raster data in it.
   // const tile = await reader.getTileS2(0, 0, 0, 0);

@@ -8,7 +8,7 @@ import { fromFace } from '../../src';
 import type { Tile } from '../../src/';
 
 test('PointCluster', async () => {
-  const cluster = new PointCluster(
+  const cluster = new PointCluster<{ a: number }>(
     {
       type: 'Feature',
       properties: { a: 22 },
@@ -19,9 +19,9 @@ test('PointCluster', async () => {
     },
   );
 
-  cluster.insertLonLat(2, -2, { a: 0 });
-  cluster.insertLonLat(1, -1, { a: 1 });
-  cluster.insertLonLat(-160, 60, { a: 2 });
+  cluster.insertLonLat({ x: 2, y: -2, m: { a: 0 } });
+  cluster.insertLonLat({ x: 1, y: -1, m: { a: 1 } });
+  cluster.insertLonLat({ x: -160, y: 60, m: { a: 2 } });
   cluster.insertFaceST(0, 0.25, 0.25, { a: 3 });
 
   await cluster.buildClusters();
@@ -40,7 +40,7 @@ test('PointCluster', async () => {
           {
             face: 0,
             geometry: {
-              coordinates: { m: { sum: 1 }, x: 0.25, y: 0.25 },
+              coordinates: { m: { value: 1 }, x: 0.25, y: 0.25 },
               is3D: false,
               type: 'Point',
             },
@@ -50,7 +50,7 @@ test('PointCluster', async () => {
           {
             face: 0,
             geometry: {
-              coordinates: { m: { sum: 3 }, x: 0.5129213455463228, y: 0.48707282292783416 },
+              coordinates: { m: { value: 3 }, x: 0.5129213455463228, y: 0.48707282292783416 },
               is3D: false,
               type: 'Point',
             },
@@ -65,7 +65,7 @@ test('PointCluster', async () => {
   } as unknown as Tile);
 });
 
-test('PointCluster', async () => {
+test('PointCluster - from reader', async () => {
   const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
   const jsonReader = new JSONReader(fileReaderPoints);
   const cluster = new PointCluster();
@@ -89,7 +89,7 @@ test('PointCluster', async () => {
             geometry: {
               coordinates: {
                 m: {
-                  sum: 3,
+                  value: 3,
                 },
                 x: 0.9391825486078326,
                 y: 0.15739240199815419,

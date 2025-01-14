@@ -22,8 +22,8 @@ import { fromFace, fromIJ, toS2Point } from '../../../src/geometry/id';
 import type { S2Cap } from '../../../src/geometry/s2/cap';
 
 test('complement', () => {
-  const cap: S2Cap<{ a: number }> = { center: [1, 0, 0], radius: 1, data: { a: 1 } };
-  expect(complement(cap)).toEqual({ center: [-1, -0, -0], radius: 3, data: { a: 1 } });
+  const cap: S2Cap<{ a: number }> = { center: { x: 1, y: 0, z: 0 }, radius: 1, data: { a: 1 } };
+  expect(complement(cap)).toEqual({ center: { x: -1, y: -0, z: -0 }, radius: 3, data: { a: 1 } });
 });
 
 test('containsS2Cell', () => {
@@ -52,7 +52,7 @@ test('containsS2Point', () => {
 
 test('emptyCap', () => {
   const cap = emptyCap({ a: 1 });
-  expect(cap.center).toEqual([1, 0, 0]);
+  expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(-1);
   expect(cap.data).toEqual({ a: 1 });
 });
@@ -60,7 +60,7 @@ test('emptyCap', () => {
 test('fromS1Angle', () => {
   const face = fromFace(0);
   const cap = fromS1Angle(toS2Point(face), 1, { a: 1 });
-  expect(cap.center).toEqual([1, 0, 0]);
+  expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(0.9193953882637206);
   expect(cap.data).toEqual({ a: 1 });
 });
@@ -68,21 +68,21 @@ test('fromS1Angle', () => {
 test('fromS1ChordAngle', () => {
   const face = fromFace(0);
   const cap = fromS1ChordAngle(toS2Point(face), 1, { a: 1 });
-  expect(cap.center).toEqual([1, 0, 0]);
+  expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(1);
   expect(cap.data).toEqual({ a: 1 });
 });
 
 test('fromS2Point', () => {
-  const cap = fromS2Point([1, 0, 0], { a: 1 });
-  expect(cap.center).toEqual([1, 0, 0]);
+  const cap = fromS2Point({ x: 1, y: 0, z: 0 }, { a: 1 });
+  expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(0);
   expect(cap.data).toEqual({ a: 1 });
 });
 
 test('fullCap', () => {
   const cap = fullCap({ a: 1 });
-  expect(cap.center).toEqual([1, 0, 0]);
+  expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(4);
   expect(cap.data).toEqual({ a: 1 });
 });
@@ -142,7 +142,7 @@ test('getIntersectingCells', () => {
 
 test('getIntersectingCells small', () => {
   const cells = getIntersectingCells({
-    center: [1, 0, 0],
+    center: { x: 1, y: 0, z: 0 },
     radius: 0.002435949740175752,
     data: undefined,
   });

@@ -111,8 +111,8 @@ export interface NetCDFReaderOptions {
  *
  * ## Usage
  * ```ts
- * import { NetCDFReader } from 'gis-tools';
- * import { FileReader } from 'gis-tools/file';
+ * import { NetCDFReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
  *
  * const reader = new NetCDFReader(new FileReader('./data.nc'));
  * for (const feature of reader) {

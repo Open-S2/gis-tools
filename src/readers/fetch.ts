@@ -8,7 +8,7 @@ import type { Reader } from '.';
  *
  * ## Usage
  * ```ts
- * import { FetchReader } from 'gis-tools';
+ * import { FetchReader } from 'gis-tools-ts';
  *
  * const reader = new FetchReader('https://example.com/BETA2007.gsb', true);
  *

@@ -31,27 +31,33 @@ export interface GridReader {
  *
  * ## Usage
  * ```ts
- * import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 'gis-tools';
- * import { FileReader } from 'gis-tools/file';
+ * import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);
  * const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
  * ```
  */
-export class GeoTIFFReader extends GeoTIFFHeaderReader implements FeatureIterator<GeoTIFFMetadata> {
+export class GeoTIFFReader
+  extends GeoTIFFHeaderReader
+  implements FeatureIterator<GeoTIFFMetadata, RGBA, Properties>
+{
   gridStore: GridReader[] = [];
   /**
    * @param input - the geotiff input to parse data from
    * @param definitions - an array of projection definitions for the transformer if needed
    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
+   * @param gridStores - an array of grid readers if needed
    */
   constructor(
     input: ReaderInputs,
     private definitions: ProjectionTransformDefinition[] = [],
     private epsgCodes: Record<string, string> = {},
+    gridStores?: GridReader[],
   ) {
     const reader = toReader(input);
     super(reader);
+    if (gridStores !== undefined) this.gridStore = gridStores;
   }
 
   /**

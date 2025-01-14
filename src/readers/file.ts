@@ -16,7 +16,7 @@ const readAsync = promisify(read);
  *
  * ## Usage
  * ```ts
- * import { FileReader } from 'gis-tools/file';
+ * import { FileReader } from 'gis-tools/file-ts';
  *
  * const reader = new FileReader('./BETA2007.gsb');
  *

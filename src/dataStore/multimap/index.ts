@@ -1,19 +1,21 @@
-import { compare, toCell } from '../../dataStructures/uint64';
+import { compareIDs } from '../..';
 
+import type { S2CellId } from '../..';
 import type { Properties, Value } from '../..';
-import type { Uint64, Uint64Cell } from '../../dataStructures/uint64';
 
 /** A key-value entry in the multimap */
 export interface MMEntry<V> {
-  key: Uint64;
+  key: S2CellId;
   value: V[];
 }
 
 /** Represents a key-value store */
 export interface MultiMapStore<V = Properties | Value> {
   length: number;
-  get: ((key: Uint64) => V[] | undefined) | ((key: Uint64) => Promise<V[] | undefined>);
-  set: (key: Uint64, value: V) => void;
+  get:
+    | ((key: number | S2CellId) => V[] | undefined)
+    | ((key: number | S2CellId) => Promise<V[] | undefined>);
+  set: (key: number | S2CellId, value: V) => void;
   entries: () => AsyncGenerator<MMEntry<V>>;
   [Symbol.asyncIterator]: () => AsyncGenerator<MMEntry<V>>;
   close: () => void;
@@ -24,7 +26,7 @@ export type MultiMapStoreConstructor<V = Properties | Value> = new () => MultiMa
 
 /** A local multimap key-value store */
 export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
-  #store: Map<Uint64, V[]>;
+  #store: Map<S2CellId, V[]>;
   #count = 0;
 
   /** Builds a new MultiMap */
@@ -42,10 +44,10 @@ export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64, value: V): void {
+  set(key: number | S2CellId, value: V): void {
     const list = this.get(key);
     if (list === undefined) {
-      this.#store.set(key, [value]);
+      this.#store.set(BigInt(key), [value]);
     } else {
       list.push(value);
     }
@@ -57,8 +59,8 @@ export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  get(key: Uint64): V[] | undefined {
-    return this.#store.get(key);
+  get(key: number | S2CellId): V[] | undefined {
+    return this.#store.get(BigInt(key));
   }
 
   /**
@@ -66,11 +68,11 @@ export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
    * @yields - The values in the store
    */
   async *entries(): AsyncGenerator<MMEntry<V>> {
-    const entries = Array.from(this.#store.entries()).map(([id, value]) => [toCell(id), value]) as [
-      Uint64Cell,
+    const entries = Array.from(this.#store.entries()).map(([id, value]) => [id, value]) as [
+      S2CellId,
       V[],
     ][];
-    entries.sort((a, b) => compare(a[0], b[0]));
+    entries.sort((a, b) => compareIDs(a[0], b[0]));
     for (const [key, value] of entries) {
       yield { key, value };
     }

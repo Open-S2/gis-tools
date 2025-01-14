@@ -1,11 +1,13 @@
-import type { Uint64 } from '../../dataStructures/uint64';
+import type { S2CellId } from '../..';
 import type { Properties, Value } from '../..';
 
 /** Represents a key-value store */
 export interface KVStore<V = Properties | Value> {
   length: number;
-  get: ((key: Uint64) => V | undefined) | ((key: Uint64) => Promise<V | undefined>);
-  set: (key: Uint64, value: V) => void;
+  get:
+    | ((key: number | S2CellId) => V | undefined)
+    | ((key: number | S2CellId) => Promise<V | undefined>);
+  set: (key: number | S2CellId, value: V) => void;
   values: () => AsyncGenerator<V>;
   [Symbol.asyncIterator]: () => AsyncGenerator<V>;
   close: () => void;
@@ -16,7 +18,7 @@ export type KVStoreConstructor<V = Properties | Value> = new (fileName?: string)
 
 /** Just a placeholder to explain what a local key-value store essentially is */
 export class KV<V = Properties | Value> implements KVStore<V> {
-  #store = new Map<Uint64, V>();
+  #store = new Map<S2CellId, V>();
   /** @returns - the length of the map */
   get length(): number {
     return this.#store.size;
@@ -27,8 +29,8 @@ export class KV<V = Properties | Value> implements KVStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  get(key: Uint64): V | undefined {
-    return this.#store.get(key);
+  get(key: number | S2CellId): V | undefined {
+    return this.#store.get(BigInt(key));
   }
 
   /**
@@ -36,8 +38,8 @@ export class KV<V = Properties | Value> implements KVStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64, value: V): void {
-    this.#store.set(key, value);
+  set(key: number | S2CellId, value: V): void {
+    this.#store.set(BigInt(key), value);
   }
 
   /**

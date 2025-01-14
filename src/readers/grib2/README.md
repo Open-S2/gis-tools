@@ -5,7 +5,7 @@
 ### Parse GRIB File
 
 ```typescript
-import { GRIB2Reader } from 'gis-tools'
+import { GRIB2Reader } from 'gis-tools-ts'
 
 const gribData = new GRIB2Reader(await Bun.file('./path/to/file.grib2').arrayBuffer())
 ```

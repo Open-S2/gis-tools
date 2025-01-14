@@ -1,7 +1,7 @@
 import { S2FileStore } from '../file';
 
 import type { KVStore } from '.';
-import type { Uint64 } from '../../dataStructures/uint64';
+import type { S2CellId } from '../..';
 import type { Properties, Value } from '../..';
 
 /** File based multimap store */
@@ -26,8 +26,8 @@ export class FileKV<V = Properties | Value> implements KVStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64, value: V): void {
-    this.#store.set(key, value);
+  set(key: number | S2CellId, value: V): void {
+    this.#store.set(BigInt(key), value);
   }
 
   /**
@@ -35,8 +35,8 @@ export class FileKV<V = Properties | Value> implements KVStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  async get(key: Uint64): Promise<V | undefined> {
-    const value = await this.#store.get(key, 0);
+  async get(key: number | S2CellId): Promise<V | undefined> {
+    const value = await this.#store.get(BigInt(key), 0);
     if (value === undefined) return undefined;
     return value[0] as V;
   }

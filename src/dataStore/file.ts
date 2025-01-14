@@ -1,10 +1,10 @@
+import { compareIDs } from '..';
 import { externalSort } from './externalSort';
 import { tmpdir } from 'os';
 import { closeSync, fstatSync, openSync, readSync, unlinkSync, writeSync } from 'fs';
-import { compare, toCell } from '../dataStructures/uint64';
 
+import type { S2CellId } from '..';
 import type { Properties, Value, VectorKey } from '..';
-import type { Uint64, Uint64Cell } from '../dataStructures/uint64';
 
 /** Options to create a S2FileStore */
 export interface FileOptions {
@@ -22,7 +22,7 @@ export interface FileOptions {
 
 /** An entry in a file */
 export interface FileEntry<V> {
-  key: Uint64Cell;
+  key: S2CellId;
   value: V;
 }
 
@@ -82,15 +82,16 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
    * @param key - the uint64 id
    * @param value - the value to store
    */
-  set(key: Uint64, value: V): void {
+  set(key: number | S2CellId, value: V): void {
     this.#switchToWriteState();
     // prepare value
+    // @ts-expect-error - we know its an object
+    if (typeof value === 'object' && 'cell' in value && typeof value.cell === 'bigint')
+      value.cell = value.cell.toString();
     const valueBuf = Buffer.from(JSON.stringify(value));
     // write key offset as a uint64
     const buffer = Buffer.alloc(KEY_LENGTH);
-    const { low, high } = toCell(key);
-    buffer.writeUInt32LE(low, 0);
-    buffer.writeUInt32LE(high, 4);
+    buffer.writeBigUInt64LE(BigInt(key), 0);
     // write value offset to point to the value position in the `${path}.values`
     if (this.#indexIsValues) {
       if (typeof value !== 'number' && typeof value !== 'bigint')
@@ -120,17 +121,17 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
    * @param bigint - set to true if the key is a bigint
    * @returns the value if the map contains values for the key
    */
-  async get(key: Uint64, max?: number, bigint = false): Promise<V[] | undefined> {
+  async get(key: number | S2CellId, max?: number, bigint = false): Promise<V[] | undefined> {
+    key = BigInt(key);
     await this.#switchToReadState();
     if (this.#size === 0) return;
     let lowerIndex = this.#lowerBound(key);
     if (lowerIndex >= this.#size) return undefined;
-    const { low: lowID, high: highID } = toCell(key);
     const res: V[] = [];
     const buffer = Buffer.alloc(KEY_LENGTH);
     while (true) {
       readSync(this.#keyFd, buffer, 0, KEY_LENGTH, lowerIndex * KEY_LENGTH);
-      if (buffer.readUInt32LE(0) !== lowID || buffer.readUInt32LE(4) !== highID) break;
+      if (buffer.readBigUInt64LE(0) !== key) break;
       const valueOffset = buffer.readUInt32LE(8);
       const valueLength = buffer.readUInt32LE(12);
       if (this.#indexIsValues) {
@@ -139,7 +140,10 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
       } else {
         const valueBuf = Buffer.alloc(valueLength);
         readSync(this.#valueFd, valueBuf, 0, valueLength, valueOffset);
-        res.push(JSON.parse(valueBuf.toString()) as V);
+        const json = JSON.parse(valueBuf.toString()) as V;
+        // @ts-expect-error - we know its an object
+        if (typeof json === 'object' && 'cell' in json) json.cell = BigInt(json.cell);
+        res.push(json);
       }
       if (max !== undefined && res.length >= max) break;
       lowerIndex++;
@@ -165,20 +169,21 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
     for (let i = 0; i < this.#size; i++) {
       const buffer = Buffer.alloc(KEY_LENGTH);
       readSync(this.#keyFd, buffer, 0, KEY_LENGTH, i * KEY_LENGTH);
-      const keyLow = buffer.readUInt32LE(0);
-      const keyHigh = buffer.readUInt32LE(4);
+      const key = buffer.readBigUInt64LE(0);
       const valueOffset = buffer.readUInt32LE(8);
       const valueLength = buffer.readUInt32LE(12);
       if (this.#indexIsValues) {
         const value = bigint
           ? ((BigInt(valueOffset) + (BigInt(valueLength) << 32n)) as unknown as V)
           : ((valueOffset + valueLength * 0x100000000) as unknown as V);
-        yield { key: { low: keyLow, high: keyHigh }, value };
+        yield { key, value };
       } else {
         const valueBuf = Buffer.alloc(valueLength);
         readSync(this.#valueFd, valueBuf, 0, valueLength, valueOffset);
         const value = JSON.parse(valueBuf.toString()) as V;
-        yield { key: { low: keyLow, high: keyHigh }, value };
+        // @ts-expect-error - we know its an object
+        if (typeof value === 'object' && 'cell' in value) value.cell = BigInt(value.cell);
+        yield { key, value };
       }
     }
   }
@@ -240,8 +245,7 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
    * @param id - the id to search for
    * @returns the starting index from the lower bound of the id
    */
-  #lowerBound(id: Uint64): number {
-    const loHiID = toCell(id);
+  #lowerBound(id: S2CellId): number {
     // lower bound search
     let lo: number = 0;
     let hi: number = this.#size;
@@ -250,7 +254,7 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
       const loHi = this.#getKey(mid);
-      if (compare(loHi, loHiID) === -1) {
+      if (compareIDs(loHi, id) === -1) {
         lo = mid + 1;
       } else {
         hi = mid;
@@ -264,10 +268,10 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
    * @param index - the index to get the key from
    * @returns the key
    */
-  #getKey(index: number): Uint64Cell {
+  #getKey(index: number): S2CellId {
     const buf = Buffer.alloc(8);
     readSync(this.#keyFd, buf, 0, 8, index * KEY_LENGTH);
-    return { low: buf.readUint32LE(0), high: buf.readUint32LE(4) };
+    return buf.readBigUInt64LE(0);
   }
 }
 

@@ -7,6 +7,7 @@ import type { ElevationConverter, ElevationPoint, S2TileMetadata, TileMetadata }
 import type {
   Face,
   FeatureIterator,
+  MValue,
   Properties,
   RGBA,
   S2Feature,
@@ -25,8 +26,8 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  *
  * ## Usage
  * ```ts
- * import { convertTerrariumElevationData } from 'gis-tools';
- * import { RasterTilesFileReader } from 'gis-tools/file';
+ * import { convertTerrariumElevationData } from 'gis-tools-ts';
+ * import { RasterTilesFileReader } from 'gis-tools-ts/file';
  *
  * // creates a reader for a tile set treating the max zoom as 3 instead of the metadata's max zoom
  * const reader = new RasterTilesFileReader('./raster-tiles-top-level-folder', 3);
@@ -47,7 +48,7 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  * }
  * ```
  */
-export class RasterTilesFileReader<T extends Properties = RGBA | ElevationPoint>
+export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
   implements FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>
 {
   metadata?: Metadata;
@@ -84,7 +85,7 @@ export class RasterTilesFileReader<T extends Properties = RGBA | ElevationPoint>
    * @param y - the y coordinate of the tile
    * @returns - the tile
    */
-  async getTile(zoom: number, x: number, y: number): Promise<RasterTileReader<T> | undefined> {
+  async getTileWM(zoom: number, x: number, y: number): Promise<RasterTileReader<T> | undefined> {
     const { extension, scheme } = await this.getMetadata();
     const isTMS = scheme === 'tms';
     const data =
@@ -127,7 +128,7 @@ export class RasterTilesFileReader<T extends Properties = RGBA | ElevationPoint>
    * @param y - the y coordinate of the tile
    * @returns - true if the tile exists
    */
-  async hasTile(zoom: number, x: number, y: number): Promise<boolean> {
+  async hasTileWM(zoom: number, x: number, y: number): Promise<boolean> {
     const { extension } = await this.getMetadata();
     if (typeof this.input === 'string') {
       const stats = await stat(`${this.input}/${zoom}/${x}/${y}.${extension}`);
@@ -175,7 +176,7 @@ export class RasterTilesFileReader<T extends Properties = RGBA | ElevationPoint>
           const yNumber = Number(y.split('.')[0]);
           const tile = isS2
             ? await this.getTileS2(face, zoom, xNumber, yNumber)
-            : await this.getTile(zoom, xNumber, yNumber);
+            : await this.getTileWM(zoom, xNumber, yNumber);
           if (tile === undefined) continue;
           yield* tile;
         }

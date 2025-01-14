@@ -17,10 +17,10 @@ test('MultiMap', async () => {
 
   const values = await Array.fromAsync(store);
   expect(values).toStrictEqual([
-    { key: { high: 0, low: 0 }, value: [1] },
-    { key: { high: 0, low: 1 }, value: [2] },
-    { key: { high: 0, low: 22 }, value: [4, 5] },
-    { key: { high: 0, low: 5005 }, value: [3] },
+    { key: 0n, value: [1] },
+    { key: 1n, value: [2] },
+    { key: 22n, value: [4, 5] },
+    { key: 5_005n, value: [3] },
   ]);
 
   store.close();

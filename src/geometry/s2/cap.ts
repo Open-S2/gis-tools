@@ -28,7 +28,7 @@ import {
 import type { LengthMetric } from './metrics';
 import type { S1Angle } from '../s1/angle';
 import type { S1ChordAngle } from '../s1/chordAngle';
-import type { Face, Point3D, S2CellId, Vertices } from '../';
+import type { Face, S2CellId, VectorPoint, Vertices } from '../';
 
 let kMaxEdge: LengthMetric | undefined;
 
@@ -66,7 +66,7 @@ let kMaxEdge: LengthMetric | undefined;
  */
 export interface S2Cap<T> {
   /** the center of the cap */
-  center: Point3D;
+  center: VectorPoint;
   /** the radius of the cap */
   radius: S1ChordAngle;
   /** the data associated with the cap */
@@ -79,7 +79,7 @@ export interface S2Cap<T> {
  * @returns - the empty cap
  */
 export function emptyCap<T>(data: T): S2Cap<T> {
-  return { center: [1, 0, 0], radius: negativeAngle(), data };
+  return { center: { x: 1, y: 0, z: 0 }, radius: negativeAngle(), data };
 }
 
 /**
@@ -89,7 +89,7 @@ export function emptyCap<T>(data: T): S2Cap<T> {
  */
 export function fullCap<T>(data: T): S2Cap<T> {
   // return Init(S2Point.Init(1.0, 0.0, 0.0), S1ChordAngle.Straight(), data_);
-  return { center: [1, 0, 0], radius: straightAngle(), data };
+  return { center: { x: 1, y: 0, z: 0 }, radius: straightAngle(), data };
 }
 
 /**
@@ -138,7 +138,7 @@ export function height<T>(cap: S2Cap<T>): number {
  * @param data - the data
  * @returns - the cap
  */
-export function fromS1Angle<T>(center: Point3D, radius: S1Angle, data: T): S2Cap<T> {
+export function fromS1Angle<T>(center: VectorPoint, radius: S1Angle, data: T): S2Cap<T> {
   return { center, radius: fromAngle(radius), data };
 }
 
@@ -150,7 +150,7 @@ export function fromS1Angle<T>(center: Point3D, radius: S1Angle, data: T): S2Cap
  * @param data - the data
  * @returns - the cap
  */
-export function fromS1ChordAngle<T>(center: Point3D, radius: S1ChordAngle, data: T): S2Cap<T> {
+export function fromS1ChordAngle<T>(center: VectorPoint, radius: S1ChordAngle, data: T): S2Cap<T> {
   return { center, radius, data };
 }
 
@@ -161,7 +161,7 @@ export function fromS1ChordAngle<T>(center: Point3D, radius: S1ChordAngle, data:
  * @param data - the data
  * @returns - an empty cap
  */
-export function fromS2Point<T>(center: Point3D, data: T): S2Cap<T> {
+export function fromS2Point<T>(center: VectorPoint, data: T): S2Cap<T> {
   return { center, radius: 0, data };
 }
 
@@ -184,7 +184,7 @@ export function radius<T>(cap: S2Cap<T>): S1Angle {
  * @param p - the point
  * @returns - true if the cap contains the point
  */
-export function containsS2Point<T>(cap: S2Cap<T>, p: Point3D): boolean {
+export function containsS2Point<T>(cap: S2Cap<T>, p: VectorPoint): boolean {
   return fromS2Points(cap.center, p) <= cap.radius;
 }
 

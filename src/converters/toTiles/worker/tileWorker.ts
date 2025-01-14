@@ -4,21 +4,25 @@ import { DrawType } from 's2-tilejson';
 import { MultiMap } from '../../../dataStore';
 import { compressStream } from '../../../util';
 import { BaseVectorTile, writeOVTile } from 'open-vector-tile';
-import { PointCluster, PointIndex, Tile, TileStore } from '../../../dataStructures';
+import { PointCluster, Tile, TileStore } from '../../../dataStructures';
 import { childrenIJ, convert, fromFace, toFaceIJ } from '../../../geometry';
 
 import type { MultiMapStore } from '../../../dataStore';
-import type { S2JSONLayerMap } from 'open-vector-tile';
+import type { RGBA } from '../../..';
 import type {
   ClusterLayer,
+  FormatOutput,
+  GetPointValue,
+  GridLayer,
   LayerGuide,
   OnFeature,
+  RasterLayer,
   StringifiedLayerGuide,
   VectorLayer,
 } from '../..';
-import type { ElevationPoint, RGBA } from '../../..';
 import type { Encoding, Scheme } from 's2-tilejson';
-import type { Face, Features, Properties, VectorFeatures } from '../../../geometry';
+import type { Face, Properties, VectorFeatures } from '../../../geometry';
+import type { GridInput, ImageDataInput, S2JSONLayerMap } from 'open-vector-tile';
 
 /** Take in options that will be used to create a tiled data correctly */
 export interface InitMessage {
@@ -32,6 +36,8 @@ export interface InitMessage {
   scheme?: Scheme;
   /** The encoding that will be used to compress the tile */
   encoding?: Encoding;
+  /** The output format */
+  format?: FormatOutput;
 }
 
 /** Take in a feature that will be added to the tile */
@@ -41,7 +47,7 @@ export interface FeatureMessage {
   /** The name of the source to add the feature to */
   sourceName: string;
   /** The feature to add to the tile */
-  feature: Features;
+  feature: VectorFeatures;
 }
 
 /** We want to track the associated layer for each feature */
@@ -59,18 +65,19 @@ export interface BuiltTile {
 }
 
 /** Convert a vector feature to a collection of tiles and store each tile feature */
-export default class VectorTileWorker {
+export default class TileWorker {
   id = 0;
   layerGuides: LayerGuide[] = [];
   scheme: Scheme = 'fzxy';
-  encoding: Encoding = 'none';
+  encoding: Encoding = 'gz';
+  format: FormatOutput = 'open-s2';
   vectorStore: MultiMapStore<VectorFeatures<FeatureMetadata>> = new MultiMap<
     VectorFeatures<FeatureMetadata>
   >();
   // Unique store for each layer that describes itself as a cluster source
   clusterStores: { [layerName: string]: PointCluster } = {};
-  rasterStore: PointIndex<RGBA> = new PointIndex<RGBA>();
-  elevationStore: PointIndex<ElevationPoint> = new PointIndex<ElevationPoint>();
+  rasterStores: { [layerName: string]: PointCluster<RGBA> } = {};
+  gridStores: { [layerName: string]: PointCluster } = {};
 
   /**
    * Tile-ize input vector features and store them
@@ -91,6 +98,7 @@ export default class VectorTileWorker {
       this.id = message.id;
       if (message.scheme !== undefined) this.scheme = message.scheme;
       if (message.encoding !== undefined) this.encoding = message.encoding;
+      if (message.format !== undefined) this.format = message.format;
       self.postMessage({ type: 'ready' });
     } else {
       this.storeFeature(message);
@@ -100,16 +108,16 @@ export default class VectorTileWorker {
   /** Iterate through all the stores and sort/cluster as needed */
   async sort(): Promise<void> {
     for (const cluster of Object.values(this.clusterStores)) await cluster.buildClusters();
-    await this.rasterStore.sort();
-    await this.elevationStore.sort();
+    for (const raster of Object.values(this.rasterStores)) await raster.buildClusters();
+    for (const grid of Object.values(this.gridStores)) await grid.buildClusters();
   }
 
   /**
-   * Iterate through the stores and build tiles, gzip compressing as we go
+   * Iterate through the stores and build tiles, compressing as we go if required
    * @yields - a built tile
    */
   async *buildTiles(): AsyncGenerator<BuiltTile> {
-    const { layerGuides, scheme, encoding } = this;
+    const { format, layerGuides, scheme, encoding } = this;
     const minzoom = getMinzoom(layerGuides);
 
     // three directions we can build data
@@ -119,37 +127,43 @@ export default class VectorTileWorker {
     while (tileCache.length > 0) {
       const id = tileCache.pop()!;
       const tile = new Tile(id);
-      // store vector features
-      const vectorFeatures = await this.vectorStore.get(id);
-      if (vectorFeatures !== undefined) {
-        for (const feature of vectorFeatures) tile.addFeature(feature);
-      }
-      // store all cluster features
-      for (const [layerName, cluster] of Object.entries(this.clusterStores)) {
-        const layerClusterFeatures = await cluster.getTile(id);
-        if (layerClusterFeatures === undefined) continue;
-        for (const feature of layerClusterFeatures.layers.default.features) {
-          tile.addFeature(feature, layerName);
+      const { face, zoom, i, j } = tile;
+
+      const vectorTile = await this.#getVectorTile(id, tile);
+      const rasterData = await this.#getRasterTile(id);
+      const gridData = await this.#getGridTile(id);
+      if (format === 'raster') {
+        // RASTER CASE
+        if (rasterData !== undefined) {
+          const { image } = rasterData[0];
+          yield {
+            face,
+            zoom,
+            x: i,
+            y: j,
+            data: new Uint8Array(image),
+          };
+          // store 4 children tiles to ask for children features
+          tileCache.push(...childrenIJ(face, zoom, i, j));
+        } else {
+          // if we haven't reached the data yet, we store children
+          if (minzoom > tile.zoom) tileCache.push(...childrenIJ(face, zoom, i, j));
         }
-      }
-      // TODO: Request raster tile if it exists
-      // if tile is not empty we build a vector tile
-      if (!tile.isEmpty()) {
-        // build the base vector tile layerguides => S2JSONLayerMap
-        const vectorTile = BaseVectorTile.fromS2JSONTile(tile, toLayerMap(layerGuides));
-        // write to a buffer using the open-vector-tile spec
-        let vectorTileBuffer: Uint8Array<ArrayBufferLike> = writeOVTile(vectorTile);
-        // gzip if necessary
-        if (encoding === 'gz') {
-          vectorTileBuffer = await compressStream(vectorTileBuffer, 'gzip');
+      } else {
+        // VECTOR CASE
+        if (vectorTile === undefined) {
+          // if we haven't reached the data yet, we store children
+          if (minzoom > tile.zoom) tileCache.push(...childrenIJ(face, zoom, i, j));
+        } else {
+          // write to a buffer using the open-vector-tile spec
+          let vectorTileBuffer = writeOVTile(vectorTile, rasterData, gridData);
+          // gzip if necessary
+          if (encoding === 'gz') vectorTileBuffer = await compressStream(vectorTileBuffer, 'gzip');
+          // yield the buffer
+          yield { face, zoom, x: i, y: j, data: vectorTileBuffer };
+          // store 4 children tiles to ask for children features
+          tileCache.push(...childrenIJ(face, zoom, i, j));
         }
-        // yield the buffer
-        yield { face: tile.face, zoom: tile.zoom, x: tile.i, y: tile.j, data: vectorTileBuffer };
-        // store 4 children tiles to ask for children features
-        tileCache.push(...childrenIJ(tile.face, tile.zoom, tile.i, tile.j));
-      } else if (minzoom > tile.zoom) {
-        // if we haven't reached the data yet, we store children
-        tileCache.push(...childrenIJ(tile.face, tile.zoom, tile.i, tile.j));
       }
     }
   }
@@ -173,46 +187,92 @@ export default class VectorTileWorker {
 
       if ('tileGuide' in layerGuide) this.#storeVectorFeature(parsedFeature, layerGuide);
       else if ('clusterGuide' in layerGuide) this.#storeClusterFeature(parsedFeature, layerGuide);
-      // TODO raster source storing
+      else if ('outputType' in layerGuide)
+        this.#storeRasterFeature(
+          parsedFeature as VectorFeatures<Record<string, unknown>, RGBA, RGBA>,
+          layerGuide,
+        );
+      else this.#storeGridFeature(parsedFeature, layerGuide);
     }
   }
 
   /**
-   * Store a cluster feature in the correct point cluster
-   * @param feature - the feature to store
-   * @param clusterLayer - the layer guide to describe how to store the feature
+   * Get vector/cluster features for a tile
+   * @param id - the tile id
+   * @param tile - the tile object to fill
+   * @returns - a BaseVectorTile containing all the features if there are any
    */
-  #storeClusterFeature(feature: Features, clusterLayer: ClusterLayer): void {
-    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
-    const { scheme } = this;
-    const {
-      clusterGuide,
-      layerName,
-      metadata: { maxzoom },
-    } = clusterLayer;
-    const projection = clusterGuide.projection ?? (scheme === 'fzxy' ? 'S2' : 'WM');
-    if (this.clusterStores[layerName] === undefined) {
-      this.clusterStores[layerName] = new PointCluster(undefined, clusterGuide);
+  async #getVectorTile(id: bigint, tile: Tile): Promise<BaseVectorTile | undefined> {
+    const { layerGuides, format } = this;
+    if (format === 'raster') return;
+    // store vector features
+    const vectorFeatures = await this.vectorStore.get(id);
+    if (vectorFeatures !== undefined) {
+      for (const feature of vectorFeatures) tile.addFeature(feature);
     }
-    const vectorFeature = convert(projection, feature, false, undefined, maxzoom, false)[0];
-    const {
-      face,
-      geometry: { type, coordinates },
-      properties,
-    } = vectorFeature;
-    if (type === 'Point') {
-      const { x, y } = coordinates;
-      if (projection === 'S2')
-        this.clusterStores[layerName].insertFaceST(face ?? 0, x, y, properties);
-      else this.clusterStores[layerName].insertLonLat(x, y, vectorFeature.properties);
-    } else if (type === 'MultiPoint') {
-      for (const point of coordinates) {
-        const { x, y } = point;
-        if (projection === 'S2')
-          this.clusterStores[layerName].insertFaceST(face ?? 0, x, y, properties);
-        else this.clusterStores[layerName].insertLonLat(x, y, vectorFeature.properties);
+    // store all cluster features
+    for (const [layerName, cluster] of Object.entries(this.clusterStores)) {
+      const layerClusterFeatures = await cluster.getTile(id);
+      if (layerClusterFeatures === undefined) continue;
+      for (const [_, layer] of Object.entries(layerClusterFeatures.layers)) {
+        for (const feature of layer.features) tile.addFeature(feature, layerName);
       }
     }
+
+    if (!tile.isEmpty()) {
+      // build the base vector tile layerguides => S2JSONLayerMap
+      return BaseVectorTile.fromS2JSONTile(tile, toLayerMap(layerGuides));
+    }
+  }
+
+  /**
+   * Get raster data for a tile
+   * @param id - the tile id
+   * @returns - a collection of GridInputs
+   */
+  async #getRasterTile(id: bigint): Promise<ImageDataInput[] | undefined> {
+    const res: ImageDataInput[] = [];
+    // store all cluster features
+    for (const cluster of Object.values(this.rasterStores)) {
+      const layerGrid = await cluster.getTileGrid(id);
+      if (layerGrid === undefined) continue;
+      const { name, size, data } = layerGrid;
+      res.push({
+        name,
+        type: 'raw',
+        width: size,
+        height: size,
+        image: new Uint8Array(data),
+      });
+    }
+
+    if (res.length > 0) return res;
+  }
+
+  /**
+   * Get gridded data for a tile
+   * @param id - the tile id
+   * @returns - a collection of ImageDataInputs
+   */
+  async #getGridTile(id: bigint): Promise<GridInput[] | undefined> {
+    const res: GridInput[] = [];
+    // store all cluster features
+    for (const [layerName, cluster] of Object.entries(this.rasterStores)) {
+      const { extent } = this.layerGuides.filter(
+        (guide) => guide.layerName === layerName,
+      )[0] as GridLayer;
+      const layerGrid = await cluster.getTileGrid(id);
+      if (layerGrid === undefined) continue;
+      const { name, size, data } = layerGrid;
+      res.push({
+        name,
+        size,
+        data,
+        extent,
+      });
+    }
+
+    if (res.length > 0) return res;
   }
 
   /**
@@ -220,15 +280,13 @@ export default class VectorTileWorker {
    * @param feature - the feature to store
    * @param vectorLayer - the layer guide to describe how to store the feature
    */
-  #storeVectorFeature(feature: Features, vectorLayer: VectorLayer): void {
+  #storeVectorFeature(feature: VectorFeatures, vectorLayer: VectorLayer): void {
     const {
       tileGuide,
       layerName,
       metadata: { minzoom },
     } = vectorLayer;
-    // NOTE: Don't store above minzoom
-
-    // three directions we can build data
+    // Setup a tileCache and dive down. Store the 4 children if data is found while storing data as we go
     const tileStore = new TileStore(feature, tileGuide);
     const tileCache = [fromFace(0)];
     if (tileStore.projection === 'S2')
@@ -248,11 +306,76 @@ export default class VectorTileWorker {
             this.vectorStore.set(id, feature as VectorFeatures<FeatureMetadata>);
           }
         }
-
         // store 4 children tiles to ask for
-        tileCache.push(...childrenIJ(tile.face, tile.zoom, tile.i, tile.j));
+        tileCache.push(...childrenIJ(face, zoom, i, j));
       }
     }
+  }
+
+  /**
+   * Store a cluster feature in the correct point cluster
+   * @param feature - the feature to store
+   * @param clusterLayer - the layer guide to describe how to store the feature
+   */
+  #storeClusterFeature(feature: VectorFeatures, clusterLayer: ClusterLayer): void {
+    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
+    const { scheme } = this;
+    const {
+      clusterGuide,
+      layerName,
+      metadata: { maxzoom },
+    } = clusterLayer;
+    const projection = clusterGuide.projection ?? (scheme === 'fzxy' ? 'S2' : 'WM');
+    if (this.clusterStores[layerName] === undefined) {
+      this.clusterStores[layerName] = new PointCluster(undefined, clusterGuide);
+    }
+    const vectorFeature = convert(projection, feature, false, undefined, maxzoom, false)[0];
+    const {
+      face,
+      geometry: { type, coordinates },
+      properties,
+    } = vectorFeature;
+    if (type === 'Point') {
+      const { x, y, m } = coordinates;
+      if (projection === 'S2')
+        this.clusterStores[layerName].insertFaceST(face ?? 0, x, y, m ?? properties);
+      else this.clusterStores[layerName].insertLonLat({ x, y, m: m ?? vectorFeature.properties });
+    } else if (type === 'MultiPoint') {
+      for (const point of coordinates) {
+        const { x, y, m } = point;
+        if (projection === 'S2')
+          this.clusterStores[layerName].insertFaceST(face ?? 0, x, y, m ?? properties);
+        else this.clusterStores[layerName].insertLonLat({ x, y, m: m ?? vectorFeature.properties });
+      }
+    }
+  }
+
+  /**
+   * Store a raster feature across all appropriate zooms
+   * @param feature - the feature to store
+   * @param rasterLayer - the layer guide to describe how to store the feature
+   */
+  #storeRasterFeature(
+    feature: VectorFeatures<Record<string, unknown>, RGBA, RGBA>,
+    rasterLayer: RasterLayer,
+  ): void {
+    const { layerName } = rasterLayer;
+    if (this.rasterStores[layerName] === undefined)
+      this.rasterStores[layerName] = new PointCluster();
+    const rasterStore = this.rasterStores[layerName];
+    rasterStore.insertFeature(feature);
+  }
+
+  /**
+   * Store a grid based feature across all appropriate zooms
+   * @param feature - the feature to store
+   * @param gridLayer - the layer guide to describe how to store the feature
+   */
+  #storeGridFeature(feature: VectorFeatures, gridLayer: GridLayer): void {
+    const { layerName } = gridLayer;
+    if (this.gridStores[layerName] === undefined) this.gridStores[layerName] = new PointCluster();
+    const gridStore = this.gridStores[layerName];
+    gridStore.insertFeature(feature);
   }
 }
 
@@ -289,6 +412,10 @@ function parseLayerGuides(sourceGuide: StringifiedLayerGuide[]): LayerGuide[] {
   return sourceGuide.map((guide) => {
     return {
       ...guide,
+      getValue:
+        'getValue' in guide && guide.getValue !== undefined
+          ? (new Function(guide.getValue)() as GetPointValue)
+          : undefined,
       onFeature:
         guide.onFeature !== undefined ? (new Function(guide.onFeature)() as OnFeature) : undefined,
     };
@@ -300,15 +427,20 @@ function parseLayerGuides(sourceGuide: StringifiedLayerGuide[]): LayerGuide[] {
  * @param feature - the feature to find the associating draw type for
  * @returns - the associating draw type for the feature
  */
-function toDrawType(feature: Features): DrawType {
+function toDrawType(feature: VectorFeatures): DrawType {
   const {
-    geometry: { type },
+    geometry: { type, is3D },
   } = feature;
-  if (type === 'Point' || type === 'MultiPoint') return DrawType.Points;
+
+  if (type === 'Point' || type === 'MultiPoint') return is3D ? DrawType.Points3D : DrawType.Points;
+  else if (type === 'LineString' || type === 'MultiLineString')
+    return is3D ? DrawType.Lines3D : DrawType.Lines;
+  else if (type === 'Polygon' || type === 'MultiPolygon')
+    return is3D ? DrawType.Polys3D : DrawType.Polys;
   else if (type === 'Point3D' || type === 'MultiPoint3D') return DrawType.Points3D;
-  else if (type === 'LineString' || type === 'MultiLineString') return DrawType.Lines;
-  else if (type === 'Polygon' || type === 'MultiPolygon') return DrawType.Polys;
   else if (type === 'LineString3D' || type === 'MultiLineString3D') return DrawType.Lines3D;
   else if (type === 'Polygon3D' || type === 'MultiPolygon3D') return DrawType.Polys3D;
+  else if (type === 'Raster') return DrawType.Raster;
+  else if (type === 'Grid') return DrawType.Grid;
   else return DrawType.Points;
 }

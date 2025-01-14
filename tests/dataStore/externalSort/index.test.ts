@@ -25,12 +25,12 @@ test('sort - single threaded', async () => {
   const data = await Array.fromAsync(storeSorted.entries());
 
   expect(data).toStrictEqual([
-    { key: { high: 0, low: 0 }, value: { a: 1 } },
-    { key: { high: 0, low: 1 }, value: { a: 2 } },
-    { key: { high: 0, low: 22 }, value: { a: 4 } },
-    { key: { high: 0, low: 22 }, value: { a: 5 } },
-    { key: { high: 0, low: 22 }, value: { a: 6 } },
-    { key: { high: 0, low: 5005 }, value: { a: 3 } },
+    { key: 0n, value: { a: 1 } },
+    { key: 1n, value: { a: 2 } },
+    { key: 22n, value: { a: 4 } },
+    { key: 22n, value: { a: 5 } },
+    { key: 22n, value: { a: 6 } },
+    { key: 5_005n, value: { a: 3 } },
   ]);
 });
 
@@ -62,16 +62,16 @@ test('sort multi-file - single threaded', async () => {
   const data = await Array.fromAsync(storeSorted.entries());
 
   expect(data).toStrictEqual([
-    { key: { high: 0, low: 0 }, value: { a: 1 } },
-    { key: { high: 0, low: 1 }, value: { a: 2 } },
-    { key: { high: 0, low: 12 }, value: { a: 10 } },
-    { key: { high: 0, low: 22 }, value: { a: 6 } },
-    { key: { high: 0, low: 22 }, value: { a: 4 } },
-    { key: { high: 0, low: 22 }, value: { a: 5 } },
-    { key: { high: 0, low: 55 }, value: { a: 9 } },
-    { key: { high: 0, low: 456 }, value: { a: 8 } },
-    { key: { high: 0, low: 5005 }, value: { a: 3 } },
-    { key: { high: 0, low: 9807 }, value: { a: 7 } },
+    { key: 0n, value: { a: 1 } },
+    { key: 1n, value: { a: 2 } },
+    { key: 12n, value: { a: 10 } },
+    { key: 22n, value: { a: 6 } },
+    { key: 22n, value: { a: 4 } },
+    { key: 22n, value: { a: 5 } },
+    { key: 55n, value: { a: 9 } },
+    { key: 456n, value: { a: 8 } },
+    { key: 5_005n, value: { a: 3 } },
+    { key: 9_807n, value: { a: 7 } },
   ]);
 });
 
@@ -118,30 +118,30 @@ test('sort - multi threaded', async () => {
   // We cant strict equal because threading, so just check that all key-vaue pairs exist
   expect(data.sort((a, b) => a.value.a - b.value.a)).toEqual(
     [
-      { key: { high: 0, low: 0 }, value: { a: 1 } },
-      { key: { high: 0, low: 1 }, value: { a: 2 } },
-      { key: { high: 0, low: 7 }, value: { a: 11 } },
-      { key: { high: 0, low: 7 }, value: { a: 17 } },
-      { key: { high: 0, low: 11 }, value: { a: 21 } },
-      { key: { high: 0, low: 12 }, value: { a: 10 } },
-      { key: { high: 0, low: 12 }, value: { a: 16 } },
-      { key: { high: 0, low: 22 }, value: { a: 4 } },
-      { key: { high: 0, low: 22 }, value: { a: 5 } },
-      { key: { high: 0, low: 22 }, value: { a: 6 } },
-      { key: { high: 0, low: 55 }, value: { a: 15 } },
-      { key: { high: 0, low: 55 }, value: { a: 9 } },
-      { key: { high: 0, low: 66 }, value: { a: 20 } },
-      { key: { high: 0, low: 93 }, value: { a: 19 } },
-      { key: { high: 0, low: 100 }, value: { a: 18 } },
-      { key: { high: 0, low: 100 }, value: { a: 12 } },
-      { key: { high: 0, low: 456 }, value: { a: 8 } },
-      { key: { high: 0, low: 456 }, value: { a: 14 } },
-      { key: { high: 0, low: 901 }, value: { a: 22 } },
-      { key: { high: 0, low: 5005 }, value: { a: 3 } },
-      { key: { high: 0, low: 9807 }, value: { a: 13 } },
-      { key: { high: 0, low: 9807 }, value: { a: 7 } },
-      { key: { high: 0, low: 98081 }, value: { a: 23 } },
-      { key: { high: 229, low: 4131476546 }, value: { a: 24 } },
+      { key: 0n, value: { a: 1 } },
+      { key: 1n, value: { a: 2 } },
+      { key: 5005n, value: { a: 3 } },
+      { key: 22n, value: { a: 4 } },
+      { key: 22n, value: { a: 5 } },
+      { key: 22n, value: { a: 6 } },
+      { key: 9807n, value: { a: 7 } },
+      { key: 456n, value: { a: 8 } },
+      { key: 55n, value: { a: 9 } },
+      { key: 12n, value: { a: 10 } },
+      { key: 7n, value: { a: 11 } },
+      { key: 100n, value: { a: 12 } },
+      { key: 9807n, value: { a: 13 } },
+      { key: 456n, value: { a: 14 } },
+      { key: 55n, value: { a: 15 } },
+      { key: 12n, value: { a: 16 } },
+      { key: 7n, value: { a: 17 } },
+      { key: 100n, value: { a: 18 } },
+      { key: 93n, value: { a: 19 } },
+      { key: 66n, value: { a: 20 } },
+      { key: 11n, value: { a: 21 } },
+      { key: 901n, value: { a: 22 } },
+      { key: 98081n, value: { a: 23 } },
+      { key: 987678987330n, value: { a: 24 } },
     ].sort((a, b) => a.value.a - b.value.a),
   );
 });

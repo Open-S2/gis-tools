@@ -101,7 +101,7 @@ export interface GTFSLocationsProperties extends Properties {
  *
  * ## Usage
  * ```ts
- * import { buildGTFSSchedule } from 'gis-tools';
+ * import { buildGTFSSchedule } from 'gis-tools-ts';
  *
  * const schedule = await buildGTFSSchedule(gzipData);
  * ```

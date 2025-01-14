@@ -4,7 +4,7 @@ import { getDistance } from '../ll';
 import { degToRad, radToDeg } from '..';
 
 import type { LonLat } from '../ll';
-import type { Point3D } from '../';
+import type { VectorPoint } from '../';
 
 /**
  * This class represents a one-dimensional angle (as opposed to a
@@ -110,7 +110,7 @@ export function toE7(e7_: number): S1Angle {
  * @param b - The second point
  * @returns - The angle between the two points in radians
  */
-export function fromS2Points(a: Point3D, b: Point3D): S1Angle {
+export function fromS2Points(a: VectorPoint, b: VectorPoint): S1Angle {
   return angle(a, b);
 }
 

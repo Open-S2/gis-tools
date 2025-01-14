@@ -1,17 +1,17 @@
-import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
+import { defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
 
 /**
- * # Inverse Distance Weighting Interpolation
+ * # Nearest Neighbor Interpolation
  *
  * ## Description
- * Given a reference of data, interpolate a point using inverse distance weighting
+ * Finds the nearest point in the reference data to the given point and returns its value.
  *
  * ## Usage
  * ```ts
- * import { idwInterpolation, PointIndexFast } from 'gis-tools-ts';
+ * import { nearestInterpolation, PointIndexFast } from 'gis-tools-ts';
  * import type { VectorPoint } from 'gis-tools-ts';
  *
  * // We have m-value data that we want to interpolate
@@ -28,50 +28,55 @@ import type { MValue, Properties, RGBA, VectorPoint } from '../..';
  * const data = await pointIndex.searchRadius(point.x, point.y, radius);
  *
  * // interpolate
- * const interpolatedValue = idwInterpolation<TempData>(point, data, (p) => p.m.temp);
+ * const interpolatedValue = nearestInterpolation<TempData>(point, data, (p) => p.m.temp);
  * ```
- * @param point - point to interpolate
- * @param refData - reference data to interpolate from
- * @param getValue - function to get value from reference data. Can be the z value or a property in the m-values
+ * @param point - Point to interpolate
+ * @param refData - Reference data to search from
+ * @param getValue - Function to get value from reference data
  * defaults to function that returns the z value or 0 if the z value is undefined
- * @returns - the interpolated value
+ * @returns - The value of the nearest point
  */
-export function idwInterpolation<T extends MValue = Properties>(
+export function nearestInterpolation<T extends MValue = Properties>(
   point: VectorPoint,
   refData: VectorPoint<T>[],
   getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
 ): number {
   if (refData.length === 0) return 0;
-  let numerator = 0;
-  let denom = 0;
+
+  // Find the nearest point
+  let nearestPoint: VectorPoint<T> | undefined;
+  let minDistance = Infinity;
+
   for (const refPoint of refData) {
     const distance = Math.sqrt(
       Math.pow(refPoint.x - point.x, 2) + Math.pow(refPoint.y - point.y, 2),
     );
-    const d2 = Math.pow(distance, 2);
-    const value = getValue(refPoint);
-    if (d2 === 0) return value; // if distance is 0, return value
-    numerator += value / d2;
-    denom += 1 / d2;
+    if (distance < minDistance || nearestPoint === undefined) {
+      minDistance = distance;
+      nearestPoint = refPoint;
+    }
   }
-  return numerator / denom;
+
+  // Return the value of the nearest point
+  if (nearestPoint !== undefined) return getValue(nearestPoint);
+  return getValue(refData[0]);
 }
 
 /**
- * Helper function for {@link idwInterpolation} on RGB(A) data.
+ * Helper function for {@link nearestInterpolation} on RGB(A) data.
  * Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
  * get the correct weight for each component.
  * @param point - Point to interpolate
  * @param refData - Reference data points
  * @returns - The interpolated RGBA data.
  */
-export function rgbaIDWInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
+export function rgbaNearestInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
   const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
-  const rData = idwInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2));
-  const gData = idwInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2));
-  const bData = idwInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2));
-  const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
+  const rData = nearestInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2));
+  const gData = nearestInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2));
+  const bData = nearestInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2));
+  const a = nearestInterpolation(point, refData, (p) => p.m?.a ?? 255);
 
   return {
     r: sqrt(rData),

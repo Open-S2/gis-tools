@@ -1,7 +1,7 @@
-import { defaultGetInterpolateCurrentValue } from '.';
+import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
-import type { MValue, Properties, VectorPoint } from '../..';
+import type { MValue, Properties, RGBA, VectorPoint } from '../..';
 
 /** Kriging Model function */
 export type KrigingFunction = (
@@ -14,6 +14,111 @@ export type KrigingFunction = (
 
 /** Kriging Models available */
 export type KrigingModel = 'gaussian' | 'exponential' | 'spherical';
+
+/**
+ * # Kriging Distance Weighting Interpolation
+ *
+ * ## Description
+ * Given a reference of data, interpolate a point using kriging distance weighting
+ * Uses the {@link KrigingInterpolator}
+ *
+ * ## Usage
+ * ```ts
+ * import { krigingInterpolation, PointIndexFast } from 'gis-tools-ts';
+ * import type { VectorPoint } from 'gis-tools-ts';
+ *
+ * // We have m-value data that we want to interpolate
+ * interface TempData { temp: number; }
+ *
+ * const pointIndex = new PointIndexFast<TempData>();
+ * // add lots of points
+ * pointIndex.insertLonLat(lon, lat, data);
+ * // ....
+ *
+ * // given a point we are interested in
+ * const point: VectorPoint = { x: 20, y: -40 };
+ * //  get a collection of points relative to the point
+ * const data = await pointIndex.searchRadius(point.x, point.y, radius);
+ *
+ * // interpolate
+ * const interpolatedValue = krigingInterpolation<TempData>(point, data, (p) => p.m.temp);
+ * ```
+ * @param point - point to interpolate
+ * @param refData - reference data to interpolate from
+ * @param getValue - function to get value from reference data. Can be the z value or a property in the m-values
+ * defaults to function that returns the z value or 0 if the z value is undefined
+ * @param model - kriging model
+ * @param sigma2 - variance
+ * @param alpha - diffuse
+ * @returns - the interpolated value
+ */
+export function krigingInterpolation<T extends MValue = Properties>(
+  point: VectorPoint,
+  refData: VectorPoint<T>[],
+  getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
+  model: KrigingModel = 'gaussian',
+  sigma2 = 0,
+  alpha = 100,
+): number {
+  const interpolator = new KrigingInterpolator<T>(refData, model, getValue, sigma2, alpha);
+
+  return interpolator.predict(point);
+}
+
+/**
+ * Helper function for {@link krigingInterpolation} on RGB(A) data.
+ * Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
+ * get the correct weight for each component.
+ * @param point - Point to interpolate
+ * @param refData - Reference data points
+ * @param model - Kriging model
+ * @param sigma2 - Variance
+ * @param alpha - Diffuse
+ * @returns - The interpolated RGBA data.
+ */
+export function rgbaKrigingInterpolation(
+  point: VectorPoint,
+  refData: VectorPoint<RGBA>[],
+  model: KrigingModel = 'gaussian',
+  sigma2 = 0,
+  alpha = 100,
+): RGBA {
+  const { pow, sqrt } = Math;
+  if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
+
+  const rData = krigingInterpolation(
+    point,
+    refData,
+    (p) => pow(p.m?.r ?? 0, 2),
+    model,
+    sigma2,
+    alpha,
+  );
+  const gData = krigingInterpolation(
+    point,
+    refData,
+    (p) => pow(p.m?.g ?? 0, 2),
+    model,
+    sigma2,
+    alpha,
+  );
+  const bData = krigingInterpolation(
+    point,
+    refData,
+    (p) => pow(p.m?.b ?? 0, 2),
+    model,
+    sigma2,
+    alpha,
+  );
+  const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
+
+  return {
+    r: sqrt(rData),
+    g: sqrt(gData),
+    b: sqrt(bData),
+    a,
+  };
+}
 
 /**
  * # Kriging Interpolator
@@ -43,8 +148,8 @@ export type KrigingModel = 'gaussian' | 'exponential' | 'spherical';
  *
  * ## Usage
  * ```ts
- * import { KrigingInterpolator } from 'gis-tools';
- * import type { VectorPoint } from 'gis-tools';
+ * import { KrigingInterpolator } from 'gis-tools-ts';
+ * import type { VectorPoint } from 'gis-tools-ts';
  *
  * // We have m-value data that we want to interpolate
  * interface TempData { temp: number; }
@@ -86,6 +191,7 @@ export class KrigingInterpolator<T extends MValue = Properties> {
     sigma2 = 0,
     alpha = 100,
   ) {
+    if (refData.length === 0) throw new Error('Reference data cannot be empty.');
     const { abs, pow } = Math;
     this.t = refData.map((p) => getValue(p));
     // setup model

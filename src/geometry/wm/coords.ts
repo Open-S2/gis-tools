@@ -112,7 +112,7 @@ export function pxToTile(px: Point, tileSize = 512): Point {
  * @returns - the bbox
  */
 export function tilePxBounds(tile: Point3D, tileSize = 512): BBox {
-  const [, x, y] = tile;
+  const [_, x, y] = tile;
   const minX = x * tileSize;
   const minY = y * tileSize;
   const maxX = minX + tileSize;

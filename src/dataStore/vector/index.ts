@@ -1,16 +1,16 @@
-import { compare } from '../../dataStructures/uint64';
+import { compareIDs } from '../..';
 
-import type { Uint64Cell } from '../../dataStructures/uint64';
+import type { S2CellId } from '../..';
 
 /** The kind of input required to store a vector for proper indexing */
 export interface VectorKey {
-  cell: Uint64Cell;
+  cell: S2CellId;
 }
 
 /** Represents a vector store or an array */
 export interface VectorStore<V> {
   push: (value: V) => void;
-  get: (index: number) => Promise<V>;
+  get: (index: number | bigint) => Promise<V>;
   length: number;
   values: () => AsyncGenerator<V>;
   sort: (() => void) | (() => Promise<void>);
@@ -37,8 +37,8 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  async get(index: number): Promise<V> {
-    return await this.#store[index];
+  async get(index: number | bigint): Promise<V> {
+    return await this.#store[Number(index)];
   }
 
   /** @returns the length of the store */
@@ -57,7 +57,7 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
   /** Sort the store in place */
   sort(): void {
     this.#store.sort((a, b): -1 | 0 | 1 => {
-      return compare(a.cell, b.cell);
+      return compareIDs(a.cell, b.cell);
     });
   }
 

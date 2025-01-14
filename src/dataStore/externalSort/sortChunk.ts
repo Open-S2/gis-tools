@@ -1,5 +1,7 @@
+import { compareIDs } from '../..';
 import { open } from 'fs/promises';
 
+import type { S2CellId } from '../..';
 import type { SortChunk } from '.';
 
 /**
@@ -55,8 +57,7 @@ async function _sortChunk(
  * The last 8 bytes contains the u32 offset and u32 length
  */
 export interface Key {
-  lo: number;
-  hi: number;
+  id: S2CellId;
   offset: number;
   length: number;
 }
@@ -70,8 +71,7 @@ export function bufferToKeys(buffer: Buffer): Key[] {
   const keys: Key[] = [];
   for (let i = 0; i < buffer.length; i += 16) {
     keys.push({
-      lo: buffer.readUInt32LE(i),
-      hi: buffer.readUInt32LE(i + 4),
+      id: buffer.readBigUInt64LE(i),
       offset: buffer.readUInt32LE(i + 8),
       length: buffer.readUInt32LE(i + 12),
     });
@@ -87,8 +87,7 @@ export function keysToBuffer(keys: Key[]): Buffer {
   const buffer = Buffer.alloc(keys.length * 16);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    buffer.writeUInt32LE(key.lo, i * 16);
-    buffer.writeUInt32LE(key.hi, i * 16 + 4);
+    buffer.writeBigUInt64LE(key.id, i * 16);
     buffer.writeUInt32LE(key.offset, i * 16 + 8);
     buffer.writeUInt32LE(key.length, i * 16 + 12);
   }
@@ -101,9 +100,5 @@ export function keysToBuffer(keys: Key[]): Buffer {
  * @returns - ordered answer between A and B
  */
 export function keySort(a: Key, b: Key): -1 | 0 | 1 {
-  if (a.hi < b.hi) return -1;
-  if (a.hi > b.hi) return 1;
-  if (a.lo < b.lo) return -1;
-  if (a.lo > b.lo) return 1;
-  return 0;
+  return compareIDs(a.id, b.id);
 }

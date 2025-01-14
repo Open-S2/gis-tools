@@ -13,7 +13,7 @@ import type { FeatureIterator, Metadata } from '..';
  *
  * ## Usage
  * ```ts
- * import { OSMMMapReader } from 'gis-tools/mmap';
+ * import { OSMMMapReader } from 'gis-tools/mmap-ts';
  *
  * const reader = new OSMReader('./data.osm.pbf');
  * // pull out the header

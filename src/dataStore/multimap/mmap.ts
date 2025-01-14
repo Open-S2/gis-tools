@@ -1,8 +1,8 @@
 import { S2MMapStore } from '../mmap';
-import { compare } from '../../dataStructures/uint64';
+import { compareIDs } from '../..';
 
 import type { MMapEntry } from '../mmap';
-import type { Uint64 } from '../../dataStructures/uint64';
+import type { S2CellId } from '../..';
 import type { MMEntry, MultiMapStore } from '.';
 import type { Properties, Value } from '../..';
 
@@ -28,8 +28,8 @@ export class MMapMultiMap<V = Properties | Value> implements MultiMapStore<V> {
    * @param key - the key
    * @param value - the value to store
    */
-  set(key: Uint64, value: V): void {
-    this.#store.set(key, value);
+  set(key: number | S2CellId, value: V): void {
+    this.#store.set(BigInt(key), value);
   }
 
   /**
@@ -37,8 +37,8 @@ export class MMapMultiMap<V = Properties | Value> implements MultiMapStore<V> {
    * @param key - the key
    * @returns the list of values if the map contains values for the key
    */
-  async get(key: Uint64): Promise<V[] | undefined> {
-    return await this.#store.get(key);
+  async get(key: number | S2CellId): Promise<V[] | undefined> {
+    return await this.#store.get(BigInt(key));
   }
 
   /**
@@ -50,7 +50,7 @@ export class MMapMultiMap<V = Properties | Value> implements MultiMapStore<V> {
     for await (const entry of this.#store.entries()) {
       if (entries.length > 0) {
         const last = entries.at(-1)!;
-        if (compare(last.key, entry.key) === 0) {
+        if (compareIDs(last.key, entry.key) === 0) {
           entries.push(entry);
         } else {
           yield { key: last.key, value: entries.map((e) => e.value) };

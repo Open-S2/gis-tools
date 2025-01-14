@@ -7,9 +7,9 @@ tmp.setGracefulCleanup();
 test('S2FileStore', async () => {
   const dir = tmp.dirSync({ prefix: 'file_test' });
   const store = new S2FileStore<{ a: number }>(dir.name);
-  expect(store.length).toBe(0);
+  expect(store.length).toEqual(0);
   store.set(0, { a: 1 });
-  expect(store.length).toBe(1);
+  expect(store.length).toEqual(1);
   store.set(1, { a: 2 });
   store.set(5_005, { a: 3 });
   store.set(22, { a: 4 });
@@ -17,10 +17,10 @@ test('S2FileStore', async () => {
 
   const entries = await Array.fromAsync(store.entries());
   expect(entries).toStrictEqual([
-    { key: { low: 0, high: 0 }, value: { a: 1 } },
-    { key: { low: 1, high: 0 }, value: { a: 2 } },
-    { key: { low: 22, high: 0 }, value: { a: 4 } },
-    { key: { low: 5_005, high: 0 }, value: { a: 3 } },
+    { key: 0n, value: { a: 1 } },
+    { key: 1n, value: { a: 2 } },
+    { key: 22n, value: { a: 4 } },
+    { key: 5_005n, value: { a: 3 } },
   ]);
 
   store.close(true);
@@ -28,7 +28,7 @@ test('S2FileStore', async () => {
 
 test('S2FileStore - valuesAreIndex', async () => {
   const store = new S2FileStore<number>(undefined, { valuesAreIndex: true });
-  expect(store.length).toBe(0);
+  expect(store.length).toEqual(0);
 
   store.set(0, 1);
   store.set(1, 2);
@@ -38,10 +38,10 @@ test('S2FileStore - valuesAreIndex', async () => {
 
   const entries = await Array.fromAsync(store.entries());
   expect(entries).toStrictEqual([
-    { key: { low: 0, high: 0 }, value: 1 },
-    { key: { low: 1, high: 0 }, value: 2 },
-    { key: { low: 22, high: 0 }, value: 4 },
-    { key: { low: 5_005, high: 0 }, value: 3 },
+    { key: 0n, value: 1 },
+    { key: 1n, value: 2 },
+    { key: 22n, value: 4 },
+    { key: 5_005n, value: 3 },
   ]);
 
   store.close(true);

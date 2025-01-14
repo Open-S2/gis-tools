@@ -5,7 +5,7 @@ import { fromST } from '../geometry/s2/point';
 import { toWM } from '../geometry';
 import { xyzToLonLat } from '../geometry/s2/coords';
 
-import type { Face, FeatureIterator, MValue, Properties, VectorPoint } from '..';
+import type { Face, FeatureIterator, MValue, Properties, VectorFeatures, VectorPoint } from '..';
 import type { KDStore, KDStoreConstructor } from '../dataStore';
 
 /** A query node in the kd-tree used by a spherical search */
@@ -35,8 +35,8 @@ const RAD = 0.017453292519943295; // Math.PI / 180;
  *
  * ## Usage
  * ```ts
- * import { PointIndexFast } from 'gis-tools';
- * import { KDMMapSpatialIndex } from 'gis-tools/mmap';
+ * import { PointIndexFast } from 'gis-tools-ts';
+ * import { KDMMapSpatialIndex } from 'gis-tools-ts/mmap';
  *
  * const pointIndex = new PointIndexFast();
  * // or used a mmap based store
@@ -93,16 +93,23 @@ export class PointIndexFast<
    * @param reader - a reader containing the input data
    */
   async insertReader(reader: FeatureIterator<M, D, P>): Promise<void> {
-    for await (const feature of reader) {
-      if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') continue;
-      const {
-        geometry: { coordinates, type },
-      } = feature.type === 'S2Feature' ? toWM(feature) : feature;
-      if (type === 'Point') {
-        this.insertLonLat(coordinates.x, coordinates.y, coordinates.m ?? feature.properties);
-      } else if (type === 'MultiPoint') {
-        for (const { x, y, m } of coordinates) this.insertLonLat(x, y, m ?? feature.properties);
-      }
+    for await (const feature of reader) this.insertFeature(feature);
+  }
+
+  /**
+   * Add a vector feature. It will try to use the M-value first, but if it doesn't exist
+   * it will use the feature properties data
+   * @param feature - vector feature (either S2 or WM)
+   */
+  insertFeature(feature: VectorFeatures<M, D, P>): void {
+    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
+    const {
+      geometry: { coordinates, type },
+    } = feature.type === 'S2Feature' ? toWM(feature) : feature;
+    if (type === 'Point') {
+      this.insertLonLat(coordinates.x, coordinates.y, coordinates.m ?? feature.properties);
+    } else if (type === 'MultiPoint') {
+      for (const { x, y, m } of coordinates) this.insertLonLat(x, y, m ?? feature.properties);
     }
   }
 
@@ -124,7 +131,7 @@ export class PointIndexFast<
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: D | P): void {
-    const [lon, lat] = xyzToLonLat(fromST(face, s, t));
+    const { x: lon, y: lat } = xyzToLonLat(fromST(face, s, t));
     this.insert({ x: lon, y: lat, m: data });
   }
 

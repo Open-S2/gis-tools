@@ -42,7 +42,7 @@ import type {
  * ## Usage
  *
  * ```ts
- * import { Tile } from 'gis-tools';
+ * import { Tile } from 'gis-tools-ts';
  *  // create a tile
  * const tile = new Tile(id);
  * // add a feature
@@ -53,7 +53,7 @@ import type {
  *
  * If you have some kind reader you can use the `addReader` method
  * ```ts
- * import { Tile, JSONReader } from 'gis-tools';
+ * import { Tile, JSONReader } from 'gis-tools-ts';
  * // create a tile
  * const tile = new Tile(id);
  * // add a reader

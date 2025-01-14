@@ -68,7 +68,7 @@ function convertGeometryPoint<M extends MValue = Properties>(
   point: VectorPoint<M>,
 ): void {
   const { x: s, y: t } = point;
-  const [lon, lat] = toLonLat(fromST(face, s, t));
+  const { x: lon, y: lat } = toLonLat(fromST(face, s, t));
   point.x = lon;
   point.y = lat;
 }

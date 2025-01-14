@@ -18,6 +18,25 @@ export interface TileWriter {
   commit(metadata: Metadata): Promise<void>;
 }
 
+/** A base interface for all tile stores. */
+export interface TemporalTileWriter extends TileWriter {
+  writeTemporalTileWM(
+    time: Date,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void>;
+  writeTemporalTileS2(
+    time: Date,
+    face: number,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void>;
+}
+
 /** Buffer writer is used on smaller datasets that are easy to write in memory. Faster then the Filesystem */
 export class BufferWriter implements Writer {
   #buffer: number[] = [];

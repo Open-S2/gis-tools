@@ -7,7 +7,7 @@
  * ## Usage
  *
  * ```ts
- * import { Cache } from 'gis-tools';
+ * import { Cache } from 'gis-tools-ts';
  *
  * const onDelete = (key: string, value: string) => {
  *   console.log(`Deleted key ${key} with value ${value}`);

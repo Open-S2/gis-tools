@@ -1,7 +1,7 @@
 import wasmBase64 from './s2cell.wasm';
 import { fromLonLat, toST } from '../geometry/s2/point';
 
-import type { Face, Point3D } from '../geometry';
+import type { Face, VectorPoint } from '../geometry';
 
 /**
  * An S2CellId is a 64-bit unsigned integer that uniquely identifies a cell in the S2
@@ -60,19 +60,18 @@ export class S2CellGenerator {
   }
 
   /**
-   * @param lon - longitude
-   * @param lat - latitude
+   * @param ll - lon-lat vector point in degrees
    * @returns - an S2Cell with the appropriate id and functions
    */
-  fromLonLat(lon: number, lat: number): S2Cell {
-    return this.fromS2Point(fromLonLat(lon, lat));
+  fromLonLat(ll: VectorPoint): S2Cell {
+    return this.fromS2Point(fromLonLat(ll));
   }
 
   /**
    * @param point - a vector point on the sphere
    * @returns - an S2Cell with the appropriate id and functions
    */
-  fromS2Point(point: Point3D): S2Cell {
+  fromS2Point(point: VectorPoint): S2Cell {
     const [face, s, t] = toST(point);
     return this.fromFaceST(face, s, t);
   }

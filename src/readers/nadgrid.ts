@@ -36,8 +36,8 @@ export interface NadGridDefinition {
  *
  * ## Usage
  * ```ts
- * import { NadGridReader } from 'gis-tools';
- * import { MMapReader } from 'gis-tools/mmap';
+ * import { NadGridReader } from 'gis-tools-ts';
+ * import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const store = new NadGridStore();
  *
@@ -165,9 +165,9 @@ export interface NadGridMetadata {
  * ## Usage
  *
  * ```ts
- * import { NadGridReader } from 'gis-tools'
- * // mmap is a Bun exclusive feature, consider using `gis-tools/file`'s `FileReader` instead.
- * import { MMapReader } from 'gis-tools/mmap';
+ * import { NadGridReader } from 'gis-tools-ts'
+ * // mmap is a Bun exclusive feature, consider using `gis-tools-ts/file`'s `FileReader` instead.
+ * import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const reader = new NadGridReader('BETA2007.gsb', new MMapReader('./BETA2007.gsb'));
  *

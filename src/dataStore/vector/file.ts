@@ -27,8 +27,8 @@ export class FileVector<V extends VectorKey> implements VectorStore<V> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  async get(index: number): Promise<V> {
-    const value = await this.#store.get(index);
+  async get(index: number | bigint): Promise<V> {
+    const value = await this.#store.get(BigInt(index));
     if (value === undefined) throw new Error('Value not found');
     return value[0] as V;
   }

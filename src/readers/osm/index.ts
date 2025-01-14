@@ -129,8 +129,8 @@ export interface OsmReaderOptions {
  *
  * ## Usage
  * ```ts
- * import { OSMReader } from 'gis-tools';
- * import { FileReader } from 'gis-tools/file';
+ * import { OSMReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
  *
  * const reader = new OSMReader(new FileReader('./data.osm.pbf'));
  * // pull out the header

@@ -1,7 +1,7 @@
-import { defaultGetInterpolateCurrentValue } from '.';
+import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
-import type { MValue, Properties, VectorPoint } from '../..';
+import type { MValue, Properties, RGBA, VectorPoint } from '../..';
 
 /** The 4 corner points closest to a point */
 export type BilinearCorners<T extends MValue = Properties> = [
@@ -44,6 +44,16 @@ export function getBilinearPoints<T extends MValue = Properties>(
     .filter((p) => p.x > refX && p.y <= refY)
     .reduce((a, b) => (distance(a) < distance(b) ? a : b));
 
+  // Check if any of the corners are undefined
+  if (
+    topLeft === undefined ||
+    topRight === undefined ||
+    bottomLeft === undefined ||
+    bottomRight === undefined
+  ) {
+    throw new Error('Insufficient data to determine all four bilinear corner points.');
+  }
+
   return [topLeft, topRight, bottomLeft, bottomRight];
 }
 
@@ -55,8 +65,8 @@ export function getBilinearPoints<T extends MValue = Properties>(
  *
  * ## Usage
  * ```ts
- * import { bilinearInterpolation, getBilinearPoints, PointIndexFast } from 'gis-tools';
- * import type { VectorPoint } from 'gis-tools';
+ * import { bilinearInterpolation, getBilinearPoints, PointIndexFast } from 'gis-tools-ts';
+ * import type { VectorPoint } from 'gis-tools-ts';
  *
  * // We have m-value data that we want to interpolate
  * interface TempData { temp: number; }
@@ -72,22 +82,29 @@ export function getBilinearPoints<T extends MValue = Properties>(
  * const data = await pointIndex.searchRadius(point.x, point.y, radius);
  *
  * // interpolate
+ * const interpolatedValue = bilinearInterpolation<TempData>(point, data, (p) => p.m.temp);
+ *
+ * // if you reuse the same data, you can pass in the corners for performance gains
  * const corners = getBilinearPoints(point, data);
- * const interpolatedValue = bilinearInterpolation<TempData>(point, corners, (p) => p.m.temp);
+ * const interpolatedValue = bilinearInterpolation<TempData>(point, data, (p) => p.m.temp, corners);
  * ```
  * @param point - point to interpolate
- * @param corners - the 4 corner points relative to the reference point
+ * @param refData - reference data to interpolate from
  * @param getValue - function to get value from reference data. Can be the z value or a property in the m-values
  * defaults to function that returns the z value or 0 if the z value is undefined
+ * @param corners - the 4 corner points relative to the reference point. Add this if you don't want to keep
+ * recomputing the corners on the same data.
  * @returns - the interpolated value
  */
 export function bilinearInterpolation<T extends MValue = Properties>(
   point: VectorPoint,
-  corners: BilinearCorners<T>,
+  refData: VectorPoint<T>[],
   getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
+  corners?: BilinearCorners<T>,
 ): number {
+  if (refData.length === 0) return 0;
   // 1) Extract corner points and values
-  const [tl, tr, bl, br] = corners;
+  const [tl, tr, bl, br] = corners ?? getBilinearPoints(point, refData);
   const { x: px, y: py } = point;
   const { x: x1, y: y1 } = tl;
   const { x: x2, y: y2 } = br;
@@ -106,4 +123,29 @@ export function bilinearInterpolation<T extends MValue = Properties>(
   const interpolatedValue = weight11 * q11 + weight21 * q21 + weight12 * q12 + weight22 * q22;
 
   return interpolatedValue;
+}
+
+/**
+ * Helper function for {@link bilinearInterpolation} on RGB(A) data.
+ * Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
+ * get the correct weight for each component.
+ * @param point - Point to interpolate
+ * @param refData - Reference data points
+ * @returns - The interpolated RGBA data.
+ */
+export function rgbaBilinearInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
+  const { pow, sqrt } = Math;
+  if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
+  const corners = getBilinearPoints(point, refData);
+  const rData = bilinearInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2), corners);
+  const gData = bilinearInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2), corners);
+  const bData = bilinearInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2), corners);
+  const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
+
+  return {
+    r: sqrt(rData),
+    g: sqrt(gData),
+    b: sqrt(bData),
+    a,
+  };
 }

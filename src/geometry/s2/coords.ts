@@ -1,7 +1,7 @@
 import { degToRad, radToDeg } from '../util';
 
 import type { LonLat } from '../ll';
-import type { BBox, Face, Point, Point3D } from '../';
+import type { BBox, Face, MValue, Point, Properties, VectorPoint } from '../';
 
 export const K_LIMIT_IJ = 1073741824; // 1 << 30;
 
@@ -97,22 +97,28 @@ export function SiTiToST(si: number): number {
  * @param face - input face
  * @param u - input u
  * @param v - input v
+ * @param m - m-value data
  * @returns output
  */
-export function faceUVtoXYZ(face: Face, u: number, v: number): Point3D {
+export function faceUVtoXYZ<M extends MValue = Properties>(
+  face: Face,
+  u: number,
+  v: number,
+  m?: M,
+): VectorPoint<M> {
   switch (face) {
     case 0:
-      return [1, u, v];
+      return { x: 1, y: u, z: v, m };
     case 1:
-      return [-u, 1, v];
+      return { x: -u, y: 1, z: v, m };
     case 2:
-      return [-u, -v, 1];
+      return { x: -u, y: -v, z: 1, m };
     case 3:
-      return [-1, -v, -u];
+      return { x: -1, y: -v, z: -u, m };
     case 4:
-      return [v, -1, -u];
+      return { x: v, y: -1, z: -u, m };
     default:
-      return [v, u, -1];
+      return { x: v, y: u, z: -1, m };
   }
 }
 
@@ -121,22 +127,28 @@ export function faceUVtoXYZ(face: Face, u: number, v: number): Point3D {
  * @param face - input face
  * @param u - input u
  * @param v - input v
+ * @param m - M-Value data
  * @returns output
  */
-export function faceUVtoXYZGL(face: Face, u: number, v: number): Point3D {
+export function faceUVtoXYZGL<M extends MValue = Properties>(
+  face: Face,
+  u: number,
+  v: number,
+  m?: M,
+): VectorPoint<M> {
   switch (face) {
     case 0:
-      return [u, v, 1];
+      return { x: u, y: v, z: 1, m };
     case 1:
-      return [1, v, -u];
+      return { x: 1, y: v, z: -u, m };
     case 2:
-      return [-v, 1, -u];
+      return { x: -v, y: 1, z: -u, m };
     case 3:
-      return [-v, -u, -1];
+      return { x: -v, y: -u, z: -1, m };
     case 4:
-      return [-1, -u, v];
+      return { x: -1, y: -u, z: v, m };
     default:
-      return [u, -1, v];
+      return { x: u, y: -1, z: v, m };
   }
 }
 
@@ -146,8 +158,8 @@ export function faceUVtoXYZGL(face: Face, u: number, v: number): Point3D {
  * @param xyz - input
  * @returns output
  */
-export function faceXYZtoUV(face: Face, xyz: Point3D): [u: number, v: number] {
-  const [x, y, z] = xyz;
+export function faceXYZtoUV(face: Face, xyz: VectorPoint): [u: number, v: number] {
+  const { x, y, z = 1 } = xyz;
 
   switch (face) {
     case 0:
@@ -170,11 +182,12 @@ export function faceXYZtoUV(face: Face, xyz: Point3D): [u: number, v: number] {
  * @param xyz - point3D input
  * @returns - outputs the associated face
  */
-export function XYZtoFace(xyz: Point3D): Face {
-  const temp = xyz.map((n: number): number => Math.abs(n));
+export function XYZtoFace(xyz: VectorPoint): Face {
+  const xyzArr = [xyz.x, xyz.y, xyz.z ?? 1];
+  const temp = xyzArr.map((n: number): number => Math.abs(n));
 
   let face: number = temp[0] > temp[1] ? (temp[0] > temp[2] ? 0 : 2) : temp[1] > temp[2] ? 1 : 2;
-  if (xyz[face] < 0) face += 3;
+  if (xyzArr[face] < 0) face += 3;
 
   return face as Face;
 }
@@ -184,7 +197,9 @@ export function XYZtoFace(xyz: Point3D): Face {
  * @param xyz - point3D input
  * @returns output's a face, u, and v
  */
-export function XYZtoFaceUV(xyz: Point3D): [face: Face, u: number, v: number] {
+export function XYZtoFaceUV<M extends MValue = Properties>(
+  xyz: VectorPoint<M>,
+): [face: Face, u: number, v: number] {
   const face = XYZtoFace(xyz);
   return [face, ...faceXYZtoUV(face, xyz)];
 }
@@ -192,11 +207,14 @@ export function XYZtoFaceUV(xyz: Point3D): [face: Face, u: number, v: number] {
 /**
  * Convert from a face and right-hand-rule XYZ Point to u-v coords
  * @param face - input face
- * @param xyz - input Point3D
+ * @param xyz - input VectorPoint
  * @returns output WebGL oriented UV coords
  */
-export function faceXYZGLtoUV(face: number, xyz: Point3D): [u: number, v: number] {
-  const [x, y, z] = xyz;
+export function faceXYZGLtoUV<M extends MValue = Properties>(
+  face: number,
+  xyz: VectorPoint<M>,
+): [u: number, v: number] {
+  const { x, y, z = 1 } = xyz;
 
   switch (face) {
     case 0:
@@ -219,45 +237,47 @@ export function faceXYZGLtoUV(face: number, xyz: Point3D): [u: number, v: number
  * @param xyz - point3D input
  * @returns - lon-lat coordinates
  */
-export function xyzToLonLat(xyz: Point3D): LonLat {
+export function xyzToLonLat<M extends MValue = Properties>(xyz: VectorPoint<M>): LonLat<M> {
   const { atan2, sqrt } = Math;
-  const [x, y, z] = xyz;
+  const { x, y, z = 1, m } = xyz;
 
-  return [radToDeg(atan2(y, x)), radToDeg(atan2(z, sqrt(x * x + y * y)))];
+  return { x: radToDeg(atan2(y, x)), y: radToDeg(atan2(z, sqrt(x * x + y * y))), m };
 }
 
 /**
  * Convert from a lon-lat coord to an left-hand-rule XYZ Point
- * @param lon - longitude
- * @param lat - latitude
- * @returns - Point3D
+ * @param ll - lon-lat vector point
+ * @returns - VectorPoint
  */
-export function lonLatToXYZ(lon: number, lat: number): Point3D {
+export function lonLatToXYZ<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint<M> {
+  let { x: lon, y: lat } = ll;
   const { sin, cos } = Math;
   lon = degToRad(lon);
   lat = degToRad(lat);
-  return [
-    cos(lat) * cos(lon), // x
-    cos(lat) * sin(lon), // y
-    sin(lat), // z
-  ];
+  return {
+    x: cos(lat) * cos(lon), // x
+    y: cos(lat) * sin(lon), // y
+    z: sin(lat), // z
+    m: ll.m,
+  };
 }
 
 /**
  * Convert from a lon-lat coord to an right-hand-rule XYZ Point
- * @param lon - longitude
- * @param lat - latitude
- * @returns - WebGL oriented Point3D
+ * @param ll - lon-lat vector point
+ * @returns - WebGL oriented VectorPoint
  */
-export function lonLatToXYZGL(lon: number, lat: number): Point3D {
+export function lonLatToXYZGL<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint<M> {
+  let { x: lon, y: lat } = ll;
   const { sin, cos } = Math;
   lon = degToRad(lon);
   lat = degToRad(lat);
-  return [
-    cos(lat) * sin(lon), // y
-    sin(lat), // z
-    cos(lat) * cos(lon), // x
-  ];
+  return {
+    x: cos(lat) * sin(lon), // y
+    y: sin(lat), // z
+    z: cos(lat) * cos(lon), // x
+    m: ll.m,
+  };
 }
 
 /**
@@ -392,13 +412,13 @@ function fromIJWrap(
  * @param u - u
  * @returns - the 3D vector normal relative to the u
  */
-export function getUNorm(face: Face, u: number): Point3D {
-  if (face === 0) return [u, -1.0, 0.0];
-  if (face === 1) return [1.0, u, 0.0];
-  if (face === 2) return [1.0, 0.0, u];
-  if (face === 3) return [-u, 0.0, 1.0];
-  if (face === 4) return [0.0, -u, 1.0];
-  return [0.0, -1, -u];
+export function getUNorm(face: Face, u: number): VectorPoint {
+  if (face === 0) return { x: u, y: -1.0, z: 0.0 };
+  if (face === 1) return { x: 1.0, y: u, z: 0.0 };
+  if (face === 2) return { x: 1.0, y: 0.0, z: u };
+  if (face === 3) return { x: -u, y: 0.0, z: 1.0 };
+  if (face === 4) return { x: 0.0, y: -u, z: 1.0 };
+  return { x: 0.0, y: -1, z: -u };
 }
 
 /**
@@ -409,11 +429,11 @@ export function getUNorm(face: Face, u: number): Point3D {
  * @param v - v
  * @returns - the 3D vector normal relative to the v
  */
-export function getVNorm(face: Face, v: number): Point3D {
-  if (face === 0) return [-v, 0.0, 1.0];
-  if (face === 1) return [0.0, -v, 1.0];
-  if (face === 2) return [0.0, -1.0, -v];
-  if (face === 3) return [v, -1.0, 0.0];
-  if (face === 4) return [1.0, v, 0.0];
-  return [1.0, 0.0, v];
+export function getVNorm(face: Face, v: number): VectorPoint {
+  if (face === 0) return { x: -v, y: 0.0, z: 1.0 };
+  if (face === 1) return { x: 0.0, y: -v, z: 1.0 };
+  if (face === 2) return { x: 0.0, y: -1.0, z: -v };
+  if (face === 3) return { x: v, y: -1.0, z: 0.0 };
+  if (face === 4) return { x: 1.0, y: v, z: 0.0 };
+  return { x: 1.0, y: 0.0, z: v };
 }

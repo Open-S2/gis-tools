@@ -12,7 +12,7 @@ export * from './osm/mmap';
  *
  * ## Usage
  * ```ts
- * import { MMapReader } from 'gis-tools/mmap';
+ * import { MMapReader } from 'gis-tools/mmap-ts';
  *
  * const reader = new MMapReader('./BETA2007.gsb');
  * ```

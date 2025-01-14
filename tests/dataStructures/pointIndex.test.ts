@@ -9,57 +9,50 @@ import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
 test('point index', async () => {
   const pointIndex = new PointIndex<{ a: number }>();
 
-  pointIndex.insertLonLat(0, 0, { a: 0 });
-  pointIndex.insertLonLat(0, 1, { a: 1 });
-  pointIndex.insertLonLat(-20, 20, { a: 2 });
-  pointIndex.insertLonLat(-22, 22, { a: 3 });
+  pointIndex.insertLonLat({ x: 0, y: 0, m: { a: 0 } });
+  pointIndex.insertLonLat({ x: 0, y: 1, m: { a: 1 } });
+  pointIndex.insertLonLat({ x: -20, y: 20, m: { a: 2 } });
+  pointIndex.insertLonLat({ x: -22, y: 22, m: { a: 3 } });
   pointIndex.insertFaceST(0, 0, 0, { a: 4 });
 
   await pointIndex.sort();
 
   const radiusRes = await pointIndex.searchRadius(
-    pointFromLonLat(0, 0),
-    fromS2Points(pointFromLonLat(0, 0), pointFromLonLat(2, 2)),
+    pointFromLonLat({ x: 0, y: 0 }),
+    fromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 })),
   );
   expect(radiusRes).toEqual([
     {
-      cell: { high: 268435456, low: 1 },
-      data: { a: 0 },
-      point: [1, 0, 0],
+      cell: 1152921504606846977n,
+      point: { x: 1, y: 0, z: 0, m: { a: 0 } },
     },
     {
-      cell: { high: 268558858, low: 2684384641 },
-      data: { a: 1 },
-      point: [0.9998476951563913, 0, 0.01745240643728351],
+      cell: 1153451514845492609n,
+      point: { x: 0.9998476951563913, y: 0, z: 0.01745240643728351, m: { a: 1 } },
     },
   ]);
 
   const allRes = await Array.fromAsync(pointIndex);
   expect(allRes).toEqual([
     {
-      cell: { high: 201390817, low: 3620709829 },
-      data: { a: 3 },
-      point: [0.8596699001693257, -0.3473291852294986, 0.374606593415912],
+      cell: 864966976350430661n,
+      point: { x: 0.8596699001693257, y: -0.3473291852294986, z: 0.374606593415912, m: { a: 3 } },
     },
     {
-      cell: { high: 245943244, low: 4103347791 },
-      data: { a: 2 },
-      point: [0.8830222215594891, -0.3213938048432697, 0.3420201433256687],
+      cell: 1056318193755496015n,
+      point: { x: 0.8830222215594891, y: -0.3213938048432697, z: 0.3420201433256687, m: { a: 2 } },
     },
     {
-      cell: { high: 268435456, low: 1 },
-      data: { a: 0 },
-      point: [1, 0, 0],
+      cell: 1152921504606846977n,
+      point: { x: 1, y: 0, z: 0, m: { a: 0 } },
     },
     {
-      cell: { high: 268558858, low: 2684384641 },
-      data: { a: 1 },
-      point: [0.9998476951563913, 0, 0.01745240643728351],
+      cell: 1153451514845492609n,
+      point: { x: 0.9998476951563913, y: 0, z: 0.01745240643728351, m: { a: 1 } },
     },
     {
-      cell: { high: 3221225471, low: 4294967295 },
-      data: { a: 4 },
-      point: [1, -1, -1],
+      cell: 13835058055282163711n,
+      point: { x: 1, y: -1, z: -1, m: { a: 4 } },
     },
   ]);
 });
@@ -70,12 +63,19 @@ test('point index - from reader', async () => {
   const pointIndex = new PointIndex();
   await pointIndex.insertReader(jsonReader);
 
-  const radiusRes = await pointIndex.searchRadius(pointFromLonLat(144.9584, -37.8173), 0.0001);
+  const radiusRes = await pointIndex.searchRadius(
+    pointFromLonLat({ x: 144.9584, y: -37.8173 }),
+    0.0001,
+  );
   expect(radiusRes).toEqual([
     {
-      cell: { high: 1792433484, low: 1484416611 },
-      data: { name: 'Melbourne' },
-      point: [-0.6467763171329769, 0.453577844062781, -0.6131456066639167],
+      cell: 7698443195519755875n,
+      point: {
+        x: -0.6467763171329769,
+        y: 0.453577844062781,
+        z: -0.6131456066639167,
+        m: { name: 'Melbourne' },
+      },
     },
   ]);
 });

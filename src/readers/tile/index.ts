@@ -6,6 +6,7 @@ import { xyzToBBOX } from '../../geometry/wm/coords';
 import type {
   Face,
   FeatureIterator,
+  MValue,
   Properties,
   RGBA,
   S2Feature,
@@ -66,11 +67,11 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  *
  * Supports reading either RGB(A) data and/or RGB(A) encoded elevation data.
  *
- * NOTE: Consider using the RasterTilesFileReader from `gis-tools/file` instead for local access.
+ * NOTE: Consider using the RasterTilesFileReader from `gis-tools-ts/file` instead for local access.
  *
  * ## Usage
  * ```ts
- * import { RasterTilesReader, convertTerrariumElevationData } from 'gis-tools';
+ * import { RasterTilesReader, convertTerrariumElevationData } from 'gis-tools-ts';
  *
  * // creates a reader for a tile set treating the max zoom as 3 instead of the metadata's max zoom
  * const reader = new RasterTilesReader('https://example.com/satellite-data', 3);
@@ -91,7 +92,7 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  * }
  * ```
  */
-export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
+export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
   implements FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>
 {
   metadata?: Metadata;
@@ -177,7 +178,7 @@ export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
    * @param y - the y coordinate of the tile
    * @returns - true if the tile exists
    */
-  async hasTile(zoom: number, x: number, y: number): Promise<boolean> {
+  async hasTileWM(zoom: number, x: number, y: number): Promise<boolean> {
     const { extension } = await this.getMetadata();
     if (typeof this.input === 'string') {
       const response = await fetch(`${this.input}/${zoom}/${x}/${y}.${extension}`, {
@@ -227,7 +228,7 @@ export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
         // if zoom not reached yet, push children and continue
         const hasTile = isS2
           ? await this.hasTileS2(face, zoom, x, y)
-          : await this.hasTile(zoom, x, y);
+          : await this.hasTileWM(zoom, x, y);
         if (zoom < minzoom || (zoom !== threshold && hasTile)) {
           stack.push(
             [zoom + 1, x * 2, y * 2],
@@ -251,7 +252,7 @@ export class RasterTilesReader<T extends Properties = RGBA | ElevationPoint>
 /**
  * Raster Tile Reader
  */
-export class RasterTileReader<T extends Properties = RGBA | ElevationPoint>
+export class RasterTileReader<T extends MValue = RGBA | ElevationPoint>
   implements FeatureIterator<TileMetadata, T, Properties>
 {
   /**
@@ -319,7 +320,7 @@ export class RasterTileReader<T extends Properties = RGBA | ElevationPoint>
 /**
  * S2 Raster Tile Reader
  */
-export class RasterS2TileReader<T extends Properties = RGBA | ElevationPoint>
+export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint>
   implements FeatureIterator<S2TileMetadata, T, Properties>
 {
   /**

@@ -2,10 +2,10 @@ import { lonLatToXYZ } from '../s2/coords';
 import { degToRad, radToDeg } from '../util';
 
 import type { S1Angle } from '../s1/angle';
-import type { Point, Point3D } from '../';
+import type { MValue, Properties, VectorPoint } from '../';
 
 /** Just another way of defining a standard 2D point. */
-export type LonLat = Point;
+export type LonLat<M extends MValue = Properties> = VectorPoint<M>;
 
 /**
  * Converts an LonLat to the equivalent unit-length vector.  Unnormalized
@@ -23,8 +23,8 @@ export type LonLat = Point;
  * @param ll - input LonLat
  * @returns - equivalent unit-length vector 3D point
  */
-export function toS2Point(ll: LonLat): Point3D {
-  return lonLatToXYZ(ll[0], ll[1]);
+export function toS2Point<M extends MValue = Properties>(ll: LonLat<M>): VectorPoint<M> {
+  return lonLatToXYZ(ll);
 }
 
 /**
@@ -32,11 +32,11 @@ export function toS2Point(ll: LonLat): Point3D {
  * @param p - input direction vector
  * @returns - LonLat
  */
-export function fromS2Point(p: Point3D): LonLat {
+export function fromS2Point<M extends MValue = Properties>(p: VectorPoint<M>): LonLat<M> {
   const { atan2, sqrt } = Math;
-  const [x, y, z] = p;
+  const { x, y, z = 1, m } = p;
 
-  return [radToDeg(atan2(y, x)), radToDeg(atan2(z, sqrt(x * x + y * y)))];
+  return { x: radToDeg(atan2(y, x)), y: radToDeg(atan2(z, sqrt(x * x + y * y))), m };
 }
 
 /**
@@ -44,21 +44,21 @@ export function fromS2Point(p: Point3D): LonLat {
  * @returns a lon-lat in radians
  */
 export function toAngles(ll: LonLat): [S1Angle, S1Angle] {
-  return ll.map(degToRad) as [S1Angle, S1Angle];
+  return [ll.x, ll.y].map(degToRad) as [S1Angle, S1Angle];
 }
 
 /**
  * @param ll - input lon-lat in degrees
  * @returns - ensures lon in [-180, 180], lat in [-90, 90]
  */
-export function normalize(ll: LonLat): [number, number] {
-  let [lon, lat] = ll;
+export function normalize<M extends MValue = Properties>(ll: LonLat<M>): LonLat<M> {
+  let { x: lon, y: lat } = ll;
   // Normalize longitude using modulo
   lon = ((((lon + 180) % 360) + 360) % 360) - 180;
   // Clamp latitude between -90 and 90
   lat = Math.max(-90, Math.min(90, lat));
 
-  return [lon, lat];
+  return { x: lon, y: lat, m: ll.m };
 }
 
 /**
@@ -86,8 +86,8 @@ export function getDistance(a: LonLat, b: LonLat): number {
   // you might as well just convert both arguments to S2Points and compute the
   // distance that way (which gives about 15 digits of accuracy for all
   // distances).
-  let [lonA, latA] = a;
-  let [lonB, latB] = b;
+  let { x: lonA, y: latA } = a;
+  let { x: lonB, y: latB } = b;
   // conver all to radians
   lonA = degToRad(lonA);
   latA = degToRad(latA);

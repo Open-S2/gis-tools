@@ -191,8 +191,8 @@ function convertGeometryPoint<M extends MValue = Properties>(
   geometry: VectorPointGeometry<M>,
 ): ConvertedGeometryList<M> {
   const { type, is3D, coordinates, bbox } = geometry;
-  const { x: lon, y: lat, z, m } = coordinates;
-  const [face, s, t] = toST(fromLonLat(lon, lat));
+  const { z, m } = coordinates;
+  const [face, s, t] = toST(fromLonLat(coordinates));
   const vecBBox = fromPoint({ x: s, y: t, z });
   return [{ face, geometry: { type, is3D, coordinates: { x: s, y: t, z, m }, bbox, vecBBox } }];
 }
@@ -321,8 +321,8 @@ function convertLineString<M extends MValue = Properties>(
   const res: ConvertedLineString<M>[] = [];
   // first re-project all the coordinates to S2
   const newGeometry: STPoint<M>[] = [];
-  for (const { x: lon, y: lat, z, m } of line) {
-    const [face, s, t] = toST(fromLonLat(lon, lat));
+  for (const { x, y, z, m } of line) {
+    const [face, s, t] = toST(fromLonLat({ x, y }));
     newGeometry.push({ face, s, t, z, m });
   }
   // find all the faces that exist in the line

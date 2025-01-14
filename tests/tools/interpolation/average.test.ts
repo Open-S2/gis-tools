@@ -1,4 +1,9 @@
-import { bilinearInterpolation, getBilinearPoints, rgbaBilinearInterpolation } from '../../../src';
+import {
+  averageInterpolation,
+  getInterpolation,
+  getRGBAInterpolation,
+  rgbaAverageInterpolation,
+} from '../../../src';
 import { expect, test } from 'bun:test';
 
 import type { Properties, RGBA, VectorPoint } from '../../../src';
@@ -8,7 +13,7 @@ interface Temperature extends Properties {
   temp: number;
 }
 
-test('bilinear interpolation', () => {
+test('average interpolation', () => {
   const data: VectorPoint<Temperature>[] = [
     { x: 0, y: 0, m: { temp: 1 } },
     { x: 1, y: 0, m: { temp: 2 } },
@@ -16,21 +21,19 @@ test('bilinear interpolation', () => {
     { x: 1, y: 1, m: { temp: 4 } },
   ];
   const point = { x: 0.5, y: 0.5 };
-  const corners = getBilinearPoints(point, data);
-  const interpolatedValue = bilinearInterpolation<Temperature>(
-    { x: 0.5, y: 0.5 },
+  const interpolatedValue = getInterpolation<Temperature>('average')(
+    point,
     data,
     (p) => p.m?.temp ?? 0,
-    corners,
   );
-  expect(interpolatedValue).toBe(2.5);
+  expect(interpolatedValue).toEqual(2.5);
 
   const point2 = { x: 0.65, y: 0.15 };
-  const interp2 = bilinearInterpolation<Temperature>(point2, corners, (p) => p.m?.temp ?? 0);
-  expect(interp2).toBe(1.95);
+  const interp2 = averageInterpolation<Temperature>(point2, data, (p) => p.m?.temp ?? 0);
+  expect(interp2).toEqual(2.5);
 });
 
-test('bilinear interpolation RGBA', () => {
+test('average interpolation RGBA', () => {
   const data: VectorPoint<RGBA>[] = [
     { x: 0, y: 0, m: { r: 20, g: 20, b: 60, a: 255 } },
     { x: 1, y: 0, m: { r: 30, g: 100, b: 60, a: 255 } },
@@ -38,7 +41,7 @@ test('bilinear interpolation RGBA', () => {
     { x: 1, y: 1, m: { r: 255, g: 255, b: 60, a: 255 } },
   ];
   const point = { x: 0.5, y: 0.5 };
-  const interpolatedValue = rgbaBilinearInterpolation(point, data);
+  const interpolatedValue = getRGBAInterpolation('average')(point, data);
   expect(interpolatedValue).toEqual({
     r: 143.57402271998927,
     g: 151.28945766311676,
@@ -47,11 +50,11 @@ test('bilinear interpolation RGBA', () => {
   });
 
   const point2 = { x: 0.65, y: 0.15 };
-  const interp2 = rgbaBilinearInterpolation(point2, data);
+  const interp2 = rgbaAverageInterpolation(point2, data);
   expect(interp2).toEqual({
-    a: 255,
+    r: 143.57402271998927,
+    g: 151.28945766311676,
     b: 60,
-    g: 113.2727239894936,
-    r: 88.33436477385231,
+    a: 255,
   });
 });

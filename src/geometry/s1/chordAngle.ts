@@ -7,8 +7,8 @@ import {
 } from './angle';
 import { norm2, sub } from '../s2/point';
 
-import type { Point3D } from '../';
 import type { S1Angle } from './angle';
+import type { VectorPoint } from '../';
 
 /**
  * S1ChordAngle represents the angle subtended by a chord (i.e., the straight
@@ -156,7 +156,7 @@ export function fromLength2(length2_: number): S1ChordAngle {
  * @param b - The second point.
  * @returns The corresponding ChordAngle.
  */
-export function fromS2Points(a: Point3D, b: Point3D): S1ChordAngle {
+export function fromS2Points(a: VectorPoint, b: VectorPoint): S1ChordAngle {
   // The squared distance may slightly exceed 4.0 due to roundoff errors.
   // The maximum error in the result is 2 * DBL_EPSILON * length2_.
   return Math.min(K_MAX_LENGTH_2, norm2(sub(a, b)));

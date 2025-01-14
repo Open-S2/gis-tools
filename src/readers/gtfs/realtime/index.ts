@@ -32,7 +32,7 @@ export * from './vehiclePosition';
  * ## Usage
  *
  * ```ts
- * import { GTFSRealtimeReader } from 'gis-tools';
+ * import { GTFSRealtimeReader } from 'gis-tools-ts';
  *
  * const gtfsRealtimeReader = new GTFSRealtimeReader(data);
  * const { header, entities } = gtfsRealtimeReader;
