@@ -1,6 +1,6 @@
 import { GTFSRealtimeEntity } from './entity';
 import { GTFSRealtimeHeader } from './header';
-import { Pbf as Protobuf } from 'pbf-ts';
+import { PbfReader } from 'pbf-ts';
 
 export * from './stop';
 export * from './trip';
@@ -17,7 +17,7 @@ export * from './vehiclePosition';
  *
  * ## Description
  * The input is a Uint8Array that has encoded protobuffer messages.
- * @see {@link Protobuf}.
+ * See {@link https://open-s2.github.io/pbf/classes/PbfReader.html}.
  *
  * The contents of a feed message.
  * A feed is a continuous stream of feed messages. Each message in the stream is
@@ -48,8 +48,8 @@ export class GTFSRealtimeReader {
    * @param data - the input data to parse
    * @param end - the size of the data, leave blank to parse the entire data
    */
-  constructor(data: Uint8Array, end = 0) {
-    const pbf = new Protobuf(data);
+  constructor(data: ArrayBuffer | Uint8Array, end = 0) {
+    const pbf = new PbfReader(data);
     pbf.readFields(this.#readMessage, this, end);
   }
 
@@ -59,7 +59,7 @@ export class GTFSRealtimeReader {
    * @param message - the GTFSRealtime object to modify
    * @param pbf - the Protobuf to pull the appropriate data from
    */
-  #readMessage(tag: number, message: GTFSRealtimeReader, pbf: Protobuf): void {
+  #readMessage(tag: number, message: GTFSRealtimeReader, pbf: PbfReader): void {
     if (tag === 1) {
       message.header = new GTFSRealtimeHeader(pbf, pbf.readVarint() + pbf.pos);
     } else if (tag === 2) {

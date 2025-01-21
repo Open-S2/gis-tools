@@ -49,6 +49,7 @@
     "build:zig:bin": "zig build",
     "build:zig:optimize": "wasm-opt -Oz -o zig-out/bin/optimized-uint64.wasm zig-out/bin/uint64.wasm",
     "build:zig:strip": "wasm-strip zig-out/bin/optimized-uint64.wasm",
+    "build:badges": "bun run tools/buildBundles.ts",
     "cleanCoverage": "rm -rf coverage && mkdir coverage",
     "types:bundle": "bun run types:build && node scripts/types.mjs",
     "prepublishOnly": "bun run lint+build+test+docs",
@@ -72,10 +73,10 @@
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
     "@types/all-the-cities": "^3.1.3",
-    "@types/bun": "^1.1.16",
-    "@types/node": "^22.10.6",
+    "@types/bun": "^1.1.18",
+    "@types/node": "^22.10.7",
     "@types/tmp": "^0.2.6",
-    "@webgpu/types": "^0.1.52",
+    "@webgpu/types": "^0.1.53",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "all-the-cities": "^3.1.0",
@@ -84,8 +85,8 @@
     "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-jsdoc": "^50.6.1",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-jsdoc": "^50.6.2",
+    "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-tsdoc": "^0.4.0",
     "geotiff": "^2.1.3",
     "kdbush": "^4.0.2",
@@ -99,12 +100,12 @@
     "typedoc": "^0.27.6",
     "typedoc-plugin-coverage": "^3.4.1",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.21.0"
   },
   "dependencies": {
     "earclip": "^1.1.1",
-    "open-vector-tile": "^1.7.2",
-    "pbf-ts": "^1.0.3",
+    "open-vector-tile": "^1.7.4",
+    "pbf-ts": "^1.1.0",
     "s2-tilejson": "^1.9.5",
     "s2json-spec": "^1.7.3",
     "sharp": "^0.33.5"

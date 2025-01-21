@@ -3,7 +3,13 @@ import { toMetadata } from 's2-tilejson';
 import { RasterS2TileReader, RasterTileReader } from '.';
 import { readFile, readdir, stat } from 'fs/promises';
 
-import type { ElevationConverter, ElevationPoint, S2TileMetadata, TileMetadata } from '.';
+import type {
+  ElevationConverter,
+  ElevationPoint,
+  S2TileMetadata,
+  TileMetadata,
+  TileReader,
+} from '.';
 import type {
   Face,
   FeatureIterator,
@@ -15,6 +21,8 @@ import type {
   VectorFeature,
 } from '../..';
 import type { Metadata, Metadatas } from 's2-tilejson';
+
+// TODO: Get encoding from the metadata and decode the data if necessary
 
 /**
  * # Raster Tiles File Reader
@@ -49,7 +57,9 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  * ```
  */
 export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
-  implements FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>
+  implements
+    FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>,
+    TileReader<S2TileMetadata | TileMetadata, T, Properties>
 {
   metadata?: Metadata;
   /**

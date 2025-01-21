@@ -1,1 +1,1 @@
-export { Pbf } from '../../../src';
+export { PbfReader } from '../../../src';

@@ -29,7 +29,7 @@ const RAD = 0.017453292519943295; // Math.PI / 180;
  *
  * ## Description
  * An index of cells with radius queries
- * Assumes the data is compatible with {@link Properties}
+ * Assumes the data is compatible with {@link https://open-s2.github.io/s2json/types/Properties.html}
  * Because of the nature of low level language like Javascript, using u64 is slow. This index
  * uses f64 which Number supports. So it is fast and efficient.
  *

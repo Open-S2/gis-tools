@@ -2,7 +2,7 @@ import { Info, InfoBlock } from './info';
 import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
 
 import type { OSMReader } from '.';
-import type { Pbf as Protobuf } from 'pbf-ts';
+import type { PbfReader } from 'pbf-ts';
 import type { Metadata, PrimitiveBlock } from './primitive';
 
 import type {
@@ -158,7 +158,7 @@ export class Relation {
   constructor(
     public primitiveBlock: PrimitiveBlock,
     public reader: OSMReader,
-    pbf?: Protobuf,
+    pbf?: PbfReader,
   ) {
     this.primitiveBlock = primitiveBlock;
     if (pbf !== undefined) pbf.readMessage(this.#readLayer, this);
@@ -226,7 +226,7 @@ export class Relation {
    * @param relation - the relation to update
    * @param pbf - the protobuf to parse from
    */
-  #readLayer(tag: number, relation: Relation, pbf: Protobuf): void {
+  #readLayer(tag: number, relation: Relation, pbf: PbfReader): void {
     if (tag === 1) relation.id = pbf.readVarint();
     else if (tag === 2) relation.#keys = pbf.readPackedVarint();
     else if (tag === 3) relation.#vals = pbf.readPackedVarint();

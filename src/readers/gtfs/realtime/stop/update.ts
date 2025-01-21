@@ -1,6 +1,6 @@
 import { GTFSRealtimeOccupancyStatus, GTFSRealtimeStopTimeEvent } from '..';
 
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /** The relation between the StopTimeEvents and the static schedule. */
 export const enum GTFSRealtimeScheduleRelationshipUpdate {
@@ -73,7 +73,7 @@ export class GTFSRealtimeStopTimeUpdate {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readstopTimeUpdate, this, end);
   }
 
@@ -82,7 +82,7 @@ export class GTFSRealtimeStopTimeUpdate {
    * @param stopTimeUpdate - The stopTimeUpdate to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readstopTimeUpdate(tag: number, stopTimeUpdate: GTFSRealtimeStopTimeUpdate, pbf: Protobuf) {
+  #readstopTimeUpdate(tag: number, stopTimeUpdate: GTFSRealtimeStopTimeUpdate, pbf: PbfReader) {
     if (tag === 1) stopTimeUpdate.stopSequence = pbf.readVarint();
     else if (tag === 2)
       stopTimeUpdate.arrival = new GTFSRealtimeStopTimeEvent(pbf, pbf.readVarint() + pbf.pos);
@@ -129,7 +129,7 @@ export class GTFSRealtimeStopTimeProperties {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readStopTimeProps, this, end);
   }
 
@@ -138,7 +138,7 @@ export class GTFSRealtimeStopTimeProperties {
    * @param stopTimeProp - The stopTimeProp to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readStopTimeProps(tag: number, stopTimeProp: GTFSRealtimeStopTimeProperties, pbf: Protobuf) {
+  #readStopTimeProps(tag: number, stopTimeProp: GTFSRealtimeStopTimeProperties, pbf: PbfReader) {
     if (tag === 1) stopTimeProp.assignedStopId = pbf.readString();
     else throw new Error('GTFSRealtimeStopTimeProperties: unknown tag: ' + tag);
   }

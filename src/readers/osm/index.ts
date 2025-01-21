@@ -1,7 +1,7 @@
 import { HeaderBlock } from './headerBlock';
 import { KV } from '../../dataStore';
+import { PbfReader } from 'pbf-ts';
 import { PrimitiveBlock } from './primitive';
-import { Pbf as Protobuf } from 'pbf-ts';
 import { intermediateRelationToVectorFeature } from './relation';
 import { intermediateWayToVectorFeature } from './way';
 import { mergeRelationIfExists } from './node';
@@ -239,7 +239,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
     this.#offset = 0;
     const blobHeader = this.#next();
     if (blobHeader === undefined) throw new Error('Header not found');
-    const headerBlock = new HeaderBlock(new Protobuf(new Uint8Array(blobHeader.buffer)));
+    const headerBlock = new HeaderBlock(new PbfReader(new Uint8Array(blobHeader.buffer)));
 
     return headerBlock.toHeader();
   }
@@ -259,8 +259,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
     const blobHeaderData = reader.slice(this.#offset, this.#offset + length);
     this.#offset += length;
     // build a blob header
-    const pbf = new Protobuf(new Uint8Array(blobHeaderData.buffer));
-    const blobHeader = new BlobHeader(pbf);
+    const blobHeader = new BlobHeader(new PbfReader(new Uint8Array(blobHeaderData.buffer)));
     // STEP 2: Get blob data
     const compressedBlobData = reader.slice(this.#offset, this.#offset + blobHeader.datasize);
     this.#offset += blobHeader.datasize;
@@ -275,9 +274,9 @@ export class OSMReader implements FeatureIterator<Metadata> {
    */
   async #readBlob(data: DataView): Promise<PrimitiveBlock> {
     // Blob data is PBF encoded and ?compressed, so we need to parse & decompress it first
-    let pbf = new Protobuf(new Uint8Array(data.buffer));
+    let pbf = new PbfReader(new Uint8Array(data.buffer));
     const blob = new Blob(pbf);
-    pbf = new Protobuf(await blob.data);
+    pbf = new PbfReader(await blob.data);
     // Parse the PrimitiveBlock and read its contents.
     // all nodes/ways/relations that can be filtered already are on invocation.
     return new PrimitiveBlock(pbf, this);

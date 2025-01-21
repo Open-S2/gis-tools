@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /** NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future. */
 export class GTFSRealtimeTripModifications {
@@ -23,7 +23,7 @@ export class GTFSRealtimeTripModifications {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTripMods, this, end);
   }
 
@@ -32,7 +32,7 @@ export class GTFSRealtimeTripModifications {
    * @param tripMods - The tripMods to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTripMods(tag: number, tripMods: GTFSRealtimeTripModifications, pbf: Protobuf) {
+  #readTripMods(tag: number, tripMods: GTFSRealtimeTripModifications, pbf: PbfReader) {
     if (tag === 1)
       tripMods.selectedTrips.push(new GTFSRealtimeSelectedTrips(pbf, pbf.readVarint() + pbf.pos));
     else if (tag === 2) tripMods.startTimes.push(pbf.readString());
@@ -85,7 +85,7 @@ export class GTFSRealtimeModification {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readMod, this, end);
   }
 
@@ -94,7 +94,7 @@ export class GTFSRealtimeModification {
    * @param mod - The mod to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readMod(tag: number, mod: GTFSRealtimeModification, pbf: Protobuf) {
+  #readMod(tag: number, mod: GTFSRealtimeModification, pbf: PbfReader) {
     if (tag === 1)
       mod.startStopSelector = new GTFSRealtimeStopSelector(pbf, pbf.readVarint() + pbf.pos);
     else if (tag === 2)
@@ -122,7 +122,7 @@ export class GTFSRealtimeStopSelector {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readStopSelector, this, end);
   }
 
@@ -131,7 +131,7 @@ export class GTFSRealtimeStopSelector {
    * @param stopSelector - The stopSelector to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readStopSelector(tag: number, stopSelector: GTFSRealtimeStopSelector, pbf: Protobuf) {
+  #readStopSelector(tag: number, stopSelector: GTFSRealtimeStopSelector, pbf: PbfReader) {
     if (tag === 1) stopSelector.stopSequence = pbf.readVarint();
     else if (tag === 2) stopSelector.stopId = pbf.readString();
     else throw new Error(`GTFSRealtimeStopSelector: Unexpected tag: ${tag}`);
@@ -153,7 +153,7 @@ export class GTFSRealtimeSelectedTrips {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readSelectedTrips, this, end);
   }
 
@@ -162,7 +162,7 @@ export class GTFSRealtimeSelectedTrips {
    * @param selectedTrips - The selectedTrips to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readSelectedTrips(tag: number, selectedTrips: GTFSRealtimeSelectedTrips, pbf: Protobuf) {
+  #readSelectedTrips(tag: number, selectedTrips: GTFSRealtimeSelectedTrips, pbf: PbfReader) {
     if (tag === 1) selectedTrips.tripIds.push(pbf.readString());
     else if (tag === 2) selectedTrips.shapeId = pbf.readString();
     else throw new Error('GTFSRealtimeSelectedTrips: unknown tag: ' + tag);
@@ -191,7 +191,7 @@ export class GTFSRealtimeReplacementStop {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readReplacementStop, this, end);
   }
 
@@ -200,7 +200,7 @@ export class GTFSRealtimeReplacementStop {
    * @param replaceStop - The replaceStop to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readReplacementStop(tag: number, replaceStop: GTFSRealtimeReplacementStop, pbf: Protobuf) {
+  #readReplacementStop(tag: number, replaceStop: GTFSRealtimeReplacementStop, pbf: PbfReader) {
     if (tag === 1) replaceStop.travelTimeToStop = pbf.readSVarint();
     else if (tag === 2) replaceStop.stopId = pbf.readString();
     else throw new Error('GTFSRealtimeReplacementStop: unknown tag: ' + tag);

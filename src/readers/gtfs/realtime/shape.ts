@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /**
  * Describes the physical path that a vehicle takes when it's not part of the (CSV) GTFS,
@@ -29,7 +29,7 @@ export class GTFSRealtimeShape {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readShape, this, end);
   }
 
@@ -38,7 +38,7 @@ export class GTFSRealtimeShape {
    * @param shape - The shape to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readShape(tag: number, shape: GTFSRealtimeShape, pbf: Protobuf): void {
+  #readShape(tag: number, shape: GTFSRealtimeShape, pbf: PbfReader): void {
     if (tag === 1) shape.shapeId = pbf.readString();
     else if (tag === 2) shape.encodedPolyline = pbf.readString();
     else throw new Error(`GTFSRealtimeShape: Unexpected tag: ${tag}`);

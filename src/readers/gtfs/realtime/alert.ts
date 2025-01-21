@@ -1,6 +1,6 @@
 import { GTFSRealtimeEntitySelector, GTFSRealtimeTranslatedString } from '.';
 
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /** Severity of this alert. */
 export const enum GTFSRealtimeSeverityLevel {
@@ -114,7 +114,7 @@ export class GTFSRealtimeAlert {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readAlert, this, end);
   }
 
@@ -123,7 +123,7 @@ export class GTFSRealtimeAlert {
    * @param alert - The alert to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readAlert(tag: number, alert: GTFSRealtimeAlert, pbf: Protobuf) {
+  #readAlert(tag: number, alert: GTFSRealtimeAlert, pbf: PbfReader) {
     if (tag === 1)
       alert.activePeriods.push(new GTFSRealtimeTimeRange(pbf, pbf.readVarint() + pbf.pos));
     else if (tag === 5)
@@ -175,7 +175,7 @@ export class GTFSRealtimeTimeRange {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTimeRange, this, end);
   }
 
@@ -184,7 +184,7 @@ export class GTFSRealtimeTimeRange {
    * @param timeRange - The timeRange to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTimeRange(tag: number, timeRange: GTFSRealtimeTimeRange, pbf: Protobuf) {
+  #readTimeRange(tag: number, timeRange: GTFSRealtimeTimeRange, pbf: PbfReader) {
     if (tag === 1) timeRange.start = new Date(pbf.readVarint() * 1000);
     else if (tag === 2) timeRange.end = new Date(pbf.readVarint() * 1000);
     else throw new Error('GTFSRealtimeTimeRange: unknown tag: ' + tag);

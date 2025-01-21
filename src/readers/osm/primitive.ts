@@ -3,7 +3,7 @@ import { DenseNodes, Node } from './node';
 import { Relation, getNodeRelationPairs } from './relation';
 
 import type { IntermediateNodeMember } from './relation';
-import type { Pbf as Protobuf } from 'pbf-ts';
+import type { PbfReader } from 'pbf-ts';
 import type { InfoBlock, OSMReader } from '.';
 
 /** The expected metadata in the VectorFeature for all types (node, way, relation) */
@@ -42,7 +42,7 @@ export class PrimitiveBlock {
    * @param reader - the OSMReader to modify
    */
   constructor(
-    public pbf: Protobuf,
+    public pbf: PbfReader,
     public reader: OSMReader,
   ) {
     pbf.readFields(this.#readLayer, this, 0);
@@ -77,7 +77,7 @@ export class PrimitiveBlock {
    * @param pb - the primitive block to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, pb: PrimitiveBlock, pbf: Protobuf): void {
+  #readLayer(tag: number, pb: PrimitiveBlock, pbf: PbfReader): void {
     if (tag === 1) pb.stringtable = new StringTable(pbf);
     else if (tag === 2) pb.primitiveGroups.push(new PrimitiveGroup(pb, pbf));
     else if (tag === 17) pb.granularity = pbf.readVarint();
@@ -97,7 +97,7 @@ export class PrimitiveGroup {
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
-    public pbf: Protobuf,
+    public pbf: PbfReader,
   ) {
     pbf.readMessage(this.#readLayer, this);
   }
@@ -107,7 +107,7 @@ export class PrimitiveGroup {
    * @param pg - the primitive group to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, pg: PrimitiveGroup, pbf: Protobuf): void {
+  #readLayer(tag: number, pg: PrimitiveGroup, pbf: PbfReader): void {
     const { primitiveBlock } = pg;
     const { reader } = primitiveBlock;
     const { skipWays, skipRelations } = reader;
@@ -159,7 +159,7 @@ export class StringTable {
   /**
    * @param pbf - the Protobuf object to read from
    */
-  constructor(pbf: Protobuf) {
+  constructor(pbf: PbfReader) {
     pbf.readMessage(this.#readLayer, this);
   }
 
@@ -176,7 +176,7 @@ export class StringTable {
    * @param st - the string table to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, st: StringTable, pbf: Protobuf): void {
+  #readLayer(tag: number, st: StringTable, pbf: PbfReader): void {
     if (tag === 1) st.strings.push(pbf.readString());
     else throw new Error(`unknown tag ${tag}`);
   }

@@ -5,7 +5,7 @@ import {
   GTFSRealtimeVehicleDescriptor,
 } from '../../..';
 
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /**
  * Realtime update of the progress of a vehicle along a trip.
@@ -98,7 +98,7 @@ export class GTFSRealtimeTripUpdate {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTripUpdate, this, end);
   }
 
@@ -107,7 +107,7 @@ export class GTFSRealtimeTripUpdate {
    * @param update - The update to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTripUpdate(tag: number, update: GTFSRealtimeTripUpdate, pbf: Protobuf) {
+  #readTripUpdate(tag: number, update: GTFSRealtimeTripUpdate, pbf: PbfReader): void {
     if (tag === 1) update.trip = new GTFSRealtimeTripDescriptor(pbf, pbf.readVarint() + pbf.pos);
     else if (tag === 2)
       update.stopTimeUpdate.push(new GTFSRealtimeStopTimeUpdate(pbf, pbf.readVarint() + pbf.pos));

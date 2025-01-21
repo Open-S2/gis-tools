@@ -1,5 +1,5 @@
 import type { BBox } from '../../geometry';
-import type { Pbf as Protobuf } from 'pbf-ts';
+import type { PbfReader } from 'pbf-ts';
 
 /** OSM Header Block */
 export interface OSMHeader {
@@ -42,7 +42,7 @@ export class HeaderBlock {
   osmosis_replication_base_url?: string;
 
   /** @param pbf - the Protobuf object to read from */
-  constructor(pbf: Protobuf) {
+  constructor(pbf: PbfReader) {
     pbf.readMessage(this.#readLayer, this);
   }
 
@@ -79,7 +79,7 @@ export class HeaderBlock {
    * @param header - the header object to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, header: HeaderBlock, pbf: Protobuf): void {
+  #readLayer(tag: number, header: HeaderBlock, pbf: PbfReader): void {
     if (tag === 1) header.bbox = pbf.readMessage(header.bbox.readLayer, header.bbox);
     else if (tag === 4) header.required_features.push(pbf.readString());
     else if (tag === 5) header.optional_features.push(pbf.readString());
@@ -109,7 +109,7 @@ export class HeaderBBox {
    * @param bbox - the bbox object to modify
    * @param pbf - the Protobuf object to read from
    */
-  readLayer(tag: number, bbox: HeaderBBox, pbf: Protobuf): void {
+  readLayer(tag: number, bbox: HeaderBBox, pbf: PbfReader): void {
     if (tag === 1) bbox.left = pbf.readVarint();
     else if (tag === 2) bbox.right = pbf.readVarint();
     else if (tag === 3) bbox.top = pbf.readVarint();

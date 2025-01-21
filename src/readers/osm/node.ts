@@ -3,8 +3,8 @@ import { mergeBBoxes } from '../../geometry';
 import { DenseInfo, Info } from './info';
 
 import type { OSMReader } from '.';
+import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'pbf-ts';
 
 import type { Metadata } from './primitive';
 import type { BBox, VectorFeature, VectorPoint } from '../../geometry';
@@ -58,7 +58,7 @@ export class Node {
   constructor(
     public primitiveBlock: PrimitiveBlock,
     public reader: OSMReader,
-    pbf?: Protobuf,
+    pbf?: PbfReader,
   ) {
     this.primitiveBlock = primitiveBlock;
     if (pbf !== undefined) pbf.readMessage(this.#readLayer, this);
@@ -133,7 +133,7 @@ export class Node {
    * @param node - the node
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, node: Node, pbf: Protobuf): void {
+  #readLayer(tag: number, node: Node, pbf: PbfReader): void {
     const { primitiveBlock: pb } = node;
 
     if (tag === 1) this.id = pbf.readVarint();
@@ -206,7 +206,7 @@ export class DenseNodes {
   constructor(
     public primitiveBlock: PrimitiveBlock,
     public reader: OSMReader,
-    pbf: Protobuf,
+    pbf: PbfReader,
   ) {
     this.primitiveBlock = primitiveBlock;
     pbf.readMessage(this.#readLayer, this);
@@ -251,7 +251,7 @@ export class DenseNodes {
    * @param denseNodes - the DenseNodes object
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, denseNodes: DenseNodes, pbf: Protobuf): void {
+  #readLayer(tag: number, denseNodes: DenseNodes, pbf: PbfReader): void {
     const { primitiveBlock: pb } = denseNodes;
 
     if (tag === 1) denseNodes.ids = pbf.readPackedSVarint();

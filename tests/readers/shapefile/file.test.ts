@@ -1,3 +1,4 @@
+import { LambertConformalConic } from '../../../src';
 import { shapefileFromPath } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
@@ -75,4 +76,10 @@ test('shapefileFromPath', async () => {
     ],
     type: 'FeatureCollection',
   });
+});
+
+test('senate - projection change', async () => {
+  const shp = await shapefileFromPath(`${__dirname}/fixtures/senate.zip`, [LambertConformalConic]);
+  const features = await Array.fromAsync(shp);
+  expect(features.length).toEqual(40);
 });

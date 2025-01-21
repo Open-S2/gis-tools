@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /**
  * An internationalized message containing per-language versions of a snippet of
@@ -20,7 +20,7 @@ export class GTFSRealtimeTranslatedString {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTranslations, this, end);
   }
 
@@ -29,7 +29,7 @@ export class GTFSRealtimeTranslatedString {
    * @param translations - The translations to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTranslations(tag: number, translations: GTFSRealtimeTranslatedString, pbf: Protobuf): void {
+  #readTranslations(tag: number, translations: GTFSRealtimeTranslatedString, pbf: PbfReader): void {
     if (tag === 1)
       translations.translations.push(new GTFSRealtimeTranslation(pbf, pbf.readVarint() + pbf.pos));
     else throw new Error(`GTFSRealtimeTranslatedString: Unexpected tag: ${tag}`);
@@ -49,7 +49,7 @@ export class GTFSRealtimeTranslation {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTranslation, this, end);
   }
 
@@ -58,7 +58,7 @@ export class GTFSRealtimeTranslation {
    * @param trans - The trans to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTranslation(tag: number, trans: GTFSRealtimeTranslation, pbf: Protobuf): void {
+  #readTranslation(tag: number, trans: GTFSRealtimeTranslation, pbf: PbfReader): void {
     if (tag === 1) trans.text = pbf.readString();
     else if (tag === 2) trans.language = pbf.readString();
     else throw new Error(`GTFSRealtimeTranslation: Unexpected tag: ${tag}`);

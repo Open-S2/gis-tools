@@ -43,7 +43,7 @@ export async function shapefileFromPath(
 ): Promise<ShapeFileReader> {
   if (input.endsWith('.zip')) {
     const gzipData = await readFile(input);
-    return shapefileFromGzip(gzipData.buffer);
+    return shapefileFromGzip(gzipData.buffer, defs, epsgCodes);
   }
   const path = input.replace('.shp', '');
   const shp = `${path}.shp`;
@@ -75,15 +75,17 @@ export async function shapefileFromDefinition(
 ): Promise<ShapeFileReader> {
   const { shp, dbf, prj, cpg } = def;
   const encoding = cpg !== undefined ? await readFile(cpg, { encoding: 'utf8' }) : 'utf8';
-  const transform =
-    prj !== undefined ? new Transformer(await readFile(prj, { encoding: 'utf8' })) : undefined;
-  const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
-  const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
-
-  if (transform !== undefined) {
+  let transform: Transformer | undefined = undefined;
+  let projection: string | undefined = undefined;
+  if (prj !== undefined) {
+    projection = await readFile(prj, { encoding: 'utf8' });
+    transform = new Transformer(projection);
     for (const def of defs) transform.insertDefinition(def);
     for (const [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
+    transform.setSource(projection);
   }
+  const dbfReader = dbf !== undefined ? new FileReader(dbf) : undefined;
+  const databaseFile = dbfReader !== undefined ? new DataBaseFile(dbfReader, encoding) : undefined;
 
   return new ShapeFileReader(new FileReader(shp), databaseFile, transform);
 }

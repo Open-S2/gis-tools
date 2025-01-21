@@ -2,8 +2,8 @@ import { Info } from './info';
 import { extendBBox } from '../../geometry';
 
 import type { Metadata } from './primitive';
+import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'pbf-ts';
 import type { InfoBlock, OSMReader } from '.';
 
 import type {
@@ -86,7 +86,7 @@ export class Way {
   constructor(
     public primitiveBlock: PrimitiveBlock,
     public reader: OSMReader,
-    pbf: Protobuf,
+    pbf: PbfReader,
   ) {
     pbf.readMessage(this.#readLayer, this);
   }
@@ -188,7 +188,7 @@ export class Way {
    * @param way - the way to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, way: Way, pbf: Protobuf): void {
+  #readLayer(tag: number, way: Way, pbf: PbfReader): void {
     if (tag === 1) way.id = pbf.readVarint();
     else if (tag === 2) way.#keys = pbf.readPackedVarint();
     else if (tag === 3) way.#vals = pbf.readPackedVarint();

@@ -16,9 +16,29 @@ import type {
 } from '../..';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
+// TODO: Add VectorTileReader
+
 /** Elevation point used by elevation readers */
 export interface ElevationPoint extends Properties {
   elev: number;
+}
+
+/** Tile Reader Interface */
+export interface TileReader<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+> extends FeatureIterator<M, D, P> {
+  getMetadata: () => Promise<Metadata>;
+  hasTileWM: (zoom: number, x: number, y: number) => Promise<boolean>;
+  hasTileS2: (face: Face, zoom: number, x: number, y: number) => Promise<boolean>;
+  getTileWM: (zoom: number, x: number, y: number) => Promise<RasterTileReader<D> | undefined>;
+  getTileS2: (
+    face: Face,
+    zoom: number,
+    x: number,
+    y: number,
+  ) => Promise<RasterS2TileReader<D> | undefined>;
 }
 
 /** Tile's metadata */
@@ -93,7 +113,9 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  * ```
  */
 export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
-  implements FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>
+  implements
+    FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>,
+    TileReader<S2TileMetadata | TileMetadata, T, Properties>
 {
   metadata?: Metadata;
   /**

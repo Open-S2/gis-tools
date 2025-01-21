@@ -58,7 +58,7 @@ export type ClusterStore<M extends MValue = Properties> = VectorStoreConstructor
 export type ClusterSearch = 'radial' | 'cell';
 
 /** Options for point clustering */
-export interface ClusterOptions<M extends MValue = Properties> {
+export interface BaseClusterOptions<M extends MValue = Properties> {
   /** type of store to use. Defaults to an in memory store */
   store?: ClusterStore<M>;
   /** projection to use */
@@ -79,8 +79,36 @@ export interface ClusterOptions<M extends MValue = Properties> {
   getInterpolationValue?: 'rgba' | GetInterpolateValue<M>;
   /** Used by the cell search to specify the tile buffer size in pixels. [default: 0] */
   bufferSize?: number;
-  /** Grid size, assumed pixel ratio. [default: 512] */
+  /** Grid size, assumed pixel ratio. */
   gridSize?: number;
+}
+
+/** Options for point clustering */
+export interface ClusterOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
+  /** search must be `radial` */
+  search: 'radial';
+}
+
+/** Options for grid clustering */
+export interface ClusterRasterOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
+  /** search must be `cell` */
+  search: 'cell';
+  /** Used by cell search to specify the type of interpolation to use. [Recommend: 'lanczos'] */
+  interpolation: InterpolationMethod;
+  /** Used by cell search to specify the interpolation function to use */
+  getInterpolationValue: 'rgba';
+}
+
+/** Options for grid clustering */
+export interface ClusterGridOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
+  /** search must be `cell` */
+  search: 'cell';
+  /** Used by cell search to specify the type of interpolation to use. [Recommend: 'lanczos'] */
+  interpolation: InterpolationMethod;
+  /** Used by cell search to specify the interpolation function to use. */
+  getInterpolationValue: GetInterpolateValue<M>;
+  /** Used by the cell search to specify the tile buffer size in pixels. [default: 0] */
+  bufferSize: number;
 }
 
 /** An export of the data as a grid */
@@ -155,7 +183,7 @@ export class PointCluster<M extends MValue = Properties> {
    */
   constructor(
     data?: JSONCollection<Record<string, unknown>, M, M>,
-    options?: ClusterOptions<M>,
+    options?: BaseClusterOptions<M>,
     maxzoomStore?: VectorStore<PointShape<Cluster<M>>>,
   ) {
     this.projection = options?.projection ?? 'S2';
@@ -320,6 +348,7 @@ export class PointCluster<M extends MValue = Properties> {
 
   /**
    * Cell clustering
+   * TODO: We build a catagorized cell of size x size with buffer
    * @param zoom - the zoom level
    * @param queryIndex - the index to query
    * @param currIndex - the index to insert into
@@ -336,12 +365,13 @@ export class PointCluster<M extends MValue = Properties> {
         point: { m: clusterData },
       } = clusterPoint;
       const parentID = parent(cell, zoom);
+      const [minParent, maxParent] = range(parentID);
       const parentPoint = toS2Point(parentID);
       // get all cells in parentID who haven't been visited yet. maxzoom does a radial search
       const cellPoints = (
         maxzoom === zoom
           ? await queryIndex.searchRadius(parentPoint, this.#getLevelRadius(zoom))
-          : await queryIndex.searchRange(parentID, parentID)
+          : await queryIndex.searchRange(minParent, maxParent)
       ).filter(({ point }) => point.m!.visited);
       // use interpolation
       if (cellPoints.length > 0) {
@@ -412,7 +442,7 @@ export class PointCluster<M extends MValue = Properties> {
     const cellData = await this.getCellData(id);
     if (cellData === undefined) return;
 
-    // TODO: Organize all the cell data into a grid of gridSize. Then flatten if RGBA. Ship off.
+    // TODO: Organize all the cell data into a grid of gridSize. Then flatten if RGBA.
 
     return {
       name: layerName,

@@ -1,6 +1,6 @@
 import { parseGtfsDate } from '../../utils';
 
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /**
  * The relation between this trip and the static schedule. If a trip is done
@@ -138,7 +138,7 @@ export class GTFSRealtimeTripDescriptor {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTripDescriptor, this, end);
   }
 
@@ -147,7 +147,7 @@ export class GTFSRealtimeTripDescriptor {
    * @param tripDescriptor - The tripDescriptor to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTripDescriptor(tag: number, tripDescriptor: GTFSRealtimeTripDescriptor, pbf: Protobuf) {
+  #readTripDescriptor(tag: number, tripDescriptor: GTFSRealtimeTripDescriptor, pbf: PbfReader) {
     if (tag === 1) tripDescriptor.tripId = pbf.readString();
     else if (tag === 2) tripDescriptor.startTime = pbf.readString();
     else if (tag === 3) tripDescriptor.startDate = parseGtfsDate(pbf.readString());
@@ -189,7 +189,7 @@ export class GTFSRealtimeModifiedTripSelector {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readMTS, this, end);
   }
 
@@ -198,7 +198,7 @@ export class GTFSRealtimeModifiedTripSelector {
    * @param tripDescriptor - The tripDescriptor to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readMTS(tag: number, tripDescriptor: GTFSRealtimeModifiedTripSelector, pbf: Protobuf) {
+  #readMTS(tag: number, tripDescriptor: GTFSRealtimeModifiedTripSelector, pbf: PbfReader) {
     if (tag === 1) tripDescriptor.modificationsId = pbf.readString();
     else if (tag === 2) tripDescriptor.affectedTripId = pbf.readString();
     else if (tag === 3) tripDescriptor.startTime = pbf.readString();

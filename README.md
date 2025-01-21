@@ -33,6 +33,14 @@
 
 A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.
 
+## Goals
+
+Making GIS data easy to parse and work with. One of the biggest issues in GIS right now is how segmented various niche tools are. The other issue is how most solutions to read GIS data are half baked, deprecated, or partially parse results that need to be transformed one more time to use them.
+
+So this tool exists to make GIS tools simple to use, various data fast to parse, and transformed to usable projections without having to worry about the details.
+
+Lastly the goal is for all code to be accessible to both the browser and locally. An example was the shapefile reader where it can pull from online data or handle extremely large data as well.
+
 ## Install
 
 ```bash

@@ -1,6 +1,6 @@
 import { decompressStream } from '../../util';
 
-import type { Pbf as Protobuf } from 'pbf-ts';
+import type { PbfReader } from 'pbf-ts';
 
 // headers have a max size of 64KB
 export const OSM_MAX_HEADER_SIZE = 65536; // 64 * 1024;
@@ -19,7 +19,7 @@ export class BlobHeader {
   datasize = 0;
 
   /** @param pbf - the Protobuf object to read from */
-  constructor(pbf: Protobuf) {
+  constructor(pbf: PbfReader) {
     pbf.readFields(this.#readLayer, this, 0);
   }
 
@@ -28,7 +28,7 @@ export class BlobHeader {
    * @param blobHeader - the blobHeader to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, blobHeader: BlobHeader, pbf: Protobuf): void {
+  #readLayer(tag: number, blobHeader: BlobHeader, pbf: PbfReader): void {
     if (tag === 1) blobHeader.type = pbf.readString();
     else if (tag === 2) blobHeader.indexdata = pbf.readBytes();
     else if (tag === 3) blobHeader.datasize = pbf.readVarint();
@@ -43,7 +43,7 @@ export class Blob {
   data: Uint8Array | Promise<Uint8Array> = new Uint8Array(0);
 
   /** @param pbf - the Protobuf object to read from */
-  constructor(pbf: Protobuf) {
+  constructor(pbf: PbfReader) {
     pbf.readFields(this.#readLayer, this, 0);
   }
 
@@ -52,7 +52,7 @@ export class Blob {
    * @param blob - the blob to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, blob: Blob, pbf: Protobuf): void {
+  #readLayer(tag: number, blob: Blob, pbf: PbfReader): void {
     // no compression
     if (tag === 1) blob.data = pbf.readBytes();
     else if (tag === 2) blob.raw_size = pbf.readVarint();

@@ -1,5 +1,5 @@
+import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
-import type { Pbf as Protobuf } from 'pbf-ts';
 
 /** Info Block - decoded into an object */
 export interface InfoBlock {
@@ -34,7 +34,7 @@ export class Info {
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
-    pbf?: Protobuf,
+    pbf?: PbfReader,
   ) {
     if (pbf !== undefined) pbf.readMessage(this.#readLayer, this);
   }
@@ -107,7 +107,7 @@ export class Info {
    * @param info - the info object to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, info: Info, pbf: Protobuf): void {
+  #readLayer(tag: number, info: Info, pbf: PbfReader): void {
     if (tag === 1) info.#version = pbf.readSVarint();
     else if (tag === 2) info.#timestamp = pbf.readSVarint();
     else if (tag === 3) info.#changeset = pbf.readSVarint();
@@ -141,7 +141,7 @@ export class DenseInfo {
    */
   constructor(
     public primitiveBlock: PrimitiveBlock,
-    pbf: Protobuf,
+    pbf: PbfReader,
   ) {
     pbf.readMessage(this.#readLayer, this);
   }
@@ -185,7 +185,7 @@ export class DenseInfo {
    * @param di - the dense info object to modify
    * @param pbf - the Protobuf object to read from
    */
-  #readLayer(tag: number, di: DenseInfo, pbf: Protobuf): void {
+  #readLayer(tag: number, di: DenseInfo, pbf: PbfReader): void {
     if (tag === 1) di.version = pbf.readPackedSVarint();
     else if (tag === 2) di.timestamp = pbf.readPackedSVarint();
     else if (tag === 3) di.changeset = pbf.readPackedSVarint();

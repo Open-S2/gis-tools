@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /**
  * Determines whether the current fetch is incremental. Currently,
@@ -43,7 +43,7 @@ export class GTFSRealtimeHeader {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readHeader, this, end);
   }
 
@@ -52,7 +52,7 @@ export class GTFSRealtimeHeader {
    * @param layer - The layer to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readHeader(tag: number, layer: GTFSRealtimeHeader, pbf: Protobuf): void {
+  #readHeader(tag: number, layer: GTFSRealtimeHeader, pbf: PbfReader): void {
     if (tag === 1) layer.gtfsRealtimeVersion = pbf.readString();
     else if (tag === 2) layer.incrementality = pbf.readVarint() as Incrementality;
     else if (tag === 3) layer.timestamp = new Date(pbf.readVarint() * 1000);

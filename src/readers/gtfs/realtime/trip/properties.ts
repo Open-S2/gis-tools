@@ -1,6 +1,6 @@
 import { parseGtfsDate } from '../../utils';
 
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /**
  * Defines updated properties of the trip, such as a new shape_id when there is a detour. Or defines the
@@ -54,7 +54,7 @@ export class GTFSRealtimeTripProperties {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTripUpdate, this, end);
   }
 
@@ -63,7 +63,7 @@ export class GTFSRealtimeTripProperties {
    * @param props - The props to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTripUpdate(tag: number, props: GTFSRealtimeTripProperties, pbf: Protobuf) {
+  #readTripUpdate(tag: number, props: GTFSRealtimeTripProperties, pbf: PbfReader) {
     if (tag === 1) props.tripId = pbf.readString();
     else if (tag === 2) props.startDate = parseGtfsDate(pbf.readString());
     else if (tag === 3) props.startTime = pbf.readString();

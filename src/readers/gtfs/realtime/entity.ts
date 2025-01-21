@@ -8,7 +8,7 @@ import {
   GTFSRealtimeVehiclePosition,
 } from '.';
 
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /** The type of the message. */
 export type GTFSRealtimeMessageType =
@@ -60,7 +60,7 @@ export class GTFSRealtimeEntity {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readEntity, this, end);
   }
 
@@ -83,7 +83,7 @@ export class GTFSRealtimeEntity {
    * @param entity - The entity to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readEntity(tag: number, entity: GTFSRealtimeEntity, pbf: Protobuf): void {
+  #readEntity(tag: number, entity: GTFSRealtimeEntity, pbf: PbfReader): void {
     if (tag === 1) entity.id = pbf.readString();
     else if (tag === 2) entity.isDeleted = pbf.readBoolean();
     else if (tag === 3)
@@ -125,7 +125,7 @@ export class GTFSRealtimeEntitySelector {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readEntity, this, end);
   }
 
@@ -134,7 +134,7 @@ export class GTFSRealtimeEntitySelector {
    * @param entitySel - The entitySel to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readEntity(tag: number, entitySel: GTFSRealtimeEntitySelector, pbf: Protobuf): void {
+  #readEntity(tag: number, entitySel: GTFSRealtimeEntitySelector, pbf: PbfReader): void {
     if (tag === 1) entitySel.agencyId = pbf.readString();
     else if (tag === 2) entitySel.routeId = pbf.readString();
     else if (tag === 3) entitySel.routeType = pbf.readSVarint();

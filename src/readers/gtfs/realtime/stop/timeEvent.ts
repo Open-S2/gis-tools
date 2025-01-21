@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 /**
  * Timing information for a single predicted event (either arrival or
@@ -42,7 +42,7 @@ export class GTFSRealtimeStopTimeEvent {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readstopTimeUpdate, this, end);
   }
 
@@ -51,7 +51,7 @@ export class GTFSRealtimeStopTimeEvent {
    * @param stopTimeEvent - The stopTimeEvent to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readstopTimeUpdate(tag: number, stopTimeEvent: GTFSRealtimeStopTimeEvent, pbf: Protobuf) {
+  #readstopTimeUpdate(tag: number, stopTimeEvent: GTFSRealtimeStopTimeEvent, pbf: PbfReader) {
     if (tag === 1) stopTimeEvent.delay = pbf.readSVarint();
     else if (tag === 2) stopTimeEvent.time = pbf.readSVarint();
     else if (tag === 3) stopTimeEvent.uncertainty = pbf.readSVarint();

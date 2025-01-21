@@ -12,11 +12,15 @@ import type {
   SourceType,
 } from 's2-tilejson';
 import type {
+  ClusterGridOptions,
   ClusterOptions,
+  ClusterRasterOptions,
   FeatureIterator,
+  InterpolationMethod,
   MValue,
   Properties,
   RGBA,
+  TileReader,
   TileStoreOptions,
   TileWriter,
   VectorFeatures,
@@ -62,16 +66,8 @@ export interface RasterLayer<
 > extends BaseLayer<M, D, P> {
   /** describes how the image will be stored */
   outputType: ImageExtensions;
-  /**
-   * The type of interpolation to use for downsampling to parent tiles from children.
-   * Options:
-   * - average: average of the reference points
-   * - nearest: nearest neighbor interpolation
-   * - idw: Inverse Distance Weighted interpolation
-   * - lanczos: Lanczos 3 interpolation
-   * [default: lanczos]
-   */
-  interpolation?: 'average' | 'nearest' | 'idw' | 'lanczos';
+  /** Raster clustering guide */
+  rasterGuide: ClusterRasterOptions;
 }
 /** Guide to building Raster layer data where the onFeature is stringified to ship to workers */
 export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature'> {
@@ -85,20 +81,8 @@ export interface GridLayer<
   D extends MValue = Properties,
   P extends Properties = Properties,
 > extends BaseLayer<M, D, P> {
-  /** Method of accessing the value of interest. Defaults to the point's "z" value */
-  getValue?: GetPointValue;
-  /**
-   * The type of interpolation to use for downsampling to parent tiles from children.
-   * Options:
-   * - average: average of the reference points
-   * - nearest: nearest neighbor interpolation
-   * - idw: Inverse Distance Weighted interpolation
-   * - lanczos: Lanczos 3 interpolation
-   * [default: lanczos]
-   */
-  interpolation?: 'average' | 'nearest' | 'idw' | 'lanczos';
-  /** Specify the tile buffer size in pixels. [default: 1] */
-  bufferSize?: number;
+  /** Grid clustering guide */
+  gridGuide: ClusterGridOptions;
   /** Extent at which the layer is storing its data */
   extent: Extents;
 }
@@ -239,6 +223,8 @@ export interface RasterBuildGuide
   > {
   /** Specify the image type. e.g. 'png', 'jpg', 'webp', etc. */
   extension: ImageExtensions;
+  /** Used by cell search to specify the type of interpolation to use [default: 'lanczos'] */
+  interpolation: InterpolationMethod;
   /** The description of the data */
   description?: string;
   /** User defined minimum zoom level */
@@ -284,7 +270,7 @@ export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
  * @param rasterBuildGuide - the user defined guide on building the vector tiles
  */
 export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise<void> {
-  const { description, minzoom, maxzoom, extension, onFeature } = rasterBuildGuide;
+  const { description, minzoom, maxzoom, extension, onFeature, interpolation } = rasterBuildGuide;
   // setup worker and layer
   const rasterLayer: RasterLayer = {
     sourceName: 'raster',
@@ -297,6 +283,11 @@ export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise
       drawTypes: [DrawType.Raster],
       shape: {},
     },
+    rasterGuide: {
+      search: 'cell',
+      getInterpolationValue: 'rgba',
+      interpolation,
+    },
     onFeature,
   };
   const buildGuide: BuildGuide = {
@@ -307,6 +298,16 @@ export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise
   };
   await toVectorTiles(buildGuide);
 }
+
+/**
+ * TODO: Merge tiles together
+ * @param _tileReaders - the tile readers to merge
+ * @param _tileWriter - the tile writer to write to
+ */
+export async function mergeTiles(
+  _tileReaders: TileReader[],
+  _tileWriter: TileWriter,
+): Promise<void> {}
 
 /**
  * STEP 1: Convert all features to tile slices of said features.

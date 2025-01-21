@@ -1,6 +1,6 @@
 import { GTFSRealtimeTranslatedString } from '..';
 
-import type { Pbf as Protobuf } from '../../..';
+import type { PbfReader } from '../../..';
 
 export * from './timeEvent';
 export * from './update';
@@ -36,7 +36,7 @@ export class GTFSRealtimeStop {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readStop, this, end);
   }
 
@@ -45,7 +45,7 @@ export class GTFSRealtimeStop {
    * @param stop - The stop to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readStop(tag: number, stop: GTFSRealtimeStop, pbf: Protobuf): void {
+  #readStop(tag: number, stop: GTFSRealtimeStop, pbf: PbfReader): void {
     if (tag === 1) stop.stopId = pbf.readString();
     else if (tag === 2)
       stop.stopCode = new GTFSRealtimeTranslatedString(pbf, pbf.readVarint() + pbf.pos);

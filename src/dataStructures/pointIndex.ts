@@ -28,7 +28,7 @@ export interface PointShape<M extends MValue = Properties> {
  *
  * ## Description
  * An index of cells with radius queries
- * Assumes the data is compatible with {@link Properties}
+ * Assumes the data is compatible with {@link https://open-s2.github.io/s2json/types/Properties.html}
  *
  * ## Usage
  * ```ts

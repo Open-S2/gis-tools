@@ -1,4 +1,4 @@
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /** A Position is a point on the Earth's surface. */
 export class GTFSRealtimePosition {
@@ -23,7 +23,7 @@ export class GTFSRealtimePosition {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readTripDescriptor, this, end);
   }
 
@@ -32,7 +32,7 @@ export class GTFSRealtimePosition {
    * @param position - The position to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readTripDescriptor(tag: number, position: GTFSRealtimePosition, pbf: Protobuf) {
+  #readTripDescriptor(tag: number, position: GTFSRealtimePosition, pbf: PbfReader) {
     if (tag === 1) position.latitude = pbf.readFloat();
     else if (tag === 2) position.longitude = pbf.readFloat();
     else if (tag === 3) position.bearing = pbf.readFloat();

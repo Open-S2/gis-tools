@@ -1,6 +1,6 @@
 import { GTFSRealtimePosition, GTFSRealtimeTripDescriptor } from './..';
 
-import type { Pbf as Protobuf } from '../..';
+import type { PbfReader } from '../..';
 
 /** Status of the vehicle relative to the stop */
 export const enum VehicleStopStatus {
@@ -147,7 +147,7 @@ export class GTFSRealtimeVehiclePosition {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readVehiclePosition, this, end);
   }
 
@@ -156,7 +156,7 @@ export class GTFSRealtimeVehiclePosition {
    * @param vehicle - The vehicle to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readVehiclePosition(tag: number, vehicle: GTFSRealtimeVehiclePosition, pbf: Protobuf): void {
+  #readVehiclePosition(tag: number, vehicle: GTFSRealtimeVehiclePosition, pbf: PbfReader): void {
     if (tag === 1) vehicle.trip = new GTFSRealtimeTripDescriptor(pbf, pbf.readVarint() + pbf.pos);
     else if (tag === 2)
       vehicle.position = new GTFSRealtimePosition(pbf, pbf.readVarint() + pbf.pos);
@@ -216,7 +216,7 @@ export class GTFSRealtimeVehicleDescriptor {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readDescriptor, this, end);
   }
 
@@ -225,7 +225,7 @@ export class GTFSRealtimeVehicleDescriptor {
    * @param descriptor - The multi carriage details to mutate
    * @param pbf - The Protobuf object to read from
    */
-  #readDescriptor(tag: number, descriptor: GTFSRealtimeVehicleDescriptor, pbf: Protobuf): void {
+  #readDescriptor(tag: number, descriptor: GTFSRealtimeVehicleDescriptor, pbf: PbfReader): void {
     if (tag === 1) descriptor.id = pbf.readString();
     else if (tag === 2) descriptor.label = pbf.readString();
     else if (tag === 3) descriptor.licensePlate = pbf.readString();
@@ -279,7 +279,7 @@ export class GTFSRealtimeMultiCarriageDetails {
    * @param pbf - The Protobuf object to read from
    * @param end - The end position of the message in the buffer
    */
-  constructor(pbf: Protobuf, end: number) {
+  constructor(pbf: PbfReader, end: number) {
     pbf.readFields(this.#readMultiCarriageDetails, this, end);
   }
 
@@ -291,7 +291,7 @@ export class GTFSRealtimeMultiCarriageDetails {
   #readMultiCarriageDetails(
     tag: number,
     multiCarriageDetails: GTFSRealtimeMultiCarriageDetails,
-    pbf: Protobuf,
+    pbf: PbfReader,
   ): void {
     if (tag === 1) multiCarriageDetails.id = pbf.readString();
     else if (tag === 2) multiCarriageDetails.label = pbf.readString();

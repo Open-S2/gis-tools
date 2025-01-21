@@ -35,13 +35,11 @@ export async function shapefileFromGzip(
       shpData = await item.read();
     } else if (item.filename.endsWith('prj')) {
       const data = await item.read();
-      transform = new Transformer(new TextDecoder('utf8').decode(data));
-      if (defs !== undefined) {
-        for (const def of defs) transform.insertDefinition(def);
-      }
-      if (epsgCodes !== undefined) {
+      transform = new Transformer();
+      if (defs !== undefined) for (const def of defs) transform.insertDefinition(def);
+      if (epsgCodes !== undefined)
         for (const [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
-      }
+      transform.setSource(new TextDecoder('utf8').decode(data));
     }
   }
   if (shpData === undefined) throw new Error('Shapefile not found');
@@ -51,11 +49,17 @@ export async function shapefileFromGzip(
 /**
  * Assumes the input is pointing to shapefile data or a gzipped folder with .shp, .dbf, .prj, and/or .cpg
  * @param url - the url to the shapefile
+ * @param defs - optional array of ProjectionTransformDefinitions to insert
+ * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
  * @returns - a Shapefile
  */
-export async function shapefileFromURL(url: string): Promise<ShapeFileReader> {
+export async function shapefileFromURL(
+  url: string,
+  defs?: ProjectionTransformDefinition[],
+  epsgCodes?: Record<string, string>,
+): Promise<ShapeFileReader> {
   const data = await fetchShapefile(url);
-  if (url.endsWith('.zip')) return shapefileFromGzip(data);
+  if (url.endsWith('.zip')) return shapefileFromGzip(data, defs, epsgCodes);
   return new ShapeFileReader(new BufferReader(data));
 }
 
