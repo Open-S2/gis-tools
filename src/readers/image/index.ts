@@ -1,4 +1,4 @@
-import type { Properties } from '../..';
+import type { ValueArrayObject } from '../..';
 
 export * from './decoder';
 export * from './jpeg';
@@ -7,7 +7,7 @@ export * from './lanczos';
 export * from './util';
 
 /** An RGBA color */
-export interface RGBA extends Properties {
+export interface RGBA extends ValueArrayObject {
   r: number;
   g: number;
   b: number;

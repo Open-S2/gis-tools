@@ -4,7 +4,7 @@ import { DrawType } from 's2-tilejson';
 import { MultiMap } from '../../../dataStore';
 import { compressStream } from '../../../util';
 import { BaseVectorTile, writeOVTile } from 'open-vector-tile';
-import { PointCluster, Tile, TileStore } from '../../../dataStructures';
+import { GridCluster, PointCluster, Tile, TileStore } from '../../../dataStructures';
 import { childrenIJ, convert, fromFace, toFaceIJ } from '../../../geometry';
 
 import type { MultiMapStore } from '../../../dataStore';
@@ -76,8 +76,8 @@ export default class TileWorker {
   >();
   // Unique store for each layer that describes itself as a cluster source
   clusterStores: { [layerName: string]: PointCluster } = {};
-  rasterStores: { [layerName: string]: PointCluster<RGBA> } = {};
-  gridStores: { [layerName: string]: PointCluster } = {};
+  rasterStores: { [layerName: string]: GridCluster<RGBA> } = {};
+  gridStores: { [layerName: string]: GridCluster } = {};
 
   /**
    * Tile-ize input vector features and store them
@@ -234,15 +234,16 @@ export default class TileWorker {
     const res: ImageDataInput[] = [];
     // store all cluster features
     for (const cluster of Object.values(this.rasterStores)) {
-      const layerGrid = await cluster.getTileGrid(id);
+      const layerGrid = await cluster.getTile(id);
       if (layerGrid === undefined) continue;
       const { name, size, data } = layerGrid;
+      const image = (data as RGBA[]).flatMap(({ r, g, b, a }) => [r, g, b, a]);
       res.push({
         name,
         type: 'raw',
         width: size,
         height: size,
-        image: new Uint8Array(data),
+        image: new Uint8Array(image),
       });
     }
 
@@ -261,13 +262,13 @@ export default class TileWorker {
       const { extent } = this.layerGuides.filter(
         (guide) => guide.layerName === layerName,
       )[0] as GridLayer;
-      const layerGrid = await cluster.getTileGrid(id);
+      const layerGrid = await cluster.getTile(id);
       if (layerGrid === undefined) continue;
       const { name, size, data } = layerGrid;
       res.push({
         name,
         size,
-        data,
+        data: data as number[],
         extent,
       });
     }
@@ -361,7 +362,7 @@ export default class TileWorker {
   ): void {
     const { layerName } = rasterLayer;
     if (this.rasterStores[layerName] === undefined)
-      this.rasterStores[layerName] = new PointCluster();
+      this.rasterStores[layerName] = new GridCluster<RGBA>();
     const rasterStore = this.rasterStores[layerName];
     rasterStore.insertFeature(feature);
   }
@@ -373,7 +374,7 @@ export default class TileWorker {
    */
   #storeGridFeature(feature: VectorFeatures, gridLayer: GridLayer): void {
     const { layerName } = gridLayer;
-    if (this.gridStores[layerName] === undefined) this.gridStores[layerName] = new PointCluster();
+    if (this.gridStores[layerName] === undefined) this.gridStores[layerName] = new GridCluster();
     const gridStore = this.gridStores[layerName];
     gridStore.insertFeature(feature);
   }

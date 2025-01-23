@@ -116,13 +116,25 @@ describe('distanceEarth', (): void => {
 
 describe('fromIJ', (): void => {
   it('should convert an Face-I-J of 0-0-0 to an XYZ point', (): void => {
-    expect(fromIJ(0, 0, 0)).toEqual({ x: 1, y: -1, z: -1 });
+    expect(fromIJ(0, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert an Face-I-J of 1-0-0 to an XYZ point', (): void => {
-    expect(fromIJ(1, 0, 0)).toEqual({ x: 1, y: 1, z: -1 });
+    expect(fromIJ(1, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: 0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert an Face-I-J of 2-20-100 to an XYZ point', (): void => {
-    expect(fromIJ(2, 20, 100)).toEqual({ x: 0.9999999503294631, y: 0.9999997516473249, z: 1 });
+    expect(fromIJ(2, 20, 100)).toEqual({
+      x: 0.5773502978669214,
+      y: 0.577350183157724,
+      z: 0.577350326544222,
+    });
   });
 });
 
@@ -169,62 +181,122 @@ describe('fromLonLatGL', (): void => {
 // fromS2CellID
 describe('fromS2CellID', (): void => {
   it('should convert a S2CellID of 0n to an XYZ point', (): void => {
-    expect(fromS2CellID(0n)).toEqual({ x: 1, y: -1, z: -1 });
+    expect(fromS2CellID(0n)).toEqual({
+      x: 0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a S2CellID of 1n to an XYZ point', (): void => {
-    expect(fromS2CellID(1n)).toEqual({ x: 1, y: -1, z: -1 });
+    expect(fromS2CellID(1n)).toEqual({
+      x: 0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a S2CellID of 2n to an XYZ point', (): void => {
-    expect(fromS2CellID(2n)).toEqual({ x: 1, y: -0.9999999975164731, z: -1 });
+    expect(fromS2CellID(2n)).toEqual({
+      x: 0.5773502696675807,
+      y: -0.5773502682337158,
+      z: -0.5773502696675807,
+    });
   });
   it('should convert a S2CellID of 12345678n to an XYZ point', (): void => {
     expect(fromS2CellID(12345678n)).toEqual({
-      x: 1,
-      y: -0.9999983757739246,
-      z: -0.9999918614948804,
+      x: 0.5773521480306643,
+      y: -0.5773512102802507,
+      z: -0.5773474492472517,
     });
   });
 });
 
 describe('fromST', (): void => {
   it('should convert a Face-S-T of 0-0-0 to an XYZ point', (): void => {
-    expect(fromST(0, 0, 0)).toEqual({ x: 1, y: -1, z: -1 });
+    expect(fromST(0, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 1-0-0 to an XYZ point', (): void => {
-    expect(fromST(1, 0, 0)).toEqual({ x: 1, y: 1, z: -1 });
+    expect(fromST(1, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: 0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 2-0-0 to an XYZ point', (): void => {
-    expect(fromST(2, 0, 0)).toEqual({ x: 1, y: 1, z: 1 });
+    expect(fromST(2, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: 0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 3-0-0 to an XYZ point', (): void => {
-    expect(fromST(3, 0, 0)).toEqual({ x: -1, y: 1, z: 1 });
+    expect(fromST(3, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: 0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 4-0-0 to an XYZ point', (): void => {
-    expect(fromST(4, 0, 0)).toEqual({ x: -1, y: -1, z: 1 });
+    expect(fromST(4, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: -0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 5-0-0 to an XYZ point', (): void => {
-    expect(fromST(5, 0, 0)).toEqual({ x: -1, y: -1, z: -1 });
+    expect(fromST(5, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
 });
 
 describe('fromSTGL', (): void => {
   it('should convert a Face-S-T of 0-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(0, 0, 0)).toEqual({ x: -1, y: -1, z: 1 });
+    expect(fromSTGL(0, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: -0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 1-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(1, 0, 0)).toEqual({ x: 1, y: -1, z: 1 });
+    expect(fromSTGL(1, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: -0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 2-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(2, 0, 0)).toEqual({ x: 1, y: 1, z: 1 });
+    expect(fromSTGL(2, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: 0.5773502691896258,
+      z: 0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 3-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(3, 0, 0)).toEqual({ x: 1, y: 1, z: -1 });
+    expect(fromSTGL(3, 0, 0)).toEqual({
+      x: 0.5773502691896258,
+      y: 0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 4-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(4, 0, 0)).toEqual({ x: -1, y: 1, z: -1 });
+    expect(fromSTGL(4, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: 0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
   it('should convert a Face-S-T of 5-0-0 to an XYZ point', (): void => {
-    expect(fromSTGL(5, 0, 0)).toEqual({ x: -1, y: -1, z: -1 });
+    expect(fromSTGL(5, 0, 0)).toEqual({
+      x: -0.5773502691896258,
+      y: -0.5773502691896258,
+      z: -0.5773502691896258,
+    });
   });
 });
 
@@ -312,16 +384,22 @@ describe('sub', (): void => {
 
 describe('toIJ', (): void => {
   it('should convert an XYZ point to a Face-I-J', (): void => {
-    expect(toIJ({ x: 1, y: -1, z: -1 })).toEqual([5, 0, 1073741823]);
+    expect(toIJ({ x: 0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 })).toEqual(
+      [5, 0, 1073741823],
+    );
   });
   it('should convert an XYZ point to a Face-I-J', (): void => {
-    expect(toIJ({ x: 1, y: 1, z: -1 })).toEqual([5, 1073741823, 1073741823]);
+    expect(toIJ({ x: 0.5773502691896258, y: 0.5773502691896258, z: -0.5773502691896258 })).toEqual([
+      5, 1073741823, 1073741823,
+    ]);
   });
   it('should convert an XYZ point to a Face-I-J', (): void => {
     expect(toIJ({ x: 0.9999999503294631, y: 0.9999997516473249, z: 1 })).toEqual([2, 20, 100]);
   });
   it('should convert an XYZ point to a Face-I-J including a level of 10', (): void => {
-    expect(toIJ({ x: 1, y: -1, z: -1 }, 10)).toEqual([5, 0, 1023]);
+    expect(
+      toIJ({ x: 0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 }, 10),
+    ).toEqual([5, 0, 1023]);
   });
 });
 
@@ -345,10 +423,14 @@ describe('toLonLat', (): void => {
 
 describe('toS2CellID', (): void => {
   it('should convert an XYZ point to a S2CellID', (): void => {
-    expect(toS2CellID({ x: 1, y: -1, z: -1 })).toEqual(13835058055282163711n);
+    expect(
+      toS2CellID({ x: 0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 }),
+    ).toEqual(13835058055282163711n);
   });
   it('should convert an XYZ point to a S2CellID', (): void => {
-    expect(toS2CellID({ x: 1, y: 1, z: -1 })).toEqual(13066443718877599061n);
+    expect(
+      toS2CellID({ x: 0.5773502691896258, y: 0.5773502691896258, z: -0.5773502691896258 }),
+    ).toEqual(13066443718877599061n);
   });
   it('should convert an XYZ point to a S2CellID', (): void => {
     expect(toS2CellID({ x: 0.9999999503294631, y: 0.9999997516473249, z: 1 })).toEqual(
@@ -359,22 +441,34 @@ describe('toS2CellID', (): void => {
 
 describe('toST', (): void => {
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: 1, y: -1, z: -1 })).toEqual([5, 0, 1]);
+    expect(toST({ x: 0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 })).toEqual(
+      [5, 0, 1],
+    );
   });
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: 1, y: 1, z: -1 })).toEqual([5, 1, 1]);
+    expect(toST({ x: 0.5773502691896258, y: 0.5773502691896258, z: -0.5773502691896258 })).toEqual([
+      5, 1, 1,
+    ]);
   });
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: 1, y: 1, z: 1 })).toEqual([2, 0, 0]);
+    expect(toST({ x: 0.5773502691896258, y: 0.5773502691896258, z: 0.5773502691896258 })).toEqual([
+      2, 0, 0,
+    ]);
   });
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: -1, y: 1, z: 1 })).toEqual([2, 1, 0]);
+    expect(toST({ x: -0.5773502691896258, y: 0.5773502691896258, z: 0.5773502691896258 })).toEqual([
+      2, 1, 0,
+    ]);
   });
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: -1, y: -1, z: 1 })).toEqual([2, 1, 1]);
+    expect(toST({ x: -0.5773502691896258, y: -0.5773502691896258, z: 0.5773502691896258 })).toEqual(
+      [2, 1, 1],
+    );
   });
   it('should convert an XYZ point to a Face-S-T', (): void => {
-    expect(toST({ x: -1, y: -1, z: -1 })).toEqual([5, 0, 0]);
+    expect(
+      toST({ x: -0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 }),
+    ).toEqual([5, 0, 0]);
   });
 });
 

@@ -619,7 +619,7 @@ export function centerST(id: S2CellId): [face: Face, s: number, t: number] {
  * @param lev - zoom level
  * @returns [sMin, tMin, sMax, tMax]
  */
-export function boundsST(id: S2CellId, lev: number): BBox {
+export function boundsST(id: S2CellId, lev?: number): BBox {
   if (lev === undefined) lev = level(id);
 
   const [, s, t] = centerST(id);

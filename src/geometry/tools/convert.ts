@@ -85,13 +85,8 @@ function convertFeature<
   maxzoom?: number,
   buildBBox?: boolean,
 ): VectorFeatures<M, D, P, VectorGeometry<D>>[] {
-  if (projection === 'WM') {
-    const vf = toVector(data, buildBBox);
-    if (toUS) toUnitScale(vf, tolerance, maxzoom);
-    return [vf];
-  } else {
-    return toS2<M, D, P>(data, tolerance, maxzoom, buildBBox);
-  }
+  const vf = toVector(data, buildBBox);
+  return convertVectorFeature(projection, vf, toUS, tolerance, maxzoom, buildBBox);
 }
 
 /**

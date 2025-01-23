@@ -1,3 +1,4 @@
+import { distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
@@ -45,10 +46,7 @@ export function idwInterpolation<T extends MValue = Properties>(
   let numerator = 0;
   let denom = 0;
   for (const refPoint of refData) {
-    const distance = Math.sqrt(
-      Math.pow(refPoint.x - point.x, 2) + Math.pow(refPoint.y - point.y, 2),
-    );
-    const d2 = Math.pow(distance, 2);
+    const d2 = Math.pow(distance(point, refPoint), 2);
     const value = getValue(refPoint);
     if (d2 === 0) return value; // if distance is 0, return value
     numerator += value / d2;

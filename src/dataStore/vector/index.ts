@@ -10,7 +10,8 @@ export interface VectorKey {
 /** Represents a vector store or an array */
 export interface VectorStore<V> {
   push: (value: V) => void;
-  get: (index: number | bigint) => Promise<V>;
+  get: (index: number | S2CellId) => Promise<V>;
+  has: (key: number | S2CellId) => boolean | Promise<boolean>;
   length: number;
   values: () => AsyncGenerator<V>;
   sort: (() => void) | (() => Promise<void>);
@@ -37,8 +38,17 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  async get(index: number | bigint): Promise<V> {
+  async get(index: number | S2CellId): Promise<V> {
     return await this.#store[Number(index)];
+  }
+
+  /**
+   * Check if the key exists
+   * @param key - the key
+   * @returns true if the key exists
+   */
+  has(key: number | S2CellId): boolean {
+    return this.#store[Number(key)] !== undefined;
   }
 
   /** @returns the length of the store */

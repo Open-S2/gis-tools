@@ -231,6 +231,11 @@ export interface RasterBuildGuide
   minzoom: number;
   /** User defined maximum zoom level */
   maxzoom: number;
+  /**
+   * Used by the cell search to specify the tile buffer size in pixels.
+   * Recommend 0 unless you need to do neighbor analysis like RGBA elevation data.
+   */
+  bufferSize: number;
   /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
   onFeature?: OnFeature;
 }
@@ -245,22 +250,18 @@ export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
 
   // STEP 1: Convert all features to tile slices of said features.
   await toVectorTilesSliceFeatures(buildGuide, vectorWorker);
-
   // STEP 2: Ensure all data is prepped/sorted for reading/building tiles
   await vectorWorker.sort();
-
   // STEP 3: collect all existing multimap feature stores and build tiles
   for await (const { face, zoom, x, y, data } of vectorWorker.buildTiles()) {
     if (scheme === 'fzxy') await tileWriter.writeTileS2(face, zoom, x, y, data);
     else await tileWriter.writeTileWM(zoom, x, y, data);
   }
-
   // STEP 4: build metadata based on the guide
   const metaBuilder = new MetadataBuilder();
   const type = buildGuide.format === 'raster' ? 'raster' : 'vector';
   updateBuilder(metaBuilder, buildGuide, type, extension ?? 'pbf');
   const metadata = metaBuilder.commit();
-
   // STEP 5: Commit the metadata
   await tileWriter.commit(metadata);
 }
@@ -270,7 +271,8 @@ export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
  * @param rasterBuildGuide - the user defined guide on building the vector tiles
  */
 export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise<void> {
-  const { description, minzoom, maxzoom, extension, onFeature, interpolation } = rasterBuildGuide;
+  const { description, minzoom, maxzoom, extension, onFeature, interpolation, bufferSize } =
+    rasterBuildGuide;
   // setup worker and layer
   const rasterLayer: RasterLayer = {
     sourceName: 'raster',
@@ -284,7 +286,7 @@ export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise
       shape: {},
     },
     rasterGuide: {
-      search: 'cell',
+      bufferSize,
       getInterpolationValue: 'rgba',
       interpolation,
     },

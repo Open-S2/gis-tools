@@ -14,3 +14,5 @@ that have u64 support)
 [ ] - translations [BCP-47 language code] [ISO 639-1 language code]
 
 [ ] Tile readers should support a 'lon-lat' lookup where it finds the RGBA or elevation at said lon-lat. Maybe take an input VectorGeometry, so all points will get the Elevation interface injected.
+
+[ ] Hillshading (raster AND vector)

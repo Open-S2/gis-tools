@@ -8,6 +8,7 @@ export interface KVStore<V = Properties | Value> {
     | ((key: number | S2CellId) => V | undefined)
     | ((key: number | S2CellId) => Promise<V | undefined>);
   set: (key: number | S2CellId, value: V) => void;
+  has: (key: number | S2CellId) => boolean | Promise<boolean>;
   values: () => AsyncGenerator<V>;
   [Symbol.asyncIterator]: () => AsyncGenerator<V>;
   close: () => void;
@@ -31,6 +32,15 @@ export class KV<V = Properties | Value> implements KVStore<V> {
    */
   get(key: number | S2CellId): V | undefined {
     return this.#store.get(BigInt(key));
+  }
+
+  /**
+   * Check if the key exists
+   * @param key - the key
+   * @returns true if the key exists
+   */
+  has(key: number | S2CellId): boolean {
+    return this.#store.has(BigInt(key));
   }
 
   /**

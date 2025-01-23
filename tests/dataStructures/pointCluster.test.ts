@@ -5,7 +5,7 @@ import { expect, test } from 'bun:test';
 // helper functions
 import { fromFace } from '../../src';
 
-import type { Tile } from '../../src/';
+import type { Properties, Tile } from '../../src';
 
 test('PointCluster', async () => {
   const cluster = new PointCluster<{ a: number }>(
@@ -62,7 +62,7 @@ test('PointCluster', async () => {
       },
     },
     transformed: true,
-  } as unknown as Tile);
+  } as unknown as Tile<Record<string, unknown>, { value: number }, { a: number }>);
 });
 
 test('PointCluster - from reader', async () => {
@@ -91,7 +91,7 @@ test('PointCluster - from reader', async () => {
                 m: {
                   value: 3,
                 },
-                x: 0.9391825486078326,
+                x: 0.9391825486078325,
                 y: 0.15739240199815419,
               },
               is3D: false,
@@ -108,5 +108,5 @@ test('PointCluster - from reader', async () => {
     },
     transformed: true,
     zoom: 0,
-  } as unknown as Tile);
+  } as unknown as Tile<Record<string, unknown>, { value: number }, Properties>);
 });

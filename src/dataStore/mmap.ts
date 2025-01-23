@@ -115,6 +115,22 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
   }
 
   /**
+   * Checks if the store contains a key
+   * @param key - the key
+   * @returns true if the store contains the key
+   */
+  async has(key: number | S2CellId): Promise<boolean> {
+    key = BigInt(key);
+    await this.#switchToReadState();
+    if (this.#size === 0) return false;
+    const lowerIndex = this.#lowerBound(key);
+    if (lowerIndex >= this.#size) return false;
+    const keySlice = this.#keyReader.subarray(lowerIndex * 16, lowerIndex * 16 + 16);
+    const buffer = Buffer.from(keySlice);
+    return buffer.readBigUInt64LE(0) === key;
+  }
+
+  /**
    * Gets the value associated with a key
    * @param key - the key
    * @param max - the max number of values to return

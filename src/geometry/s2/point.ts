@@ -74,7 +74,7 @@ export function fromST<M extends MValue = Properties>(
   const v = STtoUV(t);
 
   // Convert the u-v coordinates to an XYZ Point.
-  return fromUV(face, u, v, m);
+  return normalize(fromUV(face, u, v, m));
 }
 
 /**
@@ -103,7 +103,7 @@ export function fromS2CellID(id: S2CellId): VectorPoint {
   const [face, u, v] = idToUV(id);
 
   // Use the decomposed parts to construct an XYZ Point.
-  return fromUV(face, u, v);
+  return normalize(fromUV(face, u, v));
 }
 
 /**
@@ -115,7 +115,7 @@ export function fromS2CellID(id: S2CellId): VectorPoint {
  */
 export function fromUVGL(face: Face, u: number, v: number): VectorPoint {
   // Convert the given Face-U-V coordinates to an XYZ Point using the right-hand rule.
-  return faceUVtoXYZGL(face, u, v);
+  return normalize(faceUVtoXYZGL(face, u, v));
 }
 
 /**
@@ -308,7 +308,7 @@ export function divMutScalar(xyz: VectorPoint, n: number) {
  * @param xyz - The XYZ Point to divide.
  * @returns - The XYZ Point with the divided amount.
  */
-export function normalize(xyz: VectorPoint): VectorPoint {
+export function normalize<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
   const len = length(xyz);
   xyz.x /= len;
   xyz.y /= len;
@@ -340,9 +340,9 @@ export function norm2(xyz: VectorPoint): number {
  * @param xyz - The XYZ Point
  * @returns - The inverted XYZ Point
  */
-export function invert(xyz: VectorPoint): VectorPoint {
-  const { x, y, z } = xyz;
-  return { x: -x, y: -y, z: -(z ?? 1) };
+export function invert<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
+  const { x, y, z, m } = xyz;
+  return { x: -x, y: -y, z: -(z ?? 1), m };
 }
 
 /**
@@ -391,11 +391,9 @@ export function distanceEarth(a: VectorPoint, b: VectorPoint): number {
  * @returns - The raw distance between the two XYZ Points. Highly inaccurate for large distances
  */
 export function distance(a: VectorPoint, b: VectorPoint): number {
-  const { sqrt, pow, abs } = Math;
+  const { sqrt, pow } = Math;
 
-  return sqrt(
-    pow(abs(b.x - a.x), 2) + pow(abs(b.y - a.y), 2) + pow(abs((b.z ?? 1) - (a.z ?? 1)), 2),
-  );
+  return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow((b.z ?? 0) - (a.z ?? 0), 2));
 }
 
 /**

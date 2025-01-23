@@ -1,3 +1,4 @@
+import { distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
@@ -23,26 +24,19 @@ export function getBilinearPoints<T extends MValue = Properties>(
   refData: VectorPoint<T>[],
 ): BilinearCorners<T> {
   const { x: refX, y: refY } = point;
-  /**
-   * Returns the distance between any point and the reference point
-   * @param point - point to get distance from
-   * @returns - the distance
-   */
-  const distance = (point: VectorPoint): number =>
-    Math.sqrt(Math.pow(point.x - refX, 2) + Math.pow(point.y - refY, 2));
   // 1) reduce to four corner points
   const topLeft = refData
     .filter((p) => p.x <= refX && p.y > refY)
-    .reduce((a, b) => (distance(a) < distance(b) ? a : b));
+    .reduce((a, b) => (distance(a, point) < distance(b, point) ? a : b));
   const topRight = refData
     .filter((p) => p.x > refX && p.y > refY)
-    .reduce((a, b) => (distance(a) < distance(b) ? a : b));
+    .reduce((a, b) => (distance(a, point) < distance(b, point) ? a : b));
   const bottomLeft = refData
     .filter((p) => p.x <= refX && p.y <= refY)
-    .reduce((a, b) => (distance(a) < distance(b) ? a : b));
+    .reduce((a, b) => (distance(a, point) < distance(b, point) ? a : b));
   const bottomRight = refData
     .filter((p) => p.x > refX && p.y <= refY)
-    .reduce((a, b) => (distance(a) < distance(b) ? a : b));
+    .reduce((a, b) => (distance(a, point) < distance(b, point) ? a : b));
 
   // Check if any of the corners are undefined
   if (

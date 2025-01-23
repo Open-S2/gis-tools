@@ -329,3 +329,9 @@ cargo tarpaulin --color always --skip-clean
 # bacon
 bacon coverage # or type `l` inside the tool
 ```
+
+### Using Tokei
+
+```bash
+cargo install tokei
+```

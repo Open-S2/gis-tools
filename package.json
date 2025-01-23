@@ -58,7 +58,8 @@
     "test": "FORCE_POLYFILL=true bun test",
     "test:fast": "FAST_TESTS_ONLY=true bun test",
     "test:coverage": "bun run test --coverage",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "loc": "tokei ./src && tokei ./rust"
   },
   "repository": {
     "type": "git",

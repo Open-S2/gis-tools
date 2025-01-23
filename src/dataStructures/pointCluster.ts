@@ -1,32 +1,9 @@
 import { fromS2Points } from '../geometry/s1/chordAngle';
-import {
-  PointIndex,
-  PointShape,
-  Tile,
-  defaultGetInterpolateCurrentValue,
-  getInterpolation,
-  getRGBAInterpolation,
-} from '..';
-import {
-  addMut,
-  divMutScalar,
-  fromLonLat,
-  fromST,
-  mulScalar,
-  normalize,
-  toST,
-} from '../geometry/s2/point';
-import {
-  convert,
-  fromFacePosLevel,
-  getVertices,
-  level,
-  parent,
-  range,
-  toS2Point,
-  toWM,
-} from '../geometry';
+import { PointIndex, PointShape, Tile } from '..';
+import { addMut, divMutScalar, fromST, mulScalar, normalize, toST } from '../geometry/s2/point';
+import { convert, fromFacePosLevel, getVertices, level, range } from '../geometry';
 
+import type { FeatureIterator } from '..';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type {
   Face,
@@ -37,15 +14,6 @@ import type {
   S2CellId,
   VectorPoint,
 } from '../geometry';
-import type {
-  FeatureIterator,
-  GetInterpolateValue,
-  InterpolationFunction,
-  InterpolationMethod,
-  RGBA,
-  RGBAInterpolationFunction,
-  VectorFeatures,
-} from '..';
 
 import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
 
@@ -58,7 +26,7 @@ export type ClusterStore<M extends MValue = Properties> = VectorStoreConstructor
 export type ClusterSearch = 'radial' | 'cell';
 
 /** Options for point clustering */
-export interface BaseClusterOptions<M extends MValue = Properties> {
+export interface ClusterOptions<M extends MValue = Properties> {
   /** type of store to use. Defaults to an in memory store */
   store?: ClusterStore<M>;
   /** projection to use */
@@ -71,58 +39,13 @@ export interface BaseClusterOptions<M extends MValue = Properties> {
   maxzoom?: number;
   /** cluster radius in pixels relative to a 512x512 pixel tile */
   radius?: number;
-  /** Specify the type of clustering [default: 'radial'] */
-  search?: ClusterSearch;
-  /** Used by cell search to specify the type of interpolation to use [default: 'lanczos'] */
-  interpolation?: InterpolationMethod;
-  /** Used by cell search to specify the interpolation function to use [default: 'z' value of the point] */
-  getInterpolationValue?: 'rgba' | GetInterpolateValue<M>;
-  /** Used by the cell search to specify the tile buffer size in pixels. [default: 0] */
-  bufferSize?: number;
-  /** Grid size, assumed pixel ratio. */
-  gridSize?: number;
-}
-
-/** Options for point clustering */
-export interface ClusterOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
-  /** search must be `radial` */
-  search: 'radial';
-}
-
-/** Options for grid clustering */
-export interface ClusterRasterOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
-  /** search must be `cell` */
-  search: 'cell';
-  /** Used by cell search to specify the type of interpolation to use. [Recommend: 'lanczos'] */
-  interpolation: InterpolationMethod;
-  /** Used by cell search to specify the interpolation function to use */
-  getInterpolationValue: 'rgba';
-}
-
-/** Options for grid clustering */
-export interface ClusterGridOptions<M extends MValue = Properties> extends BaseClusterOptions<M> {
-  /** search must be `cell` */
-  search: 'cell';
-  /** Used by cell search to specify the type of interpolation to use. [Recommend: 'lanczos'] */
-  interpolation: InterpolationMethod;
-  /** Used by cell search to specify the interpolation function to use. */
-  getInterpolationValue: GetInterpolateValue<M>;
-  /** Used by the cell search to specify the tile buffer size in pixels. [default: 0] */
-  bufferSize: number;
-}
-
-/** An export of the data as a grid */
-export interface TileGrid {
-  name: string;
-  size: number;
-  data: number[];
 }
 
 /** A cluster is a storage device to maintain groups of information in a cluster */
 export interface Cluster<M extends MValue = Properties> extends Properties {
   data: M;
   visited: boolean;
-  value: number | RGBA;
+  value: number;
 }
 
 /**
@@ -131,7 +54,7 @@ export interface Cluster<M extends MValue = Properties> extends Properties {
  * @param value - the interpolated value as a number or RGBA of the cluster
  * @returns - a new cluster with the correct value and m-value
  */
-function toCluster<M extends MValue = Properties>(data: M, value: number | RGBA): Cluster<M> {
+function toCluster<M extends MValue = Properties>(data: M, value: number): Cluster<M> {
   return { data, visited: false, value };
 }
 
@@ -169,11 +92,7 @@ export class PointCluster<M extends MValue = Properties> {
   minzoom: number;
   maxzoom: number;
   radius: number;
-  bufferSize: number;
-  search: ClusterSearch;
-  interpolation: InterpolationFunction<M> | RGBAInterpolationFunction;
-  getValue: GetInterpolateValue<M>;
-  gridSize: number; // a default is a 512x512 pixel tile
+  gridSize = 512; // a default is a 512x512 pixel tile
   indexes = new Map<number, PointIndex<Cluster<M>>>();
 
   /**
@@ -183,7 +102,7 @@ export class PointCluster<M extends MValue = Properties> {
    */
   constructor(
     data?: JSONCollection<Record<string, unknown>, M, M>,
-    options?: BaseClusterOptions<M>,
+    options?: ClusterOptions<M>,
     maxzoomStore?: VectorStore<PointShape<Cluster<M>>>,
   ) {
     this.projection = options?.projection ?? 'S2';
@@ -191,18 +110,6 @@ export class PointCluster<M extends MValue = Properties> {
     this.minzoom = Math.max(options?.minzoom ?? 0, 0);
     this.maxzoom = Math.min(options?.maxzoom ?? 16, 29);
     this.radius = options?.radius ?? 40;
-    this.bufferSize = options?.bufferSize ?? 0;
-    this.gridSize = options?.gridSize ?? 512;
-    this.search = options?.search ?? 'radial';
-    const isRGBA = options?.getInterpolationValue === 'rgba';
-    const interpolation = options?.interpolation ?? 'lanczos';
-    this.interpolation = isRGBA
-      ? getRGBAInterpolation(interpolation)
-      : getInterpolation<M>(interpolation);
-    this.getValue =
-      options?.getInterpolationValue === 'rgba' || this.search === 'radial'
-        ? () => 1
-        : (options?.getInterpolationValue ?? defaultGetInterpolateCurrentValue);
     // one extra zoom incase its a cell search system (bottom zoom isn't clustered to a cell)
     for (let zoom = this.minzoom; zoom <= this.maxzoom + 1; zoom++) {
       this.indexes.set(zoom, new PointIndex<Cluster<M>>(options?.store));
@@ -212,17 +119,7 @@ export class PointCluster<M extends MValue = Properties> {
       maxzoomIndex?.setStore(maxzoomStore);
     }
     // convert features if provided
-    if (data !== undefined) {
-      const features = convert(this.projection, data, false, undefined, this.maxzoom, true);
-      for (const feature of features) {
-        const face = feature.face ?? 0;
-        const { type, coordinates } = feature.geometry;
-        if (type === 'Point') {
-          const { x: s, y: t } = coordinates;
-          this.insertFaceST(face, s, t, feature.properties);
-        }
-      }
-    }
+    if (data !== undefined) this.insertFeature(data);
   }
 
   /**
@@ -232,8 +129,7 @@ export class PointCluster<M extends MValue = Properties> {
   insert(point: VectorPoint<M>): void {
     const { x, y, z, m } = point;
     const maxzoomIndex = this.indexes.get(this.maxzoom);
-    const value = this.getValue(point);
-    maxzoomIndex?.insert({ x, y, z, m: toCluster<M>(m!, value) });
+    maxzoomIndex?.insert({ x, y, z, m: toCluster<M>(m!, 1) });
   }
 
   /**
@@ -248,20 +144,20 @@ export class PointCluster<M extends MValue = Properties> {
   /**
    * Add a vector feature. It will try to use the M-value first, but if it doesn't exist
    * it will use the feature properties data
-   * @param feature - vector feature (either S2 or WM)
+   * @param data - any source of data like a feature collection or features themselves
    */
-  insertFeature(feature: VectorFeatures<Record<string, unknown>, M, M>): void {
-    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
-    const {
-      geometry: { coordinates, type },
-    } = feature.type === 'S2Feature' ? toWM(feature) : feature;
-    if (type === 'Point') {
-      if (coordinates.m === undefined) coordinates.m = feature.properties;
-      this.insertLonLat(coordinates);
-    } else if (type === 'MultiPoint') {
-      for (const point of coordinates) {
-        if (point.m === undefined) point.m = feature.properties;
-        this.insertLonLat(point);
+  insertFeature(data: JSONCollection<Record<string, unknown>, M, M>): void {
+    const features = convert(this.projection, data, undefined, undefined, undefined, true);
+    for (const { face = 0, geometry, properties } of features) {
+      const { type, coordinates } = geometry;
+      if (type === 'Point') {
+        const { x: s, y: t, m } = coordinates;
+        this.#insertFaceST(face, s, t, m ?? properties);
+      } else if (type === 'MultiPoint') {
+        for (const point of coordinates) {
+          const { x: s, y: t, m } = point;
+          this.#insertFaceST(face, s, t, m ?? properties);
+        }
       }
     }
   }
@@ -271,7 +167,11 @@ export class PointCluster<M extends MValue = Properties> {
    * @param ll - lon-lat vector point in degrees
    */
   insertLonLat(ll: VectorPoint<M>): void {
-    this.insert(fromLonLat(ll));
+    this.insertFeature({
+      type: 'VectorFeature',
+      properties: ll.m!,
+      geometry: { type: 'Point', coordinates: ll, is3D: false },
+    });
   }
 
   /**
@@ -282,6 +182,22 @@ export class PointCluster<M extends MValue = Properties> {
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: M): void {
+    this.insertFeature({
+      type: 'S2Feature',
+      face,
+      properties: data,
+      geometry: { type: 'Point', coordinates: { x: s, y: t, m: data }, is3D: false },
+    });
+  }
+
+  /**
+   * Insert an STPoint to the index
+   * @param face - the face of the cell
+   * @param s - the s coordinate
+   * @param t - the t coordinate
+   * @param data - the data associated with the point
+   */
+  #insertFaceST(face: Face, s: number, t: number, data: M): void {
     this.insert(fromST(face, s, t, data));
   }
 
@@ -290,15 +206,13 @@ export class PointCluster<M extends MValue = Properties> {
    * @param cmp_ - custom compare function
    */
   async buildClusters(cmp_?: Comparitor<M>): Promise<void> {
-    const { minzoom, maxzoom, search } = this;
+    const { minzoom, maxzoom } = this;
     const cmp: Comparitor<M> = cmp_ ?? ((_a: M, _b: M) => true);
-    let zoom = search === 'radial' ? maxzoom - 1 : maxzoom;
-    for (; zoom >= minzoom; zoom--) {
+    for (let zoom = maxzoom; zoom >= minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
       const queryIndex = this.indexes.get(zoom + 1);
       if (curIndex === undefined || queryIndex === undefined) throw new Error('Index not found');
-      if (search === 'radial') await this.#clusterRadius(zoom, queryIndex, curIndex, cmp);
-      else await this.#clusterCells(zoom, queryIndex, curIndex);
+      await this.#clusterRadius(zoom, queryIndex, curIndex, cmp);
     }
     // ensure all point indexes are sorted
     for (const index of this.indexes.values()) await index.sort();
@@ -347,48 +261,6 @@ export class PointCluster<M extends MValue = Properties> {
   }
 
   /**
-   * Cell clustering
-   * TODO: We build a catagorized cell of size x size with buffer
-   * @param zoom - the zoom level
-   * @param queryIndex - the index to query
-   * @param currIndex - the index to insert into
-   */
-  async #clusterCells(
-    zoom: number,
-    queryIndex: PointIndex<Cluster<M>>,
-    currIndex: PointIndex<Cluster<M>>,
-  ): Promise<void> {
-    const { interpolation, getValue, maxzoom } = this;
-    for await (const clusterPoint of queryIndex) {
-      const {
-        cell,
-        point: { m: clusterData },
-      } = clusterPoint;
-      const parentID = parent(cell, zoom);
-      const [minParent, maxParent] = range(parentID);
-      const parentPoint = toS2Point(parentID);
-      // get all cells in parentID who haven't been visited yet. maxzoom does a radial search
-      const cellPoints = (
-        maxzoom === zoom
-          ? await queryIndex.searchRadius(parentPoint, this.#getLevelRadius(zoom))
-          : await queryIndex.searchRange(minParent, maxParent)
-      ).filter(({ point }) => point.m!.visited);
-      // use interpolation
-      if (cellPoints.length > 0) {
-        for (const { point } of cellPoints) point.m!.visited = true;
-        const cellPointsData = cellPoints.map(({ point }) => {
-          const { x, y, z } = point;
-          return { x, y, z, m: point.m!.m };
-        });
-        // @ts-expect-error - we know M is correct
-        const interpValue = interpolation(parentPoint, cellPointsData, getValue);
-        const { x, y, z } = parentPoint;
-        currIndex.insert({ x, y, z, m: toCluster(clusterData!.data, interpValue) });
-      }
-    }
-  }
-
-  /**
    * @param id - the cell id
    * @returns - the data within the range of the tile id
    */
@@ -408,10 +280,10 @@ export class PointCluster<M extends MValue = Properties> {
    */
   async getTile(
     id: S2CellId,
-  ): Promise<undefined | Tile<Record<string, unknown>, { value: number | RGBA }, M>> {
+  ): Promise<undefined | Tile<Record<string, unknown>, { value: number }, M>> {
     const data = await this.getCellData(id);
     if (data === undefined) return;
-    const tile = new Tile<Record<string, unknown>, { value: number | RGBA }, M>(id);
+    const tile = new Tile<Record<string, unknown>, { value: number }, M>(id);
     for (const { point } of data) {
       const [face, s, t] = toST(point);
       const { value, data } = point.m!;
@@ -430,26 +302,6 @@ export class PointCluster<M extends MValue = Properties> {
     tile.transform(0, this.maxzoom);
 
     return tile;
-  }
-
-  /**
-   * Get the point data as a grid of a tile
-   * @param id - the cell id
-   * @returns - a tile grid
-   */
-  async getTileGrid(id: S2CellId): Promise<undefined | TileGrid> {
-    const { layerName, gridSize } = this;
-    const cellData = await this.getCellData(id);
-    if (cellData === undefined) return;
-
-    // TODO: Organize all the cell data into a grid of gridSize. Then flatten if RGBA.
-
-    return {
-      name: layerName,
-      size: gridSize,
-      // TODO: Build data
-      data: [],
-    };
   }
 
   /**

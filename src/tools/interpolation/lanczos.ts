@@ -1,3 +1,4 @@
+import { distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';
@@ -48,10 +49,7 @@ export function lanczosInterpolation<T extends MValue = Properties>(
   let denom = 0;
 
   for (const refPoint of refData) {
-    const distance = Math.sqrt(
-      Math.pow(refPoint.x - point.x, 2) + Math.pow(refPoint.y - point.y, 2),
-    );
-    const weight = lanczosKernel(distance, kernelRadius);
+    const weight = lanczosKernel(distance(point, refPoint), kernelRadius);
     const value = getValue(refPoint);
 
     numerator += value * weight;

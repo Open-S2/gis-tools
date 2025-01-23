@@ -1,18 +1,19 @@
 import { Vector } from '../dataStore';
 import { fromS2Points } from '../geometry/s1/chordAngle';
-import { compareIDs, fromS2Point, range, toWM } from '../geometry';
+import { fromST } from '../geometry/s2/point';
+import { compareIDs, convert, fromS2Point, range } from '../geometry';
 import { fromS1ChordAngle, getIntersectingCells } from '../geometry/s2/cap';
-
-import { fromLonLat, fromST } from '../geometry/s2/point';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type {
   Face,
   FeatureIterator,
+  JSONCollection,
   MValue,
+  Projection,
   Properties,
+  RGBA,
   S2CellId,
-  VectorFeatures,
   VectorPoint,
 } from '..';
 import type { VectorStore, VectorStoreConstructor } from '../dataStore';
@@ -54,12 +55,18 @@ export interface PointShape<M extends MValue = Properties> {
  * const points = await pointIndex.searchRadius(center, radius);
  * ```
  */
-export class PointIndex<M extends MValue = Properties> {
+export class PointIndex<M extends MValue = Properties | RGBA> {
   #store: VectorStore<PointShape<M>>;
   #unsorted: boolean = false;
 
-  /** @param store - the store to index. May be an in memory or disk */
-  constructor(store: VectorStoreConstructor<PointShape<M>> = Vector) {
+  /**
+   * @param store - the store to index. May be an in memory or disk
+   * @param projection - the projection of the data, defaults to S2
+   */
+  constructor(
+    store: VectorStoreConstructor<PointShape<M>> = Vector,
+    private projection: Projection = 'S2',
+  ) {
     this.#store = new store();
   }
 
@@ -99,21 +106,22 @@ export class PointIndex<M extends MValue = Properties> {
   }
 
   /**
-   * Add a feature to the index
-   * @param feature - vector feature (either S2 or WM)
+   * Add a vector feature. It will try to use the M-value first, but if it doesn't exist
+   * it will use the feature properties data
+   * @param data - any source of data like a feature collection or features themselves
    */
-  insertFeature(feature: VectorFeatures<Record<string, unknown>, M, M>): void {
-    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
-    const {
-      geometry: { coordinates, type },
-    } = feature.type === 'S2Feature' ? toWM(feature) : feature;
-    if (type === 'Point') {
-      if (coordinates.m === undefined) coordinates.m = feature.properties;
-      this.insertLonLat(coordinates);
-    } else if (type === 'MultiPoint') {
-      for (const point of coordinates) {
-        if (point.m === undefined) point.m = feature.properties;
-        this.insertLonLat(point);
+  insertFeature(data: JSONCollection<Record<string, unknown>, M, M>): void {
+    const features = convert(this.projection, data, undefined, undefined, undefined, true);
+    for (const { face = 0, geometry, properties } of features) {
+      const { type, coordinates } = geometry;
+      if (type === 'Point') {
+        const { x: s, y: t, m } = coordinates;
+        this.#insertFaceST(face, s, t, m ?? properties);
+      } else if (type === 'MultiPoint') {
+        for (const point of coordinates) {
+          const { x: s, y: t, m } = point;
+          this.#insertFaceST(face, s, t, m ?? properties);
+        }
       }
     }
   }
@@ -123,7 +131,11 @@ export class PointIndex<M extends MValue = Properties> {
    * @param ll - lon-lat vector point in degrees
    */
   insertLonLat(ll: VectorPoint<M>): void {
-    this.insert(fromLonLat(ll));
+    this.insertFeature({
+      type: 'VectorFeature',
+      properties: ll.m!,
+      geometry: { type: 'Point', coordinates: ll, is3D: false },
+    });
   }
 
   /**
@@ -134,6 +146,22 @@ export class PointIndex<M extends MValue = Properties> {
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: M): void {
+    this.insertFeature({
+      type: 'S2Feature',
+      face,
+      properties: data,
+      geometry: { type: 'Point', coordinates: { x: s, y: t, m: data }, is3D: false },
+    });
+  }
+
+  /**
+   * Insert an STPoint to the index
+   * @param face - the face of the cell
+   * @param s - the s coordinate
+   * @param t - the t coordinate
+   * @param data - the data associated with the point
+   */
+  #insertFaceST(face: Face, s: number, t: number, data: M): void {
     this.insert(fromST(face, s, t, data));
   }
 
@@ -207,6 +235,8 @@ export class PointIndex<M extends MValue = Properties> {
   }
 
   /**
+   * TODO: Adjust the radius for the WM projection. Really not a massive issue thogh just adjust your calcuation for now
+   * Search for points within a given radius of a target point
    * @param target - the point to search
    * @param radius - the search radius
    * @param maxResults - the maximum number of results

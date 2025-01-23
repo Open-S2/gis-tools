@@ -1,5 +1,6 @@
 import { S2MMapStore } from '../mmap';
 
+import type { S2CellId } from '../..';
 import type { VectorKey, VectorStore } from '.';
 
 /** MMap based vector store */
@@ -27,10 +28,19 @@ export class MMapVector<V extends VectorKey> implements VectorStore<V> {
    * @param index - the position in the store to get the value from
    * @returns the value
    */
-  async get(index: number | bigint): Promise<V> {
+  async get(index: number | S2CellId): Promise<V> {
     const value = await this.#store.get(BigInt(index));
     if (value === undefined) throw new Error('Value not found');
     return value[0] as V;
+  }
+
+  /**
+   * Check if the key exists
+   * @param key - the key
+   * @returns true if the key exists
+   */
+  async has(key: number | S2CellId): Promise<boolean> {
+    return await this.#store.has(BigInt(key));
   }
 
   /** Sort the store */

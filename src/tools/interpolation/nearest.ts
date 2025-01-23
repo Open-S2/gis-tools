@@ -1,4 +1,5 @@
 import { defaultGetInterpolateCurrentValue } from '.';
+import { distance } from '../../geometry/s2/point';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -48,11 +49,9 @@ export function nearestInterpolation<T extends MValue = Properties>(
   let minDistance = Infinity;
 
   for (const refPoint of refData) {
-    const distance = Math.sqrt(
-      Math.pow(refPoint.x - point.x, 2) + Math.pow(refPoint.y - point.y, 2),
-    );
-    if (distance < minDistance || nearestPoint === undefined) {
-      minDistance = distance;
+    const dist = distance(point, refPoint);
+    if (dist < minDistance || nearestPoint === undefined) {
+      minDistance = dist;
       nearestPoint = refPoint;
     }
   }

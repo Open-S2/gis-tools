@@ -31,6 +31,15 @@ export class MMapKV<V = Properties | Value> implements KVStore<V> {
   }
 
   /**
+   * Check if the key exists
+   * @param key - the key
+   * @returns true if the key exists
+   */
+  async has(key: number | S2CellId): Promise<boolean> {
+    return await this.#store.has(BigInt(key));
+  }
+
+  /**
    * Gets the list of values associated with a key
    * @param key - the key
    * @returns the list of values if the map contains values for the key
