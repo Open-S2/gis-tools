@@ -25,6 +25,7 @@ await build({
     `${__dirname}/builds/dataStore/vector.ts`,
     // DATA STRUCTURES
     `${__dirname}/builds/dataStructures/cache.ts`,
+    `${__dirname}/builds/dataStructures/pointGrid.ts`,
     `${__dirname}/builds/dataStructures/pointCluster.ts`,
     `${__dirname}/builds/dataStructures/pointIndex.ts`,
     `${__dirname}/builds/dataStructures/pointIndexFast.ts`,

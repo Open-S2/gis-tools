@@ -15,6 +15,7 @@ test('FileMultiMap', async () => {
   store.set(22, 4);
   store.set(22, 5);
   expect(store.length).toBe(5);
+  expect(await store.has(0)).toBeTrue();
   expect(await store.get(0)).toStrictEqual([1]);
   expect(await store.get(1)).toStrictEqual([2]);
   expect(await store.get(22)).toStrictEqual([4, 5]);

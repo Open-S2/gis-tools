@@ -11,6 +11,7 @@ test('MultiMap', async () => {
   store.set(22, 4);
   store.set(22, 5);
   expect(store.length).toBe(5);
+  expect(store.has(0)).toBeTrue();
   expect(store.get(0)).toStrictEqual([1]);
   expect(store.get(1)).toStrictEqual([2]);
   expect(store.get(22)).toStrictEqual([4, 5]);

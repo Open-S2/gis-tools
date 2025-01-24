@@ -20,6 +20,7 @@ test('Vector', async () => {
   store.push({ a: 3, cell: 5000001n });
   store.sort();
   expect(store.length).toBe(6);
+  expect(store.has(0)).toBeTrue();
   expect(await store.get(0)).toEqual({ a: 1, cell: 0n });
   expect(await store.get(1)).toEqual({ a: 2, cell: 1n });
 

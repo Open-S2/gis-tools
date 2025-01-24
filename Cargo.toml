@@ -1,17 +1,5 @@
-[workspace]
-resolver = "2"
-members = [
-    "rust/geometry",
-    # "rust/s2cell",
-    # "rust/uint64"
-]
-
-default-members = [
-  "rust/geometry"
-]
-
-[workspace.package]
-# name = "gis-tools"
+[package]
+name = "gis-tools"
 version = "1.0.0"
 edition = "2021"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
@@ -29,7 +17,7 @@ exclude = [
     "/assets",
     "/benchmarks",
     "/docs",
-    "/test",
+    "/tests",
     "/tools",
     "/src",
     "/coverage",
@@ -38,24 +26,34 @@ exclude = [
     "/node_modules",
     "/build_bundle_tmp",
     ".github",
+    "/config",
+    "/docs-ts",
+    "/docs-rs",
+    "build.*",
     ".helix"
 ]
 
-# [lib]
-# crate-type = ["cdylib"]
-# name = "rust"
-# path = "rust/lib.rs"
-# bench = true
+[lib]
+name = "gistools"
+path = "rust/lib.rs"
+bench = true
+
+[features]
+default = ["quadratic"] # Default feature
+quadratic = []          # Feature for quadratic projection
+tan = []                # Feature for tangential projection
+linear = []             # Feature for linear projection
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-# [dependencies]
+[dependencies]
+pbf = "1"
+libm = "0.2"
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 
-# [dev-dependencies]
+[dev-dependencies]
+# tarpaulin = "*"
 
-# [features]
-# default = ["std"]
-# std = []
-
-# [profile.bench]
-# opt-level = 3
+[profile.bench]
+opt-level = 3

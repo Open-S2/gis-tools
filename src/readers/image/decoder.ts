@@ -4,6 +4,7 @@ export interface DecodeOptions {
   y?: number;
   width?: number;
   height?: number;
+  /** The modulo to use. For example you may have a 514x514 image, but you want to use 512x512 [Default=1] */
   modulo?: number;
 }
 
@@ -39,11 +40,13 @@ export async function imageDecoder(
 /**
  * Image decoder
  * @param buffer - the input buffer
+ * @param options - user defined options
  * @returns - the decoded buffer
  */
 export async function imageDecoderBuffer(
   buffer: ArrayBufferLike | Uint8Array | Buffer,
+  options?: DecodeOptions,
 ): Promise<ArrayBufferLike> {
-  const imageData = await imageDecoder(buffer);
+  const imageData = await imageDecoder(buffer, options);
   return imageData.data.buffer;
 }

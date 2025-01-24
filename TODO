@@ -1,8 +1,6 @@
 # LIST OF TODOs
 
-[ ] - reimagine the point(Index|Cluster) system, its too slow for javascript (but perfect for lower langauges
-that have u64 support)
-[ ] - bin -> toRasterTiles, & toVectorTiles
+[ ] - reimagine the point(Index|Cluster|Grid) system, its too slow for javascript (but perfect for lower langauges that have u64 support)
 [ ] - readers
 [ ] - - KML, KMZ, GML, & GPX
 [ ] - - LAS/LAZ
@@ -16,3 +14,9 @@ that have u64 support)
 [ ] Tile readers should support a 'lon-lat' lookup where it finds the RGBA or elevation at said lon-lat. Maybe take an input VectorGeometry, so all points will get the Elevation interface injected.
 
 [ ] Hillshading (raster AND vector)
+
+## Tests to do for first showcase
+
+[ ] - src/converters/toTiles/*.ts
+[ ] - src/dataStructures/pointGrid.ts
+[ ] - src/geometry/tools/polys.ts

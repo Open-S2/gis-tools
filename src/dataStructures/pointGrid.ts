@@ -1,4 +1,5 @@
 import { fromS2Points } from '../geometry/s1/chordAngle';
+import { fromST } from '../geometry/s2/point';
 import {
   KV,
   PointIndex,
@@ -16,9 +17,7 @@ import {
   getVertices,
   parent,
   toFaceIJ,
-  toWM,
 } from '../geometry';
-import { fromLonLat, fromST } from '../geometry/s2/point';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type {
@@ -37,7 +36,6 @@ import type {
   InterpolationMethod,
   RGBA,
   RGBAInterpolationFunction,
-  VectorFeatures,
 } from '..';
 
 import type { KVStore, KVStoreConstructor, VectorStoreConstructor } from '../dataStore';
@@ -105,24 +103,23 @@ export interface TileGrid extends Properties {
  *
  * ## Description
  * A cluster store to build grid data of gridSize x gridSize. The resultant tiles are filled.
+ * Useful for building raster tiles or other grid like data (temperature, precipitation, wind, etc).
  *
  * ## Usage
  * ```ts
  * import { GridCluster } from 'gis-tools-ts';
- * const pointCluster = new GridCluster();
+ * const gridCluster = new GridCluster();
  *
  * // add a lon-lat
- * pointCluster.insertLonLat(lon, lat, data);
+ * gridCluster.insertLonLat(lon, lat, data);
  * // add an STPoint
- * pointCluster.insertFaceST(face, s, t, data);
+ * gridCluster.insertFaceST(face, s, t, data);
  *
  * // after adding data build the clusters
- * await pointCluster.buildClusters();
+ * await gridCluster.buildClusters();
  *
  * // get the clusters for a tile
- * const tile = await pointCluster.getTile(id);
- * // or get the raw cluster data
- * const clusters = await pointCluster.getCellData(id);
+ * const tile = await gridCluster.getTile(id);
  * ```
  */
 export class GridCluster<M extends MValue = Properties | RGBA> {
@@ -203,20 +200,20 @@ export class GridCluster<M extends MValue = Properties | RGBA> {
   /**
    * Add a vector feature. It will try to use the M-value first, but if it doesn't exist
    * it will use the feature properties data
-   * @param feature - vector feature (either S2 or WM)
+   * @param data - any source of data like a feature collection or features themselves
    */
-  insertFeature(feature: VectorFeatures<Record<string, unknown>, M, M>): void {
-    if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
-    const {
-      geometry: { coordinates, type },
-    } = feature.type === 'S2Feature' ? toWM(feature) : feature;
-    if (type === 'Point') {
-      if (coordinates.m === undefined) coordinates.m = feature.properties;
-      this.insertLonLat(coordinates);
-    } else if (type === 'MultiPoint') {
-      for (const point of coordinates) {
-        if (point.m === undefined) point.m = feature.properties;
-        this.insertLonLat(point);
+  insertFeature(data: JSONCollection<Record<string, unknown>, M, M>): void {
+    const features = convert(this.projection, data, undefined, undefined, undefined, true);
+    for (const { face = 0, geometry, properties } of features) {
+      const { type, coordinates } = geometry;
+      if (type === 'Point') {
+        const { x: s, y: t, m } = coordinates;
+        this.#insertFaceST(face, s, t, m ?? properties);
+      } else if (type === 'MultiPoint') {
+        for (const point of coordinates) {
+          const { x: s, y: t, m } = point;
+          this.#insertFaceST(face, s, t, m ?? properties);
+        }
       }
     }
   }
@@ -226,7 +223,11 @@ export class GridCluster<M extends MValue = Properties | RGBA> {
    * @param ll - lon-lat vector point in degrees
    */
   insertLonLat(ll: VectorPoint<M>): void {
-    this.insert(fromLonLat(ll));
+    this.insertFeature({
+      type: 'VectorFeature',
+      properties: ll.m!,
+      geometry: { type: 'Point', coordinates: ll, is3D: false },
+    });
   }
 
   /**
@@ -237,6 +238,22 @@ export class GridCluster<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: M): void {
+    this.insertFeature({
+      type: 'S2Feature',
+      face,
+      properties: data,
+      geometry: { type: 'Point', coordinates: { x: s, y: t, m: data }, is3D: false },
+    });
+  }
+
+  /**
+   * Insert an STPoint to the index
+   * @param face - the face of the cell
+   * @param s - the s coordinate
+   * @param t - the t coordinate
+   * @param data - the data associated with the point
+   */
+  #insertFaceST(face: Face, s: number, t: number, data: M): void {
     this.insert(fromST(face, s, t, data));
   }
 

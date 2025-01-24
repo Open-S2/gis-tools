@@ -13,6 +13,7 @@ test('S2MMapStore', async () => {
   store.set(1, { a: 2 });
   store.set(5_005, { a: 3 });
   store.set(22, { a: 4 });
+  expect(await store.has(0)).toBeTrue();
   expect(await store.get(0)).toEqual([{ a: 1 }]);
 
   const entries = await Array.fromAsync(store.entries());

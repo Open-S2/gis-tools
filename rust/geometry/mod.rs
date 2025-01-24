@@ -1,17 +1,9 @@
-#![no_std]
-#![deny(missing_docs)]
-
-//! The `s2json` Rust crate provides functionalities to read and write S2JSON Spec data structures.
-//! This crate is a 0 dependency package that uses `no_std` and is intended to be used in
-//! embedded systems and WASM applications.
-//! NOTE: WM stands for WGS84 and S2 stands for S2Geometry
-
 extern crate alloc;
 
 /// Global conversion tool
 pub mod convert;
 /// All geometry types and structs
-pub mod geometry;
+pub mod geo;
 /// All S2 tooling
 pub mod s2;
 /// All simplify tooling
@@ -26,7 +18,7 @@ pub mod values;
 pub mod wm;
 
 pub use convert::*;
-pub use geometry::*;
+pub use geo::*;
 pub use s2::*;
 pub use simplify::*;
 pub use tile::*;

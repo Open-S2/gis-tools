@@ -1,5 +1,5 @@
 export * from './cache';
-export * from './gridCluster';
+export * from './pointGrid';
 export * from './pointCluster';
 export * from './pointIndex';
 export * from './pointIndexFast';

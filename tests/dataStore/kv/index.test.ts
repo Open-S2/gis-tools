@@ -10,6 +10,7 @@ test('KV - local', async () => {
   store.set(5_005, 3);
   store.set(22, 4);
   expect(store.length).toBe(4);
+  expect(store.has(0)).toBeTrue();
   expect(store.get(0)).toBe(1);
   expect(store.get(1)).toBe(2);
 

@@ -14,6 +14,7 @@ test('KV - MMap', async () => {
   store.set(5_005, 3);
   store.set(22, 4);
   expect(store.length).toBe(4);
+  expect(await store.has(0)).toBeTrue();
   expect(await store.get(0)).toBe(1);
   expect(await store.get(1)).toBe(2);
 

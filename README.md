@@ -101,6 +101,7 @@ cargo add gis-tools
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
+| [pointGrid]              | ![PG Badge][pgBadge]          | Point cluster tool with indexing.                                |
 | [pointCluster]           | ![PC Badge][pcBadge]          | Point cluster tool with indexing.                                |
 | [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
 | [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
@@ -109,6 +110,8 @@ cargo add gis-tools
 
 [cache]: /docs-ts/dataStructures/cache.md
 [cacheBadge]: /assets/badges/cache-gzip-cover.svg
+[pointGrid]: /docs-ts/dataStructures/pointGrid.md
+[pgBadge]: /assets/badges/pointGrid-gzip-cover.svg
 [pointCluster]: /docs-ts/dataStructures/pointCluster.md
 [pcBadge]: /assets/badges/pointCluster-gzip-cover.svg
 [pointIndex]: /docs-ts/dataStructures/pointIndex.md
