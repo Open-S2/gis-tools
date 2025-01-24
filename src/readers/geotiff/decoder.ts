@@ -3,6 +3,8 @@ import { imageDecoderBuffer, jpegDecoder } from '../image';
 
 /** What to expect from the decoder */
 export type Decoder =
+  | ((buffer: ArrayBufferLike) => Promise<ArrayBufferLike>)
+  | ((buffer: ArrayBufferLike) => ArrayBufferLike)
   | ((buffer: ArrayBufferLike, tables?: number[]) => Promise<ArrayBufferLike>)
   | ((buffer: ArrayBufferLike, tables?: number[]) => ArrayBufferLike);
 
