@@ -281,11 +281,11 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
       if (await gridTileStore.has(maxzoomID)) continue;
       // prep variables and grid result
       const face = cellFace(cell);
-      const [uMin, vMin, uMax, vMax] = boundsST(maxzoomID, maxzoom);
-      const sPixel = (uMax - uMin) / gridSize;
-      const tPixel = (vMax - vMin) / gridSize;
-      const sStart = uMin - sPixel * bufferSize;
-      const tStart = vMin - tPixel * bufferSize;
+      const [sMin, tMin, sMax, tMax] = boundsST(maxzoomID, maxzoom);
+      const sPixel = (sMax - sMin) / gridSize;
+      const tPixel = (tMax - tMin) / gridSize;
+      const sStart = sMin - sPixel * bufferSize;
+      const tStart = tMin - tPixel * bufferSize;
       const grid: number[] | RGBA[] = new Array(gridLength * gridLength).fill(nullValue);
       // iterate through the grid and do searches for each position. Interpolate the data to the
       // position and store the result in the grid.
