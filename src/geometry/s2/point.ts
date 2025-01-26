@@ -52,7 +52,7 @@ export function fromUV<M extends MValue = Properties>(
   m?: M,
 ): VectorPoint<M> {
   // Convert the given u-v coordinates to an XYZ Point using the left-hand rule.
-  return faceUVtoXYZ(face, u, v, m);
+  return normalize(faceUVtoXYZ(face, u, v, m));
 }
 
 /**
@@ -74,7 +74,7 @@ export function fromST<M extends MValue = Properties>(
   const v = STtoUV(t);
 
   // Convert the u-v coordinates to an XYZ Point.
-  return normalize(fromUV(face, u, v, m));
+  return fromUV(face, u, v, m);
 }
 
 /**

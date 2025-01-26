@@ -1,4 +1,4 @@
-// import { Database } from 'bun:sqlite';
+import { Database } from 'bun:sqlite';
 import { S2FileStore } from '../src/dataStore/file';
 import { S2MMapStore } from '../src/dataStore/mmap';
 // import { open } from 'lmdb';
@@ -96,35 +96,35 @@ fileStore.close();
 
 /// ----------------------------------------------
 
-// const db = new Database(`${dir.name}/sqlite.db`);
-// db.exec(`
-//   CREATE TABLE IF NOT EXISTS data (
-//     hi INTEGER NOT NULL,
-//     lo INTEGER NOT NULL,
-//     value BLOB NOT NULL
-//   );
-//   CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (hi, lo);
-// `);
+const db = new Database(`${dir.name}/sqlite.db`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS data (
+    hi INTEGER NOT NULL,
+    lo INTEGER NOT NULL,
+    value BLOB NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (hi, lo);
+`);
 
-// // Adding data as BLOB to SQLite
-// const sqliteAddStart = Bun.nanoseconds();
-// const insert = db.prepare('INSERT INTO data (hi, lo, value) VALUES (?, ?, ?)');
-// for (let i = 0; i < TEST_SIZE; i++) {
-//   const rand = getRandomInt(0, TEST_SIZE);
-//   insert.run(0, rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
-// }
-// const sqliteAddEnd = Bun.nanoseconds();
-// const sqliteAddSeconds = (sqliteAddEnd - sqliteAddStart) / 1_000_000_000;
-// console.info('SQLite Add time: ', sqliteAddSeconds);
+// Adding data as BLOB to SQLite
+const sqliteAddStart = Bun.nanoseconds();
+const insert = db.prepare('INSERT INTO data (hi, lo, value) VALUES (?, ?, ?)');
+for (let i = 0; i < TEST_SIZE; i++) {
+  const rand = getRandomInt(0, TEST_SIZE);
+  insert.run(0, rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
+}
+const sqliteAddEnd = Bun.nanoseconds();
+const sqliteAddSeconds = (sqliteAddEnd - sqliteAddStart) / 1_000_000_000;
+console.info('SQLite Add time: ', sqliteAddSeconds);
 
-// // Let's perform a simple lookup to simulate a query
-// const sqliteQueryStart = Bun.nanoseconds();
-// const res = db.prepare('SELECT * FROM data WHERE hi = ? AND lo = ?').get(0, 22); // Query the first entry
-// const sqliteQueryEnd = Bun.nanoseconds();
-// const sqliteQuerySeconds = (sqliteQueryEnd - sqliteQueryStart) / 1_000_000_000;
-// console.info('SQLite Query time: ', sqliteQuerySeconds, res);
+// Let's perform a simple lookup to simulate a query
+const sqliteQueryStart = Bun.nanoseconds();
+const res = db.prepare('SELECT * FROM data WHERE hi = ? AND lo = ?').get(0, 22); // Query the first entry
+const sqliteQueryEnd = Bun.nanoseconds();
+const sqliteQuerySeconds = (sqliteQueryEnd - sqliteQueryStart) / 1_000_000_000;
+console.info('SQLite Query time: ', sqliteQuerySeconds, res);
 
-// console.info('SQLite total time: ', sqliteAddSeconds + sqliteQuerySeconds);
+console.info('SQLite total time: ', sqliteAddSeconds + sqliteQuerySeconds);
 
 /**
  * Generate a random whole number between two given values.

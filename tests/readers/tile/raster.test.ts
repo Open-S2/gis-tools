@@ -45,27 +45,27 @@ test('read in wm satellite', async () => {
     {
       m: { a: 255, b: 28, g: 14, r: 8 },
       x: -179.6484375,
-      y: 84.88501329390853,
+      y: 85.02070774312593,
     },
     {
       m: { a: 255, b: 28, g: 14, r: 8 },
-      x: -178.9453125,
-      y: 84.88501329390853,
+      x: -178.94531249999994,
+      y: 85.02070774312593,
     },
     {
       m: { a: 255, b: 28, g: 14, r: 8 },
-      x: -178.2421875,
-      y: 84.88501329390853,
+      x: -178.24218749999997,
+      y: 85.02070774312593,
     },
     {
       m: { a: 255, b: 28, g: 14, r: 8 },
-      x: -177.5390625,
-      y: 84.88501329390853,
+      x: -177.53906249999997,
+      y: 85.02070774312593,
     },
     {
       m: { a: 255, b: 28, g: 14, r: 8 },
-      x: -176.8359375,
-      y: 84.88501329390853,
+      x: -176.83593749999994,
+      y: 85.02070774312593,
     },
   ]);
   // @ts-expect-error - for testing
@@ -73,27 +73,27 @@ test('read in wm satellite', async () => {
     {
       m: { a: 255, b: 244, g: 239, r: 240 },
       x: 176.8359375,
-      y: -84.88501329390854,
+      y: -85.02070774312594,
     },
     {
       m: { a: 255, b: 253, g: 248, r: 249 },
-      x: 177.5390625,
-      y: -84.88501329390854,
+      x: 177.53906249999997,
+      y: -85.02070774312594,
     },
     {
       m: { a: 255, b: 251, g: 246, r: 247 },
-      x: 178.2421875,
-      y: -84.88501329390854,
+      x: 178.24218749999997,
+      y: -85.02070774312594,
     },
     {
       m: { a: 255, b: 255, g: 255, r: 255 },
-      x: 178.9453125,
-      y: -84.88501329390854,
+      x: 178.94531250000003,
+      y: -85.02070774312594,
     },
     {
       m: { a: 255, b: 245, g: 240, r: 241 },
       x: 179.6484375,
-      y: -84.88501329390854,
+      y: -85.02070774312594,
     },
   ]);
 
@@ -104,7 +104,6 @@ test('read in wm satellite', async () => {
 });
 
 test('read in wm satellite file', async () => {
-  const server = buildServer();
   const reader = new RasterTilesFileReader(`${__dirname}/fixtures/wm/satellite`, 1);
 
   const metadata = await reader.getMetadata();
@@ -137,8 +136,6 @@ test('read in wm satellite file', async () => {
 
   const tiles = await Array.fromAsync(reader);
   expect(tiles.length).toEqual(4);
-
-  await server.stop();
 });
 
 test('read in s2 modis-mini', async () => {
@@ -247,7 +244,6 @@ test('read in s2 modis-mini', async () => {
 });
 
 test('read in s2 modis-mini - file', async () => {
-  const server = buildServer();
   const reader = new RasterTilesFileReader(`${__dirname}/fixtures/s2/modis-mini`, 0);
 
   const metadata = await reader.getMetadata();
@@ -345,8 +341,6 @@ test('read in s2 modis-mini - file', async () => {
 
   const tiles = await Array.fromAsync(reader);
   expect(tiles.length).toEqual(6);
-
-  await server.stop();
 });
 
 test('read in pmtiles s2', async () => {

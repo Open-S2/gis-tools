@@ -57,8 +57,7 @@ export function lanczosInterpolation<T extends MValue = Properties>(
   }
 
   // Avoid division by zero
-  if (denom === 0) throw new Error('Lanczos interpolation failed: denominator is zero.');
-
+  if (denom === 0) return 0;
   return numerator / denom;
 }
 

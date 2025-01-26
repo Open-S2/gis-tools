@@ -5,7 +5,15 @@ import { fromST } from '../geometry/s2/point';
 import { toWM } from '../geometry';
 import { xyzToLonLat } from '../geometry/s2/coords';
 
-import type { Face, FeatureIterator, MValue, Properties, VectorFeatures, VectorPoint } from '..';
+import type {
+  Face,
+  FeatureIterator,
+  MValue,
+  Properties,
+  RGBA,
+  VectorFeatures,
+  VectorPoint,
+} from '..';
 import type { KDStore, KDStoreConstructor } from '../dataStore';
 
 /** A query node in the kd-tree used by a spherical search */
@@ -59,12 +67,8 @@ const RAD = 0.017453292519943295; // Math.PI / 180;
  * const points = await pointIndex.searchRadiusSphere(lon, lat, dist);
  * ```
  */
-export class PointIndexFast<
-  M = Record<string, unknown>,
-  D extends MValue = Properties,
-  P extends Properties = Properties,
-> {
-  #store: KDStore<D | P>;
+export class PointIndexFast<M extends MValue = Properties | RGBA> {
+  #store: KDStore<M>;
   #sorted: boolean = false;
 
   /**
@@ -72,7 +76,7 @@ export class PointIndexFast<
    * @param nodeSize - the size of each kd-tree node
    */
   constructor(
-    store: KDStoreConstructor<D | P> = KDSpatialIndex,
+    store: KDStoreConstructor<M> = KDSpatialIndex,
     private readonly nodeSize = 64,
   ) {
     this.#store = new store(nodeSize);
@@ -82,7 +86,7 @@ export class PointIndexFast<
    * Add a properly shaped point with it's x, y, and data values
    * @param point - the point to be indexed
    */
-  insert(point: VectorPoint<D | P>): void {
+  insert(point: VectorPoint<M>): void {
     this.#store.push(point);
     this.#sorted = false;
   }
@@ -92,7 +96,7 @@ export class PointIndexFast<
    * it will use the feature properties data
    * @param reader - a reader containing the input data
    */
-  async insertReader(reader: FeatureIterator<M, D, P>): Promise<void> {
+  async insertReader(reader: FeatureIterator<unknown, M, M>): Promise<void> {
     for await (const feature of reader) this.insertFeature(feature);
   }
 
@@ -101,7 +105,7 @@ export class PointIndexFast<
    * it will use the feature properties data
    * @param feature - vector feature (either S2 or WM)
    */
-  insertFeature(feature: VectorFeatures<M, D, P>): void {
+  insertFeature(feature: VectorFeatures<unknown, M, M>): void {
     if (feature.geometry.type !== 'Point' && feature.geometry.type !== 'MultiPoint') return;
     const {
       geometry: { coordinates, type },
@@ -119,7 +123,7 @@ export class PointIndexFast<
    * @param lat - latitude in degrees
    * @param data - the data associated with the point
    */
-  insertLonLat(lon: number, lat: number, data: D | P): void {
+  insertLonLat(lon: number, lat: number, data: M): void {
     this.insert({ x: lon, y: lat, m: data });
   }
 
@@ -130,7 +134,7 @@ export class PointIndexFast<
    * @param t - the t coordinate
    * @param data - the data associated with the point
    */
-  insertFaceST(face: Face, s: number, t: number, data: D | P): void {
+  insertFaceST(face: Face, s: number, t: number, data: M): void {
     const { x: lon, y: lat } = xyzToLonLat(fromST(face, s, t));
     this.insert({ x: lon, y: lat, m: data });
   }
@@ -139,7 +143,7 @@ export class PointIndexFast<
    * iterate through the points
    * @yields a PointShapeFast<T>
    */
-  *[Symbol.iterator](): Generator<VectorPoint<D | P>> {
+  *[Symbol.iterator](): Generator<VectorPoint<M>> {
     this.sort();
     for (const value of this.#store) yield value;
   }
@@ -167,14 +171,14 @@ export class PointIndexFast<
     maxX: number,
     maxY: number,
     maxResults = Infinity,
-  ): Array<VectorPoint<D | P>> {
+  ): Array<VectorPoint<M>> {
     this.sort();
 
     const { nodeSize } = this;
     const stack: Array<[left: number, right: number, axis: number]> = [
       [0, this.#store.length - 1, 0],
     ];
-    const result: Array<VectorPoint<D | P>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<M>> = []; // ids of items that are in range
 
     // recursively search for items in range in the kd-sorted arrays
     while (stack.length > 0) {
@@ -217,19 +221,14 @@ export class PointIndexFast<
    * @param maxResults - the maximum number of results
    * @returns - the items that are in range
    */
-  searchRadius(
-    qx: number,
-    qy: number,
-    r: number,
-    maxResults = Infinity,
-  ): Array<VectorPoint<D | P>> {
+  searchRadius(qx: number, qy: number, r: number, maxResults = Infinity): Array<VectorPoint<M>> {
     this.sort();
 
     const { nodeSize } = this;
     const stack: Array<[left: number, right: number, axis: number]> = [
       [0, this.#store.length - 1, 0],
     ]; // left, right, axis
-    const result: Array<VectorPoint<D | P>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<M>> = []; // ids of items that are in range
     const r2 = r * r;
 
     // recursively search for items within radius in the kd-sorted arrays
@@ -282,17 +281,17 @@ export class PointIndexFast<
     dist: number,
     maxResults = Infinity,
     planetRadius = EARTH_RADIUS,
-  ): Array<VectorPoint<D | P>> {
+  ): Array<VectorPoint<M>> {
     this.sort();
 
     const { nodeSize } = this;
-    const result: Array<VectorPoint<D | P>> = []; // ids of items that are in range
+    const result: Array<VectorPoint<M>> = []; // ids of items that are in range
     const maxHaverSinDist = haverSin(dist / planetRadius);
     const cosLat = Math.cos(lat * RAD);
     // a distance-sorted priority queue that will contain both points and kd-tree nodes
-    const pq = new PriorityQueue<NodeQuery<D | P>>([], (a, b) => a.dist - b.dist);
+    const pq = new PriorityQueue<NodeQuery<M>>([], (a, b) => a.dist - b.dist);
     // an object that represents the top kd-tree node (the whole Earth)
-    let node: NodeQuery<D | P> | undefined = {
+    let node: NodeQuery<M> | undefined = {
       axis: 0, // 0 for longitude axis and 1 for latitude axis
       dist: 0, // will hold the lower bound of children's distances to the query point
     };

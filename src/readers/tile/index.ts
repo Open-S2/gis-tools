@@ -1,7 +1,7 @@
 import { bboxST } from '../../geometry/s2/coords';
 import { imageDecoder } from '../image';
 import { toMetadata } from 's2-tilejson';
-import { xyzToBBOX } from '../../geometry/wm/coords';
+import { mercToLL, xyzToBBOX } from '../../geometry/wm/coords';
 
 import type {
   Face,
@@ -32,13 +32,13 @@ export interface TileReader<
   getMetadata: () => Promise<Metadata>;
   hasTileWM: (zoom: number, x: number, y: number) => Promise<boolean>;
   hasTileS2: (face: Face, zoom: number, x: number, y: number) => Promise<boolean>;
-  getTileWM: (zoom: number, x: number, y: number) => Promise<RasterTileReader<D> | undefined>;
+  getTileWM: (zoom: number, x: number, y: number) => Promise<RasterTileReader<D, P> | undefined>;
   getTileS2: (
     face: Face,
     zoom: number,
     x: number,
     y: number,
-  ) => Promise<RasterS2TileReader<D> | undefined>;
+  ) => Promise<RasterS2TileReader<D, P> | undefined>;
 }
 
 /** Tile's metadata */
@@ -49,7 +49,7 @@ export interface TileMetadata {
 }
 
 /** S2 Tile's metadata */
-export interface S2TileMetadata {
+export interface S2TileMetadata extends Record<string, unknown> {
   face: Face;
   zoom: number;
   x: number;
@@ -274,8 +274,8 @@ export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
 /**
  * Raster Tile Reader
  */
-export class RasterTileReader<T extends MValue = RGBA | ElevationPoint>
-  implements FeatureIterator<TileMetadata, T, Properties>
+export class RasterTileReader<T extends MValue = RGBA | ElevationPoint, P extends Properties = T>
+  implements FeatureIterator<TileMetadata, T, P>
 {
   /**
    * @param zoom - the zoom level of the tile
@@ -298,21 +298,22 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint>
    * Iterate over all tiles in the archive
    * @yields - the each of the tile's pixel RGBA data as lon-lat coordinates with the RGBA as m-values
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<TileMetadata, T, Properties>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<TileMetadata, T, P>> {
     const { zoom, x, y, image, tmsStyle } = this;
     const { width: tileSize, data } = image;
     const channels = data.length / (tileSize * tileSize);
     // Get the bounding box of the tile in lon-lat
-    const [west, south, east, north] = xyzToBBOX(x, y, zoom, tmsStyle, 'WGS84', tileSize);
-    const lonStep = (east - west) / tileSize;
-    const latStep = (north - south) / tileSize;
+    const [west, south, east, north] = xyzToBBOX(x, y, zoom, tmsStyle, '900913', tileSize);
+    const xStep = (east - west) / tileSize;
+    const yStep = (north - south) / tileSize;
     const coordinates: VectorPoint<T>[] = [];
 
-    for (let py = 1; py <= tileSize; py++) {
-      const lat = north - (py - 0.5) * latStep; // Center of the row
-      for (let px = 1; px <= tileSize; px++) {
-        const lon = west + (px - 0.5) * lonStep; // Center of the column
-        const index = ((py - 1) * tileSize + (px - 1)) * channels;
+    for (let py = 0; py < tileSize; py++) {
+      const yPos = north - (py + 0.5) * yStep; // Center of the row
+      for (let px = 0; px < tileSize; px++) {
+        const xPos = west + (px + 0.5) * xStep; // Center of the column
+        const index = (py * tileSize + px) * channels;
+        const [lon, lat] = mercToLL([xPos, yPos]);
         const m: RGBA | ElevationPoint =
           this.converter !== undefined
             ? { elev: this.converter(data[index], data[index + 1], data[index + 2]) }
@@ -333,7 +334,7 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint>
         coordinates,
         is3D: false,
       },
-      properties: {},
+      properties: {} as P,
       metadata: { zoom, x, y },
     };
   }
@@ -342,8 +343,8 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint>
 /**
  * S2 Raster Tile Reader
  */
-export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint>
-  implements FeatureIterator<S2TileMetadata, T, Properties>
+export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint, P extends Properties = T>
+  implements FeatureIterator<S2TileMetadata, T, P>
 {
   /**
    * @param face - the Open S2 projection face
@@ -366,21 +367,21 @@ export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint>
    * Iterate over all tiles in the archive
    * @yields - the each of the tile's pixel RGBA data as S2 s-t coordinates with the RGBA as m-values
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<S2Feature<S2TileMetadata, T, Properties>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<S2Feature<S2TileMetadata, T, P>> {
     const { face, zoom, x, y, image } = this;
     const { width: tileSize, data } = image;
     const channels = data.length / (tileSize * tileSize);
     // Get the bounding box of the tile in s-t space
-    const [west, south, east, north] = bboxST(x, y, zoom);
-    const lonStep = (east - west) / tileSize;
-    const latStep = (north - south) / tileSize;
+    const [minS, minT, maxS, maxT] = bboxST(x, y, zoom);
+    const sStep = (maxS - minS) / tileSize;
+    const tStep = (maxT - minT) / tileSize;
     const coordinates: VectorPoint<T>[] = [];
 
-    for (let py = 1; py <= tileSize; py++) {
-      const lat = north - (py - 0.5) * latStep; // Center of the row
-      for (let px = 1; px <= tileSize; px++) {
-        const lon = west + (px - 0.5) * lonStep; // Center of the column
-        const index = ((py - 1) * tileSize + (px - 1)) * channels;
+    for (let py = 0; py < tileSize; py++) {
+      const y = minS + (py + 0.5) * tStep; // Center of the row
+      for (let px = 0; px < tileSize; px++) {
+        const x = minT + (px + 0.5) * sStep; // Center of the column
+        const index = (py * tileSize + px) * channels;
         const m: RGBA | ElevationPoint =
           this.converter !== undefined
             ? { elev: this.converter(data[index], data[index + 1], data[index + 2]) }
@@ -390,7 +391,7 @@ export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint>
                 b: data[index + 2],
                 a: channels === 4 ? data[index + 3] : 255,
               };
-        coordinates.push({ x: lon, y: lat, m: m as unknown as T });
+        coordinates.push({ x, y, m: m as unknown as T });
       }
     }
 
@@ -402,7 +403,7 @@ export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint>
         coordinates,
         is3D: false,
       },
-      properties: {},
+      properties: {} as P,
       metadata: { face, zoom, x, y },
     };
   }

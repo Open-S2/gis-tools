@@ -4,7 +4,7 @@ import { DrawType } from 's2-tilejson';
 import { MultiMap } from '../../../dataStore';
 import { compressStream } from '../../../util';
 import { BaseVectorTile, writeOVTile } from 'open-vector-tile';
-import { GridCluster, PointCluster, Tile, TileStore } from '../../../dataStructures';
+import { PointCluster, PointGrid, Tile, TileStore } from '../../../dataStructures';
 import { childrenIJ, convert, fromFace, toFaceIJ } from '../../../geometry';
 
 import type { MultiMapStore } from '../../../dataStore';
@@ -76,8 +76,8 @@ export default class TileWorker {
   >();
   // Unique store for each layer that describes itself as a cluster source
   clusterStores: { [layerName: string]: PointCluster } = {};
-  rasterStores: { [layerName: string]: GridCluster<RGBA> } = {};
-  gridStores: { [layerName: string]: GridCluster } = {};
+  rasterStores: { [layerName: string]: PointGrid<RGBA> } = {};
+  gridStores: { [layerName: string]: PointGrid } = {};
 
   /**
    * Tile-ize input vector features and store them
@@ -362,7 +362,7 @@ export default class TileWorker {
   ): void {
     const { layerName } = rasterLayer;
     if (this.rasterStores[layerName] === undefined)
-      this.rasterStores[layerName] = new GridCluster<RGBA>();
+      this.rasterStores[layerName] = new PointGrid<RGBA>();
     const rasterStore = this.rasterStores[layerName];
     rasterStore.insertFeature(feature);
   }
@@ -374,7 +374,7 @@ export default class TileWorker {
    */
   #storeGridFeature(feature: VectorFeatures, gridLayer: GridLayer): void {
     const { layerName } = gridLayer;
-    if (this.gridStores[layerName] === undefined) this.gridStores[layerName] = new GridCluster();
+    if (this.gridStores[layerName] === undefined) this.gridStores[layerName] = new PointGrid();
     const gridStore = this.gridStores[layerName];
     gridStore.insertFeature(feature);
   }

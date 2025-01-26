@@ -182,7 +182,9 @@ export function fromS2Point(xyz: VectorPoint, level?: number): S2CellId {
   // convert to face-i-j
   const [face, i, j] = S2PointToIJ(xyz);
   // now convert from ij
-  return fromIJ(face, i, j, level);
+  let id = fromIJ(face, i, j);
+  if (level !== undefined) id = parent(id, level);
+  return id;
 }
 
 /**
@@ -190,15 +192,23 @@ export function fromS2Point(xyz: VectorPoint, level?: number): S2CellId {
  * @param face - the face
  * @param u - u coordinate
  * @param v - v coordinate
+ * @param level - zoom level
+ * @param uvToST - function to convert U-V to S-T [Default is UVtoST (quadraticUVtoST)]
  * @returns the S2CellID
  */
-export function fromUV(face: Face, u: number, v: number): S2CellId {
+export function fromUV(
+  face: Face,
+  u: number,
+  v: number,
+  level?: number,
+  uvToST: (u: number) => number = UVtoST,
+): S2CellId {
   // now convert from st
-  return fromST(face, UVtoST(u), UVtoST(v));
+  return fromST(face, uvToST(u), uvToST(v), level);
 }
 
 /**
- * Create an S2CellID from an Face-S-T coordinate
+ * Create an S2CellID from an Face-S-T coordinate.
  * @param face - the face
  * @param s - s coordinate
  * @param t - t coordinate
@@ -207,7 +217,9 @@ export function fromUV(face: Face, u: number, v: number): S2CellId {
  */
 export function fromST(face: Face, s: number, t: number, level?: number): S2CellId {
   // now convert from ij
-  return fromIJ(face, STtoIJ(s), STtoIJ(t), level);
+  let id = fromIJ(face, STtoIJ(s), STtoIJ(t));
+  if (level !== undefined) id = parent(id, level);
+  return id;
 }
 
 /**

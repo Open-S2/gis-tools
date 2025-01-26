@@ -178,7 +178,7 @@ export function convert(bbox: BBox, outSource: Sources): BBox {
  * @param tmsStyle - if true, the y is inverted
  * @param source - the source
  * @param tileSize - in pixels
- * @returns - the bounding box in WGS84
+ * @returns - the bounding box in WGS84 or 900913
  */
 export function xyzToBBOX(
   x: number,
@@ -218,7 +218,7 @@ export function xyzToBBOX(
  * @param tmsStyle - if true, the y is inverted
  * @param source - the source
  * @param tileSize - in pixels
- * @returns - the tile's bounding box [minX, minY, maxX, maxY]
+ * @returns - the tile's bounding box [minX, minY, maxX, maxY] in XYZ space
  */
 export function bboxToXYZBounds(
   bbox: BBox,

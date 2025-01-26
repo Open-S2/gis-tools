@@ -101,7 +101,7 @@ export class PointCluster<M extends MValue = Properties> {
    * @param maxzoomStore - the store to use for the maxzoom index
    */
   constructor(
-    data?: JSONCollection<Record<string, unknown>, M, M>,
+    data?: JSONCollection<unknown, M, M>,
     options?: ClusterOptions<M>,
     maxzoomStore?: VectorStore<PointShape<Cluster<M>>>,
   ) {
@@ -112,7 +112,7 @@ export class PointCluster<M extends MValue = Properties> {
     this.radius = options?.radius ?? 40;
     // one extra zoom incase its a cell search system (bottom zoom isn't clustered to a cell)
     for (let zoom = this.minzoom; zoom <= this.maxzoom + 1; zoom++) {
-      this.indexes.set(zoom, new PointIndex<Cluster<M>>(options?.store));
+      this.indexes.set(zoom, new PointIndex<Cluster<M>>(options?.store, this.projection));
     }
     if (maxzoomStore !== undefined) {
       const maxzoomIndex = this.indexes.get(this.maxzoom);
@@ -137,7 +137,7 @@ export class PointCluster<M extends MValue = Properties> {
    * it will use the feature properties data
    * @param reader - a reader containing the input data
    */
-  async insertReader(reader: FeatureIterator<Record<string, unknown>, M, M>): Promise<void> {
+  async insertReader(reader: FeatureIterator<unknown, M, M>): Promise<void> {
     for await (const feature of reader) this.insertFeature(feature);
   }
 
@@ -146,7 +146,7 @@ export class PointCluster<M extends MValue = Properties> {
    * it will use the feature properties data
    * @param data - any source of data like a feature collection or features themselves
    */
-  insertFeature(data: JSONCollection<Record<string, unknown>, M, M>): void {
+  insertFeature(data: JSONCollection<unknown, M, M>): void {
     const features = convert(this.projection, data, undefined, undefined, undefined, true);
     for (const { face = 0, geometry, properties } of features) {
       const { type, coordinates } = geometry;

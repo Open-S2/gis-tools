@@ -101,7 +101,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * it will use the feature properties data
    * @param reader - a reader containing the input data
    */
-  async insertReader(reader: FeatureIterator<Record<string, unknown>, M, M>): Promise<void> {
+  async insertReader(reader: FeatureIterator<unknown, M, M>): Promise<void> {
     for await (const feature of reader) this.insertFeature(feature);
   }
 
@@ -110,7 +110,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * it will use the feature properties data
    * @param data - any source of data like a feature collection or features themselves
    */
-  insertFeature(data: JSONCollection<Record<string, unknown>, M, M>): void {
+  insertFeature(data: JSONCollection<unknown, M, M>): void {
     const features = convert(this.projection, data, undefined, undefined, undefined, true);
     for (const { face = 0, geometry, properties } of features) {
       const { type, coordinates } = geometry;
@@ -208,18 +208,23 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
 
   /**
    * Search for points given a range of low and high ids
-   * @param low - the lower bound
+   * @param low - the lower bound. If high is not provided, the low-high range will be created from the low
    * @param high - the upper bound
    * @param maxResults - the maximum number of results to return
    * @returns the points in the range
    */
   async searchRange(
     low: S2CellId,
-    high: S2CellId,
+    high?: S2CellId,
     maxResults = Infinity,
   ): Promise<PointShape<M>[]> {
     await this.sort();
     const res: PointShape<M>[] = [];
+    if (high === undefined) {
+      const [lo, hi] = range(low);
+      low = lo;
+      high = hi;
+    }
     let loIdx = await this.lowerBound(low);
 
     while (true) {

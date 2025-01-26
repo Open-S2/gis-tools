@@ -18,5 +18,4 @@
 ## Tests to do for first showcase
 
 [ ] - src/converters/toTiles/*.ts
-[ ] - src/dataStructures/pointGrid.ts
 [ ] - src/geometry/tools/polys.ts

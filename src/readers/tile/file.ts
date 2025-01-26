@@ -56,10 +56,13 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  * }
  * ```
  */
-export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
+export class RasterTilesFileReader<
+    T extends MValue = RGBA | ElevationPoint,
+    P extends Properties = T,
+  >
   implements
-    FeatureIterator<S2TileMetadata | TileMetadata, T, Properties>,
-    TileReader<S2TileMetadata | TileMetadata, T, Properties>
+    FeatureIterator<S2TileMetadata | TileMetadata, T, P>,
+    TileReader<S2TileMetadata | TileMetadata, T, P>
 {
   metadata?: Metadata;
   /**
@@ -95,7 +98,7 @@ export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
    * @param y - the y coordinate of the tile
    * @returns - the tile
    */
-  async getTileWM(zoom: number, x: number, y: number): Promise<RasterTileReader<T> | undefined> {
+  async getTileWM(zoom: number, x: number, y: number): Promise<RasterTileReader<T, P> | undefined> {
     const { extension, scheme } = await this.getMetadata();
     const isTMS = scheme === 'tms';
     const data =
@@ -104,7 +107,7 @@ export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
         : await this.input.getTile(zoom, x, y);
     if (data === undefined) return undefined;
     const imageData = await imageDecoder(data, { modulo: 256 });
-    return new RasterTileReader(zoom, x, y, imageData, isTMS, this.converter);
+    return new RasterTileReader<T, P>(zoom, x, y, imageData, isTMS, this.converter);
   }
 
   /**
@@ -120,7 +123,7 @@ export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
     zoom: number,
     x: number,
     y: number,
-  ): Promise<RasterS2TileReader<T> | undefined> {
+  ): Promise<RasterS2TileReader<T, P> | undefined> {
     const { extension } = await this.getMetadata();
     const data =
       typeof this.input === 'string'
@@ -128,7 +131,7 @@ export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
         : await this.input.getTileS2(face, zoom, x, y);
     if (data === undefined) return undefined;
     const imageData = await imageDecoder(data, { modulo: 256 });
-    return new RasterS2TileReader(face, zoom, x, y, imageData, this.converter);
+    return new RasterS2TileReader<T, P>(face, zoom, x, y, imageData, this.converter);
   }
 
   /**
@@ -171,7 +174,7 @@ export class RasterTilesFileReader<T extends MValue = RGBA | ElevationPoint>
    * @yields - the each of the tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
-    S2Feature<S2TileMetadata, T, Properties> | VectorFeature<TileMetadata, T, Properties>
+    S2Feature<S2TileMetadata, T, P> | VectorFeature<TileMetadata, T, P>
   > {
     // iterate down from min zoom. Upon reaching maxzoom store all pixels
     const { scheme, maxzoom } = await this.getMetadata();

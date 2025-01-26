@@ -38,19 +38,27 @@ export function convert<
   const res: VectorFeatures<M, D, P, VectorGeometry<D>>[] = [];
 
   if (data.type === 'Feature') {
-    res.push(...convertFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox));
+    const vfs = convertFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox);
+    for (const vf of vfs) res.push(vf);
   } else if (data.type === 'VectorFeature') {
-    res.push(...convertVectorFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox));
+    const vfs = convertVectorFeature(projection, data, toUnitScale, tolerance, maxzoom, buildBBox);
+    for (const vf of vfs) res.push(vf);
   } else if (data.type === 'FeatureCollection') {
     for (const feature of data.features) {
-      if (feature.type === 'Feature')
-        res.push(
-          ...convertFeature(projection, feature, toUnitScale, tolerance, maxzoom, buildBBox),
+      if (feature.type === 'Feature') {
+        const vfs = convertFeature(projection, feature, toUnitScale, tolerance, maxzoom, buildBBox);
+        for (const vf of vfs) res.push(vf);
+      } else {
+        const vfs = convertVectorFeature(
+          projection,
+          feature,
+          toUnitScale,
+          tolerance,
+          maxzoom,
+          buildBBox,
         );
-      else
-        res.push(
-          ...convertVectorFeature(projection, feature, toUnitScale, tolerance, maxzoom, buildBBox),
-        );
+        for (const vf of vfs) res.push(vf);
+      }
     }
   } else if (data.type === 'S2Feature') {
     res.push(convertS2Feature(projection, data, toUnitScale, tolerance, maxzoom));
