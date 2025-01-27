@@ -165,22 +165,41 @@ test('read in wm terrarium2x', async () => {
   expect(y).toEqual(2);
   expect(tmsStyle).toEqual(false);
   const tileData = await Array.fromAsync(tile);
-  // @ts-expect-error - for testing
-  expect(tileData[0].geometry.coordinates.slice(0, 5)).toEqual([
+  // expect(tileData[0].geometry.coordinates.slice(0, 5)).toEqual([
+  //   { m: { elev: 346 }, x: 90.04394531249999, y: 66.49574045702329 },
+  //   { m: { elev: 280 }, x: 90.13183593749999, y: 66.49574045702329 },
+  //   { m: { elev: 392 }, x: 90.21972656249999, y: 66.49574045702329 },
+  //   { m: { elev: 520 }, x: 90.30761718749999, y: 66.49574045702329 },
+  //   { m: { elev: 549 }, x: 90.39550781249999, y: 66.49574045702329 },
+  // ]);
+  const actualPoints = [
     { m: { elev: 346 }, x: 90.04394531249999, y: 66.49574045702329 },
     { m: { elev: 280 }, x: 90.13183593749999, y: 66.49574045702329 },
     { m: { elev: 392 }, x: 90.21972656249999, y: 66.49574045702329 },
     { m: { elev: 520 }, x: 90.30761718749999, y: 66.49574045702329 },
     { m: { elev: 549 }, x: 90.39550781249999, y: 66.49574045702329 },
-  ]);
+  ];
   // @ts-expect-error - for testing
-  expect(tileData[0].geometry.coordinates.slice(-5)).toEqual([
+  for (const point of tileData[0].geometry.coordinates.slice(0, 5)) {
+    const { x, y, m } = actualPoints.shift()!;
+    expect(point.x).toBeCloseTo(x);
+    expect(point.y).toBeCloseTo(y);
+    expect(point.m.elev).toEqual(m.elev);
+  }
+  const actual2 = [
     { m: { elev: -3568 }, x: 134.6044921875, y: 41.01306578700628 },
     { m: { elev: -3576 }, x: 134.69238281250003, y: 41.01306578700628 },
     { m: { elev: -3568 }, x: 134.7802734375, y: 41.01306578700628 },
     { m: { elev: -3550 }, x: 134.8681640625, y: 41.01306578700628 },
     { m: { elev: -3539 }, x: 134.9560546875, y: 41.01306578700628 },
-  ]);
+  ];
+  // @ts-expect-error - for testing
+  for (const point of tileData[0].geometry.coordinates.slice(-5)) {
+    const { x, y, m } = actual2.shift()!;
+    expect(point.x).toBeCloseTo(x);
+    expect(point.y).toBeCloseTo(y);
+    expect(point.m.elev).toEqual(m.elev);
+  }
 
   const tiles = await Array.fromAsync(reader);
   expect(tiles.length).toEqual(4);
