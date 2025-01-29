@@ -1,7 +1,7 @@
-import TileWorker from './worker/tileWorker';
 import { encodingToCompression } from '../..';
 import { xyzToBBOX } from '../../geometry/wm/coords';
 import { DrawType, MetadataBuilder } from 's2-tilejson';
+import TileWorker, { getMaxzoom, getMinzoom } from './worker/tileWorker';
 
 import type { Extents } from 'open-vector-tile';
 import type {
@@ -386,35 +386,20 @@ function updateBuilder(
 function buildLayerMetadata(layer: LayerGuide): LayerMetaData {
   const { description } = layer;
   let drawTypes: DrawType[] = [];
-  let minzoom = 0;
-  let maxzoom = 14;
   if ('vectorGuide' in layer) {
     drawTypes = layer.drawTypes;
-    minzoom = layer.vectorGuide.minzoom ?? 0;
-    maxzoom = layer.vectorGuide.maxzoom ?? 14;
   } else if ('clusterGuide' in layer) {
     drawTypes = [DrawType.Points];
-    minzoom = layer.clusterGuide.minzoom ?? 0;
-    maxzoom = layer.clusterGuide.maxzoom ?? 14;
   } else if ('rasterGuide' in layer) {
     drawTypes = [DrawType.Raster];
-    minzoom = layer.rasterGuide.minzoom ?? 0;
-    maxzoom = layer.rasterGuide.maxzoom ?? 14;
   } else if ('gridGuide' in layer) {
     drawTypes = [DrawType.Grid];
-    minzoom = layer.gridGuide.minzoom ?? 0;
-    maxzoom = layer.gridGuide.maxzoom ?? 14;
   }
+  const minzoom = getMinzoom([layer]);
+  const maxzoom = getMaxzoom([layer]);
   const shape = 'shape' in layer ? layer.shape : {};
   const mShape = 'mShape' in layer ? layer.mShape : undefined;
-  return {
-    description,
-    minzoom,
-    maxzoom,
-    drawTypes,
-    shape,
-    mShape,
-  };
+  return { description, minzoom, maxzoom, drawTypes, shape, mShape };
 }
 
 // /**

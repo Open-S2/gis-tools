@@ -213,6 +213,8 @@ export default class TileWorker {
     if (!tile.isEmpty()) {
       // build the base vector tile layerguides => S2JSONLayerMap
       const vectorLayers = layerGuides.filter((layer) => 'vectorGuide' in layer);
+      const maxzoom = getMaxzoom(layerGuides);
+      tile.transform(0, maxzoom);
       return BaseVectorTile.fromS2JSONTile(tile, toLayerMap(vectorLayers));
     }
   }
@@ -274,13 +276,14 @@ export default class TileWorker {
    * @param vectorLayer - the layer guide to describe how to store the feature
    */
   #storeVectorFeature(feature: VectorFeatures, vectorLayer: VectorLayer): void {
+    const { projection } = this;
     const { vectorGuide, layerName, drawTypes } = vectorLayer;
     const minzoom = vectorGuide.minzoom ?? 0;
-    if (drawTypes.length === 0 || drawTypes.includes(toDrawType(feature))) return;
+    if (!drawTypes.includes(toDrawType(feature))) return;
     // Setup a tileCache and dive down. Store the 4 children if data is found while storing data as we go
-    const tileStore = new TileStore(feature, vectorGuide);
+    const tileStore = new TileStore(feature, { projection, ...vectorGuide });
     const tileCache = [fromFace(0)];
-    if (tileStore.projection === 'S2')
+    if (projection === 'S2')
       tileCache.push(fromFace(1), fromFace(2), fromFace(3), fromFace(4), fromFace(5));
     while (tileCache.length > 0) {
       const id = tileCache.pop()!;
@@ -350,13 +353,29 @@ export default class TileWorker {
  * @param layerGuides - the user defined guide on building the vector tiles
  * @returns the absolute minzoom
  */
-function getMinzoom(layerGuides: LayerGuide[]): number {
+export function getMinzoom(layerGuides: LayerGuide[]): number {
   return Math.min(
     ...layerGuides.map((layer) => {
       if ('vectorGuide' in layer) return layer.vectorGuide.minzoom ?? 0;
       else if ('clusterGuide' in layer) return layer.clusterGuide.minzoom ?? 0;
       else if ('rasterGuide' in layer) return layer.rasterGuide.minzoom ?? 0;
       else return layer.gridGuide.minzoom ?? 0;
+    }),
+  );
+}
+
+/**
+ * Get the absolute maxzoom from the layer guides
+ * @param layerGuides - the user defined guide on building the vector tiles
+ * @returns the absolute maxzoom
+ */
+export function getMaxzoom(layerGuides: LayerGuide[]): number {
+  return Math.max(
+    ...layerGuides.map((layer) => {
+      if ('vectorGuide' in layer) return layer.vectorGuide.maxzoom ?? 14;
+      else if ('clusterGuide' in layer) return layer.clusterGuide.maxzoom ?? 14;
+      else if ('rasterGuide' in layer) return layer.rasterGuide.maxzoom ?? 14;
+      else return layer.gridGuide.maxzoom ?? 14;
     }),
   );
 }

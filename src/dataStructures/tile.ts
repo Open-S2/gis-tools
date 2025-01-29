@@ -142,6 +142,10 @@ export class Tile<
         if (tolerance > 0) simplify(feature.geometry, tolerance, zoom, maxzoom);
         _transform(feature.geometry, zoom, i, j);
       }
+      // remove empty features
+      layer.features = layer.features.filter(
+        ({ geometry }) => geometry.type === 'Point' || geometry.coordinates.length !== 0,
+      );
     }
 
     this.transformed = true;

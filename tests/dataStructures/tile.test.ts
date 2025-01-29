@@ -34,8 +34,6 @@ test('tile - from reader', async () => {
               is3D: false,
               type: 'Point',
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               name: 'Melbourne',
             },
@@ -53,8 +51,6 @@ test('tile - from reader', async () => {
               is3D: false,
               type: 'Point',
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               name: 'Canberra',
             },
@@ -72,8 +68,6 @@ test('tile - from reader', async () => {
               is3D: false,
               type: 'Point',
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               name: 'Sydney',
             },
@@ -216,7 +210,6 @@ test('TileStore - points', () => {
         features: [
           {
             geometry: {
-              bbox: undefined,
               coordinates: {
                 m: undefined,
                 x: 0.5,
@@ -227,8 +220,6 @@ test('TileStore - points', () => {
               is3D: false,
               vecBBox: [0.5, 0.5, 0.5, 0.5],
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               a: 1,
             },
@@ -236,7 +227,6 @@ test('TileStore - points', () => {
           },
           {
             geometry: {
-              bbox: undefined,
               coordinates: {
                 m: undefined,
                 x: 0.625,
@@ -247,8 +237,6 @@ test('TileStore - points', () => {
               is3D: true,
               vecBBox: [0.625, 0.35972503691520497, 0.625, 0.35972503691520497, 1, 1],
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               b: 2,
             },
@@ -256,27 +244,20 @@ test('TileStore - points', () => {
           },
           {
             geometry: {
-              bbox: undefined,
               coordinates: [
                 {
-                  m: undefined,
                   x: 0.375,
                   y: 0.640274963084795,
-                  z: undefined,
                 },
                 {
-                  m: undefined,
                   x: 0.375,
                   y: 0.35972503691520497,
-                  z: undefined,
                 },
               ],
               type: 'MultiPoint',
               is3D: false,
               vecBBox: [0.375, 0.35972503691520497, 0.375, 0.640274963084795],
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               c: 3,
             },
@@ -284,16 +265,13 @@ test('TileStore - points', () => {
           },
           {
             geometry: {
-              bbox: undefined,
               coordinates: [
                 {
-                  m: undefined,
                   x: 0.625,
                   y: 0.640274963084795,
                   z: 1,
                 },
                 {
-                  m: undefined,
                   x: 0,
                   y: 0.4432805993614054,
                   z: 2,
@@ -303,8 +281,6 @@ test('TileStore - points', () => {
               is3D: true,
               vecBBox: [0, 0.4432805993614054, 0.625, 0.640274963084795, 1, 2],
             },
-            id: undefined,
-            metadata: undefined,
             properties: {
               d: 4,
             },
@@ -353,55 +329,160 @@ test('TileStore - points', () => {
   } as unknown as Tile);
 });
 
-// test('TileStore - lines', () => {
-//   const featureCollection: FeatureCollection = {
-//     type: 'FeatureCollection',
-//     features: [
-//       {
-//         type: 'Feature',
-//         properties: { a: 1 },
-//         geometry: {
-//           type: 'Point',
-//           coordinates: [0, 0],
-//         },
-//       },
-//       {
-//         type: 'Feature',
-//         properties: { b: 2 },
-//         geometry: {
-//           type: 'Point3D',
-//           coordinates: [45, 45, 1],
-//         },
-//       },
-//       {
-//         type: 'Feature',
-//         properties: { c: 3 },
-//         geometry: {
-//           type: 'MultiPoint',
-//           coordinates: [
-//             [-45, -45],
-//             [-45, 45],
-//           ],
-//         },
-//       },
-//       {
-//         type: 'Feature',
-//         properties: { d: 4 },
-//         geometry: {
-//           type: 'MultiPoint3D',
-//           coordinates: [
-//             [45, -45, 1],
-//             [-180, 20, 2],
-//           ],
-//         },
-//       },
-//     ],
-//   };
+test('TileStore - lines', () => {
+  const featureCollection: FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {
+          name: 'lines',
+          id: 1336,
+        },
+        geometry: {
+          coordinates: [
+            [-13.292352825505162, 54.34883408204476],
+            [36.83102287804303, 59.56941785818924],
+            [50.34083898563978, 16.040052775278994],
+            [76.38149901912357, 35.155968522292056],
+          ],
+          type: 'LineString',
+        },
+      },
+    ],
+  };
 
-//   const store = new TileStore(featureCollection, { projection: 'WM' });
+  const store = new TileStore(featureCollection, { projection: 'S2' });
 
-//   const faceID = fromFace('WM', 0);
-//   const faceTile = store.getTile(faceID);
+  const faceID = fromFace(1);
+  const faceTile = store.getTile(faceID);
 
-//   expect(faceTile).toEqual({} as unknown as Tile);
-// });
+  expect(faceTile).toEqual({
+    extent: 1,
+    face: 1,
+    i: 0,
+    j: 0,
+    layers: {
+      default: {
+        extent: 1,
+        features: [
+          {
+            face: 1,
+            geometry: {
+              coordinates: [
+                { t: 1, x: 0.16117147860778458, y: 1.0625 },
+                { t: 0.09501600025180619, x: 0.06631938819928551, y: 0.7280709792071008 },
+                { t: 1, x: 0.3429608328526337, y: 0.8907772605847967 },
+              ],
+              is3D: false,
+              offset: 0.5733427280932565,
+              type: 'LineString',
+              vecBBox: [0.06631938819928551, 0.7280709792071008, 0.3429608328526337, 1.0625],
+            },
+            properties: {
+              id: 1336,
+              name: 'lines',
+            },
+            type: 'S2Feature',
+          },
+        ],
+        name: 'default',
+      },
+    },
+    transformed: true,
+    zoom: 0,
+  } as unknown as Tile);
+
+  const [, , child3] = childrenIJ(1, 0, 0, 0);
+  const childTile = store.getTile(child3);
+
+  expect(childTile).toEqual({
+    layers: {
+      default: {
+        name: 'default',
+        features: [],
+        extent: 1,
+      },
+    },
+    transformed: true,
+    extent: 1,
+    face: 1,
+    zoom: 1,
+    i: 0,
+    j: 1,
+  } as unknown as Tile);
+  expect(childTile?.isEmpty()).toBe(true);
+});
+
+test('TileStore - polys', () => {
+  const featureCollection: FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {
+          name: 'polys',
+          id: 100,
+        },
+        geometry: {
+          coordinates: [
+            [
+              [-82.22210288919695, 43.20251833642999],
+              [-101.93729667579208, 19.709540835851655],
+              [-29.6482527916086, 6.24385238701565],
+              [-82.22210288919695, 43.20251833642999],
+            ],
+          ],
+          type: 'Polygon',
+        },
+      },
+    ],
+  };
+
+  const store = new TileStore(featureCollection, { projection: 'S2' });
+
+  const faceID = fromFace(4);
+  const faceTile = store.getTile(faceID);
+
+  expect(faceTile).toEqual({
+    extent: 1,
+    face: 4,
+    i: 0,
+    j: 0,
+    layers: {
+      default: {
+        extent: 1,
+        features: [
+          {
+            face: 4,
+            geometry: {
+              coordinates: [
+                [
+                  { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+                  { t: 0.11973158120854696, x: 0.2756944455013487, y: 0.36081320997943556 },
+                  { t: 0.3840760719449536, x: 0.425051753528058, y: 1.0625 },
+                  { t: 0.02043724219043263, x: 0.2360772824344321, y: 1.0625 },
+                  { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+                ],
+              ],
+              is3D: false,
+              offset: [2.6779635944880855],
+              type: 'Polygon',
+              vecBBox: [0.019745389202600605, 0.36081320997943556, 0.425051753528058, 1.0625],
+            },
+            id: undefined,
+            metadata: undefined,
+            properties: {
+              id: 100,
+              name: 'polys',
+            },
+            type: 'S2Feature',
+          },
+        ],
+        name: 'default',
+      },
+    },
+    transformed: true,
+    zoom: 0,
+  } as unknown as Tile);
+});

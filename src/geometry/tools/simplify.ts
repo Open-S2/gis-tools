@@ -140,6 +140,7 @@ function getSqSegDist(
 
 /**
  * Simplifies the vector geometry based on zoom level and tolerance.
+ * If the geometry is simplified past it being valid, set the coordinates to an empty array.
  * @param geometry - input vector geometry
  * @param tolerance - simplification tolerance
  * @param zoom - curent zoom
@@ -153,20 +154,28 @@ export function simplify<M extends MValue = Properties>(
 ) {
   const zoomTol = zoom >= maxzoom ? 0 : tolerance / ((1 << zoom) * 4_096);
   const { type, coordinates: coords } = geometry;
-  if (type === 'LineString')
+  if (type === 'LineString') {
     geometry.coordinates = simplifyLine(coords as VectorLineString<M>, zoomTol, false, false);
-  else if (type === 'MultiLineString')
-    geometry.coordinates = (coords as VectorMultiLineString<M>).map((line) =>
-      simplifyLine(line, zoomTol, false, false),
-    );
-  else if (type === 'Polygon')
+  } else if (type === 'MultiLineString') {
+    geometry.coordinates = (coords as VectorMultiLineString<M>)
+      .map((line) => simplifyLine(line, zoomTol, false, false))
+      .filter((line) => line.length !== 0);
+  } else if (type === 'Polygon') {
     geometry.coordinates = (coords as VectorPolygon<M>).map((line, i) =>
       simplifyLine(line, zoomTol, true, i === 0),
     );
-  else if (type === 'MultiPolygon')
-    geometry.coordinates = (coords as VectorMultiPolygon<M>).map((polygon) =>
-      polygon.map((line, i) => simplifyLine(line, zoomTol, true, i === 0)),
-    );
+    // if the outer ring is empty, remove the polygon; otherwise cleanup the inner rings
+    if (geometry.coordinates[0].length === 0) geometry.coordinates = [];
+    else geometry.coordinates = geometry.coordinates.filter((line) => line.length !== 0);
+  } else if (type === 'MultiPolygon') {
+    geometry.coordinates = (coords as VectorMultiPolygon<M>).map((polygon) => {
+      let cleanPoly = polygon.map((line, i) => simplifyLine(line, zoomTol, true, i === 0));
+      if (cleanPoly[0].length === 0) cleanPoly = [];
+      else cleanPoly = cleanPoly.filter((line) => line.length !== 0);
+      return cleanPoly;
+    });
+    geometry.coordinates = geometry.coordinates.filter((polygon) => polygon.length !== 0);
+  }
 }
 
 /**
@@ -192,6 +201,10 @@ function simplifyLine<M extends MValue = Properties>(
   }
   if (isPolygon) rewind(ring, isOuter);
 
+  // handle degenerate cases
+  if (!isPolygon && ring.length < 2) return [];
+  else if (isPolygon && ring.length < 4) return [];
+
   return ring;
 }
 
@@ -204,6 +217,7 @@ export function rewind<M extends MValue = Properties>(
   ring: VectorLineString<M>,
   clockwise: boolean,
 ): void {
+  if (ring.length < 4) return;
   let area = 0;
   for (let i = 0, len = ring.length, j = len - 2; i < len; j = i, i += 2) {
     area += (ring[i].x - ring[j].x) * (ring[i].y + ring[j].y);

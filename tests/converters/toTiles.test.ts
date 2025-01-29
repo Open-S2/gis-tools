@@ -1,6 +1,13 @@
-import { RasterTilesFileReader } from '../../src/file';
 import { VectorTile } from 'open-vector-tile';
-import { BufferTileWriter, convertMapboxElevationData, decompressStream, toTiles } from '../../src';
+import {
+  BufferJSONReader,
+  BufferTileWriter,
+  JSONReader,
+  convertMapboxElevationData,
+  decompressStream,
+  toTiles,
+} from '../../src';
+import { FileReader, RasterTilesFileReader } from '../../src/file';
 import { expect, test } from 'bun:test';
 
 import { DrawType } from 's2-tilejson';
@@ -10,6 +17,114 @@ import { DrawType } from 's2-tilejson';
 import type { ElevationPoint, RGBA, VectorPoint } from '../../src';
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
+
+testFunc('toTiles - vector & cluster', async () => {
+  const fileReaderPoints = new FileReader(`${__dirname}/../readers/json/fixtures/points.geojson`);
+  const bufferJSON = new BufferJSONReader({
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {
+          name: 'polys',
+          id: 100,
+        },
+        geometry: {
+          coordinates: [
+            [
+              [-82.22210288919695, 43.20251833642999],
+              [-101.93729667579208, 19.709540835851655],
+              [-29.6482527916086, 6.24385238701565],
+              [-82.22210288919695, 43.20251833642999],
+            ],
+          ],
+          type: 'Polygon',
+        },
+      },
+      {
+        type: 'Feature',
+        properties: {
+          name: 'lines',
+          id: 1336,
+        },
+        geometry: {
+          coordinates: [
+            [-13.292352825505162, 54.34883408204476],
+            [36.83102287804303, 59.56941785818924],
+            [50.34083898563978, 16.040052775278994],
+            [76.38149901912357, 35.155968522292056],
+          ],
+          type: 'LineString',
+        },
+      },
+      {
+        type: 'Feature',
+        properties: {
+          name: 'points',
+          id: 9,
+        },
+        geometry: {
+          coordinates: [
+            [4.037548985522477, 17.257322750025494],
+            [160.037548985522477, -20.257322750025494],
+          ],
+          type: 'MultiPoint',
+        },
+      },
+    ],
+  });
+  const jsonReader = new JSONReader(fileReaderPoints);
+  const tileWriter = new BufferTileWriter();
+
+  await toTiles({
+    name: 'vector data',
+    vectorSources: { clusters: jsonReader, geos: bufferJSON },
+    format: 'open-s2',
+    projection: 'S2',
+    layerGuides: [
+      {
+        sourceName: 'geos',
+        layerName: 'randoms',
+        vectorGuide: {
+          buildBBox: true,
+          minzoom: 0,
+          maxzoom: 5,
+        },
+        extent: 4_096,
+        shape: {
+          name: 'string',
+          id: 'u64',
+        },
+        drawTypes: [DrawType.Points, DrawType.Lines, DrawType.Polys],
+      },
+      {
+        sourceName: 'clusters',
+        layerName: 'cities',
+        clusterGuide: {
+          minzoom: 0,
+          maxzoom: 5,
+        },
+        extent: 4_096,
+      },
+    ],
+    tileWriter,
+  });
+
+  const vectorTileFace3 = await tileWriter.tiles.get(`3/0/0/0`);
+  if (vectorTileFace3 === undefined) throw Error('vectorTileFace3 is undefined');
+  const tile = new VectorTile(vectorTileFace3);
+  const { cities, randoms } = tile.layers;
+  // cities
+  expect(cities.length).toEqual(1);
+  const feature0 = cities.feature(0);
+  expect(feature0.properties).toEqual({ name: 'Melbourne' });
+  expect(feature0.loadGeometry()).toEqual([{ x: 3847, y: 645 }]);
+  // randoms
+  expect(randoms.length).toEqual(1);
+  const feature1 = randoms.feature(0);
+  expect(feature1.properties).toEqual({ name: 'points', id: 9 });
+  expect(feature1.loadGeometry()).toEqual([{ x: 3022, y: 1135 }]);
+});
 
 testFunc(
   'toTiles - Raster WM',
