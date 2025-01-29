@@ -1,8 +1,8 @@
 import { Cache as DirCache } from '../../dataStructures/cache';
-import { decompressStream } from '../../util';
-import { Compression, bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
+import { Compression, decompressStream } from '../../util';
 import { FetchReader, toReader } from '..';
 import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles';
+import { bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
 
 import type { Entry, Header } from './pmtiles';
 import type { Face, Metadata } from 's2-tilejson';

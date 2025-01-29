@@ -1,5 +1,6 @@
 import { readVarint } from './varint';
 
+import type { Compression } from '../..';
 import type { Point } from '../../geometry';
 
 /** A tile, in the format of ZXY. */
@@ -14,62 +15,34 @@ export interface Entry {
 }
 
 /**
- * Enum representing a compression algorithm used.
- * 0 = unknown compression, for if you must use a different or unspecified algorithm.
- * 1 = no compression.
- * 2 = gzip
- * 3 = brotli
- * 4 = zstd
- */
-export const Compression = {
-  /** Unknown compression, for if you must use a different or unspecified algorithm. */
-  Unknown: 0,
-  /** No compression. */
-  None: 1,
-  /** Gzip compression. */
-  Gzip: 2,
-  /** Brotli compression. */
-  Brotli: 3,
-  /** Zstd compression. */
-  Zstd: 4,
-} as const;
-
-/**
- * Enum representing a compression algorithm used.
- * 0 = unknown compression, for if you must use a different or unspecified algorithm.
- * 1 = no compression.
- * 2 = gzip
- * 3 = brotli
- * 4 = zstd
- */
-export type Compression = (typeof Compression)[keyof typeof Compression];
-
-/**
- * Provide a decompression implementation that acts on `buf` and returns decompressed data.
- *
- * Should use the native DecompressionStream on browsers, zlib on node.
- * Should throw if the compression algorithm is not supported.
- */
-export type DecompressFunc = (buf: Uint8Array, compression: Compression) => Promise<Uint8Array>;
-
-/**
  * Describe the type of tiles stored in the archive.
  * 0 is unknown/other, 1 is a vector tile spec.
  */
-export const enum TileType {
+export const TileType = {
   /** unknown/other. */
-  Unknown = 0,
+  Unknown: 0,
   /** Vector tiles. */
-  Pbf = 1,
+  Pbf: 1,
   /** Image tiles. */
-  Png = 2,
+  Png: 2,
   /** Image tiles. */
-  Jpeg = 3,
+  Jpeg: 3,
   /** Image tiles. */
-  Webp = 4,
+  Webp: 4,
   /** Image tiles. */
-  Avif = 5,
-}
+  Avif: 5,
+} as const;
+
+/**
+ * Enum representing a tile types stored in the archive.
+ * 0 = unknown type
+ * 1 = PBF
+ * 2 = PNG
+ * 3 = JPEG
+ * 4 = WEBP
+ * 5 = AVIF
+ */
+export type TileType = (typeof TileType)[keyof typeof TileType];
 
 /**
  * PMTiles v3 header storing basic archive-level information.
@@ -258,7 +231,7 @@ export function bytesToHeader(bytes: Uint8Array): Header {
     clustered: dv.getUint8(96) === 1,
     internalCompression: dv.getUint8(97) as Compression,
     tileCompression: dv.getUint8(98) as Compression,
-    tileType: dv.getUint8(99),
+    tileType: dv.getUint8(99) as TileType,
     minZoom: dv.getUint8(100),
     maxZoom: dv.getUint8(101),
   };

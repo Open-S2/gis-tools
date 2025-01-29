@@ -71,8 +71,7 @@ export interface BaseGridOptions<M extends MValue = Properties | RGBA> {
 }
 
 /** Options for grid clustering */
-export interface ClusterGridOptions<M extends MValue = Properties | RGBA>
-  extends BaseGridOptions<M> {
+export interface GridValueOptions<M extends MValue = Properties> extends BaseGridOptions<M> {
   /** Used by cell search to specify the interpolation function to use [default: 'z' value of the point] */
   getInterpolationValue: GetInterpolateValue<M>;
   /** Set a null value for grid cells that are empty */
@@ -80,8 +79,7 @@ export interface ClusterGridOptions<M extends MValue = Properties | RGBA>
 }
 
 /** Options for raster clustering */
-export interface ClusterRasterOptions<M extends MValue = Properties | RGBA>
-  extends BaseGridOptions<M> {
+export interface GridRasterOptions<M extends MValue = RGBA> extends BaseGridOptions<M> {
   /** Used by cell search to specify the interpolation function to use [default: 'z' value of the point] */
   getInterpolationValue: 'rgba';
   /** Set a null value for grid cells that are empty */
@@ -146,7 +144,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param store - the store to use for storing all the grid tiles
    */
   constructor(
-    options?: BaseGridOptions<M>,
+    options?: BaseGridOptions<M> | GridRasterOptions<M>,
     store: KVStoreConstructor<number[] | RGBA[]> = KV<number[] | RGBA[]>,
   ) {
     this.gridTileStore = new store();
@@ -325,7 +323,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
   }
 
   /**
-   * Build the parent cells. We simply search for the children of the cell and merge/upscale.
+   * Build the parent cells. We simply search for the children of the cell and merge/downsample.
    * @param zoom - the current zoom we are upscaling to
    * @param cells - the cells to build grids for
    * @returns - the parent cells for the next round of upscaling
@@ -340,11 +338,11 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
       const grid: number[] | RGBA[] = new Array(gridLength * gridLength).fill(this.nullValue);
       const [face, cellZoom, i, j] = toFaceIJ(cell);
       const [blID, brID, tlID, trID] = childrenIJ(face, cellZoom, i, j);
-      // for each child, upscale into the result grid
-      await this.#upscaleGrid(blID, grid, 0, 0);
-      await this.#upscaleGrid(brID, grid, halfGridLength, 0);
-      await this.#upscaleGrid(tlID, grid, 0, halfGridLength);
-      await this.#upscaleGrid(trID, grid, halfGridLength, halfGridLength);
+      // for each child, downsample into the result grid
+      await this.#downsampleGrid(blID, grid, 0, 0);
+      await this.#downsampleGrid(brID, grid, halfGridLength, 0);
+      await this.#downsampleGrid(tlID, grid, 0, halfGridLength);
+      await this.#downsampleGrid(trID, grid, halfGridLength, halfGridLength);
       // store the grid and add the parent cell for future upscaling
       gridTileStore.set(cell, grid);
       if (zoom !== 0) parents.add(parent(cell, zoom - 1));
@@ -355,12 +353,12 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
 
   /**
    * Upscale a grid into the target grid at x,y position
-   * @param cellID - the cell id for the grid to upscale
+   * @param cellID - the cell id for the grid to downsample
    * @param target - the target grid
    * @param x - the x offset
    * @param y - the y offset
    */
-  async #upscaleGrid(
+  async #downsampleGrid(
     cellID: S2CellId,
     target: number[] | RGBA[],
     x: number,

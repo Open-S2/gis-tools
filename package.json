@@ -39,7 +39,8 @@
     "prettier": "bunx prettier src tests tools benchmarks --check",
     "prettier:fix": "bunx prettier -- --write",
     "format": "bunx prettier:fix && bun run lint:fix",
-    "build": "bun run build:rust && bun run build:ts",
+    "build:old": "bun run build:rust && bun run build:ts",
+    "build": "bun run build:ts",
     "build:ts": "rm -rf dist && mkdir dist && rm -f -- tsconfig.tsbuildinfo && tsc",
     "build:rust": "bun build:rust:cargo && bun build:rust:optimize && bun build:rust:strip",
     "build:rust:cargo": "cargo build --target wasm32-unknown-unknown --release --workspace --package rust-uint64",
@@ -74,8 +75,8 @@
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
     "@types/all-the-cities": "^3.1.3",
-    "@types/bun": "^1.1.18",
-    "@types/node": "^22.10.7",
+    "@types/bun": "^1.2.1",
+    "@types/node": "^22.12.0",
     "@types/tmp": "^0.2.6",
     "@webgpu/types": "^0.1.53",
     "ajv": "^8.17.1",
@@ -84,9 +85,9 @@
     "badge-maker": "^4.1.0",
     "coveralls": "^3.1.1",
     "esbuild": "^0.24.2",
-    "eslint": "^9.18.0",
+    "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-jsdoc": "^50.6.2",
+    "eslint-plugin-jsdoc": "^50.6.3",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-tsdoc": "^0.4.0",
     "geotiff": "^2.1.3",
@@ -101,7 +102,7 @@
     "typedoc": "^0.27.6",
     "typedoc-plugin-coverage": "^3.4.1",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0"
+    "typescript-eslint": "^8.22.0"
   },
   "dependencies": {
     "earclip": "^1.1.1",

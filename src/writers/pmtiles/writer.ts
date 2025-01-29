@@ -1,12 +1,6 @@
 import { s2HeaderToBytes } from './s2pmtiles';
-import {
-  Compression,
-  ROOT_SIZE,
-  S2_HEADER_SIZE_BYTES,
-  S2_ROOT_SIZE,
-  zxyToTileID,
-} from '../../readers/pmtiles';
-import { compressStream, concatUint8Arrays } from '../../util';
+import { Compression, compressStream, concatUint8Arrays } from '../../util';
+import { ROOT_SIZE, S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, zxyToTileID } from '../../readers/pmtiles';
 import { headerToBytes, serializeDir } from './pmtiles';
 
 import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles';
@@ -69,12 +63,13 @@ export class S2PMTilesWriter implements TileWriter {
   /**
    * @param writer - the writer to append to
    * @param type - the tile type
-   * @param compression - the compression algorithm
+   * @param internalCompression - the compression algorithm to use for internal data like the
+   * header, directories, and metadata
    */
   constructor(
     readonly writer: Writer,
     readonly type: TileType,
-    readonly compression: Compression = Compression.Gzip,
+    readonly internalCompression: Compression = Compression.Gzip,
   ) {
     this.writer.appendSync(new Uint8Array(S2_ROOT_SIZE));
   }
@@ -121,7 +116,7 @@ export class S2PMTilesWriter implements TileWriter {
    * @param face - If it exists, then we are storing S2 data
    */
   async writeTile(tileID: number, data: Uint8Array, face?: Face): Promise<void> {
-    data = await compress(data, this.compression);
+    // data = await compress(data, this.compression);
     const length = data.length;
     const tileEntries = face !== undefined ? this.#s2tileEntries[face] : this.#tileEntries;
     if (tileEntries.length > 0 && tileID < (tileEntries.at(-1) as Entry).tileID) {
@@ -139,17 +134,23 @@ export class S2PMTilesWriter implements TileWriter {
   /**
    * Finish writing by building the header with root and leaf directories
    * @param metadata - the metadata to store
+   * @param tileCompression - the compression algorithm that was used on the tiles [Default: None]
    */
-  async commit(metadata: Metadata): Promise<void> {
-    if (this.#tileEntries.length === 0) await this.#commitS2(metadata);
-    else await this.#commit(metadata);
+  async commit(metadata: Metadata, tileCompression: Compression = Compression.None): Promise<void> {
+    if (this.#tileEntries.length === 0) await this.#commitS2(metadata, tileCompression);
+    else await this.#commit(metadata, tileCompression);
   }
 
   /**
    * Finish writing by building the header with root and leaf directories
    * @param metadata - the metadata to store
+   * @param tileCompression - the compression algorithm that was used on the tiles
    */
-  async #commit(metadata: Metadata): Promise<void> {
+  async #commit(
+    metadata: Metadata,
+    tileCompression: Compression = Compression.None,
+  ): Promise<void> {
+    const { internalCompression } = this;
     const tileEntries = this.#tileEntries;
     // keep tile entries sorted
     tileEntries.sort((a, b) => a.tileID - b.tileID);
@@ -160,13 +161,13 @@ export class S2PMTilesWriter implements TileWriter {
       metaBuffer.byteOffset,
       metaBuffer.byteLength,
     );
-    metauint8 = await compress(metauint8, this.compression);
+    metauint8 = await compress(metauint8, this.internalCompression);
 
     // optimize directories
     const { rootBytes, leavesBytes } = await optimizeDirectories(
       tileEntries,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      this.compression,
+      internalCompression,
     );
 
     // build header data
@@ -194,8 +195,8 @@ export class S2PMTilesWriter implements TileWriter {
       numTileEntries: tileEntries.length,
       numTileContents: tileEntries.length,
       clustered: this.#clustered,
-      internalCompression: this.compression,
-      tileCompression: this.compression,
+      internalCompression,
+      tileCompression,
       tileType: this.type,
       minZoom: this.#minZoom,
       maxZoom: this.#maxZoom,
@@ -211,9 +212,13 @@ export class S2PMTilesWriter implements TileWriter {
   /**
    * Finish writing by building the header with root and leaf directories
    * @param metadata - the metadata to store
+   * @param tileCompression - the compression algorithm that was used on the tiles
    */
-  async #commitS2(metadata: Metadata): Promise<void> {
-    const { compression } = this;
+  async #commitS2(
+    metadata: Metadata,
+    tileCompression: Compression = Compression.None,
+  ): Promise<void> {
+    const { internalCompression } = this;
     const tileEntries = this.#s2tileEntries[0];
     const tileEntries1 = this.#s2tileEntries[1];
     const tileEntries2 = this.#s2tileEntries[2];
@@ -234,38 +239,38 @@ export class S2PMTilesWriter implements TileWriter {
       metaBuffer.byteOffset,
       metaBuffer.byteLength,
     );
-    metauint8 = await compress(metauint8, this.compression);
+    metauint8 = await compress(metauint8, internalCompression);
 
     // optimize directories
     const { rootBytes, leavesBytes } = await optimizeDirectories(
       tileEntries,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
     const { rootBytes: rootBytes1, leavesBytes: leavesBytes1 } = await optimizeDirectories(
       tileEntries1,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
     const { rootBytes: rootBytes2, leavesBytes: leavesBytes2 } = await optimizeDirectories(
       tileEntries2,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
     const { rootBytes: rootBytes3, leavesBytes: leavesBytes3 } = await optimizeDirectories(
       tileEntries3,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
     const { rootBytes: rootBytes4, leavesBytes: leavesBytes4 } = await optimizeDirectories(
       tileEntries4,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
     const { rootBytes: rootBytes5, leavesBytes: leavesBytes5 } = await optimizeDirectories(
       tileEntries5,
       ROOT_SIZE - S2_HEADER_SIZE_BYTES - metauint8.byteLength,
-      compression,
+      internalCompression,
     );
 
     // build header data
@@ -344,8 +349,8 @@ export class S2PMTilesWriter implements TileWriter {
       numTileEntries: tileEntries.length,
       numTileContents: tileEntries.length,
       clustered: this.#clustered,
-      internalCompression: this.compression,
-      tileCompression: this.compression,
+      internalCompression,
+      tileCompression,
       tileType: this.type,
       minZoom: this.#minZoom,
       maxZoom: this.#maxZoom,

@@ -1,3 +1,4 @@
+import type { Compression } from '..';
 import type { Face, Metadata } from 's2-tilejson';
 
 export * from './pmtiles';
@@ -15,7 +16,7 @@ export interface Writer {
 export interface TileWriter {
   writeTileWM(zoom: number, x: number, y: number, data: Uint8Array): Promise<void>;
   writeTileS2(face: Face, zoom: number, x: number, y: number, data: Uint8Array): Promise<void>;
-  commit(metadata: Metadata): Promise<void>;
+  commit(metadata: Metadata, tileCompression?: Compression): Promise<void>;
 }
 
 /** A base interface for all tile stores. */
@@ -35,6 +36,92 @@ export interface TemporalTileWriter extends TileWriter {
     y: number,
     data: Uint8Array,
   ): Promise<void>;
+}
+
+/** A Tile writer designed for testing. */
+export class BufferTileWriter implements TemporalTileWriter {
+  metadata: Metadata | null = null;
+  tiles: Map<string, Uint8Array> = new Map();
+
+  /**
+   * Write a tile to the folder location given its (z, x, y) coordinates.
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTileWM(zoom: number, x: number, y: number, data: Uint8Array): Promise<void> {
+    const key = `${zoom}/${x}/${y}`;
+    await this.tiles.set(key, data);
+  }
+
+  /**
+   * Write a tile to the folder location given its (face, zoom, x, y) coordinates.
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTileS2(
+    face: Face,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    const key = `${face}/${zoom}/${x}/${y}`;
+    await this.tiles.set(key, data);
+  }
+
+  /**
+   * Write a time series tile to the folder location given its (t, z, x, y) coordinates.
+   * @param time - the date of the data
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTemporalTileWM(
+    time: Date,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    const key = `${time.getTime()}/${zoom}/${x}/${y}`;
+    await this.tiles.set(key, data);
+  }
+
+  /**
+   * Write a time series tile to the folder location given its (face, zoom, x, y) coordinates.
+   * @param time - the date of the data
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level
+   * @param x - the tile X coordinate
+   * @param y - the tile Y coordinate
+   * @param data - the tile data to store
+   */
+  async writeTemporalTileS2(
+    time: Date,
+    face: number,
+    zoom: number,
+    x: number,
+    y: number,
+    data: Uint8Array,
+  ): Promise<void> {
+    const key = `${time.getTime()}/${face}/${zoom}/${x}/${y}`;
+    await this.tiles.set(key, data);
+  }
+
+  /**
+   * Finish writing by building the header with root and leaf directories.
+   * @param metadata - the metadata about all the tiles to store
+   */
+  async commit(metadata: Metadata): Promise<void> {
+    this.metadata = metadata;
+    await Promise.resolve();
+  }
 }
 
 /** Buffer writer is used on smaller datasets that are easy to write in memory. Faster then the Filesystem */

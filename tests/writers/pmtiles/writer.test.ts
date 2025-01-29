@@ -39,14 +39,14 @@ test('File Writer WM', async () => {
   const reader = new S2PMTilesReader(bufReader);
   const metadata = await reader.getMetadata();
   const header = await reader.getHeader();
-  expect(bufReader.buffer.byteLength).toEqual(98_399);
+  expect(bufReader.buffer.byteLength).toEqual(98_339);
   expect(header).toEqual({
     clustered: true,
     internalCompression: 2,
     jsonMetadataLength: 37,
     jsonMetadataOffset: 296,
     leafDirectoryLength: 0,
-    leafDirectoryOffset: 98399,
+    leafDirectoryOffset: 98_339,
     maxZoom: 5,
     minZoom: 0,
     numAddressedTiles: 3,
@@ -55,9 +55,9 @@ test('File Writer WM', async () => {
     rootDirectoryLength: 34,
     rootDirectoryOffset: 262,
     specVersion: 3,
-    tileCompression: 2,
-    tileDataLength: 95,
-    tileDataOffset: 98304,
+    tileCompression: 1,
+    tileDataLength: 35,
+    tileDataOffset: 98_304,
     tileType: 1,
   });
   expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
@@ -95,24 +95,24 @@ test('File Writer S2', async () => {
   const metadata = await reader.getMetadata();
   const header = await reader.getHeader();
 
-  expect((await stat(tmpFile1)).size).toEqual(98_496);
+  expect((await stat(tmpFile1)).size).toEqual(98_376);
   expect(header).toEqual({
     clustered: true,
     internalCompression: 2,
     jsonMetadataLength: 37,
-    jsonMetadataOffset: 418,
+    jsonMetadataOffset: 416,
     leafDirectoryLength: 0,
     leafDirectoryLength1: 0,
     leafDirectoryLength2: 0,
     leafDirectoryLength3: 0,
     leafDirectoryLength4: 0,
     leafDirectoryLength5: 0,
-    leafDirectoryOffset: 98496,
-    leafDirectoryOffset1: 98496,
-    leafDirectoryOffset2: 98496,
-    leafDirectoryOffset3: 98496,
-    leafDirectoryOffset4: 98496,
-    leafDirectoryOffset5: 98496,
+    leafDirectoryOffset: 98_376,
+    leafDirectoryOffset1: 98_376,
+    leafDirectoryOffset2: 98_376,
+    leafDirectoryOffset3: 98_376,
+    leafDirectoryOffset4: 98_376,
+    leafDirectoryOffset5: 98_376,
     maxZoom: 8,
     minZoom: 0,
     numAddressedTiles: 6,
@@ -122,17 +122,17 @@ test('File Writer S2', async () => {
     rootDirectoryLength1: 25,
     rootDirectoryLength2: 27,
     rootDirectoryLength3: 25,
-    rootDirectoryLength4: 27,
-    rootDirectoryLength5: 27,
+    rootDirectoryLength4: 26,
+    rootDirectoryLength5: 26,
     rootDirectoryOffset: 262,
     rootDirectoryOffset1: 287,
     rootDirectoryOffset2: 312,
     rootDirectoryOffset3: 339,
     rootDirectoryOffset4: 364,
-    rootDirectoryOffset5: 391,
+    rootDirectoryOffset5: 390,
     specVersion: 1,
-    tileCompression: 2,
-    tileDataLength: 192,
+    tileCompression: 1,
+    tileDataLength: 72,
     tileDataOffset: 98304,
     tileType: 1,
   } as S2Header);

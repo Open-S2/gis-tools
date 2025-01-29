@@ -9,12 +9,12 @@ import {
   getUint64,
   tileIDToZxy,
   zxyToTileID,
-} from '../../../src/readers/pmtiles';
+} from '../../..';
 import { headerToBytes, serializeDir, setUint64 } from '../../../src/writers/pmtiles';
 
 import { describe, expect, test } from 'bun:test';
 
-import type { Entry, Header } from '../../../src/readers/pmtiles';
+import type { Entry, Header } from '../../..';
 
 test('HEADER_SIZE_BYTES', () => {
   expect(HEADER_SIZE_BYTES).toBe(127);

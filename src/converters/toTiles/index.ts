@@ -1,4 +1,5 @@
 import TileWorker from './worker/tileWorker';
+import { xyzToBBOX } from '../../geometry/wm/coords';
 import { DrawType, MetadataBuilder } from 's2-tilejson';
 
 import type { Extents } from 'open-vector-tile';
@@ -8,19 +9,19 @@ import type {
   Extensions,
   ImageExtensions,
   LayerMetaData,
-  Scheme,
+  Shape,
   SourceType,
 } from 's2-tilejson';
 import type {
-  ClusterGridOptions,
   ClusterOptions,
-  ClusterRasterOptions,
   FeatureIterator,
-  InterpolationMethod,
+  GridRasterOptions,
+  GridValueOptions,
   MValue,
+  Projection,
   Properties,
   RGBA,
-  TileReader,
+  // TileReader,
   TileStoreOptions,
   TileWriter,
   VectorFeatures,
@@ -48,12 +49,12 @@ export interface BaseLayer<
   D extends MValue = Properties,
   P extends Properties = Properties,
 > {
+  /** Explain what the layer is */
+  description?: string;
   /** Name of the source */
   sourceName: string;
   /** Name of the layer */
   layerName: string;
-  /** Components of how the layer is built and stored */
-  metadata: LayerMetaData;
   /** If provided, you can mutate the feature. If you return nothing it's the same as filtering the feature */
   onFeature?: OnFeature<M, D, P>;
 }
@@ -67,7 +68,7 @@ export interface RasterLayer<
   /** describes how the image will be stored */
   outputType: ImageExtensions;
   /** Raster clustering guide */
-  rasterGuide: ClusterRasterOptions;
+  rasterGuide: GridRasterOptions;
 }
 /** Guide to building Raster layer data where the onFeature is stringified to ship to workers */
 export interface StringifiedRasterLayer extends Omit<RasterLayer, 'onFeature'> {
@@ -82,7 +83,8 @@ export interface GridLayer<
   P extends Properties = Properties,
 > extends BaseLayer<M, D, P> {
   /** Grid clustering guide */
-  gridGuide: ClusterGridOptions;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  gridGuide: GridValueOptions<any>;
   /** Extent at which the layer is storing its data */
   extent: Extents;
 }
@@ -118,9 +120,23 @@ export interface VectorLayer<
   P extends Properties = Properties,
 > extends BaseLayer<M, D, P> {
   /** Guide on how to splice the data into vector tiles */
-  tileGuide: TileStoreOptions;
+  vectorGuide: TileStoreOptions;
   /** Extent at which the layer is storing its data */
   extent: Extents;
+  /** Shape guide for the vector layer */
+  shape: Shape;
+  /** M-Value Shape guide for the vector layer */
+  mShape?: Shape;
+  /**
+   * Draw Types (points, lines, polygons, 3D points, 3D lines, 3D polygons).
+   * This is a filter mechanic. The source data may have multiple feature/draw types,
+   * but the layer you're building only wants to use the points. So you would add:
+   * ```ts
+   * import { DrawType } from 'gis-tools-ts';
+   * const drawTypes = [DrawType.Points];
+   * ```
+   */
+  drawTypes: DrawType[];
 }
 /** Guide to building Vector layer data where the onFeature is stringified to ship to workers */
 export interface StringifiedVectorLayer extends Omit<VectorLayer, 'onFeature'> {
@@ -153,7 +169,7 @@ export type StringifiedLayerGuide =
 export type FormatOutput = 'mapbox' | 'flat-open-s2' | 'open-s2' | 'raster';
 
 /** A user defined guide on building the vector tiles */
-export interface BuildGuide {
+export interface BuildGuide<V extends MValue = Properties, G extends MValue = Properties> {
   /** The name of the data */
   name: string;
   /** The description of the data */
@@ -169,8 +185,8 @@ export interface BuildGuide {
    * What kind of output format should be used. Used for describing either S2 or WM
    * projections. [Default: 'fzxy']
    */
-  scheme?: Scheme;
-  /** The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'gz'] */
+  projection: Projection;
+  /** The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none'] */
   encoding?: Encoding;
   /** The attribution of the data. Store as `{ 'presentation name': 'href' }`. */
   attribution?: Attribution;
@@ -186,17 +202,17 @@ export interface BuildGuide {
    * - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
    * [Default: 'open-s2']
    */
-  format?: FormatOutput;
+  format: FormatOutput;
   /**
    * The vector sources that the tile is built from and how the layers are to be stored.
    * Created using `{ [sourceName: string]: FeatureIterator }`
    * See: {@link FeatureIterator}
    */
-  vectorSources?: Record<string, FeatureIterator>;
+  vectorSources?: Record<string, FeatureIterator<unknown, V, V>>;
   /** The raster sources that will be conjoined into a single rgba pixel index for tile extraction */
-  rasterSources?: Record<string, FeatureIterator<Record<string, unknown>, RGBA, Properties>>;
+  rasterSources?: Record<string, FeatureIterator<unknown, RGBA, RGBA>>;
   /** The grid sources that will be conjoined into a single grid index for tile extraction */
-  gridSources?: Record<string, FeatureIterator>;
+  gridSources?: Record<string, FeatureIterator<unknown, G, G>>;
   /**
    * The guides on how to build the various data
    * See: {@link LayerGuide}
@@ -214,132 +230,75 @@ export interface BuildGuide {
 }
 
 /**
- * List of user defined guides to build raster data where the onFeature is stringified to ship to workers
- */
-export interface RasterBuildGuide
-  extends Omit<
-    BuildGuide,
-    'extension' | 'layerGuides' | 'format' | 'vectorSources' | 'gridSources' | 'encoding'
-  > {
-  /** Specify the image type. e.g. 'png', 'jpg', 'webp', etc. */
-  extension: ImageExtensions;
-  /** Used by cell search to specify the type of interpolation to use [default: 'lanczos'] */
-  interpolation: InterpolationMethod;
-  /** The description of the data */
-  description?: string;
-  /** User defined minimum zoom level */
-  minzoom: number;
-  /** User defined maximum zoom level */
-  maxzoom: number;
-  /**
-   * Used by the cell search to specify the tile buffer size in pixels.
-   * Recommend 0 unless you need to do neighbor analysis like RGBA elevation data.
-   */
-  bufferSize: number;
-  /** Stringified version of the onFeature used by the source so it can be shipped to a worker. */
-  onFeature?: OnFeature;
-}
-
-/**
  * Build vector tiles give a guide on what sources to parse data from and how to store it
  * @param buildGuide - the user defined guide on building the vector tiles
  */
-export async function toVectorTiles(buildGuide: BuildGuide): Promise<void> {
-  const { tileWriter, extension, scheme } = buildGuide;
-  const vectorWorker = new TileWorker();
+export async function toTiles(buildGuide: BuildGuide): Promise<void> {
+  const { tileWriter, extension, projection } = buildGuide;
+  const worker = new TileWorker();
 
   // STEP 1: Convert all features to tile slices of said features.
-  await toVectorTilesSliceFeatures(buildGuide, vectorWorker);
+  await toTilesSliceFeatures(buildGuide, worker);
   // STEP 2: Ensure all data is prepped/sorted for reading/building tiles
-  await vectorWorker.sort();
-  // STEP 3: collect all existing multimap feature stores and build tiles
-  for await (const { face, zoom, x, y, data } of vectorWorker.buildTiles()) {
-    if (scheme === 'fzxy') await tileWriter.writeTileS2(face, zoom, x, y, data);
-    else await tileWriter.writeTileWM(zoom, x, y, data);
-  }
-  // STEP 4: build metadata based on the guide
+  await worker.sort();
+  // STEP 3: build metadata based on the guide
   const metaBuilder = new MetadataBuilder();
   const type = buildGuide.format === 'raster' ? 'raster' : 'vector';
   updateBuilder(metaBuilder, buildGuide, type, extension ?? 'pbf');
-  const metadata = metaBuilder.commit();
+  // STEP 4: collect all existing multimap feature stores and build tiles
+  for await (const { face, zoom, x, y, data } of worker.buildTiles()) {
+    if (projection === 'S2') {
+      await tileWriter.writeTileS2(face, zoom, x, y, data);
+      // TODO: handle llbounds correctly
+      metaBuilder.addTileS2(face, zoom, x, y, [0, 0, 0, 0]);
+    } else {
+      await tileWriter.writeTileWM(zoom, x, y, data);
+      metaBuilder.addTileWM(zoom, x, y, xyzToBBOX(x, y, zoom, false, 'WGS84'));
+    }
+  }
   // STEP 5: Commit the metadata
-  await tileWriter.commit(metadata);
+  await tileWriter.commit(metaBuilder.commit());
 }
 
-/**
- * Build vector tiles give a guide on what sources to parse data from and how to store it
- * @param rasterBuildGuide - the user defined guide on building the vector tiles
- */
-export async function toRasterTiles(rasterBuildGuide: RasterBuildGuide): Promise<void> {
-  const { description, minzoom, maxzoom, extension, onFeature, interpolation, bufferSize } =
-    rasterBuildGuide;
-  // setup worker and layer
-  const rasterLayer: RasterLayer = {
-    sourceName: 'raster',
-    layerName: 'default',
-    outputType: extension,
-    metadata: {
-      minzoom,
-      maxzoom,
-      description,
-      drawTypes: [DrawType.Raster],
-      shape: {},
-    },
-    rasterGuide: {
-      bufferSize,
-      getInterpolationValue: 'rgba',
-      interpolation,
-    },
-    onFeature,
-  };
-  const buildGuide: BuildGuide = {
-    ...rasterBuildGuide,
-    format: 'raster',
-    encoding: 'none',
-    layerGuides: [rasterLayer],
-  };
-  await toVectorTiles(buildGuide);
-}
-
-/**
- * TODO: Merge tiles together
- * @param _tileReaders - the tile readers to merge
- * @param _tileWriter - the tile writer to write to
- */
-export async function mergeTiles(
-  _tileReaders: TileReader[],
-  _tileWriter: TileWriter,
-): Promise<void> {}
+// /**
+//  * TODO: Merge tiles together
+//  * @param _tileReaders - the tile readers to merge
+//  * @param _tileWriter - the tile writer to write to
+//  */
+// export async function mergeTiles(
+//   _tileReaders: TileReader[],
+//   _tileWriter: TileWriter,
+// ): Promise<void> {}
 
 /**
  * STEP 1: Convert all features to tile slices of said features.
  * @param buildGuide - the user defined guide on building the vector tiles
- * @param vectorWorker - the vector tile worker to use
+ * @param worker - the vector tile worker to use
  */
-async function toVectorTilesSliceFeatures(
-  buildGuide: BuildGuide,
-  vectorWorker: TileWorker,
-): Promise<void> {
-  const { vectorSources, rasterSources, layerGuides, scheme, encoding, format } = buildGuide;
-  const featuresIterator = getFeature([vectorSources, rasterSources]);
+async function toTilesSliceFeatures(buildGuide: BuildGuide, worker: TileWorker): Promise<void> {
+  const { vectorSources, rasterSources, gridSources, layerGuides, projection, encoding, format } =
+    buildGuide;
+  const featuresIterator = getFeature([
+    vectorSources as unknown as Record<string, FeatureIterator>,
+    rasterSources as unknown as Record<string, FeatureIterator>,
+    gridSources as unknown as Record<string, FeatureIterator>,
+  ]);
 
   // Prepare workers with init messages
-  const stringifiedLayerGuides = prepareLayerGuides(layerGuides);
   const initMessage: InitMessage = {
     type: 'init',
     id: 0,
-    scheme,
+    projection,
     encoding,
     format,
-    layerGuides: stringifiedLayerGuides,
+    layerGuides: prepareLayerGuides(layerGuides),
   };
-
-  vectorWorker.handleMessage(initMessage);
-
+  worker.handleMessage(initMessage);
+  // iterate over all features
   for await (const nextFeature of featuresIterator) {
     const { sourceName, feature } = nextFeature;
     const featureMessage: FeatureMessage = { type: 'feature', sourceName, feature };
-    vectorWorker.handleMessage(featureMessage);
+    worker.handleMessage(featureMessage);
   }
 }
 
@@ -393,41 +352,79 @@ async function* getFeature(
  */
 function updateBuilder(
   metaBuilder: MetadataBuilder,
-  buildGuide: BuildGuide | RasterBuildGuide,
+  buildGuide: BuildGuide,
   type: SourceType,
   extensions: Extensions,
 ): void {
-  const { name, description, version, scheme, attribution } = buildGuide;
-  const encoding = 'encoding' in buildGuide ? buildGuide.encoding : 'gz';
+  const { name, description, version, projection, attribution } = buildGuide;
+  const encoding = 'encoding' in buildGuide ? buildGuide.encoding : 'none';
   const layerGuides = 'layerGuides' in buildGuide ? buildGuide.layerGuides : [];
 
   metaBuilder.setName(name);
   metaBuilder.setExtension(extensions);
   metaBuilder.setDescription(description ?? 'Built by S2-Tools');
   metaBuilder.setVersion(version ?? '1.0.0');
-  metaBuilder.setScheme(scheme ?? 'fzxy'); // 'fzxy' | 'tfzxy' | 'xyz' | 'txyz' | 'tms'
+  // NOTE: For now we only support xyz and fzxy
+  metaBuilder.setScheme(projection === 'WM' ? 'xyz' : 'fzxy'); // 'fzxy' | 'tfzxy' | 'xyz' | 'txyz' | 'tms'
   metaBuilder.setType(type);
-  metaBuilder.setEncoding(encoding ?? 'gz'); // 'gz' | 'br' | 'none'
+  metaBuilder.setEncoding(encoding ?? 'none'); // 'gz' | 'br' | 'none'
   if (attribution !== undefined) {
     for (const [displayName, href] of Object.entries(attribution)) {
       metaBuilder.addAttribution(displayName, href);
     }
   }
-  for (const layer of layerGuides) metaBuilder.addLayer(layer.sourceName, layer.metadata);
+  // Build metadata from layerGuides
+  for (const layer of layerGuides) metaBuilder.addLayer(layer.layerName, buildLayerMetadata(layer));
 }
 
 /**
- * TODO: Find all cases where prepping the data could be done wrong by the user with
- * TODO: explinations of how to correct them.
- * TODO: - metadata must be correct. -
- * Check and display errors
- * @param _layerGuides - the user defined guide on building the vector tiles
+ * Build layer metadata from layer guide
+ * @param layer - the layer guide to parse
+ * @returns the layer metadata
  */
-function _findErrors(_layerGuides: LayerGuide[]): void {
-  // for (const layerGuide of layerGuides) {
-  //   // const { metadata } = layerGuide;
-  // }
+function buildLayerMetadata(layer: LayerGuide): LayerMetaData {
+  const { description } = layer;
+  let drawTypes: DrawType[] = [];
+  let minzoom = 0;
+  let maxzoom = 14;
+  if ('vectorGuide' in layer) {
+    drawTypes = layer.drawTypes;
+    minzoom = layer.vectorGuide.minzoom ?? 0;
+    maxzoom = layer.vectorGuide.maxzoom ?? 14;
+  } else if ('clusterGuide' in layer) {
+    drawTypes = [DrawType.Points];
+    minzoom = layer.clusterGuide.minzoom ?? 0;
+    maxzoom = layer.clusterGuide.maxzoom ?? 14;
+  } else if ('rasterGuide' in layer) {
+    drawTypes = [DrawType.Raster];
+    minzoom = layer.rasterGuide.minzoom ?? 0;
+    maxzoom = layer.rasterGuide.maxzoom ?? 14;
+  } else if ('gridGuide' in layer) {
+    drawTypes = [DrawType.Grid];
+    minzoom = layer.gridGuide.minzoom ?? 0;
+    maxzoom = layer.gridGuide.maxzoom ?? 14;
+  }
+  const shape = 'shape' in layer ? layer.shape : {};
+  const mShape = 'mShape' in layer ? layer.mShape : undefined;
+  return {
+    description,
+    minzoom,
+    maxzoom,
+    drawTypes,
+    shape,
+    mShape,
+  };
 }
-// TODO: tileGuide should be modifed to match metadata minzoom, maxzoom, and projection
-// minzoom and maxzoom can be left alone if they already exist, but projection MUST match the
-// output projection.
+
+// /**
+//  * TODO: Find all cases where prepping the data could be done wrong by the user with
+//  * TODO: explinations of how to correct them.
+//  * TODO: - metadata must be correct. -
+//  * Check and display errors
+//  * @param _layerGuides - the user defined guide on building the vector tiles
+//  */
+// function _findErrors(_layerGuides: LayerGuide[]): void {
+//   // for (const layerGuide of layerGuides) {
+//   //   // const { metadata } = layerGuide;
+//   // }
+// }

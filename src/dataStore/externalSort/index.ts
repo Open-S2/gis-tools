@@ -160,6 +160,7 @@ async function mergeValues(output: string, sizes: FileSize[]): Promise<void> {
     const readStream = createReadStream(`${value}.values`); // Create a read stream for each file
     readStream.pipe(writeStream, { end: false }); // Pipe data to the write stream
     await new Promise((resolve, reject) => {
+      // @ts-expect-error - recent typescript bug
       readStream.on('end', resolve); // Resolve when reading ends
       readStream.on('error', reject); // Reject on error
     });

@@ -1,4 +1,4 @@
-import { Compression } from '../../../src/readers/pmtiles';
+import { Compression } from '../../../src';
 import { FileReader } from '../../../src/file';
 import { MMapReader } from '../../../src/mmap';
 import { buildServer } from '../../server';
@@ -6,7 +6,7 @@ import { BufferReader, S2PMTilesReader } from '../../../src/readers';
 import { describe, expect, test } from 'bun:test';
 
 import type { Metadata } from 's2-tilejson';
-import type { S2Header } from '../../../src/readers/pmtiles';
+import type { S2Header } from '../../../src';
 
 /** External old metadata spec */
 interface MetaExternal {
