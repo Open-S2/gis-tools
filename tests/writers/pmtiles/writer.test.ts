@@ -12,7 +12,7 @@ import { expect, test } from 'bun:test';
 import { stat } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
-import type { S2Header } from '../../../src/readers/pmtiles';
+import type { S2Header } from '../../../src';
 
 tmp.setGracefulCleanup();
 

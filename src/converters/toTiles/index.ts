@@ -1,4 +1,5 @@
 import TileWorker from './worker/tileWorker';
+import { encodingToCompression } from '../..';
 import { xyzToBBOX } from '../../geometry/wm/coords';
 import { DrawType, MetadataBuilder } from 's2-tilejson';
 
@@ -234,7 +235,7 @@ export interface BuildGuide<V extends MValue = Properties, G extends MValue = Pr
  * @param buildGuide - the user defined guide on building the vector tiles
  */
 export async function toTiles(buildGuide: BuildGuide): Promise<void> {
-  const { tileWriter, extension, projection } = buildGuide;
+  const { tileWriter, extension, projection, encoding } = buildGuide;
   const worker = new TileWorker();
 
   // STEP 1: Convert all features to tile slices of said features.
@@ -257,7 +258,7 @@ export async function toTiles(buildGuide: BuildGuide): Promise<void> {
     }
   }
   // STEP 5: Commit the metadata
-  await tileWriter.commit(metaBuilder.commit());
+  await tileWriter.commit(metaBuilder.commit(), encodingToCompression(encoding ?? 'none'));
 }
 
 // /**

@@ -1,3 +1,5 @@
+import type { Encoding } from 's2-tilejson';
+
 export * from './gzip';
 export * from './lzw';
 
@@ -34,6 +36,24 @@ export const Compression = {
  * 4 = zstd
  */
 export type Compression = (typeof Compression)[keyof typeof Compression];
+
+/**
+ * Converts a string encoding to a compression algorithm enum
+ * @param encoding - the encoding as a string
+ * @returns the compression algorithm as an Enum
+ */
+export function encodingToCompression(encoding: Encoding): Compression {
+  switch (encoding) {
+    case 'gz':
+      return Compression.Gzip;
+    case 'br':
+      return Compression.Brotli;
+    case 'zstd':
+      return Compression.Zstd;
+    default:
+      return Compression.None;
+  }
+}
 
 /**
  * Provide a decompression implementation that acts on `buf` and returns decompressed data.

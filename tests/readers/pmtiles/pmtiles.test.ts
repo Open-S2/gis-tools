@@ -7,14 +7,16 @@ import {
   deserializeDir,
   findTile,
   getUint64,
+  headerToBytes,
+  serializeDir,
+  setUint64,
   tileIDToZxy,
   zxyToTileID,
-} from '../../..';
-import { headerToBytes, serializeDir, setUint64 } from '../../../src/writers/pmtiles';
+} from '../../../src';
 
 import { describe, expect, test } from 'bun:test';
 
-import type { Entry, Header } from '../../..';
+import type { Entry, Header } from '../../../src';
 
 test('HEADER_SIZE_BYTES', () => {
   expect(HEADER_SIZE_BYTES).toBe(127);
