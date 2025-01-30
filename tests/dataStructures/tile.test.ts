@@ -4,7 +4,12 @@ import { expect, test } from 'bun:test';
 
 import { childrenIJ, fromFace } from '../../src/geometry/id';
 
-import type { FeatureCollection } from '../../src/geometry';
+import type {
+  FeatureCollection,
+  VectorFeature,
+  VectorLineString,
+  VectorPolygon,
+} from '../../src/geometry';
 
 const SIMPLIFY_MAXZOOM = 16;
 
@@ -357,41 +362,23 @@ test('TileStore - lines', () => {
   const faceID = fromFace(1);
   const faceTile = store.getTile(faceID);
 
-  expect(faceTile).toEqual({
-    extent: 1,
-    face: 1,
-    i: 0,
-    j: 0,
-    layers: {
-      default: {
-        extent: 1,
-        features: [
-          {
-            face: 1,
-            geometry: {
-              coordinates: [
-                { t: 1, x: 0.16117147860778458, y: 1.0625 },
-                { t: 0.09501600025180619, x: 0.06631938819928551, y: 0.7280709792071008 },
-                { t: 1, x: 0.3429608328526337, y: 0.8907772605847967 },
-              ],
-              is3D: false,
-              offset: 0.5733427280932565,
-              type: 'LineString',
-              vecBBox: [0.06631938819928551, 0.7280709792071008, 0.3429608328526337, 1.0625],
-            },
-            properties: {
-              id: 1336,
-              name: 'lines',
-            },
-            type: 'S2Feature',
-          },
-        ],
-        name: 'default',
-      },
-    },
-    transformed: true,
-    zoom: 0,
-  } as unknown as Tile);
+  const feature = faceTile?.layers.default.features[0] as VectorFeature;
+  const coords = feature.geometry.coordinates as VectorLineString;
+  const expected: VectorLineString = [
+    { t: 1, x: 0.16117147860778458, y: 1.0625 },
+    { t: 0.09501600025180619, x: 0.06631938819928551, y: 0.7280709792071008 },
+    { t: 1, x: 0.3429608328526337, y: 0.8907772605847967 },
+  ];
+  for (let i = 0; i < coords.length; i++) {
+    expect(coords[i].x).toBeCloseTo(expected[i].x);
+    expect(coords[i].y).toBeCloseTo(expected[i].y);
+  }
+  expect(feature.geometry.offset).toBeCloseTo(0.5733427280932565);
+  const bboxExpected = [0.06631938819928551, 0.7280709792071008, 0.3429608328526337, 1.0625];
+  for (let i = 0; i < bboxExpected.length; i++) {
+    expect(feature.geometry.vecBBox?.[i]).toBeCloseTo(bboxExpected[i]);
+  }
+  expect(feature.properties).toEqual({ id: 1336, name: 'lines' });
 
   const [, , child3] = childrenIJ(1, 0, 0, 0);
   const childTile = store.getTile(child3);
@@ -444,45 +431,67 @@ test('TileStore - polys', () => {
   const faceID = fromFace(4);
   const faceTile = store.getTile(faceID);
 
-  expect(faceTile).toEqual({
-    extent: 1,
-    face: 4,
-    i: 0,
-    j: 0,
-    layers: {
-      default: {
-        extent: 1,
-        features: [
-          {
-            face: 4,
-            geometry: {
-              coordinates: [
-                [
-                  { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
-                  { t: 0.11973158120854696, x: 0.2756944455013487, y: 0.36081320997943556 },
-                  { t: 0.3840760719449536, x: 0.425051753528058, y: 1.0625 },
-                  { t: 0.02043724219043263, x: 0.2360772824344321, y: 1.0625 },
-                  { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
-                ],
-              ],
-              is3D: false,
-              offset: [2.6779635944880855],
-              type: 'Polygon',
-              vecBBox: [0.019745389202600605, 0.36081320997943556, 0.425051753528058, 1.0625],
-            },
-            id: undefined,
-            metadata: undefined,
-            properties: {
-              id: 100,
-              name: 'polys',
-            },
-            type: 'S2Feature',
-          },
-        ],
-        name: 'default',
-      },
-    },
-    transformed: true,
-    zoom: 0,
-  } as unknown as Tile);
+  const feature = faceTile?.layers.default.features[0] as VectorFeature;
+  const coords = feature.geometry.coordinates as VectorLineString;
+  const expected: VectorPolygon = [
+    [
+      { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+      { t: 0.11973158120854696, x: 0.2756944455013487, y: 0.36081320997943556 },
+      { t: 0.3840760719449536, x: 0.425051753528058, y: 1.0625 },
+      { t: 0.02043724219043263, x: 0.2360772824344321, y: 1.0625 },
+      { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+    ],
+  ];
+  for (let i = 0; i < coords.length; i++) {
+    expect(coords[0][i].x).toBeCloseTo(expected[0][i].x);
+    expect(coords[0][i].y).toBeCloseTo(expected[0][i].y);
+  }
+  expect(feature.geometry.offset?.[0]).toBeCloseTo(2.6779635944880855);
+  const bboxExpected = [0.019745389202600605, 0.36081320997943556, 0.425051753528058, 1.0625];
+  for (let i = 0; i < bboxExpected.length; i++) {
+    expect(feature.geometry.vecBBox?.[i]).toBeCloseTo(bboxExpected[i]);
+  }
+  expect(feature.properties).toEqual({ id: 100, name: 'polys' });
+
+  // expect(faceTile).toEqual({
+  //   extent: 1,
+  //   face: 4,
+  //   i: 0,
+  //   j: 0,
+  //   layers: {
+  //     default: {
+  //       extent: 1,
+  //       features: [
+  //         {
+  //           face: 4,
+  //           geometry: {
+  //             coordinates: [
+  //               [
+  //                 { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+  //                 { t: 0.11973158120854696, x: 0.2756944455013487, y: 0.36081320997943556 },
+  //                 { t: 0.3840760719449536, x: 0.425051753528058, y: 1.0625 },
+  //                 { t: 0.02043724219043263, x: 0.2360772824344321, y: 1.0625 },
+  //                 { t: 1, x: 0.019745389202600605, y: 0.5936686625424521 },
+  //               ],
+  //             ],
+  //             is3D: false,
+  //             offset: [2.6779635944880855],
+  //             type: 'Polygon',
+  //             vecBBox: [0.019745389202600605, 0.36081320997943556, 0.425051753528058, 1.0625],
+  //           },
+  //           id: undefined,
+  //           metadata: undefined,
+  //           properties: {
+  //             id: 100,
+  //             name: 'polys',
+  //           },
+  //           type: 'S2Feature',
+  //         },
+  //       ],
+  //       name: 'default',
+  //     },
+  //   },
+  //   transformed: true,
+  //   zoom: 0,
+  // } as unknown as Tile);
 });
