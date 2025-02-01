@@ -145,7 +145,7 @@ test('should get raster size from a .mrf file', () => {
     debug: false,
   })!;
   expect(rasterSize?.outer).toEqual('<Size x="6638" y="7587" c="4" />');
-  expect(rasterSize?.inner).toEqual(null);
+  expect(rasterSize?.inner).toBeUndefined();
 });
 
 test('should get all character strings', () => {
@@ -192,7 +192,7 @@ test('should get self-closing with immediate close and without interior space', 
   const xml = `<House><Kitchen/></House>`;
   const tag = xmlFindTagByName(xml, 'Kitchen')!;
   expect(tag.outer).toEqual('<Kitchen/>');
-  expect(tag.inner).toEqual(null);
+  expect(tag.inner).toBeUndefined();
 });
 
 test('should handle nested tags', () => {

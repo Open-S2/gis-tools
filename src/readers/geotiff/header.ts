@@ -9,7 +9,12 @@ import type { GeoKeyDirectory, TagNames } from './constants';
  * offset to the next IFD
  */
 export interface ImageFileDirectory extends TagNames {
-  geoKeyDirectory?: GeoKeyDirectory;
+  GeoKeyDirectory?: GeoKeyDirectory;
+  ModelPixelScale?: number[];
+  ModelTiepoint?: number[];
+  ModelTransformation?: number[];
+  GeoDoubleParams?: number[];
+  GeoAsciiParams?: string;
   pixelScale?: [x: number, y: number, z: number];
   tiepoint?: number[];
 }
@@ -153,7 +158,7 @@ export class GeoTIFFHeaderReader {
       // Validate it has a TransformationTag or a TiepointTag before storing
       if (geokeyDirOffset === undefined)
         console.info('No GeoKeyDirectory found. May contain errors');
-      else ifd.geoKeyDirectory = this.#getGeoKeyDirectory(geokeyDirOffset, ifd);
+      else ifd.GeoKeyDirectory = this.#getGeoKeyDirectory(geokeyDirOffset, ifd);
       if (ifd.tiepoint === undefined && ifd.ModelTransformation === undefined)
         console.info('No ModelTiepoint or ModelTransformation found. May contain errors');
       if (Object.keys(ifd).length > 0) this.imageDirectories.push(ifd);
@@ -199,13 +204,13 @@ export class GeoTIFFHeaderReader {
     const numKeys = this.#readOffset(offset + 4);
     const valueOffset = this.#readOffset(offset + (bigTiff ? 12 : 8));
     const rawGeoKeys = new Uint16Array(reader.slice(valueOffset, valueOffset + numKeys * 2).buffer);
-    const geoKeyDirectory = parseRawGeoKeys(rawGeoKeys, fileDir);
+    const GeoKeyDirectory = parseGeotiffRawGeoKeys(rawGeoKeys, fileDir);
     // Validate that there is a GTModelType GeoKey in the GeoKey Directory
-    if (geoKeyDirectory.GTModelTypeGeoKey === undefined) {
+    if (GeoKeyDirectory.GTModelTypeGeoKey === undefined) {
       throw new Error(`Missing "GTModelTypeGeoKey" in GeoKeyDirectory`);
     }
 
-    return geoKeyDirectory;
+    return GeoKeyDirectory;
   }
 
   /**
@@ -364,8 +369,11 @@ function getFieldTypeLength(fieldType: keyof typeof FIELD_TAG_NAMES): 1 | 2 | 4 
  * @param fileDir - the image file directory
  * @returns - the parsed geo keys
  */
-function parseRawGeoKeys(rawGeoKeys: Uint16Array, fileDir: ImageFileDirectory): GeoKeyDirectory {
-  const geoKeyDirectory: GeoKeyDirectory = {};
+export function parseGeotiffRawGeoKeys(
+  rawGeoKeys: Uint16Array,
+  fileDir: ImageFileDirectory,
+): GeoKeyDirectory {
+  const GeoKeyDirectory: GeoKeyDirectory = {};
   for (let i = 4; i <= rawGeoKeys[3] * 4; i += 4) {
     const geoKey = rawGeoKeys[i];
     const key = GEO_KEY_NAMES[geoKey as keyof typeof GEO_KEY_NAMES];
@@ -391,7 +399,7 @@ function parseRawGeoKeys(rawGeoKeys: Uint16Array, fileDir: ImageFileDirectory): 
       }
     }
     // @ts-expect-error - value assignment is ok here
-    geoKeyDirectory[key] = value;
+    GeoKeyDirectory[key] = value;
   }
-  return geoKeyDirectory;
+  return GeoKeyDirectory;
 }

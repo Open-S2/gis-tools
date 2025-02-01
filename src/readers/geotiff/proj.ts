@@ -1,7 +1,10 @@
 import {
+  CLARKE_FT_TO_M,
   D2R,
   FT_TO_M,
   GRD2R,
+  INDIAN_FT_TO_M,
+  LINK_FT_TO_M,
   MIN2R,
   SEC2R,
   Transformer,
@@ -21,7 +24,7 @@ import type { ProjectionParams, ProjectionTransformDefinition } from '../../proj
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
  * @returns - the projection transformer
  */
-export function buildTransform(
+export function buildTransformFromGeoKeys(
   geoKeys?: GeoKeyDirectory,
   gridStore: GridReader[] = [],
   definitions: ProjectionTransformDefinition[] = [],
@@ -294,9 +297,25 @@ function buildEllps(key?: number): string | undefined {
  */
 function buildToMeter(key?: number): number | undefined {
   if (key === 9001)
-    return 1; // already in meters
-  else if (key === 9002) return FT_TO_M;
-  else if (key === 9003) return US_FT_TO_M;
-  else if (key === 9004) return US_MOD_FT_TO_M;
+    return 1; // Linear_Meter
+  else if (key === 9002)
+    return FT_TO_M; // Linear_Foot
+  else if (key === 9003)
+    return US_FT_TO_M; // Linear_Foot_US_Survey
+  else if (key === 9004)
+    return US_MOD_FT_TO_M; //Linear_Foot_Modified_American
+  else if (key === 9005)
+    return CLARKE_FT_TO_M; //Linear_Foot_Clarke
+  else if (key === 9006)
+    return INDIAN_FT_TO_M; // Linear_Foot_Indian
+  else if (key === 9007) return LINK_FT_TO_M; // Linear_Foot_Link
   // others are unsupported
+  // Linear_Link_Benoit =	9008
+  // Linear_Link_Sears =	9009
+  // Linear_Chain_Benoit =	9010
+  // Linear_Chain_Sears =	9011
+  // Linear_Yard_Sears =	9012
+  // Linear_Yard_Indian =	9013
+  // Linear_Fathom =	9014
+  // Linear_Mile_International_Nautical =	9015
 }

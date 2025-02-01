@@ -3,10 +3,12 @@ import type { MValue, Properties, VectorFeatures, VectorGeometry } from '../geom
 export * from './csv';
 export * from './gbfs';
 export * from './geotiff';
+export * from './gpx';
 export * from './grib2';
 export * from './gtfs';
 export * from './image';
 export * from './json';
+export * from './las';
 export * from './netcdf';
 export * from './osm';
 export * from './pmtiles';
@@ -37,7 +39,7 @@ export interface Reader {
   // Methods
   slice: (begin?: number, end?: number) => DataView;
   setStringEncoding: (encoding: string) => void;
-  parseString: (byteOffset: number, byteLength: number) => string;
+  parseString: (byteOffset?: number, byteLength?: number) => string;
   getRange: (offset: number, length: number) => Promise<Uint8Array>;
 }
 
@@ -120,7 +122,7 @@ export class BufferReader extends DataView<ArrayBufferLike> implements Reader {
    * @param byteLength - Length of the string
    * @returns - The string
    */
-  parseString(byteOffset: number, byteLength: number): string {
+  parseString(byteOffset: number = 0, byteLength: number = this.byteLength): string {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
     const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();

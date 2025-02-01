@@ -172,7 +172,7 @@ export class MMapReader implements Reader {
    * @param byteLength - Length of the string
    * @returns - The string
    */
-  parseString(byteOffset: number, byteLength: number): string {
+  parseString(byteOffset: number = 0, byteLength: number = this.byteLength): string {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
     const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();

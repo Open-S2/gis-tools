@@ -135,7 +135,7 @@ export class FetchReader implements Reader {
    * @param _byteLength - length
    * @returns - empty string
    */
-  parseString(_byteOffset: number, _byteLength: number): string {
+  parseString(_byteOffset?: number, _byteLength?: number): string {
     return '';
   }
 

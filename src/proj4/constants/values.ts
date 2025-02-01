@@ -52,5 +52,8 @@ export const TWO_PI = 6.283185307179586; // Math.PI * 2;
 export const SPI = 3.14159265359;
 
 export const FT_TO_M = 0.3048;
-export const US_FT_TO_M = 0.3048006096012192; // 1200 / 3937;
-export const US_MOD_FT_TO_M = 0.30481225298450597;
+export const US_FT_TO_M = 0.3048006096012192; // 1200 / 3937
+export const US_MOD_FT_TO_M = 0.30481225298450597; // 1200 / 3937
+export const CLARKE_FT_TO_M = 0.3047972654; // Linear_Foot_Clarke
+export const INDIAN_FT_TO_M = 0.3047995; // Linear_Foot_Indian
+export const LINK_FT_TO_M = 0.201168; // Linear_Foot_Link

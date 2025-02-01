@@ -119,7 +119,8 @@ export class Transformer extends NadGridStore {
       def = this.definitions.get(name?.toLowerCase() ?? '');
       if (def !== undefined) break;
     }
-    if (def === undefined) throw Error(`${params.name} invalid, unsupported, or not loaded`);
+    if (def === undefined)
+      throw Error(`${params.projName ?? params.name} invalid, unsupported, or not loaded`);
     return new def(params);
   }
 

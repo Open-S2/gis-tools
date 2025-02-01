@@ -1,5 +1,5 @@
 import { applyPredictor } from './predictor';
-import { buildTransform } from './proj';
+import { buildTransformFromGeoKeys } from './proj';
 import { getDecoder } from './decoder';
 import { buildSamples, convertColorSpace } from './color';
 import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil';
@@ -72,8 +72,8 @@ export class GeoTIFFImage {
     if (imageDirectory.StripOffsets === undefined) this.#isTiled = true;
     if (imageDirectory.PlanarConfiguration !== undefined)
       this.#planarConfiguration = imageDirectory.PlanarConfiguration;
-    this.#transformer = buildTransform(
-      this.#imageDirectory.geoKeyDirectory,
+    this.#transformer = buildTransformFromGeoKeys(
+      this.#imageDirectory.GeoKeyDirectory,
       gridStore,
       definitions,
       epsgCodes,
@@ -276,7 +276,7 @@ export class GeoTIFFImage {
    * @returns Whether the pixels are a point
    */
   get pixelIsArea(): boolean {
-    return this.#imageDirectory.geoKeyDirectory?.GTRasterTypeGeoKey === 1;
+    return this.#imageDirectory.GeoKeyDirectory?.GTRasterTypeGeoKey === 1;
   }
 
   /**

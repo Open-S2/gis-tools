@@ -15,7 +15,7 @@ testFunc('initial test', async (): Promise<void> => {
 
   expect(geotiffReader.imageDirectories).toEqual([
     {
-      geoKeyDirectory: {
+      GeoKeyDirectory: {
         GTModelTypeGeoKey: 2,
         GTRasterTypeGeoKey: 1,
         GeogAngularUnitsGeoKey: 9102,

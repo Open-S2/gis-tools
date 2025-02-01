@@ -8,7 +8,7 @@ export interface XMLOptions {
 
 /** A Tag is a pair of an inner and an outer strings with their indexes */
 export interface XMLTag {
-  inner: null | string;
+  inner: undefined | string;
   outer: string;
   start: number;
   end: number;
@@ -16,7 +16,7 @@ export interface XMLTag {
 /** A Step is a name and an index */
 export interface XMLStep {
   name: string;
-  index?: number | undefined | null;
+  index?: number | undefined;
 }
 /** A Path is an array of Steps or Strings */
 export type XMLPath = Array<string | XMLStep> | ReadonlyArray<string | XMLStep>;
@@ -93,7 +93,7 @@ export function xmlFindTagByName(
 
   let inner;
   if (selfClosing) {
-    inner = null;
+    inner = undefined;
   } else {
     inner = outer.slice(outer.indexOf('>') + 1, outer.lastIndexOf('<'));
   }
@@ -285,7 +285,7 @@ export function xmlRemoveComments(xml: string): string {
  * @param options - user defined options
  * @returns the xml without the given tag
  */
-export function xmlRemoveTagsByName(xml: string, tagName: string, options?: XMLOptions) {
+export function xmlRemoveTagsByName(xml: string, tagName: string, options?: XMLOptions): string {
   const debug = options?.debug ?? false;
   while (true) {
     const tag = xmlFindTagByName(xml, tagName, { debug });

@@ -15,6 +15,7 @@ export * from './header';
 export * from './image';
 export * from './imageUtil';
 export * from './predictor';
+export * from './proj';
 
 /** A grid reader object */
 export interface GridReader {
