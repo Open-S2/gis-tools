@@ -2,8 +2,8 @@
 
 [ ] - reimagine the point(Index|Cluster|Grid) system, its too slow for javascript (but perfect for lower langauges that have u64 support)
 [ ] - readers
-[ ] - - KML, KMZ, GML, & GPX
-[ ] - - LAS/LAZ
+[ ] - - KML, KMZ, GML
+[ ] - - LAZ
 [ ] - - image -> png
 [ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
@@ -17,5 +17,4 @@
 
 ## Tests to do for first showcase
 
-[ ] - src/converters/toTiles/*.ts
 [ ] - src/geometry/tools/polys.ts

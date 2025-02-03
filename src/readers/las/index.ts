@@ -4,6 +4,15 @@ import {
   parseGeotiffRawGeoKeys,
   toReader,
 } from '../..';
+import {
+  getPointFormat0,
+  getPointFormat1,
+  getPointFormat2,
+  getPointFormat3,
+  getPointFormat6,
+  getPointFormat7,
+  getPointFormat8,
+} from './getPoint';
 
 import type {
   FeatureIterator,
@@ -17,44 +26,10 @@ import type {
   VectorFeature,
   VectorPoint,
 } from '../..';
-import type {
-  LASFormat,
-  LASFormat0,
-  LASFormat1,
-  LASFormat10,
-  LASFormat2,
-  LASFormat3,
-  LASFormat4,
-  LASFormat5,
-  LASFormat6,
-  LASFormat7,
-  LASFormat8,
-  LASFormat9,
-  LASHeader,
-} from './types';
+import type { LASFormat, LASHeader, LASVariableLengthRecord } from './types';
 
-/**
- * VARIABLE LENGTH RECORDS:
- * The Variable Length Records are used to add custom data to the Public Header Block.
- * The `GeoKeyDirectoryTag` is required
- */
-export interface LASVariableLengthRecord {
-  /** Reserved unsigned short 2 bytes */
-  reserved: number;
-  /** User ID char[16] 16 bytes */
-  userID: string;
-  /** Record ID unsigned short 2 bytes */
-  recordID: number;
-  /** Record Length After Header unsigned short 2 bytes */
-  recordLength: number;
-  /** Description char[32] 32 bytes */
-  description: string;
-  /** The data of the record */
-  data?: DataView;
-}
-
-// TODO: It's vastly more performant to completely build the M-Values individually.
-// TODO: Don't pull from parent object. Ex: `#getPointFormat1` pulls from `#getPointFormat0`
+/** Cleaned up type for getPoint */
+type GetPointParams = [Reader, LASHeader, Transformer, number];
 
 /**
  * # LAS/LAZ Reader
@@ -293,358 +268,22 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
    * @returns - The parsed point
    */
   #getPoint(index: number): VectorPoint<LASFormat> {
-    const { offsetToPoints, pointDataFormatID } = this.header;
-    const offset = offsetToPoints + index * this.header.pointDataRecordLength;
+    const { reader, header } = this;
+    const { offsetToPoints, pointDataFormatID, pointDataRecordLength } = header;
+    const offset = offsetToPoints + index * pointDataRecordLength;
     const format = pointDataFormatID > 127 ? pointDataFormatID - 128 : pointDataFormatID;
-    if (format === 0) return this.#getPointFormat0(offset);
-    else if (format === 1) return this.#getPointFormat1(offset);
-    else if (format === 2) return this.#getPointFormat2(offset);
-    else if (format === 3) return this.#getPointFormat3(offset);
-    else if (format === 4) return this.#getPointFormat4(offset);
-    else if (format === 5) return this.#getPointFormat5(offset);
-    else if (format === 6) return this.#getPointFormat6(offset);
-    else if (format === 7) return this.#getPointFormat7(offset);
-    else if (format === 8) return this.#getPointFormat8(offset);
-    else if (format === 9) return this.#getPointFormat9(offset);
-    else if (format === 10) return this.#getPointFormat10(offset);
+    const params: GetPointParams = [reader, header, this.#transformer, offset];
+    if (format === 0) return getPointFormat0(...params);
+    else if (format === 1) return getPointFormat1(...params);
+    else if (format === 2) return getPointFormat2(...params);
+    else if (format === 3) return getPointFormat3(...params);
+    else if (format === 6) return getPointFormat6(...params);
+    else if (format === 7) return getPointFormat7(...params);
+    else if (format === 8) return getPointFormat8(...params);
+    else if (format === 4 || format === 5 || format === 9 || format === 10)
+      throw new Error(
+        `Format ${format} is not implemented because waveform data was dropped by 1.4+ specs`,
+      );
     else throw new Error(`Unknown Point Data Format ID: ${format}`);
   }
-
-  /**
-   * Reads a point using the Point Data Record Format 0
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 0 metadata
-   */
-  #getPointFormat0(offset: number): VectorPoint<LASFormat0> {
-    const { reader } = this;
-    const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = this.header;
-    const bits = reader.getUint32(offset + 14, true);
-    const classBits = reader.getUint8(offset + 15);
-    const point: VectorPoint<LASFormat0> = {
-      x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-      y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-      z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-      m: {
-        intensity: reader.getUint16(offset + 12, true),
-        returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-        numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-        ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-        edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-        classification: toLASClassification(classBits),
-        isSynthetic: (classBits & (1 << 5)) !== 0,
-        isKeyPoint: (classBits & (1 << 6)) !== 0,
-        isWithheld: (classBits & (1 << 7)) !== 0,
-        scanAngleRank: reader.getUint8(offset + 16),
-        userData: reader.getUint8(offset + 17),
-        pointSourceID: reader.getUint16(offset + 18, true),
-      },
-    };
-    return this.#transformer.forward(point);
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 1
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 1 metadata
-   */
-  #getPointFormat1(offset: number): VectorPoint<LASFormat1> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat0(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat0),
-        gpsTime: reader.getFloat64(offset + 20, true),
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 2
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 2 metadata
-   */
-  #getPointFormat2(offset: number): VectorPoint<LASFormat2> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat0(offset);
-    const r = reader.getUint16(offset + 20, true);
-    const g = reader.getUint16(offset + 22, true);
-    const b = reader.getUint16(offset + 24, true);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat0),
-        rgba: { r, g, b, a: 255 },
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 3
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 3 metadata
-   */
-  #getPointFormat3(offset: number): VectorPoint<LASFormat3> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat0(offset);
-    const gpsTime = reader.getFloat64(offset + 20, true);
-    const r = reader.getUint16(offset + 28, true);
-    const g = reader.getUint16(offset + 30, true);
-    const b = reader.getUint16(offset + 32, true);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat0),
-        gpsTime,
-        rgba: { r, g, b, a: 255 },
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 4
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 4 metadata
-   */
-  #getPointFormat4(offset: number): VectorPoint<LASFormat4> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat1(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat1),
-        wavePacketDescriptorIndex: reader.getUint8(offset + 28),
-        wavePacketOffset: reader.getFloat64(offset + 29, true),
-        wavePacketLength: reader.getUint32(offset + 37, true),
-        waveformLocationReturnPoint: reader.getFloat32(offset + 41),
-        xT: reader.getFloat32(offset + 45),
-        yT: reader.getFloat32(offset + 49),
-        zT: reader.getFloat32(offset + 53),
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 5
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 4 metadata
-   */
-  #getPointFormat5(offset: number): VectorPoint<LASFormat5> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat3(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat3),
-        wavePacketDescriptorIndex: reader.getUint8(offset + 28),
-        wavePacketOffset: reader.getFloat64(offset + 29, true),
-        wavePacketLength: reader.getUint32(offset + 37, true),
-        waveformLocationReturnPoint: reader.getFloat32(offset + 41),
-        xT: reader.getFloat32(offset + 45),
-        yT: reader.getFloat32(offset + 49),
-        zT: reader.getFloat32(offset + 53),
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 0
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 0 metadata
-   */
-  #getPointFormat6(offset: number): VectorPoint<LASFormat6> {
-    const { reader } = this;
-    const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = this.header;
-    const bits1 = reader.getUint8(offset + 14);
-    const bits2 = reader.getUint8(offset + 15);
-    const point: VectorPoint<LASFormat6> = {
-      x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-      y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-      z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-      m: {
-        intensity: reader.getUint16(offset + 12, true),
-        returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
-        numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
-        classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
-        scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
-        scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
-        edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-        classification: toLASClassification2(reader.getUint8(offset + 16)),
-        userData: reader.getUint8(offset + 17),
-        scanAngle: reader.getUint16(offset + 18, true),
-        pointSourceID: reader.getUint16(offset + 20, true),
-        gpsTime: reader.getFloat64(offset + 22, true),
-      },
-    };
-    return this.#transformer.forward(point);
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 7
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 7 metadata
-   */
-  #getPointFormat7(offset: number): VectorPoint<LASFormat7> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat6(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat6),
-        rgba: {
-          r: reader.getUint16(offset + 30, true),
-          g: reader.getUint16(offset + 32, true),
-          b: reader.getUint16(offset + 34, true),
-          a: reader.getUint16(offset + 36, true),
-        },
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 8
-   * @param offset  - where to start reading in the point data
-   * @returns - The parsed point with Format 8 metadata
-   */
-  #getPointFormat8(offset: number): VectorPoint<LASFormat8> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat7(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat7),
-        nir: reader.getUint16(offset + 38, true),
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 9
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 9 metadata
-   */
-  #getPointFormat9(offset: number): VectorPoint<LASFormat9> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat6(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat8),
-        wavePacketDescriptorIndex: reader.getUint8(offset + 30),
-        wavePacketOffset: reader.getFloat64(offset + 31, true),
-        wavePacketLength: reader.getUint32(offset + 39, true),
-        waveformLocationReturnPoint: reader.getFloat32(offset + 43),
-        xT: reader.getFloat32(offset + 47),
-        yT: reader.getFloat32(offset + 51),
-        zT: reader.getFloat32(offset + 55),
-      },
-    };
-  }
-
-  /**
-   * Reads a point using the Point Data Record Format 10
-   * @param offset - where to start reading in the point data
-   * @returns - The parsed point with Format 10 metadata
-   */
-  #getPointFormat10(offset: number): VectorPoint<LASFormat10> {
-    const { reader } = this;
-    const { x, y, z, m } = this.#getPointFormat7(offset);
-    return {
-      x,
-      y,
-      z,
-      m: {
-        ...(m as LASFormat7),
-        wavePacketDescriptorIndex: reader.getUint8(offset + 38),
-        wavePacketOffset: reader.getFloat64(offset + 39, true),
-        wavePacketLength: reader.getUint32(offset + 47, true),
-        waveformLocationReturnPoint: reader.getFloat32(offset + 51),
-        xT: reader.getFloat32(offset + 55),
-        yT: reader.getFloat32(offset + 59),
-        zT: reader.getFloat32(offset + 63),
-      },
-    };
-  }
-}
-
-/**
- * Converts a number into a LASClassification
- * @param classification - the number
- * @returns - the LASClassification
- */
-function toLASClassification(classification: number): string {
-  // we only wany the first 5 bits
-  classification &= 0b11111;
-  if (classification === 0) return 'Created, Never Classified';
-  if (classification === 1) return 'Unclassified';
-  if (classification === 2) return 'Ground';
-  if (classification === 3) return 'Low Vegetation';
-  if (classification === 4) return 'Medium Vegetation';
-  if (classification === 5) return 'High Vegetation';
-  if (classification === 6) return 'Building';
-  if (classification === 7) return 'Low Point (Noise)';
-  if (classification === 8) return 'Model Key-point (mass point)';
-  if (classification === 9) return 'Water';
-  if (classification === 12) return 'Overlap Points';
-  return 'Reserved';
-}
-
-/**
- * Converts a number into a classification flag
- * @param classFlag - the input
- * @returns - the classification flag
- */
-function toLASClassificationFlag(classFlag: number): string {
-  const firstThreeBits = classFlag & 0b1111;
-  if (firstThreeBits === 0) return 'Synthetic';
-  if (firstThreeBits === 1) return 'Key-point';
-  if (firstThreeBits === 2) return 'Withheld';
-  if (firstThreeBits === 3) return 'Overlap';
-  return 'Unknown';
-}
-
-/**
- * Converts a number into a LASClassification
- * @param classification - the number
- * @returns - the LASClassification
- */
-export function toLASClassification2(classification: number): string {
-  if (classification === 0) return 'Created, Never Classified';
-  if (classification === 1) return 'Unclassified';
-  if (classification === 2) return 'Ground';
-  if (classification === 3) return 'Low Vegetation';
-  if (classification === 4) return 'Medium Vegetation';
-  if (classification === 5) return 'High Vegetation';
-  if (classification === 6) return 'Building';
-  if (classification === 7) return 'Low Point (Noise)';
-  if (classification === 8) return 'Reserved';
-  if (classification === 9) return 'Water';
-  if (classification === 10) return 'Rail';
-  if (classification === 11) return 'Road Surface';
-  if (classification === 12) return 'Reserved';
-  if (classification === 13) return 'Wire – Guard (Shield)';
-  if (classification === 14) return 'Wire – Conductor (Phase)';
-  if (classification === 15) return 'Transmission Tower';
-  if (classification === 16) return 'Wire-structure Connector (e.g. Insulator)';
-  if (classification === 17) return 'Bridge Deck';
-  if (classification === 18) return 'High Noise';
-  if (classification >= 19 && classification <= 63) return 'Reserved';
-  if (classification >= 64 && classification <= 255) return 'User Definable';
-  return 'Missing';
 }

@@ -6,6 +6,12 @@
 
 - [ ] GML, KML, & KMZ
 
+### Easy to implement
+
+- [ ] GeoJSON Sequence <https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file>
+- [ ] ESRIJSON
+- [ ] TopoJSON
+
 ### OTHERS
 
 - [ ] Images (.png) <https://github.com/pngjs/pngjs/tree/main> (used by grib2)

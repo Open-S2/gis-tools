@@ -1,6 +1,26 @@
 import type { Properties, RGBA } from '../..';
 
 /**
+ * VARIABLE LENGTH RECORDS:
+ * The Variable Length Records are used to add custom data to the Public Header Block.
+ * The `GeoKeyDirectoryTag` is required
+ */
+export interface LASVariableLengthRecord {
+  /** Reserved unsigned short 2 bytes */
+  reserved: number;
+  /** User ID char[16] 16 bytes */
+  userID: string;
+  /** Record ID unsigned short 2 bytes */
+  recordID: number;
+  /** Record Length After Header unsigned short 2 bytes */
+  recordLength: number;
+  /** Description char[32] 32 bytes */
+  description: string;
+  /** The data of the record */
+  data?: DataView;
+}
+
+/**
  * LAS Header Block
  * Any field in the Public Header Block that is not required and is not used must be zero filled.
  */
