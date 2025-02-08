@@ -187,7 +187,8 @@ cargo add gis-tools
 | [gpx]                    | ![GPX Badge][gpxBadge]        | GPX (xml based) data reader.                                     |
 | [grib2]                  | ![grib2 Badge][grib2Badge]    | GRIB 2 data reader.                                              |
 | [json]                   | ![JSON Badge][jsonBadge]      | JSON data reader with line delimiter support.                    |
-| [las]                    | ![LAS Badge][lasBadge]        | LAS data reader.                                                |
+| [las]                    | ![LAS Badge][lasBadge]        | LAS data reader.                                                 |
+| [laz]                    | ![LAZ Badge][lazBadge]        | LASzipped data reader.                                           |
 | [nadgrid]                | ![NGrid Badge][ngridBadge]    | NAD Grid data reader.                                            |
 | [netcdf]                 | ![NetCDF Badge][netcdfBadge]  | NetCDF data reader.                                              |
 | [osm]                    | ![OSM Badge][osmBadge]        | OpenStreetMap PBF data reader                                    |
@@ -218,6 +219,8 @@ cargo add gis-tools
 [jsonBadge]: /assets/badges/json-gzip-cover.svg
 [las]: /docs-ts/readers/las.md
 [lasBadge]: /assets/badges/las-gzip-cover.svg
+[laz]: /docs-ts/readers/laz.md
+[lazBadge]: /assets/badges/laz-gzip-cover.svg
 [nadgrid]: /docs-ts/readers/nadgrid.md
 [ngridBadge]: /assets/badges/nadgrid-gzip-cover.svg
 [netcdf]: /docs-ts/readers/netcdf.md

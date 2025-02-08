@@ -58,6 +58,7 @@ await build({
     `${__dirname}/builds/readers/json.ts`,
     `${__dirname}/builds/readers/lanczos.ts`,
     `${__dirname}/builds/readers/las.ts`,
+    `${__dirname}/builds/readers/laz.ts`,
     `${__dirname}/builds/readers/nadgrid.ts`,
     `${__dirname}/builds/readers/netcdf.ts`,
     `${__dirname}/builds/readers/osm.ts`,
