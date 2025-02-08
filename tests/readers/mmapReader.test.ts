@@ -29,4 +29,9 @@ test('MMapReader', () => {
   expect(() => {
     reader.slice(1_000, 2_000);
   }).toThrowError('Invalid slice range');
+
+  expect(new Uint8Array(reader.slice(4, 8).buffer)).toEqual(new Uint8Array([255, 255, 255, 128]));
+  reader.seek(4);
+  expect(new Uint8Array(reader.seekSlice(4).buffer)).toEqual(new Uint8Array([255, 255, 255, 128]));
+  expect(reader.tell()).toEqual(8);
 });

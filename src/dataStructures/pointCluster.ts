@@ -13,6 +13,7 @@ import type {
   Properties,
   S2CellId,
   VectorPoint,
+  VectorPointM,
 } from '../geometry';
 
 import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
@@ -126,10 +127,10 @@ export class PointCluster<M extends MValue = Properties> {
    * Add a point to the maxzoom index. The point is a Point3D
    * @param point - the point to add
    */
-  insert(point: VectorPoint<M>): void {
+  insert(point: VectorPointM<M>): void {
     const { x, y, z, m } = point;
     const maxzoomIndex = this.indexes.get(this.maxzoom);
-    maxzoomIndex?.insert({ x, y, z, m: toCluster<M>(m!, 1) });
+    maxzoomIndex?.insert({ x, y, z, m: toCluster<M>(m, 1) });
   }
 
   /**
@@ -169,7 +170,7 @@ export class PointCluster<M extends MValue = Properties> {
   insertLonLat(ll: VectorPoint<M>): void {
     this.insertFeature({
       type: 'VectorFeature',
-      properties: ll.m!,
+      properties: ll.m ?? ({} as M),
       geometry: { type: 'Point', coordinates: ll, is3D: false },
     });
   }
@@ -198,7 +199,7 @@ export class PointCluster<M extends MValue = Properties> {
    * @param data - the data associated with the point
    */
   #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(fromST(face, s, t, data));
+    this.insert(fromST(face, s, t, data) as VectorPointM<M>);
   }
 
   /**
@@ -234,7 +235,7 @@ export class PointCluster<M extends MValue = Properties> {
     const radius = this.#getLevelRadius(zoom);
     for await (const clusterPoint of queryIndex) {
       const { point } = clusterPoint;
-      const clusterData = point.m!;
+      const clusterData = point.m;
       if (clusterData.visited) continue;
       clusterData.visited = true;
       // setup a new weighted cluster point
@@ -243,7 +244,7 @@ export class PointCluster<M extends MValue = Properties> {
       // joining all points found within radius
       const points = await queryIndex.searchRadius(point, radius);
       for (const { point: foundPoint } of points) {
-        const foundData = foundPoint.m!;
+        const foundData = foundPoint.m;
         // only add points that match or have not been visited already
         if (!cmp(clusterData.data, foundData.data) || foundData.visited) continue;
         foundData.visited = true;
@@ -286,7 +287,7 @@ export class PointCluster<M extends MValue = Properties> {
     const tile = new Tile<Record<string, unknown>, { value: number }, M>(id);
     for (const { point } of data) {
       const [face, s, t] = toST(point);
-      const { value, data } = point.m!;
+      const { value, data } = point.m;
       tile.addFeature(
         {
           type: 'VectorFeature',

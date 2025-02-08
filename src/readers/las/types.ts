@@ -21,6 +21,26 @@ export interface LASVariableLengthRecord {
 }
 
 /**
+ * Extended VARIABLE LENGTH RECORDS:
+ * The Extended Variable Length Records are used to add custom data to the LAZ Header Block.
+ * This record type allows data to be much larger in size.
+ */
+export interface LASExtendedVariableLengthRecord {
+  /** Reserved unsigned short 2 bytes */
+  reserved: number;
+  /** User ID char[16] 16 bytes */
+  userID: string;
+  /** Record ID unsigned short 2 bytes */
+  recordID: number;
+  /** Record Length After Header unsigned short 2 bytes */
+  recordLength: number;
+  /** Description char[32] 32 bytes */
+  description: string;
+  /** The data of the record */
+  data?: DataView;
+}
+
+/**
  * LAS Header Block
  * Any field in the Public Header Block that is not required and is not used must be zero filled.
  */
@@ -158,6 +178,120 @@ export interface LASHeader {
    */
   extendedVariableLengthSize: number;
 }
+
+/** Enum representing the LAZ Item type */
+export const LAZHeaderItemType = {
+  BYTE: 0,
+  SHORT: 1,
+  INT: 2,
+  LONG: 3,
+  FLOAT: 4,
+  DOUBLE: 5,
+  POINT10: 6,
+  GPSTIME11: 7,
+  RGB12: 8,
+  WAVEPACKET13: 9,
+  POINT14: 10,
+  RGB14: 11,
+  RGBNIR14: 12,
+  WAVEPACKET14: 13,
+  BYTE14: 14,
+} as const;
+
+/**
+ * Enum representing the LAZ Item type
+ * - 0: `BYTE` (extra bytes that are appended to a LAS Point Data Record Format 0 to 5)
+ * - 1: `SHORT` (reserved, unsupported)
+ * - 2: `INT` (reserved, unsupported)
+ * - 3: `LONG` (reserved, unsupported)
+ * - 4: `FLOAT` (reserved, unsupported)
+ * - 5: `DOUBLE` (reserved, unsupported)
+ * - 6: `POINT10` (LAS Point Data Record Format 0, containing the core fields that are shared
+between LAS Point Data Record Formats 0 to 5)
+ * - 7: `GPSTIME11` (the GPS Time field that is added for LAS Point Data Record Formats 1, 3,
+4 and 5)
+ * - 8: `RGB12` (the R, G and B fields that are added for LAS Point Data Record Formats 2,
+3 and 5)
+ * - 9: `WAVEPACKET13` (the 7 fields for the Waveform packet that are added for LAS Point Data
+Record Formats 4 and 5)
+ * - 10: `POINT14` (LAS Point Data Record Format 6, containing the core fields that are shared
+between LAS Point Data Record Formats 6 to 10)
+ * - 11: `RGB14` (the R, G and B fields that are added for LAS Point Data Record Format 7)
+ * - 12: `RGBNIR14` (the R, G, B and NIR (near infrared) fields that are added for LAS Point
+Data Record Formats 8 and 10)
+ * - 13: `WAVEPACKET14` (the 7 fields for the Waveform packet that are added for LAS Point Data
+Record Formast 9 and 10)
+ * - 14: `BYTE14` (extra bytes that are appended to a LAS Point Data Record Format 6 to 10)
+ * 
+ * NOTE: The number in the name, for example in “Point10”, refers to the LAS and LAZ
+version where that type got added.
+ */
+export type LAZHeaderItemType = (typeof LAZHeaderItemType)[keyof typeof LAZHeaderItemType];
+
+/** Enum representing the LAZ Item type */
+export const LAZCompressor = {
+  NONE: 0,
+  POINTWISE: 1,
+  POINTWISE_AND_CHUNKED: 2,
+  LAYERED_AND_CHUNKED: 3,
+} as const;
+
+/**
+ * Enum representing the LAZ Item type
+ * - 0 = No Compression (Uncompressed Standard LAS file)
+ * - 1 = Pointwise compression (only for point types 0 to 5)
+ * - 2 = Pointwise and chunked compression (only for point types 0 to 5)
+ * - 3 = Layered and chunked compression (only for point types 6 to 10)
+ */
+export type LAZCompressor = (typeof LAZCompressor)[keyof typeof LAZCompressor];
+
+/** A LAZ Header Item */
+export interface LAZHeaderItem {
+  // U16 type: 2 bytes * num_items
+  type: LAZHeaderItemType;
+  // U16 size: 2 bytes * num_items
+  size: number;
+  // U16 version: 2 bytes * num_items
+  version: number;
+}
+
+/** A LAZ Header */
+export interface LAZHeader {
+  // Compressor unsigned short 2 bytes *
+  compressor: LAZCompressor;
+  // Coder unsigned short 2 bytes *
+  coder: number;
+  // Version Major unsigned char 1 byte *
+  versionMajor: number;
+  // Version Minor unsigned char 1 byte *
+  versionMinor: number;
+  // Version Revision unsigned short 2 bytes *
+  versionRevision: number;
+  // Options unsigned long 4 bytes *
+  options: number;
+  // Chunk Size unsigned long 4 bytes *
+  chunkSize: number;
+  // Number of special EVLRs signed long long 8 bytes *
+  numSpecialEvlrs: number;
+  // Offset of special EVLRs signed long long 8 bytes *
+  offsetSpecialEvlrs: number;
+  // Number of Items unsigned short 2 bytes *
+  numItems: number;
+  // Item records Array of “Item record” 6 bytes * Number of Items *
+  items: LAZHeaderItem[];
+}
+
+/**
+ * Point Data Record Format 0 contains the core 20 bytes that are shared by Point Data Record
+ * Formats 0 to 5.
+ */
+export type LASFormat0_5 =
+  | LASFormat0
+  | LASFormat1
+  | LASFormat2
+  | LASFormat3
+  | LASFormat4
+  | LASFormat5;
 
 /**
  * Point Data Record Format 0 contains the core 20 bytes that are shared by Point Data Record
@@ -466,6 +600,9 @@ export interface LASFormat5 extends LASFormat3 {
    */
   zT: number;
 }
+
+/** Point Data Record Format 6 to 10 */
+export type LASFormat6_10 = LASFormat6 | LASFormat7 | LASFormat8 | LASFormat9 | LASFormat10;
 
 /**
  * Point Data Record Format 6 contains the core 30 bytes that are shared by Point Data Record

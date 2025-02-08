@@ -16,8 +16,10 @@ import type { Reader } from '.';
  * ```
  */
 export class FetchReader implements Reader {
+  cursor = 0;
   byteLength = 0;
   byteOffset = 0;
+
   /**
    * @param path - the location of the PMTiles data
    * @param rangeRequests - FetchReader specific; enable range requests or use urlParam "bytes"
@@ -28,12 +30,27 @@ export class FetchReader implements Reader {
   ) {}
 
   /**
+   * @returns - the current position of the cursor
+   */
+  tell(): number {
+    return this.cursor;
+  }
+
+  /**
+   * Set the current position of the cursor
+   * @param pos - where to adjust the current cursor
+   */
+  seek(pos = 0): void {
+    this.cursor = pos;
+  }
+
+  /**
    * Not applicable for FetchReader
    * @param _byteOffset - offset
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getBigInt64(_byteOffset: number, _littleEndian?: boolean): bigint {
+  getBigInt64(_byteOffset?: number, _littleEndian?: boolean): bigint {
     return 0n;
   }
   /**
@@ -42,7 +59,7 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getBigUint64(_byteOffset: number, _littleEndian?: boolean): bigint {
+  getBigUint64(_byteOffset?: number, _littleEndian?: boolean): bigint {
     return 0n;
   }
   /**
@@ -51,7 +68,7 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getFloat32(_byteOffset: number, _littleEndian?: boolean): number {
+  getFloat32(_byteOffset?: number, _littleEndian?: boolean): number {
     return 0;
   }
   /**
@@ -60,7 +77,7 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getFloat64(_byteOffset: number, _littleEndian?: boolean): number {
+  getFloat64(_byteOffset?: number, _littleEndian?: boolean): number {
     return 0;
   }
   /**
@@ -69,7 +86,7 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getInt16(_byteOffset: number, _littleEndian?: boolean): number {
+  getInt16(_byteOffset?: number, _littleEndian?: boolean): number {
     return 0;
   }
   /**
@@ -78,7 +95,7 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getInt32(_byteOffset: number, _littleEndian?: boolean): number {
+  getInt32(_byteOffset?: number, _littleEndian?: boolean): number {
     return 0;
   }
   /**
@@ -86,16 +103,7 @@ export class FetchReader implements Reader {
    * @param _byteOffset - offset
    * @returns - 0
    */
-  getInt8(_byteOffset: number): number {
-    return 0;
-  }
-  /**
-   * Not applicable for FetchReader
-   * @param _byteOffset - offset
-   * @param _littleEndian - le or be
-   * @returns - 0
-   */
-  getUint16(_byteOffset: number, _littleEndian?: boolean): number {
+  getInt8(_byteOffset?: number): number {
     return 0;
   }
   /**
@@ -104,7 +112,16 @@ export class FetchReader implements Reader {
    * @param _littleEndian - le or be
    * @returns - 0
    */
-  getUint32(_byteOffset: number, _littleEndian?: boolean): number {
+  getUint16(_byteOffset?: number, _littleEndian?: boolean): number {
+    return 0;
+  }
+  /**
+   * Not applicable for FetchReader
+   * @param _byteOffset - offset
+   * @param _littleEndian - le or be
+   * @returns - 0
+   */
+  getUint32(_byteOffset?: number, _littleEndian?: boolean): number {
     return 0;
   }
   /**
@@ -112,7 +129,7 @@ export class FetchReader implements Reader {
    * @param _byteOffset - offset
    * @returns - 0
    */
-  getUint8(_byteOffset: number): number {
+  getUint8(_byteOffset?: number): number {
     return 0;
   }
   /**
@@ -122,6 +139,14 @@ export class FetchReader implements Reader {
    * @returns - empty DataView
    */
   slice(_begin?: number, _end?: number): DataView {
+    return new DataView(new Uint8Array([]).buffer);
+  }
+  /**
+   * Fetch a slice at the current cursor position
+   * @param _size - size of the slice
+   * @returns - empty DataView
+   */
+  seekSlice(_size: number): DataView {
     return new DataView(new Uint8Array([]).buffer);
   }
   /**

@@ -2,12 +2,18 @@ import { intermediateRelationToVectorFeature } from './relation';
 import { mergeBBoxes } from '../../geometry';
 import { DenseInfo, Info } from './info';
 
-import type { OSMReader } from '.';
 import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
+import type { OSMProperties, OSMReader } from '.';
 
 import type { Metadata } from './primitive';
-import type { BBox, VectorFeature, VectorPoint } from '../../geometry';
+import type {
+  BBox,
+  Properties,
+  VectorFeature,
+  VectorPoint,
+  VectorPointGeometry,
+} from '../../geometry';
 
 /**
  * Merge an associated relation if it exists
@@ -48,7 +54,7 @@ export class Node {
   lon = 0.0;
   #keys: number[] = [];
   #vals: number[] = [];
-  #properties?: Record<string, string>;
+  #properties?: OSMProperties;
 
   /**
    * @param primitiveBlock - the primitive block to access keys and values
@@ -122,7 +128,7 @@ export class Node {
    * Get the properties of the node
    * @returns - the properties
    */
-  properties(): Record<string, string> {
+  properties(): OSMProperties {
     if (this.#properties !== undefined) return this.#properties;
     this.#properties = this.primitiveBlock.tags(this.#keys, this.#vals);
     return this.#properties;
@@ -162,7 +168,7 @@ export class Node {
    * Convert the node to a vector feature
    * @returns - the vector feature
    */
-  toVectorFeature(): VectorFeature<Metadata> {
+  toVectorFeature(): VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry> {
     const { addBBox } = this.reader;
     const bbox = addBBox ? this.buildBBox() : undefined;
     const coordinates = this.toVectorGeometry();
@@ -171,7 +177,7 @@ export class Node {
       type: 'VectorFeature',
       properties: this.properties(),
       geometry: { type: 'Point', is3D: coordinates.z !== undefined, coordinates, bbox },
-      metadata: { info: this.info?.toBlock() ?? {} },
+      metadata: { type: 'node', info: this.info?.toBlock() ?? {} },
     };
   }
 

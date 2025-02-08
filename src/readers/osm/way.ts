@@ -4,7 +4,7 @@ import { extendBBox } from '../../geometry';
 import type { Metadata } from './primitive';
 import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
-import type { InfoBlock, OSMReader } from '.';
+import type { InfoBlock, OSMProperties, OSMReader } from '.';
 
 import type {
   BBOX,
@@ -20,7 +20,7 @@ export type WayNodes = number[];
 /** An intermediate vector feature where the way nodes haven't been resolved yet. */
 export interface IntermediateWay {
   id: number;
-  properties: Properties;
+  properties: OSMProperties;
   metadata: InfoBlock;
   wayNodes: WayNodes;
   isArea: boolean;
@@ -35,7 +35,7 @@ export interface IntermediateWay {
 export async function intermediateWayToVectorFeature(
   way: IntermediateWay,
   reader: OSMReader,
-): Promise<VectorFeature<Metadata> | undefined> {
+): Promise<VectorFeature<Metadata, Properties, OSMProperties> | undefined> {
   const { addBBox } = reader;
   const { id, isArea, wayNodes, properties, metadata } = way;
   // build line
@@ -59,7 +59,7 @@ export async function intermediateWayToVectorFeature(
     type: 'VectorFeature',
     properties,
     geometry,
-    metadata: { info: metadata },
+    metadata: { type: 'way', info: metadata },
   };
 }
 
@@ -114,7 +114,7 @@ export class Way {
    * Access the way's properties
    * @returns - the way's properties
    */
-  properties(): Record<string, string> {
+  properties(): OSMProperties {
     return this.primitiveBlock.tags(this.#keys, this.#vals);
   }
 

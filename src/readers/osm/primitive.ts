@@ -4,15 +4,16 @@ import { Relation, getNodeRelationPairs } from './relation';
 
 import type { IntermediateNodeMember } from './relation';
 import type { PbfReader } from 'pbf-ts';
-import type { InfoBlock, OSMReader } from '.';
+import type { InfoBlock, OSMProperties, OSMReader } from '.';
 
 /** The expected metadata in the VectorFeature for all types (node, way, relation) */
 export interface Metadata {
+  type: 'node' | 'way' | 'relation';
   info: InfoBlock;
   nodes?: IntermediateNodeMember[];
   relation?: {
     role: string;
-    properties: Record<string, string>;
+    properties: OSMProperties;
   };
 }
 
@@ -63,8 +64,8 @@ export class PrimitiveBlock {
    * @param values - list of indices for the values
    * @returns - the record or object containing the key-value pairs
    */
-  tags(keys: number[], values: number[]): Record<string, string> {
-    const res: Record<string, string> = {};
+  tags(keys: number[], values: number[]): OSMProperties {
+    const res: OSMProperties = {};
     for (let i = 0; i < keys.length; i++) {
       res[this.getString(keys[i])] = this.getString(values[i]);
     }

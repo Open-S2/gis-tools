@@ -14,7 +14,7 @@ import type { OSMHeader } from './headerBlock';
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { IntermediateNodeMember, IntermediateRelation } from './relation';
 import type { IntermediateWay, WayNodes } from './way';
-import type { VectorFeature, VectorPoint } from '../../geometry';
+import type { Properties, VectorFeature, VectorPoint, VectorPointGeometry } from '../../geometry';
 
 export type * from './blob';
 export type * from './headerBlock';
@@ -120,6 +120,11 @@ export interface OsmReaderOptions {
   addBBox?: boolean;
 }
 
+/** All OSM properties are key-value pairs where both are strings */
+export interface OSMProperties extends Properties {
+  [key: string]: string;
+}
+
 /**
  * # OSM Reader
  *
@@ -147,7 +152,7 @@ export interface OsmReaderOptions {
  * - https://wiki.openstreetmap.org/wiki/PBF_Format
  * - https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
  */
-export class OSMReader implements FeatureIterator<Metadata> {
+export class OSMReader implements FeatureIterator<Metadata, Properties, OSMProperties> {
   reader: Reader;
   /** if true, remove nodes that have no tags [Default = true] */
   removeEmptyNodes: boolean;
@@ -169,7 +174,9 @@ export class OSMReader implements FeatureIterator<Metadata> {
   addBBox: boolean;
 
   nodeGeometry: KVStore<VectorPoint> = new KV<VectorPoint>();
-  nodes: KVStore<VectorFeature<Metadata>> = new KV<VectorFeature<Metadata>>();
+  nodes: KVStore<VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry>> = new KV<
+    VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry>
+  >();
   wayGeometry: KVStore<WayNodes> = new KV<WayNodes>();
   ways: KVStore<IntermediateWay> = new KV<IntermediateWay>();
   relations: KVStore<IntermediateRelation> = new KV<IntermediateRelation>();
@@ -185,7 +192,7 @@ export class OSMReader implements FeatureIterator<Metadata> {
     public options?: OsmReaderOptions,
   ) {
     this.reader = toReader(input);
-    this.removeEmptyNodes = options?.removeEmptyNodes ?? true;
+    this.removeEmptyNodes = options?.removeEmptyNodes ?? false;
     this.tagFilter = options?.tagFilter;
     this.skipNodes = options?.skipNodes ?? false;
     this.skipWays = options?.skipWays ?? false;
@@ -198,7 +205,9 @@ export class OSMReader implements FeatureIterator<Metadata> {
    * An async iterator to read in each feature
    * @yields {VectorFeature}
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<Metadata>> {
+  async *[Symbol.asyncIterator](): AsyncGenerator<
+    VectorFeature<Metadata, Properties, OSMProperties>
+  > {
     this.#offset = 0;
     // skip the header
     this.#next();
@@ -242,6 +251,30 @@ export class OSMReader implements FeatureIterator<Metadata> {
     const headerBlock = new HeaderBlock(new PbfReader(new Uint8Array(blobHeader.buffer)));
 
     return headerBlock.toHeader();
+  }
+
+  /**
+   * @param id - The id of the node to retrieve
+   * @returns - The node
+   */
+  async getNode(id: number) {
+    return await this.nodes.get(id);
+  }
+
+  /**
+   * @param id - the id of the way to retrieve
+   * @returns - the way
+   */
+  async getWay(id: number) {
+    return await this.ways.get(id);
+  }
+
+  /**
+   * @param id - the id of the relation to retrieve
+   * @returns - the relation
+   */
+  async getRelation(id: number) {
+    return await this.relations.get(id);
   }
 
   /**

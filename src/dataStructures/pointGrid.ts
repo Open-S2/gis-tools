@@ -25,6 +25,7 @@ import type {
   Properties,
   S2CellId,
   VectorPoint,
+  VectorPointM,
 } from '../geometry';
 import type {
   FeatureIterator,
@@ -176,7 +177,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * Add a point to the maxzoom index. The point is a Point3D
    * @param point - the point to add
    */
-  insert(point: VectorPoint<M>): void {
+  insert(point: VectorPointM<M>): void {
     this.pointIndex?.insert(point);
   }
 
@@ -217,7 +218,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
   insertLonLat(ll: VectorPoint<M>): void {
     this.insertFeature({
       type: 'VectorFeature',
-      properties: ll.m!,
+      properties: ll.m ?? ({} as M),
       geometry: { type: 'Point', coordinates: ll, is3D: false },
     });
   }
@@ -246,7 +247,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(fromSTPoint(face, s, t, data));
+    this.insert(fromSTPoint(face, s, t, data) as VectorPointM<M>);
   }
 
   /** Build the grid cluster tiles */

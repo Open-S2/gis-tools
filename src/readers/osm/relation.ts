@@ -1,12 +1,13 @@
 import { Info, InfoBlock } from './info';
 import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
 
-import type { OSMReader } from '.';
 import type { PbfReader } from 'pbf-ts';
 import type { Metadata, PrimitiveBlock } from './primitive';
+import type { OSMProperties, OSMReader } from '.';
 
 import type {
   BBOX,
+  Properties,
   VectorFeature,
   VectorGeometry,
   VectorLineString,
@@ -19,7 +20,7 @@ import type {
 /** An intermediate vector feature where the ways and nodes haven't been resolved yet. */
 export interface IntermediateRelation {
   id: number;
-  properties: Record<string, string>;
+  properties: OSMProperties;
   members: IntermediateMember[];
   metadata: InfoBlock;
 }
@@ -46,14 +47,14 @@ export interface IntermediateWayMember {
 export async function intermediateRelationToVectorFeature(
   relation: IntermediateRelation,
   reader: OSMReader,
-): Promise<VectorFeature<Metadata> | undefined> {
+): Promise<VectorFeature<Metadata, Properties, OSMProperties> | undefined> {
   const { addBBox, nodeGeometry, wayGeometry } = reader;
   const { id, members, properties, metadata } = relation;
   const iNodes: IntermediateNodeMember[] = members.filter((m) => 'node' in m);
   const nodes: NodeMember[] = [];
   for (const { role, node } of iNodes) {
     const n = await nodeGeometry.get(node);
-    if (n === undefined) return;
+    if (n === undefined) continue;
     nodes.push({ id: node, role, node: n });
   }
   const iWays: IntermediateWayMember[] = members.filter((m) => 'way' in m);
@@ -93,6 +94,7 @@ export async function intermediateRelationToVectorFeature(
     properties,
     geometry,
     metadata: {
+      type: 'relation',
       info: metadata,
       nodes: iNodes,
     },
@@ -182,7 +184,7 @@ export class Relation {
   }
 
   /** @returns - the properties of the relation */
-  properties(): Record<string, string> {
+  properties(): OSMProperties {
     return this.primitiveBlock.tags(this.#keys, this.#vals);
   }
 

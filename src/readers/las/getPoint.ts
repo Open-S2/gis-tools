@@ -1,308 +1,185 @@
-import type {
-  LASFormat0,
-  LASFormat1,
-  // LASFormat10,
-  LASFormat2,
-  LASFormat3,
-  // LASFormat4,
-  // LASFormat5,
-  LASFormat6,
-  LASFormat7,
-  LASFormat8,
-  // LASFormat9,
-  LASHeader,
-} from './types';
-import type { Reader, Transformer, VectorPoint } from '../..';
+import type { LASFormat0_5, LASFormat6_10, LASHeader } from './types';
+import type { Reader, VectorPointM } from '../..';
 
 /**
  * Reads a point using the Point Data Record Format 0
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 0 metadata
  */
 export function getPointFormat0(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat0> {
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const bits = reader.getUint32(offset + 14, true);
+  const bits = reader.getUint32(offset + 14, littleEndian);
   const classBits = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat0> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
+  const point: VectorPointM<LASFormat0_5> = {
+    x: reader.getInt32(offset, littleEndian) * xScaleFactor + xOffset,
+    y: reader.getInt32(offset + 4, littleEndian) * yScaleFactor + yOffset,
+    z: reader.getInt32(offset + 8, littleEndian) * zScaleFactor + zOffset,
     m: {
-      intensity: reader.getUint16(offset + 12, true),
+      intensity: reader.getUint16(offset + 12, littleEndian),
       returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-      numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-      ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
+      numberOfReturns: (bits & 0b00111000) >> 3, // 3 bits (bits 3 – 5)
+      ScanDirectionFlag: (bits & 0b01000000) >> 6, // 1 bit (bit 6)
+      edgeOfFlightLine: (bits & 0b10000000) >> 7, // 1 bit (bit 7)
       classification: toLASClassification(classBits),
       isSynthetic: (classBits & (1 << 5)) !== 0,
       isKeyPoint: (classBits & (1 << 6)) !== 0,
       isWithheld: (classBits & (1 << 7)) !== 0,
-      scanAngleRank: reader.getUint8(offset + 16),
+      scanAngleRank: reader.getInt8(offset + 16),
       userData: reader.getUint8(offset + 17),
-      pointSourceID: reader.getUint16(offset + 18, true),
+      pointSourceID: reader.getUint16(offset + 18, littleEndian),
     },
   };
-  return transformer.forward(point);
+  return point;
 }
 
 /**
  * Reads a point using the Point Data Record Format 1
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 1 metadata
  */
 export function getPointFormat1(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat1> {
-  const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const bits = reader.getUint32(offset + 14, true);
-  const classBits = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat1> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-    m: {
-      intensity: reader.getUint16(offset + 12, true),
-      returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-      numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-      ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-      classification: toLASClassification(classBits),
-      isSynthetic: (classBits & (1 << 5)) !== 0,
-      isKeyPoint: (classBits & (1 << 6)) !== 0,
-      isWithheld: (classBits & (1 << 7)) !== 0,
-      scanAngleRank: reader.getUint8(offset + 16),
-      userData: reader.getUint8(offset + 17),
-      pointSourceID: reader.getUint16(offset + 18, true),
-      gpsTime: reader.getFloat64(offset + 20, true),
-    },
-  };
-  return transformer.forward(point);
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
+  const point = getPointFormat0(reader, header, offset, littleEndian);
+  point.m.gpsTime = reader.getFloat64(offset + 20, littleEndian);
+  return point;
 }
 
 /**
  * Reads a point using the Point Data Record Format 2
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 2 metadata
  */
 export function getPointFormat2(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat2> {
-  const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const bits = reader.getUint32(offset + 14, true);
-  const classBits = reader.getUint8(offset + 15);
-  const r = reader.getUint16(offset + 20, true);
-  const g = reader.getUint16(offset + 22, true);
-  const b = reader.getUint16(offset + 24, true);
-  const point: VectorPoint<LASFormat2> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-    m: {
-      intensity: reader.getUint16(offset + 12, true),
-      returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-      numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-      ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-      classification: toLASClassification(classBits),
-      isSynthetic: (classBits & (1 << 5)) !== 0,
-      isKeyPoint: (classBits & (1 << 6)) !== 0,
-      isWithheld: (classBits & (1 << 7)) !== 0,
-      scanAngleRank: reader.getUint8(offset + 16),
-      userData: reader.getUint8(offset + 17),
-      pointSourceID: reader.getUint16(offset + 18, true),
-      rgba: { r, g, b, a: 255 },
-    },
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
+  const point = getPointFormat0(reader, header, offset, littleEndian);
+  point.m.rgba = {
+    r: reader.getUint16(offset + 20, littleEndian),
+    g: reader.getUint16(offset + 22, littleEndian),
+    b: reader.getUint16(offset + 24, littleEndian),
+    a: 255,
   };
-  return transformer.forward(point);
+  return point;
 }
 
 /**
  * Reads a point using the Point Data Record Format 3
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 3 metadata
  */
 export function getPointFormat3(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat3> {
-  const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const gpsTime = reader.getFloat64(offset + 20, true);
-  const r = reader.getUint16(offset + 28, true);
-  const g = reader.getUint16(offset + 30, true);
-  const b = reader.getUint16(offset + 32, true);
-  const bits = reader.getUint32(offset + 14, true);
-  const classBits = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat3> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-    m: {
-      intensity: reader.getUint16(offset + 12, true),
-      returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-      numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-      ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-      classification: toLASClassification(classBits),
-      isSynthetic: (classBits & (1 << 5)) !== 0,
-      isKeyPoint: (classBits & (1 << 6)) !== 0,
-      isWithheld: (classBits & (1 << 7)) !== 0,
-      scanAngleRank: reader.getUint8(offset + 16),
-      userData: reader.getUint8(offset + 17),
-      pointSourceID: reader.getUint16(offset + 18, true),
-      gpsTime,
-      rgba: { r, g, b, a: 255 },
-    },
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
+  const point = getPointFormat1(reader, header, offset, littleEndian);
+  point.m.rgba = {
+    r: reader.getUint16(offset + 28, littleEndian),
+    g: reader.getUint16(offset + 30, littleEndian),
+    b: reader.getUint16(offset + 32, littleEndian),
+    a: 255,
   };
-  return transformer.forward(point);
+  return point;
 }
 
-// /**
-//  * Reads a point using the Point Data Record Format 4
-//  * @param reader - data reader, works like a DataView
-//  * @param header - las header
-//  * @param transformer - vector point transformer
-//  * @param offset - where to start reading in the point data
-//  * @returns - The parsed point with Format 4 metadata
-//  */
-// export function getPointFormat4(
-//   reader: Reader,
-//   header: LASHeader,
-//   transformer: Transformer,
-//   offset: number,
-// ): VectorPoint<LASFormat4> {
-//   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-//   const bits = reader.getUint32(offset + 14, true);
-//   const classBits = reader.getUint8(offset + 15);
-//   const point: VectorPoint<LASFormat4> = {
-//     x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-//     y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-//     z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-//     m: {
-//       intensity: reader.getUint16(offset + 12, true),
-//       returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-//       numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-//       ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-//       edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-//       classification: toLASClassification(classBits),
-//       isSynthetic: (classBits & (1 << 5)) !== 0,
-//       isKeyPoint: (classBits & (1 << 6)) !== 0,
-//       isWithheld: (classBits & (1 << 7)) !== 0,
-//       scanAngleRank: reader.getUint8(offset + 16),
-//       userData: reader.getUint8(offset + 17),
-//       pointSourceID: reader.getUint16(offset + 18, true),
-//       gpsTime: reader.getFloat64(offset + 20, true),
-//       wavePacketDescriptorIndex: reader.getUint8(offset + 28),
-//       wavePacketOffset: reader.getFloat64(offset + 29, true),
-//       wavePacketLength: reader.getUint32(offset + 37, true),
-//       waveformLocationReturnPoint: reader.getFloat32(offset + 41, true),
-//       xT: reader.getFloat32(offset + 45, true),
-//       yT: reader.getFloat32(offset + 49, true),
-//       zT: reader.getFloat32(offset + 53, true),
-//     },
-//   };
-//   return transformer.forward(point);
-// }
+/**
+ * Reads a point using the Point Data Record Format 4
+ * @param reader - data reader, works like a DataView
+ * @param header - las header
+ * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
+ * @returns - The parsed point with Format 4 metadata
+ */
+export function getPointFormat4(
+  reader: Reader | DataView,
+  header: LASHeader,
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
+  const point = getPointFormat1(reader, header, offset, littleEndian);
+  point.m.wavePacketDescriptorIndex = reader.getUint8(offset + 28);
+  point.m.wavePacketOffset = Number(reader.getBigUint64(offset + 29, littleEndian));
+  point.m.wavePacketLength = reader.getUint32(offset + 37, littleEndian);
+  point.m.waveformLocationReturnPoint = reader.getFloat32(offset + 41, littleEndian);
+  point.m.xT = reader.getFloat32(offset + 45, littleEndian);
+  point.m.yT = reader.getFloat32(offset + 49, littleEndian);
+  point.m.zT = reader.getFloat32(offset + 53, littleEndian);
+  return point;
+}
 
-// /**
-//  * Reads a point using the Point Data Record Format 5
-//  * @param reader - data reader, works like a DataView
-//  * @param header - las header
-//  * @param transformer - vector point transformer
-//  * @param offset - where to start reading in the point data
-//  * @returns - The parsed point with Format 4 metadata
-//  */
-// export function getPointFormat5(
-//   reader: Reader,
-//   header: LASHeader,
-//   transformer: Transformer,
-//   offset: number,
-// ): VectorPoint<LASFormat5> {
-//   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-//   const gpsTime = reader.getFloat64(offset + 20, true);
-//   const r = reader.getUint16(offset + 28, true);
-//   const g = reader.getUint16(offset + 30, true);
-//   const b = reader.getUint16(offset + 32, true);
-//   const bits = reader.getUint32(offset + 14, true);
-//   const classBits = reader.getUint8(offset + 15);
-//   const point: VectorPoint<LASFormat5> = {
-//     x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-//     y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-//     z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-//     m: {
-//       intensity: reader.getUint16(offset + 12, true),
-//       returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
-//       numberOfReturns: (bits & 0b00011000) >> 3, // 3 bits (bits 3 – 5)
-//       ScanDirectionFlag: (bits & 0b00100000) >> 5, // 1 bit (bit 6)
-//       edgeOfFlightLine: (bits & 0b01000000) >> 6, // 1 bit (bit 7)
-//       classification: toLASClassification(classBits),
-//       isSynthetic: (classBits & (1 << 5)) !== 0,
-//       isKeyPoint: (classBits & (1 << 6)) !== 0,
-//       isWithheld: (classBits & (1 << 7)) !== 0,
-//       scanAngleRank: reader.getUint8(offset + 16),
-//       userData: reader.getUint8(offset + 17),
-//       pointSourceID: reader.getUint16(offset + 18, true),
-//       gpsTime,
-//       rgba: { r, g, b, a: 255 },
-//       wavePacketDescriptorIndex: reader.getUint8(offset + 28),
-//       wavePacketOffset: reader.getFloat64(offset + 29, true),
-//       wavePacketLength: reader.getUint32(offset + 37, true),
-//       waveformLocationReturnPoint: reader.getFloat32(offset + 41, true),
-//       xT: reader.getFloat32(offset + 45, true),
-//       yT: reader.getFloat32(offset + 49, true),
-//       zT: reader.getFloat32(offset + 53, true),
-//     },
-//   };
-//   return transformer.forward(point);
-// }
+/**
+ * Reads a point using the Point Data Record Format 5
+ * @param reader - data reader, works like a DataView
+ * @param header - las header
+ * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
+ * @returns - The parsed point with Format 4 metadata
+ */
+export function getPointFormat5(
+  reader: Reader | DataView,
+  header: LASHeader,
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat0_5> {
+  const point = getPointFormat3(reader, header, offset, littleEndian);
+  point.m.wavePacketDescriptorIndex = reader.getUint8(offset + 34);
+  point.m.wavePacketOffset = Number(reader.getBigUint64(offset + 35, littleEndian));
+  point.m.wavePacketLength = reader.getUint32(offset + 43, littleEndian);
+  point.m.waveformLocationReturnPoint = reader.getFloat32(offset + 47, littleEndian);
+  point.m.xT = reader.getFloat32(offset + 51, littleEndian);
+  point.m.yT = reader.getFloat32(offset + 55, littleEndian);
+  point.m.zT = reader.getFloat32(offset + 59, littleEndian);
+  return point;
+}
 
 /**
  * Reads a point using the Point Data Record Format 0
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 0 metadata
  */
 export function getPointFormat6(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat6> {
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat6_10> {
   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
   const bits1 = reader.getUint8(offset + 14);
   const bits2 = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat6> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
+  const point: VectorPointM<LASFormat6_10> = {
+    x: reader.getInt32(offset, littleEndian) * xScaleFactor + xOffset,
+    y: reader.getInt32(offset + 4, littleEndian) * yScaleFactor + yOffset,
+    z: reader.getInt32(offset + 8, littleEndian) * zScaleFactor + zOffset,
     m: {
-      intensity: reader.getUint16(offset + 12, true),
+      intensity: reader.getUint16(offset + 12, littleEndian),
       returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
       numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
       classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
@@ -311,209 +188,113 @@ export function getPointFormat6(
       edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
       classification: toLASClassification2(reader.getUint8(offset + 16)),
       userData: reader.getUint8(offset + 17),
-      scanAngle: reader.getUint16(offset + 18, true),
-      pointSourceID: reader.getUint16(offset + 20, true),
-      gpsTime: reader.getFloat64(offset + 22, true),
+      scanAngle: reader.getInt16(offset + 18, littleEndian),
+      pointSourceID: reader.getUint16(offset + 20, littleEndian),
+      gpsTime: reader.getFloat64(offset + 22, littleEndian),
     },
   };
-  return transformer.forward(point);
+  return point;
 }
 
 /**
  * Reads a point using the Point Data Record Format 7
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 7 metadata
  */
 export function getPointFormat7(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat7> {
-  const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const bits1 = reader.getUint8(offset + 14);
-  const bits2 = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat7> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-    m: {
-      intensity: reader.getUint16(offset + 12, true),
-      returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
-      numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
-      classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
-      scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
-      scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-      classification: toLASClassification2(reader.getUint8(offset + 16)),
-      userData: reader.getUint8(offset + 17),
-      scanAngle: reader.getUint16(offset + 18, true),
-      pointSourceID: reader.getUint16(offset + 20, true),
-      gpsTime: reader.getFloat64(offset + 22, true),
-      rgba: {
-        r: reader.getUint16(offset + 30, true),
-        g: reader.getUint16(offset + 32, true),
-        b: reader.getUint16(offset + 34, true),
-        a: reader.getUint16(offset + 36, true),
-      },
-    },
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat6_10> {
+  const point = getPointFormat6(reader, header, offset, littleEndian);
+  point.m.rgba = {
+    r: reader.getUint16(offset + 30, littleEndian),
+    g: reader.getUint16(offset + 32, littleEndian),
+    b: reader.getUint16(offset + 34, littleEndian),
+    a: 255,
   };
-  return transformer.forward(point);
+  return point;
 }
 
 /**
  * Reads a point using the Point Data Record Format 8
  * @param reader - data reader, works like a DataView
  * @param header - las header
- * @param transformer - vector point transformer
  * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
  * @returns - The parsed point with Format 8 metadata
  */
 export function getPointFormat8(
-  reader: Reader,
+  reader: Reader | DataView,
   header: LASHeader,
-  transformer: Transformer,
-  offset: number,
-): VectorPoint<LASFormat8> {
-  const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-  const bits1 = reader.getUint8(offset + 14);
-  const bits2 = reader.getUint8(offset + 15);
-  const point: VectorPoint<LASFormat8> = {
-    x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-    y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-    z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-    m: {
-      intensity: reader.getUint16(offset + 12, true),
-      returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
-      numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
-      classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
-      scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
-      scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
-      edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-      classification: toLASClassification2(reader.getUint8(offset + 16)),
-      userData: reader.getUint8(offset + 17),
-      scanAngle: reader.getUint16(offset + 18, true),
-      pointSourceID: reader.getUint16(offset + 20, true),
-      gpsTime: reader.getFloat64(offset + 22, true),
-      rgba: {
-        r: reader.getUint16(offset + 30, true),
-        g: reader.getUint16(offset + 32, true),
-        b: reader.getUint16(offset + 34, true),
-        a: reader.getUint16(offset + 36, true),
-      },
-      nir: reader.getUint16(offset + 38, true),
-    },
-  };
-  return transformer.forward(point);
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat6_10> {
+  const point = getPointFormat7(reader, header, offset, littleEndian);
+  point.m.nir = reader.getUint16(offset + 38, littleEndian);
+  return point;
 }
 
-// /**
-//  * Reads a point using the Point Data Record Format 9
-//  * @param reader - data reader, works like a DataView
-//  * @param header - las header
-//  * @param transformer - vector point transformer
-//  * @param offset - where to start reading in the point data
-//  * @returns - The parsed point with Format 9 metadata
-//  */
-// export function getPointFormat9(
-//   reader: Reader,
-//   header: LASHeader,
-//   transformer: Transformer,
-//   offset: number,
-// ): VectorPoint<LASFormat9> {
-//   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-//   const bits1 = reader.getUint8(offset + 14);
-//   const bits2 = reader.getUint8(offset + 15);
-//   const point: VectorPoint<LASFormat9> = {
-//     x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-//     y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-//     z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-//     m: {
-//       intensity: reader.getUint16(offset + 12, true),
-//       returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
-//       numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
-//       classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
-//       scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
-//       scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
-//       edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-//       classification: toLASClassification2(reader.getUint8(offset + 16)),
-//       userData: reader.getUint8(offset + 17),
-//       scanAngle: reader.getUint16(offset + 18, true),
-//       pointSourceID: reader.getUint16(offset + 20, true),
-//       gpsTime: reader.getFloat64(offset + 22, true),
-//       wavePacketDescriptorIndex: reader.getUint8(offset + 30),
-//       wavePacketOffset: reader.getFloat64(offset + 31, true),
-//       wavePacketLength: reader.getUint32(offset + 39, true),
-//       waveformLocationReturnPoint: reader.getFloat32(offset + 43, true),
-//       xT: reader.getFloat32(offset + 47, true),
-//       yT: reader.getFloat32(offset + 51, true),
-//       zT: reader.getFloat32(offset + 55, true),
-//     },
-//   };
-//   return transformer.forward(point);
-// }
+/**
+ * Reads a point using the Point Data Record Format 9
+ * @param reader - data reader, works like a DataView
+ * @param header - las header
+ * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
+ * @returns - The parsed point with Format 9 metadata
+ */
+export function getPointFormat9(
+  reader: Reader | DataView,
+  header: LASHeader,
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat6_10> {
+  const point = getPointFormat6(reader, header, offset, littleEndian);
+  point.m.wavePacketDescriptorIndex = reader.getInt16(offset + 30, littleEndian);
+  point.m.wavePacketOffset = Number(reader.getBigUint64(offset + 31, littleEndian));
+  point.m.wavePacketLength = reader.getUint32(offset + 39, littleEndian);
+  point.m.waveformLocationReturnPoint = reader.getFloat32(offset + 43, littleEndian);
+  point.m.xT = reader.getFloat32(offset + 47, littleEndian);
+  point.m.yT = reader.getFloat32(offset + 51, littleEndian);
+  point.m.zT = reader.getFloat32(offset + 55, littleEndian);
+  return point;
+}
 
-// /**
-//  * Reads a point using the Point Data Record Format 10
-//  * @param reader - data reader, works like a DataView
-//  * @param header - las header
-//  * @param transformer - vector point transformer
-//  * @param offset - where to start reading in the point data
-//  * @returns - The parsed point with Format 10 metadata
-//  */
-// export function getPointFormat10(
-//   reader: Reader,
-//   header: LASHeader,
-//   transformer: Transformer,
-//   offset: number,
-// ): VectorPoint<LASFormat10> {
-//   const { xOffset, yOffset, zOffset, xScaleFactor, yScaleFactor, zScaleFactor } = header;
-//   const bits1 = reader.getUint8(offset + 14);
-//   const bits2 = reader.getUint8(offset + 15);
-//   const point: VectorPoint<LASFormat10> = {
-//     x: reader.getUint32(offset, true) * xScaleFactor + xOffset,
-//     y: reader.getUint32(offset + 4, true) * yScaleFactor + yOffset,
-//     z: reader.getUint32(offset + 8, true) * zScaleFactor + zOffset,
-//     m: {
-//       intensity: reader.getUint16(offset + 12, true),
-//       returnNumber: bits1 & 0b00001111, // 4 bits (bits 0 – 3)
-//       numberOfReturns: (bits1 & 0b11110000) >> 4, // 4 bits (bits 4 – 7)
-//       classificationFlag: toLASClassificationFlag(bits2), // 4 bis (bit 0 - 3)
-//       scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
-//       scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
-//       edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-//       classification: toLASClassification2(reader.getUint8(offset + 16)),
-//       userData: reader.getUint8(offset + 17),
-//       scanAngle: reader.getUint16(offset + 18, true),
-//       pointSourceID: reader.getUint16(offset + 20, true),
-//       gpsTime: reader.getFloat64(offset + 22, true),
-//       rgba: {
-//         r: reader.getUint16(offset + 30, true),
-//         g: reader.getUint16(offset + 32, true),
-//         b: reader.getUint16(offset + 34, true),
-//         a: reader.getUint16(offset + 36, true),
-//       },
-//       wavePacketDescriptorIndex: reader.getUint8(offset + 38),
-//       wavePacketOffset: reader.getFloat64(offset + 39, true),
-//       wavePacketLength: reader.getUint32(offset + 47, true),
-//       waveformLocationReturnPoint: reader.getFloat32(offset + 51, true),
-//       xT: reader.getFloat32(offset + 55, true),
-//       yT: reader.getFloat32(offset + 59, true),
-//       zT: reader.getFloat32(offset + 63, true),
-//     },
-//   };
-//   return transformer.forward(point);
-// }
+/**
+ * Reads a point using the Point Data Record Format 10
+ * @param reader - data reader, works like a DataView
+ * @param header - las header
+ * @param offset - where to start reading in the point data
+ * @param littleEndian - endianess. Defaults to true (LAS always LE but LAZ may have BE)
+ * @returns - The parsed point with Format 10 metadata
+ */
+export function getPointFormat10(
+  reader: Reader | DataView,
+  header: LASHeader,
+  offset = 0,
+  littleEndian = true,
+): VectorPointM<LASFormat6_10> {
+  const point = getPointFormat7(reader, header, offset, littleEndian);
+  point.m.wavePacketDescriptorIndex = reader.getUint8(offset + 38);
+  point.m.wavePacketOffset = Number(reader.getBigUint64(offset + 39, littleEndian));
+  point.m.wavePacketLength = reader.getUint32(offset + 47, littleEndian);
+  point.m.waveformLocationReturnPoint = reader.getFloat32(offset + 51, littleEndian);
+  point.m.xT = reader.getFloat32(offset + 55, littleEndian);
+  point.m.yT = reader.getFloat32(offset + 59, littleEndian);
+  point.m.zT = reader.getFloat32(offset + 63, littleEndian);
+  return point;
+}
 
 /**
  * Converts a number into a LASClassification
  * @param classification - the number
  * @returns - the LASClassification
  */
-function toLASClassification(classification: number): string {
+export function toLASClassification(classification: number): string {
   // we only wany the first 5 bits
   classification &= 0b11111;
   if (classification === 0) return 'Created, Never Classified';
@@ -535,7 +316,7 @@ function toLASClassification(classification: number): string {
  * @param classFlag - the input
  * @returns - the classification flag
  */
-function toLASClassificationFlag(classFlag: number): string {
+export function toLASClassificationFlag(classFlag: number): string {
   const firstThreeBits = classFlag & 0b1111;
   if (firstThreeBits === 0) return 'Synthetic';
   if (firstThreeBits === 1) return 'Key-point';

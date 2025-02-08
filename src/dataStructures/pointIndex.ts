@@ -15,13 +15,14 @@ import type {
   RGBA,
   S2CellId,
   VectorPoint,
+  VectorPointM,
 } from '..';
 import type { VectorStore, VectorStoreConstructor } from '../dataStore';
 
 /** The kind of input required to store a point for proper indexing */
 export interface PointShape<M extends MValue = Properties> {
   cell: S2CellId;
-  point: VectorPoint<M>;
+  point: VectorPointM<M>;
 }
 
 /**
@@ -83,7 +84,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * @param cell - the cell id to be indexed
    * @param point - the point to be indexed
    */
-  insertID(cell: S2CellId, point: VectorPoint<M>): void {
+  insertID(cell: S2CellId, point: VectorPointM<M>): void {
     this.#store.push({ cell, point });
     this.#unsorted = true;
   }
@@ -92,7 +93,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * Insert a point3D and its corresponding data to the index
    * @param point - the point to be indexed
    */
-  insert(point: VectorPoint<M>): void {
+  insert(point: VectorPointM<M>): void {
     this.insertID(fromS2Point(point), point);
   }
 
@@ -133,7 +134,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
   insertLonLat(ll: VectorPoint<M>): void {
     this.insertFeature({
       type: 'VectorFeature',
-      properties: ll.m!,
+      properties: ll.m ?? ({} as M),
       geometry: { type: 'Point', coordinates: ll, is3D: false },
     });
   }
@@ -162,7 +163,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(fromST(face, s, t, data));
+    this.insert(fromST(face, s, t, data) as VectorPointM<M>);
   }
 
   /**

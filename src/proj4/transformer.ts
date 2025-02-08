@@ -3,7 +3,7 @@ import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, EPSG_CODES, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
-import type { MValue, VectorPoint } from '../geometry';
+import type { MValue, VectorPoint, VectorPointM } from '../geometry';
 import type {
   ProjectionParams,
   ProjectionTransform,
@@ -176,7 +176,35 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
    */
-  forward<D extends MValue>(p: VectorPoint<D>, enforceAxis = false): VectorPoint<D> {
+  forward<D extends MValue>(p: VectorPoint<D>, enforceAxis?: false): VectorPoint<D>;
+  /**
+   * Forward projection from src projection to dest projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.forward({ x: 0, y: 0 });
+   * ```
+   * @param p - vector point currently in the "source" projection
+   * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
+   * @returns - vector point in the "destination" projection
+   */
+  forward<D extends MValue>(p: VectorPointM<D>, enforceAxis?: false): VectorPointM<D>;
+
+  /**
+   * Forward projection from src projection to dest projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.forward({ x: 0, y: 0 });
+   * ```
+   * @param p - vector point currently in the "source" projection
+   * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
+   * @returns - vector point in the "destination" projection
+   */
+  forward<D extends MValue>(
+    p: VectorPoint<D> | VectorPointM<D>,
+    enforceAxis = false,
+  ): VectorPoint<D> | VectorPointM<D> {
     return this.#transformPoint(p, this.source, this.destination, enforceAxis);
   }
 

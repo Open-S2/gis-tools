@@ -184,8 +184,10 @@ cargo add gis-tools
 | [csv]                    | ![CSV Badge][csvBadge]        | CSV data reader with options on parsing.                         |
 | [gbfs]                   | ![GBFS Badge][gbfsBadge]      | General Bikeshare Feed Specification reader.                     |
 | [geotiff]                | ![GTiff Badge][gtiffBadge]    | Geotiff image reader with projection support.                    |
+| [gpx]                    | ![GPX Badge][gpxBadge]        | GPX (xml based) data reader.                                     |
 | [grib2]                  | ![grib2 Badge][grib2Badge]    | GRIB 2 data reader.                                              |
 | [json]                   | ![JSON Badge][jsonBadge]      | JSON data reader with line delimiter support.                    |
+| [las]                    | ![LAS Badge][lasBadge]        | LAS data reader.                                                |
 | [nadgrid]                | ![NGrid Badge][ngridBadge]    | NAD Grid data reader.                                            |
 | [netcdf]                 | ![NetCDF Badge][netcdfBadge]  | NetCDF data reader.                                              |
 | [osm]                    | ![OSM Badge][osmBadge]        | OpenStreetMap PBF data reader                                    |
@@ -208,10 +210,14 @@ cargo add gis-tools
 [gbfsBadge]: /assets/badges/gbfs-gzip-cover.svg
 [geotiff]: /docs-ts/readers/geotiff.md
 [gtiffBadge]: /assets/badges/geotiff-gzip-cover.svg
+[gpx]: /docs-ts/readers/gpx.md
+[gpxBadge]: /assets/badges/gpx-gzip-cover.svg
 [grib2]: /docs-ts/readers/grib2.md
 [grib2Badge]: /assets/badges/grib2-gzip-cover.svg
 [json]: /docs-ts/readers/json.md
 [jsonBadge]: /assets/badges/json-gzip-cover.svg
+[las]: /docs-ts/readers/las.md
+[lasBadge]: /assets/badges/las-gzip-cover.svg
 [nadgrid]: /docs-ts/readers/nadgrid.md
 [ngridBadge]: /assets/badges/nadgrid-gzip-cover.svg
 [netcdf]: /docs-ts/readers/netcdf.md

@@ -30,6 +30,7 @@ test('parse basic case', async () => {
       },
       id: 319408586,
       metadata: {
+        type: 'node',
         info: {
           changeset: 440330,
           timestamp: 1229476722000,
@@ -50,6 +51,7 @@ test('parse basic case', async () => {
       },
       id: 319408587,
       metadata: {
+        type: 'node',
         info: {
           changeset: 0,
           timestamp: 1229476722000,
@@ -70,6 +72,7 @@ test('parse basic case', async () => {
       },
       id: 275452090,
       metadata: {
+        type: 'node',
         info: {
           changeset: 2540257,
           timestamp: 1256818475000,
@@ -93,6 +96,7 @@ test('parse basic case', async () => {
       },
       id: 304994980,
       metadata: {
+        type: 'node',
         info: {
           changeset: -2591627,
           timestamp: 1234485707000,
@@ -115,6 +119,7 @@ test('parse basic case', async () => {
       },
       id: 304994981,
       metadata: {
+        type: 'node',
         info: {
           changeset: -14817,
           timestamp: 1224174957000,
@@ -134,6 +139,7 @@ test('parse basic case', async () => {
       },
       id: 304994979,
       metadata: {
+        type: 'node',
         info: {
           changeset: 1739860,
           timestamp: 1250040812000,
@@ -159,6 +165,7 @@ test('parse basic case', async () => {
       },
       id: 27776903,
       metadata: {
+        type: 'way',
         info: {
           user: 'Matt',
           changeset: 684276,
@@ -189,6 +196,7 @@ test('parse basic case', async () => {
       },
       id: 56688,
       metadata: {
+        type: 'relation',
         info: {
           changeset: -3473819,
           timestamp: -647421115000,
@@ -247,6 +255,7 @@ test('parse basic case with mmap', async () => {
       },
       id: 275452090,
       metadata: {
+        type: 'node',
         info: {
           changeset: 2540257,
           timestamp: 1256818475000,
@@ -298,6 +307,7 @@ test('parse basic case with filesystem', async () => {
       },
       id: 275452090,
       metadata: {
+        type: 'node',
         info: {
           changeset: 2540257,
           timestamp: 1256818475000,
@@ -349,6 +359,7 @@ test('parse only nodes', async () => {
       },
       id: 319408586,
       metadata: {
+        type: 'node',
         info: {
           changeset: 440330,
           timestamp: 1229476722000,
@@ -369,6 +380,7 @@ test('parse only nodes', async () => {
       },
       id: 319408587,
       metadata: {
+        type: 'node',
         info: {
           changeset: 0,
           timestamp: 1229476722000,
@@ -389,6 +401,7 @@ test('parse only nodes', async () => {
       },
       id: 275452090,
       metadata: {
+        type: 'node',
         info: {
           changeset: 2540257,
           timestamp: 1256818475000,
@@ -412,6 +425,7 @@ test('parse only nodes', async () => {
       },
       id: 304994980,
       metadata: {
+        type: 'node',
         info: {
           changeset: -2591627,
           timestamp: 1234485707000,
@@ -434,6 +448,7 @@ test('parse only nodes', async () => {
       },
       id: 304994981,
       metadata: {
+        type: 'node',
         info: {
           changeset: -14817,
           timestamp: 1224174957000,
@@ -453,6 +468,7 @@ test('parse only nodes', async () => {
       },
       id: 304994979,
       metadata: {
+        type: 'node',
         info: {
           changeset: 1739860,
           timestamp: 1250040812000,
@@ -504,6 +520,7 @@ test('parse only ways', async () => {
       },
       id: 27776903,
       metadata: {
+        type: 'way',
         info: {
           user: 'Matt',
           changeset: 684276,
@@ -540,6 +557,7 @@ test('parse bounds case', async () => {
       },
       id: 10,
       metadata: {
+        type: 'node',
         info: {
           changeset: 1,
           timestamp: 1420074000000,
@@ -561,6 +579,7 @@ test('parse bounds case', async () => {
       },
       id: 11,
       metadata: {
+        type: 'node',
         info: {
           changeset: 0,
           timestamp: 1420074000000,
@@ -582,6 +601,7 @@ test('parse bounds case', async () => {
       },
       id: 12,
       metadata: {
+        type: 'node',
         info: {
           changeset: 0,
           timestamp: 1420074000000,
@@ -609,6 +629,7 @@ test('parse bounds case', async () => {
       },
       id: 13,
       metadata: {
+        type: 'node',
         info: {
           changeset: 0,
           timestamp: 1420074000000,
@@ -638,6 +659,7 @@ test('parse bounds case', async () => {
       },
       id: 20,
       metadata: {
+        type: 'way',
         info: {
           changeset: -1,
           timestamp: 710037000000,
@@ -664,6 +686,7 @@ test('parse bounds case', async () => {
       },
       id: 21,
       metadata: {
+        type: 'way',
         info: {
           changeset: -1,
           timestamp: 710037000000,
@@ -691,6 +714,7 @@ test('parse bounds case', async () => {
       },
       id: 30,
       metadata: {
+        type: 'relation',
         info: {
           changeset: -1,
           timestamp: 710037000000,
@@ -743,6 +767,7 @@ test('parse with filter', async () => {
       },
       id: 275452090,
       metadata: {
+        type: 'node',
         info: {
           changeset: 2540257,
           timestamp: 1256818475000,
@@ -767,6 +792,7 @@ test('parse with filter', async () => {
       },
       id: 304994980,
       metadata: {
+        type: 'node',
         info: {
           changeset: -2591627,
           timestamp: 1234485707000,
@@ -796,6 +822,7 @@ test('parse with filter', async () => {
       },
       id: 27776903,
       metadata: {
+        type: 'way',
         info: {
           changeset: 684276,
           timestamp: -621888578000,
@@ -827,6 +854,7 @@ test('parse with filter', async () => {
       },
       id: 56688,
       metadata: {
+        type: 'relation',
         info: {
           changeset: -3473819,
           timestamp: -647421115000,

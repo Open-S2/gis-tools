@@ -30,7 +30,7 @@ export function buildTransformFromGeoKeys(
   definitions: ProjectionTransformDefinition[] = [],
   epsgCodes: Record<string, string> = {},
 ): Transformer {
-  const params = buildParams(geoKeys);
+  const params = buildParamsFromGeoKeys(geoKeys);
   const transformer = new Transformer();
   for (const proj of definitions) transformer.insertDefinition(proj);
   for (const [key, value] of Object.entries(epsgCodes)) transformer.insertEPSGCode(key, value);
@@ -47,7 +47,7 @@ export function buildTransformFromGeoKeys(
  * @param geoKeys - the geo-keys pulled from the image metadata
  * @returns - the projection parameters. If nothing is returned a lon-lat system is already in place
  */
-function buildParams(geoKeys?: GeoKeyDirectory): ProjectionParams | undefined {
+export function buildParamsFromGeoKeys(geoKeys?: GeoKeyDirectory): ProjectionParams | undefined {
   const {
     GTModelTypeGeoKey, // http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.1
     // GTRasterTypeGeoKey, // http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.2 (used at a higher level)

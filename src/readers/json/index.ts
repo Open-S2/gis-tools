@@ -94,8 +94,14 @@ export class NewLineDelimitedJSONReader<
 > implements FeatureIterator<M, D, P>
 {
   reader: Reader;
-  /** @param input - the input to parse from */
-  constructor(input: ReaderInputs) {
+  /**
+   * @param input - the input to parse from
+   * @param seperator - the newline delimiter. Default is "\n" but can be "\r\n" or "\r"
+   */
+  constructor(
+    input: ReaderInputs,
+    private seperator = '\n',
+  ) {
     this.reader = toReader(input);
   }
 
@@ -115,7 +121,7 @@ export class NewLineDelimitedJSONReader<
       const chunk = partialLine + reader.parseString(offset, length);
       partialLine = '';
       // Split the chunk by newlines and yield each complete line
-      const lines = chunk.split('\n');
+      const lines = chunk.split(this.seperator).filter((line) => line.length > 0);
       for (let i = 0; i < lines.length - 1; i++) {
         const feature: Features<M, D, P> = JSON.parse(lines[i]);
         if (feature.type === 'Feature') yield toVector(feature, true);
@@ -134,6 +140,36 @@ export class NewLineDelimitedJSONReader<
       if (feature.type === 'Feature') yield toVector(feature, true);
       else yield feature;
     }
+  }
+}
+
+/**
+ * # GeoJSON Text Sequence Reader
+ *
+ * ## Description
+ * Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
+ * Implements the {@link FeatureIterator} interface.
+ *
+ * ## Usage
+ * ```ts
+ * import { SequenceJSONReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
+ *
+ * const reader = new SequenceJSONReader(new FileReader('./data.geojsons'));
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ */
+export class SequenceJSONReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> extends NewLineDelimitedJSONReader<M, D, P> {
+  /** @param input - the input to parse from */
+  constructor(input: ReaderInputs) {
+    super(input, '␞');
   }
 }
 

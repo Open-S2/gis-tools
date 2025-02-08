@@ -1,1 +1,6 @@
-export { BufferJSONReader, NewLineDelimitedJSONReader, JSONReader } from '../../../src';
+export {
+  BufferJSONReader,
+  NewLineDelimitedJSONReader,
+  SequenceJSONReader,
+  JSONReader,
+} from '../../../src';

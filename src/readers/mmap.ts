@@ -19,6 +19,7 @@ export * from './osm/mmap';
  */
 export class MMapReader implements Reader {
   #buffer: Uint8Array;
+  private cursor = 0;
   byteOffset: number = 0;
   byteLength: number;
   textDecoder = new TextDecoder('utf-8');
@@ -33,13 +34,29 @@ export class MMapReader implements Reader {
   }
 
   /**
+   * @returns - the current position of the cursor
+   */
+  tell(): number {
+    return this.cursor;
+  }
+
+  /**
+   * Set the current position of the cursor
+   * @param pos - where to adjust the current cursor
+   */
+  seek(pos = 0): void {
+    this.cursor = pos;
+  }
+
+  /**
    * Reads a 64-bit unsigned integer (biguint64) at the given byteOffset
    * @param byteOffset - The position in the file to read from
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 64-bit unsigned integer as a bigint
    */
-  getBigInt64(byteOffset: number, littleEndian: boolean = false): bigint {
+  getBigInt64(byteOffset = this.cursor, littleEndian: boolean = false): bigint {
     const slice = this.slice(byteOffset, byteOffset + 8);
+    this.cursor = byteOffset + 8;
     return slice.getBigInt64(0, littleEndian);
   }
 
@@ -49,8 +66,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 64-bit unsigned integer as a bigint
    */
-  getBigUint64(byteOffset: number, littleEndian: boolean = false): bigint {
+  getBigUint64(byteOffset = this.cursor, littleEndian: boolean = false): bigint {
     const slice = this.slice(byteOffset, byteOffset + 8);
+    this.cursor = byteOffset + 8;
     return slice.getBigUint64(0, littleEndian);
   }
 
@@ -60,8 +78,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 32-bit floating-point number as a number
    */
-  getFloat32(byteOffset: number, littleEndian: boolean = false): number {
+  getFloat32(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
+    this.cursor = byteOffset + 4;
     return slice.getFloat32(0, littleEndian);
   }
 
@@ -71,8 +90,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 64-bit floating-point number as a number
    */
-  getFloat64(byteOffset: number, littleEndian: boolean = false): number {
+  getFloat64(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 8);
+    this.cursor = byteOffset + 8;
     return slice.getFloat64(0, littleEndian);
   }
 
@@ -82,8 +102,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 16-bit signed integer value as a number
    */
-  getInt16(byteOffset: number, littleEndian: boolean = false): number {
+  getInt16(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 2);
+    this.cursor = byteOffset + 2;
     return slice.getInt16(0, littleEndian);
   }
 
@@ -93,8 +114,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 32-bit signed integer value as a number
    */
-  getInt32(byteOffset: number, littleEndian: boolean = false): number {
+  getInt32(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
+    this.cursor = byteOffset + 4;
     return slice.getInt32(0, littleEndian);
   }
 
@@ -103,8 +125,9 @@ export class MMapReader implements Reader {
    * @param byteOffset - The position in the file to read from
    * @returns The byte value as a signed number
    */
-  getInt8(byteOffset: number): number {
+  getInt8(byteOffset = this.cursor): number {
     const slice = this.slice(byteOffset, byteOffset + 1);
+    this.cursor = byteOffset + 1;
     return slice.getInt8(0);
   }
 
@@ -114,8 +137,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 16-bit unsigned integer value as a number
    */
-  getUint16(byteOffset: number, littleEndian: boolean = false): number {
+  getUint16(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 2);
+    this.cursor = byteOffset + 2;
     return slice.getUint16(0, littleEndian);
   }
 
@@ -125,8 +149,9 @@ export class MMapReader implements Reader {
    * @param littleEndian - Optional, specifies if the value is stored in little-endian format. Defaults to false (big-endian).
    * @returns The 32-bit unsigned integer value as a number
    */
-  getUint32(byteOffset: number, littleEndian: boolean = false): number {
+  getUint32(byteOffset = this.cursor, littleEndian: boolean = false): number {
     const slice = this.slice(byteOffset, byteOffset + 4);
+    this.cursor = byteOffset + 4;
     return slice.getUint32(0, littleEndian);
   }
 
@@ -135,8 +160,9 @@ export class MMapReader implements Reader {
    * @param byteOffset - The position in the file to read from
    * @returns The byte value as a number
    */
-  getUint8(byteOffset: number): number {
+  getUint8(byteOffset = this.cursor): number {
     const slice = this.slice(byteOffset, byteOffset + 1);
+    this.cursor = byteOffset + 1;
     return slice.getUint8(0);
   }
 
@@ -146,16 +172,25 @@ export class MMapReader implements Reader {
    * @param end - End of the slice. If not provided, the end of the data is used
    * @returns - The data as a DataView
    */
-  slice(begin?: number, end?: number): DataView {
-    if (begin === undefined) begin = 0;
-    if (end === undefined) end = this.byteLength;
+  slice(begin: number = this.cursor, end: number = this.byteLength): DataView {
     if (begin < 0 || end > this.byteLength || begin >= end) {
       throw new RangeError('Invalid slice range');
     }
     const sliceLength = end - begin;
     const slice = this.#buffer.slice(begin, begin + sliceLength);
+    this.cursor = end;
 
     return new DataView(slice.buffer, slice.byteOffset, slice.byteLength);
+  }
+
+  /**
+   * Fetch a slice at the current cursor position. The cursor is updated
+   * @param size - size of the slice
+   * @returns - a DataView of the slice
+   */
+  seekSlice(size: number): DataView {
+    const pos = this.byteOffset + this.cursor;
+    return this.slice(pos, pos + size);
   }
 
   /**
@@ -172,9 +207,10 @@ export class MMapReader implements Reader {
    * @param byteLength - Length of the string
    * @returns - The string
    */
-  parseString(byteOffset: number = 0, byteLength: number = this.byteLength): string {
+  parseString(byteOffset = this.cursor, byteLength: number = this.byteLength): string {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
+    this.cursor = byteOffset + byteLength;
     const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
     return out.replace(/\0/g, '').trim();
   }

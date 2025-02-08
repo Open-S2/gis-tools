@@ -1897,7 +1897,7 @@ function copyCoefficients(
       position += uint8Chunk.length;
     }
     // decoding the item
-    const decoder = new ArithmeticDecoder(encodedData, 0, totalLength);
+    const decoder = new JPEG2000ArithmeticDecoder(encodedData, 0, totalLength);
     bitModel.setDecoder(decoder);
 
     for (let j = 0; j < codingpasses; j++) {
@@ -2331,7 +2331,7 @@ class BitModel {
   processingFlags: Uint8Array;
   bitsDecoded: Uint8Array;
   contexts = new Int8Array(0);
-  decoder!: ArithmeticDecoder;
+  decoder!: JPEG2000ArithmeticDecoder;
 
   /**
    * @param width - width
@@ -2404,7 +2404,7 @@ class BitModel {
    * Set decoder
    * @param decoder - decoder to use
    */
-  setDecoder(decoder: ArithmeticDecoder): void {
+  setDecoder(decoder: JPEG2000ArithmeticDecoder): void {
     this.decoder = decoder;
   }
 
@@ -3062,7 +3062,7 @@ function log2(x: number): number {
  * The arithmetic decoder is used in conjunction with context models to decode
  * JPEG2000 and JBIG2 streams.
  */
-export class ArithmeticDecoder {
+export class JPEG2000ArithmeticDecoder {
   a: number;
   chigh: number;
   ct = 0;

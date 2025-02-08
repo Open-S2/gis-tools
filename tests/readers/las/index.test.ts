@@ -111,7 +111,7 @@ test('LASReader - spatialreference', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 1,
+          ScanDirectionFlag: 0,
           classification: 'Ground',
           isKeyPoint: false,
           isSynthetic: false,
@@ -119,7 +119,7 @@ test('LASReader - spatialreference', async () => {
           edgeOfFlightLine: 0,
           gpsTime: 499450.8059940542,
           intensity: 260,
-          numberOfReturns: 2,
+          numberOfReturns: 6,
           pointSourceID: 0,
           returnNumber: 0,
           scanAngleRank: 0,
@@ -232,7 +232,7 @@ test('LASReader - 1.2_0', async () => {
           numberOfReturns: 0,
           pointSourceID: 0,
           returnNumber: 2,
-          scanAngleRank: 243,
+          scanAngleRank: -13,
           userData: 0,
         },
         x: -93.35156259019989,
@@ -343,7 +343,7 @@ test('LASReader - 1.2_1', async () => {
           numberOfReturns: 0,
           pointSourceID: 0,
           returnNumber: 2,
-          scanAngleRank: 243,
+          scanAngleRank: -13,
           userData: 0,
         },
         x: -93.35156259019989,
@@ -459,7 +459,7 @@ test('LASReader - 1.2_2', async () => {
             g: 12,
             r: 255,
           },
-          scanAngleRank: 243,
+          scanAngleRank: -13,
           userData: 0,
         },
         x: -93.35156259019989,
@@ -576,7 +576,7 @@ test('LASReader - 1.2_3', async () => {
             g: 12,
             r: 255,
           },
-          scanAngleRank: 243,
+          scanAngleRank: -13,
           userData: 0,
         },
         x: -93.35156259019989,
@@ -640,9 +640,9 @@ test('LASReader - 1.2 color', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          ScanDirectionFlag: 1,
           classification: 'Unclassified',
-          edgeOfFlightLine: 1,
+          edgeOfFlightLine: 0,
           gpsTime: 245380.78254962614,
           intensity: 143,
           isKeyPoint: false,
@@ -657,7 +657,7 @@ test('LASReader - 1.2 color', async () => {
             g: 77,
             r: 68,
           },
-          scanAngleRank: 247,
+          scanAngleRank: -9,
           userData: 132,
         },
         x: 637012.24,
@@ -770,7 +770,7 @@ test('LASReader - utm16', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 1,
+          ScanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           gpsTime: 499450.8059940542,
@@ -778,7 +778,7 @@ test('LASReader - utm16', async () => {
           isKeyPoint: false,
           isSynthetic: false,
           isWithheld: false,
-          numberOfReturns: 2,
+          numberOfReturns: 6,
           pointSourceID: 0,
           returnNumber: 0,
           scanAngleRank: 0,
