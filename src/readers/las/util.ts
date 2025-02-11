@@ -1,3 +1,48 @@
+/**
+ * Fold a number between 0 and 255
+ * @param n - the number to fold
+ * @returns - the folded number
+ */
+export function u8Fold(n: number): number {
+  return n < 0 ? n + 256 : n > 255 ? n - 256 : n;
+}
+
+/**
+ * Clamp a number between 0 and 255
+ * @param n - the number to clamp
+ * @returns - the clamped number
+ */
+export function u8Clamp(n: number): number {
+  return n < 0 ? 0 : n > 255 ? 255 : n;
+}
+
+/**
+ * Clamp a number between -128 and 127
+ * @param n - the number to clamp
+ * @returns - the clamped number
+ */
+export function i8Clamp(n: number): number {
+  return n <= -128 ? -128 : n >= 127 ? 127 : Math.trunc(n);
+}
+
+/**
+ * zero the least significant bit
+ * @param n - the number to zero
+ * @returns - the zeroed number
+ */
+export function u32ZeroBit0(n: number): number {
+  return n & 0xfffffffe;
+}
+
+/**
+ * Quantize a signed 16-bit number
+ * @param n - the number to quantize
+ * @returns - the quantized number
+ */
+export function i16Quantize(n: number): number {
+  return n >= 0 ? Math.trunc(n + 0.5) : Math.trunc(n - 0.5);
+}
+
 /** A special buffer that stores a 32-bit number and can be converted to different types respecting bit positions */
 export class U32I32F32 {
   private buffer: ArrayBuffer;

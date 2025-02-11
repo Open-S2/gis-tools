@@ -1,19 +1,27 @@
-import { ArithmeticDecoder } from './arithmeticDecoder';
-import { IntegerCompressor } from './integerCompressor';
 import {
-  LASWavePacket,
+  ArithmeticDecoder,
+  IntegerCompressor,
+  LASWavePacket13,
   LASpoint10,
+  LASpoint14,
   LASrgba,
-  LAZPoint10V1Reader,
-  LAZPoint10V2Reader,
-  LAZbyteV1,
-  LAZbyteV2,
+  LASrgbaNir,
+  LAZPoint10v1Reader,
+  LAZPoint10v2Reader,
+  LAZPoint14v3Reader,
+  LAZbyte10v1Reader,
+  LAZbyte10v2Reader,
+  LAZbyte14v3Reader,
   LAZgpstime11v1Reader,
   LAZgpstime11v2Reader,
-  LAZrgb12v1,
-  LAZrgb12v2,
-  LAZwavepacket13v1,
-} from './getPointCompressed';
+  LAZrgb12v1Reader,
+  LAZrgb12v2Reader,
+  LAZrgb14v3Reader,
+  LAZrgbNir14v3Reader,
+  LAZwavepacket13v1Reader,
+  LAZwavepacket14v3Reader,
+  modifyPoint14RawInput,
+} from './laz';
 import { LAZCompressor, LAZHeaderItemType } from './types';
 import { Transformer, buildParamsFromGeoKeys, parseGeotiffRawGeoKeys, toReader } from '../..';
 import {
@@ -37,7 +45,7 @@ import type {
   VectorFeature,
   VectorPointM,
 } from '../..';
-import type { ItemReader, LAZContext, LAZPointData } from './getPointCompressed';
+import type { ItemReader, LAZContext } from './laz';
 import type {
   LASExtendedVariableLengthRecord,
   LASFormat,
@@ -350,6 +358,12 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
   }
 }
 
+/** A step of decompression from the reader */
+export interface LAZPointData {
+  type: LAZHeaderItemType;
+  rawData: DataView;
+}
+
 /**
  * # LASzip Reader
  *
@@ -441,6 +455,8 @@ export class LASZipReader extends LASReader {
     this.reader.seek(startPos);
     // init all readers
     for (let i = 0; i < numPoints; i++) {
+      // console.log('i', i, this.reader.tell(), this.#chunkStarts);
+      // if (i > 2) break;
       const coordinates = this.#readPoint(i === 0);
       yield {
         type: 'VectorFeature',
@@ -506,23 +522,36 @@ export class LASZipReader extends LASReader {
    * @returns - the compression reader for the item
    */
   #getPointCompressedReader(item: LAZHeaderItem): ItemReader {
-    // TODO: POINT14, RGB14, RGBNIR14, BYTE14, WAVEPACKET14
     const { type, size, version } = item;
     if (type === LAZHeaderItemType.POINT10) {
-      if (version === 1) return new LAZPoint10V1Reader(this.#dec!);
-      else if (version === 2) return new LAZPoint10V2Reader(this.#dec!);
+      if (version === 1) return new LAZPoint10v1Reader(this.#dec!);
+      else if (version === 2) return new LAZPoint10v2Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.GPSTIME11) {
       if (version === 1) return new LAZgpstime11v1Reader(this.#dec!);
       else if (version === 2) return new LAZgpstime11v2Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.RGB12) {
-      if (version === 1) return new LAZrgb12v1(this.#dec!);
-      else if (version === 2) return new LAZrgb12v2(this.#dec!);
+      if (version === 1) return new LAZrgb12v1Reader(this.#dec!);
+      else if (version === 2) return new LAZrgb12v2Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.WAVEPACKET13) {
-      if (version === 1) return new LAZwavepacket13v1(this.#dec!);
-      else if (version === 2) return new LAZwavepacket13v1(this.#dec!);
+      if (version === 1) return new LAZwavepacket13v1Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.BYTE) {
-      if (version === 1) return new LAZbyteV1(this.#dec!, size);
-      else if (version === 2) return new LAZbyteV2(this.#dec!, size);
+      if (version === 1) return new LAZbyte10v1Reader(this.#dec!, size);
+      else if (version === 2) return new LAZbyte10v2Reader(this.#dec!, size);
+    } else if (type === LAZHeaderItemType.POINT14) {
+      // TODO: V4
+      if (version === 3) return new LAZPoint14v3Reader(this.#dec!);
+    } else if (type === LAZHeaderItemType.RGB14) {
+      // TODO: V4
+      if (version === 3) return new LAZrgb14v3Reader(this.#dec!);
+    } else if (type === LAZHeaderItemType.RGBNIR14) {
+      // TODO: V4
+      if (version === 3) return new LAZrgbNir14v3Reader(this.#dec!);
+    } else if (type === LAZHeaderItemType.WAVEPACKET14) {
+      // TODO: V4
+      if (version === 3) return new LAZwavepacket14v3Reader(this.#dec!);
+    } else if (type === LAZHeaderItemType.BYTE14) {
+      // TODO: V4
+      if (version === 3) return new LAZbyte14v3Reader(this.#dec!, size);
     }
     throw Error(`Unsupported compressed point type: ${type} & version: ${version}`);
   }
@@ -573,29 +602,49 @@ export class LASZipReader extends LASReader {
    */
   #readPoint(uncompressed: boolean): VectorPointM<LASFormat> {
     // TODO: POINTWISE_AND_CHUNKED needs to use uncompressed section for each new chunk
-    const { items, compressor } = this.lazHeader;
+    const { compressor } = this.lazHeader;
     const pointData: LAZPointData[] = [];
     const context: LAZContext = { value: 0 };
     // no decoder means it wasn't compressed, just pull the point
     if (uncompressed || compressor === LAZCompressor.NONE) {
-      for (let i = 0; i < items.length; i++) {
-        const { type, size } = items[i];
-        const rawData = this.reader.seekSlice(size);
-        this.#readers[i]?.init(rawData, context);
-        pointData.push({ type, rawData });
-      }
-      this.#dec?.init();
-    } else if (
-      compressor === LAZCompressor.POINTWISE ||
-      compressor === LAZCompressor.POINTWISE_AND_CHUNKED
-    )
-      this.#pointwiseCompressRead(pointData, context);
-    else if (compressor === LAZCompressor.LAYERED_AND_CHUNKED)
-      new Error(`Unsupported compressor: "Layered and Chunked"`);
+      this.#firstChunkRead(context, pointData);
+    } else this.#pointwiseCompressRead(pointData, context);
 
     let point = this.#toVectorPoint(pointData, this.header);
     point = this.transformer.forward(point) as VectorPointM<LASFormat>;
+    // console.log('point', point);
     return point;
+  }
+
+  /**
+   * @param context - current context
+   * @param pointData - where to store the decompressed data
+   */
+  #firstChunkRead(context: LAZContext, pointData: LAZPointData[]): void {
+    const { items } = this.lazHeader;
+    let i: number;
+    // first read in the raw data
+    for (i = 0; i < items.length; i++) {
+      const { type, size } = items[i];
+      let rawData = this.reader.seekSlice(size);
+      if (type === LAZHeaderItemType.POINT14) rawData = modifyPoint14RawInput(rawData);
+      pointData.push({ type, rawData });
+    }
+    // now choose how we initialize
+    if (this.layeredLas14Compression) {
+      // set decoder
+      this.#dec?.init(false);
+      const _count = this.reader.getUint32(undefined);
+      // chunk sizes
+      for (i = 0; i < items.length; i++) this.#readers[i]?.chunkSizes(this.reader);
+      // init
+      for (i = 0; i < items.length; i++) this.#readers[i]?.init(pointData[i].rawData, context);
+    } else {
+      // initialize readers
+      for (i = 0; i < items.length; i++) this.#readers[i]?.init(pointData[i].rawData, context);
+      // NOW set decoder
+      this.#dec?.init();
+    }
   }
 
   /**
@@ -606,7 +655,8 @@ export class LASZipReader extends LASReader {
     const { items } = this.lazHeader;
     for (let i = 0; i < items.length; i++) {
       const { type, size } = items[i];
-      const rawData = new DataView(new ArrayBuffer(size));
+      let rawData: DataView = new DataView(new ArrayBuffer(size));
+      if (type === LAZHeaderItemType.POINT14) rawData = modifyPoint14RawInput(rawData);
       this.#readers[i].read(rawData, context);
       pointData.push({ type, rawData });
     }
@@ -623,85 +673,17 @@ export class LASZipReader extends LASReader {
     for (const { type, rawData } of pointData) {
       if (type === LAZHeaderItemType.POINT10) LASpoint10.rawToVectorPoint(rawData, header, res);
       else if (type === LAZHeaderItemType.GPSTIME11) res.m.gpsTime = rawData.getFloat64(0, true);
-      else if (type === LAZHeaderItemType.RGB12) LASrgba.rawToVectorPoint(rawData, res);
-      else if (type === LAZHeaderItemType.WAVEPACKET13)
-        LASWavePacket.rawToVectorPoint(rawData, res);
+      else if (type === LAZHeaderItemType.RGB12 || type === LAZHeaderItemType.RGB14)
+        LASrgba.rawToVectorPoint(rawData, res);
+      else if (type === LAZHeaderItemType.WAVEPACKET13 || type === LAZHeaderItemType.WAVEPACKET14)
+        LASWavePacket13.rawToVectorPoint(rawData, res);
+      else if (type === LAZHeaderItemType.POINT14)
+        LASpoint14.rawToVectorPoint(rawData, header, res);
+      else if (type === LAZHeaderItemType.RGBNIR14) LASrgbaNir.rawToVectorPoint(rawData, res);
     }
 
     return res;
   }
-
-  // /**
-  //  *
-  //  */
-  // #read() {
-  //   let i: number;
-  //   const context: number = 0;
-  //   if (this.#dec !== undefined) {
-  //     if (this.#chunkCount === this.#chunkSize) {
-  //       if (this.#pointStart !== 0) {
-  //         this.#currChunk++;
-  //         // check integrity
-  //         if (this.#currChunk < this.#tabledChunks) {
-  //           const here = this.reader.tell(); // I64
-  //           if (this.#chunkStarts[this.#currChunk] !== here) {
-  //             // previous chunk was corrupt
-  //             this.#currChunk--;
-  //             throw new Error('4711');
-  //           }
-  //         }
-  //       }
-  //       this.#initDec();
-  //       if (this.#currChunk === this.#tabledChunks) {
-  //         // no or incomplete chunk table?
-  //         if (this.#currChunk >= this.#numberChunks) {
-  //           this.#numberChunks += 256;
-  //           this.#chunkStarts = new Array(this.#numberChunks + 1);
-  //         }
-  //         this.#chunkStarts[this.#tabledChunks] = this.#pointStart; // needs fixing
-  //         this.#tabledChunks++;
-  //       } else if (this.#chunkTotals.length > 0) {
-  //         // variable sized chunks?
-  //         this.#chunkSize =
-  //           this.#chunkTotals[this.#currChunk + 1] - this.#chunkTotals[this.#currChunk];
-  //       }
-  //       this.#chunkCount = 0;
-  //     }
-  //     this.#chunkCount++;
-
-  //     if (this.#readers.length > 0) {
-  //       for (i = 0; i < this.#numReaders; i++) {
-  //         this.#readers[i].compressedReader?.read(point[i], context);
-  //       }
-  //     } else {
-  //       for (i = 0; i < this.#numReaders; i++) {
-  //         this.#readers[i].rawReader.read(point[i], context);
-  //       }
-  //       if (this.layeredLas14Compression) {
-  //         // read how many points are in the chunk (move forward in the stream)
-  //         this.reader.getUint32(undefined, true); // U32
-  //         // read the sizes of all layers
-  //         for (i = 0; i < this.#numReaders; i++) {
-  //           // TODO:
-  //           // ((LASreadItemCompressed*)(this.#readersCompressed[i])).this.#chunkSizes();
-  //         }
-  //         for (i = 0; i < this.#numReaders; i++) {
-  //           // TODO"
-  //           // ((LASreadItemCompressed*)(this.#readersCompressed[i])).init(point[i], context);
-  //         }
-  //       } else {
-  //         for (i = 0; i < this.#numReaders; i++) {
-  //           // TODO:
-  //           // ((LASreadItemCompressed*)(this.#readersCompressed[i])).init(point[i], context);
-  //         }
-  //       }
-  //     }
-  //   } else {
-  //     for (i = 0; i < this.#numReaders; i++) {
-  //       this.#readers[i].rawReader.read(point[i], context);
-  //     }
-  //   }
-  // }
 
   // /**
   //  *
@@ -765,6 +747,5 @@ export class LASZipReader extends LASReader {
         this.#chunkStarts[i] += this.#chunkStarts[i - 1];
       }
     }
-    return;
   }
 }

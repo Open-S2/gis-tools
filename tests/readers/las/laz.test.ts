@@ -1,149 +1,158 @@
 import { FileReader } from '../../../src/file';
-// import { EPSG_26915, LASZipReader, TransverseMercator } from '../../../src';
-import { LASZipReader, NewLineDelimitedJSONReader } from '../../../src';
+import {
+  EPSG_26915,
+  LASZipReader,
+  NewLineDelimitedJSONReader,
+  TransverseMercator,
+} from '../../../src';
 import { expect, test } from 'bun:test';
 
-// test('LASzipReader - 1.2_0 ZIP', () => {
-//   const fileReader = new FileReader(`${__dirname}/fixtures/1.2_0.laz`);
-//   const lazReader = new LASZipReader(fileReader, [TransverseMercator], { EPSG_26915 });
-//   expect(lazReader.header).toEqual({
-//     encoding: 16,
-//     extendedVariableLengthRecordOffset: 0,
-//     extendedVariableLengthSize: 0,
-//     fileCreationDay: 36,
-//     fileCreationYear: 2025,
-//     generatingSoftware: 'PDAL 2.8.3 (Releas)',
-//     headerSize: 375,
-//     majorVersion: 1,
-//     maxX: 470692.44,
-//     maxY: 4602888.9,
-//     maxZ: 16,
-//     minX: 470692.44,
-//     minY: 4602888.9,
-//     minZ: 16,
-//     minorVersion: 4,
-//     numPoints: 1,
-//     numPointsByReturn: [0, 4294967296, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     numVariableLengthRecords: 3,
-//     offsetToPoints: 1815,
-//     pointDataFormatID: 135,
-//     pointDataRecordLength: 36,
-//     projectID1: 0,
-//     projectID2: 0,
-//     projectID3: 0,
-//     projectID4: '',
-//     signature: 'LASF',
-//     sourceID: 0,
-//     systemIdentifier: 'PDAL',
-//     waveformDataPacketOffset: 0,
-//     xOffset: 0,
-//     xScaleFactor: 0.01,
-//     yOffset: 0,
-//     yScaleFactor: 0.01,
-//     zOffset: 0,
-//     zScaleFactor: 0.01,
-//   });
-//   expect(lazReader.variableLengthRecords).toEqual({
-//     '2112': {
-//       data: new DataView(
-//         new Uint8Array([
-//           80, 82, 79, 74, 67, 83, 91, 34, 78, 65, 68, 56, 51, 32, 47, 32, 85, 84, 77, 32, 122, 111,
-//           110, 101, 32, 49, 53, 78, 34, 44, 71, 69, 79, 71, 67, 83, 91, 34, 78, 65, 68, 56, 51, 34,
-//           44, 68, 65, 84, 85, 77, 91, 34, 78, 111, 114, 116, 104, 95, 65, 109, 101, 114, 105, 99,
-//           97, 110, 95, 68, 97, 116, 117, 109, 95, 49, 57, 56, 51, 34, 44, 83, 80, 72, 69, 82, 79,
-//           73, 68, 91, 34, 71, 82, 83, 32, 49, 57, 56, 48, 34, 44, 54, 51, 55, 56, 49, 51, 55, 44,
-//           50, 57, 56, 46, 50, 53, 55, 50, 50, 50, 49, 48, 49, 44, 65, 85, 84, 72, 79, 82, 73, 84,
-//           89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 55, 48, 49, 57, 34, 93, 93, 44, 65, 85, 84, 72,
-//           79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 54, 50, 54, 57, 34, 93, 93, 44,
-//           80, 82, 73, 77, 69, 77, 91, 34, 71, 114, 101, 101, 110, 119, 105, 99, 104, 34, 44, 48, 44,
-//           65, 85, 84, 72, 79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 56, 57, 48, 49,
-//           34, 93, 93, 44, 85, 78, 73, 84, 91, 34, 100, 101, 103, 114, 101, 101, 34, 44, 48, 46, 48,
-//           49, 55, 52, 53, 51, 50, 57, 50, 53, 49, 57, 57, 52, 51, 51, 44, 65, 85, 84, 72, 79, 82,
-//           73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 57, 49, 50, 50, 34, 93, 93, 44, 65, 85,
-//           84, 72, 79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 52, 50, 54, 57, 34, 93,
-//           93, 44, 80, 82, 79, 74, 69, 67, 84, 73, 79, 78, 91, 34, 84, 114, 97, 110, 115, 118, 101,
-//           114, 115, 101, 95, 77, 101, 114, 99, 97, 116, 111, 114, 34, 93, 44, 80, 65, 82, 65, 77,
-//           69, 84, 69, 82, 91, 34, 108, 97, 116, 105, 116, 117, 100, 101, 95, 111, 102, 95, 111, 114,
-//           105, 103, 105, 110, 34, 44, 48, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 99,
-//           101, 110, 116, 114, 97, 108, 95, 109, 101, 114, 105, 100, 105, 97, 110, 34, 44, 45, 57,
-//           51, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 115, 99, 97, 108, 101, 95, 102,
-//           97, 99, 116, 111, 114, 34, 44, 48, 46, 57, 57, 57, 54, 93, 44, 80, 65, 82, 65, 77, 69, 84,
-//           69, 82, 91, 34, 102, 97, 108, 115, 101, 95, 101, 97, 115, 116, 105, 110, 103, 34, 44, 53,
-//           48, 48, 48, 48, 48, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 102, 97, 108, 115,
-//           101, 95, 110, 111, 114, 116, 104, 105, 110, 103, 34, 44, 48, 93, 44, 85, 78, 73, 84, 91,
-//           34, 109, 101, 116,
-//         ]).buffer,
-//       ),
-//       description: 'OGR variant of OpenGIS WKT SRS',
-//       recordID: 2112,
-//       recordLength: 616,
-//       reserved: 0,
-//       userID: 'liblas',
-//     },
-//     '22204': {
-//       data: new DataView(
-//         new Uint8Array([
-//           3, 0, 0, 0, 3, 4, 3, 0, 0, 0, 0, 0, 80, 195, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255,
-//           255, 255, 255, 255, 255, 255, 255, 255, 2, 0, 10, 0, 30, 0, 3, 0, 11, 0, 6, 0, 3, 0,
-//         ]).buffer,
-//       ),
-//       description: 'http://laszip.org',
-//       recordID: 22204,
-//       recordLength: 46,
-//       reserved: 0,
-//       userID: 'laszip encoded',
-//     },
-//   });
-//   expect(lazReader.lazHeader).toEqual({
-//     chunkSize: 50000,
-//     coder: 0,
-//     compressor: 3,
-//     items: [
-//       { size: 30, type: 10, version: 3 },
-//       { size: 6, type: 11, version: 3 },
-//     ],
-//     numItems: 2,
-//     numSpecialEvlrs: -1,
-//     offsetSpecialEvlrs: -1,
-//     options: 0,
-//     versionMajor: 3,
-//     versionMinor: 4,
-//     versionRevision: 3,
-//   });
-//   expect(lazReader.wkt).toEqual(
-//     'PROJCS["NAD83 / UTM zone 15N",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-93],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","26915"]]\u0000',
-//   );
-//   // const data = await Array.fromAsync(lazReader);
-//   // expect(data.length).toEqual(1);
-//   // const firstPoint = data[0];
-//   // expect(firstPoint).toEqual({
-//   //   geometry: {
-//   //     coordinates: {
-//   //       m: {
-//   //         ScanDirectionFlag: 0,
-//   //         classification: 'Ground',
-//   //         edgeOfFlightLine: 0,
-//   //         intensity: 0,
-//   //         isKeyPoint: false,
-//   //         isSynthetic: false,
-//   //         isWithheld: false,
-//   //         numberOfReturns: 0,
-//   //         pointSourceID: 0,
-//   //         returnNumber: 2,
-//   //         scanAngleRank: -13,
-//   //         userData: 0,
-//   //       },
-//   //       x: -93.35156259019989,
-//   //       y: 41.577148395419115,
-//   //       z: 16,
-//   //     },
-//   //     is3D: true,
-//   //     type: 'Point',
-//   //   },
-//   //   properties: {},
-//   //   type: 'VectorFeature',
-//   // });
-// });
+test('LASzipReader - 1.2_0 ZIP', async () => {
+  const fileReader = new FileReader(`${__dirname}/fixtures/1.2_0.laz`);
+  const lazReader = new LASZipReader(fileReader, [TransverseMercator], { EPSG_26915 });
+  expect(lazReader.header).toEqual({
+    encoding: 16,
+    extendedVariableLengthRecordOffset: 0,
+    extendedVariableLengthSize: 0,
+    fileCreationDay: 36,
+    fileCreationYear: 2025,
+    generatingSoftware: 'PDAL 2.8.3 (Releas)',
+    headerSize: 375,
+    majorVersion: 1,
+    maxX: 470692.44,
+    maxY: 4602888.9,
+    maxZ: 16,
+    minX: 470692.44,
+    minY: 4602888.9,
+    minZ: 16,
+    minorVersion: 4,
+    numPoints: 1,
+    numPointsByReturn: [0, 4294967296, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    numVariableLengthRecords: 3,
+    offsetToPoints: 1815,
+    pointDataFormatID: 135,
+    pointDataRecordLength: 36,
+    projectID1: 0,
+    projectID2: 0,
+    projectID3: 0,
+    projectID4: '',
+    signature: 'LASF',
+    sourceID: 0,
+    systemIdentifier: 'PDAL',
+    waveformDataPacketOffset: 0,
+    xOffset: 0,
+    xScaleFactor: 0.01,
+    yOffset: 0,
+    yScaleFactor: 0.01,
+    zOffset: 0,
+    zScaleFactor: 0.01,
+  });
+  expect(lazReader.variableLengthRecords).toEqual({
+    '2112': {
+      data: new DataView(
+        new Uint8Array([
+          80, 82, 79, 74, 67, 83, 91, 34, 78, 65, 68, 56, 51, 32, 47, 32, 85, 84, 77, 32, 122, 111,
+          110, 101, 32, 49, 53, 78, 34, 44, 71, 69, 79, 71, 67, 83, 91, 34, 78, 65, 68, 56, 51, 34,
+          44, 68, 65, 84, 85, 77, 91, 34, 78, 111, 114, 116, 104, 95, 65, 109, 101, 114, 105, 99,
+          97, 110, 95, 68, 97, 116, 117, 109, 95, 49, 57, 56, 51, 34, 44, 83, 80, 72, 69, 82, 79,
+          73, 68, 91, 34, 71, 82, 83, 32, 49, 57, 56, 48, 34, 44, 54, 51, 55, 56, 49, 51, 55, 44,
+          50, 57, 56, 46, 50, 53, 55, 50, 50, 50, 49, 48, 49, 44, 65, 85, 84, 72, 79, 82, 73, 84,
+          89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 55, 48, 49, 57, 34, 93, 93, 44, 65, 85, 84, 72,
+          79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 54, 50, 54, 57, 34, 93, 93, 44,
+          80, 82, 73, 77, 69, 77, 91, 34, 71, 114, 101, 101, 110, 119, 105, 99, 104, 34, 44, 48, 44,
+          65, 85, 84, 72, 79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 56, 57, 48, 49,
+          34, 93, 93, 44, 85, 78, 73, 84, 91, 34, 100, 101, 103, 114, 101, 101, 34, 44, 48, 46, 48,
+          49, 55, 52, 53, 51, 50, 57, 50, 53, 49, 57, 57, 52, 51, 51, 44, 65, 85, 84, 72, 79, 82,
+          73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 57, 49, 50, 50, 34, 93, 93, 44, 65, 85,
+          84, 72, 79, 82, 73, 84, 89, 91, 34, 69, 80, 83, 71, 34, 44, 34, 52, 50, 54, 57, 34, 93,
+          93, 44, 80, 82, 79, 74, 69, 67, 84, 73, 79, 78, 91, 34, 84, 114, 97, 110, 115, 118, 101,
+          114, 115, 101, 95, 77, 101, 114, 99, 97, 116, 111, 114, 34, 93, 44, 80, 65, 82, 65, 77,
+          69, 84, 69, 82, 91, 34, 108, 97, 116, 105, 116, 117, 100, 101, 95, 111, 102, 95, 111, 114,
+          105, 103, 105, 110, 34, 44, 48, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 99,
+          101, 110, 116, 114, 97, 108, 95, 109, 101, 114, 105, 100, 105, 97, 110, 34, 44, 45, 57,
+          51, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 115, 99, 97, 108, 101, 95, 102,
+          97, 99, 116, 111, 114, 34, 44, 48, 46, 57, 57, 57, 54, 93, 44, 80, 65, 82, 65, 77, 69, 84,
+          69, 82, 91, 34, 102, 97, 108, 115, 101, 95, 101, 97, 115, 116, 105, 110, 103, 34, 44, 53,
+          48, 48, 48, 48, 48, 93, 44, 80, 65, 82, 65, 77, 69, 84, 69, 82, 91, 34, 102, 97, 108, 115,
+          101, 95, 110, 111, 114, 116, 104, 105, 110, 103, 34, 44, 48, 93, 44, 85, 78, 73, 84, 91,
+          34, 109, 101, 116,
+        ]).buffer,
+      ),
+      description: 'OGR variant of OpenGIS WKT SRS',
+      recordID: 2112,
+      recordLength: 616,
+      reserved: 0,
+      userID: 'liblas',
+    },
+    '22204': {
+      data: new DataView(
+        new Uint8Array([
+          3, 0, 0, 0, 3, 4, 3, 0, 0, 0, 0, 0, 80, 195, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255,
+          255, 255, 255, 255, 255, 255, 255, 255, 2, 0, 10, 0, 30, 0, 3, 0, 11, 0, 6, 0, 3, 0,
+        ]).buffer,
+      ),
+      description: 'http://laszip.org',
+      recordID: 22204,
+      recordLength: 46,
+      reserved: 0,
+      userID: 'laszip encoded',
+    },
+  });
+  expect(lazReader.lazHeader).toEqual({
+    chunkSize: 50000,
+    coder: 0,
+    compressor: 3,
+    items: [
+      { size: 30, type: 10, version: 3 },
+      { size: 6, type: 11, version: 3 },
+    ],
+    numItems: 2,
+    numSpecialEvlrs: -1,
+    offsetSpecialEvlrs: -1,
+    options: 0,
+    versionMajor: 3,
+    versionMinor: 4,
+    versionRevision: 3,
+  });
+  expect(lazReader.wkt).toEqual(
+    'PROJCS["NAD83 / UTM zone 15N",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-93],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","26915"]]\u0000',
+  );
+  const data = await Array.fromAsync(lazReader);
+  expect(data.length).toEqual(1);
+  const firstPoint = data[0];
+  expect(firstPoint).toEqual({
+    geometry: {
+      coordinates: {
+        m: {
+          scanDirectionFlag: 0,
+          classification: 'Ground',
+          classificationFlag: 'Synthetic',
+          scannerChannel: 0,
+          edgeOfFlightLine: 0,
+          intensity: 0,
+          isKeyPoint: false,
+          isSynthetic: false,
+          isWithheld: false,
+          numberOfReturns: 0,
+          pointSourceID: 0,
+          returnNumber: 2,
+          scanAngle: -2167,
+          gpsTime: 0,
+          // scanAngleRank: -13,
+          userData: 0,
+          rgba: { r: 0, g: 0, b: 0, a: 255 },
+        },
+        x: -93.35156259019986,
+        y: 41.577148395415115,
+        z: 16,
+      },
+      is3D: true,
+      type: 'Point',
+    },
+    properties: {},
+    type: 'VectorFeature',
+  });
+});
 
 // test('LASZipReader - 1.2_1 zipped', () => {
 //   const fileReader = new FileReader(`${__dirname}/fixtures/1.2_1.laz`);
@@ -262,7 +271,7 @@ import { expect, test } from 'bun:test';
 //   //   geometry: {
 //   //     coordinates: {
 //   //       m: {
-//   //         ScanDirectionFlag: 0,
+//   //         scanDirectionFlag: 0,
 //   //         classification: 'Ground',
 //   //         edgeOfFlightLine: 0,
 //   //         gpsTime: 1205902800,
@@ -385,3 +394,101 @@ test('LASzipReader - simple ZIP', async () => {
     expect(coordinates.m.rgba).toEqual(compareCoordinates.m.rgba);
   }
 });
+
+// test('LASzipReader - simple V3 ZIP', async () => {
+//   const jsonldCompare = new NewLineDelimitedJSONReader(
+//     new FileReader(`${__dirname}/fixtures/simple.jsonld`),
+//   );
+//   const comparePoints = await Array.fromAsync(jsonldCompare);
+//   expect(comparePoints.length).toEqual(1_065);
+//   const lazReader = new LASZipReader(new FileReader(`${__dirname}/fixtures/simpleV3.laz`), [], {});
+//   expect(lazReader.header).toEqual({
+//     encoding: 16,
+//     extendedVariableLengthRecordOffset: 0,
+//     extendedVariableLengthSize: 0,
+//     fileCreationDay: 41,
+//     fileCreationYear: 2025,
+//     generatingSoftware: 'PDAL 2.8.3 (Releas)',
+//     headerSize: 375,
+//     majorVersion: 1,
+//     maxX: 638982.55,
+//     maxY: 853535.43,
+//     maxZ: 586.38,
+//     minX: 635619.85,
+//     minY: 848899.7000000001,
+//     minZ: 406.59000000000003,
+//     minorVersion: 4,
+//     numPoints: 1065,
+//     numPointsByReturn: [
+//       3972844748800, 489626271744, 90194313216, 21474836480, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//     ],
+//     numVariableLengthRecords: 1,
+//     offsetToPoints: 475,
+//     pointDataFormatID: 135,
+//     pointDataRecordLength: 36,
+//     projectID1: 0,
+//     projectID2: 0,
+//     projectID3: 0,
+//     projectID4: '',
+//     signature: 'LASF',
+//     sourceID: 0,
+//     systemIdentifier: 'PDAL',
+//     waveformDataPacketOffset: 0,
+//     xOffset: 0,
+//     xScaleFactor: 0.01,
+//     yOffset: 0,
+//     yScaleFactor: 0.01,
+//     zOffset: 0,
+//     zScaleFactor: 0.01,
+//   });
+//   expect(lazReader.variableLengthRecords).toEqual({
+//     '22204': {
+//       data: new DataView(
+//         new Uint8Array([
+//           3, 0, 0, 0, 3, 4, 3, 0, 0, 0, 0, 0, 80, 195, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255,
+//           255, 255, 255, 255, 255, 255, 255, 255, 2, 0, 10, 0, 30, 0, 3, 0, 11, 0, 6, 0, 3, 0,
+//         ]).buffer,
+//       ),
+//       description: 'http://laszip.org',
+//       recordID: 22204,
+//       recordLength: 46,
+//       reserved: 0,
+//       userID: 'laszip encoded',
+//     },
+//   });
+//   expect(lazReader.lazHeader).toEqual({
+//     chunkSize: 50000,
+//     coder: 0,
+//     compressor: 3,
+//     items: [
+//       { size: 30, type: 10, version: 3 },
+//       { size: 6, type: 11, version: 3 },
+//     ],
+//     numItems: 2,
+//     numSpecialEvlrs: -1,
+//     offsetSpecialEvlrs: -1,
+//     options: 0,
+//     versionMajor: 3,
+//     versionMinor: 4,
+//     versionRevision: 3,
+//   });
+//   expect(lazReader.wkt).toBeUndefined();
+//   expect(lazReader.GeoKeyDirectory).toBeUndefined();
+//   const data = await Array.fromAsync(lazReader);
+//   expect(data.length).toEqual(1_065);
+//   // for (let i = 0; i < data.length; i++) {
+//   //   const { type: compareType, coordinates: compareCoordinates } = comparePoints[i].geometry;
+//   //   if (compareType !== 'Point') throw new Error('not a point');
+//   //   const { type, coordinates } = data[i].geometry;
+//   //   if (type !== 'Point') throw new Error('not a point');
+//   //   expect(coordinates.x).toBeCloseTo(compareCoordinates.x);
+//   //   expect(coordinates.y).toBeCloseTo(compareCoordinates.y);
+//   //   expect(coordinates.z).toBeCloseTo(compareCoordinates.z!);
+//   //   // @ts-expect-error - this is ok
+//   //   expect(coordinates.m.intensity).toEqual(compareCoordinates.m.intensity);
+//   //   // @ts-expect-error - this is ok
+//   //   expect(coordinates.m?.gpsTime).toBeCloseTo(compareCoordinates.m.gps_time);
+//   //   // @ts-expect-error - this is ok
+//   //   expect(coordinates.m.rgba).toEqual(compareCoordinates.m.rgba);
+//   // }
+// });

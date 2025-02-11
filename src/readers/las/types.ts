@@ -281,6 +281,20 @@ export interface LAZHeader {
   items: LAZHeaderItem[];
 }
 
+/** Point Data Record Format */
+export type LASFormat =
+  | LASFormat0
+  | LASFormat1
+  | LASFormat2
+  | LASFormat3
+  | LASFormat4
+  | LASFormat5
+  | LASFormat6
+  | LASFormat7
+  | LASFormat8
+  | LASFormat9
+  | LASFormat10;
+
 /**
  * Point Data Record Format 0 contains the core 20 bytes that are shared by Point Data Record
  * Formats 0 to 5.
@@ -292,6 +306,9 @@ export type LASFormat0_5 =
   | LASFormat3
   | LASFormat4
   | LASFormat5;
+
+/** Point Data Record Format 6 to 10 */
+export type LASFormat6_10 = LASFormat6 | LASFormat7 | LASFormat8 | LASFormat9 | LASFormat10;
 
 /**
  * Point Data Record Format 0 contains the core 20 bytes that are shared by Point Data Record
@@ -337,7 +354,7 @@ export interface LASFormat0 extends Properties {
    * bit value of 0 is a negative scan direction (where positive scan direction is a scan moving
    * from the left side of the in-track direction to the right side and negative the opposite).
    */
-  ScanDirectionFlag: number;
+  scanDirectionFlag: number;
   /**
    * 1 bit
    *
@@ -600,9 +617,6 @@ export interface LASFormat5 extends LASFormat3 {
    */
   zT: number;
 }
-
-/** Point Data Record Format 6 to 10 */
-export type LASFormat6_10 = LASFormat6 | LASFormat7 | LASFormat8 | LASFormat9 | LASFormat10;
 
 /**
  * Point Data Record Format 6 contains the core 30 bytes that are shared by Point Data Record
@@ -927,17 +941,3 @@ export interface LASFormat10 extends LASFormat7 {
    */
   zT: number;
 }
-
-/** Point Data Record Format */
-export type LASFormat =
-  | LASFormat0
-  | LASFormat1
-  | LASFormat2
-  | LASFormat3
-  | LASFormat4
-  | LASFormat5
-  | LASFormat6
-  | LASFormat7
-  | LASFormat8
-  | LASFormat9
-  | LASFormat10;

@@ -111,7 +111,7 @@ test('LASReader - spatialreference', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           isKeyPoint: false,
           isSynthetic: false,
@@ -222,7 +222,7 @@ test('LASReader - 1.2_0', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           intensity: 0,
@@ -332,7 +332,7 @@ test('LASReader - 1.2_1', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           gpsTime: 1205902800,
@@ -443,7 +443,7 @@ test('LASReader - 1.2_2', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           intensity: 0,
@@ -559,7 +559,7 @@ test('LASReader - 1.2_3', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           gpsTime: 1205902800,
@@ -640,7 +640,7 @@ test('LASReader - 1.2 color', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 1,
+          scanDirectionFlag: 1,
           classification: 'Unclassified',
           edgeOfFlightLine: 0,
           gpsTime: 245380.78254962614,
@@ -770,7 +770,7 @@ test('LASReader - utm16', async () => {
     geometry: {
       coordinates: {
         m: {
-          ScanDirectionFlag: 0,
+          scanDirectionFlag: 0,
           classification: 'Ground',
           edgeOfFlightLine: 0,
           gpsTime: 499450.8059940542,
@@ -879,7 +879,7 @@ test('LASReader - utm16', async () => {
 //     geometry: {
 //       coordinates: {
 //         m: {
-//           ScanDirectionFlag: 0,
+//           scanDirectionFlag: 0,
 //           classification: 'Unclassified',
 //           edgeOfFlightLine: 1,
 //           gpsTime: 245380.78254962614,

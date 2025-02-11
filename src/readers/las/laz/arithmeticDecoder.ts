@@ -1,6 +1,6 @@
-import { U32I32F32, U64I64F64 } from './util';
+import { U32I32F32, U64I64F64 } from '../util';
 
-import type { Reader } from '..';
+import type { Reader } from '../..';
 
 /* this header byte needs to change in case incompatible change happen */
 export const AC_HEADER_BYTE = 2;
@@ -25,7 +25,7 @@ export class ArithmeticDecoder {
   value = 0; // U32
   length = AC__MaxLength; // U32
   /** @param reader - The input reader */
-  constructor(private reader: Reader) {}
+  constructor(readonly reader: Reader) {}
 
   /** @param reallyInit - if set to true, initializes the value */
   init(reallyInit = true): void {
@@ -177,7 +177,7 @@ export class ArithmeticDecoder {
   readInt(): number {
     const lowerInt = this.readShort();
     const upperInt = this.readShort();
-    return (upperInt * 65_536) | lowerInt;
+    return ((upperInt * 65_536) | lowerInt) >>> 0;
   }
 
   /** @returns - The decoded float */

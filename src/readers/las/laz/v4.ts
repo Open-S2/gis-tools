@@ -1,48 +1,3 @@
-// typedef struct LASpoint14
-// {
-//   I32 X;
-//   I32 Y;
-//   I32 Z;
-//   U16 intensity;
-//   U8 legacy_return_number : 3;
-//   U8 legacy_number_of_returns : 3;
-//   U8 scan_direction_flag : 1;
-//   U8 edge_of_flight_line : 1;
-//   U8 legacy_classification : 5;
-//   U8 legacy_flags : 3;
-//   I8 legacy_scan_angle_rank;
-//   U8 user_data;
-//   U16 point_source_ID;
-
-//   // LAS 1.4 only
-//   I16 scan_angle;
-//   U8 legacy_point_type : 2;
-//   U8 scanner_channel : 2;
-//   U8 classification_flags : 4;
-//   U8 classification;
-//   U8 return_number : 4;
-//   U8 number_of_returns : 4;
-
-//   // LASlib internal use only
-//   U8 deleted_flag;
-
-//   // for 8 byte alignment of the GPS time
-//   U8 dummy[2];
-
-//   // compressed LASzip 1.4 points only
-//   BOOL gps_time_change;
-
-//   F64 gps_time;
-//   U16 rgb[4];
-// //  LASwavepacket wavepacket;
-// } LASpoint14;
-
-// #define LASZIP_GPSTIME_MULTI 500
-// #define LASZIP_GPSTIME_MULTI_MINUS -10
-// #define LASZIP_GPSTIME_MULTI_CODE_FULL (LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 1)
-
-// #define LASZIP_GPSTIME_MULTI_TOTAL (LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 5)
-
 // LASreadItemCompressed_POINT14_v4::LASreadItemCompressed_POINT14_v4(ArithmeticDecoder* dec, const U32 decompress_selective)
 // {
 //   /* not used as a decoder. just gives access to instream */
@@ -115,75 +70,6 @@
 
 //   bytes = 0;
 //   num_bytes_allocated = 0;
-// }
-
-// LASreadItemCompressed_POINT14_v4::~LASreadItemCompressed_POINT14_v4()
-// {
-//   U32 c, i;
-
-//   /* destroy all initialized scanner channel contexts */
-
-//   for (c = 0; c < 4; c++)
-//   {
-//     if (contexts[c].m_changed_values[0])
-//     {
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[0]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[1]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[2]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[3]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[4]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[5]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[6]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_changed_values[7]);
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_scanner_channel);
-//       for (i = 0; i < 16; i++)
-//       {
-//         if (contexts[c].m_number_of_returns[i]) dec_channel_returns_XY->destroySymbolModel(contexts[c].m_number_of_returns[i]);
-//         if (contexts[c].m_return_number[i]) dec_channel_returns_XY->destroySymbolModel(contexts[c].m_return_number[i]);
-//       }
-//       dec_channel_returns_XY->destroySymbolModel(contexts[c].m_return_number_gps_same);
-//       delete contexts[c].ic_dX;
-//       delete contexts[c].ic_dY;
-//       delete contexts[c].ic_Z;
-//       for (i = 0; i < 64; i++)
-//       {
-//         if (contexts[c].m_classification[i]) dec_classification->destroySymbolModel(contexts[c].m_classification[i]);
-//         if (contexts[c].m_flags[i]) dec_flags->destroySymbolModel(contexts[c].m_flags[i]);
-//         if (contexts[c].m_user_data[i]) dec_user_data->destroySymbolModel(contexts[c].m_user_data[i]);
-//       }
-//       delete contexts[c].ic_intensity;
-//       delete contexts[c].ic_scan_angle;
-//       delete contexts[c].ic_point_source_ID;
-//       dec_gps_time->destroySymbolModel(contexts[c].m_gpstime_multi);
-//       dec_gps_time->destroySymbolModel(contexts[c].m_gpstime_0diff);
-//       delete contexts[c].ic_gpstime;
-//     }
-//   }
-
-//   /* destroy all decoders and instreams */
-
-//   if (instream_channel_returns_XY)
-//   {
-//     delete dec_channel_returns_XY;
-//     delete dec_Z;
-//     delete dec_classification;
-//     delete dec_flags;
-//     delete dec_intensity;
-//     delete dec_scan_angle;
-//     delete dec_user_data;
-//     delete dec_gps_time;
-
-//     delete instream_channel_returns_XY;
-//     delete instream_Z;
-//     delete instream_classification;
-//     delete instream_flags;
-//     delete instream_intensity;
-//     delete instream_scan_angle;
-//     delete instream_user_data;
-//     delete instream_gps_time;
-//   }
-
-//   if (bytes) delete [] bytes;
 // }
 
 // inline BOOL LASreadItemCompressed_POINT14_v4::createAndInitModelsAndDecompressors(U32 context, const U8* item)
@@ -1104,37 +990,6 @@
 //   current_context = 0;
 // }
 
-// LASreadItemCompressed_RGB14_v4::~LASreadItemCompressed_RGB14_v4()
-// {
-//   /* destroy all initialized scanner channel contexts */
-
-//   U32 c;
-//   for (c = 0; c < 4; c++)
-//   {
-//     if (contexts[c].m_byte_used)
-//     {
-//       dec_RGB->destroySymbolModel(contexts[c].m_byte_used);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_0);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_1);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_2);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_3);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_4);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_5);
-//     }
-//   }
-
-//   /* destroy all instreams and decoders */
-
-//   if (instream_RGB)
-//   {
-//     delete instream_RGB;
-
-//     delete dec_RGB;
-//   }
-
-//   if (bytes) delete [] bytes;
-// }
-
 // inline BOOL LASreadItemCompressed_RGB14_v4::createAndInitModelsAndDecompressors(U32 context, const U8* item)
 // {
 //   /* should only be called when context is unused */
@@ -1412,51 +1267,6 @@
 //     contexts[c].m_nir_bytes_used = 0;
 //   }
 //   current_context = 0;
-// }
-
-// LASreadItemCompressed_RGBNIR14_v4::~LASreadItemCompressed_RGBNIR14_v4()
-// {
-//   /* destroy all initialized scanner channel contexts */
-
-//   U32 c;
-//   for (c = 0; c < 4; c++)
-//   {
-//     if (contexts[c].m_rgb_bytes_used)
-//     {
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_bytes_used);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_0);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_1);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_2);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_3);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_4);
-//       dec_RGB->destroySymbolModel(contexts[c].m_rgb_diff_5);
-//     }
-
-//     if (contexts[c].m_nir_bytes_used)
-//     {
-//       dec_NIR->destroySymbolModel(contexts[c].m_nir_bytes_used);
-//       dec_NIR->destroySymbolModel(contexts[c].m_nir_diff_0);
-//       dec_NIR->destroySymbolModel(contexts[c].m_nir_diff_1);
-//     }
-//   }
-
-//   /* destroy all instreams and decoders */
-
-//   if (instream_RGB)
-//   {
-//     delete instream_RGB;
-
-//     delete dec_RGB;
-//   }
-
-//   if (instream_NIR)
-//   {
-//     delete instream_NIR;
-
-//     delete dec_NIR;
-//   }
-
-//   if (bytes) delete [] bytes;
 // }
 
 // inline BOOL LASreadItemCompressed_RGBNIR14_v4::createAndInitModelsAndDecompressors(U32 context, const U8* item)
@@ -1825,39 +1635,6 @@
 //   current_context = 0;
 // }
 
-// LASreadItemCompressed_WAVEPACKET14_v4::~LASreadItemCompressed_WAVEPACKET14_v4()
-// {
-//   /* destroy all initialized scanner channel contexts */
-
-//   U32 c;
-//   for (c = 0; c < 4; c++)
-//   {
-//     if (contexts[c].m_packet_index)
-//     {
-//       dec_wavepacket->destroySymbolModel(contexts[c].m_packet_index);
-//       dec_wavepacket->destroySymbolModel(contexts[c].m_offset_diff[0]);
-//       dec_wavepacket->destroySymbolModel(contexts[c].m_offset_diff[1]);
-//       dec_wavepacket->destroySymbolModel(contexts[c].m_offset_diff[2]);
-//       dec_wavepacket->destroySymbolModel(contexts[c].m_offset_diff[3]);
-//       delete contexts[c].ic_offset_diff;
-//       delete contexts[c].ic_packet_size;
-//       delete contexts[c].ic_return_point;
-//       delete contexts[c].ic_xyz;
-//     }
-//   }
-
-//   /* destroy all instreams and decoders */
-
-//   if (instream_wavepacket)
-//   {
-//     delete instream_wavepacket;
-
-//     delete dec_wavepacket;
-//   }
-
-//   if (bytes) delete [] bytes;
-// }
-
 // inline BOOL LASreadItemCompressed_WAVEPACKET14_v4::createAndInitModelsAndDecompressors(U32 context, const U8* item)
 // {
 //   /* should only be called when context is unused */
@@ -2120,52 +1897,6 @@
 //     contexts[c].m_bytes = 0;
 //   }
 //   current_context = 0;
-// }
-
-// LASreadItemCompressed_BYTE14_v4::~LASreadItemCompressed_BYTE14_v4()
-// {
-//   /* destroy all initialized scanner channel contexts */
-
-//   U32 c, i;
-//   for (c = 0; c < 4; c++)
-//   {
-//     if (contexts[c].m_bytes)
-//     {
-//       for (i = 0; i < number; i++)
-//       {
-//         dec_Bytes[i]->destroySymbolModel(contexts[c].m_bytes[i]);
-//       }
-//       delete [] contexts[c].m_bytes;
-//       delete [] contexts[c].last_item;
-//     }
-//   }
-
-//   /* destroy all instream and decoder arrays */
-
-//   if (instream_Bytes)
-//   {
-//     for (i = 0; i < number; i++)
-//     {
-//       if (instream_Bytes[i])
-//       {
-//         delete instream_Bytes[i];
-//         delete dec_Bytes[i];
-//       }
-//     }
-
-//     delete [] instream_Bytes;
-//     delete [] dec_Bytes;
-//   }
-
-//   /* destroy all other arrays */
-
-//   if (num_bytes_Bytes) delete [] num_bytes_Bytes;
-
-//   if (changed_Bytes) delete [] changed_Bytes;
-
-//   if (requested_Bytes) delete [] requested_Bytes;
-
-//   if (bytes) delete [] bytes;
 // }
 
 // inline BOOL LASreadItemCompressed_BYTE14_v4::createAndInitModelsAndDecompressors(U32 context, const U8* item)

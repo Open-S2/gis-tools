@@ -26,7 +26,7 @@ export function getPointFormat0(
       intensity: reader.getUint16(offset + 12, littleEndian),
       returnNumber: bits & 0b00000111, // 3 bits (bits 0 – 2)
       numberOfReturns: (bits & 0b00111000) >> 3, // 3 bits (bits 3 – 5)
-      ScanDirectionFlag: (bits & 0b01000000) >> 6, // 1 bit (bit 6)
+      scanDirectionFlag: (bits & 0b01000000) >> 6, // 1 bit (bit 6)
       edgeOfFlightLine: (bits & 0b10000000) >> 7, // 1 bit (bit 7)
       classification: toLASClassification(classBits),
       isSynthetic: (classBits & (1 << 5)) !== 0,

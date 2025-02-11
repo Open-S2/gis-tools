@@ -1,8 +1,7 @@
-import { U32I32F32 } from './util';
-import { ArithmeticBitModel, ArithmeticModel } from './arithmeticDecoder';
+import { U32I32F32 } from '../util';
+import { ArithmeticBitModel, ArithmeticModel } from '.';
 
-import type { ArithmeticDecoder } from './arithmeticDecoder';
-import type { LAZContext } from './getPointCompressed';
+import type { ArithmeticDecoder, LAZContext } from '.';
 
 const I32_MIN = -2147483648; // ((I32)0x80000000)
 const I32_MAX = 2147483647; // ((I32)0x7FFFFFFF)
@@ -77,7 +76,6 @@ export class IntegerCompressor {
     if (this.#mBits.length === 0) {
       this.#mBits = new Array(this.contexts);
       for (i = 0; i < this.contexts; i++) {
-        // this.#mBits[i] = this.dec.createSymbolModel(this.#corrBits + 1);
         this.#mBits[i] = new ArithmeticModel(this.#corrBits + 1, false);
       }
       this.#mCorrector = new Array(this.#corrBits + 1);

@@ -1,13 +1,18 @@
-import { ArithmeticModel } from '../arithmeticDecoder';
-import { IntegerCompressor } from '../integerCompressor';
 import { U64I64F64 } from '../util';
-import { LASWavePacket, LASpoint10, LASrgba } from '.';
+import {
+  ArithmeticModel,
+  IntegerCompressor,
+  LASWavePacket13,
+  LASZIP_GPSTIME_MULTIMAX,
+  LASpoint10,
+  LASrgba,
+} from '.';
 
-import type { ArithmeticDecoder } from '../arithmeticDecoder';
-import type { ItemReader, LAZContext } from '.';
+import type { Reader } from '../..';
+import type { ArithmeticDecoder, ItemReader, LAZContext } from '.';
 
 /** Parse LAZ Point 1.0 */
-export class LAZPoint10V1Reader implements ItemReader {
+export class LAZPoint10v1Reader implements ItemReader {
   lastItem = new LASpoint10();
   lastXDiff: Int32Array = new Int32Array([0, 0, 0]); // I32 last_x_diff[3];
   lastYDiff: Int32Array = new Int32Array([0, 0, 0]); // I32 last_yDiff[3];
@@ -37,6 +42,12 @@ export class LAZPoint10V1Reader implements ItemReader {
     this.mClassification = new Array(256).fill(undefined);
     this.mUserData = new Array(256).fill(undefined);
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
@@ -159,8 +170,6 @@ export class LAZPoint10V1Reader implements ItemReader {
   }
 }
 
-const LASZIP_GPSTIME_MULTIMAX = 512;
-
 /** Parse LAZ GPS Time 1.1v1 */
 export class LAZgpstime11v1Reader implements ItemReader {
   mGpstimeMulti: ArithmeticModel;
@@ -176,6 +185,12 @@ export class LAZgpstime11v1Reader implements ItemReader {
     this.mGpstime0diff = new ArithmeticModel(3, false); // dec.createSymbolModel(3);
     this.icGpstime = new IntegerCompressor(dec, 32, 6); // 32 bits, 6 contexts
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
@@ -248,7 +263,7 @@ export class LAZgpstime11v1Reader implements ItemReader {
 }
 
 /** Parse LAZ RGB 1.2v1 */
-export class LAZrgb12v1 implements ItemReader {
+export class LAZrgb12v1Reader implements ItemReader {
   lastItem = new LASrgba();
   mByteUsed: ArithmeticModel;
   icRgb: IntegerCompressor;
@@ -258,6 +273,12 @@ export class LAZrgb12v1 implements ItemReader {
     this.mByteUsed = new ArithmeticModel(64, false);
     this.icRgb = new IntegerCompressor(dec, 8, 6);
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
@@ -296,8 +317,8 @@ export class LAZrgb12v1 implements ItemReader {
 }
 
 /** Parse LAZ wavepacket 1.3v1 */
-export class LAZwavepacket13v1 implements ItemReader {
-  lastItem = new LASWavePacket();
+export class LAZwavepacket13v1Reader implements ItemReader {
+  lastItem = new LASWavePacket13();
   mPacketIndex: ArithmeticModel;
   mOffsetDiff: [ArithmeticModel, ArithmeticModel, ArithmeticModel, ArithmeticModel];
   icOffsetDiff: IntegerCompressor;
@@ -323,6 +344,12 @@ export class LAZwavepacket13v1 implements ItemReader {
     this.icXyz = new IntegerCompressor(dec, 32, 3);
   }
 
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
+
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
     /* init state */
@@ -342,7 +369,7 @@ export class LAZwavepacket13v1 implements ItemReader {
 
   /** @param item - the current item to be read into */
   read(item: DataView): void {
-    const thisItemM = new LASWavePacket(item);
+    const thisItemM = new LASWavePacket13(item);
     thisItemM.index = this.dec.decodeSymbol(this.mPacketIndex);
 
     this.symLastOffsetDiff = this.dec.decodeSymbol(this.mOffsetDiff[this.symLastOffsetDiff]);
@@ -369,7 +396,7 @@ export class LAZwavepacket13v1 implements ItemReader {
 }
 
 /** Parse LAZ byte 1.0v1 */
-export class LAZbyteV1 implements ItemReader {
+export class LAZbyte10v1Reader implements ItemReader {
   lastItem: Uint8Array;
   icByte: IntegerCompressor;
   /**
@@ -383,6 +410,12 @@ export class LAZbyteV1 implements ItemReader {
     this.icByte = new IntegerCompressor(dec, 8, number);
     this.lastItem = new Uint8Array(number);
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {

@@ -1,104 +1,19 @@
-import { ArithmeticModel } from '../arithmeticDecoder';
-import { IntegerCompressor } from '../integerCompressor';
-import { LASpoint10, LASrgba } from '.';
-import { U32I32F32, U64I64F64 } from '../util';
+import {
+  ArithmeticModel,
+  IntegerCompressor,
+  LASZIP_GPSTIME_MULTI,
+  LASZIP_GPSTIME_MULTI_CODE_FULL,
+  LASZIP_GPSTIME_MULTI_MINUS,
+  LASZIP_GPSTIME_MULTI_TOTAL,
+  LASpoint10,
+  LASrgba,
+  numberReturnLevel,
+  numberReturnMap,
+} from '.';
+import { U32I32F32, U64I64F64, u32ZeroBit0, u8Clamp, u8Fold } from '../util';
 
-import type { ArithmeticDecoder } from '../arithmeticDecoder';
-import type { ItemReader } from '.';
-
-const LASZIP_GPSTIME_MULTI = 500;
-const LASZIP_GPSTIME_MULTI_MINUS = -10;
-const LASZIP_GPSTIME_MULTI_UNCHANGED = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 1;
-const LASZIP_GPSTIME_MULTI_CODE_FULL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 2;
-
-const LASZIP_GPSTIME_MULTI_TOTAL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 6;
-
-/**
- * Fold a number between 0 and 255
- * @param n - the number to fold
- * @returns - the folded number
- */
-function u8Fold(n: number): number {
-  return n < 0 ? n + 256 : n > 255 ? n - 256 : n;
-}
-
-/**
- * Clamp a number between 0 and 255
- * @param n - the number to clamp
- * @returns - the clamped number
- */
-function u8Clamp(n: number): number {
-  return n < 0 ? 0 : n > 255 ? 255 : n;
-}
-
-/**
- * zero the least significant bit
- * @param n - the number to zero
- * @returns - the zeroed number
- */
-function u32ZeroBit0(n: number): number {
-  return n & 0xfffffffe;
-}
-
-/**
- * for LAS files with the return (r) and the number (n) of
- * returns field correctly populated the mapping should really
- * be only the following.
- *  { 15, 15, 15, 15, 15, 15, 15, 15 },
- *  { 15,  0, 15, 15, 15, 15, 15, 15 },
- *  { 15,  1,  2, 15, 15, 15, 15, 15 },
- *  { 15,  3,  4,  5, 15, 15, 15, 15 },
- *  { 15,  6,  7,  8,  9, 15, 15, 15 },
- *  { 15, 10, 11, 12, 13, 14, 15, 15 },
- *  { 15, 15, 15, 15, 15, 15, 15, 15 },
- *  { 15, 15, 15, 15, 15, 15, 15, 15 }
- * however, some files start the numbering of r and n with 0,
- * only have return counts r, or only have number of return
- * counts n, or mix up the position of r and n. we therefore
- * "complete" the table to also map those "undesired" r & n
- * combinations to different contexts
- * 8 x 8 u8 values
- */
-const numberReturnMap = [
-  [15, 14, 13, 12, 11, 10, 9, 8],
-  [14, 0, 1, 3, 6, 10, 10, 9],
-  [13, 1, 2, 4, 7, 11, 11, 10],
-  [12, 3, 4, 5, 8, 12, 12, 11],
-  [11, 6, 7, 8, 9, 13, 13, 12],
-  [10, 10, 11, 12, 13, 14, 14, 13],
-  [9, 10, 11, 12, 13, 14, 15, 14],
-  [8, 9, 10, 11, 12, 13, 14, 15],
-] as const;
-
-/**
- * for LAS files with the return (r) and the number (n) of
- * returns field correctly populated the mapping should really
- * be only the following.
- *  {  0,  7,  7,  7,  7,  7,  7,  7 },
- *  {  7,  0,  7,  7,  7,  7,  7,  7 },
- *  {  7,  1,  0,  7,  7,  7,  7,  7 },
- *  {  7,  2,  1,  0,  7,  7,  7,  7 },
- *  {  7,  3,  2,  1,  0,  7,  7,  7 },
- *  {  7,  4,  3,  2,  1,  0,  7,  7 },
- *  {  7,  5,  4,  3,  2,  1,  0,  7 },
- *  {  7,  6,  5,  4,  3,  2,  1,  0 }
- * however, some files start the numbering of r and n with 0,
- * only have return counts r, or only have number of return
- * counts n, or mix up the position of r and n. we therefore
- * "complete" the table to also map those "undesired" r & n
- * combinations to different contexts
- * 8 x 8 u8 values
- */
-const numberReturnLevel = [
-  [0, 1, 2, 3, 4, 5, 6, 7],
-  [1, 0, 1, 2, 3, 4, 5, 6],
-  [2, 1, 0, 1, 2, 3, 4, 5],
-  [3, 2, 1, 0, 1, 2, 3, 4],
-  [4, 3, 2, 1, 0, 1, 2, 3],
-  [5, 4, 3, 2, 1, 0, 1, 2],
-  [6, 5, 4, 3, 2, 1, 0, 1],
-  [7, 6, 5, 4, 3, 2, 1, 0],
-] as const;
+import type { Reader } from '../..';
+import type { ArithmeticDecoder, ItemReader } from '.';
 
 /** Streaming Median 5 */
 export class StreamingMedian5 {
@@ -177,7 +92,7 @@ export class StreamingMedian5 {
 }
 
 /** LAZ Point10 2.0 Reader */
-export class LAZPoint10V2Reader implements ItemReader {
+export class LAZPoint10v2Reader implements ItemReader {
   lastItem = new LASpoint10();
   lastIncr = 0; // I32 last_incr;
   icDx: IntegerCompressor; // IntegerCompressor* icDx;
@@ -216,6 +131,12 @@ export class LAZPoint10V2Reader implements ItemReader {
       this.lastYDiffMedian5[i] = new StreamingMedian5();
     }
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
@@ -358,6 +279,12 @@ export class LAZgpstime11v2Reader implements ItemReader {
     this.icGpstime = new IntegerCompressor(dec, 32, 9); // 32 bits, 9 contexts
   }
 
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
+
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
     /* init state */
@@ -414,7 +341,7 @@ export class LAZgpstime11v2Reader implements ItemReader {
           this.icGpstime.decompress(this.lastGpstimeDiff[this.last], { value: 1 }),
         );
         this.multiExtremeCounter[this.last] = 0;
-      } else if (multi < LASZIP_GPSTIME_MULTI_UNCHANGED) {
+      } else if (multi < LASZIP_GPSTIME_MULTI) {
         let gpstimeDiff;
         if (multi === 0) {
           gpstimeDiff = this.icGpstime.decompress(0, { value: 7 });
@@ -484,7 +411,7 @@ export class LAZgpstime11v2Reader implements ItemReader {
 }
 
 /** Parse LAZ RGB 1.2v2 */
-export class LAZrgb12v2 implements ItemReader {
+export class LAZrgb12v2Reader implements ItemReader {
   lastItem = new LASrgba();
   mByteUsed = new ArithmeticModel(128);
   mRgbDiff0 = new ArithmeticModel(256);
@@ -496,6 +423,12 @@ export class LAZrgb12v2 implements ItemReader {
 
   /** @param dec - the arithmetic decoder */
   constructor(readonly dec: ArithmeticDecoder) {}
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
@@ -573,7 +506,7 @@ export class LAZrgb12v2 implements ItemReader {
 }
 
 /** LAZ byte reader V2 */
-export class LAZbyteV2 implements ItemReader {
+export class LAZbyte10v2Reader implements ItemReader {
   mByte: ArithmeticModel[];
   lastItem: Uint8Array;
   /**
@@ -589,6 +522,12 @@ export class LAZbyteV2 implements ItemReader {
     /* create last item */
     this.lastItem = new Uint8Array(number);
   }
+
+  /**
+   * Read in chunk sizes
+   * @param _reader - the full data store
+   */
+  chunkSizes(_reader: Reader): void {}
 
   /** @param item - the first raw item needs to be injected for future reads */
   init(item: DataView): void {
