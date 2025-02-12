@@ -273,7 +273,6 @@ export class GeoTIFFHeaderReader {
   ): undefined | number | number[] | string {
     const { reader, littleEndian } = this;
     const res: number[] = [];
-    // console.log('GET VALUE', fieldTag, fieldType, typeCount, valueOffset);
     if (fieldType === FIELD_TYPES.ASCII) {
       return reader.parseString(valueOffset, typeCount);
     } else if (fieldType === FIELD_TYPES.BYTE || fieldType === FIELD_TYPES.UNDEFINED) {

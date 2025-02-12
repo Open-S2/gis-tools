@@ -194,7 +194,6 @@ test('GRIB2Reader using GFS Atmosphere data tooling', async () => {
   }
 
   const features = await Array.fromAsync(grib2Reader);
-  // console.log('grib2Reader', grib2Reader);
   const { coordinates } = features[0].geometry;
   // compare coordinates against expected
   for (let i = 0; i < coordinates.length; i++) {
