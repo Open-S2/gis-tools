@@ -1,19 +1,22 @@
 import {
   ArithmeticModel,
   IntegerCompressor,
-  LASZIP_GPSTIME_MULTI,
-  LASZIP_GPSTIME_MULTI_CODE_FULL,
-  LASZIP_GPSTIME_MULTI_MINUS,
-  LASZIP_GPSTIME_MULTI_TOTAL,
   LASpoint10,
   LASrgba,
   numberReturnLevel,
   numberReturnMap,
 } from '.';
-import { U32I32F32, U64I64F64, u32ZeroBit0, u8Clamp, u8Fold } from '../util';
+import { U64I64F64, u32ZeroBit0, u8Clamp, u8Fold } from '../util';
 
 import type { Reader } from '../..';
 import type { ArithmeticDecoder, ItemReader } from '.';
+
+const LASZIP_GPSTIME_MULTI = 500;
+const LASZIP_GPSTIME_MULTI_MINUS = -10;
+const LASZIP_GPSTIME_MULTI_UNCHANGED = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 1;
+const LASZIP_GPSTIME_MULTI_CODE_FULL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 2;
+
+const LASZIP_GPSTIME_MULTI_TOTAL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 6;
 
 /** Streaming Median 5 */
 export class StreamingMedian5 {
@@ -26,7 +29,7 @@ export class StreamingMedian5 {
   }
 
   /** initialize the first value set */
-  init() {
+  init(): void {
     this.values[0] = this.values[1] = this.values[2] = this.values[3] = this.values[4] = 0;
     this.high = true;
   }
@@ -173,7 +176,7 @@ export class LAZPoint10v2Reader implements ItemReader {
   /** @param item - the current item to be read into */
   read(item: DataView): void {
     let r, n, m, l;
-    let k_bits;
+    let kBits;
     let median, diff;
     // decompress which other values have changed
     const changedValues = this.dec.decodeSymbol(this.mChangedValues);
@@ -237,16 +240,16 @@ export class LAZPoint10v2Reader implements ItemReader {
     this.lastXDiffMedian5[m].add(diff);
     // decompress y coordinate
     median = this.lastYDiffMedian5[m].get();
-    k_bits = this.icDx.getK();
+    kBits = this.icDx.getK();
     diff = this.icDy.decompress(median, {
-      value: (n === 1 ? 1 : 0) + (k_bits < 20 ? u32ZeroBit0(k_bits) : 20),
+      value: Number(n === 1) + (kBits < 20 ? u32ZeroBit0(kBits) : 20),
     });
     this.lastItem.y += diff;
     this.lastYDiffMedian5[m].add(diff);
     // decompress z coordinate
-    k_bits = Math.trunc((this.icDx.getK() + this.icDy.getK()) / 2);
+    kBits = Math.trunc((this.icDx.getK() + this.icDy.getK()) / 2);
     this.lastItem.z = this.icZ.decompress(this.lastHeight[l], {
-      value: (n === 1 ? 1 : 0) + (k_bits < 18 ? u32ZeroBit0(k_bits) : 18),
+      value: Number(n === 1) + (kBits < 18 ? u32ZeroBit0(kBits) : 18),
     });
     this.lastHeight[l] = this.lastItem.z;
 
@@ -299,7 +302,7 @@ export class LAZgpstime11v2Reader implements ItemReader {
     this.icGpstime.initDecompressor();
 
     /* init last item */
-    this.lastGpstime[0].u64 = item.getBigUint64(0, true); // *((const U64*)item);
+    this.lastGpstime[0].u64 = item.getBigUint64(0, true);
     this.lastGpstime[1].u64 = 0;
     this.lastGpstime[2].u64 = 0;
     this.lastGpstime[3].u64 = 0;
@@ -319,13 +322,12 @@ export class LAZgpstime11v2Reader implements ItemReader {
       } else if (multi === 2) {
         // the difference is huge
         this.next = (this.next + 1) & 3;
-        const value = new U32I32F32(Number(this.lastGpstime[this.last].u64 >> 32n), 'u32');
-        this.lastGpstime[this.next].u64 = this.icGpstime.decompress(Number(value.i32), {
-          value: 8,
-        });
+        this.lastGpstime[this.next].u64 = this.icGpstime.decompress(
+          Number(this.lastGpstime[this.last].u64 >> 32n),
+          { value: 8 },
+        );
         this.lastGpstime[this.next].u64 = BigInt(this.lastGpstime[this.next].u64) << 32n;
-        const int = new U32I32F32(this.dec.readInt(), 'u32');
-        this.lastGpstime[this.next].u64 |= BigInt(int.u32);
+        this.lastGpstime[this.next].u64 |= BigInt(this.dec.readInt());
         this.last = this.next;
         this.lastGpstimeDiff[this.last] = 0;
         this.multiExtremeCounter[this.last] = 0;
@@ -341,7 +343,7 @@ export class LAZgpstime11v2Reader implements ItemReader {
           this.icGpstime.decompress(this.lastGpstimeDiff[this.last], { value: 1 }),
         );
         this.multiExtremeCounter[this.last] = 0;
-      } else if (multi < LASZIP_GPSTIME_MULTI) {
+      } else if (multi < LASZIP_GPSTIME_MULTI_UNCHANGED) {
         let gpstimeDiff;
         if (multi === 0) {
           gpstimeDiff = this.icGpstime.decompress(0, { value: 7 });
@@ -390,13 +392,12 @@ export class LAZgpstime11v2Reader implements ItemReader {
         this.lastGpstime[this.last].i64 += BigInt(gpstimeDiff);
       } else if (multi === LASZIP_GPSTIME_MULTI_CODE_FULL) {
         this.next = (this.next + 1) & 3;
-        const value = new U32I32F32(Number(this.lastGpstime[this.last].u64 >> 32n), 'u32');
-        this.lastGpstime[this.next].u64 = this.icGpstime.decompress(Number(value.i32), {
-          value: 8,
-        });
+        this.lastGpstime[this.next].u64 = this.icGpstime.decompress(
+          Number(Number(this.lastGpstime[this.last].u64 >> 32n)),
+          { value: 8 },
+        );
         this.lastGpstime[this.next].u64 = this.lastGpstime[this.next].u64 << 32n;
-        const int = new U32I32F32(this.dec.readInt(), 'u32');
-        this.lastGpstime[this.next].u64 |= BigInt(int.u32);
+        this.lastGpstime[this.next].u64 |= BigInt(this.dec.readInt());
         this.last = this.next;
         this.lastGpstimeDiff[this.last] = 0;
         this.multiExtremeCounter[this.last] = 0;

@@ -1,15 +1,10 @@
 import { U64I64F64 } from '../util';
-import {
-  ArithmeticModel,
-  IntegerCompressor,
-  LASWavePacket13,
-  LASZIP_GPSTIME_MULTIMAX,
-  LASpoint10,
-  LASrgba,
-} from '.';
+import { ArithmeticModel, IntegerCompressor, LASWavePacket13, LASpoint10, LASrgba } from '.';
 
 import type { Reader } from '../..';
 import type { ArithmeticDecoder, ItemReader, LAZContext } from '.';
+
+const LASZIP_GPSTIME_MULTIMAX = 512;
 
 /** Parse LAZ Point 1.0 */
 export class LAZPoint10v1Reader implements ItemReader {

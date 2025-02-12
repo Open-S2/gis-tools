@@ -22,14 +22,6 @@ export const LASZIP_DECOMPRESS_SELECTIVE_BYTE6 = 0x00400000;
 export const LASZIP_DECOMPRESS_SELECTIVE_BYTE7 = 0x00800000;
 export const LASZIP_DECOMPRESS_SELECTIVE_EXTRA_BYTES = 0xffff0000;
 
-export const LASZIP_GPSTIME_MULTIMAX = 512;
-
-export const LASZIP_GPSTIME_MULTI = 500;
-export const LASZIP_GPSTIME_MULTI_MINUS = -10;
-export const LASZIP_GPSTIME_MULTI_CODE_FULL = 511; // (LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 1)
-
-export const LASZIP_GPSTIME_MULTI_TOTAL = 515; // (LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 5)
-
 /**
  * for LAS files with the return (r) and the number (n) of
  * returns field correctly populated the mapping should really

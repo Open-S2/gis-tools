@@ -144,7 +144,7 @@ export class DataBaseFile {
    */
   #parseValue(offset: number, len: number, type: string) {
     const { reader } = this;
-    const textData = reader.parseString(offset, len);
+    const textData = reader.parseString(offset, len).trim();
 
     switch (type) {
       case 'N':

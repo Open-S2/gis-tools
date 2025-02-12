@@ -1,4 +1,4 @@
-import { U32I32F32, U64I64F64 } from '../util';
+import { U32I32F32 } from '../util';
 
 import type { Reader } from '../..';
 
@@ -84,13 +84,12 @@ export class ArithmeticDecoder {
       if (sym !== m.lastSymbol) y = m.distribution[sym + 1] * this.length;
     } else {
       // decode using only multiplications
-
       x = sym = 0;
       this.length = Math.trunc(this.length >>> DM__LengthShift);
       let k = Math.trunc((n = m.symbols) >>> 1);
       // decode via bisection search
       do {
-        const z = this.length * m.distribution[k];
+        const z = (this.length * m.distribution[k]) >>> 0;
         if (z > this.value) {
           n = k;
           y = z; // value is smaller
@@ -98,7 +97,7 @@ export class ArithmeticDecoder {
           sym = k;
           x = z; // value is larger or equal
         }
-      } while ((k = Math.trunc(sym + n) >> 1) !== sym);
+      } while ((k = Math.trunc(sym + n) >>> 1) !== sym);
     }
 
     this.value -= x; // update interval
@@ -113,17 +112,17 @@ export class ArithmeticDecoder {
     return sym;
   }
 
-  /** @returns - The decoded bit */
-  readBit(): number {
-    this.length = Math.trunc(this.length >>> 1);
-    const sym = Math.trunc(this.value / this.length); // decode symbol, change length
-    this.value -= this.length * sym; // update interval
+  // /** @returns - The decoded bit */
+  // readBit(): number {
+  //   this.length = Math.trunc(this.length >>> 1);
+  //   const sym = Math.trunc(this.value / this.length); // decode symbol, change length
+  //   this.value -= this.length * sym; // update interval
 
-    if (this.length < AC__MinLength) this.renormDecInterval(); // renormalization
-    if (sym >= 2) throw new Error('4711');
+  //   if (this.length < AC__MinLength) this.renormDecInterval(); // renormalization
+  //   if (sym >= 2) throw new Error('4711');
 
-    return sym;
-  }
+  //   return sym;
+  // }
 
   /**
    * @param bits - The number of bits
@@ -149,17 +148,17 @@ export class ArithmeticDecoder {
     return sym;
   }
 
-  /** @returns - The decoded byte */
-  readByte(): number {
-    this.length = Math.trunc(this.length >>> 8);
-    const sym = Math.trunc(this.value / this.length); // decode symbol, change length
-    this.value -= this.length * sym; // update interval
+  // /** @returns - The decoded byte */
+  // readByte(): number {
+  //   this.length = Math.trunc(this.length >>> 8);
+  //   const sym = Math.trunc(this.value / this.length); // decode symbol, change length
+  //   this.value -= this.length * sym; // update interval
 
-    if (this.length < AC__MinLength) this.renormDecInterval(); // renormalization
-    if (sym >= 1 << 8) throw new Error('4711');
+  //   if (this.length < AC__MinLength) this.renormDecInterval(); // renormalization
+  //   if (sym >= 1 << 8) throw new Error('4711');
 
-    return sym;
-  }
+  //   return sym;
+  // }
 
   /** @returns - The decoded short */
   readShort(): number {
@@ -180,12 +179,12 @@ export class ArithmeticDecoder {
     return ((upperInt * 65_536) | lowerInt) >>> 0;
   }
 
-  /** @returns - The decoded float */
-  readFloat(): number {
-    /* danger in float reinterpretation */
-    const u32i32f32 = new U32I32F32(this.readInt(), 'u32');
-    return u32i32f32.f32;
-  }
+  // /** @returns - The decoded float */
+  // readFloat(): number {
+  //   /* danger in float reinterpretation */
+  //   const u32i32f32 = new U32I32F32(this.readInt(), 'u32');
+  //   return u32i32f32.f32;
+  // }
 
   /** @returns - The decoded int64 */
   readInt64(): bigint {
@@ -194,15 +193,15 @@ export class ArithmeticDecoder {
     return (BigInt(upperInt) << 32n) | BigInt(lowerInt);
   }
 
-  /** @returns - The decoded double */
-  readDouble(): number {
-    /* danger in float reinterpretation */
-    const lowerInt = this.readInt();
-    const upperInt = this.readInt();
-    const u64 = (BigInt(upperInt) << 32n) | BigInt(lowerInt);
-    const u64i64f64 = new U64I64F64(u64, 'u64');
-    return u64i64f64.f64;
-  }
+  // /** @returns - The decoded double */
+  // readDouble(): number {
+  //   /* danger in float reinterpretation */
+  //   const lowerInt = this.readInt();
+  //   const upperInt = this.readInt();
+  //   const u64 = (BigInt(upperInt) << 32n) | BigInt(lowerInt);
+  //   const u64i64f64 = new U64I64F64(u64, 'u64');
+  //   return u64i64f64.f64;
+  // }
 
   /** Renormalize the decoder interval */
   renormDecInterval(): void {
@@ -242,13 +241,14 @@ export class ArithmeticModel {
   /** @param table - The table */
   init(table?: number[]): void {
     if (this.distribution.length === 0) {
-      if (this.symbols < 2 || this.symbols > 1 << 11) throw Error('invalid number of symbols');
+      // 2048 === (1 << 11)
+      if (this.symbols < 2 || this.symbols > 2_048) throw Error('invalid number of symbols');
       this.lastSymbol = this.symbols - 1;
       if (!this.compress && this.symbols > 16) {
-        let table_bits = 3;
-        while (this.symbols > 1 << (table_bits + 2)) ++table_bits;
-        this.tableSize = 1 << table_bits;
-        this.tableShift = DM__LengthShift - table_bits;
+        let tableBits = 3;
+        while (this.symbols > 1 << (tableBits + 2)) ++tableBits;
+        this.tableSize = 1 << tableBits;
+        this.tableShift = DM__LengthShift - tableBits;
         this.distribution = new Array(2 * this.symbols + this.tableSize + 2);
         this.decoderTableIndex = 2 * this.symbols;
       } else {
@@ -268,7 +268,7 @@ export class ArithmeticModel {
     else for (let k = 0; k < this.symbols; k++) this.distribution[this.symbolCountIndex + k] = 1;
 
     this.update();
-    this.symbolsUntilUpdate = this.updateCycle = (this.symbols + 6) >> 1;
+    this.symbolsUntilUpdate = this.updateCycle = (this.symbols + 6) >>> 1;
   }
 
   /** Update the model */
@@ -291,14 +291,14 @@ export class ArithmeticModel {
 
     if (this.compress || this.tableSize === 0) {
       for (k = 0; k < this.symbols; k++) {
-        this.distribution[k] = Math.trunc((scale * sum) >>> (31 - DM__LengthShift));
+        this.distribution[k] = (scale * sum) >>> (31 - DM__LengthShift);
         sum += this.distribution[this.symbolCountIndex + k];
       }
     } else {
       for (k = 0; k < this.symbols; k++) {
-        this.distribution[k] = Math.trunc((scale * sum) >>> (31 - DM__LengthShift));
+        this.distribution[k] = (scale * sum) >>> (31 - DM__LengthShift);
         sum += this.distribution[this.symbolCountIndex + k];
-        const w = Math.trunc(this.distribution[k] >>> this.tableShift);
+        const w = this.distribution[k] >>> this.tableShift;
         while (s < w) this.distribution[this.decoderTableIndex + ++s] = k - 1;
       }
       this.distribution[this.decoderTableIndex] = 0;
@@ -307,9 +307,9 @@ export class ArithmeticModel {
     }
 
     // set frequency of model updates
-    this.updateCycle = Math.trunc((5 * this.updateCycle) >>> 2);
-    const max_cycle = (this.symbols + 6) << 3;
-    if (this.updateCycle > max_cycle) this.updateCycle = max_cycle;
+    this.updateCycle = (5 * this.updateCycle) >>> 2;
+    const maxCycle = (this.symbols + 6) << 3;
+    if (this.updateCycle > maxCycle) this.updateCycle = maxCycle;
     this.symbolsUntilUpdate = this.updateCycle;
   }
 }

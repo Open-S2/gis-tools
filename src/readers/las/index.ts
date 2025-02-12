@@ -9,17 +9,22 @@ import {
   LAZPoint10v1Reader,
   LAZPoint10v2Reader,
   LAZPoint14v3Reader,
+  LAZPoint14v4Reader,
   LAZbyte10v1Reader,
   LAZbyte10v2Reader,
   LAZbyte14v3Reader,
+  LAZbyte14v4Reader,
   LAZgpstime11v1Reader,
   LAZgpstime11v2Reader,
   LAZrgb12v1Reader,
   LAZrgb12v2Reader,
   LAZrgb14v3Reader,
+  LAZrgb14v4Reader,
   LAZrgbNir14v3Reader,
+  LAZrgbNir14v4Reader,
   LAZwavepacket13v1Reader,
   LAZwavepacket14v3Reader,
+  LAZwavepacket14v4Reader,
   modifyPoint14RawInput,
 } from './laz';
 import { LAZCompressor, LAZHeaderItemType } from './types';
@@ -27,11 +32,15 @@ import { Transformer, buildParamsFromGeoKeys, parseGeotiffRawGeoKeys, toReader }
 import {
   getPointFormat0,
   getPointFormat1,
+  getPointFormat10,
   getPointFormat2,
   getPointFormat3,
+  getPointFormat4,
+  getPointFormat5,
   getPointFormat6,
   getPointFormat7,
   getPointFormat8,
+  getPointFormat9,
 } from './getPoint';
 
 import type {
@@ -55,12 +64,10 @@ import type {
   LAZHeaderItem,
 } from './types';
 
+export * from './getPoint';
 export * from './types';
 
 const U32_MAX = 4294967295;
-
-/** Cleaned up type for getPoint */
-type GetPointParams = [Reader, LASHeader, number];
 
 /**
  * # LAS Reader
@@ -70,11 +77,22 @@ type GetPointParams = [Reader, LASHeader, number];
  * [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
  * Implements the {@link FeatureIterator} interface
  *
- * Data is stored like so: (EOF is a LAZ optional field and not used by LAS)
+ * Data is stored like so:
  *```
  * |            PUBLIC HEADER BLOCK           |
  * |          VARIABLE LENGTH RECORDS         |
  * |             POINT DATA RECORDS           |
+ * ```
+ *
+ * ## Usage
+ * ```ts
+ * import { LASReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
+ *
+ * const reader = new LASReader(new FileReader('./data.las'));
+ * for (const feature of reader) {
+ *   console.log(feature);
+ * }
  * ```
  *
  * ## Links
@@ -102,12 +120,14 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
    * @param definitions - an array of projection definitions for the transformer if needed
    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
    * @param gridStores - an array of grid readers if needed
+   * @param dontTransform - if you set to true, the source projection is kept
    */
   constructor(
     input: ReaderInputs,
     definitions: ProjectionTransformDefinition[] = [],
     epsgCodes: Record<string, string> = {},
     gridStores: GridReader[] = [],
+    readonly dontTransform = false,
   ) {
     this.reader = toReader(input);
     this.header = this.#parseHeader();
@@ -140,23 +160,22 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
     const { reader, header } = this;
     const { offsetToPoints, pointDataFormatID: format, pointDataRecordLength } = header;
     const offset = offsetToPoints + index * pointDataRecordLength;
-    // const format = pointDataFormatID > 127 ? pointDataFormatID - 128 : pointDataFormatID;
-    const params: GetPointParams = [reader, header, offset];
+    const item = reader.slice(offset, offset + pointDataRecordLength);
     let point: VectorPointM<LASFormat>;
-    if (format === 0) point = getPointFormat0(...params);
-    else if (format === 1) point = getPointFormat1(...params);
-    else if (format === 2) point = getPointFormat2(...params);
-    else if (format === 3) point = getPointFormat3(...params);
-    else if (format === 6) point = getPointFormat6(...params);
-    else if (format === 7) point = getPointFormat7(...params);
-    else if (format === 8) point = getPointFormat8(...params);
-    else if (format === 4 || format === 5 || format === 9 || format === 10)
-      throw new Error(
-        `Format ${format} is not implemented because waveform data was dropped by 1.4+ specs`,
-      );
+    if (format === 0) point = getPointFormat0(item, header);
+    else if (format === 1) point = getPointFormat1(item, header);
+    else if (format === 2) point = getPointFormat2(item, header);
+    else if (format === 3) point = getPointFormat3(item, header);
+    else if (format === 4) point = getPointFormat4(item, header);
+    else if (format === 5) point = getPointFormat5(item, header);
+    else if (format === 6) point = getPointFormat6(item, header);
+    else if (format === 7) point = getPointFormat7(item, header);
+    else if (format === 8) point = getPointFormat8(item, header);
+    else if (format === 9) point = getPointFormat9(item, header);
+    else if (format === 10) point = getPointFormat10(item, header);
     else throw new Error(`Unknown Point Data Format ID: ${format}`);
 
-    point = this.transformer.forward(point) as VectorPointM<LASFormat>;
+    if (!this.dontTransform) point = this.transformer.forward(point) as VectorPointM<LASFormat>;
     return point;
   }
 
@@ -230,14 +249,17 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
       extendedVariableLengthRecordOffset: 0,
       extendedVariableLengthSize: 0,
     };
-    // 1.4 or later supports wave packets
-    if (header.headerSize > 227) {
+    // 1.4 or later supports larger headers
+    if (header.headerSize > 227)
       header.waveformDataPacketOffset = Number(reader.getBigUint64(227, true));
+    if (header.headerSize > 235)
       header.extendedVariableLengthRecordOffset = reader.getUint32(235, true);
+    if (header.headerSize > 239)
       header.extendedVariableLengthSize = Number(reader.getBigUint64(239, true));
-      // re-adjust numPoints and numPointsByReturn
-      header.numPoints = reader.getUint32(247, true);
-      // 15 times
+    // re-adjust numPoints and numPointsByReturn if header includes modern numPoints variable
+    if (header.headerSize > 247) header.numPoints = reader.getUint32(247, true);
+    // set new numPointsByReturn if header includes
+    if (header.headerSize > 251) {
       let curOffset = 251;
       header.numPointsByReturn = [];
       for (let i = 0; i < 15; i++) {
@@ -381,6 +403,17 @@ export interface LAZPointData {
  * |  Field Chunk table start position (EOF)  |
  * ```
  *
+ * ## Usage
+ * ```ts
+ * import { LASZipReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
+ *
+ * const reader = new LASZipReader(new FileReader('./data.laz'));
+ * for (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ *
  * ## Links
  * - https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online
  * - https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf
@@ -399,15 +432,13 @@ export class LASZipReader extends LASReader {
   // number of points per chunk
   // #numReaders = 0;
   #chunkSize = U32_MAX; // U32
-  // #chunkCount = 0; // U32
-  // #currChunk = 0; // U32
+  #chunkCount = 0; // U32
+  #currChunk = 0; // U32
   #numberChunks = 0; // U32
-  // TODO: Remove this
-  // eslint-disable-next-line no-unused-private-class-members
   #tabledChunks = 0; // U32
   #chunkTotals: number[] = []; // U32
   #chunkStarts: number[] = []; // I64
-  // #pointStart = 0; // I64
+  #pointStart = 0; // I64
   // #pointSize = 0; // U32
   // #seekPoint = 0;
   // #readersRaw: any[] = [];
@@ -419,26 +450,27 @@ export class LASZipReader extends LASReader {
    * @param definitions - an array of projection definitions for the transformer if needed
    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
    * @param gridStores - an array of grid readers if needed
+   * @param dontTransform - if you set to true, the source projection is kept
    */
   constructor(
     input: ReaderInputs,
     definitions: ProjectionTransformDefinition[] = [],
     epsgCodes: Record<string, string> = {},
     gridStores?: GridReader[],
+    dontTransform = false,
   ) {
     // setup header variables and VLRs
-    super(input, definitions, epsgCodes, gridStores);
+    super(input, definitions, epsgCodes, gridStores, dontTransform);
     this.lazHeader = this.#buildLaz();
     this.#parseExtendedVariableLengthRecords();
     // prep decoder
     if (this.lazHeader.coder !== 0) throw Error(`Unsupported decoder: ${this.lazHeader.coder}`);
     // setup other decoding variables
     this.layeredLas14Compression = this.lazHeader.compressor === LAZCompressor.LAYERED_AND_CHUNKED;
-    // this.#chunkCount = this.lazHeader.chunkSize;
     if (this.lazHeader.compressor !== LAZCompressor.POINTWISE) {
+      this.#chunkCount = this.lazHeader.chunkSize;
       if (this.lazHeader.chunkSize !== 0) this.#chunkSize = this.lazHeader.chunkSize;
       this.#numberChunks = U32_MAX;
-      this.#readChunkTable();
     }
   }
 
@@ -447,17 +479,13 @@ export class LASZipReader extends LASReader {
    * @yields {VectorFeature}
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<undefined, LASFormat, Properties>> {
-    const startPos =
-      this.header.offsetToPoints + (this.lazHeader.compressor !== LAZCompressor.POINTWISE ? 8 : 0);
     const numPoints = this.length;
     if (numPoints === 0) return;
     // set pos
-    this.reader.seek(startPos);
+    this.reader.seek(this.header.offsetToPoints);
     // init all readers
     for (let i = 0; i < numPoints; i++) {
-      // console.log('i', i, this.reader.tell(), this.#chunkStarts);
-      // if (i > 2) break;
-      const coordinates = this.#readPoint(i === 0);
+      const coordinates = this.#readPoint();
       yield {
         type: 'VectorFeature',
         geometry: {
@@ -505,13 +533,11 @@ export class LASZipReader extends LASReader {
     if (isCompressed) this.#dec = new ArithmeticDecoder(this.reader);
     // Parse items
     for (let i = 0; i < header.numItems; i++) {
-      const item: LAZHeaderItem = {
+      header.items.push({
         type: rawHeader.getUint16(34 + i * 6, true) as LAZHeaderItemType,
         size: rawHeader.getUint16(36 + i * 6, true),
         version: rawHeader.getUint16(38 + i * 6, true),
-      };
-      header.items.push(item);
-      if (isCompressed) this.#readers.push(this.#getPointCompressedReader(item));
+      });
     }
 
     return header;
@@ -538,20 +564,20 @@ export class LASZipReader extends LASReader {
       if (version === 1) return new LAZbyte10v1Reader(this.#dec!, size);
       else if (version === 2) return new LAZbyte10v2Reader(this.#dec!, size);
     } else if (type === LAZHeaderItemType.POINT14) {
-      // TODO: V4
       if (version === 3) return new LAZPoint14v3Reader(this.#dec!);
+      else if (version === 4) return new LAZPoint14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.RGB14) {
-      // TODO: V4
       if (version === 3) return new LAZrgb14v3Reader(this.#dec!);
+      else if (version === 4) return new LAZrgb14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.RGBNIR14) {
-      // TODO: V4
       if (version === 3) return new LAZrgbNir14v3Reader(this.#dec!);
+      else if (version === 4) return new LAZrgbNir14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.WAVEPACKET14) {
-      // TODO: V4
       if (version === 3) return new LAZwavepacket14v3Reader(this.#dec!);
+      else if (version === 4) return new LAZwavepacket14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.BYTE14) {
-      // TODO: V4
       if (version === 3) return new LAZbyte14v3Reader(this.#dec!, size);
+      else if (version === 4) return new LAZbyte14v4Reader(this.#dec!, size);
     }
     throw Error(`Unsupported compressed point type: ${type} & version: ${version}`);
   }
@@ -567,14 +593,6 @@ export class LASZipReader extends LASReader {
    * The Extended Variable Length Records must be accessed sequentially, since the size of each
    * variable length record is contained in the Extended Variable Length Record Header. Each Extended
    * Variable Length Record Header (i.e. without the optional payload data) is 60 bytes in length.
-   *
-   * Each record is as follows:
-   * - Reserved unsigned short 2 bytes
-   * - User ID char[16] 16 bytes
-   * - Record ID unsigned short 2 bytes
-   * - Record Length After Header unsigned long long 8 bytes
-   * - Description char[32] 32 bytes
-   * - optional data: variable size
    */
   #parseExtendedVariableLengthRecords(): void {
     const { reader, lazHeader } = this;
@@ -596,24 +614,44 @@ export class LASZipReader extends LASReader {
     }
   }
 
-  /**
-   * @param uncompressed - true if the point data is raw and not compressed
-   * @returns - the next point
-   */
-  #readPoint(uncompressed: boolean): VectorPointM<LASFormat> {
-    // TODO: POINTWISE_AND_CHUNKED needs to use uncompressed section for each new chunk
+  /** @returns - the next point */
+  #readPoint(): VectorPointM<LASFormat> {
     const { compressor } = this.lazHeader;
     const pointData: LAZPointData[] = [];
     const context: LAZContext = { value: 0 };
     // no decoder means it wasn't compressed, just pull the point
+    const uncompressed = this.#setNextChunk();
+    this.#chunkCount++;
     if (uncompressed || compressor === LAZCompressor.NONE) {
       this.#firstChunkRead(context, pointData);
     } else this.#pointwiseCompressRead(pointData, context);
 
     let point = this.#toVectorPoint(pointData, this.header);
-    point = this.transformer.forward(point) as VectorPointM<LASFormat>;
-    // console.log('point', point);
+    if (!this.dontTransform) point = this.transformer.forward(point) as VectorPointM<LASFormat>;
     return point;
+  }
+
+  /**
+   * If we are at the end of the chunk, we need to set up the next chunk.
+   * @returns - true if we are starting a new chunk, false otherwise
+   */
+  #setNextChunk(): boolean {
+    if (this.#chunkCount === this.#chunkSize) {
+      if (this.#pointStart !== 0) this.#currChunk++;
+      this.#initDec();
+      if (this.#currChunk === this.#tabledChunks) {
+        // no or incomplete chunk table?
+        this.#chunkStarts[this.#tabledChunks] = this.#pointStart; // needs fixing
+        this.#tabledChunks++;
+      } else if (this.#chunkTotals.length > 0) {
+        // variable sized chunks?
+        this.#chunkSize =
+          this.#chunkTotals[this.#currChunk + 1] - this.#chunkTotals[this.#currChunk];
+      }
+      this.#chunkCount = 0;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -623,27 +661,27 @@ export class LASZipReader extends LASReader {
   #firstChunkRead(context: LAZContext, pointData: LAZPointData[]): void {
     const { items } = this.lazHeader;
     let i: number;
+    this.#readers = [];
     // first read in the raw data
     for (i = 0; i < items.length; i++) {
       const { type, size } = items[i];
+      this.#readers.push(this.#getPointCompressedReader(items[i]));
       let rawData = this.reader.seekSlice(size);
       if (type === LAZHeaderItemType.POINT14) rawData = modifyPoint14RawInput(rawData);
       pointData.push({ type, rawData });
     }
     // now choose how we initialize
     if (this.layeredLas14Compression) {
-      // set decoder
-      this.#dec?.init(false);
+      // set decoder and grap count size
+      this.#dec!.init(false);
       const _count = this.reader.getUint32(undefined);
-      // chunk sizes
-      for (i = 0; i < items.length; i++) this.#readers[i]?.chunkSizes(this.reader);
-      // init
-      for (i = 0; i < items.length; i++) this.#readers[i]?.init(pointData[i].rawData, context);
+      // chunk sizes then init
+      for (i = 0; i < items.length; i++) this.#readers[i]!.chunkSizes(this.reader);
+      for (i = 0; i < items.length; i++) this.#readers[i]!.init(pointData[i].rawData, context);
     } else {
-      // initialize readers
-      for (i = 0; i < items.length; i++) this.#readers[i]?.init(pointData[i].rawData, context);
-      // NOW set decoder
-      this.#dec?.init();
+      // initialize readers then init decoder
+      for (i = 0; i < items.length; i++) this.#readers[i]!.init(pointData[i].rawData, context);
+      this.#dec!.init();
     }
   }
 
@@ -685,45 +723,38 @@ export class LASZipReader extends LASReader {
     return res;
   }
 
-  // /**
-  //  *
-  //  */
-  // #initDec(): boolean {
-  //   // maybe read chunk table (only if chunking enabled)
-  //   if (this.#numberChunks === U32_MAX) {
-  //     if (!this.#readChunkTable()) return false;
-  //     this.#currChunk = 0;
-  //     if (this.#chunkTotals.length > 0) this.#chunkSize = this.#chunkTotals[1];
-  //   }
-
-  //   this.#pointStart = this.reader.tell();
-  //   // TODO: re-add here?
-  //   // this.#readers = [];
-
-  //   return true;
-  // }
+  /** Initialize decoder */
+  #initDec(): void {
+    // maybe read chunk table (only if chunking enabled)
+    if (this.#numberChunks === U32_MAX) {
+      this.#readChunkTable();
+      this.#currChunk = 0;
+      if (this.#chunkTotals.length > 0) this.#chunkSize = this.#chunkTotals[1];
+    }
+    this.#pointStart = this.reader.tell();
+  }
 
   /** If chunking is enabled, read the chunk table */
   #readChunkTable(): void {
-    const { offsetToPoints } = this.header;
-    let chunkTableStartPosition = Number(this.reader.getBigInt64(offsetToPoints, true));
+    const { reader } = this;
+    let chunkTableStartPosition = Number(reader.getBigInt64(undefined, true));
     // this is where the chunks start
-    const chunksStart = this.reader.tell(); // I64
+    const chunksStart = reader.tell(); // I64
 
     if (chunkTableStartPosition === -1) {
       // the compressor was writing to a non-seekable stream and wrote the chunk table start at the end
       // read the last 8 bytes
-      chunkTableStartPosition = Number(this.reader.getBigInt64(this.reader.byteLength - 8, true));
+      chunkTableStartPosition = Number(reader.getBigInt64(reader.byteLength - 8, true));
     }
 
     // read the chunk table
     // move to where the chunk table starts
-    this.reader.seek(chunkTableStartPosition);
+    reader.seek(chunkTableStartPosition);
     // fail if the version is wrong
-    const version = this.reader.getUint32(undefined, true);
+    const version = reader.getUint32(undefined, true);
     if (version !== 0) throw new Error('Bad version number. Aborting.');
     // build the chunk table
-    this.#numberChunks = this.reader.getUint32(undefined, true);
+    this.#numberChunks = reader.getUint32(undefined, true);
     this.#chunkTotals = [];
     // set chunk start and totals
     if (this.#chunkSize === U32_MAX) {
@@ -733,7 +764,7 @@ export class LASZipReader extends LASReader {
     this.#tabledChunks = 1;
     if (this.#numberChunks > 0) {
       let i: number;
-      this.#dec?.init();
+      this.#dec!.init();
       const ic = new IntegerCompressor(this.#dec!, 32, 2);
       ic.initDecompressor();
       for (i = 1; i <= this.#numberChunks; i++) {
@@ -747,5 +778,7 @@ export class LASZipReader extends LASReader {
         this.#chunkStarts[i] += this.#chunkStarts[i - 1];
       }
     }
+
+    reader.seek(chunksStart);
   }
 }

@@ -212,7 +212,7 @@ export class MMapReader implements Reader {
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
     this.cursor = byteOffset + byteLength;
     const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
-    return out.replace(/\0/g, '').trim();
+    return out.replace(/\0/g, '');
   }
 
   /**

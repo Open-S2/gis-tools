@@ -119,7 +119,7 @@ export class NewLineDelimitedJSONReader<
       const length = Math.min(65_536, reader.byteLength - cursor);
       // Prepend any partial line to the new chunk
       const chunk = partialLine + reader.parseString(offset, length);
-      partialLine = '';
+      partialLine = chunk.endsWith(this.seperator) ? this.seperator : '';
       // Split the chunk by newlines and yield each complete line
       const lines = chunk.split(this.seperator).filter((line) => line.length > 0);
       for (let i = 0; i < lines.length - 1; i++) {
@@ -128,14 +128,14 @@ export class NewLineDelimitedJSONReader<
         else yield feature;
       }
       // Store the remaining partial line for the next iteration
-      partialLine = lines[lines.length - 1];
+      partialLine = lines[lines.length - 1] + partialLine;
       // Update the cursor and offset
       offset += length;
       cursor += length;
     }
 
     // Yield any remaining partial line after the loop
-    if (partialLine.length > 0) {
+    if (partialLine.length > 1) {
       const feature: Features<M, D, P> = JSON.parse(partialLine);
       if (feature.type === 'Feature') yield toVector(feature, true);
       else yield feature;

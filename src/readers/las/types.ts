@@ -443,6 +443,7 @@ export interface LASFormat2 extends LASFormat0 {
 /**
  * Point Data Record Format 3 is the same as Point Data Record Format 2 with the addition of GPS
  * Time.
+ * https://github.com/ASPRSorg/LAS/wiki/Waveform-Data-Packet-Descriptors-Explained
  */
 export interface LASFormat3 extends LASFormat2 {
   /**
@@ -702,7 +703,7 @@ export interface LASFormat6 extends Properties {
   /**
    * 1 byte
    *
-   * ASPRS Standard LIDAR Point Classes (See {@link toLASClassification2})
+   * ASPRS Standard LIDAR Point Classes (See {@link toLASClassification14})
    */
   classification: string;
   /**

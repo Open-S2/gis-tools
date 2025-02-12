@@ -17,10 +17,6 @@ import {
   LASZIP_DECOMPRESS_SELECTIVE_USER_DATA,
   LASZIP_DECOMPRESS_SELECTIVE_WAVEPACKET,
   LASZIP_DECOMPRESS_SELECTIVE_Z,
-  LASZIP_GPSTIME_MULTI,
-  LASZIP_GPSTIME_MULTI_CODE_FULL,
-  LASZIP_GPSTIME_MULTI_MINUS,
-  LASZIP_GPSTIME_MULTI_TOTAL,
   LASpoint14,
   LASrgbaNir,
   StreamingMedian5,
@@ -31,6 +27,12 @@ import { U64I64F64, i16Quantize, i8Clamp, u32ZeroBit0, u8Clamp, u8Fold } from '.
 
 import type { Reader } from '../..';
 import { ItemReader, LASrgba, LAZContext } from '.';
+
+const LASZIP_GPSTIME_MULTI = 500;
+const LASZIP_GPSTIME_MULTI_MINUS = -10;
+const LASZIP_GPSTIME_MULTI_CODE_FULL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 1;
+
+const LASZIP_GPSTIME_MULTI_TOTAL = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 5;
 
 /** LAS Point 1.4 context */
 export class LAScontextPOINT14 {
@@ -131,7 +133,7 @@ export class LAScontextBYTE14 {
   mBytes: (ArithmeticModel | undefined)[] = [undefined];
 }
 
-/** Parse LAZ Point 1.4 */
+/** Parse LAZ Point 1.4v3 */
 export class LAZPoint14v3Reader implements ItemReader {
   /* streams */
   instreamChannelReturnsXY?: BufferReader;
@@ -180,7 +182,7 @@ export class LAZPoint14v3Reader implements ItemReader {
   changedUserData = false;
   changedPointSource = false;
   changedGpsTime = false;
-  bytes: DataView | undefined;
+  bytes?: DataView;
   numBytesAllocated = 0;
   currentContext = 0;
   contexts = [
@@ -476,47 +478,47 @@ export class LAZPoint14v3Reader implements ItemReader {
     // determine changed attributes
     const pointSourceChange = (changedValues & (1 << 5)) !== 0 ? true : false;
     const gpsTimeChange = (changedValues & (1 << 4)) !== 0 ? true : false;
-    const scanAngle_change = (changedValues & (1 << 3)) !== 0 ? true : false;
+    const scanAngleChange = (changedValues & (1 << 3)) !== 0 ? true : false;
     // get last return counts
-    const last_n = lastItem.numberOfReturns; // U32
-    const last_r = lastItem.returnNumber; // U32
+    const lastN = lastItem.numberOfReturns; // U32
+    const lastR = lastItem.returnNumber; // U32
     // if number of returns is different we decompress it
     let n: number; // U32
     if ((changedValues & (1 << 2)) !== 0) {
-      if (contexts[this.currentContext].mNumberOfReturns[last_n] === undefined) {
-        contexts[this.currentContext].mNumberOfReturns[last_n] = new ArithmeticModel(16);
-        contexts[this.currentContext].mNumberOfReturns[last_n]!.init();
+      if (contexts[this.currentContext].mNumberOfReturns[lastN] === undefined) {
+        contexts[this.currentContext].mNumberOfReturns[lastN] = new ArithmeticModel(16);
+        contexts[this.currentContext].mNumberOfReturns[lastN]!.init();
       }
       n = this.decChannelReturnsXY.decodeSymbol(
-        contexts[this.currentContext].mNumberOfReturns[last_n]!,
+        contexts[this.currentContext].mNumberOfReturns[lastN]!,
       );
       lastItem.numberOfReturns = n;
     } else {
-      n = last_n;
+      n = lastN;
     }
     // how is the return number different
     let r: number; // U32
     if ((changedValues & 3) === 0) {
       // same return number
-      r = last_r;
+      r = lastR;
     } else if ((changedValues & 3) === 1) {
       // return number plus 1 mod 16
-      r = (last_r + 1) % 16;
+      r = (lastR + 1) % 16;
       lastItem.returnNumber = r;
     } else if ((changedValues & 3) === 2) {
       // return number minus 1 mod 16
-      r = (last_r + 15) % 16;
+      r = (lastR + 15) % 16;
       lastItem.returnNumber = r;
     } else {
       // the return number difference is bigger than +1 / -1 so we decompress how it is different
       if (gpsTimeChange) {
         // if the GPS time has changed
-        if (contexts[this.currentContext].mReturnNumber[last_r] === undefined) {
-          contexts[this.currentContext].mReturnNumber[last_r] = new ArithmeticModel(16);
-          contexts[this.currentContext].mReturnNumber[last_r]!.init();
+        if (contexts[this.currentContext].mReturnNumber[lastR] === undefined) {
+          contexts[this.currentContext].mReturnNumber[lastR] = new ArithmeticModel(16);
+          contexts[this.currentContext].mReturnNumber[lastR]!.init();
         }
         r = this.decChannelReturnsXY.decodeSymbol(
-          contexts[this.currentContext].mReturnNumber[last_r]!,
+          contexts[this.currentContext].mReturnNumber[lastR]!,
         );
       } // if the GPS time has not changed
       else {
@@ -524,7 +526,7 @@ export class LAZPoint14v3Reader implements ItemReader {
         const sym = this.decChannelReturnsXY.decodeSymbol(
           contexts[this.currentContext].mReturnNumberGpsSame!,
         );
-        r = (last_r + (sym + 2)) % 16;
+        r = (lastR + (sym + 2)) % 16;
       }
       lastItem.returnNumber = r;
     }
@@ -550,7 +552,7 @@ export class LAZPoint14v3Reader implements ItemReader {
     // create single (3) / first (1) / last (2) / intermediate (0) return context for current point
     let cpr = r === 1 ? 2 : 0; // (I32) first ?
     cpr += r >= n ? 1 : 0; // last ?
-    let k_bits: number; // U32
+    let kBits: number; // U32
     let median: number, diff: number; // I32
     const decIndex = (m << 1) | (gpsTimeChange ? 1 : 0);
     // decompress X coordinate
@@ -560,9 +562,9 @@ export class LAZPoint14v3Reader implements ItemReader {
     contexts[this.currentContext].lastXDiffMedian5[decIndex]!.add(diff);
     // decompress Y coordinate
     median = contexts[this.currentContext].lastYDiffMedian5[decIndex]!.get();
-    k_bits = contexts[this.currentContext].icdX!.getK();
+    kBits = contexts[this.currentContext].icdX!.getK();
     diff = contexts[this.currentContext].icdY!.decompress(median, {
-      value: (n === 1 ? 1 : 0) + (k_bits < 20 ? u32ZeroBit0(k_bits) : 20),
+      value: (n === 1 ? 1 : 0) + (kBits < 20 ? u32ZeroBit0(kBits) : 20),
     });
     lastItem.y += diff;
     contexts[this.currentContext].lastYDiffMedian5[decIndex]!.add(diff);
@@ -571,13 +573,13 @@ export class LAZPoint14v3Reader implements ItemReader {
     ////////////////////////////////////////
     if (this.changedZ) {
       // if the Z coordinate should be decompressed and changes within this chunk
-      k_bits =
+      kBits =
         (contexts[this.currentContext].icdX!.getK() + contexts[this.currentContext].icdY!.getK()) /
         2;
       lastItem.z = contexts[this.currentContext].icZ!.decompress(
         contexts[this.currentContext].lastZ[l],
         {
-          value: (n === 1 ? 1 : 0) + (k_bits < 18 ? u32ZeroBit0(k_bits) : 18),
+          value: (n === 1 ? 1 : 0) + (kBits < 18 ? u32ZeroBit0(kBits) : 18),
         },
       );
       contexts[this.currentContext].lastZ[l] = lastItem.z;
@@ -587,8 +589,8 @@ export class LAZPoint14v3Reader implements ItemReader {
     ////////////////////////////////////////
     if (this.changedClassification) {
       // if the classification should be decompressed and changes within this chunk
-      const last_classification = lastItem.classification; // U32
-      const ccc = ((last_classification & 0x1f) << 1) + (cpr === 3 ? 1 : 0); // I32
+      const lastClassification = lastItem.classification; // U32
+      const ccc = ((lastClassification & 0x1f) << 1) + (cpr === 3 ? 1 : 0); // I32
       if (contexts[this.currentContext].mClassification[ccc] === undefined) {
         contexts[this.currentContext].mClassification[ccc] = new ArithmeticModel(256);
         contexts[this.currentContext].mClassification[ccc]!.init();
@@ -609,17 +611,17 @@ export class LAZPoint14v3Reader implements ItemReader {
     if (this.changedFlags) {
       // if the flags should be decompressed and change within this chunk
       // U32
-      const last_flags =
+      const lastFlags =
         (lastItem.edgeOfFlightLine << 5) |
         (lastItem.scanDirectionFlag << 4) |
         lastItem.classificationFlags;
-      if (contexts[this.currentContext].mFlags[last_flags] === undefined) {
-        contexts[this.currentContext].mFlags[last_flags] = new ArithmeticModel(64);
-        contexts[this.currentContext].mFlags[last_flags]!.init();
+      if (contexts[this.currentContext].mFlags[lastFlags] === undefined) {
+        contexts[this.currentContext].mFlags[lastFlags] = new ArithmeticModel(64);
+        contexts[this.currentContext].mFlags[lastFlags]!.init();
       }
-      const flags = this.decFlags.decodeSymbol(contexts[this.currentContext].mFlags[last_flags]!); // U32
-      lastItem.edgeOfFlightLine = flags & (1 << 5);
-      lastItem.scanDirectionFlag = flags & (1 << 4);
+      const flags = this.decFlags.decodeSymbol(contexts[this.currentContext].mFlags[lastFlags]!); // U32
+      lastItem.edgeOfFlightLine = (flags & (1 << 5)) !== 0 ? 1 : 0;
+      lastItem.scanDirectionFlag = (flags & (1 << 4)) !== 0 ? 1 : 0;
       lastItem.classificationFlags = flags & 0x0f;
       // legacy copies
       lastItem.legacyFlags = flags & 0x07;
@@ -642,7 +644,7 @@ export class LAZPoint14v3Reader implements ItemReader {
     ////////////////////////////////////////
     if (this.changedScanAngle) {
       // if the scan angle should be decompressed and changes within this chunk
-      if (scanAngle_change) {
+      if (scanAngleChange) {
         // if the scan angle has actually changed
         lastItem.scanAngle = contexts[this.currentContext].icScanAngle!.decompress(
           lastItem.scanAngle,
@@ -655,7 +657,7 @@ export class LAZPoint14v3Reader implements ItemReader {
     // decompress userData layer (if changed and requested)
     ////////////////////////////////////////
     if (this.changedUserData) {
-      const index = Math.floor(lastItem.userData / 4);
+      const index = Math.trunc(lastItem.userData / 4);
       // if the user data should be decompressed and changes within this chunk
       if (contexts[this.currentContext].mUserData[index] === undefined) {
         contexts[this.currentContext].mUserData[index] = new ArithmeticModel(256);
@@ -850,35 +852,23 @@ export class LAZPoint14v3Reader implements ItemReader {
 
       contexts[context].icZ = new IntegerCompressor(this.decZ, 32, 20); // 32 bits, 20 contexts
 
-      /* for the classification layer */
-      /* for the flags layer */
-      /* for the userData layer */
+      /* for the classification layer, flags layer, and userData layer */
       for (i = 0; i < 64; i++) {
         contexts[context].mClassification[i] = undefined;
         contexts[context].mFlags[i] = undefined;
         contexts[context].mUserData[i] = undefined;
       }
-
       /* for the intensity layer */
-
       contexts[context].icIntensity = new IntegerCompressor(this.decIntensity, 16, 4);
-
       /* for the scanAngle layer */
-
       contexts[context].icScanAngle = new IntegerCompressor(this.decScanAngle, 16, 2);
-
       /* for the pointSourceID layer */
-
       contexts[context].icPointSourceID = new IntegerCompressor(this.decPointSource, 16);
-
       /* for the gpsTime layer */
-
       contexts[context].mGpstimeMulti = new ArithmeticModel(LASZIP_GPSTIME_MULTI_TOTAL);
       contexts[context].mGpstime0diff = new ArithmeticModel(5);
       contexts[context].icGpstime = new IntegerCompressor(this.decGpsTime, 32, 9); // 32 bits, 9 contexts
     }
-
-    /* then init entropy models and integer compressors */
 
     /* for the channel_returns_XY layer */
     for (i = 0; i < 8; i++) contexts[context].mChangedValues[i]!.init();
@@ -896,18 +886,12 @@ export class LAZPoint14v3Reader implements ItemReader {
       contexts[context].lastXDiffMedian5[i]!.init();
       contexts[context].lastYDiffMedian5[i]!.init();
     }
-
     /* for the Z layer */
-
     contexts[context].icZ!.initDecompressor();
     for (i = 0; i < 8; i++) {
       contexts[context].lastZ[i] = item.z;
     }
-
-    /* for the classification layer */
-    /* for the flags layer */
-    /* for the userData layer */
-
+    /* for the classification layer, flags layer, and userData layer */
     for (i = 0; i < 64; i++) {
       if (contexts[context].mClassification[i] !== undefined)
         contexts[context].mClassification[i]!.init();
@@ -916,22 +900,15 @@ export class LAZPoint14v3Reader implements ItemReader {
     }
 
     /* for the intensity layer */
-
     this.contexts[context].icIntensity!.initDecompressor();
     for (i = 0; i < 8; i++) {
       contexts[context].lastIntensity[i] = item.intensity;
     }
-
     /* for the scanAngle layer */
-
     this.contexts[context].icScanAngle!.initDecompressor();
-
     /* for the pointSourceID layer */
-
     this.contexts[context].icPointSourceID!.initDecompressor();
-
     /* for the gpsTime layer */
-
     contexts[context].mGpstimeMulti!.init();
     contexts[context].mGpstime0diff!.init();
     this.contexts[context].icGpstime!.initDecompressor();
@@ -949,15 +926,9 @@ export class LAZPoint14v3Reader implements ItemReader {
     contexts[context].lastGpstime[1].u64 = 0;
     contexts[context].lastGpstime[2].u64 = 0;
     contexts[context].lastGpstime[3].u64 = 0;
-
     /* init current context from last item */
-
-    // memcpy(contexts[context].lastItem, item, sizeof(LASpoint14));
     item.copyTo(contexts[context].lastItem, 45);
-    const lastItemPoint = new LASpoint14(contexts[context].lastItem);
-    lastItemPoint.gpsTimeChange = 0;
-    // ((LASpoint14*)contexts[context].lastItem).gpsTimeChange = false;
-
+    new LASpoint14(contexts[context].lastItem).gpsTimeChange = 0;
     contexts[context].unused = false;
   }
 }
@@ -986,7 +957,7 @@ export class LAZrgb14v3Reader implements ItemReader {
     readonly dec: ArithmeticDecoder,
     readonly decompressSelective = LASZIP_DECOMPRESS_SELECTIVE_ALL,
   ) {
-    this.requestedRGB = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_RGB) !== 0;
+    this.requestedRGB = Boolean(decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_RGB);
     /* mark the four scanner channel contexts as uninitialized */
     for (let c = 0; c < 4; c++) this.contexts[c].mByteUsed = undefined;
   }
@@ -1135,10 +1106,8 @@ export class LAZrgb14v3Reader implements ItemReader {
     contexts[context].mRgbDiff3!.init();
     contexts[context].mRgbDiff4!.init();
     contexts[context].mRgbDiff5!.init();
-
     /* init current context from item */
     item.copyTo(contexts[context].lastItem, 6);
-
     contexts[context].unused = false;
   }
 }
@@ -1247,9 +1216,7 @@ export class LAZrgbNir14v3Reader implements ItemReader {
       this.changedNIR = false;
     }
     /* mark the four scanner channel contexts as unused */
-    for (let c = 0; c < 4; c++) {
-      this.contexts[c].unused = true;
-    }
+    for (let c = 0; c < 4; c++) this.contexts[c].unused = true;
     /* set scanner channel as current context */
     this.currentContext = context.value; // all other items use context set by POINT14 reader
     /* create and init models and decompressors */
@@ -1677,7 +1644,6 @@ export class LAZbyte14v3Reader implements ItemReader {
     for (let c = 0; c < 4; c++) this.contexts[c].unused = true;
     /* set scanner channel as current context */
     this.currentContext = context.value; // all other items use context set by POINT14 reader
-
     /* create and init models and decompressors */
     this.#createAndInitModelsAndDecompressors(this.currentContext, item);
   }
@@ -1728,7 +1694,6 @@ export class LAZbyte14v3Reader implements ItemReader {
         contexts[context].mBytes[i] = new ArithmeticModel(256);
         contexts[context].mBytes[i]!.init();
       }
-
       /* create last item */
       contexts[context].lastItem = new DataView(new ArrayBuffer(this.number));
     }

@@ -1,4 +1,4 @@
-import { toLASClassification, toLASClassification2, toLASClassificationFlag } from '../getPoint';
+import { toLASClassification, toLASClassification14, toLASClassificationFlag } from '../getPoint';
 
 import type { LASFormat, LASHeader, VectorPointM } from '../../..';
 import { i16Quantize, i8Clamp } from '../util';
@@ -539,7 +539,7 @@ export class LASpoint14 extends CopyDataView {
     point.m.numberOfReturns = lasPoint14.legacyNumberOfReturns;
     point.m.scanDirectionFlag = lasPoint14.scanDirectionFlag;
     point.m.edgeOfFlightLine = lasPoint14.edgeOfFlightLine;
-    point.m.classification = toLASClassification2(lasPoint14.classification);
+    point.m.classification = toLASClassification14(lasPoint14.classification);
     point.m.classificationFlag = toLASClassificationFlag(lasPoint14.classificationFlags);
     point.m.isSynthetic = lasPoint14.isSynthetic;
     point.m.isKeyPoint = lasPoint14.isKeyPoint;

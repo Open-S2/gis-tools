@@ -109,6 +109,7 @@ export function getPointFormat3(
 
 /**
  * Reads a point using the Point Data Record Format 4
+ * https://github.com/ASPRSorg/LAS/wiki/Waveform-Data-Packet-Descriptors-Explained
  * @param reader - data reader, works like a DataView
  * @param header - las header
  * @param offset - where to start reading in the point data
@@ -186,7 +187,7 @@ export function getPointFormat6(
       scannerChannel: (bits2 & 0b00110000) >> 4, // 2 bits (bit 4 - 5)
       scanDirectionFlag: (bits2 & 0b01000000) >> 6, // 1 bit (bit 6)
       edgeOfFlightLine: (bits2 & 0b10000000) >> 7, // 1 bit (bit 7)
-      classification: toLASClassification2(reader.getUint8(offset + 16)),
+      classification: toLASClassification14(reader.getUint8(offset + 16)),
       userData: reader.getUint8(offset + 17),
       scanAngle: reader.getInt16(offset + 18, littleEndian),
       pointSourceID: reader.getUint16(offset + 20, littleEndian),
@@ -235,7 +236,7 @@ export function getPointFormat8(
   littleEndian = true,
 ): VectorPointM<LASFormat6_10> {
   const point = getPointFormat7(reader, header, offset, littleEndian);
-  point.m.nir = reader.getUint16(offset + 38, littleEndian);
+  point.m.nir = reader.getUint16(offset + 36, littleEndian);
   return point;
 }
 
@@ -326,11 +327,11 @@ export function toLASClassificationFlag(classFlag: number): string {
 }
 
 /**
- * Converts a number into a LASClassification
+ * Converts a number into a LASClassification v1.4
  * @param classification - the number
  * @returns - the LASClassification
  */
-export function toLASClassification2(classification: number): string {
+export function toLASClassification14(classification: number): string {
   if (classification === 0) return 'Created, Never Classified';
   if (classification === 1) return 'Unclassified';
   if (classification === 2) return 'Ground';

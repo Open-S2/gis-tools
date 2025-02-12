@@ -150,7 +150,7 @@ export class NetCDFReader<
   constructor(input: ReaderInputs, options?: NetCDFReaderOptions) {
     this.reader = toReader(input);
     // Validate that it's a NetCDF file
-    const magic = this.reader.parseString(0, 3);
+    const magic = this.reader.parseString(0, 3).trim();
     if (magic !== 'CDF') throw new TypeError('Not a valid NetCDF file: should start with CDF');
     // Check the NetCDF format
     this.is64 = this.reader.getUint8(3) === 1 ? false : true;
@@ -375,7 +375,7 @@ export class NetCDFReader<
    */
   #getName() {
     const nameLength = this.#getU32();
-    const name = this.reader.parseString(this.#cursor, nameLength);
+    const name = this.reader.parseString(this.#cursor, nameLength).trim();
     this.#cursor += nameLength;
     this.#padding();
     return name;
@@ -395,7 +395,7 @@ export class NetCDFReader<
         this.#cursor++;
       }
     } else if (type === CDFDataType.CHAR) {
-      res = this.reader.parseString(this.#cursor, size);
+      res = this.reader.parseString(this.#cursor, size).trim();
       this.#cursor += size;
     } else if (
       type === CDFDataType.SHORT ||
