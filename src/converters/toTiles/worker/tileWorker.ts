@@ -19,7 +19,7 @@ import type {
   OnFeature,
   StringifiedLayerGuide,
   VectorLayer,
-} from '../..';
+} from '../types';
 import type { GridInput, ImageDataInput, S2JSONLayerMap } from 'open-vector-tile';
 
 /** Take in options that will be used to create a tiled data correctly */
