@@ -82,9 +82,9 @@ export class GeoTIFFReader
       this.reader,
       this.imageDirectories[index],
       this.littleEndian,
-      this.gridStore,
       this.definitions,
       this.epsgCodes,
+      this.gridStore,
     );
   }
 

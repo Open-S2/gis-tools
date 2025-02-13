@@ -54,17 +54,17 @@ export class GeoTIFFImage {
    * @param reader - the reader containing the input data
    * @param imageDirectory - the image directory
    * @param littleEndian - true if little endian false if big endian
-   * @param gridStore - the grid readers to utilize if needed
    * @param definitions - an array of projection definitions for the transformer if needed
    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
+   * @param gridStore - the grid readers to utilize if needed
    */
   constructor(
     reader: Reader,
     imageDirectory: ImageFileDirectory,
     littleEndian: boolean,
-    gridStore: GridReader[],
     definitions: ProjectionTransformDefinition[] = [],
     epsgCodes: Record<string, string> = {},
+    gridStore: GridReader[],
   ) {
     this.#reader = reader;
     this.#imageDirectory = imageDirectory;
@@ -74,9 +74,9 @@ export class GeoTIFFImage {
       this.#planarConfiguration = imageDirectory.PlanarConfiguration;
     this.#transformer = buildTransformFromGeoKeys(
       this.#imageDirectory.GeoKeyDirectory,
-      gridStore,
       definitions,
       epsgCodes,
+      gridStore,
     );
   }
 

@@ -3,7 +3,7 @@ import { parseProj } from './parseCode';
 import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, EPSG_CODES, WGS84 } from './projections';
 import { checkNotWGS, datumTransform } from './datum';
 
-import type { MValue, VectorPoint, VectorPointM } from '../geometry';
+import type { GridReader, MValue, VectorPoint, VectorPointM } from '..';
 import type {
   ProjectionParams,
   ProjectionTransform,
@@ -55,12 +55,8 @@ import type {
  * ```ts
  * import { Transformer, HotineObliqueMercator, EPSG_8803 } from 'gis-tools-ts';
  *
- * const transform = new Transformer();
- * transform.insertDefinition(HotineObliqueMercator);
- * transform.insertEPSGCode('EPSG_8803', EPSG_8803);
- *
- * transform.setDestination('EPSG_8803');
- *
+ * const transform = new Transformer(undefined, 'EPSG_8803', [HotineObliqueMercator], { EPSG_8803 });
+ * // example moving from WGS84 to EPSG:8803
  * const forward = transform.forward({ x: 60.8, y: -132.2 });
  * ```
  */
@@ -78,11 +74,22 @@ export class Transformer extends NadGridStore {
    * Prepares default definitions, source transform, and destination transform
    * @param sourceCode - convenience: if provided, we run `this.setSource(sourceCode)` immediately
    * @param destCode - convenience: if provided, we run `this.setDestination(destCode)` immediately
+   * @param definitions - an array of projection definitions for the transformer if needed
+   * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
+   * @param gridStore - the grid readers
    */
-  constructor(sourceCode?: string | ProjectionParams, destCode?: string | ProjectionParams) {
+  constructor(
+    sourceCode?: string | ProjectionParams,
+    destCode?: string | ProjectionParams,
+    definitions: ProjectionTransformDefinition[] = [],
+    epsgCodes: Record<string, string> = {},
+    gridStore: GridReader[] = [],
+  ) {
     super();
-    // by default supports the mercator and base (lon-lat) projection
-    for (const def of DEFAULT_DEFINITIONS) this.insertDefinition(def);
+    // setup definitions, espg codes, and grids
+    for (const proj of [...DEFAULT_DEFINITIONS, ...definitions]) this.insertDefinition(proj);
+    for (const [key, value] of Object.entries(epsgCodes)) this.insertEPSGCode(key, value);
+    for (const { key, reader } of gridStore) this.addGridFromReader(key, reader);
     // defaults to a standard WGS84 lon-lat projection transform
     this.source = this.destination = this.wgs84 = this.#buildTransformer(WGS84);
     if (sourceCode !== undefined) this.setSource(sourceCode);
@@ -176,7 +183,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
    */
-  forward<D extends MValue>(p: VectorPoint<D>, enforceAxis?: false): VectorPoint<D>;
+  forward<D extends MValue>(p: VectorPoint<D>, enforceAxis?: boolean): VectorPoint<D>;
   /**
    * Forward projection from src projection to dest projection
    * ```ts
@@ -188,7 +195,7 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "destination" projection
    */
-  forward<D extends MValue>(p: VectorPointM<D>, enforceAxis?: false): VectorPointM<D>;
+  forward<D extends MValue>(p: VectorPointM<D>, enforceAxis?: boolean): VectorPointM<D>;
 
   /**
    * Forward projection from src projection to dest projection

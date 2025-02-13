@@ -19,25 +19,20 @@ import type { ProjectionParams, ProjectionTransformDefinition } from '../../proj
 /**
  * Builds the projection transformer for a GeoTIFF image
  * @param geoKeys - the geo-keys pulled from the image metadata
- * @param gridStore - the grid readers
  * @param definitions - an array of projection definitions for the transformer if needed
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
+ * @param gridStore - the grid readers
  * @returns - the projection transformer
  */
 export function buildTransformFromGeoKeys(
   geoKeys?: GeoKeyDirectory,
-  gridStore: GridReader[] = [],
   definitions: ProjectionTransformDefinition[] = [],
   epsgCodes: Record<string, string> = {},
+  gridStore: GridReader[] = [],
 ): Transformer {
   const params = buildParamsFromGeoKeys(geoKeys);
-  const transformer = new Transformer();
-  for (const proj of definitions) transformer.insertDefinition(proj);
-  for (const [key, value] of Object.entries(epsgCodes)) transformer.insertEPSGCode(key, value);
-  for (const { key, reader } of gridStore) transformer.addGridFromReader(key, reader);
-  if (geoKeys === undefined) return transformer;
-  if (params !== undefined) transformer.setSource(params);
-  return transformer;
+  if (geoKeys === undefined || params === undefined) return new Transformer();
+  return new Transformer(params, undefined, definitions, epsgCodes, gridStore);
 }
 
 /**

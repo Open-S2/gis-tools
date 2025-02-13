@@ -63,7 +63,7 @@ describe('test data', () => {
   });
 });
 
-describe('axes should be invertable with proj4.transform()', function () {
+describe('axes should be invertable with proj4.transform()', () => {
   const enu = '+proj=longlat +axis=enu';
   const esu = '+proj=longlat +axis=esu';
   const wnu = '+proj=longlat +axis=wnu';
