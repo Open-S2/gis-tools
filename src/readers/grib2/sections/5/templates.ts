@@ -4,6 +4,7 @@ import {
   grib2LookupTable540,
   grib2LookupTable55,
   grib2LookupTable56,
+  grib2LookupTable57,
 } from './tables';
 
 import type { Reader } from '../../..';
@@ -23,6 +24,10 @@ export function getGrib2Template5(template: number) {
       return grib2Template53;
     case 40:
       return grib2Template540;
+    case 50:
+      return grib2Template550;
+    case 51:
+      return grib2Template551;
     default:
       throw new Error(`Template 5.${template} not defined`);
   }
@@ -327,3 +332,90 @@ export function grib2Template540(section: Reader) {
     compressionRatio: section.getUint8(22),
   };
 }
+
+/**
+ * # Data Representation Template 5.50 - Spectral data - simple packing
+ *
+ * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-50.shtml)
+ * @param section
+ *
+ * ## Notes
+ * - Removal of the real part of (0.0) coefficient from packed data is intended to reduce the
+ * variability of the coefficients, in order to improve packing accuracy.
+ * - For some spectral representations, the (0.0) coefficient represents the mean value of the
+ * parameter represented.
+ * - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
+ * @returns - description of how to decode simple unpacked data
+ */
+export function grib2Template550(section: Reader) {
+  let binaryScaleFactor = section.getUint16(15) & 0x7fff;
+  if (section.getUint16(15) >> 15 > 0) binaryScaleFactor *= -1;
+  let decimalScaleFactor = section.getUint16(17) & 0x7fff;
+  if (section.getUint16(17) >> 15 > 0) decimalScaleFactor *= -1;
+
+  return {
+    /** Reference value (R) (IEEE 32-bit floating-point value) */
+    referenceValue: section.getFloat32(11),
+    /** Binary scale factor (E) */
+    binaryScaleFactor,
+    /** Decimal scale factor (D) */
+    decimalScaleFactor,
+    /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
+    numberOfBits: section.getUint8(19),
+    /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
+    realPartCoefficientType: section.getFloat32(20),
+  };
+}
+
+/**
+ * # Data Representation Template 5.51 - Spectral data - complex packing
+ *
+ * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-51.shtml)
+ * @param section
+ *
+ * ## Notes
+ * - The unpacked subset is a set of values defined in the same way as the full set of values
+ * (on a spectrum limited to Js, Ks and Ms ), but on which scaling and packing are not applied.
+ * Associated values are stored in octets 6 onwards of section 7.
+ * - The remaining coefficients are multiplied by `(n x (n+1))p` , scaled and packed. The operator
+ * associated with this multiplication is derived from the Laplacian operator on the sphere.
+ * - The retrieval formula for a coefficient of wave number n is then: `Y = (R+X x 2e ) x 10-d x (n x(n+1))-p`
+ * where X is the packed scaled value associated with the coefficient.
+ * @returns - description of how to decode simple unpacked data
+ */
+export function grib2Template551(section: Reader) {
+  let binaryScaleFactor = section.getUint16(15) & 0x7fff;
+  if (section.getUint16(15) >> 15 > 0) binaryScaleFactor *= -1;
+  let decimalScaleFactor = section.getUint16(17) & 0x7fff;
+  if (section.getUint16(17) >> 15 > 0) decimalScaleFactor *= -1;
+  const precisionCode = section.getUint8(34);
+
+  return {
+    /** Reference value (R) (IEEE 32-bit floating-point value) */
+    referenceValue: section.getFloat32(11),
+    /** Binary scale factor (E) */
+    binaryScaleFactor,
+    /** Decimal scale factor (D) */
+    decimalScaleFactor,
+    /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
+    numberOfBits: section.getUint8(19),
+    /** P ― Laplacian scaling factor (expressed in 10^-6 units) */
+    P: section.getFloat32(20),
+    /** Js ― pentagonal resolution parameter of the unpacked subset (see Note1) */
+    Js: section.getInt16(24),
+    /** Ks ― pentagonal resolution parameter of the unpacked subset (see Note1) */
+    Ks: section.getInt16(26),
+    /** Ms ― pentagonal resolution parameter of the unpacked subset (see Note1) */
+    Ms: section.getInt16(28),
+    /** Ts ― total number of values in the unpacked subset (see Note1) */
+    Ts: section.getInt32(30),
+    /** Precision of the unpacked subset (see Code Table 5.7) */
+    precision: {
+      code: precisionCode,
+      description: grib2LookupTable57[precisionCode],
+    },
+  };
+}
+
+/** Complex packing and spatial differencing return type */
+export type ComplexSpectralPackingTemplate = ReturnType<typeof grib2Template551>;

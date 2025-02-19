@@ -137,44 +137,43 @@ cargo add gis-tools
 | [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
 | [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
 
-[angles]: /docs-ts/dataStructures/angles.md
+[angles]: /docs-ts/geometry/angles.md
 [anglesBadge]: /assets/badges/angles-gzip-cover.svg
-[bbox]: /docs-ts/dataStructures/bbox.md
+[bbox]: /docs-ts/geometry/bbox.md
 [bboxBadge]: /assets/badges/bbox-gzip-cover.svg
-[id]: /docs-ts/dataStructures/id.md
+[id]: /docs-ts/geometry/id.md
 [idBadge]: /assets/badges/id-gzip-cover.svg
-[lonlat]: /docs-ts/dataStructures/lonlat.md
+[lonlat]: /docs-ts/geometry/lonlat.md
 [lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
-[planets]: /docs-ts/dataStructures/planets.md
+[planets]: /docs-ts/geometry/planets.md
 [planetBadge]: /assets/badges/planets-gzip-cover.svg
-[predicates]: /docs-ts/dataStructures/predicates.md
+[predicates]: /docs-ts/geometry/predicates.md
 [predBadge]: /assets/badges/predicates-gzip-cover.svg
-[s2]: /docs-ts/dataStructures/s2.md
+[s2]: /docs-ts/geometry/s2.md
 [s2Badge]: /assets/badges/s2-gzip-cover.svg
-[tools]: /docs-ts/dataStructures/tools.md
+[tools]: /docs-ts/geometry/tools.md
 [toolsBadge]: /assets/badges/tools-gzip-cover.svg
-[wm]: /docs-ts/dataStructures/wm.md
+[wm]: /docs-ts/geometry/wm.md
 [wmBadge]: /assets/badges/wm-gzip-cover.svg
 
 ### PROJ4
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
-| [datums]                 | ![Datums Badge][datumsBadge]  | A collection of datums for easy access.                          |
 | [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
 | [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
 | [transformers]           | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
 
-[datums]: /docs-ts/dataStructures/datums.md
-[datumsBadge]: /assets/badges/datum-gzip-cover.svg
-[mgrs]: /docs-ts/dataStructures/mgrs.md
+[mgrs]: /docs-ts/proj4/mgrs.md
 [mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
-[projections]: /docs-ts/dataStructures/projections.md
+[projections]: /docs-ts/proj4/projections.md
 [projBadge]: /assets/badges/projections-gzip-cover.svg
-[transformers]: /docs-ts/dataStructures/transformers.md
+[transformers]: /docs-ts/proj4/transformers.md
 [transBadge]: /assets/badges/transformer-gzip-cover.svg
 
 ### Readers
+
+Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/docs-ts/readers/reader.md).
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |

@@ -5,11 +5,11 @@ import { adjustLon, qsfnz } from '../common';
 import type { VectorPoint } from '../../geometry';
 import type { ProjectionParams, ProjectionTransform } from '.';
 
-export const S_POLE = 1;
+const S_POLE = 1;
 
-export const N_POLE = 2;
-export const EQUIT = 3;
-export const OBLIQ = 4;
+const N_POLE = 2;
+const EQUIT = 3;
+const OBLIQ = 4;
 
 // /* determine latitude from authalic latitude */
 const P00 = 0.3333333333333333;

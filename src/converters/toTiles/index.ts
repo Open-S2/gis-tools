@@ -143,7 +143,7 @@ function updateBuilder(
 
   metaBuilder.setName(name);
   metaBuilder.setExtension(extensions);
-  metaBuilder.setDescription(description ?? 'Built by S2-Tools');
+  metaBuilder.setDescription(description ?? 'Built by GIS-Tools');
   metaBuilder.setVersion(version ?? '1.0.0');
   // NOTE: For now we only support xyz and fzxy
   metaBuilder.setScheme(projection === 'WM' ? 'xyz' : 'fzxy'); // 'fzxy' | 'tfzxy' | 'xyz' | 'txyz' | 'tms'

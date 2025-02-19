@@ -42,7 +42,6 @@ await build({
     `${__dirname}/builds/geometry/tools.ts`,
     `${__dirname}/builds/geometry/wm.ts`,
     // PROJ4
-    `${__dirname}/builds/proj4/datum.ts`,
     `${__dirname}/builds/proj4/mgrs.ts`,
     `${__dirname}/builds/proj4/projections.ts`,
     `${__dirname}/builds/proj4/transformer.ts`,

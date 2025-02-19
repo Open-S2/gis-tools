@@ -65,7 +65,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  */
 export class MillerCylindrical extends ProjectionBase implements ProjectionTransform {
   name = 'MillerCylindrical';
-  static names = ['MillerCylindrical', 'Miller_Cylindrical', 'mill'];
+  static names = ['MillerCylindrical', 'Miller Cylindrical', 'Miller_Cylindrical', 'mill'];
   // MillerCylindrical specific variables
 
   /**

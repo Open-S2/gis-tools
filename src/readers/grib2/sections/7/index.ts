@@ -5,6 +5,7 @@ import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
 
 export * from './complexUnpacking';
+export * from './spectral';
 export * from './templates';
 
 /** Data Section Return Type */

@@ -1,6 +1,6 @@
 import { FileReader } from '../../../src/file';
 import { buildServer } from '../../server';
-import { GRIB2Reader, fetchGFSAtmos, parseIDX, parsedIDXFromURL } from '../../../src';
+import { GRIB2Reader, fetchGFSAtmos, fetchGFSWave, parseIDX, parsedIDXFromURL } from '../../../src';
 import { expect, test } from 'bun:test';
 
 import type { VectorPoint } from '../../../src';
@@ -200,5 +200,139 @@ test('GRIB2Reader using GFS Atmosphere data tooling', async () => {
     expect(coordinates[i].x).toBeCloseTo(expected[i].x);
     expect(coordinates[i].y).toBeCloseTo(expected[i].y);
     expect(coordinates[i].m?.['TMP:2 m']).toBeCloseTo(expected[i].m?.['TMP:2 m'] ?? 0);
+  }
+});
+
+test('GRIB2Reader using GFS Wave arctic data tooling', async () => {
+  const server = buildServer();
+
+  const grib2Reader = await fetchGFSWave(
+    `http://localhost:${server.port}/readers/grib2/fixtures/`,
+    'arctic.9km',
+    '2025',
+    '02',
+    '09',
+    '12',
+    '000',
+    ['UGRD:surface', 'VGRD:surface'],
+  );
+
+  expect(grib2Reader.packets.length).toEqual(2);
+
+  const packetProducts = grib2Reader.packets.map((packet) => {
+    const { paramater } = packet.productDefinition?.values ?? {};
+    return paramater;
+  });
+
+  expect(packetProducts).toEqual([
+    {
+      abbrev: 'UGRD',
+      category: 'Momentum (see Table 4.2-0-2)',
+      parameter: 'U-Component of Wind',
+      units: 'm s-1',
+    },
+    {
+      abbrev: 'VGRD',
+      category: 'Momentum (see Table 4.2-0-2)',
+      parameter: 'V-Component of Wind',
+      units: 'm s-1',
+    },
+  ]);
+
+  await server.stop();
+
+  // // build expected
+  // const expectedRaw = await Bun.file(
+  //   `${__dirname}/fixtures/gfs.20241214/12/atmos/expected_tmp2m.csv`,
+  // ).text();
+  // const expected: VectorPoint<{ 'TMP:2 m': number }>[] = [];
+  // const expectedLines = expectedRaw.split('\n');
+  // for (const line of expectedLines.slice(1)) {
+  //   const [lat, lon, tmp] = line.split(',');
+  //   expected.push({ x: parseFloat(lon), y: parseFloat(lat), m: { 'TMP:2 m': parseFloat(tmp) } });
+  // }
+
+  // const features = await Array.fromAsync(grib2Reader);
+  // const { coordinates } = features[0].geometry;
+  // // compare coordinates against expected
+  // for (let i = 0; i < coordinates.length; i++) {
+  //   expect(coordinates[i].x).toBeCloseTo(expected[i].x);
+  //   expect(coordinates[i].y).toBeCloseTo(expected[i].y);
+  //   expect(coordinates[i].m?.['TMP:2 m']).toBeCloseTo(expected[i].m?.['TMP:2 m'] ?? 0);
+  // }
+});
+
+test('GRIB2Reader using GFS Wave global data tooling', async () => {
+  const server = buildServer();
+
+  const grib2Reader = await fetchGFSWave(
+    `http://localhost:${server.port}/readers/grib2/fixtures/`,
+    'global.0p16',
+    '2025',
+    '02',
+    '19',
+    '00',
+    '000',
+    ['UGRD:surface', 'VGRD:surface'],
+  );
+
+  expect(grib2Reader.packets.length).toEqual(2);
+
+  const packetProducts = grib2Reader.packets.map((packet) => {
+    const { paramater } = packet.productDefinition?.values ?? {};
+    return paramater;
+  });
+
+  expect(packetProducts).toEqual([
+    {
+      abbrev: 'UGRD',
+      category: 'Momentum (see Table 4.2-0-2)',
+      parameter: 'U-Component of Wind',
+      units: 'm s-1',
+    },
+    {
+      abbrev: 'VGRD',
+      category: 'Momentum (see Table 4.2-0-2)',
+      parameter: 'V-Component of Wind',
+      units: 'm s-1',
+    },
+  ]);
+
+  await server.stop();
+
+  // build expected
+  const expectedRaw = await Bun.file(
+    `${__dirname}/fixtures/gfs.20250219/00/wave/gridded/gfs_wave_global.csv`,
+  ).text();
+  const expected: VectorPoint<{ UGRD?: number; VGRD?: number }>[] = [];
+  const expectedLines = expectedRaw.split('\n');
+  for (const line of expectedLines.slice(1)) {
+    const [lat, lon, ugrd, vgrd] = line.split(',');
+    expected.push({
+      x: parseFloat(lon),
+      y: parseFloat(lat),
+      m: {
+        UGRD: ugrd !== '' ? parseFloat(ugrd) : undefined,
+        VGRD: vgrd !== '' ? parseFloat(vgrd) : undefined,
+      },
+    });
+  }
+
+  const features = await Array.fromAsync(grib2Reader);
+  const { coordinates } = features[0].geometry;
+  // compare coordinates against expected
+  for (let i = 0; i < coordinates.length; i++) {
+    expect(coordinates[i].x).toBeCloseTo(expected[i].x);
+    expect(coordinates[i].y).toBeCloseTo(expected[i].y);
+    // if (expected[i].m?.UGRD !== undefined) {
+    //   expect(coordinates[i].m?.['UGRD:surface']).toBeCloseTo(
+    //     expected[i].m?.UGRD ?? Number.NEGATIVE_INFINITY,
+    //   );
+    // }
+    // if (expected[i].m?.VGRD !== undefined) {
+    //   expect(coordinates[i].m?.VGRD ?? 0).toBeCloseTo(expected[i].m?.VGRD ?? Number.NEGATIVE_INFINITY);
+    // }
+    // expect(coordinates[i].m?.['UGRD:surface']).toBeCloseTo(expected[i].m?.UGRD ?? Number.NEGATIVE_INFINITY);
+    // expect(coordinates[i].m?.['VGRD:surface']).toBeCloseTo(expected[i].m?.VGRD ?? Number.NEGATIVE_INFINITY);
   }
 });

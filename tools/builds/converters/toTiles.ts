@@ -1,1 +1,1 @@
-export { toVectorTiles } from '../../../src';
+export { toTiles } from '../../../src';

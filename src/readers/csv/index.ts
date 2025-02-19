@@ -31,17 +31,21 @@ export interface CSVReaderOptions {
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/basic3D.csv`);
  * const csvReader = new CSVReader(fileReader, {
- *  delimiter: ',',
- *  lineDelimiter: '\n',
- *  lonKey: 'Longitude',
- *  latKey: 'Latitude',
- *  heightKey: 'height',
+ *  // set options, completely optional, but the values you see are the default.
+ *  delimiter: ',', // how the CSV document separates values
+ *  lineDelimiter: '\n', // the line delimiter, sometimes "\r\n" or some specializ unicode character
+ *  lonKey: 'Longitude', // the key to use to store the longitude
+ *  latKey: 'Latitude', // the key to use to store the latitude
+ *  heightKey: 'height', // the key to use for the height or "z-value"
  * });
  * // read the features
- * for await (const feature of reader) {
+ * for await (const feature of csvReader) {
  *   console.log(feature);
  * }
  * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Comma-separated_values
  */
 export class CSVReader<
   M = Record<string, unknown>,

@@ -34,8 +34,12 @@ import type {
  * // inject all default definition projections. This is not memory efficient but ensures all
  * // projections are available
  * injectAllDefinitions(transform);
+ * // Or add a specific projection
+ * transform.insertDefinition(HotineObliqueMercator);
  * // inject all common EPSG codes. This is not memory efficient but ensures all EPSG codes are available
  * injectAllEPSGCodes(transform);
+ * // Or add a specific EPSG code
+ * transform.insertEPSGCode('EPSG_4326', EPSG_4326);
  * // If the transform requires a grid, this is how you add it.
  * transform.addGridFromReader(
  *   'BETA2007.gsb',
@@ -50,7 +54,7 @@ import type {
  * const inverse = transform.inverse({ x: 349757.381712518, y: 5671004.06504954 });
  * ```
  *
- * ### Minimal Example only adding the Oblique Mercator
+ * ### Minimal Example only adding the Hotine Oblique Mercator
  *
  * ```ts
  * import { Transformer, HotineObliqueMercator, EPSG_8803 } from 'gis-tools-ts';
@@ -127,7 +131,7 @@ export class Transformer extends NadGridStore {
       if (def !== undefined) break;
     }
     if (def === undefined)
-      throw Error(`${params.projName ?? params.name} invalid, unsupported, or not loaded`);
+      throw Error(`"${params.projName ?? params.name}" invalid, unsupported, or not loaded`);
     return new def(params);
   }
 
@@ -196,7 +200,6 @@ export class Transformer extends NadGridStore {
    * @returns - vector point in the "destination" projection
    */
   forward<D extends MValue>(p: VectorPointM<D>, enforceAxis?: boolean): VectorPointM<D>;
-
   /**
    * Forward projection from src projection to dest projection
    * ```ts
@@ -226,7 +229,34 @@ export class Transformer extends NadGridStore {
    * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
    * @returns - vector point in the "source" projection
    */
-  inverse<D extends MValue>(p: VectorPoint<D>, enforceAxis = false): VectorPoint<D> {
+  inverse<D extends MValue>(p: VectorPoint<D>, enforceAxis?: boolean): VectorPoint<D>;
+  /**
+   * Inverse projection from dest projection to src projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.inverse({ x: 0, y: 0 });
+   * ```
+   * @param p - vector point currently in the "destination" projection
+   * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
+   * @returns - vector point in the "source" projection
+   */
+  inverse<D extends MValue>(p: VectorPointM<D>, enforceAxis?: boolean): VectorPointM<D>;
+  /**
+   * Inverse projection from dest projection to src projection
+   * ```ts
+   * const transformer = new Transformer();
+   * transformer.setSource('EPSG_4326');
+   * const point = transformer.inverse({ x: 0, y: 0 });
+   * ```
+   * @param p - vector point currently in the "destination" projection
+   * @param enforceAxis - enforce axis ensures axis consistency relative to the final projection
+   * @returns - vector point in the "source" projection
+   */
+  inverse<D extends MValue>(
+    p: VectorPoint<D> | VectorPointM<D>,
+    enforceAxis = false,
+  ): VectorPoint<D> | VectorPointM<D> {
     return this.#transformPoint(p, this.destination, this.source, enforceAxis);
   }
 

@@ -42,6 +42,15 @@ export interface TiePoint {
   z: number;
 }
 
+/** Internal interface for sample reader */
+type SampleReader = (offset: number, littleEndian: boolean) => number;
+
+/** Internal interface for sample format */
+interface SampleFormat {
+  srcSampleOffsets: number[];
+  sampleReaders: SampleReader[];
+}
+
 /** A Container for a GeoTIFF image */
 export class GeoTIFFImage {
   #reader: Reader;
@@ -50,6 +59,9 @@ export class GeoTIFFImage {
   #isTiled = false;
   #planarConfiguration = 1;
   #transformer: Transformer;
+  #decodeFn: Decoder;
+  #srcSampleOffsets?: number[];
+  #sampleReaders?: SampleReader[];
   /**
    * @param reader - the reader containing the input data
    * @param imageDirectory - the image directory
@@ -78,6 +90,7 @@ export class GeoTIFFImage {
       epsgCodes,
       gridStore,
     );
+    this.#decodeFn = getDecoder(this.#imageDirectory.Compression);
   }
 
   /**
@@ -327,43 +340,91 @@ export class GeoTIFFImage {
   }
 
   /**
+   * Get a value in the image
+   * @param x - the x coordinate
+   * @param y - the y coordinate
+   * @param invY - if true, the y coordinate is inverted
+   * @param samples - Samples to read from the image
+   * @returns - the sample
+   */
+  async getValue(
+    x: number,
+    y: number,
+    invY = false,
+    samples: number[] = [...Array(this.samplesPerPixel).keys()],
+  ): Promise<number[]> {
+    // setup
+    const { tileWidth, tileHeight, width } = this;
+    const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [];
+    let bytesPerPixel = this.bytesPerPixel;
+    const { srcSampleOffsets, sampleReaders } = this.#getSampleOffsetsAndReaders(
+      bitsPerSample,
+      samples,
+    );
+    const res: number[] = new Array(samples.length);
+    // invert Y if needed
+    if (invY) y = this.height - 1 - y;
+
+    // search the right tile
+    const xTile = Math.floor(x / tileWidth);
+    const yTile = Math.floor(y / tileHeight);
+    let data: ArrayBufferLike | undefined;
+    if (this.#planarConfiguration === 1) {
+      data = await this.getTileOrStrip(xTile, yTile, 0);
+    }
+    for (let sampleIndex = 0; sampleIndex < samples.length; ++sampleIndex) {
+      const si = sampleIndex;
+      const sample = samples[sampleIndex];
+      if (this.#planarConfiguration === 2) {
+        bytesPerPixel = Math.ceil(bitsPerSample[sample] / 8);
+        data = await this.getTileOrStrip(xTile, yTile, sample);
+      }
+      if (data === undefined) throw new Error('data failed to load');
+      const dataView = new DataView(data);
+      const firstLine = yTile * tileHeight;
+      const firstCol = xTile * tileWidth;
+      const reader = sampleReaders[si];
+
+      const pixelOffset = (y * tileWidth + x) * bytesPerPixel;
+      const value = reader.call(dataView, pixelOffset + srcSampleOffsets[si], this.#littleEndian);
+      const windowCoordinate =
+        (y + firstLine) * width * samples.length + (x + firstCol) * samples.length + si;
+      res[windowCoordinate % samples.length] = value;
+    }
+
+    return res;
+  }
+
+  /**
    * Returns the raster data of the image.
    * @param samples - Samples to read from the image
    * @returns - The raster data
    */
-  async rasterData(samples: number[] = []): Promise<Raster> {
+  async rasterData(samples: number[] = [...Array(this.samplesPerPixel).keys()]): Promise<Raster> {
+    // setup
     const { tileWidth, tileHeight, width, height, samplesPerPixel } = this;
     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [];
-    const decodeFn = getDecoder(this.#imageDirectory.Compression);
-    if (samples.length === 0) samples = [...Array(samplesPerPixel).keys()];
     let bytesPerPixel = this.bytesPerPixel;
+    const { srcSampleOffsets, sampleReaders } = this.#getSampleOffsetsAndReaders(
+      bitsPerSample,
+      samples,
+    );
 
-    const srcSampleOffsets: number[] = [];
-    const sampleReaders: ((offset: number, littleEndian: boolean) => number)[] = [];
-    for (let i = 0; i < samples.length; ++i) {
-      if (this.#planarConfiguration === 1) {
-        srcSampleOffsets.push(sampleSum(bitsPerSample, 0, samples[i]) / 8);
-      } else {
-        srcSampleOffsets.push(0);
-      }
-      sampleReaders.push(this.getReaderForSample(samples[i]));
-    }
-
-    const res: number[] = Array(width * height * samplesPerPixel);
+    const res: number[] = new Array(width * height * samplesPerPixel);
     const maxXTile = Math.ceil(width / tileWidth);
     const maxYTile = Math.ceil(height / tileHeight);
     for (let yTile = 0; yTile < maxYTile; ++yTile) {
       for (let xTile = 0; xTile < maxXTile; ++xTile) {
         let data: ArrayBufferLike | undefined;
         if (this.#planarConfiguration === 1) {
-          data = await this.getTileOrStrip(xTile, yTile, 0, decodeFn);
+          data = await this.getTileOrStrip(xTile, yTile, 0);
         }
         for (let sampleIndex = 0; sampleIndex < samples.length; ++sampleIndex) {
           const si = sampleIndex;
           const sample = samples[sampleIndex];
           if (this.#planarConfiguration === 2) {
             bytesPerPixel = Math.ceil(bitsPerSample[sample] / 8);
-            data = await this.getTileOrStrip(xTile, yTile, sample, decodeFn);
+            data = await this.getTileOrStrip(xTile, yTile, sample);
           }
           if (data === undefined) throw new Error('data failed to load');
           const dataView = new DataView(data);
@@ -515,15 +576,9 @@ export class GeoTIFFImage {
    * @param x - the tile or strip x coordinate
    * @param y - the tile or strip y coordinate
    * @param sample - the sample
-   * @param decodeFn - the function to decode the data
    * @returns - the data as a buffer
    */
-  async getTileOrStrip(
-    x: number,
-    y: number,
-    sample: number,
-    decodeFn: Decoder,
-  ): Promise<ArrayBufferLike> {
+  async getTileOrStrip(x: number, y: number, sample: number): Promise<ArrayBufferLike> {
     const { TileOffsets, TileByteCounts, StripOffsets, StripByteCounts } = this.#imageDirectory;
     const numTilesPerRow = Math.ceil(this.width / this.tileWidth);
     const numTilesPerCol = Math.ceil(this.height / this.tileHeight);
@@ -539,7 +594,7 @@ export class GeoTIFFImage {
       ? (TileByteCounts ?? [])[index]
       : (StripByteCounts ?? [])[index];
     const slice = this.#reader.slice(offset, offset + byteCount).buffer;
-    let data = await decodeFn(slice, this.#imageDirectory.JPEGTables);
+    let data = await this.#decodeFn(slice, this.#imageDirectory.JPEGTables);
     data = this.maybeApplyPredictor(data);
     const sampleFormat = this.getSampleFormat();
     const bitsPerSample = this.getBitsPerSample();
@@ -580,5 +635,35 @@ export class GeoTIFFImage {
         this.#planarConfiguration,
       );
     }
+  }
+
+  /**
+   * Get the sample format. If first time than build it
+   * @param bitsPerSample - the bits per sample
+   * @param samples - the samples
+   * @returns - the sample format
+   */
+  #getSampleOffsetsAndReaders(bitsPerSample: number[], samples: number[]): SampleFormat {
+    if (
+      this.#srcSampleOffsets !== undefined &&
+      this.#sampleReaders !== undefined &&
+      samples.length === this.#sampleReaders.length
+    ) {
+      return { srcSampleOffsets: this.#srcSampleOffsets, sampleReaders: this.#sampleReaders };
+    }
+    const srcSampleOffsets: number[] = [];
+    const sampleReaders: ((offset: number, littleEndian: boolean) => number)[] = [];
+    for (let i = 0; i < samples.length; ++i) {
+      if (this.#planarConfiguration === 1) {
+        srcSampleOffsets.push(sampleSum(bitsPerSample, 0, samples[i]) / 8);
+      } else {
+        srcSampleOffsets.push(0);
+      }
+      sampleReaders.push(this.getReaderForSample(samples[i]));
+    }
+    this.#srcSampleOffsets = srcSampleOffsets;
+    this.#sampleReaders = sampleReaders;
+
+    return { srcSampleOffsets, sampleReaders };
   }
 }

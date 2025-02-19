@@ -1,10 +1,14 @@
 import { JpxImage } from '../../../image';
-import { complexUnpacking } from './complexUnpacking';
+import { complexUnpacking, spectralComplexUnpacking, spectralSimpleUnpacking } from '.';
 
 import type { Grib2BitMapSection } from '../6';
 import type { Grib2DataRepresentationSection } from '../5';
 import type { Grib2Sections } from '..';
 import type { Reader } from '../../..';
+
+// TODO: spectrals are not implemented correctly yet.
+// TODO: case 41: case 40010: PNG
+// TODO: case 42: AEC https://github.com/NOAA-EMC/NCEPLIBS-g2c/blob/develop/src/aecunpack.c
 
 /**
  * Converts data Buffer according to data representation section
@@ -29,6 +33,10 @@ export function getGrib2Template7(reader: Reader, sections: Grib2Sections): numb
       if (bms === undefined) throw new Error('Bit Map Section is not defined');
       return jpeg2000Unpacking(reader, drs, bms);
     }
+    case 50:
+      return spectralSimpleUnpacking(reader, drs);
+    case 51:
+      return spectralComplexUnpacking(reader, drs);
     default:
       throw new Error(`Template 7.${dataRepresentationTemplate} not defined`);
   }
@@ -83,40 +91,38 @@ export function jpeg2000Unpacking(
     throw new Error('JPEG Decoder: Only single row (1xN) is supported');
 
   const { bitMap: bitBuffer, bitMapIndicator } = bms;
-  const { dataRepresentation } = drs;
+  const { numberOfDataPoints, dataRepresentation } = drs;
+  const { decimalScaleFactor, referenceValue, binaryScaleFactor, numberOfBits } =
+    dataRepresentation;
 
-  const D = dataRepresentation.decimalScaleFactor;
-  const R = dataRepresentation.referenceValue;
-  const E = dataRepresentation.binaryScaleFactor;
-
-  const DD = Math.pow(10, D);
-  const EE = Math.pow(2, E);
+  const DD = Math.pow(10, decimalScaleFactor);
+  const EE = Math.pow(2, binaryScaleFactor);
 
   const result: number[] = [];
 
-  // A bit map applies to this product
-  // [See more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table6-0.shtml)
-  if (bitMapIndicator.code === 0) {
-    if (bitBuffer === null) throw new Error('Bit map is not defined');
+  if (numberOfBits === 0) {
+    for (let i = 0; i < numberOfDataPoints; i++) result.push(referenceValue);
+    return result;
+  }
 
-    let k = 0;
+  // A bit map applies to this product
+  if (bitMapIndicator.code === 0 && bitBuffer !== null) {
     const bitMapData = new Uint8Array(bitBuffer.buffer, bitBuffer.byteOffset, bitBuffer.byteLength);
-    for (const byte of bitMapData) {
+    for (let i = 0; i < numberOfDataPoints; i++) {
       // Apply bit map to the data.
       // Length of data values is often smaller than the bit map itself. Bitmap is used to
       // indicate which data values are present, 1 bit meaning is present, 0 bit meaning is missing, -1 meaning undefined.
       // [Read more](https://confluence.ecmwf.int/display/UDOC/What+is+the+GRIB+bitmap+-+ecCodes+GRIB+FAQ)
-      for (let i = 0; i < 8; i++) {
-        if ((byte & (1 << i)) !== 0) {
-          result.push((R + jpx.tiles[0].items[k++] * EE) / DD);
-        } else {
-          result.push(-1);
-        }
+      const byte = bitMapData[Math.floor(i / 8)];
+      if ((byte & (1 << i % 8)) !== 0) {
+        result.push((referenceValue + jpx.tiles[0].items[i] * EE) / DD);
+      } else {
+        result.push(Number.NEGATIVE_INFINITY);
       }
     }
   } else {
     // Do not use `.map` on Uint8Array, as it clamps the values to 0-255
-    for (const byte of jpx.tiles[0].items) result.push((R + byte * EE) / DD);
+    for (const byte of jpx.tiles[0].items) result.push((referenceValue + byte * EE) / DD);
   }
 
   return result;

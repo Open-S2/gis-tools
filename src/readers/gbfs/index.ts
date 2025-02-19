@@ -14,6 +14,18 @@ export * from './schemaV3';
  * The versions of GBFS reader classes this data could be (1, 2, or 3)
  * Implements the {@link FeatureIterator} interface.
  *
+ * ## Usage
+ *
+ * ```ts
+ * import { buildGBFSReader } from 'gis-tools-ts';
+ *
+ * const reader = await buildGBFSReader('https://gbfs.urbansharing.com/gbfs/gbfs.json');
+ * // read the features
+ * for await (const feature of reader) {
+ *   // do something with the feature
+ * }
+ * ```
+ *
  * ## Links
  * - https://github.com/MobilityData/gbfs
  * - https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.0
@@ -21,22 +33,40 @@ export * from './schemaV3';
 export type GBFSReader = GBFSReaderV1 | GBFSReaderV2 | GBFSReaderV3;
 
 /** The versions of GBFS schemas this data could be */
-export type GBFSTypess = GBFSV1 | GBFSV2 | GBFSV3;
-
-// TODO: All features should be parsed as VectorGeometry
+export type GBFSTypes = GBFSV1 | GBFSV2 | GBFSV3;
 
 /**
+ * # General Bikeshare Feed Specification (GBFS) Reader
+ *
+ * ## Description
  * Given a link to a GBFS feed, build the appropriate reader for the feed.
- * Examples:
- * - v3: https://backend.citiz.fr/public/provider/9/gbfs/v3.0/gbfs.json
- * - v2: https://gbfs.helbiz.com/v2.2/durham/gbfs.json
- * - v1: https://gbfs.urbansharing.com/gbfs/gbfs.json
+ * The versions of GBFS reader classes this data could be (1, 2, or 3).
+ * Implements the {@link FeatureIterator} interface.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { buildGBFSReader } from 'gis-tools-ts';
+ *
+ * const reader = await buildGBFSReader('https://gbfs.urbansharing.com/gbfs/gbfs.json');
+ * // read the features
+ * for await (const feature of reader) {
+ *   // do something with the feature
+ * }
+ * ```
+ *
+ * ## Links
+ * - https://github.com/MobilityData/gbfs
+ * - https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.0
+ * - v3 example data: https://backend.citiz.fr/public/provider/9/gbfs/v3.0/gbfs.json
+ * - v2 example data: https://gbfs.helbiz.com/v2.2/durham/gbfs.json
+ * - v1 example data: https://gbfs.urbansharing.com/gbfs/gbfs.json
  * @param url - The link to the GBFS feed
  * @param locale - The locale to use if provided, otherwise default to "en" (e.g., "en", "en-US").
  * @returns - a GBFSReader of the appropriate version
  */
 export async function buildGBFSReader(url: string, locale = 'en'): Promise<GBFSReader> {
-  const data = await fetch(url).then(async (res) => (await res.json()) as GBFSTypess);
+  const data = await fetch(url).then(async (res) => (await res.json()) as GBFSTypes);
   const path = url.includes('localhost') ? url.split('/').slice(0, -1).join('/') : undefined;
   const versionMajor = 'version' in data ? data.version[0] : '1';
   if (versionMajor === '1') {
@@ -84,7 +114,22 @@ export interface GBFSSystem {
 }
 
 /**
- * Fetches the systems from the github CSV file
+ * # General Bikeshare Feed Specification (GBFS) Reader
+ *
+ * ## Description
+ * Fetches the list of GBFS systems from the github CSV file
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import { fetchGTFSSystems } from 'gis-tools-ts';
+ *
+ * const systems = await fetchGTFSSystems();
+ * console.log(systems);
+ * ```
+ *
+ * ## Links
+ * - https://github.com/MobilityData/gbfs/blob/master/systems.csv
  * @param url - The URL of the CSV file. The default is the one used by GBFS. This variable exists for testing
  * @returns - an array of systems
  */

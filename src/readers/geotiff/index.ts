@@ -38,6 +38,10 @@ export interface GridReader {
  * const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);
  * const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
  * ```
+ *
+ * ## Links
+ * - https://www.ogc.org/publications/standard/geotiff/
+ * - https://docs.ogc.org/is/19-008r4/19-008r4.html
  */
 export class GeoTIFFReader
   extends GeoTIFFHeaderReader

@@ -53,6 +53,7 @@ export class StereographicSouthPole extends ProjectionBase implements Projection
     'StereographicSouthPole',
     'stere',
     'Stereographic_South_Pole',
+    'Stereographic South Pole',
     'Polar Stereographic (variant B)',
     'Polar_Stereographic',
   ];

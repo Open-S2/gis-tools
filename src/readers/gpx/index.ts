@@ -127,7 +127,24 @@ export type GPXVectorFeatures =
  *
  * ## Description
  * The GPX Reader is an XML-based GPS Exchange Format (GPX) reader.
+ *
+ * GPX (the GPS Exchange Format) is a light-weight XML data format for the interchange of GPS data
+ * (waypoints, routes, and tracks) between applications and Web services on the Internet.
+ *
  * Implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { GPXReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
+ *
+ * const fileReader = new FileReader('./example.gpx');
+ * const gpxReader = new GPXReader(fileReader);
+ *
+ * for await (const feature of gpxReader) {
+ *   console.log(feature);
+ * }
+ * ```
  *
  * ## Links
  * https://www.topografix.com/gpx.asp

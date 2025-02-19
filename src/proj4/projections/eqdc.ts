@@ -67,22 +67,22 @@ export class EquidistantConic extends ProjectionBase implements ProjectionTransf
    * @param params - projection specific parameters
    */
   constructor(params?: ProjectionParams) {
-    const { abs, sin, cos } = Math;
+    const { abs, sin, cos, pow, sqrt } = Math;
     super(params);
 
     if (abs(this.lat1 + this.lat2) < EPSLN)
       throw new Error('Standard parallels cannot be equal and on opposite sides of the equator');
     this.lat2 = this.lat2 ?? this.lat1;
     this.temp = this.b / this.a;
-    this.es = 1 - Math.pow(this.temp, 2);
-    this.e = Math.sqrt(this.es);
+    this.es = 1 - pow(this.temp, 2);
+    this.e = sqrt(this.es);
     this.e0 = e0fn(this.es);
     this.e1 = e1fn(this.es);
     this.e2 = e2fn(this.es);
     this.e3 = e3fn(this.es);
 
-    this.sinphi = Math.sin(this.lat1);
-    this.cosphi = Math.cos(this.lat1);
+    this.sinphi = sin(this.lat1);
+    this.cosphi = cos(this.lat1);
 
     this.ms1 = msfnz(this.e, this.sinphi, this.cosphi);
     this.ml1 = mlfn(this.e0, this.e1, this.e2, this.e3, this.lat1);

@@ -51,6 +51,7 @@ export class StereographicNorthPole extends GaussKruger implements ProjectionTra
   static names = [
     'StereographicNorthPole',
     'Stereographic_North_Pole',
+    'Stereographic North Pole',
     'Oblique_Stereographic',
     'sterea',
     'Oblique Stereographic Alternative',

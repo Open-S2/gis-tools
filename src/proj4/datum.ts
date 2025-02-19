@@ -7,6 +7,7 @@ import {
   PJD_GRIDSHIFT,
   PJD_NODATUM,
   PJD_WGS84,
+  R2D,
   SEC_TO_RAD,
   SRS_WGS84_ESQUARED,
   SRS_WGS84_SEMIMAJOR,
@@ -457,10 +458,10 @@ export function applyGridShift(
     }
   }
   if (isNaN(output.x)) {
+    console.warn(
+      `Failed to find a grid shift table for location '${-input.x * R2D} ${input.y * R2D}' tried: '${attemptedGrids}'`,
+    );
     return;
-    // throw new Error(
-    //   `Failed to find a grid shift table for location '${-input.x * R2D} ${input.y * R2D}' tried: '${attemptedGrids}'`,
-    // );
   }
   point.x = -output.x;
   point.y = output.y;

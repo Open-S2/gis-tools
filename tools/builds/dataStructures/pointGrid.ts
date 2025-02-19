@@ -1,1 +1,1 @@
-export { GridCluster } from '../../../src';
+export { PointGrid } from '../../../src';

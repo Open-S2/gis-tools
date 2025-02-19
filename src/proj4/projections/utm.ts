@@ -67,6 +67,7 @@ export class UniversalTransverseMercator
   name = 'UniversalTransverseMercator';
   static names = [
     'UniversalTransverseMercator',
+    'Universal_Transverse_Mercator',
     'Universal Transverse Mercator',
     'Universal Transverse Mercator System',
     'utm',
