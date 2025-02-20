@@ -37,13 +37,20 @@ export interface NadGridDefinition {
  * ## Usage
  * ```ts
  * import { NadGridReader } from 'gis-tools-ts';
- * import { MMapReader } from 'gis-tools-ts/mmap';
+ * import { FileReader } from 'gis-tools-ts/file';
+ * // Or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const store = new NadGridStore();
  *
- * store.addGridFromReader('BETA2007.gsb', new MMapReader(`${__dirname}/fixtures/BETA2007.gsb`));
+ * // store a grid
+ * store.addGridFromReader('BETA2007.gsb', new FileReader(`${__dirname}/fixtures/BETA2007.gsb`));
  *
+ * // get a grid
  * const grid = store.getGrid('BETA2007.gsb');
+ *
+ * // get a grid given a list of names (comma separated):
+ * const grids = store.getGridsFromString('BETA2007.gsb,TEST_A.gsb,TEST_B.gsb');
  * ```
  */
 export class NadGridStore {
@@ -166,10 +173,11 @@ export interface NadGridMetadata {
  *
  * ```ts
  * import { NadGridReader } from 'gis-tools-ts'
- * // mmap is a Bun exclusive feature, consider using `gis-tools-ts/file`'s `FileReader` instead.
- * import { MMapReader } from 'gis-tools-ts/mmap';
+ * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
- * const reader = new NadGridReader('BETA2007.gsb', new MMapReader('./BETA2007.gsb'));
+ * const reader = new NadGridReader('BETA2007.gsb', new FileReader('./BETA2007.gsb'));
  *
  * // access all the vector features
  * const data = await Array.fromAsync(reader);

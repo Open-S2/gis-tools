@@ -6,7 +6,7 @@ import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
 import type { OSMProperties, OSMReader } from '.';
 
-import type { Metadata } from './primitive';
+import type { OSMMetadata } from './primitive';
 import type {
   BBox,
   Properties,
@@ -21,7 +21,7 @@ import type {
  * @param reader - the OSM reader
  */
 export async function mergeRelationIfExists(
-  feature: VectorFeature<Metadata>,
+  feature: VectorFeature<OSMMetadata>,
   reader: OSMReader,
 ): Promise<void> {
   const { nodeRelationPairs, relations, addBBox } = reader;
@@ -168,7 +168,7 @@ export class Node {
    * Convert the node to a vector feature
    * @returns - the vector feature
    */
-  toVectorFeature(): VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry> {
+  toVectorFeature(): VectorFeature<OSMMetadata, Properties, OSMProperties, VectorPointGeometry> {
     const { addBBox } = this.reader;
     const bbox = addBBox ? this.buildBBox() : undefined;
     const coordinates = this.toVectorGeometry();

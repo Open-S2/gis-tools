@@ -2,7 +2,7 @@ import { Info, InfoBlock } from './info';
 import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
 
 import type { PbfReader } from 'pbf-ts';
-import type { Metadata, PrimitiveBlock } from './primitive';
+import type { OSMMetadata, PrimitiveBlock } from './primitive';
 import type { OSMProperties, OSMReader } from '.';
 
 import type {
@@ -47,7 +47,7 @@ export interface IntermediateWayMember {
 export async function intermediateRelationToVectorFeature(
   relation: IntermediateRelation,
   reader: OSMReader,
-): Promise<VectorFeature<Metadata, Properties, OSMProperties> | undefined> {
+): Promise<VectorFeature<OSMMetadata, Properties, OSMProperties> | undefined> {
   const { addBBox, nodeGeometry, wayGeometry } = reader;
   const { id, members, properties, metadata } = relation;
   const iNodes: IntermediateNodeMember[] = members.filter((m) => 'node' in m);

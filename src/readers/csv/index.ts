@@ -38,6 +38,7 @@ export interface CSVReaderOptions {
  *  latKey: 'Latitude', // the key to use to store the latitude
  *  heightKey: 'height', // the key to use for the height or "z-value"
  * });
+ *
  * // read the features
  * for await (const feature of csvReader) {
  *   console.log(feature);
@@ -46,6 +47,7 @@ export interface CSVReaderOptions {
  *
  * ## Links
  * - https://en.wikipedia.org/wiki/Comma-separated_values
+ * - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
  */
 export class CSVReader<
   M = Record<string, unknown>,
@@ -92,11 +94,13 @@ export class CSVReader<
       // Split the chunk by newlines and yield each complete line
       const lines = chunk.split(this.#lineDelimiter);
       for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i].trim();
+        if (line.length === 0 || line.startsWith('#')) continue;
         if (this.#firstLine) {
-          this.#parseFirstLine(lines[i]);
+          this.#parseFirstLine(line);
           this.#firstLine = false;
         } else {
-          yield this.#parseLine(lines[i]);
+          yield this.#parseLine(line);
         }
       }
       // Store the remaining partial line for the next iteration

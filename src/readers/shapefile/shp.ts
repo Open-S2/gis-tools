@@ -46,6 +46,8 @@ export interface SHPRow {
  * ## Description
  * Reads data from a shapefile implementing the {@link FeatureIterator} interface
  *
+ * ## Usage
+ *
  * NOTE: It's recommended to not parse the shapefile directly but instead:
  * - `import { shapefileFromURL } from 'gis-tools-ts';`
  * - `import { shapefileFromPath } from 'gis-tools-ts/file';`
@@ -57,6 +59,8 @@ export interface SHPRow {
  * ```ts
  * import { ShapeFileReader, DataBaseFile, Transformer } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const transform = new Transformer();
  * const dbf = new DataBaseFile(new FileReader('./data.dbf'), 'utf-8');
@@ -67,6 +71,9 @@ export interface SHPRow {
  *   console.log(feature);
  * }
  * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Shapefile
  */
 export class ShapeFileReader<
   M = Record<string, unknown>,

@@ -9,8 +9,8 @@ import { toReader } from '..';
 import { Blob, BlobHeader } from './blob';
 
 import type { KVStore } from '../../dataStore';
-import type { Metadata } from './primitive';
 import type { OSMHeader } from './headerBlock';
+import type { OSMMetadata } from './primitive';
 import type { FeatureIterator, Reader, ReaderInputs } from '..';
 import type { IntermediateNodeMember, IntermediateRelation } from './relation';
 import type { IntermediateWay, WayNodes } from './way';
@@ -40,11 +40,29 @@ export type FilterType = 'All' | 'Node' | 'Way' | 'Relation';
 export type FilterMap = Map<string, string | undefined>;
 
 /**
- * TagFilter Class
+ * # Tag Filter
+ *
+ * ## Description
  * Builds a filter for the tags when parsing data.
  * Can parse tags from nodes, ways and relations.
  * Also allows the ability to add tags that apply to all object types.
  * Can filter by key, but also both key and value.
+ *
+ * ## Usage
+ *
+ * Note that if you don't add a filter for a specific type, then that type will pass all
+ * key-value pairs through.
+ * ```ts
+ * const filter = new TagFilter();
+ * // add a node filter
+ * filter.addFilter('Node', 'foo', 'bar');
+ * // add a way filter
+ * filter.addFilter('Way', 'foo', 'bar');
+ * // add a relation filter
+ * filter.addFilter('Relation', 'foo', 'bar');
+ * // add a filter that effects all types
+ * filter.addFilter('All', 'foo', 'bar');
+ * ```
  */
 export class TagFilter {
   #filters: FilterMap = new Map<string, string | undefined>();
@@ -136,14 +154,19 @@ export interface OSMProperties extends Properties {
  * ```ts
  * import { OSMReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const reader = new OSMReader(new FileReader('./data.osm.pbf'));
+ *
  * // pull out the header
  * const header = reader.getHeader();
+ *
  * // read the features
  * for (const feature of reader) {
  *   console.log(feature);
  * }
+ *
  * // close the reader when done
  * reader.close();
  * ```
@@ -152,7 +175,7 @@ export interface OSMProperties extends Properties {
  * - https://wiki.openstreetmap.org/wiki/PBF_Format
  * - https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
  */
-export class OSMReader implements FeatureIterator<Metadata, Properties, OSMProperties> {
+export class OSMReader implements FeatureIterator<OSMMetadata, Properties, OSMProperties> {
   reader: Reader;
   /** if true, remove nodes that have no tags [Default = true] */
   removeEmptyNodes: boolean;
@@ -174,9 +197,8 @@ export class OSMReader implements FeatureIterator<Metadata, Properties, OSMPrope
   addBBox: boolean;
 
   nodeGeometry: KVStore<VectorPoint> = new KV<VectorPoint>();
-  nodes: KVStore<VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry>> = new KV<
-    VectorFeature<Metadata, Properties, OSMProperties, VectorPointGeometry>
-  >();
+  nodes: KVStore<VectorFeature<OSMMetadata, Properties, OSMProperties, VectorPointGeometry>> =
+    new KV<VectorFeature<OSMMetadata, Properties, OSMProperties, VectorPointGeometry>>();
   wayGeometry: KVStore<WayNodes> = new KV<WayNodes>();
   ways: KVStore<IntermediateWay> = new KV<IntermediateWay>();
   relations: KVStore<IntermediateRelation> = new KV<IntermediateRelation>();
@@ -206,7 +228,7 @@ export class OSMReader implements FeatureIterator<Metadata, Properties, OSMPrope
    * @yields {VectorFeature}
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
-    VectorFeature<Metadata, Properties, OSMProperties>
+    VectorFeature<OSMMetadata, Properties, OSMProperties>
   > {
     this.#offset = 0;
     // skip the header

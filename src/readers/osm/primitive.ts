@@ -7,7 +7,7 @@ import type { PbfReader } from 'pbf-ts';
 import type { InfoBlock, OSMProperties, OSMReader } from '.';
 
 /** The expected metadata in the VectorFeature for all types (node, way, relation) */
-export interface Metadata {
+export interface OSMMetadata {
   type: 'node' | 'way' | 'relation';
   info: InfoBlock;
   nodes?: IntermediateNodeMember[];

@@ -89,7 +89,7 @@ function typeToBytes(type: CDFDataType): number {
   }
 }
 
-/** User defined options on how to parse the CSV file */
+/** User defined options on how to parse the NetCDF file */
 export interface NetCDFReaderOptions {
   /** If provided the lookup of the longitude [Default='lon'] */
   lonKey?: string;
@@ -113,12 +113,19 @@ export interface NetCDFReaderOptions {
  * ```ts
  * import { NetCDFReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const reader = new NetCDFReader(new FileReader('./data.nc'));
+ *
+ * // read the features
  * for (const feature of reader) {
  *   console.log(feature);
  * }
  * ```
+ *
+ * ## Links
+ * - https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html
  */
 export class NetCDFReader<
   M = Record<string, unknown>,

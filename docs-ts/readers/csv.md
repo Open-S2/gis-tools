@@ -12,7 +12,7 @@
 
 Parse (Geo|S2)JSON from a file that is in the CSV format.
 
-Implements the `FeatureIterator` interface which means you can use it in a `for await` loop for all the resulting Vector Features.
+Implements the [FeatureIterator](https://open-s2.github.io/gis-tools/interfaces/index.FeatureIterator.html) interface which means you can use it in a `for await` loop for all the resulting Vector Features.
 
 ## Usage
 

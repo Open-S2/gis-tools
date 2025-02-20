@@ -73,7 +73,7 @@ const U32_MAX = 4294967295;
  * # LAS Reader
  *
  * ## Description
- * Reads LAS data. Supports LAS 1.4 specification although missing some support.
+ * Reads LAS data. Supports up to the LAS 1.4 specification.
  * [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
  * Implements the {@link FeatureIterator} interface
  *
@@ -88,8 +88,12 @@ const U32_MAX = 4294967295;
  * ```ts
  * import { LASReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const reader = new LASReader(new FileReader('./data.las'));
+ *
+ * // read the features
  * for (const feature of reader) {
  *   console.log(feature);
  * }
@@ -391,7 +395,7 @@ export interface LAZPointData {
  *
  * ## Description
  * Reads LAS zipped data. Supports LAS 1.4 specification although missing some support.
- * [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
+ * [See specification](https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf)
  * Implements the {@link FeatureIterator} interface
  *
  * Data is stored like so:
@@ -407,8 +411,12 @@ export interface LAZPointData {
  * ```ts
  * import { LASZipReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const reader = new LASZipReader(new FileReader('./data.laz'));
+ *
+ * // read the features
  * for (const feature of reader) {
  *   console.log(feature);
  * }
@@ -423,7 +431,10 @@ export interface LAZPointData {
  * - https://github.com/libLAS/libLAS (deprecated for PDAL)
  * - https://github.com/LASzip
  */
-export class LASZipReader extends LASReader {
+export class LASZipReader
+  extends LASReader
+  implements FeatureIterator<undefined, LASFormat, Properties>
+{
   readonly lazHeader: LAZHeader;
   #dec?: ArithmeticDecoder;
   decompressSelective = 0xffffffff; // all

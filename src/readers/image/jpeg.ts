@@ -63,7 +63,7 @@ export interface OutComponent {
 }
 
 /** A JPEG frame */
-export interface Frame {
+export interface JPEGFrame {
   extended: boolean;
   progressive: boolean;
   precision?: number;
@@ -170,7 +170,7 @@ export class JpegStreamReader {
   adobe: Adobe | null = null;
   jfif: JFIF | null = null;
   exifBuffer: Uint8Array | null = null;
-  frames: Frame[] = [];
+  frames: JPEGFrame[] = [];
   dctZigZag = new Int32Array([
     0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
     13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59,
@@ -251,7 +251,7 @@ export class JpegStreamReader {
      * Prepares the components of the frame
      * @param frame - The frame to parse
      */
-    const prepareComponents = (frame: Frame): void => {
+    const prepareComponents = (frame: JPEGFrame): void => {
       // According to the JPEG standard, the sampling factor must be between 1 and 4
       // See https://github.com/libjpeg-turbo/libjpeg-turbo/blob/9abeff46d87bd201a952e276f3e4339556a403a3/libjpeg.txt#L1138-L1146
       let maxH = 1;
@@ -423,7 +423,7 @@ export class JpegStreamReader {
         case 0xffc2: {
           // SOF2 (Start of Frame, Progressive DCT)
           readUint16(); // skip data length
-          const frame: Frame = {
+          const frame: JPEGFrame = {
             extended: fileMarker === 0xffc1,
             progressive: fileMarker === 0xffc2,
             precision: data[offset++],
@@ -922,7 +922,7 @@ function buildHuffmanTable(codeLengths: Uint8Array, values: Uint8Array): Huffman
 function decodeScan(
   data: Uint8Array,
   offset: number,
-  frame: Frame,
+  frame: JPEGFrame,
   components: JPEGComponent[],
   resetInterval: number,
   spectralStart: number,

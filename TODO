@@ -20,3 +20,5 @@
 [ ] - src/geometry/tools/polys.ts
 
 [ ] - GRIB2 WAVES is incomplete
+
+[ ] - gzip and zstd polyfills are incomplete

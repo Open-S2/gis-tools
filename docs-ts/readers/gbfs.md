@@ -12,7 +12,7 @@
 
 Given a link to a GBFS feed, build the appropriate reader for the feed. The versions of GBFS reader classes this data could be (1, 2, or 3).
 
-Implements the `FeatureIterator` interface which means you can use it in a `for await` loop for all the resulting Vector Features.
+Implements the [FeatureIterator](https://open-s2.github.io/gis-tools/interfaces/index.FeatureIterator.html) interface which means you can use it in a `for await` loop for all the resulting Vector Features.
 
 ## Usage
 

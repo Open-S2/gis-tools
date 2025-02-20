@@ -2,7 +2,7 @@ import { OSMReader } from '.';
 import { MMapKV, MMapReader } from '../../mmap';
 
 import type { OsmReaderOptions } from '.';
-import type { FeatureIterator, Metadata } from '..';
+import type { FeatureIterator, OSMMetadata, OSMProperties, Properties } from '../..';
 
 /**
  * # OSM MMap Reader
@@ -15,13 +15,16 @@ import type { FeatureIterator, Metadata } from '..';
  * ```ts
  * import { OSMMMapReader } from 'gis-tools-ts/mmap';
  *
- * const reader = new OSMReader('./data.osm.pbf');
+ * const reader = new OSMMMapReader('./data.osm.pbf');
+ *
  * // pull out the header
  * const header = reader.getHeader();
+ *
  * // read the features
  * for (const feature of reader) {
  *   console.log(feature);
  * }
+ *
  * // close the reader when done
  * reader.close();
  * ```
@@ -30,7 +33,10 @@ import type { FeatureIterator, Metadata } from '..';
  * - https://wiki.openstreetmap.org/wiki/PBF_Format
  * - https://github.com/openstreetmap/pbf/blob/master/OSM-binary.md
  */
-export class OSMMMapReader extends OSMReader implements FeatureIterator<Metadata> {
+export class OSMMMapReader
+  extends OSMReader
+  implements FeatureIterator<OSMMetadata, Properties, OSMProperties>
+{
   /**
    * @param input - The input (may be a local memory filter or file reader)
    * @param options - User defined options to apply when reading the OSM file

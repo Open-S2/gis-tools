@@ -10,7 +10,21 @@ export * from './dbf';
 export * from './shp';
 
 /**
- * Assumes the input is pointing to shapefile data.
+ * # Read a Shapefile from a Gzip folder.
+ *
+ * ## Description
+ * Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
+ *
+ * ## Usage
+ * ```ts
+ * import { shapefileFromGzip, LambertConformalConic, EPSG_9974 } from 'gis-tools-ts';
+ *
+ * const reader = await shapefileFromGzip(arrayBufferInput, [LambertConformalConic], { EPSG_9974 });
+ *
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
  * @param input - raw buffer of gzipped data (folder of shp, dbf, prj, and/or cpg)
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
@@ -47,7 +61,21 @@ export async function shapefileFromGzip(
 }
 
 /**
+ * # Read a Shapefile from a URL.
+ *
+ * ## Description
  * Assumes the input is pointing to shapefile data or a gzipped folder with .shp, .dbf, .prj, and/or .cpg
+ *
+ * ## Usage
+ * ```ts
+ * import { shapefileFromURL, LambertConformalConic, EPSG_9974 } from 'gis-tools-ts';
+ *
+ * const reader = await shapefileFromURL('https://example.com/data.zip', [LambertConformalConic], { EPSG_9974 });
+ *
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
  * @param url - the url to the shapefile
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed

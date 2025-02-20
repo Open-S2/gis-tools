@@ -3,9 +3,9 @@ import { decompressStream } from '../../util';
 import type { PbfReader } from 'pbf-ts';
 
 // headers have a max size of 64KB
-export const OSM_MAX_HEADER_SIZE = 65536; // 64 * 1024;
+export const OSM_MAX_HEADER_SIZE = 65_536; // 64 * 1024;
 // blobs have a max size of 32MB
-export const OSM_MAX_BLOB_SIZE = 33554432; // 32 * 1024 * 1024;
+export const OSM_MAX_BLOB_SIZE = 33_554_432; // 32 * 1024 * 1024;
 
 /**
  * A file contains an sequence of fileblock headers, each prefixed by

@@ -12,7 +12,7 @@
 
 This class reads a GeoTIFF file and returns a list of GeoTIFF images.
 
-Implements the `FeatureIterator` interface which means you can use it in a `for await` loop for all the resulting Vector Features.
+Implements the [FeatureIterator](https://open-s2.github.io/gis-tools/interfaces/index.FeatureIterator.html) interface which means you can use it in a `for await` loop for all the resulting Vector Features.
 
 ## Usage
 
@@ -49,12 +49,24 @@ If you are not sure what kind of projection to use, use the `ALL_DEFINITIONS` an
 ```ts
 import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from 'gis-tools-ts';
 import { FileReader } from 'gis-tools-ts/file';
+// or use the MMapReader if using Bun:
+// import { MMapReader } from 'gis-tools-ts/mmap';
 
 const fileReader = new FileReader('utf.tif');
 const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
 ```
 
 It's recommended though to reduce build size by passing in the needed definitions and EPSG codes. You can refer to [projections](../proj4/projections.md) and [transformer](../proj4/transformer.md)  docs for more information.
+
+## Polyfills
+
+Geotiff may require the use of DataView using `getFloat16`. [This does not have great coverage across browsers](https://caniuse.com/?search=getFloat16). To alleviate this issue you can take advantage of the polyfills provided:
+
+```ts
+import 'gis-tools-ts/polyfills';
+// OR specifically use the correct polyfills:
+import 'gis-tools-ts/polyfills/dataview';
+```
 
 ## Useful links
 

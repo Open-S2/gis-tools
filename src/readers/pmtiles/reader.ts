@@ -15,7 +15,47 @@ export interface S2PMTilesTileEntry {
   length: number;
 }
 
-/** The File reader is to be used by bun/node/deno on the local filesystem. */
+/**
+ * # (S2) PMTiles Reader
+ *
+ * ## Description
+ * A V3.0 PMTiles reader for reading standard WebMercator Tile data and V1.0 S2 Tile data.
+ *
+ * A Modified implementation of the PMTiles library. It is backwards compatible but
+ * offers support for the S2 Projection.
+ *
+ * You can learn more about the [S2PMTiles Specification here](https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md).
+ *
+ * ## Usage
+ * ```ts
+ * import { S2PMTilesReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
+ * // or use the MMapReader if using Bun:
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
+ *
+ * const reader = new S2PMTilesReader(new FileReader('./data.pmtiles'));
+ *
+ * // pull out the header
+ * const header = reader.getHeader();
+ *
+ * // get the metadata
+ * const metadata = await reader.getMetadata();
+ *
+ * // S2 specific functions
+ * const hasTile = await reader.hasTileS2(0, 0, 0, 0);
+ * const tile = await reader.getTileS2(0, 0, 0, 0);
+ *
+ * // WM functions
+ * const hasTile = await reader.hasTile(0, 0, 0);
+ * const tile = await reader.getTile(0, 0, 0);
+ * ```
+ *
+ * ## Links
+ * - https://github.com/Open-S2/s2-pmtiles
+ * - https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md
+ * - https://github.com/protomaps/PMTiles
+ * - https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md
+ */
 export class S2PMTilesReader {
   #header: Header | S2Header | undefined;
   #reader: Reader;

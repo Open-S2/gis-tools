@@ -20,7 +20,7 @@
 
 ### Data Stores
 
-| Main Modules             | Size                          | Description                                                     -|
+| Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
 | [kd]                     | ![KD Badge][kdBadge]          | KD Spatial index that works in the browser and the filesystem.   |
@@ -41,7 +41,7 @@
 
 ### Data Structures
 
-| Main Modules             | Size                          | Description                                                     -|
+| Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
 | [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |

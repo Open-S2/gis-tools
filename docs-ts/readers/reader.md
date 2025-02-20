@@ -45,7 +45,7 @@ The existing readers are:
 - [MMapReader](https://open-s2.github.io/gis-tools/classes/index.MMapReader.html)
 - [FetchReader](https://open-s2.github.io/gis-tools/classes/index.FetchReader.html)
 
-The MMap Reader is a [Bun](https://bun.sh/) exclusive feature.
+The MMapReader is a [Bun](https://bun.sh/) exclusive feature.
 
 To make the use of each reader as simple as possible, every GIS reader class takes in a [ReaderInputs](https://open-s2.github.io/gis-tools/types/index.ReaderInputs.html) to reduce the pain of needing a specific data type. The allowed inputs are as follows:
 

@@ -1,7 +1,7 @@
 import { Info } from './info';
 import { extendBBox } from '../../geometry';
 
-import type { Metadata } from './primitive';
+import type { OSMMetadata } from './primitive';
 import type { PbfReader } from 'pbf-ts';
 import type { PrimitiveBlock } from './primitive';
 import type { InfoBlock, OSMProperties, OSMReader } from '.';
@@ -35,7 +35,7 @@ export interface IntermediateWay {
 export async function intermediateWayToVectorFeature(
   way: IntermediateWay,
   reader: OSMReader,
-): Promise<VectorFeature<Metadata, Properties, OSMProperties> | undefined> {
+): Promise<VectorFeature<OSMMetadata, Properties, OSMProperties> | undefined> {
   const { addBBox } = reader;
   const { id, isArea, wayNodes, properties, metadata } = way;
   // build line

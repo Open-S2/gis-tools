@@ -111,6 +111,9 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  *   console.log(tile);
  * }
  * ```
+ *
+ * ## Links
+ * - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
  */
 export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
   implements

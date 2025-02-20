@@ -16,7 +16,7 @@ GPX (the GPS Exchange Format) is a light-weight XML data format for the intercha
 
 This implementation is designed to parse the complete [GPX 1.1 Schema](https://www.topografix.com/GPX/1/1/gpx.xsd).
 
-Implements the `FeatureIterator` interface which means you can use it in a `for await` loop for all the resulting Vector Features.
+Implements the [FeatureIterator](https://open-s2.github.io/gis-tools/interfaces/index.FeatureIterator.html) interface which means you can use it in a `for await` loop for all the resulting Vector Features.
 
 ## Usage
 
@@ -25,6 +25,8 @@ Be sure to checkout the [Reader](reader.md) page for more knowledge on how to in
 ```ts
 import { GPXReader } from 'gis-tools-ts';
 import { FileReader } from 'gis-tools-ts/file';
+// or use the MMapReader if using Bun:
+// import { MMapReader } from 'gis-tools-ts/mmap';
 
 const gpxReader = new GPXReader(new FileReader('./example.gpx'));
 

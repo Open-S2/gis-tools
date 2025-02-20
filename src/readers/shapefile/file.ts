@@ -29,8 +29,25 @@ export interface Definition {
 }
 
 /**
+ * # Build a Shapefile from an input path
+ *
+ * ## Description
+ * Given a path to where all the shapefile relevant files exist, build a Shapefile
+ *
  * Assumes the input is pointing to a shapefile or name without the extension.
  * The algorithm will find the rest of the paths if they exist. May also be a gzipped folder.
+ *
+ * ## Usage
+ * ```ts
+ * import { LambertConformalConic, EPSG_9974 } from 'gis-tools-ts';
+ * import { shapefileFromPath } from 'gis-tools-ts/file'; // or 'gis-tools-ts/mmap' if you are using Bun
+ *
+ * const reader = await shapefileFromPath('path/to/files', [LambertConformalConic], { EPSG_9974 });
+ *
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
  * @param input - the path to the .shp file or name without the extension
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
@@ -62,7 +79,30 @@ export async function shapefileFromPath(
 }
 
 /**
- * Build a Shapefile from a Definition
+ * # Build a Shapefile from a Definition
+ *
+ * ## Description
+ * Given a collection of files, build a Shapefile
+ *
+ * ## Usage
+ * ```ts
+ * import { LambertConformalConic, EPSG_9974 } from 'gis-tools-ts';
+ * import { shapefileFromDefinition } from 'gis-tools-ts/file'; // Or 'gis-tools-ts/mmap' if you are using Bun
+ * import type { Definition } from 'gis-tools-ts';
+ *
+ * const def: Definition = {
+ *   shp: 'path/to/file.shp',
+ *   dbf: 'path/to/file.dbf',
+ *   prj: 'path/to/file.prj',
+ *   cpg: 'path/to/file.cpg'
+ * };
+ *
+ * const reader = await shapefileFromDefinition(def, [LambertConformalConic], { EPSG_9974 });
+ *
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
  * @param def - a description of the data to parse
  * @param defs - optional array of ProjectionTransformDefinitions to insert
  * @param epsgCodes - a record of EPSG codes to use for the transformer if needed

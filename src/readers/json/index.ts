@@ -15,9 +15,13 @@ import type { Features, JSONCollection, MValue, Properties, VectorFeatures } fro
  * ```ts
  * import { BufferJSONReader } from 'gis-tools-ts';
  *
- * const reader = new BufferJSONReader('{ type: 'FeatureCollection', features: [...] }');
+ * const reader = new BufferJSONReader(`{ type: 'FeatureCollection', features: [...] }`);
  * // OR
  * const reader = new BufferJSONReader({ type: 'FeatureCollection', features: [...] });
+ * // OR
+ * const reader = new BufferJSONReader(
+ *  await fetch('example.com/data.json').then(async (res) => await res.text())
+ * );
  *
  * // read the features
  * for await (const feature of reader) {
@@ -81,6 +85,7 @@ export class BufferJSONReader<
  * import { FileReader } from 'gis-tools-ts/file';
  *
  * const reader = new NewLineDelimitedJSONReader(new FileReader('./data.geojsonld'));
+ *
  * // read the features
  * for await (const feature of reader) {
  *   console.log(feature);
@@ -144,7 +149,7 @@ export class NewLineDelimitedJSONReader<
 }
 
 /**
- * # GeoJSON Text Sequence Reader
+ * # Text Sequence JSON Reader
  *
  * ## Description
  * Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
@@ -155,18 +160,27 @@ export class NewLineDelimitedJSONReader<
  * import { SequenceJSONReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
  *
- * const reader = new SequenceJSONReader(new FileReader('./data.geojsons'));
+ * const reader = new SequenceJSONReader(new FileReader('./data.geojsonseq'));
+ *
  * // read the features
  * for await (const feature of reader) {
  *   console.log(feature);
  * }
  * ```
+ *
+ * ## Links
+ * - https://datatracker.ietf.org/doc/html/rfc7464
+ * - https://datatracker.ietf.org/doc/html/rfc8142
+ * - https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file
  */
 export class SequenceJSONReader<
-  M = Record<string, unknown>,
-  D extends MValue = MValue,
-  P extends Properties = Properties,
-> extends NewLineDelimitedJSONReader<M, D, P> {
+    M = Record<string, unknown>,
+    D extends MValue = MValue,
+    P extends Properties = Properties,
+  >
+  extends NewLineDelimitedJSONReader<M, D, P>
+  implements FeatureIterator<M, D, P>
+{
   /** @param input - the input to parse from */
   constructor(input: ReaderInputs) {
     super(input, '␞');
@@ -191,6 +205,7 @@ const STRING = 0x22;
  * import { FileReader } from 'gis-tools-ts/file';
  *
  * const reader = new JSONReader(new FileReader('./data.geojsonld'));
+ *
  * // read the features
  * for await (const feature of reader) {
  *   console.log(feature);

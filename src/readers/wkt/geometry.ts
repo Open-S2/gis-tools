@@ -1,13 +1,17 @@
 import { cleanString } from '.';
 
 import type {
+  FeatureIterator,
+  MValue,
+  Properties,
+  VectorFeature,
   VectorGeometry,
   VectorLineString,
   VectorMultiLineString,
   VectorMultiPolygon,
   VectorPoint,
   VectorPointGeometry,
-} from '../../geometry';
+} from '../..';
 
 /** WKT Value can be a point or an array of points */
 export type WKTAValue = VectorPoint | WKTAValue[];
@@ -15,11 +19,79 @@ export type WKTAValue = VectorPoint | WKTAValue[];
 export type WKTArray = WKTAValue[];
 
 /**
- * Parse a WKT string geometry to a VectorGeometry
+ * # WKT Geometry Reader
+ *
+ * ## Description
+ * Parse a collection of WKT geometries from a string
+ * implements the {@link FeatureIterator} interface
+ *
+ * ## Usage
+ * ```ts
+ * import { WKTGeometryReader } from 'gis-tools-ts';
+ *
+ * const reader = new WKTGeometryReader('POINT(4 6) GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(3 4,5 6))');
+ *
+ * // read the features
+ * for await (const feature of reader) {
+ *   console.log(feature);
+ * }
+ * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+ */
+export class WKTGeometryReader<
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+> implements FeatureIterator<M, D, P>
+{
+  data: VectorFeature<M, D, P>[] = [];
+
+  /** @param data - the WKT geometry string to parase */
+  constructor(data: string) {
+    const wktStrings = splitWKTGeometry(data);
+    for (const wktString of wktStrings) {
+      const geometry = parseWKTGeometry<D>(wktString);
+      if (geometry !== undefined)
+        this.data.push({
+          type: 'VectorFeature',
+          geometry,
+          properties: {} as P,
+        });
+    }
+  }
+
+  /**
+   * Generator to iterate over each (Geo|S2)JSON object in the file
+   * @yields {VectorFeature}
+   */
+  async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<M, D, P>> {
+    for (const feature of this.data) yield feature;
+  }
+}
+
+/**
+ * # WKT Geometry Parser
+ *
+ * ## Description
+ * Parse individual geometries from a WKT string into a VectorGeometry
+ *
+ * ## Usage
+ * ```ts
+ * import { parseWKTGeometry } from 'gis-tools-ts';
+ *
+ * const geometry = parseWKTGeometry('POINT (1 2)');
+ * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
  * @param wktStr - WKT string
  * @returns - VectorGeometry
  */
-export function parseWKTGeometry(wktStr: string): VectorGeometry {
+export function parseWKTGeometry<D extends MValue = MValue>(
+  wktStr: string,
+): VectorGeometry<D> | undefined {
   if (wktStr.startsWith('POINT')) return parseWKTPoint(wktStr, wktStr.startsWith('POINT Z'));
   else if (wktStr.startsWith('MULTIPOINT'))
     return parseWKTLine(wktStr, 'MultiPoint', wktStr.startsWith('MULTIPOINT Z'));
@@ -31,7 +103,62 @@ export function parseWKTGeometry(wktStr: string): VectorGeometry {
     return parseWKTMultiLine(wktStr, 'Polygon', wktStr.startsWith('POLYGON Z'));
   else if (wktStr.startsWith('MULTIPOLYGON'))
     return parseWKTMultiPolygon(wktStr, wktStr.startsWith('MULTIPOLYGON Z'));
-  throw new Error('Unimplemented WKT geometry: ' + wktStr);
+}
+
+/**
+ * Split a WKT string into individual geometries
+ * @param input - WKT string that is a collection of geometries
+ * @returns - Array of individual WKT geometries
+ */
+export function splitWKTGeometry(input: string): string[] {
+  // First remove all instances of EMPTY geometry.
+  // So if EMPTY found, delete the word and the word prior:
+  const words = input.split(' ');
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    if (word.includes('EMPTY') && i > 0) {
+      words.splice(i - 1, 2);
+      i--;
+    }
+  }
+  input = words.join(' ');
+
+  const geometries: string[] = [];
+  let start = 0;
+  let found = false;
+  let end = 0;
+  let depth = 0;
+
+  for (let i = start; i < input.length; i++) {
+    const char = input[i];
+
+    if (char === '(') {
+      depth++;
+      found = true;
+    }
+    if (char === ')') depth--;
+    if (found && depth === 0) {
+      end = i + 1;
+      geometries.push(input.slice(start, end).trim());
+      start = end;
+      found = false;
+    }
+  }
+
+  for (let i = 0; i < geometries.length; i++) {
+    const geometry = geometries[i];
+    if (geometry.startsWith('GEOMETRYCOLLECTION')) {
+      geometries.splice(i, 1);
+      i--;
+      // remove "GEOMETRYCOLLECTION(" from beginning of string and ")" from end
+      const clean = geometry.slice(geometry.indexOf('(') + 1, geometry.length - 1);
+      geometries.push(...splitWKTGeometry(clean));
+    } else if (geometry.startsWith(',')) {
+      geometries[i] = geometry.slice(1).trim();
+    }
+  }
+
+  return geometries.filter((g) => g.length > 0);
 }
 
 /**
@@ -40,12 +167,15 @@ export function parseWKTGeometry(wktStr: string): VectorGeometry {
  * @param is3D - true if the point is 3D
  * @returns - VectorPoint
  */
-function parseWKTPoint(wktStr: string, is3D: boolean): VectorPointGeometry {
+function parseWKTPoint<D extends MValue = MValue>(
+  wktStr: string,
+  is3D: boolean,
+): VectorPointGeometry<D> {
   const geo = parseWKTArray(wktStr);
   return {
     type: 'Point',
     is3D,
-    coordinates: geo[0] as VectorPoint,
+    coordinates: geo[0] as VectorPoint<D>,
   };
 }
 
@@ -56,11 +186,11 @@ function parseWKTPoint(wktStr: string, is3D: boolean): VectorPointGeometry {
  * @param is3D - true if the point is 3D
  * @returns - VectorGeometry (LineString or MultiPoint)
  */
-function parseWKTLine(
+function parseWKTLine<D extends MValue = MValue>(
   wktStr: string,
   type: 'MultiPoint' | 'LineString',
   is3D: boolean,
-): VectorGeometry {
+): VectorGeometry<D> {
   let geo = parseWKTArray(wktStr);
   geo =
     geo.length > 0 && Array.isArray(geo[0])
@@ -69,7 +199,7 @@ function parseWKTLine(
   return {
     type,
     is3D,
-    coordinates: geo as VectorLineString,
+    coordinates: geo as VectorLineString<D>,
   };
 }
 
@@ -80,11 +210,11 @@ function parseWKTLine(
  * @param is3D - true if the point is 3D
  * @returns - VectorGeometry
  */
-function parseWKTMultiLine(
+function parseWKTMultiLine<D extends MValue = MValue>(
   wktStr: string,
   type: 'MultiLineString' | 'Polygon',
   is3D: boolean,
-): VectorGeometry {
+): VectorGeometry<D> {
   let geo = parseWKTArray(wktStr) as VectorMultiLineString;
   geo =
     geo.length > 0 && geo[0].length > 0 && Array.isArray(geo[0][0])
@@ -95,7 +225,7 @@ function parseWKTMultiLine(
   return {
     type,
     is3D,
-    coordinates: geo as VectorMultiLineString,
+    coordinates: geo as VectorMultiLineString<D>,
   };
 }
 
@@ -105,7 +235,10 @@ function parseWKTMultiLine(
  * @param is3D - true if each point is 3D
  * @returns - VectorGeometry
  */
-function parseWKTMultiPolygon(wktStr: string, is3D: boolean): VectorGeometry {
+function parseWKTMultiPolygon<D extends MValue = MValue>(
+  wktStr: string,
+  is3D: boolean,
+): VectorGeometry<D> {
   let geo = parseWKTArray(wktStr) as VectorMultiPolygon;
   geo =
     geo.length > 0 && geo[0].length > 0 && geo[0][0].length > 0 && Array.isArray(geo[0][0][0])
@@ -116,7 +249,7 @@ function parseWKTMultiPolygon(wktStr: string, is3D: boolean): VectorGeometry {
   return {
     type: 'MultiPolygon',
     is3D,
-    coordinates: geo as VectorMultiPolygon,
+    coordinates: geo as VectorMultiPolygon<D>,
   };
 }
 
