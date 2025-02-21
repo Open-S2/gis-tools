@@ -1,8 +1,15 @@
 use libm::{atan, cos, exp, floor, log, pow, sin, tan};
 
-use crate::{A, EARTH_CIRCUMFERENCE, MAXEXTENT};
+use crate::space::EARTH_CIRCUMFERENCE;
 
 use core::f64::consts::PI;
+
+/// 900913 (Web Mercator) constant
+pub const A: f64 = 6_378_137.0;
+/// 900913 (Web Mercator) max extent
+pub const MAXEXTENT: f64 = 20_037_508.342789244;
+/// 900913 (Web Mercator) maximum latitude
+pub const MAXLAT: f64 = 85.0511287798;
 
 /// The source of the coordinate inputs
 #[derive(Debug, Clone, PartialEq)]

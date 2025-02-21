@@ -283,13 +283,13 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
-| [gzip]                   | ![GZ Badge][gzBadge]          | gzip compression/decompression convenience methods.              |
+| [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
 | [lzw]                    | ![LZW Badge][lzwBadge]        | lzw decompression methods.                                       |
 
 [polyfills]: /docs-ts/utils/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg
-[gzip]: /docs-ts/utils/gzip.md
-[gzBadge]: /assets/badges/gzip-gzip-cover.svg
+[compression]: /docs-ts/utils/gzip.md
+[cmpBadge]: /assets/badges/gzip-gzip-cover.svg
 [lzw]: /docs-ts/utils/lzw.md
 [lzwBadge]: /assets/badges/lzw-gzip-cover.svg
 

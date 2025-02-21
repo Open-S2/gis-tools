@@ -4,25 +4,30 @@ use core::cmp::Ordering;
 use core::f64::consts::PI;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::s2::{S2CellId, S2Point};
+use crate::geometry::{MValue, S2CellId, S2Point, VectorPoint};
 
 /// This class represents a point on the unit sphere as a pair
 /// of latitude-longitude coordinates.  Like the rest of the "geometry"
 /// package, the intent is to represent spherical geometry as a mathematical
 /// abstraction, so functions that are specifically related to the Earth's
 /// geometry (e.g. easting/northing conversions) should be put elsewhere.
-#[derive(Clone, Copy, Default, PartialEq, Debug)]
-pub struct LonLat {
-    /// longitude in degrees
-    pub lon: f64,
-    /// latitude in degrees
-    pub lat: f64,
-}
+#[derive(Clone, PartialEq, Debug)]
+pub struct LonLat(VectorPoint);
+
 impl LonLat {
-    /// The default constructor sets the latitude and longitude to zero.  This is
-    /// mainly useful when declaring arrays, STL containers, etc.
-    pub fn new(lon: f64, lat: f64) -> Self {
-        LonLat { lon, lat }
+    /// Build a new LonLat
+    pub fn new(lon: f64, lat: f64, m: Option<MValue>) -> LonLat {
+        LonLat(VectorPoint::new(lon, lat, None, m))
+    }
+
+    /// Return the longitude
+    pub fn lon(&self) -> f64 {
+        self.0.x
+    }
+
+    /// Return the latitude
+    pub fn lat(&self) -> f64 {
+        self.0.y
     }
 
     /// Convert a S2CellId to an LonLat
@@ -35,7 +40,7 @@ impl LonLat {
     pub fn from_s2_point(p: &S2Point) -> LonLat {
         let lon_rad = atan2(p.y + 0.0, p.x + 0.0);
         let lat_rad = atan2(p.z, sqrt(p.x * p.x + p.y * p.y));
-        let ll = LonLat::new((lon_rad).to_degrees(), (lat_rad).to_degrees());
+        let ll = LonLat::new((lon_rad).to_degrees(), (lat_rad).to_degrees(), None);
         if !ll.is_valid() {
             unreachable!();
         }
@@ -45,16 +50,16 @@ impl LonLat {
     /// return the value of the axis
     pub fn from_axis(&self, axis: u8) -> f64 {
         if axis == 0 {
-            self.lon
+            self.lon()
         } else {
-            self.lat
+            self.lat()
         }
     }
 
     /// Normalize the coordinates to the range [-180, 180] and [-90, 90] deg.
     pub fn normalize(&mut self) {
-        let mut lon = self.lon;
-        let mut lat = self.lat;
+        let mut lon = self.lon();
+        let mut lat = self.lat();
         while lon < -180. {
             lon += 360.
         }
@@ -71,19 +76,14 @@ impl LonLat {
 
     /// Return the latitude or longitude coordinates in degrees.
     pub fn coords(self) -> (f64, f64) {
-        (self.lon, self.lat)
+        (self.lon(), self.lat())
     }
 
     /// Return true if the latitude is between -90 and 90 degrees inclusive
     /// and the longitude is between -180 and 180 degrees inclusive.
     pub fn is_valid(&self) -> bool {
-        fabs(self.lat) <= (PI / 2.0) && fabs(self.lon) <= PI
+        fabs(self.lat()) <= (PI / 2.0) && fabs(self.lon()) <= PI
     }
-
-    //   // Clamps the latitude to the range [-90, 90] degrees, and adds or subtracts
-    //   // a multiple of 360 degrees to the longitude if necessary to reduce it to
-    //   // the range [-180, 180].
-    //   LonLat Normalized() const;
 
     /// Converts an LonLat to the equivalent unit-length vector.  Unnormalized
     /// values (see Normalize()) are wrapped around the sphere as would be expected
@@ -101,8 +101,8 @@ impl LonLat {
         if !self.is_valid() {
             unreachable!();
         }
-        let lon: f64 = (self.lon).to_degrees();
-        let lat: f64 = (self.lat).to_degrees();
+        let lon: f64 = (self.lon()).to_degrees();
+        let lat: f64 = (self.lat()).to_degrees();
         S2Point::new(
             cos(lat) * cos(lon), // x
             cos(lat) * sin(lon), // y
@@ -112,8 +112,8 @@ impl LonLat {
 
     /// An alternative to to_point() that returns a GPU compatible vector.
     pub fn to_point_gl(&self) -> S2Point {
-        let lon: f64 = (self.lon).to_degrees();
-        let lat: f64 = (self.lat).to_degrees();
+        let lon: f64 = (self.lon()).to_degrees();
+        let lat: f64 = (self.lat()).to_degrees();
         S2Point::new(
             cos(lat) * sin(lon), // y
             sin(lat),            // z
@@ -144,10 +144,10 @@ impl LonLat {
             unreachable!();
         }
 
-        let lat1 = self.lat;
-        let lat2 = b.lat;
-        let lon1 = self.lon;
-        let lon2 = b.lon;
+        let lat1 = self.lat();
+        let lat2 = b.lat();
+        let lon1 = self.lon();
+        let lon2 = b.lon();
         let dlat = sin(0.5 * (lat2 - lat1));
         let dlon = sin(0.5 * (lon2 - lon1));
         let x = dlat * dlat + dlon * dlon * cos(lat1) * cos(lat2);
@@ -167,65 +167,65 @@ impl From<&S2Point> for LonLat {
 impl Add<f64> for LonLat {
     type Output = LonLat;
     fn add(self, rhs: f64) -> Self::Output {
-        LonLat::new(self.lat + rhs, self.lon + rhs)
+        LonLat::new(self.lat() + rhs, self.lon() + rhs, self.0.m)
     }
 }
 impl Add<LonLat> for LonLat {
     type Output = LonLat;
     fn add(self, rhs: LonLat) -> Self::Output {
-        LonLat::new(self.lat + rhs.lat, self.lon + rhs.lon)
+        LonLat::new(self.lat() + rhs.lat(), self.lon() + rhs.lon(), self.0.m)
     }
 }
 impl Sub<LonLat> for LonLat {
     type Output = LonLat;
     fn sub(self, rhs: LonLat) -> Self::Output {
-        LonLat::new(self.lat - rhs.lat, self.lon - rhs.lon)
+        LonLat::new(self.lat() - rhs.lat(), self.lon() - rhs.lon(), self.0.m)
     }
 }
 impl Sub<f64> for LonLat {
     type Output = LonLat;
     fn sub(self, rhs: f64) -> Self::Output {
-        LonLat::new(self.lat - rhs, self.lon - rhs)
+        LonLat::new(self.lat() - rhs, self.lon() - rhs, self.0.m)
     }
 }
 impl Mul<f64> for LonLat {
     type Output = LonLat;
     fn mul(self, rhs: f64) -> Self::Output {
-        LonLat::new(self.lat * rhs, self.lon * rhs)
+        LonLat::new(self.lat() * rhs, self.lon() * rhs, self.0.m)
     }
 }
 impl Mul<LonLat> for f64 {
     type Output = LonLat;
     fn mul(self, rhs: LonLat) -> Self::Output {
-        LonLat::new(self * rhs.lat, self * rhs.lon)
+        LonLat::new(self * rhs.lat(), self * rhs.lon(), rhs.0.m)
     }
 }
 impl Div<f64> for LonLat {
     type Output = LonLat;
     fn div(self, rhs: f64) -> Self::Output {
-        LonLat::new(self.lat / rhs, self.lon / rhs)
+        LonLat::new(self.lat() / rhs, self.lon() / rhs, self.0.m)
     }
 }
 impl Div<LonLat> for LonLat {
     type Output = LonLat;
     fn div(self, rhs: LonLat) -> Self::Output {
-        LonLat::new(self.lat / rhs.lat, self.lon / rhs.lon)
+        LonLat::new(self.lat() / rhs.lat(), self.lon() / rhs.lon(), self.0.m)
     }
 }
 impl Neg for LonLat {
     type Output = LonLat;
     fn neg(self) -> Self::Output {
-        LonLat::new(-self.lat, -self.lon)
+        LonLat::new(-self.lat(), -self.lon(), self.0.m)
     }
 }
 impl Eq for LonLat {}
 impl Ord for LonLat {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.lon.partial_cmp(&other.lon) {
+        match self.lon().partial_cmp(&other.lon()) {
             Some(Ordering::Equal) => {}
             other => return other.unwrap(), // Handle cases where `lon` comparison is not equal
         }
-        match self.lat.partial_cmp(&other.lat) {
+        match self.lat().partial_cmp(&other.lat()) {
             Some(order) => order,
             None => Ordering::Equal, // This handles the NaN case safely
         }

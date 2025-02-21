@@ -314,6 +314,7 @@ export function intersectsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId, vertices: Ver
 }
 
 /**
+ * Return the cells that intersect the cap.
  * @param cap - the cap
  * @returns - the cells that intersect the cap
  */

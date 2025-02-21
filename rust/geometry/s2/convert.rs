@@ -1,8 +1,14 @@
-use crate::{Face, LonLat, S2CellId, VectorFeature, VectorGeometry, VectorPoint};
+use crate::geometry::{Face, LonLat, S2CellId, VectorFeature, VectorGeometry, VectorPoint};
 
-impl<M: Clone> VectorFeature<M> {
+/// Underlying conversion mechanic to move S2 Geometry to GeoJSON Geometry
+pub trait ConvertVectorFeatureS2<M: Clone> {
     /// Convert an S2 Feature to a GeoJSON Vector Feature
-    pub fn to_wm(&self) -> Self {
+    fn to_wm(&self) -> Self;
+}
+
+impl<M: Clone> ConvertVectorFeatureS2<M> for VectorFeature<M> {
+    /// Convert an S2 Feature to a GeoJSON Vector Feature
+    fn to_wm(&self) -> Self {
         if self._type == "VectorFeature" {
             return self.clone();
         }
@@ -40,7 +46,7 @@ fn convert_geometry(face: Face, geometry: &mut VectorGeometry) {
 
 /// Mutate an S2 Point to a GeoJSON Point
 fn convert_geometry_point(face: Face, point: &mut VectorPoint) {
-    let LonLat { lon, lat } = (&S2CellId::from_face_st(face.into(), point.x, point.y)).into();
-    point.x = lon;
-    point.y = lat;
+    let ll: LonLat = (&S2CellId::from_face_st(face.into(), point.x, point.y)).into();
+    point.x = ll.lon();
+    point.y = ll.lat();
 }

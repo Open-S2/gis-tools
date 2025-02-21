@@ -52,11 +52,13 @@ globalThis.CompressionStream ??= class CompressionStream {
   constructor(format: Format) {
     make(
       this,
-      format === 'deflate'
-        ? zlib.createDeflate()
-        : format === 'gzip'
-          ? zlib.createGzip()
-          : zlib.createDeflateRaw(),
+      format === 'br'
+        ? zlib.createBrotliCompress()
+        : format === 'deflate'
+          ? zlib.createDeflate()
+          : format === 'gzip'
+            ? zlib.createGzip()
+            : zlib.createDeflateRaw(),
     );
   }
 };
@@ -68,11 +70,13 @@ globalThis.DecompressionStream ??= class DecompressionStream {
   constructor(format: Format) {
     make(
       this,
-      format === 'deflate'
-        ? zlib.createInflate()
-        : format === 'gzip'
-          ? zlib.createGunzip()
-          : zlib.createInflateRaw(),
+      format === 'br'
+        ? zlib.createBrotliDecompress()
+        : format === 'deflate'
+          ? zlib.createInflate()
+          : format === 'gzip'
+            ? zlib.createGunzip()
+            : zlib.createInflateRaw(),
     );
   }
 };

@@ -1,15 +1,19 @@
-/// S2 Cell ID
-pub mod cellid;
+/// S2 Cap
+mod cap;
 /// S2 Conversion tools
-pub mod convert;
+mod convert;
 /// S2 Coordinates
-pub mod coords;
+mod coords;
 /// S2 Coordinates internal methods
-pub mod coords_internal;
+mod coords_internal;
+/// S2 Metric
+mod metrics;
 /// S2 Point
-pub mod point;
+mod point;
 
-pub use cellid::*;
+pub use cap::*;
+pub use convert::*;
 pub use coords::*;
 pub use coords_internal::*;
+pub use metrics::*;
 pub use point::*;

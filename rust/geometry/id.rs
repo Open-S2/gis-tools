@@ -4,15 +4,18 @@ use libm::{fmax, fmin};
 
 use alloc::{string::String, vec::Vec};
 
-use crate::{
+use crate::geometry::{
     face_si_ti_to_xyz, face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox,
     LonLat, S2Point, K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
 };
 
-use super::LOOKUP_IJ;
+use super::{get_v_norm, s2::LOOKUP_IJ};
 
 /// Cell ID works with both S2 and WM with a common interface
 pub type CellId = S2CellId;
+
+/// The S2CellId's four corners
+pub type S2CellVertices = [S2Point; 4];
 
 // The following lookup tables are used to convert efficiently between an
 // (i,j) cell index and the corresponding position along the Hilbert curve.
@@ -262,6 +265,66 @@ impl S2CellId {
         }
 
         (face, i, j, bits as u8)
+    }
+
+    /// Returns the four edges of the cell.  Edges are returned in CCW order
+    /// (lower left, lower right, upper right, upper left in the UV plane).
+    pub fn get_edges(&self) -> S2CellVertices {
+        let mut edges = self.get_edges_raw();
+        for e in edges.iter_mut() {
+            e.normalize();
+        }
+        edges
+    }
+
+    /// Returns the inward-facing normal of the great circle passing through the
+    /// edge from vertex k to vertex k+1 (mod 4). The normals returned by
+    /// getEdgesRaw are not necessarily unit length.
+    pub fn get_edges_raw(&self) -> S2CellVertices {
+        let f = self.face();
+        let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
+        [
+            get_v_norm(f, v_low),
+            get_v_norm(f, u_high),
+            get_v_norm(f, v_high).invert(),
+            get_v_norm(f, u_low).invert(),
+        ]
+    }
+
+    /// Returns the four vertices of the cell.  Vertices are returned
+    /// in CCW order (lower left, lower right, upper right, upper left in the UV
+    /// plane).  The points returned by getVerticesRaw are not normalized.
+    pub fn get_vertices(&self) -> S2CellVertices {
+        let mut vertices = self.get_vertices_raw();
+        for v in vertices.iter_mut() {
+            v.normalize();
+        }
+        vertices
+    }
+
+    /// Returns the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
+    /// in CCW order (lower left, lower right, upper right, upper left in the UV
+    /// plane).  The points returned by getVerticesRaw are not normalized.
+    pub fn get_vertices_raw(&self) -> S2CellVertices {
+        let f = self.face();
+        let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
+        [
+            face_uv_to_xyz(f, u_low, v_low),
+            face_uv_to_xyz(f, u_high, v_low),
+            face_uv_to_xyz(f, u_high, v_high),
+            face_uv_to_xyz(f, u_low, v_high),
+        ]
+    }
+
+    /// Return the bounds of this cell in (u,v)-space.
+    pub fn get_bound_uv(&self) -> BBox {
+        let (_, i, j, _) = self.to_face_ij_orientation(None);
+        ij_level_to_bound_uv(i, j, self.level())
+    }
+
+    /// Return the size of a cell at the given level.
+    pub fn get_size_ij(&self) -> u64 {
+        1_u64 << (K_MAX_LEVEL - self.level() as u64)
     }
 
     /// Return the (face, si, ti) coordinates of the center of the cell.  Note
@@ -526,6 +589,12 @@ impl S2CellId {
         *other >= min && *other <= max
     }
 
+    /// Check if an S2CellID contains an S2Point
+    pub fn contains_s2point(&self, p: &S2Point) -> bool {
+        let p_id = S2CellId::from_s2_point(p);
+        self.contains(&p_id)
+    }
+
     /// Check if an S2CellID intersects another. This includes edges touching.
     pub fn intersects(&self, other: &S2CellId) -> bool {
         let (min_self, max_self) = self.range();
@@ -756,5 +825,22 @@ pub fn size_st(level: u8) -> f64 {
 
 /// Return the range maximum of a level (zoom) in I-J space
 pub fn size_ij(level: u8) -> u32 {
-    1 << (30 - level)
+    1 << (K_MAX_CELL_LEVEL - level)
+}
+
+/// Return the range maximum of a level (zoom) in (u,v) space
+pub fn ij_level_to_bound_uv(i: u32, j: u32, level: u8) -> BBox {
+    let cell_size = size_ij(level) as i32;
+    let i_low = i as i32 & -cell_size;
+    let j_low = j as i32 & -cell_size;
+    let min_i = i_low;
+    let max_i = i_low + cell_size;
+    let min_j = j_low;
+    let max_j = j_low + cell_size;
+    BBox::new(
+        ST_TO_UV(ij_to_st(min_i as u32)),
+        ST_TO_UV(ij_to_st(min_j as u32)),
+        ST_TO_UV(ij_to_st(max_i as u32)),
+        ST_TO_UV(ij_to_st(max_j as u32)),
+    )
 }

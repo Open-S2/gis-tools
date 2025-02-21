@@ -1,10 +1,10 @@
 import type { Encoding } from 's2-tilejson';
 
-export * from './gzip';
+export * from './compression';
 export * from './lzw';
 
 /** The formats available to DecompressionStream */
-export type Format = 'deflate' | 'deflate-raw' | 'gzip';
+export type Format = 'deflate' | 'deflate-raw' | 'gzip' | 'br' | 'zstd';
 
 /**
  * Enum representing a compression algorithm used.

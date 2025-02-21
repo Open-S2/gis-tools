@@ -2,11 +2,9 @@ use core::cmp::Ordering;
 use core::fmt::Debug;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
-use libm::{fabs, sqrt};
+use libm::{atan2, fabs, sqrt};
 
-use crate::{s2::xyz_to_face_uv, wm::LonLat, xyz_to_face_st};
-
-use super::S2CellId;
+use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
 
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
 /// points are normalized to be unit length, but some methods do not require
@@ -46,6 +44,23 @@ impl S2Point {
         }
     }
 
+    /// Returns the angle between "this" and v in radians, in the range [0, pi]. If
+    /// either vector is zero-length, or nearly zero-length, the result will be
+    /// zero, regardless of the other value.
+    pub fn angle(&self, b: &Self) -> f64 {
+        // return atan2(T, self.cross(b).norm(), self.dot(b));
+        atan2(self.cross(b).len(), self.dot(b))
+    }
+
+    /// Get the corss product of two XYZ Points
+    pub fn cross(&self, b: &Self) -> Self {
+        Self::new(
+            self.y * b.z - self.z * b.y,
+            self.z * b.x - self.x * b.z,
+            self.x * b.y - self.y * b.x,
+        )
+    }
+
     /// Returns a Face-ST representation of this point
     pub fn to_face_st(&self) -> (u8, f64, f64) {
         xyz_to_face_st(self)
@@ -71,6 +86,11 @@ impl S2Point {
         sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
     }
 
+    /// Returns the inverse of the point
+    pub fn invert(&self) -> Self {
+        Self::new(-self.x, -self.y, -self.z)
+    }
+
     /// return the distance from this point to the other point
     pub fn distance(&self, b: &Self) -> f64 {
         let d = *self - *b;
@@ -93,15 +113,34 @@ impl S2Point {
         }
     }
 
+    /// Returns the intermediate point between this and the other point.
+    pub fn intermediate(&self, b: &Self, t: f64) -> Self {
+        Self::new(
+            self.x + ((b.x - self.x) * (1.0 - t)),
+            self.y + ((b.y - self.y) * (1.0 - t)),
+            self.z + ((b.z - self.z) * (1.0 - t)),
+        )
+    }
+
     /// Normalize this point to unit length.
     pub fn normalize(&mut self) {
-        let mut len = self.x * self.x + self.y * self.y + self.z * self.z;
+        let mut len = self.norm();
         if len > 0.0 {
             len = sqrt(len);
             self.x /= len;
             self.y /= len;
             self.z /= len;
         }
+    }
+
+    /// norm returns the vector's norm.
+    pub fn norm(&self) -> f64 {
+        sqrt(self.norm2())
+    }
+
+    /// norm2 returns the square of the norm.
+    pub fn norm2(&self) -> f64 {
+        self.dot(self)
     }
 }
 impl From<&LonLat> for S2Point {
@@ -195,48 +234,3 @@ impl PartialOrd for S2Point {
         Some(self.cmp(other))
     }
 }
-
-//     /// norm returns the vector's norm.
-//     pub fn norm(&self) T {
-//         return @sqrt(self.norm2());
-//     }
-
-//     /// norm2 returns the square of the norm.
-//     pub fn norm2(&self) T {
-//         return self.dot(self);
-//     }
-
-//     pub fn normalize(&self) S2PointType(T) {
-//         const len = self.norm();
-//         return Init(self.x / len, self.y / len, self.z / len);
-//     }
-
-//     pub fn distance(a: *const Self, b: *const S2PointType(T)) T {
-//         return @sqrt(pow(@abs(b.x - a.x), 2) + pow(@abs(b.y - a.y), 2) + pow(@abs(b.z - a.z), 2));
-//     }
-
-//     pub fn cross(&self, b: *const S2PointType(T)) S2PointType(T) {
-//         return Init(
-//             self.y * b.z - self.z * b.y,
-//             self.z * b.x - self.x * b.z,
-//             self.x * b.y - self.y * b.x,
-//         );
-//     }
-
-//     pub fn intermediate(&self, b: *const S2PointType(T), t: T) S2PointType(T) {
-//         var c = .{
-//             .x = (self.x) + ((b.x - self.x) * (1 - t)),
-//             .y = (self.y) + ((b.y - self.y) * (1 - t)),
-//             .z = (self.z) + ((b.z - self.z) * (1 - t)),
-//         };
-//         return c.normalize();
-//     }
-
-//     /// Returns the angle between "this" and v in radians, in the range [0, pi]. If
-//     /// either vector is zero-length, or nearly zero-length, the result will be
-//     /// zero, regardless of the other value.
-//     pub fn angle(&self, b: *const S2PointType(T)) T {
-//         return atan2(T, self.cross(b).norm(), self.dot(b));
-//     }
-// };
-// }

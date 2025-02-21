@@ -1,13 +1,15 @@
-// import { toWM } from './s2';
-// import { toS2, toUnitScale, toVector } from './wm';
-
 use alloc::vec;
 use alloc::vec::Vec;
 
-use crate::{Feature, JSONCollection, Projection, VectorFeature, WMFeature};
+use crate::geometry::{
+    ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Feature, JSONCollection,
+    Projection, VectorFeature, WMFeature,
+};
 
 /// Given an input data, convert it to a vector of VectorFeature
-pub fn convert<M: Clone>(
+pub fn convert<
+    M: Clone + ConvertVectorFeatureWM<M> + ConvertFeature<M> + ConvertVectorFeatureS2<M>,
+>(
     projection: Projection,
     data: &JSONCollection<M>,
     tolerance: Option<f64>,
@@ -48,7 +50,7 @@ pub fn convert<M: Clone>(
 }
 
 /// Convert a GeoJSON Feature to the appropriate VectorFeature
-fn convert_feature<M: Clone>(
+fn convert_feature<M: Clone + ConvertFeature<M> + ConvertVectorFeatureS2<M>>(
     projection: Projection,
     data: &Feature<M>,
     tolerance: Option<f64>,
@@ -66,7 +68,7 @@ fn convert_feature<M: Clone>(
 }
 
 /// Convert a GeoJSON VectorFeature to the appropriate VectorFeature
-fn convert_vector_feature<M: Clone>(
+fn convert_vector_feature<M: Clone + ConvertVectorFeatureWM<M>>(
     projection: Projection,
     data: &VectorFeature<M>,
     tolerance: Option<f64>,

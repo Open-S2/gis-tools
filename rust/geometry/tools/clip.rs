@@ -2,7 +2,7 @@ use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
 
-use crate::{
+use crate::geometry::{
     Axis, BBox3D, HasLayer, MValue, Tile, VectorFeature, VectorGeometry, VectorGeometryType,
     VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
     VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygon,

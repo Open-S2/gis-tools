@@ -6,9 +6,10 @@ use alloc::vec::Vec;
 
 use libm::round;
 
-use crate::{
-    convert, CellId, Face, JSONCollection, Projection, TileChildren, VectorFeature, VectorGeometry,
-    VectorPoint,
+use crate::geometry::{
+    convert, CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
+    JSONCollection, Projection, SimplifyVectorGeometry, TileChildren, VectorFeature,
+    VectorGeometry, VectorPoint,
 };
 
 /// If a user creates metadata for a VectorFeature, it needs to define a get_layer function
@@ -138,7 +139,14 @@ impl<M: HasLayer + Clone> Default for TileStore<M> {
         }
     }
 }
-impl<M: HasLayer + Clone> TileStore<M> {
+impl<
+        M: HasLayer
+            + Clone
+            + ConvertFeature<M>
+            + ConvertVectorFeatureWM<M>
+            + ConvertVectorFeatureS2<M>,
+    > TileStore<M>
+{
     /// Create a new TileStore
     pub fn new(data: JSONCollection<M>, options: TileStoreOptions) -> Self {
         let mut tile_store = Self {
@@ -258,9 +266,15 @@ impl<M: HasLayer + Clone> TileStore<M> {
     }
 }
 
-impl VectorGeometry {
+/// A trait for transforming a geometry from the 0->1 coordinate system to a tile coordinate system
+pub trait TransformVectorGeometry {
     /// Transform the geometry from the 0->1 coordinate system to a tile coordinate system
-    pub fn transform(&mut self, zoom: u8, ti: f64, tj: f64) {
+    fn transform(&mut self, zoom: u8, ti: f64, tj: f64);
+}
+
+impl TransformVectorGeometry for VectorGeometry {
+    /// Transform the geometry from the 0->1 coordinate system to a tile coordinate system
+    fn transform(&mut self, zoom: u8, ti: f64, tj: f64) {
         let zoom = (1 << (zoom as u64)) as f64;
         match self {
             VectorGeometry::Point(p) => p.coordinates.transform(zoom, ti, tj),
@@ -278,9 +292,15 @@ impl VectorGeometry {
     }
 }
 
-impl VectorPoint {
+/// A trait for transforming a point from the 0->1 coordinate system to a tile coordinate system
+pub trait TransformVectorPoint {
     /// Transform the point from the 0->1 coordinate system to a tile coordinate system
-    pub fn transform(&mut self, zoom: f64, ti: f64, tj: f64) {
+    fn transform(&mut self, zoom: f64, ti: f64, tj: f64);
+}
+
+impl TransformVectorPoint for VectorPoint {
+    /// Transform the point from the 0->1 coordinate system to a tile coordinate system
+    fn transform(&mut self, zoom: f64, ti: f64, tj: f64) {
         self.x = round(self.x * zoom - ti);
         self.y = round(self.y * zoom - tj);
     }

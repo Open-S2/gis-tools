@@ -16,7 +16,10 @@
     ".": "./dist/index.js",
     "./file": "./dist/file.js",
     "./mmap": "./dist/mmap.js",
-    "./polyfills": "./dist/polyfills.js"
+    "./polyfills": "./dist/polyfills.js",
+    "./polyfills/dataview": "./dist/polyfills/util/dataview.js",
+    "./polyfills/gzip": "./dist/polyfills/util/gzip.js",
+    "./polyfills/zstd": "./dist/polyfills/util/zstd.js"
   },
   "directories": {
     "lib": "dist"

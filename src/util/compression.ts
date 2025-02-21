@@ -12,7 +12,7 @@ export async function compressStream(bytes: Uint8Array, format?: Format): Promis
   // Convert the string to a byte stream.
   const stream = new Blob([bytes]).stream();
   // Create a compressed stream.
-  const compressedStream = stream.pipeThrough(new CompressionStream(format ?? 'gzip'));
+  const compressedStream = stream.pipeThrough(new CompressionStream((format ?? 'gzip') as 'gzip'));
   // Read all the bytes from this stream.
   const chunks = [];
   for await (const chunk of compressedStream) chunks.push(chunk);
@@ -32,7 +32,7 @@ export async function decompressStream(bytes: Uint8Array, format?: Format): Prom
   const stream = new Blob([bytes]).stream();
 
   // Create a decompressed stream.
-  const decompressedStream = stream.pipeThrough(new DecompressionStream(format));
+  const decompressedStream = stream.pipeThrough(new DecompressionStream(format as 'gzip'));
   // Read all the bytes from this stream.
   const chunks = [];
   for await (const chunk of decompressedStream) chunks.push(chunk);

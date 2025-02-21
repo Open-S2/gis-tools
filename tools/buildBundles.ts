@@ -75,7 +75,7 @@ await build({
     `${__dirname}/builds/tools/orthodrome.ts`,
     `${__dirname}/builds/tools/polylabel.ts`,
     // UTIL
-    `${__dirname}/builds/util/gzip.ts`,
+    `${__dirname}/builds/util/compression.ts`,
     `${__dirname}/builds/util/lzw.ts`,
     `${__dirname}/builds/util/polyfills.ts`,
     // WRITERS

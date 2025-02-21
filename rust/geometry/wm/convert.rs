@@ -1,4 +1,4 @@
-use crate::{
+use crate::geometry::{
     build_sq_dists, clip_line, BBox3D, ClipLineResultWithBBox, Face, Feature, Geometry, LonLat,
     S2Feature, S2Point, STPoint, VectorFeature, VectorGeometry, VectorGeometryType,
     VectorLineString, VectorLineStringGeometry, VectorMultiLineStringGeometry,
@@ -10,21 +10,37 @@ use alloc::collections::BTreeSet;
 use alloc::vec;
 use alloc::vec::Vec;
 
+/// Underlying conversion mechanic to move GeoJSON Feature to GeoJSON Vector Feature
+pub trait ConvertFeature<M: Clone> {
+    /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
+    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M>;
+}
+
 // TODO: We are cloning geometry twice at times. Let's optimize (check "to_vec" and "clone" cases)
 
-impl<M: Clone> Feature<M> {
+impl<M: Clone> ConvertFeature<M> for Feature<M> {
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
-    pub fn to_vector(data: &Feature<M>, build_bbox: Option<bool>) -> VectorFeature<M> {
+    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M> {
         let build_bbox = build_bbox.unwrap_or(false);
-        let Feature { id, properties, metadata, geometry, .. } = data;
+        let Feature { id, properties, metadata, geometry, .. } = self;
         let vector_geo = convert_geometry(geometry, build_bbox);
         VectorFeature::new_wm(*id, properties.clone(), vector_geo, metadata.clone())
     }
 }
 
-impl<M: Clone> VectorFeature<M> {
+/// Underlying conversion mechanic to move GeoJSON Geometry to S2 Geometry
+pub trait ConvertVectorFeatureWM<M: Clone> {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
-    pub fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>) {
+    fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>);
+    /// Convert a 0->1 coordinate system to lon-lat
+    fn to_ll(&mut self);
+    /// Convert a GeoJSON Vector Feature to an S2 Feature
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<S2Feature<M>>;
+}
+
+impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
+    /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
+    fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>) {
         let mut bbox: Option<BBox3D> = None;
         match &mut self.geometry {
             VectorGeometry::Point(geo) => {
@@ -55,7 +71,7 @@ impl<M: Clone> VectorFeature<M> {
     }
 
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
-    pub fn to_ll(&mut self) {
+    fn to_ll(&mut self) {
         match &mut self.geometry {
             VectorGeometry::Point(geo) => {
                 geo.coordinates.unproject();
@@ -75,7 +91,7 @@ impl<M: Clone> VectorFeature<M> {
     }
 
     /// Convet a GeoJSON Feature to an S2Feature
-    pub fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<S2Feature<M>> {
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<S2Feature<M>> {
         let VectorFeature { _type, id, properties, metadata, geometry, .. } = self;
         let mut res: Vec<S2Feature<M>> = vec![];
 
@@ -361,9 +377,12 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
 
 /// The resultant geometry after conversion
 pub struct ConvertedGeometry {
+    /// The converted geometry
     pub geometry: VectorGeometry,
+    /// The face of the geometry
     pub face: Face,
 }
+/// A list of converted geometries
 pub type ConvertedGeometryList = Vec<ConvertedGeometry>;
 
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
@@ -412,7 +431,7 @@ fn convert_geometry_wm_to_s2(
 fn convert_geometry_point(geometry: &VectorPointGeometry) -> ConvertedGeometryList {
     let VectorPointGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
     let mut new_point = coordinates.clone();
-    let ll: S2Point = (&LonLat::new(new_point.x, new_point.y)).into();
+    let ll: S2Point = (&LonLat::new(new_point.x, new_point.y, new_point.m.clone())).into();
     let (face, s, t) = ll.to_face_st();
     new_point.x = s;
     new_point.y = t;
@@ -582,7 +601,7 @@ fn convert_line_string(line: &VectorLineString, is_polygon: bool) -> Vec<Convert
     // first re-project all the coordinates to S2
     let mut new_geometry: Vec<STPoint> = vec![];
     for VectorPoint { x: lon, y: lat, z, m, .. } in line {
-        let ll: S2Point = (&LonLat::new(*lon, *lat)).into();
+        let ll: S2Point = (&LonLat::new(*lon, *lat, m.clone())).into();
         let (face, s, t) = ll.to_face_st();
         new_geometry.push(STPoint { face: face.into(), s, t, z: *z, m: m.clone() });
     }
@@ -634,9 +653,13 @@ fn rotate(rot: Rotation, s: f64, t: f64) -> (f64, f64) {
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
+/// Track the rotation of a face
 pub enum Rotation {
+    /// No rotation
     _0,
+    /// Rotate 90 degrees
     _90,
+    /// Rotate -90 degrees
     _Neg90,
 }
 

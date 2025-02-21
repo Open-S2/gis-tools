@@ -1,17 +1,25 @@
-use crate::{VectorGeometry, VectorLineString, VectorPoint};
+use crate::geometry::{VectorGeometry, VectorLineString, VectorPoint};
 
 use libm::pow;
 
 use alloc::vec;
 
-impl VectorGeometry {
+/// Functions to simplify a vector geometry
+pub trait SimplifyVectorGeometry {
+    /// Build sequential distances for a vector geometry
+    fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>);
+    /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
+    fn simplify(&mut self, tolerance: f64, zoom: u8, maxzoom: Option<u8>);
+}
+
+impl SimplifyVectorGeometry for VectorGeometry {
     /// Build sqdistances for a vector geometry
-    pub fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>) {
+    fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>) {
         build_sq_dists(self, tolerance, maxzoom);
     }
 
     /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
-    pub fn simplify(&mut self, tolerance: f64, zoom: u8, maxzoom: Option<u8>) {
+    fn simplify(&mut self, tolerance: f64, zoom: u8, maxzoom: Option<u8>) {
         simplify(self, tolerance, zoom, maxzoom);
     }
 }

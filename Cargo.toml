@@ -48,6 +48,7 @@ linear = []             # Feature for linear projection
 
 [dependencies]
 pbf = "1"
+s2json = "1"
 libm = "0.2"
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }

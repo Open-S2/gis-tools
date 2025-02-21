@@ -1,11 +1,11 @@
-// const S2Point = @import("../point.zig").S2Point;
-// const LonLat = @import("../lonlat.zig").LonLat;
-// const s2earth = @import("../earth.zig");
-// const radiusMeters = s2earth.radiusMeters;
-// const radiusKm = s2earth.radiusKm;
-// const FastIntRound = @import("../s2/coordsInternal.zig");
+use crate::{
+    geometry::{LonLat, S2Point},
+    space::EARTH_RADIUS,
+};
 
+use core::cmp::Ordering;
 use core::f64::consts::PI;
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 /// This class represents a one-dimensional angle (as opposed to a
 /// two-dimensional solid angle).  It has methods for converting angles to
@@ -51,212 +51,204 @@ use core::f64::consts::PI;
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
-#[derive(Copy, Clone, Default, PartialEq, Debug)]
+#[derive(Copy, Clone, Default, Debug)]
 pub struct S1Angle {
+    /// Angle in radians
     pub radians: f64,
 }
 impl S1Angle {
+    /// Creates an S1Angle from a value in radians.
     pub fn new(radians: f64) -> Self {
         Self { radians }
     }
 
-    pub fn from_degrees(degrees: f64) -> Self {
-        Self { radians: degrees * (PI / 180.0) }
-    }
-
+    /// Creates an S1Angle with an infinite value.
     pub fn infinity() -> Self {
         Self { radians: f64::INFINITY }
     }
 
-    pub fn degrees(&self) -> f64 {
-        (180. / PI) * self.radians
+    /// Creates an S1Angle from a value in degrees, converting it to radians.
+    pub fn from_degrees(degrees: f64) -> Self {
+        Self { radians: degrees.to_radians() }
+    }
+
+    /// Returns the angle in degrees.
+    pub fn to_degrees(&self) -> f64 {
+        self.radians.to_degrees()
+    }
+
+    /// build an angle in E5 format.
+    pub fn to_e5(e5_: f64) -> Self {
+        Self::from_degrees(e5_ * 1e-5)
+    }
+
+    /// build an angle in E6 format.
+    pub fn to_e6(e6_: f64) -> Self {
+        Self::from_degrees(e6_ * 1e-6)
+    }
+
+    /// build an angle in E7 format.
+    pub fn to_e7(e7_: f64) -> Self {
+        Self::from_degrees(e7_ * 1e-7)
+    }
+
+    /// Return the angle between two points, which is also equal to the distance
+    /// between these points on the unit sphere.  The points do not need to be
+    /// normalized.  This function has a maximum error of 3.25 * DBL_EPSILON (or
+    /// 2.5 * DBL_EPSILON for angles up to 1 radian). If either point is
+    /// zero-length (e.g. an uninitialized S2Point), or almost zero-length, the
+    /// resulting angle will be zero.
+    pub fn from_s2points(a: &S2Point, b: &S2Point) -> Self {
+        a.angle(b).into()
+    }
+
+    /// Like the constructor above, but return the angle (i.e., distance) between
+    /// two S2LatLng points.  This function has about 15 digits of accuracy for
+    /// small distances but only about 8 digits of accuracy as the distance
+    /// approaches 180 degrees (i.e., nearly-antipodal points).
+    pub fn from_lon_lat(a: &LonLat, b: &LonLat) -> Self {
+        a.get_distance(b).into()
+    }
+
+    /// Convert an angle in radians to an angle in meters
+    /// If no radius is specified, the Earth's radius is used.
+    pub fn to_meters(&self, radius: Option<f64>) -> f64 {
+        let radius = radius.unwrap_or(EARTH_RADIUS);
+        self.radians * radius
+    }
+
+    /// Convert an angle in meters to an angle in radians
+    /// If no radius is specified, the Earth's radius is used.
+    pub fn from_meters(angle: f64, radius: Option<f64>) -> Self {
+        let radius = radius.unwrap_or(EARTH_RADIUS);
+        (angle / radius).into()
+    }
+
+    /// Convert an angle in radians to an angle in kilometers
+    /// If no radius is specified, the Earth's radius is used.
+    pub fn to_km(&self, radius: Option<f64>) -> f64 {
+        let radius = radius.unwrap_or(EARTH_RADIUS);
+        self.radians * radius / 1_000.0
+    }
+
+    /// Convert an angle in kilometers to an angle in radians
+    /// If no radius is specified, the Earth's radius is used.
+    pub fn from_km(angle: f64, radius: Option<f64>) -> Self {
+        let radius = radius.unwrap_or(EARTH_RADIUS);
+        ((angle * 1_000.0) / radius).into()
+    }
+
+    // Note that the E5, E6, and E7 conversion involve two multiplications rather
+    // than one.  This is mainly for backwards compatibility (changing this would
+    // break many tests), but it does have the nice side effect that conversions
+    // between Degrees, E6, and E7 are exact when the arguments are integers.
+
+    /// Build an angle in E5 format.
+    pub fn e5(&self) -> f64 {
+        self.to_degrees() * 1e5
+    }
+
+    /// Build an angle in E6 format.
+    pub fn e6(&self) -> f64 {
+        self.to_degrees() * 1e6
+    }
+
+    /// Build an angle in E7 format.
+    pub fn e7(&self) -> f64 {
+        self.to_degrees() * 1e7
+    }
+
+    /// Normalize this angle to the range (-180, 180] degrees.
+    pub fn normalize(&self) -> Self {
+        (self.radians % (2.0 * PI)).into()
+    }
+}
+impl From<f64> for S1Angle {
+    fn from(radians: f64) -> S1Angle {
+        S1Angle { radians }
     }
 }
 
-//     /// Default Instance
-//     pub fn Init(radians_: f64) S1Angle {
-//         return .{ .radians = radians_ };
-//     }
+impl Add for S1Angle {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        (self.radians + rhs.radians).into()
+    }
+}
+impl Add<f64> for S1Angle {
+    type Output = Self;
+    fn add(self, rhs: f64) -> Self {
+        (self.radians + rhs).into()
+    }
+}
+impl Sub for S1Angle {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        (self.radians - rhs.radians).into()
+    }
+}
+impl Sub<f64> for S1Angle {
+    type Output = Self;
+    /// Subtracts a value from the radians of the chord angle.
+    fn sub(self, rhs: f64) -> Self {
+        (self.radians - rhs).into()
+    }
+}
+impl Mul for S1Angle {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self {
+        (self.radians * rhs.radians).into()
+    }
+}
+impl Mul<f64> for S1Angle {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self {
+        (self.radians * rhs).into()
+    }
+}
+impl Div for S1Angle {
+    type Output = Self;
+    fn div(self, rhs: Self) -> Self {
+        (self.radians / rhs.radians).into()
+    }
+}
+impl Div<f64> for S1Angle {
+    type Output = Self;
+    fn div(self, rhs: f64) -> Self {
+        (self.radians / rhs).into()
+    }
+}
+impl Neg for S1Angle {
+    type Output = Self;
+    fn neg(self) -> Self {
+        (-self.radians).into()
+    }
+}
 
-//     pub fn Infinity() S1Angle {
-//         return .{ .radians = std.math.inf(f64) };
-//     }
-
-//     pub fn Zero() S1Angle {
-//         return .{ .radians = 0.0 };
-//     }
-
-//     pub fn Degrees(degrees_: f64) S1Angle {
-//         return .{ .radians = (std.math.pi / 180.0) * degrees_ };
-//     }
-
-//     pub fn E5(e5_: i32) S1Angle {
-//         return Degrees(1e-5 * e5_);
-//     }
-
-//     pub fn E6(e6_: i32) S1Angle {
-//         return Degrees(1e-6 * e6_);
-//     }
-
-//     pub fn E7(e7_: i32) S1Angle {
-//         return Degrees(1e-7 * e7_);
-//     }
-
-//     pub fn UnsignedE6(e6_: u32) S1Angle {
-//         return Degrees(1e-6 * e6_);
-//     }
-
-//     pub fn UnsignedE7(e7_: u32) S1Angle {
-//         return Degrees(1e-7 * e7_);
-//     }
-
-//     // Return the angle between two points, which is also equal to the distance
-//     // between these points on the unit sphere.  The points do not need to be
-//     // normalized.  This function has a maximum error of 3.25 * DBL_EPSILON (or
-//     // 2.5 * DBL_EPSILON for angles up to 1 radian). If either point is
-//     // zero-length (e.g. an uninitialized S2Point), or almost zero-length, the
-//     // resulting angle will be zero.
-//     pub fn FromS2Points(x: *const S2Point, y: *const S2Point) S1Angle {
-//         return .{ .radians = x.angle(y) };
-//     }
-
-//     // Like the constructor above, but return the angle (i.e., distance) between
-//     // two S2LatLng points.  This function has about 15 digits of accuracy for
-//     // small distances but only about 8 digits of accuracy as the distance
-//     // approaches 180 degrees (i.e., nearly-antipodal points).
-//     pub fn FromLonLats(x: *const LonLat, y: *const LonLat) !S1Angle {
-//         return x.getDistance(y);
-//     }
-
-//     pub fn Clone(self: *const S1Angle) S1Angle {
-//         return .{ .radians = self.radians };
-//     }
-
-//     // * FUNCTIONS
-
-//     pub fn radians(self: *const S1Angle) f64 {
-//         return self.radians;
-//     }
-
-//     pub fn degrees(self: *const S1Angle) f64 {
-//         return (180.0 / std.math.pi) * self.radians;
-//     }
-
-//     pub fn toMeters(self: *const S1Angle) f64 {
-//         return self.radians() * radiusMeters;
-//     }
-
-//     pub fn toKm(self: *const S1Angle) f64 {
-//         return self.radians() * radiusKm;
-//     }
-
-//     // Note that the E5, E6, and E7 conversion involve two multiplications rather
-//     // than one.  This is mainly for backwards compatibility (changing this would
-//     // break many tests), but it does have the nice side effect that conversions
-//     // between Degrees, E6, and E7 are exact when the arguments are integers.
-//     pub fn e5(self: *const S1Angle) i32 {
-//         return FastIntRound(1e5 * self.degrees());
-//     }
-
-//     pub fn e6(self: *const S1Angle) i32 {
-//         return FastIntRound(1e6 * self.degrees());
-//     }
-
-//     pub fn e7(self: *const S1Angle) i32 {
-//         return FastIntRound(1e7 * self.degrees());
-//     }
-
-//     pub fn uE6(self: *const S1Angle) u32 {
-//         return @as(u32, @intFromFloat(1e6 * self.degrees()));
-//     }
-
-//     pub fn uE7(self: *const S1Angle) u32 {
-//         return @as(u32, @intFromFloat(1e7 * self.degrees()));
-//     }
-
-//     // Trigonmetric functions (not necessary but slightly more convenient).
-//     pub fn sin(self: *const S1Angle) f64 {
-//         return @sin(self.radians);
-//     }
-//     pub fn cos(self: *const S1Angle) f64 {
-//         return @cos(self.radians);
-//     }
-//     pub fn tan(self: *const S1Angle) f64 {
-//         return @tan(self.radians);
-//     }
-//     pub fn abs(self: *const S1Angle) S1Angle {
-//         return .{ .radians = @abs(self.radians) };
-//     }
-
-//     // Normalize this angle to the range (-180, 180] degrees.
-//     pub fn normalized(self: *const S1Angle) S1Angle {
-//         return .{ .radians = @rem(self.radians, 2.0 * std.math.pi) };
-//     }
-//     pub fn normalize(self: *const S1Angle) void {
-//         self.radians = @rem(self.radians, 2.0 * std.math.pi);
-//     }
-
-//     // Comparison operators.
-//     pub fn eq(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians == b.radians;
-//     }
-//     pub fn eqScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians == b;
-//     }
-//     pub fn neq(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians != b.radians;
-//     }
-//     pub fn neqScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians != b;
-//     }
-//     pub fn lt(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians < b.radians;
-//     }
-//     pub fn ltScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians < b;
-//     }
-//     pub fn gt(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians > b.radians;
-//     }
-//     pub fn gtScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians > b;
-//     }
-//     pub fn le(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians <= b.radians;
-//     }
-//     pub fn leScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians <= b;
-//     }
-//     pub fn ge(self: *const S1Angle, b: *const S1Angle) bool {
-//         return self.radians >= b.radians;
-//     }
-//     pub fn geScalar(self: *const S1Angle, b: f64) bool {
-//         return self.radians >= b;
-//     }
-
-//     // Simple arithmetic operators for manipulating S1Angles.
-//     pub fn add(self: *S1Angle, b: *const S1Angle) void {
-//         self.radians += b.radians;
-//     }
-//     pub fn addScalar(self: *S1Angle, b: f64) void {
-//         self.radians += b;
-//     }
-//     pub fn sub(self: *S1Angle, b: *const S1Angle) void {
-//         self.radians -= b.radians;
-//     }
-//     pub fn subScalar(self: *S1Angle, b: f64) void {
-//         self.radians -= b;
-//     }
-//     pub fn mul(self: *S1Angle, b: *const S1Angle) void {
-//         self.radians *= b.radians;
-//     }
-//     pub fn mulScalar(self: *S1Angle, b: f64) void {
-//         self.radians *= b;
-//     }
-//     pub fn div(self: *S1Angle, b: *const S1Angle) void {
-//         self.radians /= b.radians;
-//     }
-//     pub fn divScalar(self: *S1Angle, b: f64) void {
-//         self.radians /= b;
-//     }
-// };
+impl PartialOrd<S1Angle> for S1Angle {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+// Implement PartialOrd for comparison between S1Angle and f64
+impl PartialOrd<f64> for S1Angle {
+    fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
+        self.radians.partial_cmp(other)
+    }
+}
+impl Ord for S1Angle {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.radians.partial_cmp(&other.radians).unwrap_or(Ordering::Equal)
+    }
+}
+impl PartialEq<S1Angle> for S1Angle {
+    fn eq(&self, other: &Self) -> bool {
+        self.radians == other.radians
+    }
+}
+impl PartialEq<f64> for S1Angle {
+    fn eq(&self, other: &f64) -> bool {
+        self.radians == *other
+    }
+}
+impl Eq for S1Angle {}
