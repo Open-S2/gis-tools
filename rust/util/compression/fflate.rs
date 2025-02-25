@@ -460,7 +460,8 @@ fn bits16(d: &[u8], p: usize) -> usize {
 
 /// get end of byte
 fn shft(p: usize) -> usize {
-    (p + 7) / 8
+    // (p + 7) / 8
+    p.div_ceil(8)
 }
 
 /// typed array slice - allows garbage collector to free original reference,
