@@ -1,7 +1,6 @@
-use libm::{asin, atan2, cos, fabs, sin, sqrt};
+use libm::{asin, atan2, cos, sin, sqrt};
 
 use core::cmp::Ordering;
-use core::f64::consts::PI;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::geometry::{MValue, S2CellId, S2Point, VectorPoint};
@@ -20,12 +19,14 @@ impl LonLat {
         LonLat(VectorPoint::new(lon, lat, None, m))
     }
 
-    /// Return the longitude
+    /// Return the longitude in degrees
+    #[inline]
     pub fn lon(&self) -> f64 {
         self.0.x
     }
 
-    /// Return the latitude
+    /// Return the latitude in degrees
+    #[inline]
     pub fn lat(&self) -> f64 {
         self.0.y
     }
@@ -44,6 +45,7 @@ impl LonLat {
         if !ll.is_valid() {
             unreachable!();
         }
+
         ll
     }
 
@@ -60,18 +62,13 @@ impl LonLat {
     pub fn normalize(&mut self) {
         let mut lon = self.lon();
         let mut lat = self.lat();
-        while lon < -180. {
-            lon += 360.
-        }
-        while lon > 180. {
-            lon -= 360.
-        }
-        while lat < -90. {
-            lat += 180.
-        }
-        while lat > 90. {
-            lat -= 180.
-        }
+        // Normalize longitude using modulo
+        lon = ((((lon + 180.) % 360.) + 360.) % 360.) - 180.;
+        // Clamp latitude between -90 and 90
+        lat = lat.clamp(-90., 90.);
+
+        self.0.x = lon;
+        self.0.y = lat;
     }
 
     /// Return the latitude or longitude coordinates in degrees.
@@ -82,7 +79,12 @@ impl LonLat {
     /// Return true if the latitude is between -90 and 90 degrees inclusive
     /// and the longitude is between -180 and 180 degrees inclusive.
     pub fn is_valid(&self) -> bool {
-        fabs(self.lat()) <= (PI / 2.0) && fabs(self.lon()) <= PI
+        // OLD RAD IMPL:
+        // fabs(self.lat()) <= (PI / 2.0) && fabs(self.lon()) <= PI
+        let lat = self.lat();
+        let lon = self.lon();
+
+        (-90.0..=90.0).contains(&lat) && (-180.0..=180.0).contains(&lon)
     }
 
     /// Converts an LonLat to the equivalent unit-length vector.  Unnormalized
@@ -101,8 +103,8 @@ impl LonLat {
         if !self.is_valid() {
             unreachable!();
         }
-        let lon: f64 = (self.lon()).to_degrees();
-        let lat: f64 = (self.lat()).to_degrees();
+        let lon: f64 = (self.lon()).to_radians();
+        let lat: f64 = (self.lat()).to_radians();
         S2Point::new(
             cos(lat) * cos(lon), // x
             cos(lat) * sin(lon), // y
@@ -112,8 +114,8 @@ impl LonLat {
 
     /// An alternative to to_point() that returns a GPU compatible vector.
     pub fn to_point_gl(&self) -> S2Point {
-        let lon: f64 = (self.lon()).to_degrees();
-        let lat: f64 = (self.lat()).to_degrees();
+        let lon: f64 = (self.lon()).to_radians();
+        let lat: f64 = (self.lat()).to_radians();
         S2Point::new(
             cos(lat) * sin(lon), // y
             sin(lat),            // z
@@ -144,14 +146,29 @@ impl LonLat {
             unreachable!();
         }
 
-        let lat1 = self.lat();
-        let lat2 = b.lat();
-        let lon1 = self.lon();
-        let lon2 = b.lon();
+        let lat1 = self.lat().to_radians();
+        let lat2 = b.lat().to_radians();
+        let lon1 = self.lon().to_radians();
+        let lon2 = b.lon().to_radians();
         let dlat = sin(0.5 * (lat2 - lat1));
         let dlon = sin(0.5 * (lon2 - lon1));
         let x = dlat * dlat + dlon * dlon * cos(lat1) * cos(lat2);
         2. * asin(sqrt(f64::min(1., x)))
+    }
+
+    /// Returns the bearing from the first point to the second point.
+    pub fn get_bearing(&self, b: &LonLat) -> f64 {
+        if !self.is_valid() || !b.is_valid() {
+            unreachable!();
+        }
+        let lat1 = self.lat().to_radians();
+        let lat2 = b.lat().to_radians();
+        let lon1 = self.lon().to_radians();
+        let lon2 = b.lon().to_radians();
+        let x = sin(lon2 - lon1) * cos(lat2);
+        let y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1);
+
+        (atan2(y, x).to_degrees() + 360.) % 360.
     }
 }
 impl From<&S2CellId> for LonLat {

@@ -3,6 +3,7 @@ use core::fmt::Debug;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
 use libm::{atan2, fabs, sqrt};
+use s2json::VectorPoint;
 
 use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
 
@@ -146,6 +147,11 @@ impl S2Point {
 impl From<&LonLat> for S2Point {
     fn from(lonlat: &LonLat) -> Self {
         lonlat.to_point()
+    }
+}
+impl From<&VectorPoint> for S2Point {
+    fn from(v: &VectorPoint) -> Self {
+        Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
     }
 }
 impl From<&S2CellId> for S2Point {

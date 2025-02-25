@@ -39,10 +39,13 @@ path = "rust/lib.rs"
 bench = true
 
 [features]
-default = ["quadratic"] # Default feature
+default = ["std", "quadratic"] # Default feature
 quadratic = []          # Feature for quadratic projection
 tan = []                # Feature for tangential projection
 linear = []             # Feature for linear projection
+
+# Conditional std feature enabling quadratic or other projection features
+std = ["flate2", "brotli", "ruzstd"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -53,8 +56,19 @@ libm = "0.2"
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 
+# STD dependencies
+flate2 = { version = "1", optional = true }
+brotli = { version = "7", optional = true }
+ruzstd = { version = "0.8", optional = true }
+
 [dev-dependencies]
-# tarpaulin = "*"
+criterion = { version = "0.5", features = ["html_reports"] }
+rand = "0.8"
+
+[[bench]]
+name = "s2_cells"
+harness = false
 
 [profile.bench]
+inherits = "release"
 opt-level = 3

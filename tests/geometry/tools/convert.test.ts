@@ -7,12 +7,13 @@ import type {
   S2Feature,
   S2FeatureCollection,
   VectorFeature,
+  VectorFeatureCollection,
 } from '../../../src/geometry';
 
 // FeatureCollection | S2FeatureCollection | Feature | VectorFeature | S2Feature
 
 describe('convert point', () => {
-  it('WM', () => {
+  it('WG', () => {
     const feature: Feature = {
       type: 'Feature',
       properties: { a: 1 },
@@ -55,11 +56,13 @@ describe('convert point', () => {
           },
         },
         {
+          // @ts-expect-error - unfixable
           type: 'VectorFeature',
           properties: { b: 2 },
           geometry: {
             type: 'Point',
             is3D: true,
+            // @ts-expect-error - unfixable
             coordinates: { x: 45, y: 45, z: 10, m: { c: 3 } },
             bbox: [0.5, 0.5, 0.75, 0.75],
           },
@@ -84,11 +87,11 @@ describe('convert point', () => {
       faces: [0],
     };
 
-    const res1 = convert('WM', feature, true, 3, 14, true);
-    const res2 = convert('WM', vectorFeature, false, 3, 14, true);
-    const res3 = convert('WM', s2Feature, false, 3, 14, true);
-    const res4 = convert('WM', featureCollection, false, 3, 14, true);
-    const res5 = convert('WM', s2FeatureCollection, false, 3, 14, true);
+    const res1 = convert('WG', feature, true, 3, 14, true);
+    const res2 = convert('WG', vectorFeature, false, 3, 14, true);
+    const res3 = convert('WG', s2Feature, false, 3, 14, true);
+    const res4 = convert('WG', featureCollection, false, 3, 14, true);
+    const res5 = convert('WG', s2FeatureCollection, false, 3, 14, true);
 
     expect(res1).toEqual([
       {
@@ -257,14 +260,16 @@ describe('convert point', () => {
       },
       face: 0,
     };
-    const featureCollection: FeatureCollection = {
+    const featureCollection: VectorFeatureCollection = {
       type: 'FeatureCollection',
       features: [
         {
+          // @ts-expect-error - unfixable
           type: 'Feature',
           properties: { a: 1 },
           geometry: {
             type: 'Point',
+            // @ts-expect-error - unfixable
             coordinates: [45, 22],
           },
         },

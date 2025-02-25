@@ -8,7 +8,7 @@
 default_job = "check"
 
 [jobs.check]
-command = ["cargo", "check", "--color", "always"]
+command = ["cargo", "check"]
 need_stdout = false
 
 [jobs.check-all]
@@ -33,6 +33,9 @@ command = [
     "--color",
     "always",  # see https://github.com/Canop/bacon/issues/124
 ]
+default_watch = false
+watch = ["rust/**/*.rs", "tests/**/*.rs"]
+on_change_strategy = "kill_then_restart"
 need_stdout = true
 
 # This job utilizes tarpaulin
@@ -42,8 +45,12 @@ need_stdout = true
 command = [
     "sh",
     "-c",
-    "cargo tarpaulin --skip-clean --color always --out xml > /dev/null 2>&1 && pycobertura show cobertura.xml",
+    "cargo llvm-cov"
+    # "cargo tarpaulin --skip-clean --color always --out xml > /dev/null 2>&1 && pycobertura show cobertura.xml",
 ]
+default_watch = false
+watch = ["rust/**/*.rs", "tests/**/*.rs"]
+on_change_strategy = "kill_then_restart"
 need_stdout = true
 
 [jobs.doc]

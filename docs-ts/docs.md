@@ -227,11 +227,8 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
 | [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
-| [lzw]                    | ![LZW Badge][lzwBadge]        | lzw decompression methods.                                       |
 
 [polyfills]: /utils/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg
 [compression]: /utils/gzip.md
 [cmpBadge]: /assets/badges/gzip-gzip-cover.svg
-[lzw]: /utils/lzw.md
-[lzwBadge]: /assets/badges/lzw-gzip-cover.svg

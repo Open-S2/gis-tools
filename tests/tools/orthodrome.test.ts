@@ -7,6 +7,12 @@ test('orthodrome', () => {
   expect(orthodrome.dist).toEqual(0);
 });
 
+test('Orthodrome.fromPoints', () => {
+  const orthodrome = Orthodrome.fromPoints({ x: 0, y: 0 }, { x: 0, y: 0 });
+  expect(orthodrome.a).toEqual(0);
+  expect(orthodrome.dist).toEqual(0);
+});
+
 test('intermediatePoints - same', () => {
   const orthodrome = new Orthodrome(0, 0, 0, 0);
   expect(orthodrome.intermediatePoint(0.5)).toEqual({ x: 0, y: 0 });
@@ -42,4 +48,12 @@ test('distanceTo - same', () => {
 test('distanceTo - far', () => {
   const orthodrome = new Orthodrome(-60, -40, 20, 10);
   expect(orthodrome.distanceTo()).toEqual(1.5514126949321814);
+});
+
+test('intermediatePoints - bearing', () => {
+  const orthodrome = new Orthodrome(-60, -40, 20, 10);
+
+  const bearing = orthodrome.bearing();
+
+  expect(bearing).toEqual(75.936859467864);
 });

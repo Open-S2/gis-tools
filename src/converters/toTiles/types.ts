@@ -200,6 +200,8 @@ export interface BuildGuide<V extends MValue = Properties, G extends MValue = Pr
   rasterSources?: Record<string, FeatureIterator<unknown, RGBA, RGBA>>;
   /** The grid sources that will be conjoined into a single grid index for tile extraction */
   gridSources?: Record<string, FeatureIterator<unknown, G, G>>;
+  /** Should the indices be built for polygon data for faster rendering (file cost increases). [Default: true] */
+  buildIndices?: boolean;
   /**
    * The guides on how to build the various data
    * See: {@link LayerGuide}

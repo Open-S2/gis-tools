@@ -106,7 +106,7 @@ export class Tile<
    */
   async addReader(reader: FeatureIterator<M, D, P>, layer?: string): Promise<void> {
     for await (const feature of reader) {
-      const vectorFeatures = convert(feature.type === 'S2Feature' ? 'S2' : 'WM', feature);
+      const vectorFeatures = convert(feature.type === 'S2Feature' ? 'S2' : 'WG', feature);
       for (const vf of vectorFeatures) this.addFeature(vf, layer);
     }
   }
@@ -237,7 +237,7 @@ export interface TileStoreOptions {
  * ## Usage
  * ```ts
  * const tileStore = new TileStore(data, {
- *  projection: 'WM',
+ *  projection: 'WG',
  *  minzoom: 0,
  *  maxzoom: 9,
  *  indexMaxzoom: 4,
@@ -278,7 +278,7 @@ export class TileStore<
     this.buildBBox = options?.buildBBox ?? false;
     // update projection
     if (options?.projection !== undefined) this.projection = options.projection;
-    else if (data.type === 'Feature' || data.type === 'FeatureCollection') this.projection = 'WM';
+    else if (data.type === 'Feature' || data.type === 'FeatureCollection') this.projection = 'WG';
     else this.projection = 'S2';
     // sanity check
     if (this.maxzoom < 0 || this.maxzoom > 20)

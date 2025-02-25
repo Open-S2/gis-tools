@@ -198,7 +198,7 @@ test('TileStore - points', () => {
     ],
   };
 
-  const store = new TileStore(featureCollection, { projection: 'WM' });
+  const store = new TileStore(featureCollection, { projection: 'WG' });
 
   const faceID = fromFace(0);
   const faceTile = store.getTile(faceID);

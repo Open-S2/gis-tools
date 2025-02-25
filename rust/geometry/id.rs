@@ -9,7 +9,7 @@ use crate::geometry::{
     LonLat, S2Point, K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
 };
 
-use super::{get_v_norm, s2::LOOKUP_IJ};
+use super::{get_v_norm, LOOKUP_IJ};
 
 /// Cell ID works with both S2 and WM with a common interface
 pub type CellId = S2CellId;

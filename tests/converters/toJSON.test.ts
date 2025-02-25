@@ -79,7 +79,7 @@ test('toJSON - WM & bbox & onFeature', async () => {
     feature.properties.name = 'Redacted';
     return feature;
   };
-  await toJSON(bufWriter, [jsonReader], { projection: 'WM', buildBBox: true, onFeature });
+  await toJSON(bufWriter, [jsonReader], { projection: 'WG', buildBBox: true, onFeature });
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
     '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":144.9584,"y":-37.8173},"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":151.2144,"y":-33.8766},"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [0],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
@@ -204,7 +204,7 @@ test('toJSONLD - WM & bbox & onFeature', async () => {
     feature.properties.name = 'Redacted';
     return feature;
   };
-  await toJSONLD(bufWriter, [jsonReader], { projection: 'WM', onFeature, buildBBox: true });
+  await toJSONLD(bufWriter, [jsonReader], { projection: 'WG', onFeature, buildBBox: true });
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
     '{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":144.9584,"y":-37.8173},"bbox":[144.9584,-37.8173,144.9584,-37.8173]}}\n{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":151.2144,"y":-33.8766},"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n',

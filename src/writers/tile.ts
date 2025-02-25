@@ -13,19 +13,28 @@ import type { TemporalTileWriter } from '.';
  * ## Usage
  *
  * ```ts
- * import { TileFileWriter } from 'gis-tools-ts';
+ * import { FileTileWriter } from 'gis-tools-ts/file';
  *
- * const tileWriter = new TileFileWriter('./store', 'png');
+ * const tileWriter = new FileTileWriter('./store', 'png');
  *
  * // store WM tiles
  * await tileWriter.writeTileWM(0, 0, 0, data);
  * // store S2 tiles
  * await tileWriter.writeTileS2(0, 0, 0, 0, data);
+ * // store temportal WM tiles
+ * await tileWriter.writeTemporalTileWM(new Date(), 0, 0, 0, data);
+ * // store temportal S2 tiles
+ * await tileWriter.writeTemporalTileS2(new Date(), 0, 0, 0, 0, data);
  *
  * // after writing all the tiles, store the metadata
  * await tileWriter.commit(metadata);
+ * ```
+ *
+ * ## Links
+ * - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
+ * - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
  */
-export class TileFileWriter implements TemporalTileWriter {
+export class FileTileWriter implements TemporalTileWriter {
   /**
    * @param path - the location to write the data
    * @param fileType - the file ending to write

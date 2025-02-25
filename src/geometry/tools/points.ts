@@ -7,6 +7,16 @@ import type {
 } from '../..';
 
 /**
+ * Check if two XYZ Points are equal
+ * @param a - The first XYZ Point
+ * @param b - The second XYZ Point
+ * @returns - True if the two XYZ Points are equal
+ */
+export function equalPoints(a: VectorPoint, b: VectorPoint): boolean {
+  return a.x === b.x && a.y === b.y && a.z === b.z;
+}
+
+/**
  * Find the average of a collection of Vector points
  * @param vectorPoints - collection of Vector points, whether from a VectorFeature, geometry, or raw coordinates
  * @returns - the average of the vector points

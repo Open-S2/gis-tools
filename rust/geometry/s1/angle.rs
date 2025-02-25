@@ -3,9 +3,11 @@ use crate::{
     space::EARTH_RADIUS,
 };
 
-use core::cmp::Ordering;
+use libm::{fabs, fmod};
+
 use core::f64::consts::PI;
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub};
+use core::{cmp::Ordering, ops::Deref};
 
 /// This class represents a one-dimensional angle (as opposed to a
 /// two-dimensional solid angle).  It has methods for converting angles to
@@ -18,20 +20,20 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 /// from E6(3100000) or E7(310000000).  However, the following properties are
 /// guaranteed for any integer "n", provided that "n" is in the input range of
 /// both functions:
-///
+/// ```latext
 ///     Degrees(n) == E6(1000000 * n)
 ///     Degrees(n) == E7(10000000 * n)
 ///          E6(n) == E7(10 * n)
-///
+/// ```
 /// The corresponding properties are *not* true for E5, so if you use E5 then
 /// don't test for exact equality when comparing to other formats such as
 /// Degrees or E7.
 ///
 /// The following conversions between degrees and radians are exact:
-///
-///          Degrees(180) == Radians(M_PI)
+/// ```latext
+///          Degrees(180) == Radians(M_PI);
 ///       Degrees(45 * k) == Radians(k * M_PI / 4)  for k == 0..8
-///
+/// ```
 /// These identities also hold when the arguments are scaled up or down by any
 /// power of 2.  Some similar identities are also true, for example,
 /// Degrees(60) == Radians(M_PI / 3), but be aware that this type of identity
@@ -39,10 +41,10 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 ///
 /// Similarly, the conversion to radians means that Angle::Degrees(x).degrees()
 /// does not always equal "x".  For example,
-///
+/// ```latext
 ///         S1Angle::Degrees(45 * k).degrees() == 45 * k      for k == 0..8
 ///   but       S1Angle::Degrees(60).degrees() != 60.
-///
+/// ```
 /// This means that when testing for equality, you should allow for numerical
 /// errors (EXPECT_DOUBLE_EQ) or convert to discrete E5/E6/E7 values first.
 ///
@@ -74,7 +76,7 @@ impl S1Angle {
 
     /// Returns the angle in degrees.
     pub fn to_degrees(&self) -> f64 {
-        self.radians.to_degrees()
+        (**self).to_degrees()
     }
 
     /// build an angle in E5 format.
@@ -114,7 +116,7 @@ impl S1Angle {
     /// If no radius is specified, the Earth's radius is used.
     pub fn to_meters(&self, radius: Option<f64>) -> f64 {
         let radius = radius.unwrap_or(EARTH_RADIUS);
-        self.radians * radius
+        **self * radius
     }
 
     /// Convert an angle in meters to an angle in radians
@@ -128,7 +130,7 @@ impl S1Angle {
     /// If no radius is specified, the Earth's radius is used.
     pub fn to_km(&self, radius: Option<f64>) -> f64 {
         let radius = radius.unwrap_or(EARTH_RADIUS);
-        self.radians * radius / 1_000.0
+        **self * radius / 1_000.0
     }
 
     /// Convert an angle in kilometers to an angle in radians
@@ -160,12 +162,23 @@ impl S1Angle {
 
     /// Normalize this angle to the range (-180, 180] degrees.
     pub fn normalize(&self) -> Self {
-        (self.radians % (2.0 * PI)).into()
+        *self % (2.0 * PI)
+    }
+
+    /// Returns the remainder when dividing by `modulus`
+    pub fn modulo(&self, modulus: f64) -> Self {
+        Self { radians: fmod(**self, fabs(modulus)) }
     }
 }
 impl From<f64> for S1Angle {
     fn from(radians: f64) -> S1Angle {
         S1Angle { radians }
+    }
+}
+impl Deref for S1Angle {
+    type Target = f64;
+    fn deref(&self) -> &Self::Target {
+        &self.radians
     }
 }
 
@@ -222,6 +235,17 @@ impl Neg for S1Angle {
     type Output = Self;
     fn neg(self) -> Self {
         (-self.radians).into()
+    }
+}
+impl Rem<f64> for S1Angle {
+    type Output = Self;
+    fn rem(self, modulus: f64) -> Self::Output {
+        self.modulo(modulus)
+    }
+}
+impl RemAssign<f64> for S1Angle {
+    fn rem_assign(&mut self, modulus: f64) {
+        self.radians = fmod(self.radians, fabs(modulus));
     }
 }
 

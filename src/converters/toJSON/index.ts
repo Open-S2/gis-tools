@@ -17,13 +17,17 @@ export interface ToJSONOptions {
  *
  * Usage:
  * ```ts
- * import { toJSON, JSONReader } from 'gis-tools-ts'
- * import { FileReader, FileWriter } from 'gis-tools-ts/file'
+ * import { toJSON, JSONReader } from 'gis-tools-ts';
+ * import { FileReader, FileWriter } from 'gis-tools-ts/file';
+ * // or use mmap reader/writer if using bun
+ * // import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);
  * const bufWriter = new FileWriter(`${__dirname}/fixtures/points2.geojson`);
- * await toJSON(bufWriter, [jsonReader], { projection: 'WM', buildBBox: true });
+ *
+ * // store to singular output
+ * await toJSON(bufWriter, [jsonReader], { projection: 'WG', buildBBox: true });
  * ```
  * @param writer - the writer to append strings to
  * @param iterators - the collection of iterators to write
@@ -72,8 +76,10 @@ export async function toJSON(
  *
  * Usage:
  * ```ts
- * import { toJSON, JSONReader } from 'gis-tools-ts'
- * import { FileReader, FileWriter } from 'gis-tools-ts/file'
+ * import { toJSONLD, JSONReader } from 'gis-tools-ts';
+ * import { FileReader, FileWriter } from 'gis-tools-ts/file';
+ * // or use mmap reader/writer if using bun
+ * // import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);
@@ -82,6 +88,8 @@ export async function toJSON(
  *  feature.metadata = { id: feature.id };
  *  return feature;
  * }
+ *
+ * // store to singular output
  * await toJSONLD(bufWriter, [jsonReader], { projection: 'S2', buildBBox: true, onFeature });
  * ```
  * @param writer - the writer to apppend strings to

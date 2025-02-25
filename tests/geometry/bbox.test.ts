@@ -5,6 +5,7 @@ import {
   fromMultiLineString,
   fromMultiPolygon,
   fromPoint,
+  fromPolygon,
   mergeBBoxes,
   pointOverlap,
 } from '../../src/geometry/bbox';
@@ -62,6 +63,20 @@ test('fromLineString', () => {
 
 test('fromMultiLineString', () => {
   const res = fromMultiLineString([
+    [
+      { x: 0, y: 0 },
+      { x: 10, y: 10 },
+    ],
+    [
+      { x: 20, y: 20 },
+      { x: 30, y: 30 },
+    ],
+  ]);
+  expect(res).toEqual([0, 0, 30, 30]);
+});
+
+test('fromPolygon', () => {
+  const res = fromPolygon([
     [
       { x: 0, y: 0 },
       { x: 10, y: 10 },

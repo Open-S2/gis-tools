@@ -12,10 +12,10 @@ const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 // and we can re-add if we start messing with pointGrid again.
 
 testFunc(
-  'pointGrid - WM from WM tiles',
+  'pointGrid - WG from WG tiles',
   async () => {
     const grid = new PointGrid<RGBA>({
-      projection: 'WM',
+      projection: 'WG',
       minzoom: 0,
       maxzoom: 1,
       bufferSize: 0,
@@ -53,7 +53,7 @@ testFunc(
 
 test.skip('pointGrid - WM from S2 tiles', async () => {
   const grid = new PointGrid<RGBA>({
-    projection: 'WM',
+    projection: 'WG',
     minzoom: 0,
     maxzoom: 1,
     bufferSize: 0,

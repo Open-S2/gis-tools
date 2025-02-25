@@ -64,7 +64,7 @@ Geotiff may require the use of DataView using `getFloat16`. [This does not have 
 
 ```ts
 import 'gis-tools-ts/polyfills';
-// OR specifically use the correct polyfills:
+// OR specifically use the correct polyfills to reduce bundle size:
 import 'gis-tools-ts/polyfills/dataview';
 ```
 

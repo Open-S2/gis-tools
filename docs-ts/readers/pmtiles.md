@@ -51,9 +51,8 @@ PMTiles may require the use of `gzip` or `zstd` compression. [This does not have
 
 ```ts
 import 'gis-tools-ts/polyfills';
-// OR specifically use the correct polyfills:
-import 'gis-tools-ts/polyfills/gzip';
-import 'gis-tools-ts/polyfills/zstd';
+// OR specifically use the correct polyfills to reduce bundle size:
+import 'gis-tools-ts/polyfills/decompression';
 ```
 
 ## Useful links

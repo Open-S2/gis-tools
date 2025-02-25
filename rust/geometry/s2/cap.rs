@@ -31,11 +31,12 @@ use core::f64::consts::PI;
 /// Here are some useful relationships between the cap height (h), the cap
 /// radius (r), the maximum chord length from the cap's center (d), and the
 /// radius of cap's base (a).
-///
+/// ```latext
 ///     h = 1 - cos(r)
 ///       = 2 * sin^2(r/2)
 ///   d^2 = 2 * h
 ///       = a^2 + h^2
+/// ```
 pub struct S2Cap<T = ()> {
     /// the center of the cap
     pub center: S2Point,

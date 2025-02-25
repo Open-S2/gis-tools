@@ -6,6 +6,7 @@ import type {
   VectorMultiLineString,
   VectorMultiPolygon,
   VectorPoint,
+  VectorPolygon,
 } from './';
 
 /**
@@ -43,6 +44,15 @@ export function fromMultiLineString(multiLines: VectorMultiLineString): BBOX {
     for (const point of line) bbox = extendBBox(bbox, point);
   }
   return bbox;
+}
+
+/**
+ * Creates a bounding box from a polygon
+ * @param polygon - input vector polygon
+ * @returns - BBox of the polygon
+ */
+export function fromPolygon(polygon: VectorPolygon): BBOX {
+  return fromMultiLineString(polygon);
 }
 
 /**

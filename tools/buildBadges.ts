@@ -70,13 +70,18 @@ await build({
     // SPACE
     `${__dirname}/builds/space/sat.ts`,
     // TOOLS
+    `${__dirname}/builds/tools/averageInterp.ts`,
     `${__dirname}/builds/tools/delaunator.ts`,
+    `${__dirname}/builds/tools/idwInterp.ts`,
     `${__dirname}/builds/tools/interpolators.ts`,
+    `${__dirname}/builds/tools/lanczosInterp.ts`,
+    `${__dirname}/builds/tools/nearestInterp.ts`,
     `${__dirname}/builds/tools/orthodrome.ts`,
     `${__dirname}/builds/tools/polylabel.ts`,
     // UTIL
     `${__dirname}/builds/util/compression.ts`,
-    `${__dirname}/builds/util/lzw.ts`,
+    `${__dirname}/builds/util/dataview.ts`,
+    `${__dirname}/builds/util/decompression.ts`,
     `${__dirname}/builds/util/polyfills.ts`,
     // WRITERS
     `${__dirname}/builds/writers/pmtilesWriter.ts`,

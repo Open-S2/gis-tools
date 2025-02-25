@@ -292,7 +292,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
         for (let x = 0; x < gridLength; x++) {
           const t = tStart + y * tPixel;
           let s = sStart + x * sPixel;
-          if (projection === 'WM') s = (s + 1) % 1; // ensure within 0-1 range via wrapping to the other side
+          if (projection === 'WG') s = (s + 1) % 1; // ensure within 0-1 range via wrapping to the other side
           // search for points within a reasonable cell size
           let gridLevelSearch = zoomGridLevel;
           let pointShapes: PointShape<M>[];

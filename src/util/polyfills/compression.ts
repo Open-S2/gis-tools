@@ -50,16 +50,11 @@ globalThis.CompressionStream ??= class CompressionStream {
   readable!: ReadableStream;
   /** @param format - the format to use */
   constructor(format: Format) {
-    make(
-      this,
-      format === 'br'
-        ? zlib.createBrotliCompress()
-        : format === 'deflate'
-          ? zlib.createDeflate()
-          : format === 'gzip'
-            ? zlib.createGzip()
-            : zlib.createDeflateRaw(),
-    );
+    if (format === 'br') make(this, zlib.createBrotliCompress());
+    else if (format === 'deflate') make(this, zlib.createDeflate());
+    else if (format === 'gzip') make(this, zlib.createGzip());
+    else if (format === 'deflate-raw') make(this, zlib.createDeflateRaw());
+    else throw new Error(`Unsupported format: ${format}`);
   }
 };
 
@@ -68,15 +63,10 @@ globalThis.DecompressionStream ??= class DecompressionStream {
   readable!: ReadableStream;
   /** @param format - the format to use */
   constructor(format: Format) {
-    make(
-      this,
-      format === 'br'
-        ? zlib.createBrotliDecompress()
-        : format === 'deflate'
-          ? zlib.createInflate()
-          : format === 'gzip'
-            ? zlib.createGunzip()
-            : zlib.createInflateRaw(),
-    );
+    if (format === 'br') make(this, zlib.createBrotliDecompress());
+    else if (format === 'deflate') make(this, zlib.createInflate());
+    else if (format === 'gzip') make(this, zlib.createGunzip());
+    else if (format === 'deflate-raw') make(this, zlib.createInflateRaw());
+    else throw new Error(`Unsupported format: ${format}`);
   }
 };

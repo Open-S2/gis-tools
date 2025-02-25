@@ -1,13 +1,19 @@
 # LIST OF TODOs
 
-[ ] - reimagine the point(Index|Cluster|Grid) system, its too slow for javascript (but perfect for lower langauges that have u64 support)
+[ ] - reimagine the point(Index|Cluster|Grid) system, its too slow for javascript (but perfect for lower langauges that have u64 support). Could be that this will never be necessary once Rust is up and running.
+
 [ ] - readers
-[ ] - - KML, KMZ, GML
-[ ] - - LAZ
-[ ] - - image -> png
+[ ] - - KML, KMZ, GML [Does any one use it?]
+[ ] - - image -> png (for GRIB2 [Does any one use it?])
+
 [ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
 [ ] - Grib2 has missing templates
+
+[ ] - PROJ5: Completely new rewrite.
+[ ] - - Support all projections
+[ ] - - GeoTIFF grids
+[ ] - - pipeline system
 
 [ ] - translations [BCP-47 language code] [ISO 639-1 language code]
 
@@ -15,10 +21,6 @@
 
 [ ] Hillshading (raster AND vector)
 
-## Tests to do for first showcase
+[ ] - GRIB2 WAVES parsing is incomplete
 
-[ ] - src/geometry/tools/polys.ts
-
-[ ] - GRIB2 WAVES is incomplete
-
-[ ] - gzip and zstd polyfills are incomplete
+[ ] - TILE GENERATOR: earclip polygons before storing if desired

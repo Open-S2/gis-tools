@@ -22,7 +22,12 @@ export * from './nearest';
 export type InterpolationMethod = 'average' | 'nearest' | 'idw' | 'lanczos';
 
 /**
- * Get the interpolation function based on the method type
+ * Get the interpolation function based on the method type.
+ * Options are:
+ * - average
+ * - nearest
+ * - idw
+ * - lanczos [default]
  * @param method - interpolation method as a string
  * @returns - interpolation function
  */
@@ -43,7 +48,12 @@ export function getInterpolation<T extends MValue = Properties>(
 }
 
 /**
- * Get the interpolation function based on the method type
+ * Get the interpolation function based on the method type.
+ * Options are:
+ * - average
+ * - nearest
+ * - idw
+ * - lanczos [default]
  * @param method - interpolation method as a string
  * @returns - interpolation function
  */

@@ -1,4 +1,4 @@
-import { TileFileWriter } from '../../src/file';
+import { FileTileWriter } from '../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
@@ -7,7 +7,7 @@ tmp.setGracefulCleanup();
 test('writers - Tile File Writer', async () => {
   const dir = tmp.dirSync({ prefix: 'file_test' });
   const textEncoder = new TextEncoder();
-  const writer = new TileFileWriter(`${dir.name}`, 'png');
+  const writer = new FileTileWriter(`${dir.name}`, 'png');
 
   const testDate = new Date('2025-01-01T12:00:00Z');
   const testDateStr = testDate.toISOString();

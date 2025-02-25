@@ -1,5 +1,12 @@
-import { averageOfPoints, centerOfPoints } from '../../../src/geometry/tools/points';
+import { averageOfPoints, centerOfPoints, equalPoints } from '../../../src/geometry/tools/points';
 import { expect, test } from 'bun:test';
+
+test('equalPoints', () => {
+  expect(equalPoints({ x: 0, y: 0 }, { x: 0, y: 0 })).toEqual(true);
+  expect(equalPoints({ x: 0, y: 0 }, { x: 0, y: 1 })).toEqual(false);
+  expect(equalPoints({ x: 1, y: 2, z: 3 }, { x: 1, y: 2, z: 3 })).toEqual(true);
+  expect(equalPoints({ x: 1, y: 2, z: 3 }, { x: 1, y: 2, z: 4 })).toEqual(false);
+});
 
 test('averageOfPoints', () => {
   expect(

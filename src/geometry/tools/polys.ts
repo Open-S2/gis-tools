@@ -20,8 +20,8 @@ import type {
 /**
  * Find the area of a collection of polygons. Assumes geometry is in lon-lat space
  * @param polygons - the collection of polygons
- * @param planetRadius - the radius of the planet (Earth by default)
- * @returns - the total area of the polygon
+ * @param planetRadius - the radius of the planet (Earth by default). Set to 1 if you want the raw area
+ * @returns - the total area of the polygon in square meters
  */
 export function polygonsArea<
   M = Record<string, unknown>,

@@ -20,8 +20,11 @@ export interface PolyLabelMetadata extends Properties {
  * const vectorGeometry: VectorMultiPolygon = [];
  * const polylabelHighPrecision = polylabels(vectorGeometry, 1);
  * ```
+ *
+ * ## Links
+ * - https://sites.google.com/site/polesofinaccessibility/
  * @param polygons - A collection of vector polygons to find the labels for
- * @param precision - the precision of the label
+ * @param precision - the precision of the label [default: 1.0]
  * @returns - the labels
  */
 export function polylabels(
@@ -45,8 +48,11 @@ export function polylabels(
  * const vectorGeometry: VectorPolygon = [];
  * const polylabelHighPrecision = polylabel(vectorGeometry, 1);
  * ```
+ *
+ * ## Links
+ * - https://sites.google.com/site/polesofinaccessibility/
  * @param polygon - the vector polygon to find the label for
- * @param precision - the precision of the label
+ * @param precision - the precision of the label [default: 1.0]
  * @returns - the label
  */
 export function polylabel(polygon: VectorPolygon, precision = 1.0): VectorPoint<PolyLabelMetadata> {

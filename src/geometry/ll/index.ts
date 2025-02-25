@@ -23,7 +23,7 @@ export type LonLat<M extends MValue = Properties> = VectorPoint<M>;
  * @param ll - input LonLat
  * @returns - equivalent unit-length vector 3D point
  */
-export function toS2Point<M extends MValue = Properties>(ll: LonLat<M>): VectorPoint<M> {
+export function llToS2Point<M extends MValue = Properties>(ll: LonLat<M>): VectorPoint<M> {
   return lonLatToXYZ(ll);
 }
 
@@ -32,7 +32,7 @@ export function toS2Point<M extends MValue = Properties>(ll: LonLat<M>): VectorP
  * @param p - input direction vector
  * @returns - LonLat
  */
-export function fromS2Point<M extends MValue = Properties>(p: VectorPoint<M>): LonLat<M> {
+export function llFromS2Point<M extends MValue = Properties>(p: VectorPoint<M>): LonLat<M> {
   const { atan2, sqrt } = Math;
   const { x, y, z = 1, m } = p;
 
@@ -40,25 +40,30 @@ export function fromS2Point<M extends MValue = Properties>(p: VectorPoint<M>): L
 }
 
 /**
+ * Converts an LonLat to the equivalent spherical angles.
  * @param ll - input LonLat
  * @returns a lon-lat in radians
  */
-export function toAngles(ll: LonLat): [S1Angle, S1Angle] {
+export function llToAngles(ll: LonLat): [S1Angle, S1Angle] {
   return [ll.x, ll.y].map(degToRad) as [S1Angle, S1Angle];
 }
 
 /**
+ * Ensures that lon is in [-180, 180] and lat is in [-90, 90]. Updates the input in place
  * @param ll - input lon-lat in degrees
- * @returns - ensures lon in [-180, 180], lat in [-90, 90]
+ * @returns - the input lon-lat but normalized
  */
-export function normalize<M extends MValue = Properties>(ll: LonLat<M>): LonLat<M> {
+export function llNormalize<M extends MValue = Properties>(ll: LonLat<M>): LonLat<M> {
   let { x: lon, y: lat } = ll;
   // Normalize longitude using modulo
   lon = ((((lon + 180) % 360) + 360) % 360) - 180;
   // Clamp latitude between -90 and 90
   lat = Math.max(-90, Math.min(90, lat));
 
-  return { x: lon, y: lat, m: ll.m };
+  ll.x = lon;
+  ll.y = lat;
+
+  return ll;
 }
 
 /**
@@ -75,7 +80,7 @@ export function normalize<M extends MValue = Properties>(ll: LonLat<M>): LonLat<
  * @param b - input LonLat
  * @returns - distance in radians
  */
-export function getDistance(a: LonLat, b: LonLat): number {
+export function llGetDistance(a: LonLat, b: LonLat): number {
   const { asin, sin, cos, sqrt, min } = Math;
   // This implements the Haversine formula, which is numerically stable for
   // small distances but only gets about 8 digits of precision for very large
@@ -97,4 +102,24 @@ export function getDistance(a: LonLat, b: LonLat): number {
   const dlon = sin(0.5 * (lonB - lonA));
   const x = dlat * dlat + dlon * dlon * cos(latA) * cos(latB);
   return 2 * asin(sqrt(min(1, x)));
+}
+
+/**
+ * Returns the bearing from the first point to the second point.
+ * @param a - first LonLat
+ * @param b - second LonLat to find the bearing to
+ * @returns - bearing in degrees
+ */
+export function llGetBearing(a: LonLat, b: LonLat): number {
+  const { atan2, sin, cos } = Math;
+  let { x: lonA, y: latA } = a;
+  let { x: lonB, y: latB } = b;
+  // conver all to radians
+  lonA = degToRad(lonA);
+  latA = degToRad(latA);
+  lonB = degToRad(lonB);
+  latB = degToRad(latB);
+  const y = sin(lonB - lonA) * cos(latB);
+  const x = cos(latA) * sin(latB) - sin(latA) * cos(latB) * cos(lonB - lonA);
+  return (radToDeg(atan2(y, x)) + 360) % 360;
 }

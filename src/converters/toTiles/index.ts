@@ -57,8 +57,8 @@ export async function toTiles(buildGuide: BuildGuide): Promise<void> {
  * @param worker - the vector tile worker to use
  */
 async function toTilesSliceFeatures(buildGuide: BuildGuide, worker: TileWorker): Promise<void> {
-  const { vectorSources, rasterSources, gridSources, layerGuides, projection, encoding, format } =
-    buildGuide;
+  const { vectorSources, rasterSources, gridSources, layerGuides } = buildGuide;
+  const { projection, encoding, format, buildIndices } = buildGuide;
   const featuresIterator = getFeature([
     vectorSources as unknown as Record<string, FeatureIterator>,
     rasterSources as unknown as Record<string, FeatureIterator>,
@@ -72,6 +72,7 @@ async function toTilesSliceFeatures(buildGuide: BuildGuide, worker: TileWorker):
     projection,
     encoding,
     format,
+    buildIndices,
     layerGuides: prepareLayerGuides(layerGuides),
   };
   worker.handleMessage(initMessage);
@@ -146,7 +147,7 @@ function updateBuilder(
   metaBuilder.setDescription(description ?? 'Built by GIS-Tools');
   metaBuilder.setVersion(version ?? '1.0.0');
   // NOTE: For now we only support xyz and fzxy
-  metaBuilder.setScheme(projection === 'WM' ? 'xyz' : 'fzxy'); // 'fzxy' | 'tfzxy' | 'xyz' | 'txyz' | 'tms'
+  metaBuilder.setScheme(projection === 'WG' ? 'xyz' : 'fzxy'); // 'fzxy' | 'tfzxy' | 'xyz' | 'txyz' | 'tms'
   metaBuilder.setType(type);
   metaBuilder.setEncoding(encoding ?? 'none'); // 'gz' | 'br' | 'none'
   if (attribution !== undefined) {

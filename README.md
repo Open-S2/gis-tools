@@ -284,14 +284,11 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
 | [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
-| [lzw]                    | ![LZW Badge][lzwBadge]        | lzw decompression methods.                                       |
 
 [polyfills]: /docs-ts/utils/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg
 [compression]: /docs-ts/utils/gzip.md
 [cmpBadge]: /assets/badges/gzip-gzip-cover.svg
-[lzw]: /docs-ts/utils/lzw.md
-[lzwBadge]: /assets/badges/lzw-gzip-cover.svg
 
 ---
 
@@ -334,11 +331,15 @@ bacon test
 To generate the coverage report, use the following command:
 
 ```bash
-cargo tarpaulin
-# faster
-cargo tarpaulin --color always --skip-clean
+# install
+cargo +stable install cargo-llvm-cov --locked
+# run test
+cargo llvm-cov
 # bacon
 bacon coverage # or type `l` inside the tool
+
+# output lcov
+cargo llvm-cov --lcov --output-path coverage/lcov.info
 ```
 
 ### Using Tokei

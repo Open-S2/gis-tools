@@ -1,10 +1,12 @@
 use crate::geometry::{S1Angle, S2Point};
 
-use libm::{asin, sin, sqrt};
+use libm::{asin, fabs, fmod, sin, sqrt};
 
-use core::cmp::Ordering;
-use core::f64::consts::PI;
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::{
+    cmp::Ordering,
+    f64::consts::PI,
+    ops::{Add, Deref, Div, Mul, Neg, Rem, RemAssign, Sub},
+};
 
 /// The Maximum allowed squared chord length.
 pub const K_MAX_LENGTH_2: f64 = 4.0;
@@ -29,37 +31,37 @@ pub const K_MAX_LENGTH_2: f64 = 4.0;
 /// the most important in practice), let the angle between A and B be (Pi - x)
 /// radians, i.e. A and B are within "x" radians of being antipodal.  The
 /// corresponding chord length is
-///
+/// ```latex
 ///    r = 2 * sin((Pi - x) / 2) = 2 * cos(x / 2) .
-///
+/// ```
 /// For values of x not close to Pi the relative error in the squared chord
 /// length is at most 4.5 * DBL_EPSILON (see GetS2PointConstructorMaxError).
 /// The relative error in "r" is thus at most 2.25 * DBL_EPSILON ~= 5e-16.  To
 /// convert this error into an equivalent angle, we have
-///
+/// ```latex
 ///    |dr / dx| = sin(x / 2)
-///
+/// ```
 /// and therefore
-///
+/// ```latex
 ///    |dx| = dr / sin(x / 2)
 ///         = 5e-16 * (2 * cos(x / 2)) / sin(x / 2)
 ///         = 1e-15 / tan(x / 2)
-///
+/// ```
 /// The maximum error is attained when
-///
+/// ```latext
 ///    x  = |dx|
 ///       = 1e-15 / tan(x / 2)
 ///      ~= 1e-15 / (x / 2)
 ///      ~= sqrt(2e-15)
-///
+/// ```
 /// In summary, the measurement error for an angle (Pi - x) is at most
-///
+/// ```latex
 ///    dx  = min(1e-15 / tan(x / 2), sqrt(2e-15))
 ///      (~= min(2e-15 / x, sqrt(2e-15)) when x is small).
-///
+/// ```
 /// On the Earth's surface (assuming a radius of 6371km), this corresponds to
 /// the following worst-case measurement errors:
-///
+/// ```latex
 ///     Accuracy:             Unless antipodal to within:
 ///     ---------             ---------------------------
 ///     6.4 nanometers        10,000 km (90 degrees)
@@ -67,33 +69,33 @@ pub const K_MAX_LENGTH_2: f64 = 4.0;
 ///     1 millimeter          81.2 meters
 ///     1 centimeter          8.12 meters
 ///     28.5 centimeters      28.5 centimeters
-///
+/// ```
 /// The representational and conversion errors referred to earlier are somewhat
 /// smaller than this.  For example, maximum distance between adjacent
 /// representable S1ChordAngle values is only 13.5 cm rather than 28.5 cm.  To
 /// see this, observe that the closest representable value to r^2 = 4 is
 /// r^2 =  4 * (1 - DBL_EPSILON / 2).  Thus r = 2 * (1 - DBL_EPSILON / 4) and
 /// the angle between these two representable values is
-///
+/// ```latex
 ///    x  = 2 * acos(r / 2)
 ///       = 2 * acos(1 - DBL_EPSILON / 4)
 ///      ~= 2 * asin(sqrt(DBL_EPSILON / 2)
 ///      ~= sqrt(2 * DBL_EPSILON)
 ///      ~= 2.1e-8
-///
+/// ```
 /// which is 13.5 cm on the Earth's surface.
 ///
 /// The worst case rounding error occurs when the value halfway between these
 /// two representable values is rounded up to 4.  This halfway value is
 /// r^2 = (4 * (1 - DBL_EPSILON / 4)), thus r = 2 * (1 - DBL_EPSILON / 8) and
 /// the worst case rounding error is
-///
+/// ```latex
 ///    x  = 2 * acos(r / 2)
 ///       = 2 * acos(1 - DBL_EPSILON / 8)
 ///      ~= 2 * asin(sqrt(DBL_EPSILON / 4)
 ///      ~= sqrt(DBL_EPSILON)
 ///      ~= 1.5e-8
-///
+/// ```
 /// which is 9.5 cm on the Earth's surface.
 ///
 /// This class is intended to be copied by value as desired.  It uses
@@ -185,12 +187,12 @@ impl S1ChordAngle {
     pub fn fast_upper_bound_from(angle: &S1Angle) -> Self {
         // This method uses the distance along the surface of the sphere as an upper
         // bound on the distance through the sphere's interior.
-        Self::from_length2(angle.radians * angle.radians)
+        Self::from_length2((**angle) * (**angle))
     }
 
     /// Convenience function to test if a ChordAngle is special.
     pub fn is_special(&self) -> bool {
-        self.length2 < 0. || self.length2 == f64::INFINITY
+        *self < 0. || *self == f64::INFINITY
     }
 
     /// Convert to an S1Angle.
@@ -245,7 +247,7 @@ impl S1ChordAngle {
     /// apply a cosine function on a ChordAngle
     pub fn chord_angle_cos(&self) -> f64 {
         // cos(2*A) = cos^2(A) - sin^2(A) = 1 - 2*sin^2(A)
-        1.0 - 0.5 * self.length2
+        1.0 - 0.5 * (**self)
     }
 
     /// apply a tangent function on a ChordAngle
@@ -260,7 +262,12 @@ impl S1ChordAngle {
         //   sin(2*A) = 2 * sin(A) * cos(A)
         //   cos^2(A) = 1 - sin^2(A)
         // This is much faster than converting to an angle and computing its sine.
-        self.length2 * (1.0 - 0.25 * self.length2)
+        (**self) * (1.0 - 0.25 * (**self))
+    }
+
+    /// Returns the remainder when dividing by `modulus`
+    pub fn modulo(&self, modulus: f64) -> Self {
+        Self { length2: fmod(**self, fabs(modulus)) }
     }
 }
 impl From<f64> for S1ChordAngle {
@@ -276,6 +283,12 @@ impl From<S1Angle> for S1ChordAngle {
 impl From<S1ChordAngle> for S1Angle {
     fn from(c_angle: S1ChordAngle) -> S1Angle {
         c_angle.to_angle()
+    }
+}
+impl Deref for S1ChordAngle {
+    type Target = f64;
+    fn deref(&self) -> &Self::Target {
+        &self.length2
     }
 }
 
@@ -334,13 +347,24 @@ impl Neg for S1ChordAngle {
         (-self.length2).into()
     }
 }
+impl Rem<f64> for S1ChordAngle {
+    type Output = Self;
+    fn rem(self, modulus: f64) -> Self::Output {
+        self.modulo(modulus)
+    }
+}
+impl RemAssign<f64> for S1ChordAngle {
+    fn rem_assign(&mut self, modulus: f64) {
+        self.length2 = fmod(self.length2, fabs(modulus));
+    }
+}
 
+// equalities
 impl PartialOrd<S1ChordAngle> for S1ChordAngle {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
-// Implement PartialOrd for comparison between S1Angle and f64
 impl PartialOrd<f64> for S1ChordAngle {
     fn partial_cmp(&self, other: &f64) -> Option<Ordering> {
         self.length2.partial_cmp(other)

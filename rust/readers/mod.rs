@@ -3,7 +3,7 @@ use crate::geometry::VectorFeature;
 /// Buffer Reader for reading data from a buffer
 pub mod buffer;
 
-use buffer::*;
+// use buffer::*;
 
 /// Reader interface. Implemented to read data from either a buffer or a filesystem
 pub trait Reader {
@@ -51,7 +51,6 @@ pub trait Reader {
     fn uint8(&mut self, byte_offset: Option<usize>) -> u8;
     /// Get the signed 8 bit integer at the given byte offset
     fn int8(&mut self, byte_offset: Option<usize>) -> i8;
-
     // Methods
     /// Seek to the given byte offset
     fn tell(&mut self) -> usize;

@@ -99,27 +99,33 @@ fileStore.close();
 const db = new Database(`${dir.name}/sqlite.db`);
 db.exec(`
   CREATE TABLE IF NOT EXISTS data (
-    hi INTEGER NOT NULL,
-    lo INTEGER NOT NULL,
+    id BIGINT NOT NULL PRIMARY KEY,
     value BLOB NOT NULL
   );
-  CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (hi, lo);
+  CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (id);
 `);
 
 // Adding data as BLOB to SQLite
 const sqliteAddStart = Bun.nanoseconds();
-const insert = db.prepare('INSERT INTO data (hi, lo, value) VALUES (?, ?, ?)');
+const alreadyUsed = new Set<number>();
+const insert = db.prepare('INSERT INTO data (id, value) VALUES (?, ?)');
 for (let i = 0; i < TEST_SIZE; i++) {
-  const rand = getRandomInt(0, TEST_SIZE);
-  insert.run(0, rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
+  let rand: number;
+  do {
+    rand = getRandomInt(0, 1_000_000_000);
+  } while (alreadyUsed.has(rand));
+  alreadyUsed.add(rand);
+  insert.run(rand, Buffer.from(JSON.stringify({ a: rand }))); // Storing Buffer as BLOB
 }
+// add 22
+if (!alreadyUsed.has(22)) insert.run(22, Buffer.from(JSON.stringify({ a: 22 }))); // Storing Buffer as BLOB
 const sqliteAddEnd = Bun.nanoseconds();
 const sqliteAddSeconds = (sqliteAddEnd - sqliteAddStart) / 1_000_000_000;
 console.info('SQLite Add time: ', sqliteAddSeconds);
 
 // Let's perform a simple lookup to simulate a query
 const sqliteQueryStart = Bun.nanoseconds();
-const res = db.prepare('SELECT * FROM data WHERE hi = ? AND lo = ?').get(0, 22); // Query the first entry
+const res = db.prepare('SELECT * FROM data WHERE id = ?').get(22); // Query the first entry
 const sqliteQueryEnd = Bun.nanoseconds();
 const sqliteQuerySeconds = (sqliteQueryEnd - sqliteQueryStart) / 1_000_000_000;
 console.info('SQLite Query time: ', sqliteQuerySeconds, res);

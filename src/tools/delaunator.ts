@@ -10,20 +10,23 @@ import type { Point, VectorPoint } from '../geometry';
  *
  * ## Usage
  * ```ts
- * import { Delaunator } from 'gis-tools-ts'
- * import type { Point, VectorPoint } from 'gis-tools-ts'
+ * import { Delaunator } from 'gis-tools-ts';
+ * import type { Point, VectorPoint } from 'gis-tools-ts';
  *
  * // its recommended to stereotypically use `fromPoints` to construct a Delaunator
- * const points: Point[] = [...]
- * const delaunator = Delaunator.fromPoints(points)
+ * const points: Point[] = [...];
+ * const delaunator = Delaunator.fromPoints(points);
  *
  * // or you can construct from vector points with `fromVectorPoints`
- * const points: VectorPoint[] = [...]
- * const delaunator = Delaunator.fromVectorPoints(points)
+ * const points: VectorPoint[] = [...];
+ * const delaunator = Delaunator.fromVectorPoints(points);
  *
  * // you can now use the triangulation
- * const { triangles } = delaunator
+ * const { triangles } = delaunator;
  * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Delaunay_triangulation
  */
 export class Delaunator {
   edgeStack = new Array(512);

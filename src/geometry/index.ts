@@ -1,4 +1,4 @@
-export * as LonLat from './ll';
+export * from './ll';
 export * from './predicates';
 export * from './s1';
 export * from './s2';

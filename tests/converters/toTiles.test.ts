@@ -139,7 +139,7 @@ testFunc(
       name: 'Satellite Data',
       rasterSources: { satellite: reader },
       format: 'raster',
-      projection: 'WM',
+      projection: 'WG',
       extension: 'raw',
       attribution: {
         'Satellite Data': 'https://example.com',

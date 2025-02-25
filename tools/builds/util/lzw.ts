@@ -1,1 +1,0 @@
-export { lzwDecoder } from '../../../src';

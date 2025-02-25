@@ -6,11 +6,18 @@ import { compressStream } from '../../../util';
 import { BaseVectorTile, writeMVTile, writeOVTile } from 'open-vector-tile';
 import { PointCluster, PointGrid, Tile, TileStore } from '../../../dataStructures';
 import { childrenIJ, fromFace, toFaceIJ } from '../../../geometry';
+import { earclip, tesselate } from 'earclip';
 
 import type { Encoding } from 's2-tilejson';
 import type { MultiMapStore } from '../../../dataStore';
 import type { RGBA } from '../../..';
-import type { Face, Projection, Properties, VectorFeatures } from '../../../geometry';
+import type {
+  Face,
+  Projection,
+  Properties,
+  VectorFeatures,
+  VectorMultiPolygon,
+} from '../../../geometry';
 import type {
   FormatOutput,
   GetPointValue,
@@ -36,6 +43,8 @@ export interface InitMessage {
   encoding?: Encoding;
   /** The output format */
   format?: FormatOutput;
+  /** If we should build indices into the tile or not */
+  buildIndices?: boolean;
 }
 
 /** Take in a feature that will be added to the tile */
@@ -69,6 +78,7 @@ export default class TileWorker {
   projection: Projection = 'S2';
   encoding: Encoding = 'none';
   format: FormatOutput = 'open-s2';
+  buildIndices = true;
   vectorStore: MultiMapStore<VectorFeatures<FeatureMetadata>> = new MultiMap<
     VectorFeatures<FeatureMetadata>
   >();
@@ -96,6 +106,7 @@ export default class TileWorker {
       if (message.projection !== undefined) this.projection = message.projection;
       if (message.encoding !== undefined) this.encoding = message.encoding;
       if (message.format !== undefined) this.format = message.format;
+      if (message.buildIndices !== undefined) this.buildIndices = message.buildIndices;
       this.#parseLayerGuides(message.layerGuides);
       self.postMessage({ type: 'ready' });
     } else {
@@ -194,11 +205,12 @@ export default class TileWorker {
    * @returns - a BaseVectorTile containing all the features if there are any
    */
   async #getVectorTile(id: bigint, tile: Tile): Promise<BaseVectorTile | undefined> {
-    const { layerGuides, format } = this;
+    const { layerGuides, format, buildIndices } = this;
     if (format === 'raster') return;
     // store vector features
     const vectorFeatures = await this.vectorStore.get(id);
     if (vectorFeatures !== undefined) {
+      if (buildIndices) earclipPolygons(vectorFeatures, tile.zoom, tile.extent);
       for (const feature of vectorFeatures) tile.addFeature(feature, feature.metadata?.layerName);
     }
     // store all cluster features
@@ -413,4 +425,53 @@ function toDrawType(feature: VectorFeatures): DrawType {
   else if (type === 'Raster') return DrawType.Raster;
   else if (type === 'Grid') return DrawType.Grid;
   else return DrawType.Points;
+}
+
+/**
+ * Pre-earclip polygons for faster processing in the tile
+ * @param features - the features to be stored in the tile
+ * @param zoom - the tile zoom
+ * @param extent - the tile extent
+ */
+function earclipPolygons(features: VectorFeatures[], zoom: number, extent: number): void {
+  const { max, min, floor, fround } = Math;
+
+  for (const feature of features) {
+    const { geometry } = feature;
+    const { type } = geometry;
+    if (type !== 'Polygon' && type !== 'MultiPolygon') continue;
+
+    // prep polys
+    const polys: VectorMultiPolygon = [];
+    // prep for processing
+    if (type === 'MultiPolygon') {
+      for (const poly of geometry.coordinates) polys.push(poly);
+    } else {
+      polys.push(geometry.coordinates);
+    }
+
+    let offset = 0;
+    const verts = [];
+    const indices = [];
+    for (const poly of polys) {
+      // create triangle mesh
+      const data = earclip(poly, Infinity, fround(offset / 2));
+      // update vertex position
+      offset += data.vertices.length;
+      verts.push(...data.vertices);
+      // store indices
+      for (let i = 0, il = data.indices.length; i < il; i++) indices.push(data.indices[i]);
+    }
+    const tessPos = verts.length;
+
+    const level = 1 << max(min(floor(zoom / 2), 4), 0);
+    const division = 16 / level;
+    if (division > 1) tesselate(verts, indices, extent / division, 2);
+
+    const tessPoints = verts.slice(tessPos).map((n) => fround(n));
+
+    // store
+    geometry.indices = indices;
+    geometry.tesselation = tessPoints;
+  }
 }
