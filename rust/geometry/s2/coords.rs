@@ -246,7 +246,8 @@ pub fn ij_to_st(i: u32) -> f64 {
 /// leaf cell indices, return the index of the closest valid leaf cell (i.e.,
 /// return values are clamped to the range of valid leaf cell indices).
 pub fn st_to_ij(s: f64) -> u32 {
-    (round(K_LIMIT_IJ as f64 * s - 0.5) as u32).clamp(0, K_LIMIT_IJ - 1)
+    let k_limit_ij = K_LIMIT_IJ as f64;
+    (k_limit_ij * s).clamp(0.0, k_limit_ij - 1.0) as u32
 }
 
 /// Convert an si- or ti-value to the corresponding s- or t-value.
@@ -254,7 +255,8 @@ pub fn si_ti_to_st(si: u32) -> f64 {
     if si > K_MAX_SI_TI {
         unreachable!();
     }
-    (1.0 / K_LIMIT_IJ as f64) * si as f64
+    (1.0 / K_MAX_SI_TI as f64) * (si as f64)
+    // return (1 / 2_147_483_648) * si;
 }
 
 /// Return the si- or ti-coordinate that is nearest to the given s- or

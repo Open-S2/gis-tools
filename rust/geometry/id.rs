@@ -4,18 +4,17 @@ use libm::{fmax, fmin};
 
 use alloc::{string::String, vec::Vec};
 
+use core::fmt;
+
 use crate::geometry::{
-    face_si_ti_to_xyz, face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox,
-    LonLat, S2Point, K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
+    face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox, LonLat, S2Point,
+    K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
 };
 
-use super::{get_v_norm, LOOKUP_IJ};
+use super::{get_u_norm, get_v_norm, LOOKUP_IJ};
 
 /// Cell ID works with both S2 and WM with a common interface
 pub type CellId = S2CellId;
-
-/// The S2CellId's four corners
-pub type S2CellVertices = [S2Point; 4];
 
 // The following lookup tables are used to convert efficiently between an
 // (i,j) cell index and the corresponding position along the Hilbert curve.
@@ -230,8 +229,8 @@ impl S2CellId {
     pub fn to_face_ij_orientation(&self, level: Option<u8>) -> (u8, u32, u32, u8) {
         let mut i: u32 = 0;
         let mut j: u32 = 0;
-        let face: u8 = (self.id >> K_POS_BITS) as u8;
-        let mut bits: u64 = (face & 1) as u64;
+        let face: u8 = self.face();
+        let mut bits: u64 = (face & K_SWAP_MASK) as u64;
 
         // Each iteration maps 8 bits of the Hilbert curve position into
         // 4 bits of "i" and "j".  The lookup table transforms a key of the
@@ -249,14 +248,14 @@ impl S2CellId {
             bits = LOOKUP_IJ[bits as usize] as u64;
             i += (bits as u32 >> K_NUM_FACES as u32) << (kk * 4);
             j += (((bits >> 2) & 15) << (kk * 4)) as u32;
-            bits &= K_FACE_BITS as u64;
+            bits &= (K_SWAP_MASK | K_INVERT_MASK) as u64;
             k -= 1;
         }
 
         // adjust bits to the orientation
         let lsb = self.id & (!self.id + 1);
-        if (lsb & 1229782938247303424) != 0 {
-            bits ^= 1;
+        if (lsb & 0x1111111111111110) != 0 {
+            bits ^= K_SWAP_MASK as u64;
         }
 
         if let Some(level) = level {
@@ -269,7 +268,7 @@ impl S2CellId {
 
     /// Returns the four edges of the cell.  Edges are returned in CCW order
     /// (lower left, lower right, upper right, upper left in the UV plane).
-    pub fn get_edges(&self) -> S2CellVertices {
+    pub fn get_edges(&self) -> [S2Point; 4] {
         let mut edges = self.get_edges_raw();
         for e in edges.iter_mut() {
             e.normalize();
@@ -280,32 +279,31 @@ impl S2CellId {
     /// Returns the inward-facing normal of the great circle passing through the
     /// edge from vertex k to vertex k+1 (mod 4). The normals returned by
     /// getEdgesRaw are not necessarily unit length.
-    pub fn get_edges_raw(&self) -> S2CellVertices {
+    pub fn get_edges_raw(&self) -> [S2Point; 4] {
         let f = self.face();
         let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
         [
             get_v_norm(f, v_low),
-            get_v_norm(f, u_high),
+            get_u_norm(f, u_high),
             get_v_norm(f, v_high).invert(),
-            get_v_norm(f, u_low).invert(),
+            get_u_norm(f, u_low).invert(),
         ]
     }
 
     /// Returns the four vertices of the cell.  Vertices are returned
     /// in CCW order (lower left, lower right, upper right, upper left in the UV
     /// plane).  The points returned by getVerticesRaw are not normalized.
-    pub fn get_vertices(&self) -> S2CellVertices {
-        let mut vertices = self.get_vertices_raw();
-        for v in vertices.iter_mut() {
+    pub fn get_vertices(&self) -> [S2Point; 4] {
+        self.get_vertices_raw().map(|mut v| {
             v.normalize();
-        }
-        vertices
+            v
+        })
     }
 
     /// Returns the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
     /// in CCW order (lower left, lower right, upper right, upper left in the UV
     /// plane).  The points returned by getVerticesRaw are not normalized.
-    pub fn get_vertices_raw(&self) -> S2CellVertices {
+    pub fn get_vertices_raw(&self) -> [S2Point; 4] {
         let f = self.face();
         let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
         [
@@ -325,69 +323,6 @@ impl S2CellId {
     /// Return the size of a cell at the given level.
     pub fn get_size_ij(&self) -> u64 {
         1_u64 << (K_MAX_LEVEL - self.level() as u64)
-    }
-
-    /// Return the (face, si, ti) coordinates of the center of the cell.  Note
-    /// that although (si,ti) coordinates span the range [0,2**31] in general,
-    /// the cell center coordinates are always in the range [1,2**31-1] and
-    /// therefore can be represented using a signed 32-bit integer.
-    /// Returns (face, si, ti)
-    pub fn get_center_si_ti(&self) -> (u8, u32, u32) {
-        // First we compute the discrete (i,j) coordinates of a leaf cell contained
-        // within the given cell.  Given that cells are represented by the Hilbert
-        // curve position corresponding at their center, it turns out that the cell
-        // returned by to_face_ij_orientation is always one of two leaf cells closest
-        // to the center of the cell (unless the given cell is a leaf cell itself,
-        // in which case there is only one possibility).
-        //
-        // Given a cell of size s >= 2 (i.e. not a leaf cell), and letting (imin,
-        // jmin) be the coordinates of its lower left-hand corner, the leaf cell
-        // returned by to_face_ij_orientation() is either (imin + s/2, jmin + s/2)
-        // (imin + s/2 - 1, jmin + s/2 - 1).  The first case is the one we want.
-        // We can distinguish these two cases by looking at the low bit of "i" or
-        // "j".  In the second case the low bit is one, unless s == 2 (i.e. the
-        // level just above leaf cells) in which case the low bit is zero.
-        //
-        // In the code below, the expression ((i ^ (int(id_) >> 2)) & 1) is true
-        // if we are in the second case described above.
-        let (face, i, j, _or) = self.to_face_ij_orientation(None);
-        let mut delta: u32 = 0;
-        if self.is_leaf() {
-            delta = 1;
-        } else if ((i ^ (self.id >> 2) as u32) & 1) != 0 {
-            delta = 2;
-        }
-
-        // Note that (2 * {i,j} + delta) will never overflow a 32-bit integer.
-        let psi = 2 * i + delta;
-        let pti = 2 * j + delta;
-
-        (face, psi, pti)
-    }
-
-    /// Creates a human readable debug string.  Used for << and available for
-    /// direct usage as well.  The format is "f/dd..d" where "f" is a digit in
-    /// the range [0-5] representing the S2CellId face, and "dd..d" is a string
-    /// of digits in the range [0-3] representing each child's position with
-    /// respect to its parent.  (Note that the latter string may be empty.)
-    ///
-    /// For example "4/" represents S2CellId::from_face(4), and "3/02" represents
-    /// S2CellId::from_face(3).child(0).child(2).
-    pub fn display_name(&self) -> String {
-        let mut out = String::new();
-        if !self.is_valid() {
-            out.push_str("Invalid");
-            return out;
-        }
-        out.push((self.face() + 48) as char);
-        out += "/";
-        let mut cur_level: u8 = 1;
-        while cur_level <= self.level() {
-            out.push((self.child_position(cur_level) + 48) as char);
-            cur_level += 1;
-        }
-
-        out
     }
 
     /// Return the child position (0..3) of this cell's ancestor at the given
@@ -432,17 +367,6 @@ impl S2CellId {
         id
     }
 
-    /// Return the lowest-numbered bit that is on for this cell id, which is
-    /// equal to (uint64{1} << (2 * (K_MAX_LEVEL - level))).  So for example,
-    /// a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
-    /// first test is more efficient.
-    pub fn lsb(&self) -> u64 {
-        if self.id == 0 {
-            return 0;
-        }
-        self.id & (!self.id + 1_u64)
-    }
-
     /// Return the immediate child of this cell at the given traversal order
     /// position (in the range 0 to 3). This cell must not be a leaf cell.
     pub fn child(&self, position: u8) -> S2CellId {
@@ -465,7 +389,7 @@ impl S2CellId {
     /// The position of the cell center along the Hilbert curve over this face,
     /// in the range 0..(2**K_POS_BITS-1).
     pub fn pos(&self) -> u64 {
-        self.id & (0u64 >> K_FACE_BITS)
+        self.id & (!0u64 >> K_FACE_BITS)
     }
 
     /// Return the subdivision level of the cell (range 0..K_MAX_LEVEL).
@@ -494,10 +418,10 @@ impl S2CellId {
         (self.id & 1u64) != 0
     }
 
-    /// Convert an S2CellID to an S2Point
+    /// Convert an S2CellID to an S2Point in normalized vector coordinates
     pub fn to_point_raw(&self) -> S2Point {
-        let (face, si, ti) = self.get_center_si_ti();
-        face_si_ti_to_xyz(face, si, ti)
+        let (face, u, v) = self.to_uv();
+        face_uv_to_xyz(face, u, v)
     }
 
     /// Convert an S2CellID to an S2Point in normalized vector coordinates
@@ -551,7 +475,7 @@ impl S2CellId {
     }
 
     /// Given an S2CellID, get the quad children tiles using a face-zoom-ij input
-    pub fn children_ij(&self, face: u8, level: u8, i: u32, j: u32) -> [Self; 4] {
+    pub fn children_ij(face: u8, level: u8, i: u32, j: u32) -> [S2CellId; 4] {
         let i = i << 1;
         let j = j << 1;
         let level = level + 1;
@@ -602,25 +526,31 @@ impl S2CellId {
         min_other <= max_self && max_other >= min_self
     }
 
+    /// Return the lowest-numbered bit that is on for this cell id, which is
+    /// equal to (uint64_t{1} << (2 * (kMaxLevel - level))).  So for example,
+    /// a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
+    /// first test is more efficient.
+    fn lsb(&self) -> u64 {
+        self.id & (!(self.id) + 1)
+    }
+
     /// Get the next S2CellID in the hilbert space
     pub fn next(&self) -> S2CellId {
-        let id = self.id;
-        let n = id + ((id & (!id + 1)) << 1);
-        if n < K_WRAP_OFFSET {
-            n.into()
+        let next = self.id.wrapping_add(self.lsb() << 1);
+        if next < K_WRAP_OFFSET {
+            next.into()
         } else {
-            (n - K_WRAP_OFFSET).into()
+            (next - K_WRAP_OFFSET).into()
         }
     }
 
     /// Get the previous S2CellID in the hilbert space
     pub fn prev(&self) -> S2CellId {
-        let id = self.id;
-        let p = id - ((id & (!id + 1)) << 1);
-        if p < K_WRAP_OFFSET {
-            p.into()
+        let prev = self.id.wrapping_sub(self.lsb() << 1);
+        if prev < K_WRAP_OFFSET {
+            prev.into()
         } else {
-            (p + K_WRAP_OFFSET).into()
+            (prev.wrapping_add(K_WRAP_OFFSET)).into()
         }
     }
 
@@ -653,54 +583,63 @@ impl S2CellId {
         BBox::new(s - half_size, t - half_size, s + half_size, t + half_size)
     }
 
-    /// Given an S2CellID, find the neighboring S2CellIDs
+    /// Given an S2CellID, find the edge neighboring S2CellIDs
     /// returns neighbors: [up, right, down, left]
     pub fn neighbors(&self) -> [S2CellId; 4] {
         let level = self.level();
-        let size = size_ij(level);
+        let size = size_ij(level) as i32;
         let (face, i, j, _or) = self.to_face_ij_orientation(None);
+        let i = i as i32;
+        let j = j as i32;
+
+        let j_minus_size = j - size;
+        let i_minus_size = i - size;
 
         [
-            S2CellId::from_ij_same(face, i, j - size, j as i32 - size as i32 >= 0)
+            S2CellId::from_ij_same(face, i, j_minus_size, j_minus_size >= 0).parent(Some(level)),
+            S2CellId::from_ij_same(face, i + size, j, i + size < K_MAX_SIZE as i32)
                 .parent(Some(level)),
-            S2CellId::from_ij_same(face, i + size, j, i + size < K_MAX_SIZE).parent(Some(level)),
-            S2CellId::from_ij_same(face, i, j + size, j + size < K_MAX_SIZE).parent(Some(level)),
-            S2CellId::from_ij_same(face, i - size, j, i as i32 - size as i32 >= 0)
+            S2CellId::from_ij_same(face, i, j + size, j + size < K_MAX_SIZE as i32)
                 .parent(Some(level)),
+            S2CellId::from_ij_same(face, i_minus_size, j, i_minus_size >= 0).parent(Some(level)),
         ]
     }
 
     /// Given a Face-I-J and a desired level (zoom), find the neighboring S2CellIDs
     /// return neighbors: [down, right, up, left]
-    pub fn neighbors_ij(&self, face: u8, i: u32, j: u32, level: u8) -> [S2CellId; 4] {
-        let size = size_ij(level);
+    pub fn neighbors_ij(face: u8, i: u32, j: u32, level: u8) -> [S2CellId; 4] {
+        let size = size_ij(level) as i32;
+        let i = i as i32;
+        let j = j as i32;
+        let j_minus_size: i32 = j - size;
+        let i_minus_size: i32 = i - size;
 
         [
-            S2CellId::from_ij_same(face, i, j - size, j as i32 - size as i32 >= 0)
+            S2CellId::from_ij_same(face, i, j_minus_size, j_minus_size >= 0).parent(Some(level)),
+            S2CellId::from_ij_same(face, i + size, j, i + size < K_MAX_SIZE as i32)
                 .parent(Some(level)),
-            S2CellId::from_ij_same(face, i + size, j, i + size < K_MAX_SIZE).parent(Some(level)),
-            S2CellId::from_ij_same(face, i, j + size, j + size < K_MAX_SIZE).parent(Some(level)),
-            S2CellId::from_ij_same(face, i - size, j, i as i32 - size as i32 >= 0)
+            S2CellId::from_ij_same(face, i, j + size, j + size < K_MAX_SIZE as i32)
                 .parent(Some(level)),
+            S2CellId::from_ij_same(face, i_minus_size, j, i_minus_size >= 0).parent(Some(level)),
         ]
     }
 
     /// Build an S2CellID given a Face-I-J, but ensure the face is the same if desired
-    pub fn from_ij_same(face: u8, i: u32, j: u32, same_face: bool) -> S2CellId {
+    pub fn from_ij_same(face: u8, i: i32, j: i32, same_face: bool) -> S2CellId {
         if same_face {
-            S2CellId::from_face_ij(face, i, j, None)
+            S2CellId::from_face_ij(face, i as u32, j as u32, None)
         } else {
             S2CellId::from_face_ij_wrap(face, i, j)
         }
     }
 
     /// Build an S2CellID given a Face-I-J, but ensure it's a legal value, otherwise wrap before creation
-    pub fn from_face_ij_wrap(face: u8, i: u32, j: u32) -> S2CellId {
+    pub fn from_face_ij_wrap(face: u8, i: i32, j: i32) -> S2CellId {
         // Convert i and j to the coordinates of a leaf cell just beyond the
         // boundary of this face.  This prevents 32-bit overflow in the case
         // of finding the neighbors of a face cell.
-        let i = i.clamp(0, K_MAX_SIZE);
-        let j = j.clamp(0, K_MAX_SIZE);
+        let i = i.clamp(-1, K_MAX_SIZE as i32);
+        let j = j.clamp(-1, K_MAX_SIZE as i32);
 
         // We want to wrap these coordinates onto the appropriate adjacent face.
         // The easiest way to do this is to convert the (i,j) coordinates to (x,y,z)
@@ -742,35 +681,40 @@ impl S2CellId {
         // Determine the i- and j-offsets to the closest neighboring cell in each
         // direction.  This involves looking at the next bit of "i" and "j" to
         // determine which quadrant of this->parent(level) this cell lies in.
-        let halfsize = size_ij(level + 1);
+        let halfsize = size_ij(level + 1) as i32;
         let size = halfsize << 1;
         let isame;
         let jsame;
         let ioffset;
         let joffset;
 
+        let i = i as i32;
+        let j = j as i32;
+
         if (i & halfsize) != 0 {
             ioffset = size;
-            isame = i + size < K_MAX_SIZE;
+            isame = i + size < K_MAX_SIZE as i32;
         } else {
-            ioffset = -(size as i32) as u32;
-            isame = i as i32 - size as i32 >= 0;
+            ioffset = -(size);
+            isame = i - size >= 0;
         }
         if (j & halfsize) != 0 {
             joffset = size;
-            jsame = j + size < K_MAX_SIZE;
+            jsame = j + size < K_MAX_SIZE as i32;
         } else {
-            joffset = -(size as i32) as u32;
-            jsame = j as i32 - size as i32 >= 0;
+            joffset = -size;
+            jsame = j - size >= 0;
         }
 
+        let i_new: i32 = i + ioffset;
+        let j_new: i32 = j + joffset;
+
         neighbors.push(self.parent(Some(level)));
-        neighbors.push(S2CellId::from_ij_same(face, i + ioffset, j, isame).parent(Some(level)));
-        neighbors.push(S2CellId::from_ij_same(face, i, j + joffset, jsame).parent(Some(level)));
+        neighbors.push(S2CellId::from_ij_same(face, i_new, j, isame).parent(Some(level)));
+        neighbors.push(S2CellId::from_ij_same(face, i, j_new, jsame).parent(Some(level)));
         if isame || jsame {
             neighbors.push(
-                S2CellId::from_ij_same(face, i + ioffset, j + joffset, isame && jsame)
-                    .parent(Some(level)),
+                S2CellId::from_ij_same(face, i_new, j_new, isame && jsame).parent(Some(level)),
             );
         }
 
@@ -785,6 +729,27 @@ impl S2CellId {
     /// Return the high 32 bits of the cell id
     pub fn high_bits(&self) -> u32 {
         (self.id >> 32) as u32
+    }
+}
+impl fmt::Display for S2CellId {
+    /// Creates a human readable debug string.  Used for << and available for
+    /// direct usage as well.  The format is "f/dd..d" where "f" is a digit in
+    /// the range [0-5] representing the S2CellId face, and "dd..d" is a string
+    /// of digits in the range [0-3] representing each child's position with
+    /// respect to its parent.  (Note that the latter string may be empty.)
+    ///
+    /// For example "4/" represents S2CellId::from_face(4), and "3/02" represents
+    /// S2CellId::from_face(3).child(0).child(2).
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if !self.is_valid() {
+            return f.write_str("Invalid");
+        }
+        write!(f, "{}/", self.face())?;
+        for level in 1..=self.level() {
+            write!(f, "{}", self.child_position(level))?;
+        }
+
+        Ok(())
     }
 }
 impl From<u64> for S2CellId {
@@ -843,4 +808,441 @@ pub fn ij_level_to_bound_uv(i: u32, j: u32, level: u8) -> BBox {
         ST_TO_UV(ij_to_st(max_i as u32)),
         ST_TO_UV(ij_to_st(max_j as u32)),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::geometry::ll;
+    use alloc::string::ToString;
+    use alloc::vec;
+
+    use super::*;
+
+    #[test]
+    fn new() {
+        let id = 1152921504606846977_u64;
+        let cid = S2CellId::new(id);
+        assert_eq!(cid.id, id);
+        let face = S2CellId::from_face(0);
+        assert!(face.is_valid());
+        assert!(face.is_face());
+        let face_child = face.child(0);
+        assert!(!face_child.is_face());
+
+        assert_eq!(cid.low_bits(), 1);
+        assert_eq!(cid.high_bits(), 268435456);
+
+        let none = S2CellId::none();
+        assert_eq!(none.id, 0);
+
+        let sentinel = S2CellId::sentinel();
+        assert_eq!(sentinel.id, 18446744073709551615);
+    }
+
+    #[test]
+    fn to_string() {
+        let id = S2CellId::from_face(3).child(0).child(2);
+        assert_eq!(id.to_string(), "3/02");
+
+        let string = "3/02";
+        let str_id: S2CellId = string.into();
+        assert_eq!(str_id, id);
+
+        let string_type = string.to_string();
+        let str_type_id: S2CellId = string_type.into();
+        assert_eq!(str_type_id, id);
+
+        let invalid = S2CellId::sentinel();
+        assert_eq!(invalid.to_string(), "Invalid");
+    }
+
+    #[test]
+    fn from_face() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(id.id, 1152921504606846976);
+        let id = S2CellId::from_face(1);
+        assert_eq!(id.id, 3458764513820540928);
+        let id = S2CellId::from_face(2);
+        assert_eq!(id.id, 5764607523034234880);
+        let id = S2CellId::from_face(3);
+        assert_eq!(id.id, 8070450532247928832);
+        let id = S2CellId::from_face(4);
+        assert_eq!(id.id, 10376293541461622784);
+        let id = S2CellId::from_face(5);
+        assert_eq!(id.id, 12682136550675316736);
+    }
+
+    #[test]
+    fn from_lon_lat() {
+        let ll = ll::LonLat::new(0.0, 0.0, None);
+        let id = S2CellId::from_lon_lat(&ll);
+        assert_eq!(id.id, 1152921504606846977);
+        let ll = ll::LonLat::new(90.0, 0.0, None);
+        let id = S2CellId::from_lon_lat(&ll);
+        assert_eq!(id.id, 3458764513820540929);
+        let ll = ll::LonLat::new(0.0, 90.0, None);
+        let id = S2CellId::from_lon_lat(&ll);
+        assert_eq!(id.id, 5764607523034234881);
+        let ll = ll::LonLat::new(-90.0, 0.0, None);
+        let id = S2CellId::from_lon_lat(&ll);
+        assert_eq!(id.id, 10376293541461622785);
+        let ll = ll::LonLat::new(0.0, -90.0, None);
+        let id: S2CellId = ll.into();
+        assert_eq!(id.id, 12682136550675316737);
+    }
+
+    #[test]
+    fn from_s2point() {
+        let p = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let id = S2CellId::from_s2_point(&p);
+        assert_eq!(id.id, 1152921504606846977);
+        let p = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        let id = S2CellId::from_s2_point(&p);
+        assert_eq!(id.id, 3458764513820540929);
+        let p = S2Point { x: 0.0, y: 0.0, z: 1.0 };
+        let id = S2CellId::from_s2_point(&p);
+        assert_eq!(id.id, 5764607523034234881);
+        let p = S2Point { x: -1.0, y: 0.0, z: 0.0 };
+        let id: S2CellId = p.into();
+        assert_eq!(id.id, 8070450532247928833);
+    }
+
+    #[test]
+    fn to_point() {
+        let id = S2CellId::from_face(0);
+        let p = id.to_point();
+        assert_eq!(p, S2Point { x: 1.0, y: 0.0, z: 0.0 });
+        let id = S2CellId::from_face(1);
+        let p = id.to_point();
+        assert_eq!(p, S2Point { x: 0.0, y: 1.0, z: 0.0 });
+        let id = S2CellId::from_face(2);
+        let p = id.to_point();
+        assert_eq!(p, S2Point { x: 0.0, y: 0.0, z: 1.0 });
+        let id = S2CellId::from_face(3);
+        let p = id.to_point();
+        assert_eq!(p, S2Point { x: -1.0, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn get_bound_uv() {
+        assert_eq!(S2CellId::from_face(0).get_bound_uv(), BBox::new(-1.0, -1.0, 1.0, 1.0));
+        assert_eq!(S2CellId::from_face(0).child(0).get_bound_uv(), BBox::new(-1.0, -1.0, 0.0, 0.0));
+        assert_eq!(S2CellId::from_face(1).get_bound_uv(), BBox::new(-1.0, -1.0, 1.0, 1.0));
+    }
+
+    #[test]
+    fn vertex_neighbors() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.vertex_neighbors(None),
+            vec![
+                S2CellId::new(1152921504606846976),
+                S2CellId::new(3458764513820540928),
+                S2CellId::new(5764607523034234880)
+            ]
+        );
+        let id: S2CellId = 123974589433424.into();
+        assert_eq!(
+            id.vertex_neighbors(None),
+            vec![
+                S2CellId::new(123974589433424),
+                S2CellId::new(123974589433584),
+                S2CellId::new(123974589433776),
+                S2CellId::new(123974589433616)
+            ]
+        );
+    }
+
+    #[test]
+    fn neighbors() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.neighbors(),
+            [
+                S2CellId::new(12682136550675316736),
+                S2CellId::new(3458764513820540928),
+                S2CellId::new(5764607523034234880),
+                S2CellId::new(10376293541461622784)
+            ]
+        );
+    }
+
+    #[test]
+    fn neighbors_ij() {
+        assert_eq!(
+            S2CellId::neighbors_ij(0, 0, 0, 0),
+            [
+                S2CellId::new(12682136550675316736),
+                S2CellId::new(3458764513820540928),
+                S2CellId::new(5764607523034234880),
+                S2CellId::new(10376293541461622784)
+            ]
+        );
+    }
+
+    #[test]
+    fn bounds_st() {
+        assert_eq!(S2CellId::from_face(0).bounds_st(Some(0)), BBox::new(0., 0., 1., 1.));
+        assert_eq!(S2CellId::from_face(0).bounds_st(Some(1)), BBox::new(0.25, 0.25, 0.75, 0.75));
+        assert_eq!(
+            S2CellId::from_face(0).bounds_st(Some(2)),
+            BBox::new(0.375, 0.375, 0.625, 0.625)
+        );
+        assert_eq!(S2CellId::from_face(1).bounds_st(Some(0)), BBox::new(0., 0., 1., 1.));
+    }
+
+    #[test]
+    fn next() {
+        assert_eq!(S2CellId::from_face(0).next(), S2CellId::new(3458764513820540928));
+        assert_eq!(S2CellId::from_face(1).next(), S2CellId::new(5764607523034234880));
+        assert_eq!(S2CellId::from_face(2).next(), S2CellId::new(8070450532247928832));
+        assert_eq!(S2CellId::from_face(3).next(), S2CellId::new(10376293541461622784));
+
+        let wrap = S2CellId::from_face(5).next().next().next();
+        assert_eq!(wrap, S2CellId::from_face(2));
+    }
+
+    #[test]
+    fn parent() {
+        let id = S2CellId::from_face(0);
+        let child = id.child(0).child(2).child(3);
+        assert_eq!(child.parent(None), id.child(0).child(2));
+        assert_eq!(child.parent(Some(0)), id);
+    }
+
+    #[test]
+    fn range() {
+        assert_eq!(
+            S2CellId::from_face(0).range(),
+            (S2CellId::new(1), S2CellId::new(2305843009213693951))
+        );
+    }
+
+    #[test]
+    fn contains_s2point() {
+        let face_0 = S2CellId::from_face(0);
+        let point: S2Point = (&LonLat::new(0., 0., None)).into();
+        let point2: S2Point = (&LonLat::new(-160., 70., None)).into();
+        assert!(face_0.contains_s2point(&point));
+        assert!(!face_0.contains_s2point(&point2));
+    }
+
+    #[test]
+    fn contains() {
+        assert!(S2CellId::from_face(0).contains(&S2CellId::from_face(0)));
+        assert!(!S2CellId::from_face(0).contains(&S2CellId::from_face(1)));
+        assert!(S2CellId::from_face(0).contains(&S2CellId::from_face(0).child(1)));
+    }
+
+    #[test]
+    fn intersects() {
+        assert!(S2CellId::from_face(0).intersects(&S2CellId::from_face(0)));
+        assert!(!S2CellId::from_face(0).intersects(&S2CellId::from_face(1)));
+        assert!(S2CellId::from_face(0).intersects(&S2CellId::from_face(0).child(1)));
+    }
+
+    #[test]
+    fn prev() {
+        assert_eq!(S2CellId::from_face(1).prev(), S2CellId::new(1152921504606846976));
+        assert_eq!(S2CellId::from_face(2).prev(), S2CellId::new(3458764513820540928));
+        assert_eq!(S2CellId::from_face(3).prev(), S2CellId::new(5764607523034234880));
+        assert_eq!(S2CellId::from_face(4).prev(), S2CellId::new(8070450532247928832));
+        assert_eq!(S2CellId::from_face(5).prev(), S2CellId::new(10376293541461622784));
+
+        let id = S2CellId::from_face(2);
+        let next2 = id.next().next();
+        let prev2 = next2.prev().prev();
+        assert_eq!(id, prev2);
+
+        let wrap = S2CellId::from_face(0).prev().prev().prev();
+        assert_eq!(wrap, S2CellId::from_face(3));
+    }
+
+    #[test]
+    fn children() {
+        assert_eq!(
+            S2CellId::from_face(0).children(None),
+            [
+                S2CellId::new(288230376151711744),
+                S2CellId::new(2017612633061982208),
+                S2CellId::new(1441151880758558720),
+                S2CellId::new(864691128455135232),
+            ]
+        );
+        assert_eq!(
+            S2CellId::from_face(0).children(Some(0)),
+            [
+                S2CellId::new(288230376151711744),
+                S2CellId::new(864691128455135232),
+                S2CellId::new(1441151880758558720),
+                S2CellId::new(2017612633061982208),
+            ]
+        );
+    }
+
+    #[test]
+    fn children_ij() {
+        assert_eq!(
+            S2CellId::children_ij(0, 0, 0, 0),
+            [
+                S2CellId::new(288230376151711744),
+                S2CellId::new(2017612633061982208),
+                S2CellId::new(864691128455135232),
+                S2CellId::new(1441151880758558720),
+            ]
+        )
+    }
+
+    #[test]
+    fn pos() {
+        assert_eq!(S2CellId::from_face(0).pos(), 1152921504606846976);
+        assert_eq!(S2CellId::from_face(1).pos(), 1152921504606846976);
+        assert_eq!(S2CellId::from_face(2).pos(), 1152921504606846976);
+        assert_eq!(S2CellId::from_face(3).pos(), 1152921504606846976);
+    }
+
+    #[test]
+    fn distance() {
+        assert_eq!(S2CellId::from_face(0).distance(Some(0)), 0.);
+        assert_eq!(S2CellId::from_face(0).distance(Some(1)), 2.);
+        assert_eq!(S2CellId::from_face(0).distance(Some(2)), 8.);
+        assert_eq!(S2CellId::from_face(0).distance(Some(3)), 32.);
+    }
+
+    #[test]
+    fn from_distance() {
+        assert_eq!(S2CellId::from_distance(0, None), S2CellId::new(1));
+        assert_eq!(S2CellId::from_distance(1, None), S2CellId::new(3));
+        assert_eq!(S2CellId::from_distance(2, None), S2CellId::new(5));
+        assert_eq!(S2CellId::from_distance(3, None), S2CellId::new(7));
+        assert_eq!(S2CellId::from_distance(4, None), S2CellId::new(9));
+        assert_eq!(S2CellId::from_distance(5, None), S2CellId::new(11));
+    }
+
+    #[test]
+    fn from_face_st() {
+        assert_eq!(S2CellId::from_face_st(0, 0., 0.), S2CellId::new(1));
+    }
+
+    #[test]
+    fn from_face_uv() {
+        assert_eq!(S2CellId::from_face_uv(0, 0., 0.), S2CellId::new(1152921504606846977));
+    }
+
+    #[test]
+    fn to_zoom_ij() {
+        assert_eq!(S2CellId::from_face(0).to_zoom_ij(None), (0, 536870912, 536870912));
+        assert_eq!(S2CellId::from_face(1).to_zoom_ij(None), (1, 536870912, 536870912));
+        assert_eq!(S2CellId::from_face(2).to_zoom_ij(None), (2, 536870912, 536870912));
+        assert_eq!(S2CellId::from_face(3).to_zoom_ij(None), (3, 536870912, 536870912));
+        assert_eq!(S2CellId::from_face(3).to_zoom_ij(Some(0)), (3, 0, 0));
+    }
+
+    #[test]
+    fn get_size_ij() {
+        let id = S2CellId::from_face(0);
+        let child = id.child(0).child(2).child(1).child(2).child(3);
+        assert_eq!(id.get_size_ij(), 1073741824);
+        assert_eq!(child.get_size_ij(), 33554432);
+    }
+
+    #[test]
+    fn get_vertices_raw() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.get_vertices_raw(),
+            [
+                S2Point { x: 1., y: -1., z: -1. },
+                S2Point { x: 1., y: 1., z: -1. },
+                S2Point { x: 1., y: 1., z: 1. },
+                S2Point { x: 1., y: -1., z: 1. },
+            ]
+        );
+
+        let level_10 = S2CellId::from_face_ij(0, 10, 20, Some(10));
+        assert_eq!(
+            level_10.get_vertices_raw(),
+            [
+                S2Point { x: 1., y: -0.9740854899088541, z: -0.94842529296875 },
+                S2Point { x: 1., y: -0.9715080261230469, z: -0.94842529296875 },
+                S2Point { x: 1., y: -0.9715080261230469, z: -0.9458732604980469 },
+                S2Point { x: 1., y: -0.9740854899088541, z: -0.9458732604980469 },
+            ]
+        );
+    }
+
+    #[test]
+    fn get_vertices() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.get_vertices(),
+            [
+                S2Point { x: 0.5773502691896258, y: -0.5773502691896258, z: -0.5773502691896258 },
+                S2Point { x: 0.5773502691896258, y: 0.5773502691896258, z: -0.5773502691896258 },
+                S2Point { x: 0.5773502691896258, y: 0.5773502691896258, z: 0.5773502691896258 },
+                S2Point { x: 0.5773502691896258, y: -0.5773502691896258, z: 0.5773502691896258 }
+            ]
+        );
+
+        let level_10 = S2CellId::from_face_ij(0, 10, 20, Some(10));
+        assert_eq!(
+            level_10.get_vertices(),
+            [
+                S2Point { x: 0.5925201015153633, y: -0.5771652333654366, z: -0.5619610508695819 },
+                S2Point { x: 0.5930423748666049, y: -0.5761454270139794, z: -0.5624563881257431 },
+                S2Point { x: 0.593547171020095, y: -0.576635840528651, z: -0.5614203979121691 },
+                S2Point { x: 0.5930235640377648, y: -0.5776556489032209, z: -0.5609251320685729 }
+            ]
+        );
+    }
+
+    #[test]
+    fn get_edges_raw() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.get_edges_raw(),
+            [
+                S2Point { x: 1.0, y: 0.0, z: 1.0 },
+                S2Point { x: 1.0, y: -1.0, z: 0.0 },
+                S2Point { x: 1.0, y: -0.0, z: -1.0 },
+                S2Point { x: 1.0, y: 1.0, z: -0.0 }
+            ]
+        );
+
+        let level_10 = S2CellId::from_face_ij(0, 10, 20, Some(10));
+        assert_eq!(
+            level_10.get_edges_raw(),
+            [
+                S2Point { x: 0.94842529296875, y: 0.0, z: 1.0 },
+                S2Point { x: -0.9715080261230469, y: -1.0, z: 0.0 },
+                S2Point { x: -0.9458732604980469, y: -0.0, z: -1.0 },
+                S2Point { x: 0.9740854899088541, y: 1.0, z: -0.0 }
+            ]
+        );
+    }
+
+    #[test]
+    fn get_edges() {
+        let id = S2CellId::from_face(0);
+        assert_eq!(
+            id.get_edges(),
+            [
+                S2Point { x: 0.7071067811865475, y: 0.0, z: 0.7071067811865475 },
+                S2Point { x: 0.7071067811865475, y: -0.7071067811865475, z: 0.0 },
+                S2Point { x: 0.7071067811865475, y: -0.0, z: -0.7071067811865475 },
+                S2Point { x: 0.7071067811865475, y: 0.7071067811865475, z: -0.0 }
+            ]
+        );
+
+        let level_10 = S2CellId::from_face_ij(0, 10, 20, Some(10));
+        assert_eq!(
+            level_10.get_edges(),
+            [
+                S2Point { x: 0.6881486685943737, y: 0.0, z: 0.7255697140260132 },
+                S2Point { x: -0.696815003909965, y: -0.7172508977519342, z: 0.0 },
+                S2Point { x: -0.6871719848800082, y: -0.0, z: -0.7264947785057162 },
+                S2Point { x: 0.6977642240401561, y: 0.7163275002745871, z: -0.0 }
+            ]
+        );
+    }
 }

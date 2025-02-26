@@ -125,9 +125,8 @@ impl S2Point {
 
     /// Normalize this point to unit length.
     pub fn normalize(&mut self) {
-        let mut len = self.norm();
+        let len = self.len();
         if len > 0.0 {
-            len = sqrt(len);
             self.x /= len;
             self.y /= len;
             self.z /= len;

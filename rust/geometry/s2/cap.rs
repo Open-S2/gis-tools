@@ -1,6 +1,4 @@
-use crate::geometry::{
-    S1Angle, S1ChordAngle, S2CellId, S2CellVertices, S2Point, K_MAX_EDGE, K_MAX_LENGTH_2,
-};
+use crate::geometry::{S1Angle, S1ChordAngle, S2CellId, S2Point, K_MAX_EDGE, K_MAX_LENGTH_2};
 
 use alloc::{vec, vec::Vec};
 
@@ -158,7 +156,7 @@ where
         }
         // Otherwise, return true if the complement of the cap does not intersect
         // the cell.  (This test is slightly conservative, because technically we
-        !self.complement().intersects_s2_cell(cell, vertices)
+        !self.complement().intersects_s2_cell(cell, &vertices)
     }
 
     /// Return true if the cap intersects "cell", given that the cap does intersect
@@ -172,14 +170,14 @@ where
             }
         }
 
-        self.intersects_s2_cell(cell, vertices)
+        self.intersects_s2_cell(cell, &vertices)
     }
 
     /// Return true if the cap intersects "cell", given that the cap does contain
     /// any of the cell vertices (supplied in "vertices", an array of length 4).
     /// Return true if this cap intersects any point of 'cell' excluding its
     /// vertices (which are assumed to already have been checked).
-    pub fn intersects_s2_cell(&self, cell: &S2CellId, vertices: S2CellVertices) -> bool {
+    pub fn intersects_s2_cell(&self, cell: &S2CellId, vertices: &[S2Point; 4]) -> bool {
         // If the cap is a hemisphere or larger, the cell and the complement of the
         // cap are both convex.  Therefore since no vertex of the cell is contained,
         // no other interior point of the cell is contained either.

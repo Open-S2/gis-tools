@@ -4,8 +4,8 @@ use alloc::vec::Vec;
 
 use crate::data_structures::{HasLayer, Tile};
 use crate::geometry::{
-    Axis, BBox3D, MValue, VectorFeature, VectorGeometry, VectorGeometryType, VectorLineString,
-    VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
+    Axis, BBox3D, MValue, S2CellId, VectorFeature, VectorGeometry, VectorGeometryType,
+    VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
     VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygon,
     VectorMultiPolygonGeometry, VectorMultiPolygonOffset, VectorPoint, VectorPointGeometry,
     VectorPolygonGeometry,
@@ -41,7 +41,7 @@ pub fn split_tile<M: HasLayer + Clone>(tile: &mut Tile<M>, buffer: Option<f64>) 
     let buffer = buffer.unwrap_or(0.0625);
     let face = tile.id.face();
     let (zoom, i, j) = tile.id.to_zoom_ij(None);
-    let [bl_id, br_id, tl_id, tr_id] = tile.id.children_ij(face, zoom, i, j);
+    let [bl_id, br_id, tl_id, tr_id] = S2CellId::children_ij(face, zoom, i, j);
     let mut children = TileChildren {
         bottom_left: Tile::new(bl_id),
         bottom_right: Tile::new(br_id),
