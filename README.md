@@ -162,13 +162,13 @@ cargo add gis-tools
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
 | [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
-| [transformers]           | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
+| [transformer]           | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
 
 [mgrs]: /docs-ts/proj4/mgrs.md
 [mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
 [projections]: /docs-ts/proj4/projections.md
 [projBadge]: /assets/badges/projections-gzip-cover.svg
-[transformers]: /docs-ts/proj4/transformers.md
+[transformer]: /docs-ts/proj4/transformer.md
 [transBadge]: /assets/badges/transformer-gzip-cover.svg
 
 ### Readers

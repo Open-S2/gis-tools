@@ -40,9 +40,9 @@ bench = true
 
 [features]
 default = ["std", "quadratic"] # Default feature
-quadratic = []          # Feature for quadratic projection
-tan = []                # Feature for tangential projection
-linear = []             # Feature for linear projection
+quadratic = []                 # Feature for quadratic projection
+tan = []                       # Feature for tangential projection
+linear = []                    # Feature for linear projection
 
 # Conditional std feature enabling quadratic or other projection features
 std = ["flate2", "brotli", "ruzstd"]
@@ -57,6 +57,7 @@ serde = { version = "1.0", default-features = false, features = ["alloc", "deriv
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 
 # STD dependencies
+memmap2 = "0.9"
 flate2 = { version = "1", optional = true }
 brotli = { version = "7", optional = true }
 ruzstd = { version = "0.8", optional = true }

@@ -1,35 +1,55 @@
-use std::string::ToString;
+use std::fs::File;
+use std::io::{self, Read, Seek, SeekFrom};
+use std::path::PathBuf;
 
 use crate::readers::Reader;
 
-use alloc::{str::from_utf8, string::String, vec::Vec};
+use alloc::{
+    str::from_utf8,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 
-/// A basic buffer reader for reading data from a buffer
-#[derive(Default, Debug)]
-pub struct BufferReader<'a> {
-    /// The buffer
-    pub buffer: &'a [u8], // This struct contains some data
+/// A file reader for reading data from a file
+pub struct FileReader {
+    file: File,
+    size: usize,
     cursor: usize,
 }
-impl<'a> BufferReader<'a> {
-    /// Creates a new buffer reader
-    pub fn new(buffer: &'a [u8]) -> Self {
-        Self { buffer, cursor: 0 }
-    }
-}
-impl BufferReader<'_> {
-    fn get_bytes(&mut self, byte_offset: Option<usize>, byte_length: usize) -> &[u8] {
-        let offset = byte_offset.unwrap_or(self.cursor);
-        assert!(offset + byte_length <= self.buffer.len());
 
-        let bytes = &self.buffer[offset..offset + byte_length];
-        self.cursor = offset + byte_length;
-        bytes
+impl FileReader {
+    /// Creates a new file reader from a file path
+    pub fn new(path: PathBuf) -> io::Result<Self> {
+        let file = File::open(path)?;
+        let size = file.metadata().map(|metadata| metadata.len() as usize).unwrap_or(0);
+        Ok(Self { file, size, cursor: 0 })
     }
 }
-impl Reader for BufferReader<'_> {
+impl FileReader {
+    fn seek_to(&mut self, offset: usize) {
+        if self.cursor != offset {
+            self.file.seek(SeekFrom::Start(offset as u64)).expect("Failed to seek");
+            self.cursor = offset;
+        }
+    }
+
+    fn get_bytes(&mut self, byte_offset: Option<usize>, byte_length: usize) -> Vec<u8> {
+        let offset = byte_offset.unwrap_or(self.cursor);
+        assert!(offset + byte_length <= self.size);
+        self.seek_to(offset);
+
+        let mut buffer = vec![0u8; byte_length];
+        self.file.read_exact(&mut buffer).expect("Failed to read bytes");
+        self.cursor = offset + byte_length;
+
+        buffer
+    }
+}
+
+impl Reader for FileReader {
     fn len(&self) -> usize {
-        self.buffer.len()
+        self.size
     }
 
     // GETTERS
@@ -124,51 +144,50 @@ impl Reader for BufferReader<'_> {
     fn tell(&mut self) -> usize {
         self.cursor
     }
+
     fn seek(&mut self, pos: usize) {
-        self.cursor = pos;
+        self.seek_to(pos);
     }
+
     fn slice(&mut self, begin: Option<usize>, end: Option<usize>) -> Vec<u8> {
-        let begin = begin.unwrap_or(self.cursor);
-        let end = end.unwrap_or(self.buffer.len());
-        assert!(end <= self.buffer.len());
-        self.buffer[begin..end].to_vec()
+        let start = begin.unwrap_or(self.cursor);
+        let end = end.unwrap_or(self.cursor);
+        self.get_bytes(Some(start), end - start)
     }
+
     fn seek_slice(&mut self, size: usize) -> Vec<u8> {
-        assert!(self.cursor + size <= self.buffer.len());
+        let mut buffer = vec![0u8; size];
+        self.file.read_exact(&mut buffer).expect("Failed to read slice");
         self.cursor += size;
-        self.slice(Some(self.cursor - size), Some(self.cursor))
+        buffer
     }
+
     fn parse_string(&mut self, byte_offset: Option<usize>, byte_length: Option<usize>) -> String {
         let offset = byte_offset.unwrap_or(self.cursor);
-        let length = byte_length.unwrap_or(self.buffer.len() - offset);
-        let string = from_utf8(&self.buffer[offset..offset + length]).unwrap();
-        self.cursor = offset + length;
+        let length = byte_length.unwrap_or(self.size - offset);
+        let bytes = self.get_bytes(Some(offset), length);
+        let string: &str = from_utf8(&bytes).unwrap();
         string.to_string()
     }
 }
-impl<'a, const N: usize> From<&'a [u8; N]> for BufferReader<'a> {
-    fn from(buffer: &'a [u8; N]) -> Self {
-        BufferReader::new(buffer) // `&[u8; N]` coerces to `&[u8]` automatically here
-    }
-}
-impl<'a> From<&'a [u8]> for BufferReader<'a> {
-    fn from(buffer: &'a [u8]) -> Self {
-        BufferReader::new(buffer) // Converts the slice into a `Vec<u8>` and creates a `BufferReader`
+impl From<&str> for FileReader {
+    fn from(path: &str) -> Self {
+        FileReader::new(PathBuf::from(path)).unwrap()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::vec::Vec;
-    use std::fs;
-    use std::path::PathBuf;
 
     #[test]
-    fn test_buffer_reader() {
-        let buffer = b"Hello, world!";
-        let mut reader: BufferReader = buffer.into();
-        assert_eq!(reader.parse_string(None, None), "Hello, world!");
+    fn test_read_string() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/codepage.cpg");
+
+        let mut reader = FileReader::new(path).unwrap();
+        let string = reader.parse_string(None, None);
+        assert_eq!(string, "ANSI 1250\n");
     }
 
     #[test]
@@ -177,9 +196,9 @@ mod tests {
         // get expected
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/fixtures/dv.bin");
-        let raw_data: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        let path_str = path.to_str().unwrap();
 
-        let mut reader = BufferReader::from(&raw_data[..]);
+        let mut reader = FileReader::from(path_str);
 
         assert_eq!(reader.tell(), 0);
         assert_eq!(reader.len(), 42);

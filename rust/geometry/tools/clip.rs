@@ -2,9 +2,10 @@ use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
 
+use crate::data_structures::{HasLayer, Tile};
 use crate::geometry::{
-    Axis, BBox3D, HasLayer, MValue, Tile, VectorFeature, VectorGeometry, VectorGeometryType,
-    VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
+    Axis, BBox3D, MValue, VectorFeature, VectorGeometry, VectorGeometryType, VectorLineString,
+    VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
     VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygon,
     VectorMultiPolygonGeometry, VectorMultiPolygonOffset, VectorPoint, VectorPointGeometry,
     VectorPolygonGeometry,

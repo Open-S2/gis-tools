@@ -28,6 +28,35 @@ const fdeb = new Uint8Array([
 // code length index map
 const clim = new Uint8Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
 
+const { b: fl } = freb(fleb, 2);
+// we can ignore the fact that the other numbers are wrong; they never happen anyway
+fl[28] = 258;
+const { b: fd } = freb(fdeb, 0);
+
+// map of value to reverse (assuming 16 bits)
+const rev = new Uint16Array(32768);
+for (let i = 0; i < 32768; ++i) {
+  // reverse table algorithm from SO
+  let x = ((i & 0xaaaa) >> 1) | ((i & 0x5555) << 1);
+  x = ((x & 0xcccc) >> 2) | ((x & 0x3333) << 2);
+  x = ((x & 0xf0f0) >> 4) | ((x & 0x0f0f) << 4);
+  rev[i] = (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8)) >> 1;
+}
+
+// fixed length tree
+const flt = new Uint8Array(288);
+for (let i = 0; i < 144; ++i) flt[i] = 8;
+for (let i = 144; i < 256; ++i) flt[i] = 9;
+for (let i = 256; i < 280; ++i) flt[i] = 7;
+for (let i = 280; i < 288; ++i) flt[i] = 8;
+// fixed distance tree
+const fdt = new Uint8Array(32);
+for (let i = 0; i < 32; ++i) fdt[i] = 5;
+// fixed length map
+const flrm = hMap(flt, 9, 1);
+// fixed distance map
+const fdrm = hMap(fdt, 5, 1);
+
 /**
  * Expands compressed GZIP, Zlib, or raw DEFLATE data, automatically detecting the format
  * @param data The data to decompress
@@ -138,12 +167,10 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
       pos += 3;
       if (type === 0) {
         // go to end of byte boundary
-        const s = shft(pos) + 4,
-          l = dat[s - 4] | (dat[s - 3] << 8),
-          t = s + l;
-        if (t > sl) {
-          err(0);
-        }
+        const s = shft(pos) + 4;
+        const l = dat[s - 4] | (dat[s - 3] << 8);
+        const t = s + l;
+        if (t > sl) err(0);
         // ensure size
         if (resize) cbuf(bt + l);
         // Copy over uncompressed data
@@ -158,9 +185,9 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
         lbt = 9;
         dbt = 5;
       } else if (type === 2) {
-        //  literal                            lengths
-        const hLit = bits(dat, pos, 31) + 257,
-          hcLen = bits(dat, pos + 10, 15) + 4;
+        // literal & lengths
+        const hLit = bits(dat, pos, 31) + 257;
+        const hcLen = bits(dat, pos + 10, 15) + 4;
         const tl = hLit + bits(dat, pos + 5, 31) + 1;
         pos += 14;
         // length+distance tree
@@ -187,7 +214,7 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
           if (s < 16) {
             ldt[i++] = s;
           } else {
-            //  copy   count
+            // copy & count
             let c = 0,
               n = 0;
             if (s === 16) {
@@ -204,9 +231,9 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
             while (n-- !== 0) ldt[i++] = c;
           }
         }
-        //    length tree                 distance tree
-        const lt = ldt.subarray(0, hLit),
-          dt = ldt.subarray(hLit);
+        // length tree & distance tree
+        const lt = ldt.subarray(0, hLit);
+        const dt = ldt.subarray(hLit);
         // max length bits
         lbt = max(lt);
         // max dist bits
@@ -214,9 +241,7 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
         lm = hMap(lt, lbt, 1);
         dm = hMap(dt, dbt, 1);
       } else err(1);
-      if (pos > tbts) {
-        err(0);
-      }
+      if (pos > tbts) err(0);
     }
     // Make sure the buffer can hold this + the largest possible addition
     // Maximum chunk size (practically, theoretically infinite) is 2^17
@@ -257,23 +282,23 @@ function inflt(dat: Uint8Array, bf?: Uint8Array, dict?: Uint8Array): Uint8Array 
           dt += bits16(dat, pos) & ((1 << b) - 1);
           pos += b;
         }
-        if (pos > tbts) {
-          err(0);
-        }
+        if (pos > tbts) err(0);
         if (resize) cbuf(bt + 131072);
         const end = bt + add;
         if (bt < dt) {
           const shift = dl - dt,
             dend = Math.min(dt, end);
           if (shift + bt < 0) err(3);
-          for (; bt < dend; ++bt) buf[bt] = dict![shift + bt];
+          for (; bt < dend; ++bt) {
+            buf[bt] = dict![shift + bt];
+          }
         }
-        for (; bt < end; ++bt) buf[bt] = buf[bt - dt];
+        for (; bt < end; ++bt) {
+          if (bt >= dt) buf[bt] = buf[bt - dt];
+        }
       }
     }
-    if (lm !== undefined) {
-      final = 1;
-    }
+    if (lm !== undefined) final = 1;
   } while (final === 0);
   // don't reallocate for streams or user buffers
   return bt !== buf.length && noBuf ? slc(buf, 0, bt) : buf.subarray(0, bt);
@@ -304,22 +329,6 @@ function freb(eb: Uint8Array, start: number): FrebRes {
     }
   }
   return { b, r };
-}
-
-const { b: fl, r: revfl } = freb(fleb, 2);
-// we can ignore the fact that the other numbers are wrong; they never happen anyway
-fl[28] = 258;
-revfl[258] = 28;
-const { b: fd } = freb(fdeb, 0);
-
-// map of value to reverse (assuming 16 bits)
-const rev = new Uint16Array(32768);
-for (let i = 0; i < 32768; ++i) {
-  // reverse table algorithm from SO
-  let x = ((i & 0xaaaa) >> 1) | ((i & 0x5555) << 1);
-  x = ((x & 0xcccc) >> 2) | ((x & 0x3333) << 2);
-  x = ((x & 0xf0f0) >> 4) | ((x & 0x0f0f) << 4);
-  rev[i] = (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8)) >> 1;
 }
 
 /**
@@ -361,40 +370,25 @@ function hMap(cd: Uint8Array, mb: number, r: 0 | 1): Uint16Array {
         // start value
         let v = le[cd[i] - 1]++ << r;
         // m is end value
-        for (const m = v | ((1 << r) - 1); v <= m; ++v) {
+        const m = v | ((1 << r) - 1);
+        for (; v <= m; ++v) {
           // every 16 bit value starting with the code yields the same result
           co[rev[v] >> rvb] = sv;
         }
       }
     }
   } else {
+    // ENCODER:
     co = new Uint16Array(s);
+    //   for (i = 0; i < s; ++i) {
+    //     if (cd[i] !== 0) {
+    //       co[i] = rev[le[cd[i] - 1]++] >> (15 - cd[i]);
+    //     }
+    //   }
   }
-  // ENCODER:
-  // else {
-  //   co = new Uint16Array(s);
-  //   for (i = 0; i < s; ++i) {
-  //     if (cd[i] !== 0) {
-  //       co[i] = rev[le[cd[i] - 1]++] >> (15 - cd[i]);
-  //     }
-  //   }
-  // }
+
   return co;
 }
-
-// fixed length tree
-const flt = new Uint8Array(288);
-for (let i = 0; i < 144; ++i) flt[i] = 8;
-for (let i = 144; i < 256; ++i) flt[i] = 9;
-for (let i = 256; i < 280; ++i) flt[i] = 7;
-for (let i = 280; i < 288; ++i) flt[i] = 8;
-// fixed distance tree
-const fdt = new Uint8Array(32);
-for (let i = 0; i < 32; ++i) fdt[i] = 5;
-// fixed length map
-const flrm = hMap(flt, 9, 1);
-// fixed distance map
-const fdrm = hMap(fdt, 5, 1);
 
 /**
  * find max of array

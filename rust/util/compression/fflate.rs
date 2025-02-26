@@ -16,6 +16,29 @@
 use alloc::vec;
 use alloc::vec::Vec;
 
+use core::result::Result;
+
+/// Handles compression errors
+#[derive(Debug, PartialEq)]
+pub enum FFlateError {
+    /// Unexpected EOF
+    UnexpectedEof,
+    /// Invalid block type
+    InvalidBlockType,
+    /// Invalid length/literal
+    InvalidLengthLiteral,
+    /// Invalid distance
+    InvalidDistance,
+    /// Stream finished
+    StreamFinished,
+    /// No stream handler
+    NoStreamHandler,
+    /// No callback
+    NoCallback,
+    /// Other
+    Other,
+}
+
 /// fixed length extra bits
 const FLEB: [u8; 32] = [
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0,
@@ -81,20 +104,20 @@ const FD: [usize; 31] = [
 static REV: [usize; 32768] = compute_rev();
 const fn compute_rev() -> [usize; 32768] {
     let mut rev = [0; 32768];
-    let mut i = 0;
+    let mut i: usize = 0;
     while i < 32768 {
-        let mut x = ((i & 0xaaaa) >> 1) | ((i & 0x5555) << 1);
+        let mut x: usize = ((i & 0xaaaa) >> 1) | ((i & 0x5555) << 1);
         x = ((x & 0xcccc) >> 2) | ((x & 0x3333) << 2);
         x = ((x & 0xf0f0) >> 4) | ((x & 0x0f0f) << 4);
         x = (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8)) >> 1;
-        rev[x] = x;
+        rev[i] = x;
         i += 1;
     }
     rev
 }
 
 /// Expands compressed GZIP, Zlib/DEFLATE, or DEFLATE_RAW data, automatically detecting the format
-pub fn decompress_sync(data: &[u8], dict: Option<&[u8]>) -> Vec<u8> {
+pub fn decompress_sync(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
     let data_0 = data[0] as usize;
     let data_1 = data[1] as usize;
     let data_2 = data[2] as usize;
@@ -108,26 +131,26 @@ pub fn decompress_sync(data: &[u8], dict: Option<&[u8]>) -> Vec<u8> {
 }
 
 /// Expands GZIP data
-pub fn gunzip_sync(data: &[u8], dict: Option<&[u8]>) -> Vec<u8> {
-    let st = gzs(data);
+pub fn gunzip_sync(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
+    let st = gzs(data)?;
     if st + 8 > data.len() {
-        err(6, None);
+        return Err(FFlateError::NoCallback);
     }
     inflt(&data[st..data.len() - 8], Some(&vec![0; gzl(data)]), dict)
 }
 
 /// Expands DEFLATE data with no wrapper
-pub fn inflate_sync(data: &[u8], dict: Option<&[u8]>) -> Vec<u8> {
+pub fn inflate_sync(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
     inflt(data, None, dict)
 }
 
 /// Expands Zlib data
-pub fn unzlib_sync(data: &[u8], dict: Option<&[u8]>) -> Vec<u8> {
-    inflt(&data[zls(data, dict)..data.len() - 4], None, dict)
+pub fn unzlib_sync(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
+    inflt(&data[zls(data, dict)?..data.len() - 4], None, dict)
 }
 
 /// expands raw DEFLATE data
-fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
+fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
     // source lengt - dict length
     let sl = dat.len();
     let mut dl: usize = 0;
@@ -135,7 +158,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
         dl = d.len();
     }
     if sl == 0 {
-        return bf.unwrap_or(&[]).to_vec();
+        return Ok(bf.unwrap_or(&[]).to_vec());
     }
     let no_buf = bf.is_none();
     // have to estimate size
@@ -162,7 +185,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
     let mut dbt = 0;
     // total bits
     let tbts = sl * 8;
-    loop {
+    while finl == 0 || lm.is_some() {
         if lm.is_none() {
             // BFINAL - this is only 1 when last chunk is next
             finl = bits(dat, pos, 1);
@@ -175,14 +198,16 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                 let l: usize = (dat[s - 4] as usize) | ((dat[s - 3] as usize) << 8);
                 let t = s + l;
                 if t > sl {
-                    err(0, None);
+                    return Err(FFlateError::UnexpectedEof);
                 }
                 // ensure size
                 if resize {
                     cbuf(bt + l, &mut buf);
                 }
                 // Copy over uncompressed data
-                buf[(s + bt)..(t + bt)].copy_from_slice(&dat[s..t]);
+                // buf.set(dat.subarray(s, t), bt);
+                buf[bt..(t - s + bt)].copy_from_slice(&dat[s..t]);
+                // buf[(s + bt)..(t + bt)].copy_from_slice(&dat[s..t]);
                 // Get new bitpos, update byte count
                 bt += l;
                 pos = t * 8;
@@ -193,17 +218,16 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                 lbt = 9;
                 dbt = 5;
             } else if c_type == 2 {
-                //  literal lengths
+                // literal & lengths
                 let h_lit = bits(dat, pos, 31) + 257;
                 let hc_len = bits(dat, pos + 10, 15) + 4;
                 let tl = h_lit + bits(dat, pos + 5, 31) + 1;
+
                 pos += 14;
                 // length + distance tree
                 let mut ldt: Vec<usize> = vec![0; tl];
                 // code length tree
-                //   let clt = new Uint8Array(19);
                 let mut clt: Vec<usize> = vec![0; 19];
-                //   for (let i = 0; i < hcLen; ++i) {
                 for i in 0..hc_len {
                     // use index map to get real code
                     clt[CLIM[i] as usize] = bits(dat, pos + i * 3, 7);
@@ -226,7 +250,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                         ldt[i] = s;
                         i += 1;
                     } else {
-                        //  copy   count
+                        // copy & count
                         let mut c = 0;
                         let mut n = 0;
                         if s == 16 {
@@ -250,7 +274,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                         break;
                     }
                 }
-                //    length tree                 distance tree
+                // length tree & distance tree
                 let lt = &ldt[0..h_lit];
                 let dt = &ldt[h_lit..];
                 // max length bits
@@ -262,10 +286,10 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                 _dm_vec = h_map(dt, dbt, true);
                 dm = Some(&_dm_vec);
             } else {
-                err(1, None);
+                return Err(FFlateError::InvalidBlockType);
             }
             if pos > tbts {
-                err(0, None);
+                return Err(FFlateError::UnexpectedEof);
             }
         }
         // Make sure the buffer can hold this + the largest possible addition
@@ -284,10 +308,10 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
             let sym = c >> 4;
             pos += c & 15;
             if pos > tbts {
-                err(0, None);
+                return Err(FFlateError::UnexpectedEof);
             }
             if c == 0 {
-                err(2, None);
+                return Err(FFlateError::InvalidLengthLiteral);
             }
             match sym {
                 0..=255 => {
@@ -315,7 +339,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                     }
                     let dsym = d >> 4;
                     if d == 0 {
-                        err(3, None);
+                        return Err(FFlateError::InvalidDistance);
                     }
                     pos += d & 15;
                     let mut dt = FD[dsym];
@@ -325,47 +349,48 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
                         pos += b as usize;
                     }
                     if pos > tbts {
-                        err(0, None);
+                        return Err(FFlateError::UnexpectedEof);
                     }
                     if resize {
                         cbuf(bt + 131072, &mut buf);
                     }
                     let end = bt + add;
                     if bt < dt {
-                        let shift = dl - dt;
-                        let dend = usize::min(dt, end);
+                        let shift: isize = dl as isize - dt as isize;
+                        let dend = dt.min(end);
+                        if shift + (bt as isize) < 0 {
+                            return Err(FFlateError::InvalidDistance);
+                        }
                         if let Some(dict) = dict {
                             loop {
-                                buf[bt] = dict[shift + bt];
-                                bt += 1;
                                 if bt >= dend {
                                     break;
                                 }
+                                let shift_bt_sum: usize =
+                                    (shift + (bt as isize)).try_into().unwrap();
+                                buf[bt] = dict[shift_bt_sum];
+                                bt += 1;
                             }
                         }
                     }
                     loop {
-                        buf[bt] = buf[bt - dt];
-                        bt += 1;
                         if bt >= end {
                             break;
                         }
+                        if bt >= dt {
+                            buf[bt] = buf[bt - dt];
+                        }
+                        bt += 1;
                     }
                 }
             }
         }
-        if lm.is_some() {
-            finl = 1;
-        }
-        if finl != 0 {
-            break;
-        }
     }
     // don't reallocate for streams or user buffers
     if bt != buf.len() && no_buf {
-        slc(&buf, 0, bt).to_vec()
+        Ok(slc(&buf, 0, bt).to_vec())
     } else {
-        buf[0..bt].to_vec()
+        Ok(buf[0..bt].to_vec())
     }
 }
 
@@ -374,12 +399,10 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Vec<u8> {
 /// if r is true, its a decoder, otherwise its an encoder
 fn h_map(cd: &[usize], mb: usize, r: bool) -> Vec<usize> {
     let s = cd.len();
-    // index
-    let i = 0;
     // u16 "map": index -> # of codes with bit length = index
     let mut l: Vec<usize> = vec![0; mb];
     // length of cd must be 288 (total # of codes)
-    for i in i..s {
+    for i in 0..s {
         if cd[i] != 0 {
             l[cd[i] - 1] += 1;
         }
@@ -395,7 +418,6 @@ fn h_map(cd: &[usize], mb: usize, r: bool) -> Vec<usize> {
         co = vec![0; 1 << mb];
         // bits to remove for reverser
         let rvb = 15 - mb;
-        //   for (i = 0; i < s; ++i) {
         for i in 0..s {
             // ignore 0 lengths
             if cd[i] != 0 {
@@ -404,28 +426,22 @@ fn h_map(cd: &[usize], mb: usize, r: bool) -> Vec<usize> {
                 // free bits
                 let r = mb - cd[i];
                 // start value
-                let v = (le[cd[i] - 1] + 1) << r;
+                let mut v = le[cd[i] - 1] << r;
+                le[cd[i] - 1] += 1;
                 // m is end value
-                //   for (let m = v | ((1 << r) - 1); v <= m; ++v) {
                 let m = v | ((1 << r) - 1);
-                for v in v..=m {
+                loop {
                     // every 16 bit value starting with the code yields the same result
                     co[REV[v] >> rvb] = sv;
+                    v += 1;
+                    if v > m {
+                        break;
+                    }
                 }
             }
         }
     } else {
         co = vec![0; s];
-        // we don't use any of this encoder stuff
-        // for i in 0..s {
-        //     if cd[i] != 0 {
-        //         //   co[i] = rev[le[cd[i] - 1]++] >> (15 - cd[i]);
-        //         let index = cd[i] - 1;
-        //         let value = le[index];
-        //         co[i] = REV[value] >> (15 - cd[i]);
-        //         le[index] += 1;
-        //     }
-        // }
     }
 
     co
@@ -433,20 +449,15 @@ fn h_map(cd: &[usize], mb: usize, r: bool) -> Vec<usize> {
 
 /// find max of array
 fn max(a: &[usize]) -> usize {
-    let mut m = a[0];
-    for val in a.iter().skip(1) {
-        let a_i = *val;
-        if a_i > m {
-            m = a_i;
-        }
-    }
-    m
+    a.iter().copied().max().unwrap()
 }
 
 /// read d, starting at bit p and mask with m
 fn bits(d: &[u8], p: usize, m: usize) -> usize {
     let o = p / 8;
-    (((d[o] as usize) | ((d[o + 1] as usize) << 8)) >> (p & 7)) & m
+    let d_0 = d.get(o).copied().unwrap_or(0) as usize;
+    let d_1 = d.get(o + 1).copied().unwrap_or(0) as usize;
+    ((d_0 | (d_1 << 8)) >> (p & 7)) & m
 }
 
 /// read d, starting at bit p continuing for at least 16 bits
@@ -460,7 +471,6 @@ fn bits16(d: &[u8], p: usize) -> usize {
 
 /// get end of byte
 fn shft(p: usize) -> usize {
-    // (p + 7) / 8
     p.div_ceil(8)
 }
 
@@ -472,34 +482,10 @@ fn slc(v: &[u8], s: usize, mut e: usize) -> &[u8] {
     &v[s..e]
 }
 
-// error codes
-const EC: &[&str; 7] = &[
-    "unexpected EOF",
-    "invalid block type",
-    "invalid length/literal",
-    "invalid distance",
-    "stream finished",
-    "no stream handler", // determined by compression function
-    "no callback",
-    // OTHER ERRORS GO PAST WHAT WE ACTUALLY USE FOR THIS LIBRARY
-    // "invalid UTF-8 data",
-    // "extra field too long",
-    // "date not in range 1980-2099",
-    // "filename too long",
-    // "stream finishing",
-    // "invalid zip data",
-    // determined by unknown compression method
-];
-
-fn err(code: usize, msg: Option<&str>) -> ! {
-    let msg = msg.unwrap_or("Invalid gzip data");
-    panic!("flate error: {} ({})", msg, EC[code]);
-}
-
 /// Determines the start position of gzip-compressed data.
-fn gzs(d: &[u8]) -> usize {
+fn gzs(d: &[u8]) -> Result<usize, FFlateError> {
     if d.len() < 10 || d[0] != 31 || d[1] != 139 || d[2] != 8 {
-        err(6, None);
+        return Err(FFlateError::NoCallback);
     }
 
     let flg = d[3];
@@ -517,7 +503,7 @@ fn gzs(d: &[u8]) -> usize {
         st += 1;
     }
 
-    st + ((flg & 2) as usize)
+    Ok(st + ((flg & 2) as usize))
 }
 
 /// gzip length
@@ -530,125 +516,127 @@ fn gzl(d: &[u8]) -> usize {
 }
 
 /// zlib start
-fn zls(d: &[u8], dict: Option<&[u8]>) -> usize {
+fn zls(d: &[u8], dict: Option<&[u8]>) -> Result<usize, FFlateError> {
     if (d[0] & 15) != 8 || d[0] >> 4 > 7 || (((d[0] as u32) << 8_u32) | d[1] as u32) % 31 != 0 {
-        err(6, None);
+        return Err(FFlateError::NoCallback);
     }
     if ((d[1] >> 5) & 1) == 0 && dict.is_some() {
-        err(6, Some("Invalid gzip data; need/expcepted dictionary"));
+        return Err(FFlateError::NoCallback);
     }
 
-    (((d[1] as usize) >> 3) & 4) + 2
+    Ok((((d[1] as usize) >> 3) & 4) + 2)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use std::fs;
-    // use std::path::PathBuf;
-    // use std::println;
+    use std::fs;
+    use std::path::PathBuf;
 
-    // #[test]
-    // fn deflate_sync_dictionary() {
-    //     // get dictionary
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/spdyDict.txt");
-    //     let dictionary: Vec<u8> = fs::read(&path).expect("Failed to read file dict");
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateSync_dictionary_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
+    #[test]
+    fn deflate_sync_dictionary() {
+        // get dictionary
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/spdyDict.txt");
+        let dictionary: Vec<u8> = fs::read(&path).expect("Failed to read file dict");
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateSync_dictionary_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     let decompressed = decompress_sync(&compressed, Some(&dictionary));
+        let decompressed = decompress_sync(&compressed, Some(&dictionary)).unwrap();
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        assert_eq!(decompressed.len(), expected.len());
 
-    // #[test]
-    // fn deflate_sync_level_9() {
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     println!("expected: {:?}", &expected[0..20]);
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateSync_level_9_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
-    //     println!("compressed: {:?}", &compressed[0..20]);
+        assert_eq!(
+            decompressed[decompressed.len() - 20..decompressed.len()],
+            expected[expected.len() - 20..expected.len()]
+        );
+    }
 
-    //     let decompressed = decompress_sync(&compressed, None);
+    #[test]
+    fn deflate_raw_sync_level_0() {
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateRawSync_level_0_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        let decompressed = decompress_sync(&compressed, None).unwrap();
 
-    // #[test]
-    // fn deflate_sync_mem_level_9() {
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateSync_memLevel_9_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
+        assert_eq!(decompressed, expected);
+    }
 
-    //     let decompressed = decompress_sync(&compressed, None);
+    #[test]
+    fn deflate_sync_level_9() {
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateSync_level_9_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        let decompressed = decompress_sync(&compressed, None).unwrap();
 
-    // #[test]
-    // fn deflate_sync_strategy_0() {
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateSync_strategy_0_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
+        assert_eq!(decompressed, expected);
+    }
 
-    //     let decompressed = decompress_sync(&compressed, None);
+    #[test]
+    fn deflate_sync_mem_level_9() {
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateSync_memLevel_9_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        let decompressed = decompress_sync(&compressed, None).unwrap();
 
-    // #[test]
-    // fn deflate_raw_sync_window_bits_15() {
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateRawSync_windowBits_15_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
+        assert_eq!(decompressed, expected);
+    }
 
-    //     let decompressed = decompress_sync(&compressed, None);
+    #[test]
+    fn deflate_sync_strategy_0() {
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateSync_strategy_0_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        let decompressed = decompress_sync(&compressed, None).unwrap();
 
-    // #[test]
-    // fn deflate_raw_sync_level_0() {
-    //     // get expected
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/lorem_en_100k.txt");
-    //     let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
-    //     // get compressed
-    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     path.push("tests/util/fixtures/deflateRawSync_level_0_compressed.bin");
-    //     let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
+        assert_eq!(decompressed, expected);
+    }
 
-    //     let decompressed = decompress_sync(&compressed, None);
+    #[test]
+    fn deflate_raw_sync_window_bits_15() {
+        // get expected
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/lorem_en_100k.txt");
+        let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
+        // get compressed
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/util/fixtures/deflateRawSync_windowBits_15_compressed.bin");
+        let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-    //     assert_eq!(decompressed, expected);
-    // }
+        let decompressed = decompress_sync(&compressed, None).unwrap();
+
+        assert_eq!(decompressed, expected);
+    }
 
     #[test]
     fn dictionary() {
@@ -662,7 +650,7 @@ mod tests {
             [104, 101, 108, 108, 111, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100]
                 .to_vec();
 
-        let decompressed = decompress_sync(&compressed, Some(&dict));
+        let decompressed = decompress_sync(&compressed, Some(&dict)).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -685,7 +673,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None);
+        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -707,7 +695,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None);
+        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -728,8 +716,27 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None);
+        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
+    }
+
+    #[test]
+    fn simple_deflate_raw_intentionally_fail() {
+        let compressed_gzip: Vec<u8> = [
+            133, 146, 212, 226, 18, 133, 252, 52, 133, 204, 188, 130, 210, 18, 133, 148, 196, 146,
+            68, 46, 174, 16, 168, 108, 110, 126, 81, 42, 88, 72, 143, 139, 203, 208, 200, 216, 196,
+            216, 204, 212, 156, 11, 0, 80, 157, 18,
+        ]
+        .to_vec();
+
+        let decompress_error = decompress_sync(&compressed_gzip, None);
+        assert_eq!(decompress_error.unwrap_err(), FFlateError::InvalidLengthLiteral);
+    }
+
+    #[test]
+    fn test_compute_rev() {
+        let rev_local = compute_rev();
+        assert_eq!(rev_local, REV);
     }
 }

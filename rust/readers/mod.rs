@@ -2,14 +2,30 @@ use crate::geometry::VectorFeature;
 
 /// Buffer Reader for reading data from a buffer
 pub mod buffer;
+/// File Reader for reading data from a file
+#[cfg(feature = "std")]
+pub mod file;
+/// Memory Mapped Reader for reading data from a file
+#[cfg(feature = "std")]
+pub mod mmap;
 
-// use buffer::*;
+pub use buffer::*;
+#[cfg(feature = "std")]
+pub use file::*;
+#[cfg(feature = "std")]
+pub use mmap::*;
+
+use alloc::{string::String, vec::Vec};
 
 /// Reader interface. Implemented to read data from either a buffer or a filesystem
 pub trait Reader {
     // Properties
     /// Get the number of bytes in the reader
-    fn byte_length(&self) -> usize;
+    fn len(&self) -> usize;
+    /// See if empty
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
     // Getters
     /// Get the big-endian unsigned 64 bit integer at the given byte offset
     fn uint64_be(&mut self, byte_offset: Option<usize>) -> u64;
@@ -57,15 +73,11 @@ pub trait Reader {
     /// Seek to the given byte offset
     fn seek(&mut self, pos: usize);
     /// Get a slice of the reader
-    fn slice(&mut self, begin: Option<usize>, end: Option<usize>) -> &[u8];
-    /// Get a mutable slice of the reader
-    fn slice_mut(&mut self, begin: Option<usize>, end: Option<usize>) -> &mut [u8];
+    fn slice(&mut self, begin: Option<usize>, end: Option<usize>) -> Vec<u8>;
     /// Get a slice of the reader at the current position
-    fn seek_slice(&mut self, size: usize) -> &[u8];
-    /// Get a mutable slice of the reader at the current position
-    fn seek_slice_mut(&mut self, size: usize) -> &mut [u8];
+    fn seek_slice(&mut self, size: usize) -> Vec<u8>;
     /// Parse a string from the reader
-    fn parse_string(&mut self, byte_offset: Option<usize>, byte_length: Option<usize>) -> &str;
+    fn parse_string(&mut self, byte_offset: Option<usize>, byte_length: Option<usize>) -> String;
 }
 
 /// A feature iterator that all readers should implement

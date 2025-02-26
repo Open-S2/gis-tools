@@ -19,8 +19,8 @@ export interface ToJSONOptions {
  * ```ts
  * import { toJSON, JSONReader } from 'gis-tools-ts';
  * import { FileReader, FileWriter } from 'gis-tools-ts/file';
- * // or use mmap reader/writer if using bun
- * // import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
+ * // or use mmap reader if using bun
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);
@@ -78,8 +78,8 @@ export async function toJSON(
  * ```ts
  * import { toJSONLD, JSONReader } from 'gis-tools-ts';
  * import { FileReader, FileWriter } from 'gis-tools-ts/file';
- * // or use mmap reader/writer if using bun
- * // import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
+ * // or use mmap reader if using bun
+ * // import { MMapReader } from 'gis-tools-ts/mmap';
  *
  * const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
  * const jsonReader = new JSONReader(fileReader);

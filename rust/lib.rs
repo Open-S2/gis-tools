@@ -6,6 +6,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(register_tool)]
 #![register_tool(tarpaulin)]
+#![warn(clippy::print_stdout)]
 //! # GIS Tools
 //! TODO
 
@@ -15,11 +16,13 @@ extern crate pbf;
 #[cfg(feature = "std")]
 extern crate std;
 
-/// Geometry tools
+/// Data structures
+pub mod data_structures;
+/// Geometry Tools
 pub mod geometry;
-/// GIS readers
+/// GIS Readers
 pub mod readers;
-/// Space tools
+/// Space Tools
 pub mod space;
-/// Utility tools
+/// Utility Tools
 pub mod util;

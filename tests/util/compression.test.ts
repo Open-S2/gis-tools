@@ -13,6 +13,8 @@ test('iter', async () => {
     'utf.shp',
     'utf.shx',
   ]);
+  const firstItem = await items[0].read();
+  expect(new TextDecoder().decode(firstItem)).toEqual('UTF-8');
 });
 
 test('decompressStream', async () => {

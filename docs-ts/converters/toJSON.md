@@ -19,8 +19,8 @@ Given an input of [Readers](../readers/reader.md), build (Geo|S2)JSON as an outp
 ```ts
 import { toJSON, JSONReader } from 'gis-tools-ts';
 import { FileReader, FileWriter } from 'gis-tools-ts/file';
-// or use mmap reader/writer if using bun
-// import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
+// or use mmap reader if using bun
+// import { MMapReader } from 'gis-tools-ts/mmap';
 
 const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
 const jsonReader = new JSONReader(fileReader);
@@ -35,8 +35,8 @@ await toJSON(bufWriter, [jsonReader], { projection: 'WG', buildBBox: true });
 ```ts
 import { toJSONLD, JSONReader } from 'gis-tools-ts';
 import { FileReader, FileWriter } from 'gis-tools-ts/file';
-// or use mmap reader/writer if using bun
-// import { MMapReader, MMapWriter } from 'gis-tools-ts/mmap';
+// or use mmap reader if using bun
+// import { MMapReader } from 'gis-tools-ts/mmap';
 
 const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
 const jsonReader = new JSONReader(fileReader);
