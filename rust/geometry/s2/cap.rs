@@ -29,7 +29,7 @@ use core::f64::consts::PI;
 /// Here are some useful relationships between the cap height (h), the cap
 /// radius (r), the maximum chord length from the cap's center (d), and the
 /// radius of cap's base (a).
-/// ```latext
+/// ```latex
 ///     h = 1 - cos(r)
 ///       = 2 * sin^2(r/2)
 ///   d^2 = 2 * h
@@ -41,24 +41,24 @@ pub struct S2Cap<T = ()> {
     /// the radius of the cap
     pub radius: S1ChordAngle,
     /// the data associated with the cap
-    pub data: Option<T>,
+    pub data: T,
 }
 impl<T> S2Cap<T>
 where
     T: Clone,
 {
     /// Constructs a cap with the given center and radius.
-    pub fn new(center: S2Point, radius: S1ChordAngle, data: Option<T>) -> Self {
+    pub fn new(center: S2Point, radius: S1ChordAngle, data: T) -> Self {
         S2Cap { center, radius, data }
     }
 
     /// Return an empty cap, i.e. a cap that contains no points.
-    pub fn empty_cap(data: Option<T>) -> Self {
+    pub fn empty(data: T) -> Self {
         S2Cap::new(S2Point::new(1.0, 0.0, 0.0), S1ChordAngle::negative_angle(), data)
     }
 
     /// Return a full cap, i.e. a cap that contains all points.
-    pub fn full_cap(data: Option<T>) -> Self {
+    pub fn full(data: T) -> Self {
         S2Cap::new(S2Point::new(1.0, 0.0, 0.0), S1ChordAngle::straight_angle(), data)
     }
 
@@ -86,13 +86,19 @@ where
     /// Constructs a cap with the given center and radius.  A negative radius
     /// yields an empty cap; a radius of 180 degrees or more yields a full cap
     /// (containing the entire sphere).  "center" should be unit length.
-    pub fn from_s1_angle(center: S2Point, radius: &S1Angle, data: Option<T>) -> Self {
+    pub fn from_s1_angle(center: S2Point, radius: S1Angle, data: T) -> Self {
         S2Cap::new(center, S1ChordAngle::from_angle(radius), data)
+    }
+
+    /// Constructs a cap where the angle is expressed as an S1ChordAngle.  This
+    /// constructor is more efficient than the one above.
+    pub fn from_s1_chord_angle(center: S2Point, radius: S1ChordAngle, data: T) -> Self {
+        S2Cap::new(center, radius, data)
     }
 
     /// Convenience function that creates a cap containing a single point. This
     /// method is more efficient that the S2Cap(center, radius) constructor.
-    pub fn from_s2_point(center: S2Point, data: Option<T>) -> Self {
+    pub fn from_s2_point(center: S2Point, data: T) -> Self {
         S2Cap::new(center, S1ChordAngle::zero(), data)
     }
 
@@ -119,19 +125,19 @@ where
         // The complement of a full cap is an empty cap, not a singleton.
         // Also make sure that the complement of an empty cap is full.
         if self.is_full() {
-            return S2Cap::empty_cap(self.data.clone());
+            return S2Cap::empty(self.data.clone());
         } else if self.is_empty() {
-            return S2Cap::full_cap(self.data.clone());
+            return S2Cap::full(self.data.clone());
         }
         S2Cap::new(
-            self.center,
+            self.center.invert(),
             S1ChordAngle::from_length2(K_MAX_LENGTH_2 - self.radius.length2),
             self.data.clone(),
         )
     }
 
     /// Return count of vertices the cap contains for the given cell.
-    pub fn contains_s2_cell_vertex_count(&self, cell: &S2CellId) -> usize {
+    pub fn contains_s2_cell_vertex_count(&self, cell: S2CellId) -> usize {
         // If the cap does not contain all cell vertices, return false.
         let mut count = 0;
         for vertex in cell.get_vertices() {
@@ -143,7 +149,7 @@ where
     }
 
     /// Return true if the cap contains the given cell.
-    pub fn contains_s2_cell(&self, cell: &S2CellId) -> bool {
+    pub fn contains_s2_cell(&self, cell: S2CellId) -> bool {
         // If the cap does not contain all cell vertices, return false.
         // We check the vertices before taking the complement() because we can't
         // accurately represent the complement of a very small cap (a height
@@ -161,7 +167,7 @@ where
 
     /// Return true if the cap intersects "cell", given that the cap does intersect
     /// any of the cell vertices or edges.
-    pub fn intersects_s2_cell_fast(&self, cell: &S2CellId) -> bool {
+    pub fn intersects_s2_cell_fast(&self, cell: S2CellId) -> bool {
         // If the cap contains any cell vertex, return true.
         let vertices = cell.get_vertices();
         for vertex in vertices {
@@ -177,7 +183,7 @@ where
     /// any of the cell vertices (supplied in "vertices", an array of length 4).
     /// Return true if this cap intersects any point of 'cell' excluding its
     /// vertices (which are assumed to already have been checked).
-    pub fn intersects_s2_cell(&self, cell: &S2CellId, vertices: &[S2Point; 4]) -> bool {
+    pub fn intersects_s2_cell(&self, cell: S2CellId, vertices: &[S2Point; 4]) -> bool {
         // If the cap is a hemisphere or larger, the cell and the complement of the
         // cap are both convex.  Therefore since no vertex of the cell is contained,
         // no other interior point of the cell is contained either.
@@ -257,7 +263,7 @@ where
             let Some(cell) = queue.pop() else {
                 break;
             }; // cell = queue.pop();
-            let vertex_count = self.contains_s2_cell_vertex_count(&cell);
+            let vertex_count = self.contains_s2_cell_vertex_count(cell);
             let max_level = cell.level() >= max_depth;
             if vertex_count == 4 || (vertex_count > 0 && max_level) {
                 res.push(cell);
@@ -281,5 +287,161 @@ where
         }
 
         res
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new() {
+        let cap = S2Cap::new(S2Point::new(1.0, 0.0, 0.0), S1ChordAngle::zero(), ());
+        assert_eq!(cap.center, S2Point::new(1.0, 0.0, 0.0));
+        assert_eq!(cap.radius, S1ChordAngle::zero());
+        assert_eq!(cap.radius(), S1Angle::new(0.0));
+        assert_eq!(cap.area(), 0.0);
+    }
+
+    #[test]
+    fn empty() {
+        let cap = S2Cap::empty(());
+        assert_eq!(cap.center, S2Point::new(1.0, 0.0, 0.0));
+        assert_eq!(cap.radius, S1ChordAngle::negative_angle());
+        assert_eq!(cap.area(), 0.0);
+        assert!(cap.is_empty());
+        assert!(!cap.is_full());
+    }
+
+    #[test]
+    fn full() {
+        let cap = S2Cap::full(());
+        assert_eq!(cap.center, S2Point::new(1.0, 0.0, 0.0));
+        assert_eq!(cap.radius, S1ChordAngle::straight_angle());
+        assert_eq!(cap.area(), 12.566370614359172);
+        assert!(!cap.is_empty());
+        assert!(cap.is_full());
+    }
+
+    #[test]
+    #[allow(clippy::approx_constant)]
+    fn area() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+        assert_eq!(cap.area(), 3.141592653589793);
+        assert_eq!(cap.data, Some(1));
+    }
+
+    #[test]
+    fn height() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+        assert_eq!(cap.height(), 0.5);
+    }
+
+    #[test]
+    fn from_s1_angle() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_angle(face.into(), S1Angle::new(1.), Some(1));
+        assert_eq!(cap.radius, S1ChordAngle::new(0.9193953882637206));
+    }
+
+    #[test]
+    fn from_s1_chord_angle() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+        assert_eq!(cap.radius, S1ChordAngle::new(1.));
+    }
+
+    #[test]
+    fn from_s2_point() {
+        let cap = S2Cap::from_s2_point(S2Point { x: 1., y: 0., z: 0. }, Some(1));
+        assert_eq!(cap.radius, S1ChordAngle::zero());
+    }
+
+    #[test]
+    fn contains_s2_cell() {
+        let face = S2CellId::from_face(0);
+        let sub_point = S2CellId::from_face_ij(0, 10, 10, Some(5));
+        let sub_point2 = S2CellId::from_face_ij(3, 10, 10, Some(6));
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+        assert!(cap.contains_s2_cell(sub_point));
+        assert!(!cap.contains_s2_cell(sub_point2));
+
+        let empty = S2Cap::empty(Some(1));
+        assert!(!empty.contains_s2_cell(sub_point));
+
+        let full = S2Cap::full(Some(1));
+        assert!(full.contains_s2_cell(sub_point));
+    }
+
+    #[test]
+    fn contains_s2_point() {
+        let face = S2CellId::from_face(0);
+        let sub_point = S2CellId::from_face_ij(0, 10, 10, Some(5));
+        let sub_point2 = S2CellId::from_face_ij(3, 10, 10, Some(6));
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+
+        assert!(cap.contains_s2_point(&sub_point.into()));
+        assert!(!cap.contains_s2_point(&sub_point2.into()));
+    }
+
+    #[test]
+    fn complement() {
+        let cap = S2Cap::from_s1_chord_angle(
+            S2Point { x: 1., y: 0., z: 0. },
+            S1ChordAngle::new(1.),
+            Some(1),
+        );
+        let comp = cap.complement();
+        assert_eq!(comp.center, S2Point { x: -1., y: 0., z: 0. });
+        assert_eq!(comp.radius, S1ChordAngle::new(3.));
+
+        let cap = S2Cap::full(Some(()));
+        let comp = cap.complement();
+        assert!(comp.is_empty());
+        let cap = S2Cap::empty(Some(()));
+        let comp = cap.complement();
+        assert!(comp.is_full());
+    }
+
+    #[test]
+    fn intersects_s2_cell_fast() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(0.95), Some(1));
+
+        assert!(cap.intersects_s2_cell_fast(13546827679130451968.into()));
+        assert!(cap.intersects_s2_cell_fast(12970366926827028480.into()));
+        assert!(cap.intersects_s2_cell_fast(10664523917613334528.into()));
+        assert!(cap.intersects_s2_cell_fast(10088063165309911040.into()));
+        assert!(cap.intersects_s2_cell_fast(5476377146882523136.into()));
+        assert!(cap.intersects_s2_cell_fast(4899916394579099648.into()));
+        assert!(cap.intersects_s2_cell_fast(4323455642275676160.into()));
+        assert!(cap.intersects_s2_cell_fast(2594073385365405696.into()));
+        assert!(!cap.intersects_s2_cell_fast(3746994889972252672.into()));
+    }
+
+    #[test]
+    fn get_intersecting_cells() {
+        let face = S2CellId::from_face(0);
+        let cap = S2Cap::from_s1_chord_angle(face.into(), S1ChordAngle::new(1.), Some(1));
+
+        let mut expected: Vec<S2CellId> = vec![
+            13546827679130451968.into(),
+            12970366926827028480.into(),
+            10664523917613334528.into(),
+            10088063165309911040.into(),
+            5476377146882523136.into(),
+            4899916394579099648.into(),
+            4323455642275676160.into(),
+            2594073385365405696.into(),
+            1152921504606846976.into(),
+        ];
+        let mut result = cap.get_intersecting_cells();
+
+        expected.sort_unstable();
+        result.sort_unstable();
+
+        assert_eq!(result, expected);
     }
 }

@@ -508,19 +508,18 @@ impl S2CellId {
     }
 
     /// Check if the first S2CellID contains the second.
-    pub fn contains(&self, other: &S2CellId) -> bool {
+    pub fn contains(&self, other: S2CellId) -> bool {
         let (min, max) = self.range();
-        *other >= min && *other <= max
+        other >= min && other <= max
     }
 
     /// Check if an S2CellID contains an S2Point
     pub fn contains_s2point(&self, p: &S2Point) -> bool {
-        let p_id = S2CellId::from_s2_point(p);
-        self.contains(&p_id)
+        self.contains((*p).into())
     }
 
     /// Check if an S2CellID intersects another. This includes edges touching.
-    pub fn intersects(&self, other: &S2CellId) -> bool {
+    pub fn intersects(&self, other: S2CellId) -> bool {
         let (min_self, max_self) = self.range();
         let (min_other, max_other) = other.range();
         min_other <= max_self && max_other >= min_self
@@ -1029,16 +1028,16 @@ mod tests {
 
     #[test]
     fn contains() {
-        assert!(S2CellId::from_face(0).contains(&S2CellId::from_face(0)));
-        assert!(!S2CellId::from_face(0).contains(&S2CellId::from_face(1)));
-        assert!(S2CellId::from_face(0).contains(&S2CellId::from_face(0).child(1)));
+        assert!(S2CellId::from_face(0).contains(S2CellId::from_face(0)));
+        assert!(!S2CellId::from_face(0).contains(S2CellId::from_face(1)));
+        assert!(S2CellId::from_face(0).contains(S2CellId::from_face(0).child(1)));
     }
 
     #[test]
     fn intersects() {
-        assert!(S2CellId::from_face(0).intersects(&S2CellId::from_face(0)));
-        assert!(!S2CellId::from_face(0).intersects(&S2CellId::from_face(1)));
-        assert!(S2CellId::from_face(0).intersects(&S2CellId::from_face(0).child(1)));
+        assert!(S2CellId::from_face(0).intersects(S2CellId::from_face(0)));
+        assert!(!S2CellId::from_face(0).intersects(S2CellId::from_face(1)));
+        assert!(S2CellId::from_face(0).intersects(S2CellId::from_face(0).child(1)));
     }
 
     #[test]

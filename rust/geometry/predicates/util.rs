@@ -16,11 +16,11 @@ pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -
     if (fnow > enow) == (fnow > -enow) {
         q = enow;
         eindex += 1;
-        enow = e[eindex];
+        enow = e.get(eindex).copied().unwrap_or(0.);
     } else {
         q = fnow;
         findex += 1;
-        fnow = f[findex];
+        fnow = f.get(findex).copied().unwrap_or(0.);
     }
     let mut hindex = 0;
     if eindex < elen && findex < flen {
@@ -28,12 +28,14 @@ pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -
             qnew = enow + q;
             hh = q - (qnew - enow);
             eindex += 1;
-            enow = e[eindex];
+            // enow = e[eindex];
+            enow = e.get(eindex).copied().unwrap_or(0.);
         } else {
             qnew = fnow + q;
             hh = q - (qnew - fnow);
             findex += 1;
-            fnow = f[findex];
+            // fnow = f[findex];
+            fnow = f.get(findex).copied().unwrap_or(0.);
         }
         q = qnew;
         if hh != 0. {
@@ -46,13 +48,14 @@ pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -
                 bvirt = qnew - q;
                 hh = q - (qnew - bvirt) + (enow - bvirt);
                 eindex += 1;
-                enow = e[eindex];
+                enow = e.get(eindex).copied().unwrap_or(0.);
             } else {
                 qnew = q + fnow;
                 bvirt = qnew - q;
                 hh = q - (qnew - bvirt) + (fnow - bvirt);
                 findex += 1;
-                fnow = f[findex];
+                // fnow = f[findex];
+                fnow = f.get(findex).copied().unwrap_or(0.);
             }
             q = qnew;
             if hh != 0. {
@@ -66,7 +69,8 @@ pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -
         bvirt = qnew - q;
         hh = q - (qnew - bvirt) + (enow - bvirt);
         eindex += 1;
-        enow = e[eindex];
+        // enow = e[eindex];
+        enow = e.get(eindex).copied().unwrap_or(0.);
         q = qnew;
         if hh != 0. {
             h[hindex] = hh;
@@ -78,7 +82,8 @@ pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -
         bvirt = qnew - q;
         hh = q - (qnew - bvirt) + (fnow - bvirt);
         findex += 1;
-        fnow = f[findex];
+        // fnow = f[findex];
+        fnow = f.get(findex).copied().unwrap_or(0.);
         q = qnew;
         if hh != 0. {
             h[hindex] = hh;

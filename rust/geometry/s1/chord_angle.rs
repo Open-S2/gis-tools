@@ -100,6 +100,7 @@ pub const K_MAX_LENGTH_2: f64 = 4.0;
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
+#[derive(Copy, Clone, Default, Debug)]
 pub struct S1ChordAngle {
     /// The squared length of the corresponding S1Chord.
     pub length2: f64,
@@ -134,7 +135,7 @@ impl S1ChordAngle {
     ///  range from 0 to 4.  Infinity() uses an infinite squared length.
     ///  @param angle - An angle in radians.
     ///  @returns The corresponding ChordAngle.
-    pub fn from_angle(angle: &S1Angle) -> Self {
+    pub fn from_angle(angle: S1Angle) -> Self {
         let radians: f64 = angle.radians;
         if radians < 0. {
             (-1.).into()
@@ -184,10 +185,10 @@ impl S1ChordAngle {
     /// i.i. such that FastUpperBoundFrom(x).toAngle() >= x. Unlike the S1Angle
     /// constructor above, this method is very fast, and the bound is accurate to
     /// within 1% for distances up to about 3100km on the Earth's surface.
-    pub fn fast_upper_bound_from(angle: &S1Angle) -> Self {
+    pub fn fast_upper_bound_from(angle: S1Angle) -> Self {
         // This method uses the distance along the surface of the sphere as an upper
         // bound on the distance through the sphere's interior.
-        Self::from_length2((**angle) * (**angle))
+        Self::from_length2((*angle) * (*angle))
     }
 
     /// Convenience function to test if a ChordAngle is special.
@@ -277,7 +278,7 @@ impl From<f64> for S1ChordAngle {
 }
 impl From<S1Angle> for S1ChordAngle {
     fn from(angle: S1Angle) -> S1ChordAngle {
-        S1ChordAngle::from_angle(&angle)
+        S1ChordAngle::from_angle(angle)
     }
 }
 impl From<S1ChordAngle> for S1Angle {

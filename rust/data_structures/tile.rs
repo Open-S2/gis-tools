@@ -220,7 +220,7 @@ impl<
             // 3: stop at currently needed maxzoom OR current tile does not include child
             if tile_zoom >= *maxzoom || // 1
                 (end_id.is_none() && tile_zoom >= *index_maxzoom) || // 2
-                (end_id.is_some() && (tile_zoom > end_zoom || !tile.id.contains(&end_id.unwrap())))
+                (end_id.is_some() && (tile_zoom > end_zoom || !tile.id.contains(end_id.unwrap())))
             {
                 continue;
             }

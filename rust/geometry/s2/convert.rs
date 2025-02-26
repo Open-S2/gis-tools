@@ -46,7 +46,7 @@ fn convert_geometry(face: Face, geometry: &mut VectorGeometry) {
 
 /// Mutate an S2 Point to a GeoJSON Point
 fn convert_geometry_point(face: Face, point: &mut VectorPoint) {
-    let ll: LonLat = (&S2CellId::from_face_st(face.into(), point.x, point.y)).into();
+    let ll: LonLat = (S2CellId::from_face_st(face.into(), point.x, point.y)).into();
     point.x = ll.lon();
     point.y = ll.lat();
 }

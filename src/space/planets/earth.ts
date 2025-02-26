@@ -11,10 +11,10 @@ export const EARTH_CIRCUMFERENCE = 40_030_228.88407185; // 2.0 * Math.PI * EARTH
  * point on Earth is the Challenger Deep with an altitude of 10898 meters
  * below the surface of the spherical earth.
  */
-export const LOWEST_ALTITUDE = -10_898.0;
+export const EARTH_LOWEST_ALTITUDE = -10_898.0;
 /**
  * Returns the altitude of the highest known point on Earth in meters. The highest
  * known point on Earth is Mount Everest with an altitude of 8846 meters
  * above the surface of the spherical earth.
  */
-export const HIGHEST_ALTITUDE = 8_846.0;
+export const EARTH_HIGHEST_ALTITUDE = 8_846.0;

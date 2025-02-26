@@ -25,21 +25,21 @@ export function predSum(
   let findex = 0;
   if (fnow > enow === fnow > -enow) {
     Q = enow;
-    enow = e[++eindex];
+    enow = e[++eindex] ?? 0;
   } else {
     Q = fnow;
-    fnow = f[++findex];
+    fnow = f[++findex] ?? 0;
   }
   let hindex = 0;
   if (eindex < elen && findex < flen) {
     if (fnow > enow === fnow > -enow) {
       Qnew = enow + Q;
       hh = Q - (Qnew - enow);
-      enow = e[++eindex];
+      enow = e[++eindex] ?? 0;
     } else {
       Qnew = fnow + Q;
       hh = Q - (Qnew - fnow);
-      fnow = f[++findex];
+      fnow = f[++findex] ?? 0;
     }
     Q = Qnew;
     if (hh !== 0) {
@@ -50,7 +50,7 @@ export function predSum(
         Qnew = Q + enow;
         bvirt = Qnew - Q;
         hh = Q - (Qnew - bvirt) + (enow - bvirt);
-        enow = e[++eindex];
+        enow = e[++eindex] ?? 0;
       } else {
         Qnew = Q + fnow;
         bvirt = Qnew - Q;
@@ -67,7 +67,7 @@ export function predSum(
     Qnew = Q + enow;
     bvirt = Qnew - Q;
     hh = Q - (Qnew - bvirt) + (enow - bvirt);
-    enow = e[++eindex];
+    enow = e[++eindex] ?? 0;
     Q = Qnew;
     if (hh !== 0) {
       h[hindex++] = hh;

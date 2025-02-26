@@ -1,6 +1,6 @@
 use core::cmp::Ordering;
 use core::fmt::Debug;
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub};
 
 use libm::{atan2, fabs, sqrt};
 use s2json::VectorPoint;
@@ -49,8 +49,7 @@ impl S2Point {
     /// either vector is zero-length, or nearly zero-length, the result will be
     /// zero, regardless of the other value.
     pub fn angle(&self, b: &Self) -> f64 {
-        // return atan2(T, self.cross(b).norm(), self.dot(b));
-        atan2(self.cross(b).len(), self.dot(b))
+        atan2(self.cross(b).norm(), self.dot(b))
     }
 
     /// Get the corss product of two XYZ Points
@@ -82,17 +81,37 @@ impl S2Point {
         Self::new(fabs(self.x), fabs(self.y), fabs(self.z))
     }
 
-    /// Returns the length of the point.
-    pub fn len(&self) -> f64 {
-        sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
-    }
-
     /// Returns the inverse of the point
     pub fn invert(&self) -> Self {
         Self::new(-self.x, -self.y, -self.z)
     }
 
-    /// return the distance from this point to the other point
+    /// Returns the length of the point.
+    pub fn len(&self) -> f64 {
+        self.norm()
+    }
+
+    /// norm returns the vector's norm.
+    pub fn norm(&self) -> f64 {
+        sqrt(self.norm2())
+    }
+
+    /// norm2 returns the vector's squared norm.
+    pub fn norm2(&self) -> f64 {
+        self.dot(self)
+    }
+
+    /// Normalize this point to unit length.
+    pub fn normalize(&mut self) {
+        let len = self.len();
+        if len > 0.0 {
+            self.x /= len;
+            self.y /= len;
+            self.z /= len;
+        }
+    }
+
+    /// return the distance from this point to the other point in radians
     pub fn distance(&self, b: &Self) -> f64 {
         let d = *self - *b;
         d.len()
@@ -122,26 +141,6 @@ impl S2Point {
             self.z + ((b.z - self.z) * (1.0 - t)),
         )
     }
-
-    /// Normalize this point to unit length.
-    pub fn normalize(&mut self) {
-        let len = self.len();
-        if len > 0.0 {
-            self.x /= len;
-            self.y /= len;
-            self.z /= len;
-        }
-    }
-
-    /// norm returns the vector's norm.
-    pub fn norm(&self) -> f64 {
-        sqrt(self.norm2())
-    }
-
-    /// norm2 returns the square of the norm.
-    pub fn norm2(&self) -> f64 {
-        self.dot(self)
-    }
 }
 impl From<&LonLat> for S2Point {
     fn from(lonlat: &LonLat) -> Self {
@@ -153,8 +152,8 @@ impl From<&VectorPoint> for S2Point {
         Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
     }
 }
-impl From<&S2CellId> for S2Point {
-    fn from(cellid: &S2CellId) -> Self {
+impl From<S2CellId> for S2Point {
+    fn from(cellid: S2CellId) -> Self {
         cellid.to_point()
     }
 }
@@ -217,6 +216,19 @@ impl Mul<f64> for S2Point {
         S2Point { x: self.x * other, y: self.y * other, z: self.z * other }
     }
 }
+impl Rem<f64> for S2Point {
+    type Output = Self;
+    fn rem(self, other: f64) -> Self::Output {
+        S2Point { x: self.x % other, y: self.y % other, z: self.z % other }
+    }
+}
+impl RemAssign<f64> for S2Point {
+    fn rem_assign(&mut self, other: f64) {
+        self.x %= other;
+        self.y %= other;
+        self.z %= other;
+    }
+}
 impl Eq for S2Point {}
 impl Ord for S2Point {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -237,5 +249,164 @@ impl Ord for S2Point {
 impl PartialOrd for S2Point {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_empty() {
+        let point = S2Point { x: 1.0, y: 2.0, z: 3.0 };
+        assert!(!point.is_empty());
+        assert!(S2Point::new(0.0, 0.0, 0.0).is_empty());
+    }
+
+    #[test]
+    #[allow(clippy::approx_constant)]
+    fn angle() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1.angle(&point2), 1.5707963267948966);
+    }
+
+    #[test]
+    fn cross() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1.cross(&point2), S2Point { x: 0.0, y: 0.0, z: 1.0 });
+    }
+
+    #[test]
+    fn to_face_st() {
+        let point = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point.to_face_st(), (1, 0.5, 0.5));
+    }
+
+    #[test]
+    fn get_face() {
+        let point = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point.get_face(), 1);
+    }
+
+    #[test]
+    #[allow(clippy::approx_constant)]
+    fn distance() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1.distance(&point2), 1.4142135623730951);
+    }
+
+    #[test]
+    fn intermediate() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1.intermediate(&point2, 0.5), S2Point { x: 0.5, y: 0.5, z: 0.0 });
+    }
+
+    #[test]
+    fn add() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1 + point2, S2Point { x: 1.0, y: 1.0, z: 0.0 });
+        let f: f64 = 0.5;
+        assert_eq!(point1 + f, S2Point { x: 1.5, y: 0.5, z: 0.5 });
+    }
+
+    #[test]
+    fn sub() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1 - point2, S2Point { x: 1.0, y: -1.0, z: 0.0 });
+        let f: f64 = 0.5;
+        assert_eq!(point1 - f, S2Point { x: 0.5, y: -0.5, z: -0.5 });
+    }
+
+    #[test]
+    fn mul() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1 * point2, S2Point { x: 0.0, y: 0.0, z: 0.0 });
+        let f: f64 = 0.5;
+        assert_eq!(point1 * f, S2Point { x: 0.5, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn div() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.5 };
+        let point2 = S2Point { x: 1.0, y: 1.0, z: 0.1 };
+        assert_eq!(point1 / point2, S2Point { x: 1.0, y: 0.0, z: 5.0 });
+        let f: f64 = 0.5;
+        assert_eq!(point1 / f, S2Point { x: 2.0, y: 0.0, z: 1.0 });
+    }
+
+    #[test]
+    fn neg() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        assert_eq!(-point1, S2Point { x: -1.0, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn dot() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert_eq!(point1.dot(&point2), 0.0);
+    }
+
+    #[test]
+    fn rem() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let f: f64 = 0.5;
+        assert_eq!(point1 % f, S2Point { x: 0.0, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn rem_assign() {
+        let mut point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let f: f64 = 0.5;
+        point1 %= f;
+        assert_eq!(point1, S2Point { x: 0.0, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn from_s2_cell_id() {
+        let id: S2CellId = 1152921504606846977.into();
+        assert_eq!(S2Point::from(id), S2Point { x: 1.0, y: 0.0, z: 0.0 });
+    }
+
+    #[test]
+    fn from_vector_point() {
+        let vp = VectorPoint::new(1., 2., None, None);
+        assert_eq!(S2Point::from(&vp), S2Point { x: 1.0, y: 2.0, z: 0.0 });
+
+        let vp = VectorPoint::new(1., 2., Some(3.), None);
+        assert_eq!(S2Point::from(&vp), S2Point { x: 1.0, y: 2.0, z: 3.0 });
+    }
+
+    #[test]
+    fn cmp() {
+        let point1 = S2Point { x: 1.0, y: 0.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        assert!(point1 > point2);
+        assert!(point2 < point1);
+        assert!(point1 != point2);
+        let point1 = S2Point { x: 0.0, y: 1.0, z: 0.0 };
+        let point2 = S2Point { x: 0.0, y: 0.0, z: 1.0 };
+        assert!(point1 > point2);
+        assert!(point2 < point1);
+        assert!(point1 != point2);
+        let point1 = S2Point { x: 0.0, y: 0.0, z: 5.0 };
+        let point2 = S2Point { x: 0.0, y: 0.0, z: 2.0 };
+        assert!(point1 > point2);
+        assert!(point2 < point1);
+        assert!(point1 != point2);
+        let point1 = S2Point { x: 0.0, y: 0.0, z: 2.0 };
+        let point2 = S2Point { x: 0.0, y: 0.0, z: 2.0 };
+        assert!(point1 == point2);
+
+        let point1 = S2Point { x: f64::NAN, y: f64::NAN, z: f64::NAN };
+        let point2 = S2Point { x: f64::NAN, y: f64::NAN, z: f64::NAN };
+        assert!(point1 != point2);
     }
 }

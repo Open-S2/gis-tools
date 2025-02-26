@@ -131,7 +131,6 @@ cargo add gis-tools
 | [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
 | [id]                     | ![ID Badge][idBadge]          | ID tools for S2 and WM.                                          |
 | [lonlat]                 | ![LonLat Badge][lonlanBadge]  | Longitude/Latitude convienience methods.                         |
-| [planets]                | ![Planet Badge][planetBadge]  | Collection of planet constants with observation tools.           |
 | [predicates]             | ![Pred Badge][predBadge]      | Reliability predicates for 2D and 3D orientation geometry.       |
 | [s2]                     | ![S2 Badge][s2Badge]          | S2 geometry convienience methods.                                |
 | [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
@@ -145,8 +144,6 @@ cargo add gis-tools
 [idBadge]: /assets/badges/id-gzip-cover.svg
 [lonlat]: /docs-ts/geometry/lonlat.md
 [lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
-[planets]: /docs-ts/geometry/planets.md
-[planetBadge]: /assets/badges/planets-gzip-cover.svg
 [predicates]: /docs-ts/geometry/predicates.md
 [predBadge]: /assets/badges/predicates-gzip-cover.svg
 [s2]: /docs-ts/geometry/s2.md
@@ -243,8 +240,11 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
+| [planets]                | ![Planet Badge][planetBadge]  | Collection of planet constants with observation tools.           |
 | [satellite]              | ![SAT Badge][satBadge]        | Satellite Orbit Class from TLE data                              |
 
+[planets]: /docs-ts/space/planets.md
+[planetBadge]: /assets/badges/planets-gzip-cover.svg
 [satellite]: /docs-ts/space/satellite.md
 [satBadge]: /assets/badges/sat-gzip-cover.svg
 

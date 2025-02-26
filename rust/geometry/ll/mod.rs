@@ -32,7 +32,7 @@ impl LonLat {
     }
 
     /// Convert a S2CellId to an LonLat
-    pub fn from_s2cellid(cellid: &S2CellId) -> LonLat {
+    pub fn from_s2cellid(cellid: S2CellId) -> LonLat {
         let p = cellid.to_point();
         LonLat::from_s2_point(&p)
     }
@@ -162,8 +162,8 @@ impl LonLat {
         (atan2(y, x).to_degrees() + 360.) % 360.
     }
 }
-impl From<&S2CellId> for LonLat {
-    fn from(c: &S2CellId) -> Self {
+impl From<S2CellId> for LonLat {
+    fn from(c: S2CellId) -> Self {
         LonLat::from_s2cellid(c)
     }
 }
@@ -241,7 +241,7 @@ mod tests {
 
     #[test]
     fn from_s2cell_id() {
-        let ll = LonLat::from(&S2CellId::new(1152921504606846977));
+        let ll = LonLat::from(S2CellId::new(1152921504606846977));
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
     }
 
