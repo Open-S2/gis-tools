@@ -12,7 +12,7 @@ export type PriorityCompare<T> = (a: T, b: T) => number;
  * ```ts
  * import { PriorityQueue } from 'gis-tools-ts';
  *
- * const queue = new PriorityQueue<number>();
+ * const queue = new PriorityQueue<number>([], (a, b) => a - b);
  *
  * queue.push(1);
  * queue.push(2);

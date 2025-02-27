@@ -13,9 +13,9 @@
 | [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
 | [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
 
-[toJSON]: /converters/toJSON.md
+[toJSON]: /docs-ts/converters/toJSON.md
 [toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
-[toTiles]: /converters/toTiles.md
+[toTiles]: /docs-ts/converters/toTiles.md
 [toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
 
 ### Data Stores
@@ -28,15 +28,15 @@
 | [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
 | [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
 
-[externalSort]: /dataStore/externalSort.md
+[externalSort]: /docs-ts/dataStore/externalSort.md
 [esBadge]: /assets/badges/externalSort-gzip-cover.svg
-[kd]: /dataStore/kd.md
+[kd]: /docs-ts/dataStore/kd.md
 [kdBadge]: /assets/badges/kd-gzip-cover.svg
-[kv]: /dataStore/kv.md
+[kv]: /docs-ts/dataStore/kv.md
 [kvBadge]: /assets/badges/kv-gzip-cover.svg
-[multiMap]: /dataStore/multimap.md
+[multiMap]: /docs-ts/dataStore/multimap.md
 [mmBadge]: /assets/badges/multimap-gzip-cover.svg
-[vector]: /dataStore/vector.md
+[vector]: /docs-ts/dataStore/vector.md
 [vecBadge]: /assets/badges/vector-gzip-cover.svg
 
 ### Data Structures
@@ -51,19 +51,19 @@
 | [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
 | [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
 
-[cache]: /dataStructures/cache.md
+[cache]: /docs-ts/dataStructures/cache.md
 [cacheBadge]: /assets/badges/cache-gzip-cover.svg
-[pointGrid]: /dataStructures/pointGrid.md
+[pointGrid]: /docs-ts/dataStructures/pointGrid.md
 [pgBadge]: /assets/badges/pointGrid-gzip-cover.svg
-[pointCluster]: /dataStructures/pointCluster.md
+[pointCluster]: /docs-ts/dataStructures/pointCluster.md
 [pcBadge]: /assets/badges/pointCluster-gzip-cover.svg
-[pointIndex]: /dataStructures/pointIndex.md
+[pointIndex]: /docs-ts/dataStructures/pointIndex.md
 [piBadge]: /assets/badges/pointIndex-gzip-cover.svg
-[pointIndexFast]: /dataStructures/pointIndexFast.md
+[pointIndexFast]: /docs-ts/dataStructures/pointIndexFast.md
 [pifBadge]: /assets/badges/pointIndexFast-gzip-cover.svg
-[priorityQueue]: /dataStructures/priorityQueue.md
+[priorityQueue]: /docs-ts/dataStructures/priorityQueue.md
 [pqBadge]: /assets/badges/priorityQueue-gzip-cover.svg
-[tile]: /dataStructures/tile.md
+[tile]: /docs-ts/dataStructures/tile.md
 [tileBadge]: /assets/badges/dataTile-gzip-cover.svg
 
 ### Geometry
@@ -79,21 +79,21 @@
 | [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
 | [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
 
-[angles]: /dataStructures/angles.md
+[angles]: /docs-ts/geometry/angles.md
 [anglesBadge]: /assets/badges/angles-gzip-cover.svg
-[bbox]: /dataStructures/bbox.md
+[bbox]: /docs-ts/geometry/bbox.md
 [bboxBadge]: /assets/badges/bbox-gzip-cover.svg
-[id]: /dataStructures/id.md
+[id]: /docs-ts/geometry/id.md
 [idBadge]: /assets/badges/id-gzip-cover.svg
-[lonlat]: /dataStructures/lonlat.md
+[lonlat]: /docs-ts/geometry/lonlat.md
 [lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
-[predicates]: /dataStructures/predicates.md
+[predicates]: /docs-ts/geometry/predicates.md
 [predBadge]: /assets/badges/predicates-gzip-cover.svg
-[s2]: /dataStructures/s2.md
+[s2]: /docs-ts/geometry/s2.md
 [s2Badge]: /assets/badges/s2-gzip-cover.svg
-[tools]: /dataStructures/tools.md
+[tools]: /docs-ts/geometry/tools.md
 [toolsBadge]: /assets/badges/tools-gzip-cover.svg
-[wm]: /dataStructures/wm.md
+[wm]: /docs-ts/geometry/wm.md
 [wmBadge]: /assets/badges/wm-gzip-cover.svg
 
 ### PROJ4
@@ -104,16 +104,16 @@
 | [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
 | [transformer]           | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
 
-[mgrs]: /proj4/mgrs.md
+[mgrs]: /docs-ts/proj4/mgrs.md
 [mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
-[projections]: /proj4/projections.md
+[projections]: /docs-ts/proj4/projections.md
 [projBadge]: /assets/badges/projections-gzip-cover.svg
-[transformer]: /proj4/transformer.md
+[transformer]: /docs-ts/proj4/transformer.md
 [transBadge]: /assets/badges/transformer-gzip-cover.svg
 
 ### Readers
 
-Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/readers/reader.md).
+Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/docs-ts/readers/reader.md).
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
@@ -139,47 +139,47 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [wkt]                    | ![wkt Badge][wktBadge]        | Well Known Text data reader.                                     |
 | [xml]                    | ![XML Badge][xmlBadge]        | XML data reader.                                                 |
 
-[jpeg]: /readers/image/jpeg.md
+[jpeg]: /docs-ts/readers/image/jpeg.md
 [jpegBadge]: /assets/badges/jpeg-gzip-cover.svg
-[jpeg2000]: /readers/image/jpeg2000.md
+[jpeg2000]: /docs-ts/readers/image/jpeg2000.md
 [jpeg2Badge]: /assets/badges/jpeg2000-gzip-cover.svg
-[lanczos]: /readers/image/lanczos.md
+[lanczos]: /docs-ts/readers/image/lanczos.md
 [lancBadge]: /assets/badges/lanczos-gzip-cover.svg
-[csv]: /readers/csv.md
+[csv]: /docs-ts/readers/csv.md
 [csvBadge]: /assets/badges/csv-gzip-cover.svg
-[gbfs]: /readers/gbfs.md
+[gbfs]: /docs-ts/readers/gbfs.md
 [gbfsBadge]: /assets/badges/gbfs-gzip-cover.svg
-[geotiff]: /readers/geotiff.md
+[geotiff]: /docs-ts/readers/geotiff.md
 [gtiffBadge]: /assets/badges/geotiff-gzip-cover.svg
-[gpx]: /readers/gpx.md
+[gpx]: /docs-ts/readers/gpx.md
 [gpxBadge]: /assets/badges/gpx-gzip-cover.svg
-[grib2]: /readers/grib2.md
+[grib2]: /docs-ts/readers/grib2.md
 [grib2Badge]: /assets/badges/grib2-gzip-cover.svg
-[gtfs]: /readers/gtfs.md
+[gtfs]: /docs-ts/readers/gtfs.md
 [gtfsBadge]: /assets/badges/gtfs-gzip-cover.svg
-[json]: /readers/json.md
+[json]: /docs-ts/readers/json.md
 [jsonBadge]: /assets/badges/json-gzip-cover.svg
-[las]: /readers/las.md
+[las]: /docs-ts/readers/las.md
 [lasBadge]: /assets/badges/las-gzip-cover.svg
-[laz]: /readers/laz.md
+[laz]: /docs-ts/readers/laz.md
 [lazBadge]: /assets/badges/laz-gzip-cover.svg
-[nadgrid]: /readers/nadgrid.md
+[nadgrid]: /docs-ts/readers/nadgrid.md
 [ngridBadge]: /assets/badges/nadgrid-gzip-cover.svg
-[netcdf]: /readers/netcdf.md
+[netcdf]: /docs-ts/readers/netcdf.md
 [netcdfBadge]: /assets/badges/netcdf-gzip-cover.svg
-[osm]: /readers/osm.md
+[osm]: /docs-ts/readers/osm.md
 [osmBadge]: /assets/badges/osm-gzip-cover.svg
-[pmtiles]: /readers/pmtiles.md
+[pmtiles]: /docs-ts/readers/pmtiles.md
 [pmtBadge]: /assets/badges/pmtilesReader-gzip-cover.svg
-[protobuf]: /readers/protobuf.md
+[protobuf]: /docs-ts/readers/protobuf.md
 [protoBadge]: /assets/badges/protobuf-gzip-cover.svg
-[shapefile]: /readers/shapefile.md
+[shapefile]: /docs-ts/readers/shapefile.md
 [shapeBadge]: /assets/badges/shapefile-gzip-cover.svg
-[tileReader]: /readers/tileReader.md
+[tileReader]: /docs-ts/readers/tileReader.md
 [trBadge]: /assets/badges/tileReader-gzip-cover.svg
-[wkt]: /readers/wkt.md
+[wkt]: /docs-ts/readers/wkt.md
 [wktBadge]: /assets/badges/wkt-gzip-cover.svg
-[xml]: /readers/xml.md
+[xml]: /docs-ts/readers/xml.md
 [xmlBadge]: /assets/badges/xml-gzip-cover.svg
 
 ### Space
@@ -203,13 +203,13 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [orthodrome]             | ![ORT Badge][orthBadge]       | Find shortest path between two points or point on path.          |
 | [polylabel]              | ![POL Badge][polBadge]        | Find the labels for vector polygons                              |
 
-[delaunator]: /tools/delaunator.md
+[delaunator]: /docs-ts/tools/delaunator.md
 [delBadge]: /assets/badges/delaunator-gzip-cover.svg
-[interpolators]: /tools/interpolators.md
+[interpolators]: /docs-ts/tools/interpolators.md
 [intBadge]: /assets/badges/interpolators-gzip-cover.svg
-[orthodrome]: /tools/orthodrome.md
+[orthodrome]: /docs-ts/tools/orthodrome.md
 [orthBadge]: /assets/badges/orthodrome-gzip-cover.svg
-[polylabel]: /tools/polylabel.md
+[polylabel]: /docs-ts/tools/polylabel.md
 [polBadge]: /assets/badges/polylabel-gzip-cover.svg
 
 ### Writers
@@ -219,9 +219,9 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
 | [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
 
-[pmtilesWriter]: /writers/pmtilesWriter.md
+[pmtilesWriter]: /docs-ts/writers/pmtilesWriter.md
 [pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
-[tileWriter]: /writers/tileWriter.md
+[tileWriter]: /docs-ts/writers/tileWriter.md
 [twBadge]: /assets/badges/tileWriter-gzip-cover.svg
 
 ### Utils
@@ -231,7 +231,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
 | [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
 
-[polyfills]: /utils/polyfills.md
+[polyfills]: /docs-ts/utils/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg
-[compression]: /utils/gzip.md
+[compression]: /docs-ts/utils/gzip.md
 [cmpBadge]: /assets/badges/gzip-gzip-cover.svg

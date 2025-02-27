@@ -43,7 +43,7 @@ tile.transform();
 
 ### Tile Store
 
-TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request
+TileStore Class is a tile-lookup system that splits and simplifies a collection of features/vector-features as needed for each tile request
 
 ```ts
 import { TileStore } from 'gis-tools-ts';
