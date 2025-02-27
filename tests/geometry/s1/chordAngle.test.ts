@@ -1,136 +1,136 @@
 import {
-  chordAngleCos,
-  chordAngleSin,
-  chordAngleSin2,
-  chordAngleTan,
-  fastUpperBoundFrom,
-  fromAngle,
-  fromKM,
-  fromLength2,
-  fromMeters,
-  fromS2Points,
-  isSpecial,
-  negativeAngle,
-  rightAngle,
-  straightAngle,
-  toAngle,
-  toKM,
-  toMeters,
+  chordAngCos,
+  chordAngFastUpperBoundFrom,
+  chordAngFromAngle,
+  chordAngFromKM,
+  chordAngFromLength2,
+  chordAngFromMeters,
+  chordAngFromS2Points,
+  chordAngIsSpecial,
+  chordAngNegativeAngle,
+  chordAngRightAngle,
+  chordAngSin,
+  chordAngSin2,
+  chordAngStraightAngle,
+  chordAngTan,
+  chordAngToAngle,
+  chordAngToKM,
+  chordAngToMeters,
 } from '../../../src/geometry/s1/chordAngle';
 import { expect, test } from 'bun:test';
 
-test('chordAngleCos', () => {
-  expect(chordAngleCos(0)).toEqual(1);
-  expect(chordAngleCos(1)).toEqual(0.5);
-  expect(chordAngleCos(2)).toEqual(0);
-  expect(chordAngleCos(3)).toEqual(-0.5);
-  expect(chordAngleCos(4)).toEqual(-1);
-  expect(chordAngleCos(5)).toEqual(-1.5);
+test('chordAngCos', () => {
+  expect(chordAngCos(0)).toEqual(1);
+  expect(chordAngCos(1)).toEqual(0.5);
+  expect(chordAngCos(2)).toEqual(0);
+  expect(chordAngCos(3)).toEqual(-0.5);
+  expect(chordAngCos(4)).toEqual(-1);
+  expect(chordAngCos(5)).toEqual(-1.5);
 });
 
-test('chordAngleSin', () => {
-  expect(chordAngleSin(0)).toEqual(0);
-  expect(chordAngleSin(1)).toEqual(0.8660254037844386);
-  expect(chordAngleSin(2)).toEqual(1);
-  expect(chordAngleSin(3)).toEqual(0.8660254037844386);
-  expect(chordAngleSin(4)).toEqual(0);
-  expect(chordAngleSin(5)).toEqual(NaN);
+test('chordAngSin', () => {
+  expect(chordAngSin(0)).toEqual(0);
+  expect(chordAngSin(1)).toEqual(0.8660254037844386);
+  expect(chordAngSin(2)).toEqual(1);
+  expect(chordAngSin(3)).toEqual(0.8660254037844386);
+  expect(chordAngSin(4)).toEqual(0);
+  expect(chordAngSin(5)).toEqual(NaN);
 });
 
-test('chordAngleSin2', () => {
-  expect(chordAngleSin2(0)).toEqual(0);
-  expect(chordAngleSin2(1)).toEqual(0.75);
-  expect(chordAngleSin2(2)).toEqual(1);
-  expect(chordAngleSin2(3)).toEqual(0.75);
-  expect(chordAngleSin2(4)).toEqual(0);
-  expect(chordAngleSin2(5)).toEqual(-1.25);
+test('chordAngSin2', () => {
+  expect(chordAngSin2(0)).toEqual(0);
+  expect(chordAngSin2(1)).toEqual(0.75);
+  expect(chordAngSin2(2)).toEqual(1);
+  expect(chordAngSin2(3)).toEqual(0.75);
+  expect(chordAngSin2(4)).toEqual(0);
+  expect(chordAngSin2(5)).toEqual(-1.25);
 });
 
-test('chordAngleTan', () => {
-  expect(chordAngleTan(0)).toEqual(0);
-  expect(chordAngleTan(1)).toEqual(1.7320508075688772);
-  expect(chordAngleTan(2)).toEqual(Infinity);
-  expect(chordAngleTan(3)).toEqual(-1.7320508075688772);
-  expect(chordAngleTan(4)).toEqual(-0);
-  expect(chordAngleTan(5)).toEqual(NaN);
+test('chordAngTan', () => {
+  expect(chordAngTan(0)).toEqual(0);
+  expect(chordAngTan(1)).toEqual(1.7320508075688772);
+  expect(chordAngTan(2)).toEqual(Infinity);
+  expect(chordAngTan(3)).toEqual(-1.7320508075688772);
+  expect(chordAngTan(4)).toEqual(-0);
+  expect(chordAngTan(5)).toEqual(NaN);
 });
 
-test('fastUpperBoundFrom', () => {
-  expect(fastUpperBoundFrom(0)).toEqual(0);
-  expect(fastUpperBoundFrom(1)).toEqual(1);
-  expect(fastUpperBoundFrom(2)).toEqual(4);
-  expect(fastUpperBoundFrom(3)).toEqual(4);
+test('chordAngFastUpperBoundFrom', () => {
+  expect(chordAngFastUpperBoundFrom(0)).toEqual(0);
+  expect(chordAngFastUpperBoundFrom(1)).toEqual(1);
+  expect(chordAngFastUpperBoundFrom(2)).toEqual(4);
+  expect(chordAngFastUpperBoundFrom(3)).toEqual(4);
 });
 
-test('fromAngle', () => {
-  expect(fromAngle(0)).toEqual(0);
-  expect(fromAngle(1)).toEqual(0.9193953882637206);
-  expect(fromAngle(2)).toEqual(2.8322936730942847);
-  expect(fromAngle(3)).toEqual(3.979984993200891);
-  expect(fromAngle(Math.PI)).toEqual(4);
-  expect(fromAngle(-2)).toEqual(-1);
-  expect(fromAngle(Infinity)).toEqual(Infinity);
+test('chordAngFromAngle', () => {
+  expect(chordAngFromAngle(0)).toEqual(0);
+  expect(chordAngFromAngle(1)).toEqual(0.9193953882637206);
+  expect(chordAngFromAngle(2)).toEqual(2.8322936730942847);
+  expect(chordAngFromAngle(3)).toEqual(3.979984993200891);
+  expect(chordAngFromAngle(Math.PI)).toEqual(4);
+  expect(chordAngFromAngle(-2)).toEqual(-1);
+  expect(chordAngFromAngle(Infinity)).toEqual(Infinity);
 });
 
-test('fromKM', () => {
-  expect(fromKM(0)).toEqual(0);
-  expect(fromKM(6371.0088)).toEqual(0.9193953882637206);
-  expect(fromKM(6371008.8)).toEqual(4);
+test('chordAngFromKM', () => {
+  expect(chordAngFromKM(0)).toEqual(0);
+  expect(chordAngFromKM(6371.0088)).toEqual(0.9193953882637206);
+  expect(chordAngFromKM(6371008.8)).toEqual(4);
 });
 
-test('fromLength2', () => {
-  expect(fromLength2(0)).toEqual(0);
-  expect(fromLength2(1)).toEqual(1);
-  expect(fromLength2(2)).toEqual(2);
-  expect(fromLength2(3)).toEqual(3);
-  expect(fromLength2(4)).toEqual(4);
-  expect(fromLength2(5)).toEqual(4);
+test('chordAngFromLength2', () => {
+  expect(chordAngFromLength2(0)).toEqual(0);
+  expect(chordAngFromLength2(1)).toEqual(1);
+  expect(chordAngFromLength2(2)).toEqual(2);
+  expect(chordAngFromLength2(3)).toEqual(3);
+  expect(chordAngFromLength2(4)).toEqual(4);
+  expect(chordAngFromLength2(5)).toEqual(4);
 });
 
-test('fromMeters', () => {
-  expect(fromMeters(0)).toEqual(0);
-  expect(fromMeters(6371.0088)).toEqual(9.999999166666694e-7);
-  expect(fromMeters(6371008.8)).toEqual(0.9193953882637206);
+test('chordAngFromMeters', () => {
+  expect(chordAngFromMeters(0)).toEqual(0);
+  expect(chordAngFromMeters(6371.0088)).toEqual(9.999999166666694e-7);
+  expect(chordAngFromMeters(6371008.8)).toEqual(0.9193953882637206);
 });
 
-test('fromS2Points', () => {
-  expect(fromS2Points({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 })).toEqual(0);
-  expect(fromS2Points({ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 })).toEqual(1);
-  expect(fromS2Points({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 })).toEqual(1);
+test('chordAngFromS2Points', () => {
+  expect(chordAngFromS2Points({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 })).toEqual(0);
+  expect(chordAngFromS2Points({ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 })).toEqual(1);
+  expect(chordAngFromS2Points({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 })).toEqual(1);
 });
 
-test('isSpecial', () => {
-  expect(isSpecial(0)).toEqual(false);
-  expect(isSpecial(-2)).toEqual(true);
-  expect(isSpecial(Infinity)).toEqual(true);
+test('chordAngIsSpecial', () => {
+  expect(chordAngIsSpecial(0)).toEqual(false);
+  expect(chordAngIsSpecial(-2)).toEqual(true);
+  expect(chordAngIsSpecial(Infinity)).toEqual(true);
 });
 
-test('negativeAngle', () => {
-  expect(negativeAngle()).toEqual(-1);
+test('chordAngNegativeAngle', () => {
+  expect(chordAngNegativeAngle()).toEqual(-1);
 });
 
-test('rightAngle', () => {
-  expect(rightAngle()).toEqual(2);
+test('chordAngRightAngle', () => {
+  expect(chordAngRightAngle()).toEqual(2);
 });
 
-test('straightAngle', () => {
-  expect(straightAngle()).toEqual(4);
+test('chordAngStraightAngle', () => {
+  expect(chordAngStraightAngle()).toEqual(4);
 });
 
-test('toAngle', () => {
-  expect(toAngle(0)).toEqual(0);
-  expect(toAngle(0.9193953882637206)).toEqual(1);
-  expect(toAngle(2.8322936730942847)).toEqual(2);
-  expect(toAngle(3.979984993200891)).toEqual(3.0000000000000004);
-  expect(toAngle(4)).toEqual(Math.PI);
+test('chordAngToAngle', () => {
+  expect(chordAngToAngle(0)).toEqual(0);
+  expect(chordAngToAngle(0.9193953882637206)).toEqual(1);
+  expect(chordAngToAngle(2.8322936730942847)).toEqual(2);
+  expect(chordAngToAngle(3.979984993200891)).toEqual(3.0000000000000004);
+  expect(chordAngToAngle(4)).toEqual(Math.PI);
 });
 
-test('toKM', () => {
-  expect(toKM(0)).toEqual(0);
-  expect(toKM(0.9193953882637206)).toEqual(6371.0088);
+test('chordAngToKM', () => {
+  expect(chordAngToKM(0)).toEqual(0);
+  expect(chordAngToKM(0.9193953882637206)).toEqual(6371.0088);
 });
 
-test('toMeters', () => {
-  expect(toMeters(0)).toEqual(0);
-  expect(toMeters(0.9193953882637206)).toEqual(6371008.8);
+test('chordAngToMeters', () => {
+  expect(chordAngToMeters(0)).toEqual(0);
+  expect(chordAngToMeters(0.9193953882637206)).toEqual(6371008.8);
 });

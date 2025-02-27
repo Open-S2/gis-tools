@@ -1,5 +1,5 @@
 import { Tile } from '../../../src/dataStructures';
-import { fromFace } from '../../../src/geometry/id';
+import { idFromFace } from '../../../src/geometry/id';
 import { clipLine, clipPoint, splitTile } from '../../../src/geometry/tools/clip';
 import { describe, expect, it, test } from 'bun:test';
 
@@ -244,7 +244,7 @@ test('clipLine - passes through the x axis from left to right, then again right 
 
 describe('splitTile', () => {
   it('Point', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',
@@ -432,7 +432,7 @@ describe('splitTile', () => {
     ]);
   });
   it('MultiPoint', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',
@@ -686,7 +686,7 @@ describe('splitTile', () => {
   });
 
   it('LineString', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',
@@ -884,7 +884,7 @@ describe('splitTile', () => {
   });
 
   it('MultiLineString', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',
@@ -1092,7 +1092,7 @@ describe('splitTile', () => {
   });
 
   it('Polygon', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',
@@ -1320,7 +1320,7 @@ describe('splitTile', () => {
   });
 
   it('MultiPolygon', () => {
-    const faceID = fromFace(0);
+    const faceID = idFromFace(0);
     const features: VectorFeature[] = [
       {
         type: 'VectorFeature',

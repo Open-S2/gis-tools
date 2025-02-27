@@ -5,7 +5,7 @@ import { expect, test } from 'bun:test';
 // HELPER TOOLS
 import cities from 'all-the-cities';
 import { pointFromLonLat } from '../../src/geometry/s2/point';
-import { fromS2Points, toMeters } from '../../src/geometry/s1/chordAngle';
+import { chordAngFromS2Points, chordAngToMeters } from '../../src/geometry/s1/chordAngle';
 
 test('point index fast', () => {
   const pointIndex = new PointIndexFast<{ a: number }>();
@@ -33,7 +33,9 @@ test('point index fast', () => {
   const radiusResSphere = pointIndex.searchRadiusSphere(
     0,
     0,
-    toMeters(fromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 }))),
+    chordAngToMeters(
+      chordAngFromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 })),
+    ),
   );
   expect(radiusResSphere).toEqual([
     { m: { a: 0 }, x: 0, y: 0 },
@@ -75,7 +77,9 @@ test('point index fast spherical test across the -180/180 boundary', () => {
   const radiusResSphere = pointIndex.searchRadiusSphere(
     -180,
     21,
-    toMeters(fromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 5, y: 5 }))),
+    chordAngToMeters(
+      chordAngFromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 5, y: 5 })),
+    ),
   );
   expect(radiusResSphere).toEqual([
     { m: { a: 4 }, x: 179, y: 21 },
@@ -103,7 +107,9 @@ test('point index fast - cities', () => {
   const radiusResSphere = pointIndex.searchRadiusSphere(
     -110,
     39,
-    toMeters(fromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 }))),
+    chordAngToMeters(
+      chordAngFromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 })),
+    ),
   );
   expect(radiusResSphere).toEqual([
     { m: { name: 'Heber City' }, x: -111.41324, y: 40.5069 },

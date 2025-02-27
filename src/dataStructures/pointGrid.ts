@@ -8,13 +8,13 @@ import {
   getRGBAInterpolation,
 } from '..';
 import {
-  boundsST,
-  face as cellFace,
-  childrenIJ,
   convert,
-  fromST,
-  parent,
-  toFaceIJ,
+  idBoundsST,
+  idChildrenIJ,
+  idFace,
+  idFromST,
+  idParent,
+  idToFaceIJ,
 } from '../geometry';
 
 import type {
@@ -275,12 +275,12 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
     const zoomGridLevel = min(maxzoom + floor(log2(gridSize)) - 1, 30);
 
     for await (const { cell } of pointIndex) {
-      const maxzoomID = parent(cell, maxzoom);
+      const maxzoomID = idParent(cell, maxzoom);
       // if maxzoomID grid tile already exists, skip
       if (await gridTileStore.has(maxzoomID)) continue;
       // prep variables and grid result
-      const face = cellFace(cell);
-      const [sMin, tMin, sMax, tMax] = boundsST(maxzoomID, maxzoom);
+      const face = idFace(cell);
+      const [sMin, tMin, sMax, tMax] = idBoundsST(maxzoomID, maxzoom);
       const sPixel = (sMax - sMin) / gridSize;
       const tPixel = (tMax - tMin) / gridSize;
       const sStart = sMin - sPixel * bufferSize;
@@ -296,10 +296,10 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
           // search for points within a reasonable cell size
           let gridLevelSearch = zoomGridLevel;
           let pointShapes: PointShape<M>[];
-          let stCell = fromST(face, s, t, zoomGridLevel);
+          let stCell = idFromST(face, s, t, zoomGridLevel);
           do {
             pointShapes = await pointIndex.searchRange(stCell);
-            stCell = parent(stCell, --gridLevelSearch);
+            stCell = idParent(stCell, --gridLevelSearch);
           } while (
             pointShapes.length === 0 &&
             gridLevelSearch > 0 &&
@@ -317,7 +317,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
       }
       // store the grid and add the parent cell for future upscaling
       gridTileStore.set(maxzoomID, grid);
-      if (maxzoom !== 0) parents.add(parent(maxzoomID, maxzoom - 1));
+      if (maxzoom !== 0) parents.add(idParent(maxzoomID, maxzoom - 1));
     }
 
     return parents;
@@ -337,8 +337,8 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
 
     for (const cell of cells) {
       const grid: number[] | RGBA[] = new Array(gridLength * gridLength).fill(this.nullValue);
-      const [face, cellZoom, i, j] = toFaceIJ(cell);
-      const [blID, brID, tlID, trID] = childrenIJ(face, cellZoom, i, j);
+      const [face, cellZoom, i, j] = idToFaceIJ(cell);
+      const [blID, brID, tlID, trID] = idChildrenIJ(face, cellZoom, i, j);
       // for each child, downsample into the result grid
       await this.#downsampleGrid(blID, grid, 0, 0);
       await this.#downsampleGrid(brID, grid, halfGridLength, 0);
@@ -346,7 +346,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
       await this.#downsampleGrid(trID, grid, halfGridLength, halfGridLength);
       // store the grid and add the parent cell for future upscaling
       gridTileStore.set(cell, grid);
-      if (zoom !== 0) parents.add(parent(cell, zoom - 1));
+      if (zoom !== 0) parents.add(idParent(cell, zoom - 1));
     }
 
     return parents;

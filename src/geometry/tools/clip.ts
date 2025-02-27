@@ -1,5 +1,5 @@
 import { Tile } from '../../dataStructures';
-import { childrenIJ } from '../id';
+import { idChildrenIJ } from '../id';
 import { clipBBox, extendBBox } from '../bbox';
 
 import type {
@@ -57,7 +57,7 @@ export function splitTile<
   P extends Properties = Properties,
 >(tile: Tile<M, D, P>, buffer: number = 0.0625): TileChildren<M, D, P> {
   const { face, zoom, i, j } = tile;
-  const [blID, brID, tlID, trID] = childrenIJ(face, zoom, i, j);
+  const [blID, brID, tlID, trID] = idChildrenIJ(face, zoom, i, j);
   const children: TileChildren<M, D, P> = [
     { id: blID, tile: new Tile<M, D, P>(blID) },
     { id: brID, tile: new Tile<M, D, P>(brID) },

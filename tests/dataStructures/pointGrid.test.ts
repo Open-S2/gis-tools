@@ -1,5 +1,5 @@
 import { RasterTilesFileReader } from '../../src/file';
-import { PointGrid, fromFace } from '../../src';
+import { PointGrid, idFromFace } from '../../src';
 import { expect, test } from 'bun:test';
 
 // import sharp from 'sharp';
@@ -31,7 +31,7 @@ testFunc(
     grid.insertFaceST(0, 0, 0, { r: 0, g: 255, b: 0, a: 255 });
     await grid.buildClusters();
 
-    const tile0 = await grid.getTile(fromFace(0));
+    const tile0 = await grid.getTile(idFromFace(0));
     if (tile0 === undefined) throw new Error('Tile is undefined');
     const data = tile0.data as RGBA[];
     const image = data.flatMap(({ r, g, b, a }) => [r, g, b, a]);
@@ -67,7 +67,7 @@ test.skip('pointGrid - WM from S2 tiles', async () => {
   await grid.insertReader(reader);
   await grid.buildClusters();
 
-  const tile0 = await grid.getTile(fromFace(0));
+  const tile0 = await grid.getTile(idFromFace(0));
   if (tile0 === undefined) throw new Error('Tile is undefined');
   const data = tile0.data as RGBA[];
   const image = data.flatMap(({ r, g, b, a }) => [r, g, b, a]);
@@ -98,7 +98,7 @@ test.skip('pointGrid - S2 from S2 tiles', async () => {
   await grid.insertReader(reader);
   await grid.buildClusters();
 
-  const tile0 = await grid.getTile(fromFace(1));
+  const tile0 = await grid.getTile(idFromFace(1));
   if (tile0 === undefined) throw new Error('Tile is undefined');
   const data = tile0.data as RGBA[];
   const image = data.flatMap(({ r, g, b, a }) => [r, g, b, a]);
@@ -129,7 +129,7 @@ test.skip('pointGrid - S2 from WM tiles', async () => {
   await grid.insertReader(reader);
   await grid.buildClusters();
 
-  const tile0 = await grid.getTile(fromFace(1));
+  const tile0 = await grid.getTile(idFromFace(1));
   if (tile0 === undefined) throw new Error('Tile is undefined');
   const data = tile0.data as RGBA[];
   const image = data.flatMap(({ r, g, b, a }) => [r, g, b, a]);

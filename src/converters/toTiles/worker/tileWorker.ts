@@ -5,8 +5,8 @@ import { MultiMap } from '../../../dataStore';
 import { compressStream } from '../../../util';
 import { BaseVectorTile, writeMVTile, writeOVTile } from 'open-vector-tile';
 import { PointCluster, PointGrid, Tile, TileStore } from '../../../dataStructures';
-import { childrenIJ, fromFace, toFaceIJ } from '../../../geometry';
 import { earclip, tesselate } from 'earclip';
+import { idChildrenIJ, idFromFace, idToFaceIJ } from '../../../geometry';
 
 import type { Encoding } from 's2-tilejson';
 import type { MultiMapStore } from '../../../dataStore';
@@ -130,9 +130,9 @@ export default class TileWorker {
     const minzoom = getMinzoom(layerGuides);
 
     // three directions we can build data
-    const tileCache = [fromFace(0)];
+    const tileCache = [idFromFace(0)];
     if (projection === 'S2')
-      tileCache.push(fromFace(1), fromFace(2), fromFace(3), fromFace(4), fromFace(5));
+      tileCache.push(idFromFace(1), idFromFace(2), idFromFace(3), idFromFace(4), idFromFace(5));
     while (tileCache.length > 0) {
       const id = tileCache.pop()!;
       const tile = new Tile(id);
@@ -147,16 +147,16 @@ export default class TileWorker {
           const data = new Uint8Array(rasterData[0].image);
           yield { face, zoom, x, y, data };
           // store 4 children tiles to ask for children features
-          tileCache.push(...childrenIJ(face, zoom, x, y));
+          tileCache.push(...idChildrenIJ(face, zoom, x, y));
         } else {
           // if we haven't reached the data yet, we store children
-          if (minzoom > tile.zoom) tileCache.push(...childrenIJ(face, zoom, x, y));
+          if (minzoom > tile.zoom) tileCache.push(...idChildrenIJ(face, zoom, x, y));
         }
       } else {
         // VECTOR CASE
         if (vectorTile === undefined && rasterData === undefined && gridData === undefined) {
           // if we haven't reached the data yet, we store children
-          if (minzoom > tile.zoom) tileCache.push(...childrenIJ(face, zoom, x, y));
+          if (minzoom > tile.zoom) tileCache.push(...idChildrenIJ(face, zoom, x, y));
         } else {
           // write to a buffer using the open-vector-tile spec
           let data =
@@ -168,7 +168,7 @@ export default class TileWorker {
           // yield the buffer
           yield { face, zoom, x, y, data };
           // store 4 children tiles to ask for children features
-          tileCache.push(...childrenIJ(face, zoom, x, y));
+          tileCache.push(...idChildrenIJ(face, zoom, x, y));
         }
       }
     }
@@ -294,16 +294,16 @@ export default class TileWorker {
     if (!drawTypes.includes(toDrawType(feature))) return;
     // Setup a tileCache and dive down. Store the 4 children if data is found while storing data as we go
     const tileStore = new TileStore(feature, { projection, ...vectorGuide });
-    const tileCache = [fromFace(0)];
+    const tileCache = [idFromFace(0)];
     if (projection === 'S2')
-      tileCache.push(fromFace(1), fromFace(2), fromFace(3), fromFace(4), fromFace(5));
+      tileCache.push(idFromFace(1), idFromFace(2), idFromFace(3), idFromFace(4), idFromFace(5));
     while (tileCache.length > 0) {
       const id = tileCache.pop()!;
-      const [face, zoom, i, j] = toFaceIJ(id);
+      const [face, zoom, i, j] = idToFaceIJ(id);
       const tile = tileStore.getTile(id);
       if (minzoom > zoom) {
         // if we haven't reached the data yet, we store children
-        tileCache.push(...childrenIJ(face, zoom, i, j));
+        tileCache.push(...idChildrenIJ(face, zoom, i, j));
       } else if (tile !== undefined && !tile.isEmpty()) {
         // store feature with the associated layername
         for (const { features } of Object.values(tile.layers)) {
@@ -313,7 +313,7 @@ export default class TileWorker {
           }
         }
         // store 4 children tiles to ask for
-        tileCache.push(...childrenIJ(face, zoom, i, j));
+        tileCache.push(...idChildrenIJ(face, zoom, i, j));
       }
     }
   }

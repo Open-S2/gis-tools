@@ -23,15 +23,12 @@
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
-| [kd]                     | ![KD Badge][kdBadge]          | KD Spatial index that works in the browser and the filesystem.   |
 | [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
 | [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
 | [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
 
 [externalSort]: /docs-ts/dataStore/externalSort.md
 [esBadge]: /assets/badges/externalSort-gzip-cover.svg
-[kd]: /docs-ts/dataStore/kd.md
-[kdBadge]: /assets/badges/kd-gzip-cover.svg
 [kv]: /docs-ts/dataStore/kv.md
 [kvBadge]: /assets/badges/kv-gzip-cover.svg
 [multiMap]: /docs-ts/dataStore/multimap.md

@@ -17,7 +17,7 @@ import {
 } from '../../../src/geometry/s2/cap';
 import { expect, test } from 'bun:test';
 
-import { fromFace, fromIJ, toS2Point } from '../../../src/geometry/id';
+import { idFromFace, idFromIJ, idToS2Point } from '../../../src/geometry/id';
 
 import type { S2Cap } from '../../../src/geometry/s2/cap';
 
@@ -31,10 +31,10 @@ test('capComplement', () => {
 });
 
 test('capContainsS2Cell', () => {
-  const face = fromFace(0);
-  const subPoint = fromIJ(0, 10, 10, 5);
-  const subPoint2 = fromIJ(3, 10, 10, 6);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const subPoint = idFromIJ(0, 10, 10, 5);
+  const subPoint2 = idFromIJ(3, 10, 10, 6);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capContainsS2Cell(cap, subPoint)).toEqual(true);
   expect(capContainsS2Cell(cap, subPoint2)).toEqual(false);
 
@@ -46,12 +46,12 @@ test('capContainsS2Cell', () => {
 });
 
 test('capContainsS2Point', () => {
-  const face = fromFace(0);
-  const subPoint = fromIJ(0, 10, 10, 5);
-  const subPoint2 = fromIJ(3, 10, 10, 6);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
-  expect(capContainsS2Point(cap, toS2Point(subPoint))).toEqual(true);
-  expect(capContainsS2Point(cap, toS2Point(subPoint2))).toEqual(false);
+  const face = idFromFace(0);
+  const subPoint = idFromIJ(0, 10, 10, 5);
+  const subPoint2 = idFromIJ(3, 10, 10, 6);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
+  expect(capContainsS2Point(cap, idToS2Point(subPoint))).toEqual(true);
+  expect(capContainsS2Point(cap, idToS2Point(subPoint2))).toEqual(false);
 });
 
 test('capEmpty', () => {
@@ -62,16 +62,16 @@ test('capEmpty', () => {
 });
 
 test('capFromS1Angle', () => {
-  const face = fromFace(0);
-  const cap = capFromS1Angle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1Angle(idToS2Point(face), 1, { a: 1 });
   expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(0.9193953882637206);
   expect(cap.data).toEqual({ a: 1 });
 });
 
 test('capFromS1ChordAngle', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(cap.center).toEqual({ x: 1, y: 0, z: 0 });
   expect(cap.radius).toEqual(1);
   expect(cap.data).toEqual({ a: 1 });
@@ -92,20 +92,20 @@ test('capFull', () => {
 });
 
 test('capArea', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capArea(cap)).toEqual(3.141592653589793);
 });
 
 test('height', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capHeight(cap)).toEqual(0.5);
 });
 
 test('capIsEmpty', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capIsEmpty(cap)).toEqual(false);
 
   const empty = capEmpty({ a: 1 });
@@ -113,8 +113,8 @@ test('capIsEmpty', () => {
 });
 
 test('capIsFull', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capIsFull(cap)).toEqual(false);
 
   const full = capFull({ a: 1 });
@@ -122,14 +122,14 @@ test('capIsFull', () => {
 });
 
 test('radius', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   expect(capRadius(cap)).toBeCloseTo(1.0471975511965976);
 });
 
 test('capGetIntersectingCells', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 1, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 1, { a: 1 });
   const cells = capGetIntersectingCells(cap);
   expect(cells).toEqual([
     13546827679130451968n,
@@ -167,8 +167,8 @@ test('capGetIntersectingCells small', () => {
 });
 
 test('capIntersectsS2CellFast', () => {
-  const face = fromFace(0);
-  const cap = capFromS1ChordAngle(toS2Point(face), 0.95, { a: 1 });
+  const face = idFromFace(0);
+  const cap = capFromS1ChordAngle(idToS2Point(face), 0.95, { a: 1 });
   expect(capIntersectsS2CellFast(cap, 13546827679130451968n)).toEqual(true);
   expect(capIntersectsS2CellFast(cap, 12970366926827028480n)).toEqual(true);
   expect(capIntersectsS2CellFast(cap, 10664523917613334528n)).toEqual(true);

@@ -2,7 +2,7 @@ import { FileReader } from '../../src/file';
 import { JSONReader, Tile, TileStore, transformPoint } from '../../src';
 import { expect, test } from 'bun:test';
 
-import { childrenIJ, fromFace } from '../../src/geometry/id';
+import { idChildrenIJ, idFromFace } from '../../src/geometry/id';
 
 import type {
   FeatureCollection,
@@ -200,7 +200,7 @@ test('TileStore - points', () => {
 
   const store = new TileStore(featureCollection, { projection: 'WG' });
 
-  const faceID = fromFace(0);
+  const faceID = idFromFace(0);
   const faceTile = store.getTile(faceID);
 
   expect(faceTile).toEqual({
@@ -298,7 +298,7 @@ test('TileStore - points', () => {
     transformed: true,
   } as unknown as Tile);
 
-  const [, child2] = childrenIJ(0, 0, 0, 0);
+  const [, child2] = idChildrenIJ(0, 0, 0, 0);
   const childTile = store.getTile(child2);
   expect(childTile).toEqual({
     extent: 1,
@@ -359,7 +359,7 @@ test('TileStore - lines', () => {
 
   const store = new TileStore(featureCollection, { projection: 'S2' });
 
-  const faceID = fromFace(1);
+  const faceID = idFromFace(1);
   const faceTile = store.getTile(faceID);
 
   const feature = faceTile?.layers.default.features[0] as VectorFeature;
@@ -380,7 +380,7 @@ test('TileStore - lines', () => {
   }
   expect(feature.properties).toEqual({ id: 1336, name: 'lines' });
 
-  const [, , child3] = childrenIJ(1, 0, 0, 0);
+  const [, , child3] = idChildrenIJ(1, 0, 0, 0);
   const childTile = store.getTile(child3);
 
   expect(childTile).toEqual({
@@ -428,7 +428,7 @@ test('TileStore - polys', () => {
 
   const store = new TileStore(featureCollection, { projection: 'S2' });
 
-  const faceID = fromFace(4);
+  const faceID = idFromFace(4);
   const faceTile = store.getTile(faceID);
 
   const feature = faceTile?.layers.default.features[0] as VectorFeature;

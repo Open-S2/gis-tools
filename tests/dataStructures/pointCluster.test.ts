@@ -3,7 +3,7 @@ import { JSONReader, PointCluster } from '../../src';
 import { expect, test } from 'bun:test';
 
 // helper functions
-import { fromFace } from '../../src';
+import { idFromFace } from '../../src';
 
 import type { Properties, Tile } from '../../src';
 
@@ -26,7 +26,7 @@ test('PointCluster', async () => {
 
   await cluster.buildClusters();
 
-  const tileFace = await cluster.getTile(fromFace(0));
+  const tileFace = await cluster.getTile(idFromFace(0));
   expect(tileFace).toEqual({
     face: 0,
     zoom: 0,
@@ -74,7 +74,7 @@ test('PointCluster - from reader', async () => {
 
   await cluster.buildClusters();
 
-  const tileFace = await cluster.getTile(fromFace(3));
+  const tileFace = await cluster.getTile(idFromFace(3));
   expect(tileFace).toEqual({
     extent: 1,
     face: 3,

@@ -3,7 +3,7 @@ import { JSONReader, PointIndex } from '../../src';
 import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
-import { fromS2Points } from '../../src/geometry/s1/chordAngle';
+import { chordAngFromS2Points } from '../../src/geometry/s1/chordAngle';
 import { pointFromLonLat } from '../../src/geometry/s2/point';
 
 test('point index', async () => {
@@ -19,7 +19,7 @@ test('point index', async () => {
 
   const radiusRes = await pointIndex.searchRadius(
     pointFromLonLat({ x: 0, y: 0 }),
-    fromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 })),
+    chordAngFromS2Points(pointFromLonLat({ x: 0, y: 0 }), pointFromLonLat({ x: 2, y: 2 })),
   );
   expect(radiusRes).toEqual([
     {

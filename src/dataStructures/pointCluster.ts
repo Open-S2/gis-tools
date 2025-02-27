@@ -1,4 +1,4 @@
-import { fromS2Points } from '../geometry/s1/chordAngle';
+import { chordAngFromS2Points } from '../geometry/s1/chordAngle';
 import { PointIndex, PointShape, Tile } from '..';
 import {
   pointAddMut as addMut,
@@ -8,7 +8,7 @@ import {
   pointNormalize as normalize,
   pointToST as toST,
 } from '../geometry/s2/point';
-import { convert, fromFacePosLevel, getVertices, level, range } from '../geometry';
+import { convert, idFromFacePosLevel, idGetVertices, idLevel, idRange } from '../geometry';
 
 import type { FeatureIterator } from '..';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
@@ -274,9 +274,9 @@ export class PointCluster<M extends MValue = Properties> {
    */
   async getCellData(id: S2CellId): Promise<undefined | PointShape<Cluster<M>>[]> {
     const { minzoom, maxzoom, indexes } = this;
-    const zoom = level(id);
+    const zoom = idLevel(id);
     if (zoom < minzoom) return;
-    const [min, max] = range(id);
+    const [min, max] = idRange(id);
     const levelIndex = indexes.get(Math.min(zoom, maxzoom));
 
     return await levelIndex?.searchRange(min, max);
@@ -319,9 +319,9 @@ export class PointCluster<M extends MValue = Properties> {
    */
   #getLevelRadius(zoom: number): S1ChordAngle {
     const multiplier = this.radius / this.gridSize;
-    const cell = fromFacePosLevel(0, 0n, zoom);
-    const [lo, hi] = getVertices(cell);
-    const angle = fromS2Points(lo, hi);
+    const cell = idFromFacePosLevel(0, 0n, zoom);
+    const [lo, hi] = idGetVertices(cell);
+    const angle = chordAngFromS2Points(lo, hi);
     return angle * multiplier;
   }
 }

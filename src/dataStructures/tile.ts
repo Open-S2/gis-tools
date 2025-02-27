@@ -2,13 +2,13 @@ import { convert } from '../geometry/tools/convert';
 import { simplify } from '../geometry';
 import { splitTile } from '../geometry/tools/clip';
 import {
-  contains,
-  fromFace,
-  face as getFace,
-  isFace,
-  level,
-  parent as parentID,
-  toFaceIJ,
+  idFace as getFace,
+  idContains,
+  idFromFace,
+  idIsFace,
+  idLevel,
+  idParent,
+  idToFaceIJ,
 } from '../geometry/id';
 
 import type { FeatureIterator } from '..';
@@ -85,7 +85,7 @@ export class Tile<
     public layers: Record<string, Layer<M, D, P>> = {},
     public transformed = false,
   ) {
-    const [face, zoom, i, j] = toFaceIJ(id);
+    const [face, zoom, i, j] = idToFaceIJ(id);
     this.face = face;
     this.zoom = zoom;
     this.i = i;
@@ -296,7 +296,7 @@ export class TileStore<
     );
     for (const feature of features) this.#addFeature(feature);
     for (let face = 0; face < 6; face++) {
-      const id = fromFace(face as Face);
+      const id = idFromFace(face as Face);
       this.#splitTile(id);
     }
   }
@@ -307,7 +307,7 @@ export class TileStore<
    */
   getTile(id: bigint): undefined | Tile<M, D, P> {
     const { tiles, faces } = this;
-    const zoom = level(id);
+    const zoom = idLevel(id);
     const face = getFace(id);
     // If the zoom is out of bounds, return nothing
     if (zoom < 0 || zoom > 20 || !faces.has(face) || zoom < this.minzoom || zoom > this.maxzoom)
@@ -315,7 +315,7 @@ export class TileStore<
 
     // we want to find the closest tile to the data.
     let pID = id;
-    while (!tiles.has(pID) && !isFace(pID)) pID = parentID(pID);
+    while (!tiles.has(pID) && !idIsFace(pID)) pID = idParent(pID);
     // split as necessary, the algorithm will know if the tile is already split
     this.#splitTile(pID, id, zoom);
 
@@ -329,7 +329,7 @@ export class TileStore<
   #addFeature(feature: VectorFeatures<M, D, P>): void {
     const { faces, tiles } = this;
     const face = feature.face ?? 0;
-    const id = fromFace(face);
+    const id = idFromFace(face);
     let tile = tiles.get(id);
     if (tile === undefined) {
       faces.add(face);
@@ -363,7 +363,7 @@ export class TileStore<
       if (
         tileZoom >= maxzoom || // 1
         (endID === undefined && tileZoom >= indexMaxzoom) || // 2
-        (endID !== undefined && (tileZoom > endZoom || !contains(stackID, endID))) // 3
+        (endID !== undefined && (tileZoom > endZoom || !idContains(stackID, endID))) // 3
       )
         continue;
 

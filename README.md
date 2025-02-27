@@ -80,18 +80,15 @@ cargo add gis-tools
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
 | [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
-| [kd]                     | ![KD Badge][kdBadge]          | KD Spatial index that works in the browser and the filesystem.   |
 | [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
 | [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
 | [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
 
 [externalSort]: /docs-ts/dataStore/externalSort.md
 [esBadge]: /assets/badges/externalSort-gzip-cover.svg
-[kd]: /docs-ts/dataStore/kd.md
-[kdBadge]: /assets/badges/kd-gzip-cover.svg
 [kv]: /docs-ts/dataStore/kv.md
 [kvBadge]: /assets/badges/kv-gzip-cover.svg
-[multiMap]: /docs-ts/dataStore/multimap.md
+[multiMap]: /docs-ts/dataStore/multiMap.md
 [mmBadge]: /assets/badges/multimap-gzip-cover.svg
 [vector]: /docs-ts/dataStore/vector.md
 [vecBadge]: /assets/badges/vector-gzip-cover.svg
@@ -232,7 +229,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 [protoBadge]: /assets/badges/protobuf-gzip-cover.svg
 [shapefile]: /docs-ts/readers/shapefile.md
 [shapeBadge]: /assets/badges/shapefile-gzip-cover.svg
-[tileReader]: /docs-ts/readers/tileReader.md
+[tileReader]: /docs-ts/readers/tile.md
 [trBadge]: /assets/badges/tileReader-gzip-cover.svg
 [wkt]: /docs-ts/readers/wkt.md
 [wktBadge]: /assets/badges/wkt-gzip-cover.svg
@@ -276,9 +273,9 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
 | [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
 
-[pmtilesWriter]: /docs-ts/writers/pmtilesWriter.md
+[pmtilesWriter]: /docs-ts/writers/pmtiles.md
 [pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
-[tileWriter]: /docs-ts/writers/tileWriter.md
+[tileWriter]: /docs-ts/writers/tile.md
 [twBadge]: /assets/badges/tileWriter-gzip-cover.svg
 
 ### Utils
@@ -288,10 +285,10 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
 | [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
 
-[polyfills]: /docs-ts/utils/polyfills.md
+[polyfills]: /docs-ts/util/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg
-[compression]: /docs-ts/utils/gzip.md
-[cmpBadge]: /assets/badges/gzip-gzip-cover.svg
+[compression]: /docs-ts/util/compression.md
+[cmpBadge]: /assets/badges/compression-gzip-cover.svg
 
 ---
 

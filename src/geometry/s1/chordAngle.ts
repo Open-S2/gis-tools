@@ -1,10 +1,5 @@
 import { EARTH_RADIUS } from '../../space/planets';
-import {
-  fromKM as angleFromKM,
-  fromMeters as angleFromMeters,
-  toKM as angleToKM,
-  toMeters as angleToMeters,
-} from './angle';
+import { angleFromKM, angleFromMeters, angleToKM, angleToMeters } from './angle';
 import { pointNorm2, pointSub } from '../s2/point';
 
 import type { S1Angle } from './angle';
@@ -122,7 +117,7 @@ export const K_MAX_LENGTH_2 = 4.0;
  * @param angle - An angle in radians.
  * @returns The corresponding ChordAngle.
  */
-export function fromAngle(angle: S1Angle): S1ChordAngle {
+export function chordAngFromAngle(angle: S1Angle): S1ChordAngle {
   const { sin, min, PI } = Math;
   let length2_ = 0.0;
   if (angle < 0.0) {
@@ -145,7 +140,7 @@ export function fromAngle(angle: S1Angle): S1ChordAngle {
  * @param length2_ - The squared chord length.
  * @returns The corresponding ChordAngle.
  */
-export function fromLength2(length2_: number): S1ChordAngle {
+export function chordAngFromLength2(length2_: number): S1ChordAngle {
   return Math.min(K_MAX_LENGTH_2, length2_);
 }
 
@@ -156,7 +151,7 @@ export function fromLength2(length2_: number): S1ChordAngle {
  * @param b - The second point.
  * @returns The corresponding ChordAngle.
  */
-export function fromS2Points(a: VectorPoint, b: VectorPoint): S1ChordAngle {
+export function chordAngFromS2Points(a: VectorPoint, b: VectorPoint): S1ChordAngle {
   // The squared distance may slightly exceed 4.0 due to roundoff errors.
   // The maximum error in the result is 2 * DBL_EPSILON * length2_.
   return Math.min(K_MAX_LENGTH_2, pointNorm2(pointSub(a, b)));
@@ -166,7 +161,7 @@ export function fromS2Points(a: VectorPoint, b: VectorPoint): S1ChordAngle {
  * Return a chord angle of 90 degrees (a "right angle").
  * @returns The right angle.
  */
-export function rightAngle(): S1ChordAngle {
+export function chordAngRightAngle(): S1ChordAngle {
   return 2.0;
 }
 
@@ -175,7 +170,7 @@ export function rightAngle(): S1ChordAngle {
  * maximum finite chord angle.
  * @returns The straight angle.
  */
-export function straightAngle(): S1ChordAngle {
+export function chordAngStraightAngle(): S1ChordAngle {
   return K_MAX_LENGTH_2;
 }
 
@@ -185,7 +180,7 @@ export function straightAngle(): S1ChordAngle {
  * predecessor().
  * @returns The negative angle.
  */
-export function negativeAngle(): S1ChordAngle {
+export function chordAngNegativeAngle(): S1ChordAngle {
   return -1;
 }
 
@@ -197,10 +192,10 @@ export function negativeAngle(): S1ChordAngle {
  * @param angle - The S1Angle.
  * @returns The corresponding S1ChordAngle.
  */
-export function fastUpperBoundFrom(angle: S1Angle): S1ChordAngle {
+export function chordAngFastUpperBoundFrom(angle: S1Angle): S1ChordAngle {
   // This method uses the distance along the surface of the sphere as an upper
   // bound on the distance through the sphere's interior.
-  return fromLength2(angle * angle);
+  return chordAngFromLength2(angle * angle);
 }
 
 /**
@@ -208,7 +203,7 @@ export function fastUpperBoundFrom(angle: S1Angle): S1ChordAngle {
  * @param cAngle - The ChordAngle to test.
  * @returns - true if the ChordAngle is special.
  */
-export function isSpecial(cAngle: S1ChordAngle): boolean {
+export function chordAngIsSpecial(cAngle: S1ChordAngle): boolean {
   return cAngle < 0 || cAngle === Infinity;
 }
 
@@ -222,7 +217,7 @@ export function isSpecial(cAngle: S1ChordAngle): boolean {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding S1Angle.
  */
-export function toAngle(cAngle: S1ChordAngle): S1Angle {
+export function chordAngToAngle(cAngle: S1ChordAngle): S1Angle {
   if (cAngle < 0) return -1.0;
   if (cAngle === Infinity) return Infinity;
   return 2 * Math.asin(0.5 * Math.sqrt(cAngle));
@@ -233,8 +228,8 @@ export function toAngle(cAngle: S1ChordAngle): S1Angle {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding number of meters.
  */
-export function toMeters(cAngle: S1ChordAngle): number {
-  return angleToMeters(toAngle(cAngle));
+export function chordAngToMeters(cAngle: S1ChordAngle): number {
+  return angleToMeters(chordAngToAngle(cAngle));
 }
 
 /**
@@ -243,8 +238,8 @@ export function toMeters(cAngle: S1ChordAngle): number {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - the ChordAngle
  */
-export function fromMeters(meters: number, radius = EARTH_RADIUS): S1ChordAngle {
-  return fromAngle(angleFromMeters(meters, radius));
+export function chordAngFromMeters(meters: number, radius = EARTH_RADIUS): S1ChordAngle {
+  return chordAngFromAngle(angleFromMeters(meters, radius));
 }
 
 /**
@@ -252,8 +247,8 @@ export function fromMeters(meters: number, radius = EARTH_RADIUS): S1ChordAngle 
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding number of kilometers.
  */
-export function toKM(cAngle: S1ChordAngle): number {
-  return angleToKM(toAngle(cAngle));
+export function chordAngToKM(cAngle: S1ChordAngle): number {
+  return angleToKM(chordAngToAngle(cAngle));
 }
 
 /**
@@ -262,8 +257,8 @@ export function toKM(cAngle: S1ChordAngle): number {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - the ChordAngle
  */
-export function fromKM(km: number, radius = EARTH_RADIUS): S1ChordAngle {
-  return fromAngle(angleFromKM(km, radius));
+export function chordAngFromKM(km: number, radius = EARTH_RADIUS): S1ChordAngle {
+  return chordAngFromAngle(angleFromKM(km, radius));
 }
 
 // Trigonmetric functions.  It is more accurate and efficient to call these
@@ -274,8 +269,8 @@ export function fromKM(km: number, radius = EARTH_RADIUS): S1ChordAngle {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding sin(S1Angle).
  */
-export function chordAngleSin(cAngle: S1ChordAngle): number {
-  return Math.sqrt(chordAngleSin2(cAngle));
+export function chordAngSin(cAngle: S1ChordAngle): number {
+  return Math.sqrt(chordAngSin2(cAngle));
 }
 
 /**
@@ -283,7 +278,7 @@ export function chordAngleSin(cAngle: S1ChordAngle): number {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding cos(S1Angle).
  */
-export function chordAngleCos(cAngle: S1ChordAngle): number {
+export function chordAngCos(cAngle: S1ChordAngle): number {
   // cos(2*A) = cos^2(A) - sin^2(A) = 1 - 2*sin^2(A)
   return 1.0 - 0.5 * cAngle;
 }
@@ -293,8 +288,8 @@ export function chordAngleCos(cAngle: S1ChordAngle): number {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding cos(S1Angle).
  */
-export function chordAngleTan(cAngle: S1ChordAngle): number {
-  return chordAngleSin(cAngle) / chordAngleCos(cAngle);
+export function chordAngTan(cAngle: S1ChordAngle): number {
+  return chordAngSin(cAngle) / chordAngCos(cAngle);
 }
 
 /**
@@ -302,7 +297,7 @@ export function chordAngleTan(cAngle: S1ChordAngle): number {
  * @param cAngle - The ChordAngle to convert.
  * @returns The corresponding sin(S1Angle)^2.
  */
-export function chordAngleSin2(cAngle: S1ChordAngle): number {
+export function chordAngSin2(cAngle: S1ChordAngle): number {
   // Let "a" be the (non-squared) chord length, and let A be the corresponding
   // half-angle (a = 2*sin(A)).  The formula below can be derived from:
   //   sin(2*A) = 2 * sin(A) * cos(A)

@@ -59,7 +59,7 @@ export type S1Angle = number;
  * @param angle - input angle in degrees
  * @returns - angle in radians
  */
-export function fromDegrees(angle: number): S1Angle {
+export function angleFromDegrees(angle: number): S1Angle {
   return degToRad(angle);
 }
 
@@ -68,7 +68,7 @@ export function fromDegrees(angle: number): S1Angle {
  * @param angle - input angle in radians
  * @returns - angle in degrees
  */
-export function toDegrees(angle: S1Angle): number {
+export function angleToDegrees(angle: S1Angle): number {
   return radToDeg(angle);
 }
 
@@ -77,8 +77,8 @@ export function toDegrees(angle: S1Angle): number {
  * @param e5_ - input angle in degrees
  * @returns - e5 angle in radians
  */
-export function toE5(e5_: number): S1Angle {
-  return fromDegrees(e5_ * 1e-5);
+export function angleToE5(e5_: number): S1Angle {
+  return angleFromDegrees(e5_ * 1e-5);
 }
 
 /**
@@ -86,8 +86,8 @@ export function toE5(e5_: number): S1Angle {
  * @param e6_ - input angle in degrees
  * @returns - e6 angle in radians
  */
-export function toE6(e6_: number): S1Angle {
-  return fromDegrees(e6_ * 1e-6);
+export function angleToE6(e6_: number): S1Angle {
+  return angleFromDegrees(e6_ * 1e-6);
 }
 
 /**
@@ -95,8 +95,8 @@ export function toE6(e6_: number): S1Angle {
  * @param e7_ - input angle in degrees
  * @returns - e7 angle in radians
  */
-export function toE7(e7_: number): S1Angle {
-  return fromDegrees(e7_ * 1e-7);
+export function angleToE7(e7_: number): S1Angle {
+  return angleFromDegrees(e7_ * 1e-7);
 }
 
 /**
@@ -110,7 +110,7 @@ export function toE7(e7_: number): S1Angle {
  * @param b - The second point
  * @returns - The angle between the two points in radians
  */
-export function fromS2Points(a: VectorPoint, b: VectorPoint): S1Angle {
+export function angleFromS2Points(a: VectorPoint, b: VectorPoint): S1Angle {
   return pointAngle(a, b);
 }
 
@@ -123,7 +123,7 @@ export function fromS2Points(a: VectorPoint, b: VectorPoint): S1Angle {
  * @param b - The second lon-lat pair
  * @returns - The angle between the two points in radians
  */
-export function fromLonLat(a: LonLat, b: LonLat): S1Angle {
+export function angleFromLonLat(a: LonLat, b: LonLat): S1Angle {
   return llGetDistance(a, b);
 }
 
@@ -133,7 +133,7 @@ export function fromLonLat(a: LonLat, b: LonLat): S1Angle {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
  */
-export function toMeters(angle: S1Angle, radius = EARTH_RADIUS): number {
+export function angleToMeters(angle: S1Angle, radius = EARTH_RADIUS): number {
   return angle * radius;
 }
 
@@ -143,7 +143,7 @@ export function toMeters(angle: S1Angle, radius = EARTH_RADIUS): number {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in radians
  */
-export function fromMeters(angle: number, radius = EARTH_RADIUS): S1Angle {
+export function angleFromMeters(angle: number, radius = EARTH_RADIUS): S1Angle {
   return angle / radius;
 }
 
@@ -153,7 +153,7 @@ export function fromMeters(angle: number, radius = EARTH_RADIUS): S1Angle {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
  */
-export function toKM(angle: S1Angle, radius = EARTH_RADIUS): number {
+export function angleToKM(angle: S1Angle, radius = EARTH_RADIUS): number {
   return (angle * radius) / 1_000;
 }
 
@@ -163,7 +163,7 @@ export function toKM(angle: S1Angle, radius = EARTH_RADIUS): number {
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in radians
  */
-export function fromKM(angle: number, radius = EARTH_RADIUS): S1Angle {
+export function angleFromKM(angle: number, radius = EARTH_RADIUS): S1Angle {
   return (angle * 1_000) / radius;
 }
 
@@ -177,8 +177,8 @@ export function fromKM(angle: number, radius = EARTH_RADIUS): S1Angle {
  * @param angle - input angle in radians
  * @returns - an e5 angle in degrees
  */
-export function e5(angle: S1Angle): number {
-  return toDegrees(angle) * 1e5;
+export function angleE5(angle: S1Angle): number {
+  return angleToDegrees(angle) * 1e5;
 }
 
 /**
@@ -186,8 +186,8 @@ export function e5(angle: S1Angle): number {
  * @param angle - input angle in radians
  * @returns - an e6 angle in degrees
  */
-export function e6(angle: S1Angle): number {
-  return toDegrees(angle) * 1e6;
+export function angleE6(angle: S1Angle): number {
+  return angleToDegrees(angle) * 1e6;
 }
 
 /**
@@ -195,8 +195,8 @@ export function e6(angle: S1Angle): number {
  * @param angle - input angle in radians
  * @returns - an e7 angle in degrees
  */
-export function e7(angle: S1Angle): number {
-  return toDegrees(angle) * 1e7;
+export function angleE7(angle: S1Angle): number {
+  return angleToDegrees(angle) * 1e7;
 }
 
 /**
@@ -204,6 +204,6 @@ export function e7(angle: S1Angle): number {
  * @param angle - input angle in radians
  * @returns - normalized angle in radians
  */
-export function normalize(angle: S1Angle): S1Angle {
+export function angleNormalize(angle: S1Angle): S1Angle {
   return angle % (2 * Math.PI);
 }

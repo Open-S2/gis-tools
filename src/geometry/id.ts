@@ -141,7 +141,7 @@ function initLookupCell(
  * @param face - the face
  * @returns the S2CellID
  */
-export function fromFace(face: Face): S2CellId {
+export function idFromFace(face: Face): S2CellId {
   return (BigInt(face) << POS_BITS) + (1n << 60n);
 }
 
@@ -157,9 +157,9 @@ export function fromFace(face: Face): S2CellId {
  * @param level - the level
  * @returns the S2CellID
  */
-export function fromFacePosLevel(face: Face, pos: bigint, level: number): S2CellId {
+export function idFromFacePosLevel(face: Face, pos: bigint, level: number): S2CellId {
   const cell = (BigInt(face) << POS_BITS) + (pos | 1n);
-  return parentLevel(cell, BigInt(level));
+  return idParentLevel(cell, BigInt(level));
 }
 
 /**
@@ -167,7 +167,7 @@ export function fromFacePosLevel(face: Face, pos: bigint, level: number): S2Cell
  * @param ll - lon-lat vector point in degrees
  * @returns the S2CellID
  */
-export function fromLonLat(ll: LonLat): S2CellId {
+export function idFromLonLat(ll: LonLat): S2CellId {
   const xyz = lonLatToXYZ(ll);
   return idFromS2Point(xyz);
 }
@@ -182,8 +182,8 @@ export function idFromS2Point(xyz: VectorPoint, level?: number): S2CellId {
   // convert to face-i-j
   const [face, i, j] = pointToIJ(xyz);
   // now convert from ij
-  let id = fromIJ(face, i, j);
-  if (level !== undefined) id = parent(id, level);
+  let id = idFromIJ(face, i, j);
+  if (level !== undefined) id = idParent(id, level);
   return id;
 }
 
@@ -196,7 +196,7 @@ export function idFromS2Point(xyz: VectorPoint, level?: number): S2CellId {
  * @param uvToST - function to convert U-V to S-T [Default is UVtoST (quadraticUVtoST)]
  * @returns the S2CellID
  */
-export function fromUV(
+export function idFromUV(
   face: Face,
   u: number,
   v: number,
@@ -204,7 +204,7 @@ export function fromUV(
   uvToST: (u: number) => number = UVtoST,
 ): S2CellId {
   // now convert from st
-  return fromST(face, uvToST(u), uvToST(v), level);
+  return idFromST(face, uvToST(u), uvToST(v), level);
 }
 
 /**
@@ -215,10 +215,10 @@ export function fromUV(
  * @param level - zoom level
  * @returns the S2CellID
  */
-export function fromST(face: Face, s: number, t: number, level?: number): S2CellId {
+export function idFromST(face: Face, s: number, t: number, level?: number): S2CellId {
   // now convert from ij
-  let id = fromIJ(face, STtoIJ(s), STtoIJ(t));
-  if (level !== undefined) id = parent(id, level);
+  let id = idFromIJ(face, STtoIJ(s), STtoIJ(t));
+  if (level !== undefined) id = idParent(id, level);
   return id;
 }
 
@@ -228,7 +228,7 @@ export function fromST(face: Face, s: number, t: number, level?: number): S2Cell
  * @param level - level
  * @returns the S2CellID
  */
-export function fromDistance(distance: bigint, level = MAX_LEVEL): S2CellId {
+export function idFromDistance(distance: bigint, level = MAX_LEVEL): S2CellId {
   level = 2n * (MAX_LEVEL - level);
   return (distance << (level + 1n)) + (1n << level);
 }
@@ -237,9 +237,9 @@ export function fromDistance(distance: bigint, level = MAX_LEVEL): S2CellId {
  * @param id - the S2CellID
  * @returns [face, zoom, i, j]
  */
-export function toFaceIJ(id: S2CellId): [face: Face, zoom: number, i: number, j: number] {
-  const zoom = level(id);
-  const [face, i, j] = toIJ(id, zoom);
+export function idToFaceIJ(id: S2CellId): [face: Face, zoom: number, i: number, j: number] {
+  const zoom = idLevel(id);
+  const [face, i, j] = idToIJ(id, zoom);
   return [face, zoom, i, j];
 }
 
@@ -251,7 +251,7 @@ export function toFaceIJ(id: S2CellId): [face: Face, zoom: number, i: number, j:
  * @param level - zoom level
  * @returns the S2CellID
  */
-export function fromIJ(face: Face, i: number, j: number, level?: number): S2CellId {
+export function idFromIJ(face: Face, i: number, j: number, level?: number): S2CellId {
   if (LOOKUP_POS === undefined) {
     LOOKUP_POS = [];
     for (let i = 0; i < 4; i++) initLookupCell(0, 0, 0, i, 0, i);
@@ -285,7 +285,7 @@ export function fromIJ(face: Face, i: number, j: number, level?: number): S2Cell
 
   const id = n * 2n + 1n;
 
-  if (level !== undefined) return parent(id, level);
+  if (level !== undefined) return idParent(id, level);
   return id;
 }
 
@@ -296,7 +296,7 @@ export function fromIJ(face: Face, i: number, j: number, level?: number): S2Cell
  * @param level - zoom level
  * @returns face-i-j with orientation
  */
-export function toIJ(
+export function idToIJ(
   id: S2CellId,
   level?: number,
 ): [face: Face, i: number, j: number, orientation: number] {
@@ -342,8 +342,8 @@ export function toIJ(
  * @param id - the S2CellID
  * @returns face-s-t coordinate associated with the S2CellID
  */
-export function toST(id: S2CellId): [face: Face, s: number, t: number] {
-  const [face, i, j] = toIJ(id);
+export function idToST(id: S2CellId): [face: Face, s: number, t: number] {
+  const [face, i, j] = idToIJ(id);
   const s = IJtoST(i);
   const t = IJtoST(j);
 
@@ -355,8 +355,8 @@ export function toST(id: S2CellId): [face: Face, s: number, t: number] {
  * @param id - the S2CellID
  * @returns face-u-v coordinate associated with the S2CellID
  */
-export function toUV(id: S2CellId): [face: Face, u: number, v: number] {
-  const [face, s, t] = toST(id);
+export function idToUV(id: S2CellId): [face: Face, u: number, v: number] {
+  const [face, s, t] = idToST(id);
   const u = STtoUV(s);
   const v = STtoUV(t);
 
@@ -369,8 +369,8 @@ export function toUV(id: S2CellId): [face: Face, u: number, v: number] {
  * @param m - M-Value
  * @returns lon-lat coordinates
  */
-export function toLonLat<M extends MValue = Properties>(id: S2CellId, m?: M): LonLat<M> {
-  const xyz = toS2Point(id, m);
+export function idToLonLat<M extends MValue = Properties>(id: S2CellId, m?: M): LonLat<M> {
+  const xyz = idToS2Point(id, m);
 
   return xyzToLonLat<M>(xyz);
 }
@@ -381,9 +381,9 @@ export function toLonLat<M extends MValue = Properties>(id: S2CellId, m?: M): Lo
  * @param m - M-Value
  * @returns a 3D vector
  */
-export function toS2Point<M extends MValue = Properties>(id: S2CellId, m?: M): VectorPoint<M> {
+export function idToS2Point<M extends MValue = Properties>(id: S2CellId, m?: M): VectorPoint<M> {
   // Decompose the S2CellID into its constituent parts: face, u, and v.
-  const [face, u, v] = toUV(id);
+  const [face, u, v] = idToUV(id);
   // Use the decomposed parts to construct an XYZ Point.
   return pointFromUV(face, u, v, m);
 }
@@ -393,7 +393,7 @@ export function toS2Point<M extends MValue = Properties>(id: S2CellId, m?: M): V
  * @param id - the S2CellID
  * @returns face of the cell
  */
-export function face(id: S2CellId): Face {
+export function idFace(id: S2CellId): Face {
   const face = Number(id >> POS_BITS);
   return face as Face;
 }
@@ -403,7 +403,7 @@ export function face(id: S2CellId): Face {
  * @param id - the S2CellID
  * @returns true if the cell is a face (lowest zoom level)
  */
-export function isFace(id: S2CellId): boolean {
+export function idIsFace(id: S2CellId): boolean {
   return (id & ((1n << 60n) - 1n)) === 0n;
 }
 
@@ -412,7 +412,7 @@ export function isFace(id: S2CellId): boolean {
  * @param id - the S2CellID
  * @returns quad tree position
  */
-export function pos(id: S2CellId): S2CellId {
+export function idPos(id: S2CellId): S2CellId {
   return id & 2305843009213693951n;
 }
 
@@ -421,7 +421,7 @@ export function pos(id: S2CellId): S2CellId {
  * @param id - the S2CellID
  * @returns zoom level
  */
-export function level(id: S2CellId): number {
+export function idLevel(id: S2CellId): number {
   let count = 0;
 
   let i = 0n;
@@ -439,8 +439,8 @@ export function level(id: S2CellId): number {
  * @param lev - optional zoom level
  * @returns distance
  */
-export function distance(id: S2CellId, lev?: number): bigint {
-  if (lev === undefined) lev = level(id);
+export function idDistance(id: S2CellId, lev?: number): bigint {
+  if (lev === undefined) lev = idLevel(id);
   return id >> BigInt(2 * (30 - lev) + 1);
 }
 
@@ -450,7 +450,7 @@ export function distance(id: S2CellId, lev?: number): bigint {
  * @param pos - quad position 0, 1, 2, or 3
  * @returns the child tile at that position
  */
-export function child(id: S2CellId, pos: 0n | 1n | 2n | 3n): S2CellId {
+export function idChild(id: S2CellId, pos: 0n | 1n | 2n | 3n): S2CellId {
   const newLSB = (id & (~id + 1n)) >> 2n;
   return id + (2n * pos - FACE_BITS) * newLSB;
 }
@@ -461,12 +461,15 @@ export function child(id: S2CellId, pos: 0n | 1n | 2n | 3n): S2CellId {
  * @param orientation - orientation of the child (0 or 1)
  * @returns the child tile at that position
  */
-export function children(id: S2CellId, orientation = 0): [S2CellId, S2CellId, S2CellId, S2CellId] {
+export function idChildren(
+  id: S2CellId,
+  orientation = 0,
+): [S2CellId, S2CellId, S2CellId, S2CellId] {
   const childs: [S2CellId, S2CellId, S2CellId, S2CellId] = [
-    child(id, 0n),
-    child(id, 3n),
-    child(id, 2n),
-    child(id, 1n),
+    idChild(id, 0n),
+    idChild(id, 3n),
+    idChild(id, 2n),
+    idChild(id, 1n),
   ];
   if (orientation === 0) {
     const tmp = childs[1];
@@ -485,7 +488,7 @@ export function children(id: S2CellId, orientation = 0): [S2CellId, S2CellId, S2
  * @param j - j coordinate
  * @returns the child tile at that position
  */
-export function childrenIJ(
+export function idChildrenIJ(
   face: Face,
   level: number,
   i: number,
@@ -495,10 +498,10 @@ export function childrenIJ(
   j = j << 1;
 
   return [
-    fromIJ(face, i, j, level + 1),
-    fromIJ(face, i + 1, j, level + 1),
-    fromIJ(face, i, j + 1, level + 1),
-    fromIJ(face, i + 1, j + 1, level + 1),
+    idFromIJ(face, i, j, level + 1),
+    idFromIJ(face, i + 1, j, level + 1),
+    idFromIJ(face, i, j + 1, level + 1),
+    idFromIJ(face, i + 1, j + 1, level + 1),
   ];
 }
 
@@ -508,7 +511,7 @@ export function childrenIJ(
  * @param level - zoom level
  * @returns the child tile at that position
  */
-export function childPosition(id: S2CellId, level: number): number {
+export function idChildPosition(id: S2CellId, level: number): number {
   return Number((id >> (2n * (MAX_LEVEL - BigInt(level)) + 1n)) & FACE_BITS);
 }
 
@@ -518,7 +521,7 @@ export function childPosition(id: S2CellId, level: number): number {
  * @param level - zoom level
  * @returns the parent of the input S2CellID
  */
-export function parent(id: S2CellId, level?: number): S2CellId {
+export function idParent(id: S2CellId, level?: number): S2CellId {
   const newLSB =
     level !== undefined ? 1n << (2n * (MAX_LEVEL - BigInt(level))) : (id & (~id + 1n)) << 2n;
   return (id & (~newLSB + 1n)) | newLSB;
@@ -530,7 +533,7 @@ export function parent(id: S2CellId, level?: number): S2CellId {
  * @param level - zoom level
  * @returns - the parent of the input S2CellID
  */
-export function parentLevel(id: S2CellId, level: bigint): S2CellId {
+export function idParentLevel(id: S2CellId, level: bigint): S2CellId {
   const newLsb = 1n << (2n * (MAX_LEVEL - level));
   return (id & (~newLsb + 1n)) | newLsb;
 }
@@ -540,7 +543,7 @@ export function parentLevel(id: S2CellId, level: bigint): S2CellId {
  * @param id - the S2CellID
  * @returns [min, max]
  */
-export function range(id: S2CellId): [min: S2CellId, max: S2CellId] {
+export function idRange(id: S2CellId): [min: S2CellId, max: S2CellId] {
   const lsb = id & (~id + 1n);
 
   return [id - (lsb - 1n), id + (lsb - 1n)];
@@ -552,8 +555,8 @@ export function range(id: S2CellId): [min: S2CellId, max: S2CellId] {
  * @param b - the second S2CellID
  * @returns true if a contains b
  */
-export function contains(a: S2CellId, b: S2CellId): boolean {
-  const [min, max] = range(a);
+export function idContains(a: S2CellId, b: S2CellId): boolean {
+  const [min, max] = idRange(a);
   return b >= min && b <= max;
 }
 
@@ -564,7 +567,7 @@ export function contains(a: S2CellId, b: S2CellId): boolean {
  */
 export function idContainsS2Point(a: S2CellId, p: VectorPoint): boolean {
   const b = idFromS2Point(p);
-  return contains(a, b);
+  return idContains(a, b);
 }
 
 /**
@@ -573,9 +576,9 @@ export function idContainsS2Point(a: S2CellId, p: VectorPoint): boolean {
  * @param b - the second S2CellID
  * @returns true if a intersects b
  */
-export function intersects(a: S2CellId, b: S2CellId): boolean {
-  const [aMin, aMax] = range(a);
-  const [bMin, bMax] = range(b);
+export function idIntersects(a: S2CellId, b: S2CellId): boolean {
+  const [aMin, aMax] = idRange(a);
+  const [bMin, bMax] = idRange(b);
   return bMin <= aMax && bMax >= aMin;
 }
 
@@ -584,7 +587,7 @@ export function intersects(a: S2CellId, b: S2CellId): boolean {
  * @param id - input S2CellID
  * @returns the next S2CellID in the hilbert space
  */
-export function next(id: S2CellId): S2CellId {
+export function idNext(id: S2CellId): S2CellId {
   const n = id + ((id & (~id + 1n)) << 1n);
   if (n < K_WRAP_OFFSET) return n;
   return n - K_WRAP_OFFSET;
@@ -595,7 +598,7 @@ export function next(id: S2CellId): S2CellId {
  * @param id - input S2CellID
  * @returns the previous S2CellID in the hilbert space
  */
-export function prev(id: S2CellId): S2CellId {
+export function idPrev(id: S2CellId): S2CellId {
   const p = id - ((id & (~id + 1n)) << 1n);
   if (p < K_WRAP_OFFSET) return p;
   return p + K_WRAP_OFFSET;
@@ -606,7 +609,7 @@ export function prev(id: S2CellId): S2CellId {
  * @param id - input S2CellID
  * @returns true if the S2CellID is a leaf
  */
-export function isLeaf(id: S2CellId): boolean {
+export function idIsLeaf(id: S2CellId): boolean {
   return (id & 1n) === 1n;
 }
 
@@ -615,8 +618,8 @@ export function isLeaf(id: S2CellId): boolean {
  * @param id - the S2CellID
  * @returns [face, s, t]
  */
-export function centerST(id: S2CellId): [face: Face, s: number, t: number] {
-  const [face, i, j] = toIJ(id);
+export function idCenterST(id: S2CellId): [face: Face, s: number, t: number] {
+  const [face, i, j] = idToIJ(id);
   const delta = (id & 1n) !== 0n ? 1 : ((BigInt(i) ^ (id >> 2n)) & 1n) !== 0n ? 2 : 0;
   // Note that (2 * {i,j} + delta) will never overflow a 32-bit integer.
   const si = 2 * i + delta;
@@ -631,11 +634,11 @@ export function centerST(id: S2CellId): [face: Face, s: number, t: number] {
  * @param lev - zoom level
  * @returns [sMin, tMin, sMax, tMax]
  */
-export function boundsST(id: S2CellId, lev?: number): BBox {
-  if (lev === undefined) lev = level(id);
+export function idBoundsST(id: S2CellId, lev?: number): BBox {
+  if (lev === undefined) lev = idLevel(id);
 
-  const [, s, t] = centerST(id);
-  const halfSize = sizeST(lev) * 0.5;
+  const [, s, t] = idCenterST(id);
+  const halfSize = idSizeST(lev) * 0.5;
 
   return [s - halfSize, t - halfSize, s + halfSize, t + halfSize];
 }
@@ -645,8 +648,8 @@ export function boundsST(id: S2CellId, lev?: number): BBox {
  * @param level - zoom level
  * @returns sMax or tMax
  */
-export function sizeST(level: number): number {
-  return IJtoST(sizeIJ(level));
+export function idSizeST(level: number): number {
+  return IJtoST(idSizeIJ(level));
 }
 
 /**
@@ -654,7 +657,7 @@ export function sizeST(level: number): number {
  * @param level - zoom level
  * @returns iMax or jMax
  */
-export function sizeIJ(level: number): number {
+export function idSizeIJ(level: number): number {
   return 1 << (30 - level);
 }
 
@@ -663,16 +666,16 @@ export function sizeIJ(level: number): number {
  * @param id - the S2CellID
  * @returns [up, right, down, left]
  */
-export function neighbors(id: S2CellId): [S2CellId, S2CellId, S2CellId, S2CellId] {
-  const lev = level(id);
-  const size = sizeIJ(lev);
-  const [face, i, j] = toIJ(id);
+export function idNeighbors(id: S2CellId): [S2CellId, S2CellId, S2CellId, S2CellId] {
+  const lev = idLevel(id);
+  const size = idSizeIJ(lev);
+  const [face, i, j] = idToIJ(id);
 
   return [
-    parent(fromIJSame(face, i, j - size, j - size >= 0), lev),
-    parent(fromIJSame(face, i + size, j, i + size < K_MAX_SIZE), lev),
-    parent(fromIJSame(face, i, j + size, j + size < K_MAX_SIZE), lev),
-    parent(fromIJSame(face, i - size, j, i - size >= 0), lev),
+    idParent(idFromIJSame(face, i, j - size, j - size >= 0), lev),
+    idParent(idFromIJSame(face, i + size, j, i + size < K_MAX_SIZE), lev),
+    idParent(idFromIJSame(face, i, j + size, j + size < K_MAX_SIZE), lev),
+    idParent(idFromIJSame(face, i - size, j, i - size >= 0), lev),
   ];
 }
 
@@ -684,19 +687,19 @@ export function neighbors(id: S2CellId): [S2CellId, S2CellId, S2CellId, S2CellId
  * @param level - the zoom level (desired)
  * @returns neighbors: [down, right, up, left]
  */
-export function neighborsIJ(
+export function idNeighborsIJ(
   face: Face,
   i: number,
   j: number,
   level: number,
 ): [S2CellId, S2CellId, S2CellId, S2CellId] {
-  const size = sizeIJ(level);
+  const size = idSizeIJ(level);
 
   return [
-    parent(fromIJSame(face, i, j - size, j - size >= 0), level),
-    parent(fromIJSame(face, i + size, j, i + size < K_MAX_SIZE), level),
-    parent(fromIJSame(face, i, j + size, j + size < K_MAX_SIZE), level),
-    parent(fromIJSame(face, i - size, j, i - size >= 0), level),
+    idParent(idFromIJSame(face, i, j - size, j - size >= 0), level),
+    idParent(idFromIJSame(face, i + size, j, i + size < K_MAX_SIZE), level),
+    idParent(idFromIJSame(face, i, j + size, j + size < K_MAX_SIZE), level),
+    idParent(idFromIJSame(face, i - size, j, i - size >= 0), level),
   ];
 }
 
@@ -708,9 +711,9 @@ export function neighborsIJ(
  * @param sameFace - if the face should be the same
  * @returns the S2CellID
  */
-export function fromIJSame(face: Face, i: number, j: number, sameFace: boolean): S2CellId {
-  if (sameFace) return fromIJ(face, i, j);
-  else return fromIJWrap(face, i, j);
+export function idFromIJSame(face: Face, i: number, j: number, sameFace: boolean): S2CellId {
+  if (sameFace) return idFromIJ(face, i, j);
+  else return idFromIJWrap(face, i, j);
 }
 
 /**
@@ -720,7 +723,7 @@ export function fromIJSame(face: Face, i: number, j: number, sameFace: boolean):
  * @param j - the J coordinate
  * @returns the S2CellID
  */
-export function fromIJWrap(face: Face, i: number, j: number): S2CellId {
+export function idFromIJWrap(face: Face, i: number, j: number): S2CellId {
   const { max, min } = Math;
 
   // Convert i and j to the coordinates of a leaf cell just beyond the
@@ -750,7 +753,7 @@ export function fromIJWrap(face: Face, i: number, j: number): S2CellId {
   // Find the leaf cell coordinates on the adjacent face, and convert
   // them to a cell id at the appropriate level.
   const [nFace, nU, nV] = XYZtoFaceUV(faceUVtoXYZ(face, u, v));
-  return fromIJ(nFace, STtoIJ(0.5 * (nU + 1)), STtoIJ(0.5 * (nV + 1)));
+  return idFromIJ(nFace, STtoIJ(0.5 * (nU + 1)), STtoIJ(0.5 * (nV + 1)));
 }
 
 /**
@@ -759,16 +762,16 @@ export function fromIJWrap(face: Face, i: number, j: number): S2CellId {
  * @param lev - the zoom level (if not provided, defaults to current level of id)
  * @returns neighbors
  */
-export function vertexNeighbors(id: S2CellId, lev?: number): S2CellId[] {
-  if (lev === undefined) lev = level(id);
+export function idVertexNeighbors(id: S2CellId, lev?: number): S2CellId[] {
+  if (lev === undefined) lev = idLevel(id);
   const res: S2CellId[] = [];
 
-  const [face, i, j] = toIJ(id);
+  const [face, i, j] = idToIJ(id);
 
   // Determine the i- and j-offsets to the closest neighboring cell in each
   // direction.  This involves looking at the next bit of "i" and "j" to
   // determine which quadrant of this->parent(level) this cell lies in.
-  const halfsize = sizeIJ(lev + 1);
+  const halfsize = idSizeIJ(lev + 1);
   const size = halfsize << 1;
   let isame: boolean, jsame: boolean, ioffset: number, joffset: number;
 
@@ -787,11 +790,11 @@ export function vertexNeighbors(id: S2CellId, lev?: number): S2CellId[] {
     jsame = j - size >= 0;
   }
 
-  res.push(parent(id, lev));
-  res.push(parent(fromIJSame(face, i + ioffset, j, isame), lev));
-  res.push(parent(fromIJSame(face, i, j + joffset, jsame), lev));
+  res.push(idParent(id, lev));
+  res.push(idParent(idFromIJSame(face, i + ioffset, j, isame), lev));
+  res.push(idParent(idFromIJSame(face, i, j + joffset, jsame), lev));
   if (isame || jsame)
-    res.push(parent(fromIJSame(face, i + ioffset, j + joffset, isame && jsame), lev));
+    res.push(idParent(idFromIJSame(face, i + ioffset, j + joffset, isame && jsame), lev));
 
   return res;
 }
@@ -806,8 +809,8 @@ export type Vertices = [VectorPoint, VectorPoint, VectorPoint, VectorPoint];
  * @param id - the S2CellID
  * @returns the k-th vertex of the cell
  */
-export function getVertices(id: S2CellId): Vertices {
-  return getVerticesRaw(id).map(pointNormalize) as Vertices;
+export function idGetVertices(id: S2CellId): Vertices {
+  return idGetVerticesRaw(id).map(pointNormalize) as Vertices;
 }
 
 /**
@@ -817,9 +820,9 @@ export function getVertices(id: S2CellId): Vertices {
  * @param id - the S2CellID
  * @returns the k-th vertex of the cell
  */
-export function getVerticesRaw(id: S2CellId): Vertices {
-  const f = face(id);
-  const [uLow, uHigh, vLow, vHigh] = getBoundUV(id);
+export function idGetVerticesRaw(id: S2CellId): Vertices {
+  const f = idFace(id);
+  const [uLow, uHigh, vLow, vHigh] = idGetBoundUV(id);
   return [
     faceUVtoXYZ(f, uLow, vLow),
     faceUVtoXYZ(f, uHigh, vLow),
@@ -835,8 +838,8 @@ export function getVerticesRaw(id: S2CellId): Vertices {
  * @param id - the S2CellID
  * @returns the 4 edges of the cell normalized
  */
-export function getEdges(id: S2CellId): Vertices {
-  return getEdgesRaw(id).map(pointNormalize) as Vertices;
+export function idGetEdges(id: S2CellId): Vertices {
+  return idGetEdgesRaw(id).map(pointNormalize) as Vertices;
 }
 
 /**
@@ -846,9 +849,9 @@ export function getEdges(id: S2CellId): Vertices {
  * @param id - the S2CellID
  * @returns the 4 edges of the cell
  */
-export function getEdgesRaw(id: S2CellId): Vertices {
-  const f = face(id);
-  const [uLow, uHigh, vLow, vHigh] = getBoundUV(id);
+export function idGetEdgesRaw(id: S2CellId): Vertices {
+  const f = idFace(id);
+  const [uLow, uHigh, vLow, vHigh] = idGetBoundUV(id);
   return [
     getVNorm(f, vLow),
     getUNorm(f, uHigh),
@@ -862,9 +865,9 @@ export function getEdgesRaw(id: S2CellId): Vertices {
  * @param id - the S2CellID
  * @returns the bounds [uLow, uHigh, vLow, vHigh]
  */
-export function getBoundUV(id: S2CellId): BBox {
-  const [, i, j] = toIJ(id);
-  const cellSize = getSizeIJ(id);
+export function idGetBoundUV(id: S2CellId): BBox {
+  const [, i, j] = idToIJ(id);
+  const cellSize = idGetSizeIJ(id);
   const iLow = i & -cellSize;
   const jLow = j & -cellSize;
   const ijBounds: BBox = [iLow, iLow + cellSize, jLow, jLow + cellSize];
@@ -876,8 +879,8 @@ export function getBoundUV(id: S2CellId): BBox {
  * @param id - the S2CellID
  * @returns the edge length
  */
-export function getSizeIJ(id: S2CellId): number {
-  return 1 << (K_MAX_LEVEL - level(id));
+export function idGetSizeIJ(id: S2CellId): number {
+  return 1 << (K_MAX_LEVEL - idLevel(id));
 }
 
 /**

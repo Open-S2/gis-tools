@@ -1,16 +1,23 @@
 import { K_MAX_EDGE } from './metrics';
 import {
   K_MAX_LENGTH_2,
-  chordAngleSin2,
-  fromAngle,
-  fromLength2,
-  fromS2Points,
-  negativeAngle,
-  rightAngle,
-  straightAngle,
-  toAngle,
+  chordAngFromAngle,
+  chordAngFromLength2,
+  chordAngFromS2Points,
+  chordAngNegativeAngle,
+  chordAngRightAngle,
+  chordAngSin2,
+  chordAngStraightAngle,
+  chordAngToAngle,
 } from '../s1/chordAngle';
-import { children, fromFace, getEdgesRaw, getVertices, idContainsS2Point, level } from '../id';
+import {
+  idChildren,
+  idContainsS2Point,
+  idFromFace,
+  idGetEdgesRaw,
+  idGetVertices,
+  idLevel,
+} from '../id';
 import { pointCross, pointDot, pointInvert, pointNorm2 } from '../s2/point';
 
 import type { LengthMetric } from './metrics';
@@ -67,7 +74,7 @@ export interface S2Cap<T> {
  * @returns - the empty cap
  */
 export function capEmpty<T>(data: T): S2Cap<T> {
-  return { center: { x: 1, y: 0, z: 0 }, radius: negativeAngle(), data };
+  return { center: { x: 1, y: 0, z: 0 }, radius: chordAngNegativeAngle(), data };
 }
 
 /**
@@ -76,7 +83,7 @@ export function capEmpty<T>(data: T): S2Cap<T> {
  * @returns - the full cap
  */
 export function capFull<T>(data: T): S2Cap<T> {
-  return { center: { x: 1, y: 0, z: 0 }, radius: straightAngle(), data };
+  return { center: { x: 1, y: 0, z: 0 }, radius: chordAngStraightAngle(), data };
 }
 
 /**
@@ -126,7 +133,7 @@ export function capHeight<T>(cap: S2Cap<T>): number {
  * @returns - the cap
  */
 export function capFromS1Angle<T>(center: VectorPoint, radius: S1Angle, data: T): S2Cap<T> {
-  return { center, radius: fromAngle(radius), data };
+  return { center, radius: chordAngFromAngle(radius), data };
 }
 
 /**
@@ -165,7 +172,7 @@ export function capFromS2Point<T>(center: VectorPoint, data: T): S2Cap<T> {
  * @returns - the radius as an S1Angle in radians
  */
 export function capRadius<T>(cap: S2Cap<T>): S1Angle {
-  return toAngle(cap.radius);
+  return chordAngToAngle(cap.radius);
 }
 
 /**
@@ -176,7 +183,7 @@ export function capRadius<T>(cap: S2Cap<T>): S1Angle {
  * @returns - true if the cap contains the point
  */
 export function capContainsS2Point<T>(cap: S2Cap<T>, p: VectorPoint): boolean {
-  return fromS2Points(cap.center, p) <= cap.radius;
+  return chordAngFromS2Points(cap.center, p) <= cap.radius;
 }
 
 /**
@@ -195,7 +202,7 @@ export function capComplement<T>(cap: S2Cap<T>): S2Cap<T> {
   if (capIsEmpty(cap)) return capFull(cap.data);
   return {
     center: pointInvert(cap.center),
-    radius: fromLength2(K_MAX_LENGTH_2 - cap.radius),
+    radius: chordAngFromLength2(K_MAX_LENGTH_2 - cap.radius),
     data: cap.data,
   };
 }
@@ -209,7 +216,7 @@ export function capComplement<T>(cap: S2Cap<T>): S2Cap<T> {
 export function capContainsS2CellVertexCount<T>(cap: S2Cap<T>, cell: S2CellId): number {
   // If the cap does not contain all cell vertices, return false.
   let count = 0;
-  for (const vertex of getVertices(cell)) {
+  for (const vertex of idGetVertices(cell)) {
     if (capContainsS2Point(cap, vertex)) count++;
   }
 
@@ -227,7 +234,7 @@ export function capContainsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId): boolean {
   // We check the vertices before taking the complement() because we can't
   // accurately represent the complement of a very small cap (a height
   // of 2-epsilon is rounded off to 2).
-  const vertices = getVertices(cell);
+  const vertices = idGetVertices(cell);
   for (const vertex of vertices) {
     if (!capContainsS2Point(cap, vertex)) return false;
   }
@@ -247,7 +254,7 @@ export function capContainsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId): boolean {
  */
 export function capIntersectsS2CellFast<T>(cap: S2Cap<T>, cell: S2CellId): boolean {
   // If the cap contains any cell vertex, return true.
-  const vertices = getVertices(cell);
+  const vertices = idGetVertices(cell);
   for (const vertex of vertices) {
     if (capContainsS2Point(cap, vertex)) return true;
   }
@@ -269,7 +276,7 @@ export function intersectsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId, vertices: Ver
   // If the cap is a hemisphere or larger, the cell and the complement of the
   // cap are both convex.  Therefore since no vertex of the cell is contained,
   // no other interior point of the cell is contained either.
-  if (cap.radius >= rightAngle()) return false;
+  if (cap.radius >= chordAngRightAngle()) return false;
   // We need to check for empty caps due to the center check just below.
   if (capIsEmpty(cap)) return false;
   // Optimization: return true if the cell contains the cap center.  (This
@@ -279,8 +286,8 @@ export function intersectsS2Cell<T>(cap: S2Cap<T>, cell: S2CellId, vertices: Ver
   // At this point we know that the cell does not contain the cap center,
   // and the cap does not contain any cell vertex.  The only way that they
   // can intersect is if the cap intersects the interior of some edge.
-  const sin2Angle = chordAngleSin2(cap.radius);
-  const edges = getEdgesRaw(cell);
+  const sin2Angle = chordAngSin2(cap.radius);
+  const edges = idGetEdgesRaw(cell);
   for (let k = 0; k < 4; k += 1) {
     const edge = edges[k];
     const dot = pointDot(cap.center, edge);
@@ -321,24 +328,24 @@ export function capGetIntersectingCells<T>(cap: S2Cap<T>): S2CellId[] {
   // - - if not reached max depth, store children in cache for another pass
 
   if (capIsEmpty(cap)) return res;
-  const queue: S2CellId[] = ([0, 1, 2, 3, 4, 5] as Face[]).map(fromFace);
+  const queue: S2CellId[] = ([0, 1, 2, 3, 4, 5] as Face[]).map(idFromFace);
   if (capIsFull(cap)) return queue;
-  const maxDepth = kMaxEdge.getClosestLevel(toAngle(cap.radius));
+  const maxDepth = kMaxEdge.getClosestLevel(chordAngToAngle(cap.radius));
   while (true) {
     const cell = queue.pop();
     if (cell === undefined) break;
     const vertexCount = capContainsS2CellVertexCount(cap, cell);
-    const maxLevel = level(cell) >= maxDepth;
+    const maxLevel = idLevel(cell) >= maxDepth;
     if (vertexCount === 4 || (vertexCount > 0 && maxLevel)) {
       res.push(cell);
     } else if (vertexCount === 0 && !maxLevel) {
       // if cap center is in the cell, then we check all children because the cell is larger than the cap
       if (idContainsS2Point(cell, cap.center)) {
-        queue.push(...children(cell));
+        queue.push(...idChildren(cell));
       } else continue;
     } else {
       if (maxLevel) continue;
-      queue.push(...children(cell));
+      queue.push(...idChildren(cell));
     }
   }
 

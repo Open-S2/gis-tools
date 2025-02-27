@@ -12,7 +12,7 @@ import {
   lonLatToXYZGL,
   xyzToLonLat,
 } from './coords';
-import { idFromS2Point, toUV as idToUV } from '../id';
+import { idFromS2Point, idToUV } from '../id';
 
 import type { S1Angle } from '../s1/angle';
 import type { Face, MValue, Properties, S2CellId, VectorPoint } from '../';
