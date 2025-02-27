@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
 import cities from 'all-the-cities';
-import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../src/geometry/s2/point';
 import { fromS2Points, toMeters } from '../../src/geometry/s1/chordAngle';
 
 test('point index fast', () => {

@@ -7,7 +7,7 @@ import tmp from 'tmp';
 tmp.setGracefulCleanup();
 
 const dir = tmp.dirSync({ prefix: 'store_benchmarks' });
-const TEST_SIZE = 100_000;
+const TEST_SIZE = 1_000_000;
 
 /// ----------------------------------------------
 
@@ -99,10 +99,10 @@ fileStore.close();
 const db = new Database(`${dir.name}/sqlite.db`);
 db.exec(`
   CREATE TABLE IF NOT EXISTS data (
-    id BIGINT NOT NULL PRIMARY KEY,
+    id BIGINT NOT NULL,
     value BLOB NOT NULL
   );
-  CREATE INDEX IF NOT EXISTS idx_hi_lo ON data (id);
+  CREATE INDEX IF NOT EXISTS idx ON data (id);
 `);
 
 // Adding data as BLOB to SQLite

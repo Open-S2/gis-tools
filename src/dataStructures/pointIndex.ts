@@ -1,8 +1,8 @@
 import { Vector } from '../dataStore';
 import { fromS2Points } from '../geometry/s1/chordAngle';
-import { fromST } from '../geometry/s2/point';
-import { compareIDs, convert, fromS2Point, range } from '../geometry';
-import { fromS1ChordAngle, getIntersectingCells } from '../geometry/s2/cap';
+import { pointFromST } from '../geometry/s2/point';
+import { capFromS1ChordAngle, capGetIntersectingCells } from '../geometry/s2/cap';
+import { compareIDs, convert, idFromS2Point, range } from '../geometry';
 
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
 import type {
@@ -94,7 +94,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * @param point - the point to be indexed
    */
   insert(point: VectorPointM<M>): void {
-    this.insertID(fromS2Point(point), point);
+    this.insertID(idFromS2Point(point), point);
   }
 
   /**
@@ -163,7 +163,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(fromST(face, s, t, data) as VectorPointM<M>);
+    this.insert(pointFromST(face, s, t, data) as VectorPointM<M>);
   }
 
   /**
@@ -256,8 +256,8 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
     await this.sort();
     const res: PointShape<M>[] = [];
     if (radius < 0) return res;
-    const cap = fromS1ChordAngle<undefined>(target, radius, undefined);
-    for (const cell of getIntersectingCells(cap)) {
+    const cap = capFromS1ChordAngle<undefined>(target, radius, undefined);
+    for (const cell of capGetIntersectingCells(cap)) {
       // iterate each covering s2cell min-max range on store. check distance from found
       // store Cells to target and if within radius add to results
       const [min, max] = range(cell);

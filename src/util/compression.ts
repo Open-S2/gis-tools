@@ -60,7 +60,7 @@ export interface ZipItem {
  * @param raw - the raw data to read
  * @yields - {@link ZipItem}
  */
-export function* iterItems(raw: Uint8Array): Generator<ZipItem, void, void> {
+export function* iterZipFolder(raw: Uint8Array): Generator<ZipItem, void, void> {
   const d = new TextDecoder();
   let at = findEndCentralDirectory(raw);
   if (at === -1) {

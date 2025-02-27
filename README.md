@@ -182,6 +182,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [geotiff]                | ![GTiff Badge][gtiffBadge]    | Geotiff image reader with projection support.                    |
 | [gpx]                    | ![GPX Badge][gpxBadge]        | GPX (xml based) data reader.                                     |
 | [grib2]                  | ![grib2 Badge][grib2Badge]    | GRIB 2 data reader.                                              |
+| [gtfs]                   | ![gtfs Badge][gtfsBadge]      | General Transit Feed Specification. Both Static and Realtime.    |
 | [json]                   | ![JSON Badge][jsonBadge]      | JSON data reader with line delimiter support.                    |
 | [las]                    | ![LAS Badge][lasBadge]        | LAS data reader.                                                 |
 | [laz]                    | ![LAZ Badge][lazBadge]        | LASzipped data reader.                                           |
@@ -211,6 +212,8 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 [gpxBadge]: /assets/badges/gpx-gzip-cover.svg
 [grib2]: /docs-ts/readers/grib2.md
 [grib2Badge]: /assets/badges/grib2-gzip-cover.svg
+[gtfs]: /docs-ts/readers/gtfs.md
+[gtfsBadge]: /assets/badges/gtfs-gzip-cover.svg
 [json]: /docs-ts/readers/json.md
 [jsonBadge]: /assets/badges/json-gzip-cover.svg
 [las]: /docs-ts/readers/las.md

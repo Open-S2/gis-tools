@@ -1,10 +1,10 @@
-import { compressStream, decompressStream, iterItems } from '../../src/util/compression';
+import { compressStream, decompressStream, iterZipFolder } from '../../src/util/compression';
 import { expect, test } from 'bun:test';
 
 test('iter', async () => {
   const zipFile = new Uint8Array(await Bun.file(`${__dirname}/fixtures/utf.zip`).arrayBuffer());
 
-  const items = [...iterItems(zipFile)];
+  const items = [...iterZipFolder(zipFile)];
   expect(items.map((i) => i.filename)).toEqual([
     'utf.cpg',
     'utf.dbf',
@@ -22,7 +22,7 @@ test('decompressStream', async () => {
     await Bun.file(`${__dirname}/fixtures/testfile.zip`).arrayBuffer(),
   );
 
-  const items = [...iterItems(zipFile)];
+  const items = [...iterZipFolder(zipFile)];
   const file = await items[0].read();
   expect(new TextDecoder().decode(file)).toEqual('Hello!\n');
 });

@@ -1,6 +1,6 @@
 import { Uint64Cell } from '../src/wasm/uint64';
-import { fromLonLat } from '../src/geometry/s2/point';
-import { fromS2Point } from '../src/geometry';
+import { idFromS2Point } from '../src/geometry';
+import { pointFromLonLat } from '../src/geometry/s2/point';
 // // import { fromS2Point } from '../src/geometry/idBig';
 
 const SIZE = 10_000_000;
@@ -25,8 +25,8 @@ const start = Bun.nanoseconds();
 for (let i = 0; i < SIZE; i++) {
   const lon = getRandomInt(-180, 180);
   const lat = getRandomInt(-90, 90);
-  const point = fromLonLat({ x: lon, y: lat });
-  const _cell = fromS2Point(point);
+  const point = pointFromLonLat({ x: lon, y: lat });
+  const _cell = idFromS2Point(point);
 }
 const end = Bun.nanoseconds();
 const seconds = (end - start) / 1_000_000_000;

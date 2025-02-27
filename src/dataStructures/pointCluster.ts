@@ -1,6 +1,13 @@
 import { fromS2Points } from '../geometry/s1/chordAngle';
 import { PointIndex, PointShape, Tile } from '..';
-import { addMut, divMutScalar, fromST, mulScalar, normalize, toST } from '../geometry/s2/point';
+import {
+  pointAddMut as addMut,
+  pointDivMutScalar as divMutScalar,
+  pointFromST as fromST,
+  pointMulScalar as mulScalar,
+  pointNormalize as normalize,
+  pointToST as toST,
+} from '../geometry/s2/point';
 import { convert, fromFacePosLevel, getVertices, level, range } from '../geometry';
 
 import type { FeatureIterator } from '..';

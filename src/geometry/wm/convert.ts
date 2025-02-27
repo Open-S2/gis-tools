@@ -1,7 +1,7 @@
 import { clipLine } from '../tools/clip';
 import { buildSqDists, radToDeg } from '../';
 import { extendBBox, fromPoint, mergeBBoxes } from '../bbox';
-import { fromLonLat, toST } from '../s2/point';
+import { pointFromLonLat as fromLonLat, pointToST as toST } from '../s2/point';
 
 import type {
   BBOX,

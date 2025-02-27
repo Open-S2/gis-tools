@@ -20,6 +20,14 @@ import 'gis-tools-ts/polyfills';
 
 If you'd like to include only a subset of the polyfills, you can import them individually.
 
+### Locally
+
+If you are running the code locally like Bun/Deno/NodeJS/etc., you may need to use the "local" polyfill:
+
+```ts
+import 'gis-tools-ts/polyfills/local';
+```
+
 ### Dataview
 
 ![Dataview File Badge][dataviewFileBadge] ![Dataview Gzip Badge][dataviewGzipBadge] ![Dataview Brotli Badge][dataviewBrotliBadge]

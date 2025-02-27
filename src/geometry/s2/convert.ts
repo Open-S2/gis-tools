@@ -1,4 +1,4 @@
-import { fromST, toLonLat } from './point';
+import { pointFromST as fromST, pointToLonLat as toLonLat } from './point';
 
 import type {
   Face,

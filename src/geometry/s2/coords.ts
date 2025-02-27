@@ -350,7 +350,7 @@ export function bboxST(s: number, t: number, zoom: number): BBox {
  * @param level - zoom level
  * @returns - Face-i-j coordinates
  */
-export function neighborsIJ(
+export function getNeighborsIJ(
   face: Face,
   i: number,
   j: number,

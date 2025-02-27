@@ -51,9 +51,10 @@ import type {
  * tile.transform();
  * ```
  *
- * If you have some kind reader you can use the `addReader` method
+ * If you have some kind reader you can use the `addReader` method to build the tiile
  * ```ts
  * import { Tile, JSONReader } from 'gis-tools-ts';
+ * import { FileReader } from 'gis-tools-ts/file';
  * // create a tile
  * const tile = new Tile(id);
  * // add a reader
@@ -236,6 +237,7 @@ export interface TileStoreOptions {
  *
  * ## Usage
  * ```ts
+ * import { TileStore } from 'gis-tools-ts';
  * const tileStore = new TileStore(data, {
  *  projection: 'WG',
  *  minzoom: 0,

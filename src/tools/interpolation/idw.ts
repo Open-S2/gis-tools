@@ -1,4 +1,4 @@
-import { distance } from '../../geometry/s2/point';
+import { pointDistance as distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
 
 import type { GetInterpolateValue } from '.';

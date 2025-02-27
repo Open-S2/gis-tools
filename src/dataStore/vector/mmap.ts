@@ -3,7 +3,35 @@ import { S2MMapStore } from '../mmap';
 import type { S2CellId } from '../..';
 import type { VectorKey, VectorStore } from '.';
 
-/** MMap based vector store */
+/**
+ * # Vector MMap Store
+ *
+ * ## Description
+ * A mmap vector store
+ *
+ * ## Usage
+ * ```ts
+ * import { MMapVector } from 'gis-tools-ts/mmap';
+ * import type { VectorKey } from 'gis-tools-ts';
+ *
+ * interface Data extends VectorKey { name: string };
+ *
+ * const vec = new MMapVector<Data>();
+ * // push an entry
+ * vec.push({ cell: 1n, name: 'test' });
+ * vec.push({ cell: 1n, name: 'test2' });
+ * // check if a key exists
+ * vec.has(1n); // true
+ * // get length of the store
+ * console.log(vec.length); // 2
+ *
+ * // iterate over the store
+ * for await (const entry of vec) console.log(entry);
+ *
+ * // close the store
+ * vec.close();
+ * ```
+ */
 export class MMapVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2MMapStore;
   /** @param fileName - the path + file name without the extension */

@@ -6,7 +6,6 @@ import {
   children,
   childrenIJ,
   contains,
-  containsS2Point,
   distance,
   face,
   fromDistance,
@@ -16,7 +15,6 @@ import {
   fromIJSame,
   fromIJWrap,
   fromLonLat,
-  fromS2Point,
   fromST,
   fromUV,
   getBoundUV,
@@ -24,6 +22,8 @@ import {
   getEdgesRaw,
   getVertices,
   getVerticesRaw,
+  idContainsS2Point,
+  idFromS2Point,
   intersects,
   isFace,
   isLeaf,
@@ -47,7 +47,7 @@ import {
 import { describe, expect, it } from 'bun:test';
 
 // Helpers
-import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../src/geometry/s2/point';
 
 describe('boundsST', () => {
   it('should return the bounds for a given id and level', () => {
@@ -213,14 +213,14 @@ describe('fromLonLat', () => {
   });
 });
 
-describe('fromS2Point', () => {
+describe('idFromS2Point', () => {
   it('should return the cell id for a given s2 point', () => {
-    expect(fromS2Point({ x: 1, y: 0, z: 0 })).toEqual(1152921504606846977n);
-    expect(fromS2Point({ x: 0, y: 1, z: 0 })).toEqual(3458764513820540929n);
-    expect(fromS2Point({ x: 0, y: 0, z: 1 })).toEqual(5764607523034234881n);
-    expect(fromS2Point({ x: -1, y: 0, z: 0 })).toEqual(8070450532247928833n);
-    expect(fromS2Point({ x: 0, y: -1, z: 0 })).toEqual(10376293541461622785n);
-    expect(fromS2Point({ x: 0, y: 0, z: -1 })).toEqual(12682136550675316737n);
+    expect(idFromS2Point({ x: 1, y: 0, z: 0 })).toEqual(1152921504606846977n);
+    expect(idFromS2Point({ x: 0, y: 1, z: 0 })).toEqual(3458764513820540929n);
+    expect(idFromS2Point({ x: 0, y: 0, z: 1 })).toEqual(5764607523034234881n);
+    expect(idFromS2Point({ x: -1, y: 0, z: 0 })).toEqual(8070450532247928833n);
+    expect(idFromS2Point({ x: 0, y: -1, z: 0 })).toEqual(10376293541461622785n);
+    expect(idFromS2Point({ x: 0, y: 0, z: -1 })).toEqual(12682136550675316737n);
   });
 });
 
@@ -419,12 +419,12 @@ describe('toFaceIJ', () => {
   expect(id).toEqual([0, 0, 0, 0]);
 });
 
-describe('containsS2Point', () => {
+describe('idContainsS2Point', () => {
   const face0 = fromFace(0);
   const point = pointFromLonLat({ x: 0, y: 0 });
   const point2 = pointFromLonLat({ x: -160, y: 70 });
-  expect(containsS2Point(face0, point)).toEqual(true);
-  expect(containsS2Point(face0, point2)).toEqual(false);
+  expect(idContainsS2Point(face0, point)).toEqual(true);
+  expect(idContainsS2Point(face0, point2)).toEqual(false);
 });
 
 describe('getBoundUV', () => {

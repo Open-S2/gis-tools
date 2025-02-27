@@ -10,6 +10,22 @@
 
 ## Description
 
+A priority queue is a data structure that stores elements in a specific order.
+
 ## Usage
 
-## Useful links
+```ts
+import { PriorityQueue } from 'gis-tools-ts';
+
+const queue = new PriorityQueue<number>();
+
+queue.push(1);
+queue.push(2);
+
+const current = queue.peek(); // 1
+console.log(queue.length); // 2
+let next = queue.pop(); // 1
+console.log(queue.length); // 1
+next = queue.pop(); // 2
+console.log(queue.length); // 0
+```

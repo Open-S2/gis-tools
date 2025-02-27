@@ -40,6 +40,12 @@ export * from './vehiclePosition';
  *   console.log(entity);
  * }
  * ```
+ *
+ * ## Links
+ * - https://mobilitydatabase.org
+ * - https://developers.google.com/transit/gtfs/examples/overview
+ * - https://mobilitydata.github.io/
+ * - https://www.transit.land
  */
 export class GTFSRealtimeReader {
   header!: GTFSRealtimeHeader;

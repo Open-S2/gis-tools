@@ -22,7 +22,35 @@ export interface VectorStore<V> {
 /** A constructor for a vector store */
 export type VectorStoreConstructor<V extends VectorKey> = new () => VectorStore<V>;
 
-/** A local vector key-value store */
+/**
+ * # Vector Store
+ *
+ * ## Description
+ * A local vector store
+ *
+ * ## Usage
+ * ```ts
+ * import { Vector } from 'gis-tools-ts';
+ * import type { VectorKey } from 'gis-tools-ts';
+ *
+ * interface Data extends VectorKey { name: string };
+ *
+ * const vec = new Vector<Data>();
+ * // push an entry
+ * vec.push({ cell: 1n, name: 'test' });
+ * vec.push({ cell: 1n, name: 'test2' });
+ * // check if a key exists
+ * vec.has(1n); // true
+ * // get length of the store
+ * console.log(vec.length); // 2
+ *
+ * // iterate over the store
+ * for await (const entry of vec) console.log(entry);
+ *
+ * // close the store
+ * vec.close();
+ * ```
+ */
 export class Vector<V extends VectorKey> implements VectorStore<V> {
   #store: V[] = [];
 

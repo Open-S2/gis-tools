@@ -12,7 +12,7 @@ import {
   lonLatToXYZ,
   xyzToLonLat,
 } from './s2/coords';
-import { toIJ as S2PointToIJ, invert, normalize, fromUV as s2PointFromUV } from './s2/point';
+import { pointFromUV, pointInvert, pointNormalize, pointToIJ } from './s2/point';
 
 import type { LonLat } from './ll';
 import type { BBox, Face, MValue, Properties, VectorPoint } from '.';
@@ -169,7 +169,7 @@ export function fromFacePosLevel(face: Face, pos: bigint, level: number): S2Cell
  */
 export function fromLonLat(ll: LonLat): S2CellId {
   const xyz = lonLatToXYZ(ll);
-  return fromS2Point(xyz);
+  return idFromS2Point(xyz);
 }
 
 /**
@@ -178,9 +178,9 @@ export function fromLonLat(ll: LonLat): S2CellId {
  * @param level - zoom level
  * @returns the S2CellID
  */
-export function fromS2Point(xyz: VectorPoint, level?: number): S2CellId {
+export function idFromS2Point(xyz: VectorPoint, level?: number): S2CellId {
   // convert to face-i-j
-  const [face, i, j] = S2PointToIJ(xyz);
+  const [face, i, j] = pointToIJ(xyz);
   // now convert from ij
   let id = fromIJ(face, i, j);
   if (level !== undefined) id = parent(id, level);
@@ -385,7 +385,7 @@ export function toS2Point<M extends MValue = Properties>(id: S2CellId, m?: M): V
   // Decompose the S2CellID into its constituent parts: face, u, and v.
   const [face, u, v] = toUV(id);
   // Use the decomposed parts to construct an XYZ Point.
-  return s2PointFromUV(face, u, v, m);
+  return pointFromUV(face, u, v, m);
 }
 
 /**
@@ -562,8 +562,8 @@ export function contains(a: S2CellId, b: S2CellId): boolean {
  * @param p - the second VectorPoint
  * @returns true if a contains p
  */
-export function containsS2Point(a: S2CellId, p: VectorPoint): boolean {
-  const b = fromS2Point(p);
+export function idContainsS2Point(a: S2CellId, p: VectorPoint): boolean {
+  const b = idFromS2Point(p);
   return contains(a, b);
 }
 
@@ -802,12 +802,12 @@ export type Vertices = [VectorPoint, VectorPoint, VectorPoint, VectorPoint];
 /**
  * Returns the four vertices of the cell.  Vertices are returned
  * in CCW order (lower left, lower right, upper right, upper left in the UV
- * plane).  The points returned by getVertices are normalized.
+ * plane).  The points returned by getVertices are pointNd.
  * @param id - the S2CellID
  * @returns the k-th vertex of the cell
  */
 export function getVertices(id: S2CellId): Vertices {
-  return getVerticesRaw(id).map(normalize) as Vertices;
+  return getVerticesRaw(id).map(pointNormalize) as Vertices;
 }
 
 /**
@@ -836,7 +836,7 @@ export function getVerticesRaw(id: S2CellId): Vertices {
  * @returns the 4 edges of the cell normalized
  */
 export function getEdges(id: S2CellId): Vertices {
-  return getEdgesRaw(id).map(normalize) as Vertices;
+  return getEdgesRaw(id).map(pointNormalize) as Vertices;
 }
 
 /**
@@ -852,8 +852,8 @@ export function getEdgesRaw(id: S2CellId): Vertices {
   return [
     getVNorm(f, vLow),
     getUNorm(f, uHigh),
-    invert(getVNorm(f, vHigh)),
-    invert(getUNorm(f, uLow)),
+    pointInvert(getVNorm(f, vHigh)),
+    pointInvert(getUNorm(f, uLow)),
   ];
 }
 

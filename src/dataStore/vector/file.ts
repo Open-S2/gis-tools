@@ -3,7 +3,35 @@ import { S2FileStore } from '../file';
 import type { S2CellId } from '../..';
 import type { VectorKey, VectorStore } from '.';
 
-/** File based vector store */
+/**
+ * # Vector File Store
+ *
+ * ## Description
+ * A filesystem vector store
+ *
+ * ## Usage
+ * ```ts
+ * import { FileVector } from 'gis-tools-ts/file';
+ * import type { VectorKey } from 'gis-tools-ts';
+ *
+ * interface Data extends VectorKey { name: string };
+ *
+ * const vec = new FileVector<Data>();
+ * // push an entry
+ * vec.push({ cell: 1n, name: 'test' });
+ * vec.push({ cell: 1n, name: 'test2' });
+ * // check if a key exists
+ * vec.has(1n); // true
+ * // get length of the store
+ * console.log(vec.length); // 2
+ *
+ * // iterate over the store
+ * for await (const entry of vec) console.log(entry);
+ *
+ * // close the store
+ * vec.close();
+ * ```
+ */
 export class FileVector<V extends VectorKey> implements VectorStore<V> {
   #store: S2FileStore;
   /** @param fileName - the path + file name without the extension */

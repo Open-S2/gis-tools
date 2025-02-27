@@ -1,6 +1,6 @@
 import { EARTH_RADIUS } from '../../space/planets';
-import { angle } from '../s2/point';
 import { llGetDistance } from '../ll';
+import { pointAngle } from '../s2/point';
 import { degToRad, radToDeg } from '..';
 
 import type { LonLat } from '../ll';
@@ -111,7 +111,7 @@ export function toE7(e7_: number): S1Angle {
  * @returns - The angle between the two points in radians
  */
 export function fromS2Points(a: VectorPoint, b: VectorPoint): S1Angle {
-  return angle(a, b);
+  return pointAngle(a, b);
 }
 
 /**

@@ -1,5 +1,5 @@
 // https://gtfs.org/documentation/schedule/reference/#agencytxt
-import { BufferJSONReader, iterItems } from '../../..';
+import { BufferJSONReader, iterZipFolder } from '../../..';
 
 import { type GTFSAgency, parseGTFSAgencies } from './agency';
 import { type GTFSArea, parseGTFSAreas } from './areas';
@@ -104,7 +104,18 @@ export interface GTFSLocationsProperties extends Properties {
  * import { buildGTFSSchedule } from 'gis-tools-ts';
  *
  * const schedule = await buildGTFSSchedule(gzipData);
+ *
+ * for await (const feature of schedule) {
+ *   console.log(feature);
+ * }
  * ```
+ *
+ * ## Links
+ * - https://mobilitydatabase.org
+ * - https://developers.google.com/transit/gtfs/examples/overview
+ * - https://gtfs.org/documentation/schedule/reference/#tripstxt
+ * - https://mobilitydata.github.io/
+ * - https://www.transit.land
  */
 export class GTFSScheduleReader implements FeatureIterator {
   agencies!: Record<string, GTFSAgency>;
@@ -250,7 +261,7 @@ export class GTFSScheduleReader implements FeatureIterator {
 export async function buildGTFSSchedule(gzipData: ArrayBufferLike): Promise<GTFSScheduleReader> {
   const pieces: Piece[] = [];
 
-  for (const item of iterItems(new Uint8Array(gzipData))) {
+  for (const item of iterZipFolder(new Uint8Array(gzipData))) {
     const { filename } = item;
     const chunk = new TextDecoder('utf8').decode(await item.read());
     pieces.push({ filename, data: chunk });

@@ -113,7 +113,8 @@ export class Delaunator {
 
   /**
    * Updates the triangulation if you modified delaunay.coords values in place, avoiding expensive
-   * memory allocations. Useful for iterative relaxation algorithms such as [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
+   * memory allocations. Useful for iterative relaxation algorithms such as
+   * [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
    */
   update() {
     const { coords } = this;

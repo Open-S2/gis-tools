@@ -6,7 +6,36 @@ import type { S2CellId } from '../..';
 import type { MMEntry, MultiMapStore } from '.';
 import type { Properties, Value } from '../..';
 
-/** File based multimap store */
+/**
+ * # MultiMap File Store
+ *
+ * ## Description
+ * A filesystem multimap store
+ *
+ * ## Usage
+ * ```ts
+ * import { FileMultiMap } from 'gis-tools-ts/file';
+ *
+ * interface Data { name: string };
+ *
+ * const mm = new FileMultiMap<Data>();
+ * // set a key
+ * mm.set(1n, { name: 'test' });
+ * mm.set(1n, { name: 'test2' });
+ * // get a key
+ * const { name } = mm.get(1n); // [{ name: 'test' }, { name: 'test2' }]
+ * // check if a key exists
+ * mm.has(1n); // true
+ * // get length of the store
+ * console.log(mm.length); // 2
+ *
+ * // iterate over the store
+ * for await (const entry of mm) console.log(entry);
+ *
+ * // close the store
+ * mm.close();
+ * ```
+ */
 export class FileMultiMap<V = Properties | Value> implements MultiMapStore<V> {
   #store: S2FileStore<V>;
 

@@ -12,7 +12,7 @@ import {
   lonLatToXYZGL,
   xyzToLonLat,
 } from './coords';
-import { fromS2Point as idFromS2Point, toUV as idToUV } from '../id';
+import { idFromS2Point, toUV as idToUV } from '../id';
 
 import type { S1Angle } from '../s1/angle';
 import type { Face, MValue, Properties, S2CellId, VectorPoint } from '../';
@@ -22,7 +22,7 @@ import type { Face, MValue, Properties, S2CellId, VectorPoint } from '../';
  * @param ll - LonLat vector point in degrees
  * @returns The XYZ Point
  */
-export function fromLonLat<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint<M> {
+export function pointFromLonLat<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint<M> {
   return lonLatToXYZ(ll);
 }
 
@@ -32,7 +32,9 @@ export function fromLonLat<M extends MValue = Properties>(ll: VectorPoint<M>): V
  * @param ll - LonLat vector point in degrees
  * @returns The XYZ Point representing the provided longitude and latitude.
  */
-export function fromLonLatGL<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint<M> {
+export function pointFromLonLatGL<M extends MValue = Properties>(
+  ll: VectorPoint<M>,
+): VectorPoint<M> {
   // Convert longitude and latitude to XYZ coordinates using the right-hand rule.
   return lonLatToXYZGL(ll);
 }
@@ -45,14 +47,14 @@ export function fromLonLatGL<M extends MValue = Properties>(ll: VectorPoint<M>):
  * @param m - M-Value data
  * @returns The XYZ Point representing the given u-v coordinates.
  */
-export function fromUV<M extends MValue = Properties>(
+export function pointFromUV<M extends MValue = Properties>(
   face: Face,
   u: number,
   v: number,
   m?: M,
 ): VectorPoint<M> {
   // Convert the given u-v coordinates to an XYZ Point using the left-hand rule.
-  return normalize(faceUVtoXYZ(face, u, v, m));
+  return pointNormalize(faceUVtoXYZ(face, u, v, m));
 }
 
 /**
@@ -63,7 +65,7 @@ export function fromUV<M extends MValue = Properties>(
  * @param m - M-Value data
  * @returns The XYZ Point representing the given s-t coordinates.
  */
-export function fromST<M extends MValue = Properties>(
+export function pointFromST<M extends MValue = Properties>(
   face: Face,
   s: number,
   t: number,
@@ -74,7 +76,7 @@ export function fromST<M extends MValue = Properties>(
   const v = STtoUV(t);
 
   // Convert the u-v coordinates to an XYZ Point.
-  return fromUV(face, u, v, m);
+  return pointFromUV(face, u, v, m);
 }
 
 /**
@@ -84,13 +86,13 @@ export function fromST<M extends MValue = Properties>(
  * @param j - The j-coordinate on the face.
  * @returns The XYZ Point representing the given i-j coordinates.
  */
-export function fromIJ(face: Face, i: number, j: number): VectorPoint {
+export function pointFromIJ(face: Face, i: number, j: number): VectorPoint {
   // Convert the given i-j coordinates to s-t coordinates.
   const s = IJtoST(i);
   const t = IJtoST(j);
 
   // Convert the s-t coordinates to an XYZ Point.
-  return fromST(face, s, t);
+  return pointFromST(face, s, t);
 }
 
 /**
@@ -98,12 +100,12 @@ export function fromIJ(face: Face, i: number, j: number): VectorPoint {
  * @param id - The S2CellID to convert.
  * @returns The XYZ Point representing the given S2CellID.
  */
-export function fromS2CellID(id: S2CellId): VectorPoint {
+export function pointFromS2CellID(id: S2CellId): VectorPoint {
   // Decompose the S2CellID into its constituent parts: face, u, and v.
   const [face, u, v] = idToUV(id);
 
   // Use the decomposed parts to construct an XYZ Point.
-  return normalize(fromUV(face, u, v));
+  return pointNormalize(pointFromUV(face, u, v));
 }
 
 /**
@@ -113,9 +115,9 @@ export function fromS2CellID(id: S2CellId): VectorPoint {
  * @param v - The v-coordinate on the face.
  * @returns The XYZ Point representing the given Face-U-V coordinates.
  */
-export function fromUVGL(face: Face, u: number, v: number): VectorPoint {
+export function pointFromUVGL(face: Face, u: number, v: number): VectorPoint {
   // Convert the given Face-U-V coordinates to an XYZ Point using the right-hand rule.
-  return normalize(faceUVtoXYZGL(face, u, v));
+  return pointNormalize(faceUVtoXYZGL(face, u, v));
 }
 
 /**
@@ -125,13 +127,13 @@ export function fromUVGL(face: Face, u: number, v: number): VectorPoint {
  * @param t - The t-coordinate on the face.
  * @returns The XYZ Point representing the given Face-S-T coordinates.
  */
-export function fromSTGL(face: Face, s: number, t: number): VectorPoint {
+export function pointFromSTGL(face: Face, s: number, t: number): VectorPoint {
   // Convert the given Face-S-T coordinates to an XYZ Point using the right-hand rule.
   // First, convert the s-t coordinates to u-v coordinates.
   const [u, v] = [STtoUV(s), STtoUV(t)];
 
   // Then, convert the u-v coordinates to an XYZ Point.
-  return fromUVGL(face, u, v);
+  return pointFromUVGL(face, u, v);
 }
 
 /**
@@ -139,7 +141,7 @@ export function fromSTGL(face: Face, s: number, t: number): VectorPoint {
  * @param xyz - The XYZ Point to convert.
  * @returns - The Face-U-V coordinates representing the given XYZ Point.
  */
-export function toUV(xyz: VectorPoint): [face: Face, u: number, v: number] {
+export function pointToUV(xyz: VectorPoint): [face: Face, u: number, v: number] {
   // Convert the given XYZ Point to Face-U-V coordinates using the right-hand rule.
   return XYZtoFaceUV(xyz);
 }
@@ -149,9 +151,9 @@ export function toUV(xyz: VectorPoint): [face: Face, u: number, v: number] {
  * @param xyz - The XYZ Point to convert.
  * @returns - The Face-S-T coordinates representing the given XYZ Point.
  */
-export function toST(xyz: VectorPoint): [face: Face, s: number, t: number] {
+export function pointToST(xyz: VectorPoint): [face: Face, s: number, t: number] {
   // Convert the given XYZ Point to Face-U-V coordinates.
-  const [face, u, v] = toUV(xyz);
+  const [face, u, v] = pointToUV(xyz);
 
   // Convert the U-V coordinates to S-T coordinates using the inverse of the
   // UVtoST function.
@@ -164,9 +166,9 @@ export function toST(xyz: VectorPoint): [face: Face, s: number, t: number] {
  * @param level - The zoom level of the result. If not provided, the result will have 30 bits of precision.
  * @returns The Face-I-J coordinates representing the given XYZ Point.
  */
-export function toIJ(xyz: VectorPoint, level?: number): [face: Face, i: number, j: number] {
+export function pointToIJ(xyz: VectorPoint, level?: number): [face: Face, i: number, j: number] {
   // Convert the given XYZ Point to Face-S-T coordinates.
-  const [face, s, t] = toST(xyz);
+  const [face, s, t] = pointToST(xyz);
 
   // Convert the S-T coordinates to I-J coordinates using the STtoIJ function.
   let i = STtoIJ(s);
@@ -187,7 +189,7 @@ export function toIJ(xyz: VectorPoint, level?: number): [face: Face, i: number, 
  * @param xyz - The XYZ Point to convert.
  * @returns The lon-lat coordinates representing the given XYZ Point.
  */
-export function toLonLat<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
+export function pointToLonLat<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
   return xyzToLonLat(xyz);
 }
 
@@ -196,7 +198,7 @@ export function toLonLat<M extends MValue = Properties>(xyz: VectorPoint<M>): Ve
  * @param xyz - The XYZ Point to convert.
  * @returns The S2CellID representing the given XYZ Point.
  */
-export function toS2CellID(xyz: VectorPoint): S2CellId {
+export function pointToS2CellID(xyz: VectorPoint): S2CellId {
   return idFromS2Point(xyz);
 }
 
@@ -206,7 +208,7 @@ export function toS2CellID(xyz: VectorPoint): S2CellId {
  * @param b - The XYZ Point to add.
  * @returns - The XYZ Point with the added XYZ Point.
  */
-export function add(a: VectorPoint, b: VectorPoint): VectorPoint {
+export function pointAdd(a: VectorPoint, b: VectorPoint): VectorPoint {
   return { x: a.x + b.x, y: a.y + b.y, z: (a.z ?? 1) + (b.z ?? 1) };
 }
 
@@ -215,7 +217,7 @@ export function add(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @param a - The XYZ Point to add to.
  * @param b - The XYZ Point to add.
  */
-export function addMut(a: VectorPoint, b: VectorPoint): void {
+export function pointAddMut(a: VectorPoint, b: VectorPoint): void {
   a.x += b.x;
   a.y += b.y;
   if (a.z === undefined || b.z === undefined) return;
@@ -228,7 +230,7 @@ export function addMut(a: VectorPoint, b: VectorPoint): void {
  * @param n - The amount to add.
  * @returns - The XYZ Point with the added amount.
  */
-export function addScalar(xyz: VectorPoint, n: number): VectorPoint {
+export function pointAddScalar(xyz: VectorPoint, n: number): VectorPoint {
   return { x: xyz.x + n, y: xyz.y + n, z: (xyz.z ?? 1) + n };
 }
 
@@ -238,7 +240,7 @@ export function addScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @param b - The XYZ Point to subtract.
  * @returns - The XYZ Point with the subtracted XYZ Point.
  */
-export function sub(a: VectorPoint, b: VectorPoint): VectorPoint {
+export function pointSub(a: VectorPoint, b: VectorPoint): VectorPoint {
   return { x: a.x - b.x, y: a.y - b.y, z: (a.z ?? 1) - (b.z ?? 1) };
 }
 
@@ -248,7 +250,7 @@ export function sub(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @param n - The amount to subtract.
  * @returns - The XYZ Point with the subtracted amount.
  */
-export function subScalar(xyz: VectorPoint, n: number): VectorPoint {
+export function pointSubScalar(xyz: VectorPoint, n: number): VectorPoint {
   return { x: xyz.x - n, y: xyz.y - n, z: (xyz.z ?? 1) - n };
 }
 
@@ -258,7 +260,7 @@ export function subScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @param b - The XYZ Point to multiply.
  * @returns - The XYZ Point with the multiplied XYZ Point.
  */
-export function mul(a: VectorPoint, b: VectorPoint): VectorPoint {
+export function pointMul(a: VectorPoint, b: VectorPoint): VectorPoint {
   return { x: a.x * b.x, y: a.y * b.y, z: (a.z ?? 1) * (b.z ?? 1) };
 }
 
@@ -268,7 +270,7 @@ export function mul(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @param n - The amount to multiply.
  * @returns - The XYZ Point with the multiplied amount.
  */
-export function mulScalar(xyz: VectorPoint, n: number): VectorPoint {
+export function pointMulScalar(xyz: VectorPoint, n: number): VectorPoint {
   return { x: xyz.x * n, y: xyz.y * n, z: (xyz.z ?? 1) * n };
 }
 
@@ -278,7 +280,7 @@ export function mulScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @param b - The XYZ Point to divide by.
  * @returns - The XYZ Point with the multiplied XYZ Point.
  */
-export function div(a: VectorPoint, b: VectorPoint): VectorPoint {
+export function pointDiv(a: VectorPoint, b: VectorPoint): VectorPoint {
   return { x: a.x / b.x, y: a.y / b.y, z: (a.z ?? 1) / (b.z ?? 1) };
 }
 
@@ -288,7 +290,7 @@ export function div(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @param n - The amount to divide by.
  * @returns - The XYZ Point with the multiplied amount.
  */
-export function divScalar(xyz: VectorPoint, n: number): VectorPoint {
+export function pointDivScalar(xyz: VectorPoint, n: number): VectorPoint {
   return { x: xyz.x / n, y: xyz.y / n, z: (xyz.z ?? 1) / n };
 }
 
@@ -297,7 +299,7 @@ export function divScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @param xyz - The XYZ Point to divide.
  * @param n - The amount to divide by.
  */
-export function divMutScalar(xyz: VectorPoint, n: number) {
+export function pointDivMutScalar(xyz: VectorPoint, n: number) {
   xyz.x /= n;
   xyz.y /= n;
   if (xyz.z !== undefined) xyz.z /= n;
@@ -308,8 +310,8 @@ export function divMutScalar(xyz: VectorPoint, n: number) {
  * @param xyz - The XYZ Point to divide.
  * @returns - The XYZ Point with the divided amount.
  */
-export function normalize<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
-  const len = length(xyz);
+export function pointNormalize<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
+  const len = pointLength(xyz);
   xyz.x /= len;
   xyz.y /= len;
   if (xyz.z !== undefined) xyz.z /= len;
@@ -322,8 +324,8 @@ export function normalize<M extends MValue = Properties>(xyz: VectorPoint<M>): V
  * @param xyz - The XYZ Point
  * @returns - The length of the XYZ Point
  */
-export function length(xyz: VectorPoint): number {
-  return Math.sqrt(norm2(xyz));
+export function pointLength(xyz: VectorPoint): number {
+  return Math.sqrt(pointNorm2(xyz));
 }
 
 /**
@@ -331,8 +333,8 @@ export function length(xyz: VectorPoint): number {
  * @param xyz - The XYZ Point
  * @returns - The squared length of the XYZ Point
  */
-export function norm2(xyz: VectorPoint): number {
-  return dot(xyz, xyz);
+export function pointNorm2(xyz: VectorPoint): number {
+  return pointDot(xyz, xyz);
 }
 
 /**
@@ -340,7 +342,7 @@ export function norm2(xyz: VectorPoint): number {
  * @param xyz - The XYZ Point
  * @returns - The inverted XYZ Point
  */
-export function invert<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
+export function pointInvert<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
   const { x, y, z, m } = xyz;
   return { x: -x, y: -y, z: -(z ?? 1), m };
 }
@@ -351,7 +353,7 @@ export function invert<M extends MValue = Properties>(xyz: VectorPoint<M>): Vect
  * @param b - The second XYZ Point
  * @returns - The dot product of the two XYZ Points
  */
-export function dot(a: VectorPoint, b: VectorPoint): number {
+export function pointDot(a: VectorPoint, b: VectorPoint): number {
   return a.x * b.x + a.y * b.y + (a.z ?? 1) * (b.z ?? 1);
 }
 
@@ -361,7 +363,7 @@ export function dot(a: VectorPoint, b: VectorPoint): number {
  * @param b - The second XYZ Point
  * @returns - The cross product of the two XYZ Points
  */
-export function cross(a: VectorPoint, b: VectorPoint): VectorPoint {
+export function pointCross(a: VectorPoint, b: VectorPoint): VectorPoint {
   const az = a.z ?? 1;
   const bz = b.z ?? 1;
   return { x: a.y * bz - az * b.y, y: az * b.x - a.x * bz, z: a.x * b.y - a.y * b.x };
@@ -371,17 +373,24 @@ export function cross(a: VectorPoint, b: VectorPoint): VectorPoint {
  * Get the distance between two XYZ Points using Earth's size
  * @param a - The first XYZ Point
  * @param b - The second XYZ Point
+ * @param equatorial - The equatorial radius (default: EARTH_RADIUS_EQUATORIAL)
+ * @param polar - The polar radius (default: EARTH_RADIUS_POLAR)
  * @returns - The distance between the two XYZ Points
  */
-export function distanceEarth(a: VectorPoint, b: VectorPoint): number {
-  a.x *= EARTH_RADIUS_EQUATORIAL;
-  b.x *= EARTH_RADIUS_EQUATORIAL;
-  a.y *= EARTH_RADIUS_EQUATORIAL;
-  b.y *= EARTH_RADIUS_EQUATORIAL;
-  if (a.z !== undefined) a.z *= EARTH_RADIUS_POLAR;
-  if (b.z !== undefined) b.z *= EARTH_RADIUS_POLAR;
+export function pointDistancePlanet(
+  a: VectorPoint,
+  b: VectorPoint,
+  equatorial = EARTH_RADIUS_EQUATORIAL,
+  polar = EARTH_RADIUS_POLAR,
+): number {
+  a.x *= equatorial;
+  b.x *= equatorial;
+  a.y *= equatorial;
+  b.y *= equatorial;
+  if (a.z !== undefined) a.z *= polar;
+  if (b.z !== undefined) b.z *= polar;
 
-  return distance(a, b);
+  return pointDistance(a, b);
 }
 
 /**
@@ -390,7 +399,7 @@ export function distanceEarth(a: VectorPoint, b: VectorPoint): number {
  * @param b - The second XYZ Point
  * @returns - The raw distance between the two XYZ Points. Highly inaccurate for large distances
  */
-export function distance(a: VectorPoint, b: VectorPoint): number {
+export function pointDistance(a: VectorPoint, b: VectorPoint): number {
   const { sqrt, pow } = Math;
 
   return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow((b.z ?? 0) - (a.z ?? 0), 2));
@@ -401,8 +410,8 @@ export function distance(a: VectorPoint, b: VectorPoint): number {
  * @param b - The second XYZ Point
  * @returns - The angle between the two XYZ Points
  */
-export function angle(a: VectorPoint, b: VectorPoint): S1Angle {
-  return Math.atan2(length(cross(a, b)), dot(a, b));
+export function pointAngle(a: VectorPoint, b: VectorPoint): S1Angle {
+  return Math.atan2(pointLength(pointCross(a, b)), pointDot(a, b));
 }
 
 /**
@@ -410,6 +419,6 @@ export function angle(a: VectorPoint, b: VectorPoint): S1Angle {
  * @param xyz - The XYZ Point
  * @returns - The S2 Hilbert Face
  */
-export function getFace(xyz: VectorPoint): number {
+export function pointGetFace(xyz: VectorPoint): number {
   return XYZtoFace(xyz);
 }

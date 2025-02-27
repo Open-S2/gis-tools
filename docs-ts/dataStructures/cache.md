@@ -10,6 +10,18 @@
 
 ## Description
 
+A cache of values with a max size to ensure that too much old data is not stored. The deletion system uses the FIFO policy
+
 ## Usage
 
-## Useful links
+```ts
+import { Cache } from 'gis-tools-ts';
+
+const onDelete = (key: string, value: string) => {
+  console.log(`Deleted key ${key} with value ${value}`);
+};
+const cache = new Cache<string, string>(10, onDelete);
+cache.set('key', 'value');
+console.log(cache.get('key')); // 'value'
+cache.delete('key');
+```

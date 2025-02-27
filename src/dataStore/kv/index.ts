@@ -17,7 +17,35 @@ export interface KVStore<V = Properties | Value> {
 /** A constructor for a vector store */
 export type KVStoreConstructor<V = Properties | Value> = new (fileName?: string) => KVStore<V>;
 
-/** Just a placeholder to explain what a local key-value store essentially is */
+/**
+ * # Key-Value Store
+ *
+ * ## Description
+ * A local key-value store
+ *
+ * ## Usage
+ * ```ts
+ * import { KV } from 'gis-tools-ts';
+ *
+ * interface Data { name: string };
+ *
+ * const kv = new KV<Data>();
+ * // set a key
+ * kv.set(1n, { name: 'test' });
+ * // get a key
+ * const { name } = kv.get(1n); // { name: 'test' }
+ * // check if a key exists
+ * kv.has(1n); // true
+ * // get length of the store
+ * console.log(kv.length); // 1
+ *
+ * // iterate over the store
+ * for await (const value of kv) console.log(value);
+ *
+ * // clear the store
+ * kv.close();
+ * ```
+ */
 export class KV<V = Properties | Value> implements KVStore<V> {
   #store = new Map<S2CellId, V>();
   /** @returns - the length of the map */

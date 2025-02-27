@@ -1,5 +1,5 @@
 import wasmBase64 from './s2cell.wasm';
-import { fromLonLat, toST } from '../geometry/s2/point';
+import { pointFromLonLat, pointToST } from '../geometry/s2/point';
 
 import type { Face, VectorPoint } from '../geometry';
 
@@ -64,7 +64,7 @@ export class S2CellGenerator {
    * @returns - an S2Cell with the appropriate id and functions
    */
   fromLonLat(ll: VectorPoint): S2Cell {
-    return this.fromS2Point(fromLonLat(ll));
+    return this.fromS2Point(pointFromLonLat(ll));
   }
 
   /**
@@ -72,7 +72,7 @@ export class S2CellGenerator {
    * @returns - an S2Cell with the appropriate id and functions
    */
   fromS2Point(point: VectorPoint): S2Cell {
-    const [face, s, t] = toST(point);
+    const [face, s, t] = pointToST(point);
     return this.fromFaceST(face, s, t);
   }
 

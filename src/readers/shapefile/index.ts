@@ -2,7 +2,7 @@ import { BufferReader } from '..';
 import { DataBaseFile } from './dbf';
 import { ShapeFileReader } from './shp';
 import { Transformer } from '../../proj4';
-import { iterItems } from '../../util';
+import { iterZipFolder } from '../../util';
 
 import type { ProjectionTransformDefinition } from '../../proj4';
 
@@ -39,7 +39,7 @@ export async function shapefileFromGzip(
   let transform: Transformer | undefined = undefined;
   let dbfReader: DataBaseFile | undefined = undefined;
   let shpData: Uint8Array | undefined = undefined;
-  for (const item of iterItems(new Uint8Array(input))) {
+  for (const item of iterZipFolder(new Uint8Array(input))) {
     if (item.filename.endsWith('cpg')) {
       encoding = new TextDecoder('utf8').decode(await item.read());
     } else if (item.filename.endsWith('dbf')) {

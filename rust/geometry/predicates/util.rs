@@ -1,7 +1,13 @@
 /// Splitter value
 pub const SPLITTER: f64 = 134217729.0;
 /// Result error bound
-pub const RESULTERRBOUND: f64 = (3. + 8. * f64::EPSILON) * f64::EPSILON;
+pub const RESULTERRBOUND: f64 = (3.0 + 8.0 * f64::EPSILON) * f64::EPSILON;
+/// CCW error bound A
+pub const CCWERRBOUND_A: f64 = (3.0 + 16.0 * f64::EPSILON) * f64::EPSILON;
+/// CCW error bound B
+pub const CCWERRBOUND_B: f64 = (2.0 + 12.0 * f64::EPSILON) * f64::EPSILON;
+/// CCW error bound C
+pub const CCWERRBOUND_C: f64 = (9.0 + 64.0 * f64::EPSILON) * f64::EPSILON * f64::EPSILON;
 
 /// ast_expansion_sum_zeroelim routine from oritinal code
 pub fn pred_sum(elen: usize, e: &[f64], flen: usize, f: &[f64], h: &mut [f64]) -> usize {

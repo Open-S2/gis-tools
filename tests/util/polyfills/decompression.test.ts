@@ -1,6 +1,6 @@
 import { decompressSync } from '../../../src/util/polyfills/fflate';
 import { afterAll, beforeAll, expect, test } from 'bun:test';
-import { decompressStream, iterItems } from '../../../src';
+import { decompressStream, iterZipFolder } from '../../../src';
 
 import zlib from 'zlib';
 
@@ -143,10 +143,10 @@ test('dictionary', () => {
   expect(expected).toEqual(uncompressedInternal);
 });
 
-test('iterItems - polyfill', async () => {
+test('iterZipFolder - polyfill', async () => {
   const zipFile = new Uint8Array(await Bun.file(`${__dirname}/../fixtures/utf.zip`).arrayBuffer());
 
-  const items = [...iterItems(zipFile)];
+  const items = [...iterZipFolder(zipFile)];
   expect(items.map((i) => i.filename)).toEqual([
     'utf.cpg',
     'utf.dbf',

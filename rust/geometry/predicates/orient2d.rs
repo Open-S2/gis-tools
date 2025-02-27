@@ -1,10 +1,8 @@
 use libm::fabs;
 
-use super::util::{estimate, pred_sum, RESULTERRBOUND, SPLITTER};
-
-const CCWERRBOUND_A: f64 = 3.3306690738754716e-16; // (3 + 16 * epsilon) * epsilon;
-const CCWERRBOUND_B: f64 = 2.2204460492503146e-16; // (2 + 12 * epsilon) * epsilon;
-const CCWERRBOUND_C: f64 = 1.1093356479670487e-31; // (9 + 64 * epsilon) * epsilon * epsilon;
+use super::util::{
+    estimate, pred_sum, CCWERRBOUND_A, CCWERRBOUND_B, CCWERRBOUND_C, RESULTERRBOUND, SPLITTER,
+};
 
 /// a negative value if the points a, b, and c occur in counterclockwise order
 /// (c lies to the left of the directed line defined by points a and b).

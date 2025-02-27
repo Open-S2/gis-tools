@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
 import { fromS2Points } from '../../src/geometry/s1/chordAngle';
-import { fromLonLat as pointFromLonLat } from '../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../src/geometry/s2/point';
 
 test('point index', async () => {
   const pointIndex = new PointIndex<{ a: number }>();

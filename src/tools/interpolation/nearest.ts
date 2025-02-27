@@ -1,5 +1,5 @@
 import { defaultGetInterpolateCurrentValue } from '.';
-import { distance } from '../../geometry/s2/point';
+import { pointDistance as distance } from '../../geometry/s2/point';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';

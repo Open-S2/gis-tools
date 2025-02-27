@@ -1,7 +1,7 @@
 import { EARTH_RADIUS } from '..';
 import { KDSpatialIndex } from '../dataStore';
 import { PriorityQueue } from './priorityQueue';
-import { fromST } from '../geometry/s2/point';
+import { pointFromST } from '../geometry/s2/point';
 import { toWM } from '../geometry';
 import { xyzToLonLat } from '../geometry/s2/coords';
 
@@ -135,7 +135,7 @@ export class PointIndexFast<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: M): void {
-    const { x: lon, y: lat } = xyzToLonLat(fromST(face, s, t));
+    const { x: lon, y: lat } = xyzToLonLat(pointFromST(face, s, t));
     this.insert({ x: lon, y: lat, m: data });
   }
 

@@ -114,6 +114,7 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  *
  * ## Links
  * - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
+ * - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
  */
 export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
   implements

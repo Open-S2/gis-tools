@@ -11,13 +11,13 @@ import {
   faceUVtoXYZGL,
   faceXYZGLtoUV,
   faceXYZtoUV,
+  getNeighborsIJ,
   getUNorm,
   getVNorm,
   linearSTtoUV,
   linearUVtoST,
   lonLatToXYZ,
   lonLatToXYZGL,
-  neighborsIJ,
   quadraticSTtoUV,
   quadraticUVtoST,
   tanSTtoUV,
@@ -218,9 +218,9 @@ describe('lonLatToXYZGL', () => {
   });
 });
 
-describe('neighborsIJ', () => {
+describe('getNeighborsIJ', () => {
   it('should take a Face-I-J and find its neighbors', () => {
-    expect(neighborsIJ(0, 0, 0)).toEqual([
+    expect(getNeighborsIJ(0, 0, 0)).toEqual([
       [5, 0, 1073741823],
       [0, 1, 0],
       [0, 0, 1],
@@ -229,7 +229,7 @@ describe('neighborsIJ', () => {
   });
 
   it('should take a Face-I-J and find its neighbors given a level', () => {
-    expect(neighborsIJ(0, 1, 1, 3)).toEqual([
+    expect(getNeighborsIJ(0, 1, 1, 3)).toEqual([
       [0, 1, 0],
       [0, 2, 1],
       [0, 1, 2],

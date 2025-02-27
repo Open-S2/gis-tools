@@ -28,6 +28,7 @@
     "./file": "./dist/file.js",
     "./mmap": "./dist/mmap.js",
     "./polyfills": "./dist/polyfills.js",
+    "./polyfills/local": "./dist/util/polyfills/local.js",
     "./polyfills/dataview": "./dist/util/polyfills/dataview.js",
     "./polyfills/decompression": "./dist/util/polyfills/decompression.js"
   },

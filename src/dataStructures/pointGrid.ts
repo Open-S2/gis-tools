@@ -1,4 +1,4 @@
-import { fromST as fromSTPoint } from '../geometry/s2/point';
+import { pointFromST } from '../geometry/s2/point';
 import {
   KV,
   PointIndex,
@@ -247,7 +247,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(fromSTPoint(face, s, t, data) as VectorPointM<M>);
+    this.insert(pointFromST(face, s, t, data) as VectorPointM<M>);
   }
 
   /** Build the grid cluster tiles */
@@ -308,7 +308,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
           if (pointShapes.length === 0) continue;
           const cluster = pointShapes.map(({ point }) => point);
           grid[y * gridLength + x] = maxzoomInterpolation(
-            fromSTPoint(face, s, t),
+            pointFromST(face, s, t),
             // @ts-expect-error - RGBA is already accounted for, typescript is being lame
             cluster,
             isRGBA ? undefined : getValue,

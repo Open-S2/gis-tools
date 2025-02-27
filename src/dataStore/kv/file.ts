@@ -4,7 +4,35 @@ import type { KVStore } from '.';
 import type { S2CellId } from '../..';
 import type { Properties, Value } from '../..';
 
-/** File based multimap store */
+/**
+ * # Key-Value File Store
+ *
+ * ## Description
+ * A filesystem key-value store
+ *
+ * ## Usage
+ * ```ts
+ * import { FileKV } from 'gis-tools-ts/file';
+ *
+ * interface Data { name: string };
+ *
+ * const kv = new FileKV<Data>('./test.kv');
+ * // set a key
+ * kv.set(1n, { name: 'test' });
+ * // get a key
+ * const { name } = kv.get(1n); // { name: 'test' }
+ * // check if a key exists
+ * kv.has(1n); // true
+ * // get length of the store
+ * console.log(kv.length); // 1
+ *
+ * // iterate over the store
+ * for await (const value of kv) console.log(value);
+ *
+ * // close the store
+ * kv.close();
+ * ```
+ */
 export class FileKV<V = Properties | Value> implements KVStore<V> {
   #store: S2FileStore<V>;
 

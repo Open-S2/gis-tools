@@ -4,7 +4,35 @@ import type { KVStore } from '.';
 import type { S2CellId } from '../..';
 import type { Properties, Value } from '../..';
 
-/** MMap based multimap store */
+/**
+ * # Key-Value MMap Store
+ *
+ * ## Description
+ * A MMap key-value store
+ *
+ * ## Usage
+ * ```ts
+ * import { MMapKV } from 'gis-tools-ts/mmap';
+ *
+ * interface Data { name: string };
+ *
+ * const kv = new MMapKV<Data>('./test.kv');
+ * // set a key
+ * kv.set(1n, { name: 'test' });
+ * // get a key
+ * const { name } = kv.get(1n); // { name: 'test' }
+ * // check if a key exists
+ * kv.has(1n); // true
+ * // get length of the store
+ * console.log(kv.length); // 1
+ *
+ * // iterate over the store
+ * for await (const value of kv) console.log(value);
+ *
+ * // close the store
+ * kv.close();
+ * ```
+ */
 export class MMapKV<V = Properties | Value> implements KVStore<V> {
   #store: S2MMapStore<V>;
 

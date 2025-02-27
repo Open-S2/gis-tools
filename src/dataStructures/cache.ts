@@ -3,6 +3,7 @@
  *
  * ## Description
  * A cache of values with a max size to ensure that too much old data is not stored.
+ * The deletion system uses the FIFO policy
  *
  * ## Usage
  *

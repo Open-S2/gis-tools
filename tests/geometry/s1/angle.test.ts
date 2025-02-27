@@ -17,7 +17,7 @@ import {
 } from '../../../src/geometry/s1/angle';
 import { expect, test } from 'bun:test';
 
-import { fromLonLat as pointFromLonLat } from '../../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../../src/geometry/s2/point';
 
 test('e5', () => {
   expect(e5(0)).toEqual(0);

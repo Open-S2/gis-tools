@@ -5,7 +5,7 @@ import {
   toKM as angleToKM,
   toMeters as angleToMeters,
 } from './angle';
-import { norm2, sub } from '../s2/point';
+import { pointNorm2, pointSub } from '../s2/point';
 
 import type { S1Angle } from './angle';
 import type { VectorPoint } from '../';
@@ -159,7 +159,7 @@ export function fromLength2(length2_: number): S1ChordAngle {
 export function fromS2Points(a: VectorPoint, b: VectorPoint): S1ChordAngle {
   // The squared distance may slightly exceed 4.0 due to roundoff errors.
   // The maximum error in the result is 2 * DBL_EPSILON * length2_.
-  return Math.min(K_MAX_LENGTH_2, norm2(sub(a, b)));
+  return Math.min(K_MAX_LENGTH_2, pointNorm2(pointSub(a, b)));
 }
 
 /**

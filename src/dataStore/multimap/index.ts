@@ -25,7 +25,36 @@ export interface MultiMapStore<V = Properties | Value> {
 /** A constructor for a vector store */
 export type MultiMapStoreConstructor<V = Properties | Value> = new () => MultiMapStore<V>;
 
-/** A local multimap key-value store */
+/**
+ * # MultiMap Store
+ *
+ * ## Description
+ * A local multimap store
+ *
+ * ## Usage
+ * ```ts
+ * import { MultiMap } from 'gis-tools-ts';
+ *
+ * interface Data { name: string };
+ *
+ * const mm = new MultiMap<Data>();
+ * // set a key
+ * mm.set(1n, { name: 'test' });
+ * mm.set(1n, { name: 'test2' });
+ * // get a key
+ * const { name } = mm.get(1n); // [{ name: 'test' }, { name: 'test2' }]
+ * // check if a key exists
+ * mm.has(1n); // true
+ * // get length of the store
+ * console.log(mm.length); // 2
+ *
+ * // iterate over the store
+ * for await (const entry of mm) console.log(entry);
+ *
+ * // close the store
+ * mm.close();
+ * ```
+ */
 export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
   #store: Map<S2CellId, V[]>;
   #count = 0;
