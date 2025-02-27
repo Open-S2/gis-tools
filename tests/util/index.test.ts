@@ -1,4 +1,4 @@
-import { base64ToArrayBuffer } from '../../src/util';
+import { Compression, base64ToArrayBuffer, encodingToCompression } from '../../src/util';
 import { expect, test } from 'bun:test';
 
 test('base64ToArrayBuffer', () => {
@@ -11,4 +11,11 @@ test('base64ToArrayBuffer', () => {
   expect(uint8Array).toEqual(
     new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21]),
   );
+});
+
+test('encodingToCompression', () => {
+  expect(encodingToCompression('gz')).toEqual(Compression.Gzip);
+  expect(encodingToCompression('br')).toEqual(Compression.Brotli);
+  expect(encodingToCompression('zstd')).toEqual(Compression.Zstd);
+  expect(encodingToCompression('none')).toEqual(Compression.None);
 });
