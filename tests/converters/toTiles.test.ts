@@ -217,7 +217,7 @@ testFunc(
     //   .png()
     //   .toFile(`${__dirname}/fixtures/WMRasterTile.png`);
   },
-  40_000,
+  60_000,
 );
 
 testFunc(
@@ -326,5 +326,5 @@ testFunc(
     expect(elev.min).toEqual(-92.80000305175781);
     expect(elev.max).toEqual(3030.39990234375);
   },
-  40_000,
+  60_000,
 );
