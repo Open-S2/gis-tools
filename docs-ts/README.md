@@ -2,8 +2,13 @@
 
 <style>
 table {
-    display:table;
-    width:100%;
+    display:table !important;
+    width:100% !important;
+}
+
+.markdown-body table {
+    display:table !important;
+    width:100% !important;
 }
 </style>
 
