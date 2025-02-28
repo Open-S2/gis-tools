@@ -129,7 +129,8 @@ fn get_sq_seg_dist(ps: f64, pt: f64, s: f64, t: f64, bs: f64, bt: f64) -> f64 {
 /// Simplify a vector geometry
 pub fn simplify(geometry: &mut VectorGeometry, tolerance: f64, zoom: u8, maxzoom: Option<u8>) {
     let maxzoom = maxzoom.unwrap_or(16);
-    let zoom_tol = if zoom >= maxzoom { 0. } else { tolerance / ((1 << zoom) as f64 * 4_096.) };
+    let zoom_tol =
+        if zoom >= maxzoom { 0. } else { tolerance / ((1 << (zoom as u64)) as f64 * 4_096.) };
     match geometry {
         VectorGeometry::LineString(geo) => {
             geo.coordinates = simplify_line(&geo.coordinates, zoom_tol, false, false);
@@ -197,6 +198,310 @@ pub fn rewind(ring: &mut VectorLineString, clockwise: bool) {
         while i < len_half {
             ring.swap(i, len - i - 1);
             i += 2;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use s2json::{
+        VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPolygonGeometry,
+        VectorPolygonGeometry,
+    };
+
+    use super::*;
+
+    const SIMPLIFY_MAXZOOM: u8 = 16;
+
+    #[test]
+    fn test_rewind() {
+        let mut ring = vec![
+            VectorPoint::new(0., 0., None, None),
+            VectorPoint::new(0., 1., None, None),
+            VectorPoint::new(1., 1., None, None),
+            VectorPoint::new(1., 0., None, None),
+        ];
+
+        rewind(&mut ring, false);
+
+        assert_eq!(
+            ring,
+            vec![
+                VectorPoint::new(1., 0., None, None),
+                VectorPoint::new(0., 1., None, None),
+                VectorPoint::new(1., 1., None, None),
+                VectorPoint::new(0., 0., None, None),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_line_string() {
+        let mut line_string_geo = VectorGeometry::LineString(VectorLineStringGeometry {
+            _type: "LineString".into(),
+            is_3d: false,
+            coordinates: vec![
+                VectorPoint::new(0.25, 0.25, None, None),
+                VectorPoint::new(0.75, 0.25, None, None),
+                VectorPoint::new(0.75, 0.75, None, None),
+                VectorPoint::new(0.25, 0.75, None, None),
+            ],
+            offset: None,
+            bbox: None,
+            vec_bbox: None,
+            indices: None,
+            tesselation: None,
+        });
+        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::LineString(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    VectorPoint { x: 0.25, y: 0.25, t: Some(1.), z: None, m: None },
+                    VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                    VectorPoint { x: 0.75, y: 0.75, t: Some(0.25), z: None, m: None },
+                    VectorPoint { x: 0.25, y: 0.75, t: Some(1.), z: None, m: None },
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+
+        // simplify
+        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::LineString(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    VectorPoint { x: 0.25, y: 0.25, t: Some(1.), z: None, m: None },
+                    VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                    VectorPoint { x: 0.75, y: 0.75, t: Some(0.25), z: None, m: None },
+                    VectorPoint { x: 0.25, y: 0.75, t: Some(1.), z: None, m: None },
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+    }
+
+    #[test]
+    fn test_multi_line_string() {
+        let mut line_string_geo = VectorGeometry::MultiLineString(VectorMultiLineStringGeometry {
+            _type: "MultiLineString".into(),
+            coordinates: vec![
+                vec![
+                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.75, None, None),
+                    VectorPoint::new(0.25, 0.75, None, None),
+                ],
+                vec![
+                    VectorPoint::new(0.5, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.5, None, None),
+                ],
+            ],
+            ..Default::default()
+        });
+        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::MultiLineString(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.75, t: Some(0.25), z: None, m: None },
+                        VectorPoint { x: 0.25, y: 0.75, t: Some(1.), z: None, m: None },
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.25, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.5, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                    ]
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+
+        // simplify
+        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::MultiLineString(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.75, z: None, m: None, t: Some(0.25) },
+                        VectorPoint { x: 0.25, y: 0.75, z: None, m: None, t: Some(1.0) }
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.5, y: 0.25, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.5, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) }
+                    ]
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+    }
+
+    #[test]
+    fn test_polygon() {
+        let mut line_string_geo = VectorGeometry::Polygon(VectorPolygonGeometry {
+            _type: "Polygon".into(),
+            coordinates: vec![
+                vec![
+                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.75, None, None),
+                    VectorPoint::new(0.25, 0.75, None, None),
+                ],
+                vec![
+                    VectorPoint::new(0.5, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.5, None, None),
+                ],
+            ],
+            ..Default::default()
+        });
+        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::Polygon(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.75, t: Some(0.25), z: None, m: None },
+                        VectorPoint { x: 0.25, y: 0.75, t: Some(1.), z: None, m: None },
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.25, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.5, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                    ]
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+
+        // simplify
+        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::Polygon(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.75, z: None, m: None, t: Some(0.25) },
+                        VectorPoint { x: 0.25, y: 0.75, z: None, m: None, t: Some(1.0) }
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.5, y: 0.25, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.5, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) }
+                    ]
+                ]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+    }
+
+    #[test]
+    fn test_multi_polygon() {
+        let mut line_string_geo = VectorGeometry::MultiPolygon(VectorMultiPolygonGeometry {
+            _type: "MultiPolygon".into(),
+            coordinates: vec![vec![
+                vec![
+                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.75, None, None),
+                    VectorPoint::new(0.25, 0.75, None, None),
+                ],
+                vec![
+                    VectorPoint::new(0.5, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.25, None, None),
+                    VectorPoint::new(0.75, 0.5, None, None),
+                    VectorPoint::new(0.5, 0.5, None, None),
+                ],
+            ]],
+            ..Default::default()
+        });
+        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::MultiPolygon(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.75, t: Some(0.25), z: None, m: None },
+                        VectorPoint { x: 0.25, y: 0.75, t: Some(1.), z: None, m: None },
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.25, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.25, t: Some(0.125), z: None, m: None },
+                        VectorPoint { x: 0.75, y: 0.5, t: Some(0.03125), z: None, m: None },
+                        VectorPoint { x: 0.5, y: 0.5, t: Some(1.), z: None, m: None },
+                    ]
+                ]]
+            );
+        } else {
+            panic!("Expected LineString geometry");
+        }
+
+        // simplify
+        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+
+        if let VectorGeometry::MultiPolygon(ref mut line) = line_string_geo {
+            assert_eq!(
+                line.coordinates,
+                vec![vec![
+                    vec![
+                        VectorPoint { x: 0.25, y: 0.25, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.75, z: None, m: None, t: Some(0.25) },
+                        VectorPoint { x: 0.25, y: 0.75, z: None, m: None, t: Some(1.0) }
+                    ],
+                    vec![
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) },
+                        VectorPoint { x: 0.5, y: 0.25, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.75, y: 0.5, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) }
+                    ]
+                ]]
+            );
+        } else {
+            panic!("Expected LineString geometry");
         }
     }
 }

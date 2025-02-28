@@ -262,10 +262,11 @@ export function bboxToXYZBounds(
 /**
  * The circumference at a line of latitude in meters.
  * @param latitude - in degrees
+ * @param circumference - the circumference of the planet. Defaults to Earth
  * @returns - the circumference
  */
-function circumferenceAtLatitude(latitude: number): number {
-  return EARTH_CIRCUMFERENCE * Math.cos((latitude * Math.PI) / 180);
+function circumferenceAtLatitude(latitude: number, circumference = EARTH_CIRCUMFERENCE): number {
+  return circumference * Math.cos((latitude * Math.PI) / 180);
 }
 
 /**
@@ -291,10 +292,15 @@ export function mercatorYfromLat(lat: number): number {
  * Convert altitude to mercator projection Z-Value
  * @param altitude - in meters
  * @param lat - in degrees
+ * @param circumference - the circumference of the planet. Defaults to Earth
  * @returns the Z-Value
  */
-export function mercatorZfromAltitude(altitude: number, lat: number): number {
-  return altitude / circumferenceAtLatitude(lat);
+export function mercatorZfromAltitude(
+  altitude: number,
+  lat: number,
+  circumference = EARTH_CIRCUMFERENCE,
+): number {
+  return altitude / circumferenceAtLatitude(lat, circumference);
 }
 
 /**
@@ -321,10 +327,15 @@ export function latFromMercatorY(y: number): number {
  * Convert mercator projection's Z-Value to altitude
  * @param z - in meters
  * @param y - in radians
+ * @param circumference - the circumference of the planet. Defaults to Earth
  * @returns the altitude
  */
-export function altitudeFromMercatorZ(z: number, y: number): number {
-  return z * circumferenceAtLatitude(latFromMercatorY(y));
+export function altitudeFromMercatorZ(
+  z: number,
+  y: number,
+  circumference = EARTH_CIRCUMFERENCE,
+): number {
+  return z * circumferenceAtLatitude(latFromMercatorY(y), circumference);
 }
 
 /**

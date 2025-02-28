@@ -1,9 +1,9 @@
 use crate::geometry::{
     build_sq_dists, clip_line, BBox3D, ClipLineResultWithBBox, Face, Feature, Geometry, LonLat,
-    S2Feature, S2Point, STPoint, VectorFeature, VectorGeometry, VectorGeometryType,
-    VectorLineString, VectorLineStringGeometry, VectorMultiLineStringGeometry,
-    VectorMultiPointGeometry, VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
-    VectorPolygon, VectorPolygonGeometry,
+    S2Point, STPoint, VectorFeature, VectorGeometry, VectorGeometryType, VectorLineString,
+    VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
+    VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry, VectorPolygon,
+    VectorPolygonGeometry,
 };
 
 use alloc::collections::BTreeSet;
@@ -17,6 +17,7 @@ pub trait ConvertFeature<M: Clone> {
 }
 
 // TODO: We are cloning geometry twice at times. Let's optimize (check "to_vec" and "clone" cases)
+// TODO: To fix just use mem::take
 
 impl<M: Clone> ConvertFeature<M> for Feature<M> {
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
@@ -35,33 +36,33 @@ pub trait ConvertVectorFeatureWM<M: Clone> {
     /// Convert a 0->1 coordinate system to lon-lat
     fn to_ll(&mut self);
     /// Convert a GeoJSON Vector Feature to an S2 Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<S2Feature<M>>;
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M>>;
 }
 
 impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
     fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>) {
-        let mut bbox: Option<BBox3D> = None;
+        let mut bbox = BBox3D::default();
         match &mut self.geometry {
             VectorGeometry::Point(geo) => {
-                geo.coordinates.project(&mut bbox);
-                geo.vec_bbox = bbox;
+                geo.coordinates.project(Some(&mut bbox));
+                geo.vec_bbox = Some(bbox);
             }
             VectorGeometry::LineString(geo) | VectorGeometry::MultiPoint(geo) => {
-                geo.coordinates.iter_mut().for_each(|p| p.project(&mut bbox));
-                geo.vec_bbox = bbox;
+                geo.coordinates.iter_mut().for_each(|p| p.project(Some(&mut bbox)));
+                geo.vec_bbox = Some(bbox);
             }
             VectorGeometry::Polygon(geo) | VectorGeometry::MultiLineString(geo) => {
                 geo.coordinates
                     .iter_mut()
-                    .for_each(|p| p.iter_mut().for_each(|p| p.project(&mut bbox)));
-                geo.vec_bbox = bbox;
+                    .for_each(|p| p.iter_mut().for_each(|p| p.project(Some(&mut bbox))));
+                geo.vec_bbox = Some(bbox);
             }
             VectorGeometry::MultiPolygon(geo) => {
                 geo.coordinates.iter_mut().for_each(|p| {
-                    p.iter_mut().for_each(|p| p.iter_mut().for_each(|p| p.project(&mut bbox)))
+                    p.iter_mut().for_each(|p| p.iter_mut().for_each(|p| p.project(Some(&mut bbox))))
                 });
-                geo.vec_bbox = bbox;
+                geo.vec_bbox = Some(bbox);
             }
         }
 
@@ -91,16 +92,16 @@ impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
     }
 
     /// Convet a GeoJSON Feature to an S2Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<S2Feature<M>> {
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M>> {
         let VectorFeature { _type, id, properties, metadata, geometry, .. } = self;
-        let mut res: Vec<S2Feature<M>> = vec![];
+        let mut res: Vec<VectorFeature<M>> = vec![];
 
         if _type == "S2Feature" {
             res.push(self.clone());
         } else {
             let vector_geo = convert_geometry_wm_to_s2(geometry, tolerance, maxzoom);
             for ConvertedGeometry { geometry, face } in vector_geo {
-                res.push(S2Feature::<M>::new_s2(
+                res.push(VectorFeature::<M>::new_s2(
                     *id,
                     face,
                     properties.clone(),
@@ -119,31 +120,27 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
     // TODO: build a bbox if user wants it
     match geometry {
         Geometry::Point(geo) => {
-            let mut coordinates: VectorPoint = (&geo.coordinates).into();
+            let mut coordinates: VectorPoint = (geo.coordinates).into();
             coordinates.m = geo.m_values.clone();
             VectorGeometry::Point(VectorPointGeometry {
                 _type: VectorGeometryType::Point,
                 is_3d: false,
                 coordinates,
-                bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
-                offset: None,
+                bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
                 vec_bbox: None,
-                indices: None,
-                tesselation: None,
+                ..Default::default()
             })
         }
         Geometry::Point3D(geo) => {
-            let mut coordinates: VectorPoint = (&geo.coordinates).into();
+            let mut coordinates: VectorPoint = (geo.coordinates).into();
             coordinates.m = geo.m_values.clone();
             VectorGeometry::Point(VectorPointGeometry {
                 _type: VectorGeometryType::Point,
                 is_3d: true,
                 coordinates,
                 bbox: geo.bbox,
-                offset: None,
                 vec_bbox: None,
-                indices: None,
-                tesselation: None,
+                ..Default::default()
             })
         }
         Geometry::MultiPoint(geo) => VectorGeometry::MultiPoint(VectorMultiPointGeometry {
@@ -154,14 +151,14 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                 .iter()
                 .enumerate()
                 .map(|(i, p)| {
-                    let mut vp = VectorPoint::from(p);
+                    let mut vp = VectorPoint::from(*p);
                     if let Some(m) = &geo.m_values {
                         vp.m = Some(m[i].clone());
                     }
                     vp
                 })
                 .collect(),
-            bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
+            bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
             ..Default::default()
         }),
         Geometry::MultiPoint3D(geo) => VectorGeometry::MultiPoint(VectorMultiPointGeometry {
@@ -172,7 +169,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                 .iter()
                 .enumerate()
                 .map(|(i, p)| {
-                    let mut vp = VectorPoint::from(p);
+                    let mut vp = VectorPoint::from(*p);
                     if let Some(m) = &geo.m_values {
                         vp.m = Some(m[i].clone());
                     }
@@ -190,14 +187,14 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                 .iter()
                 .enumerate()
                 .map(|(i, p)| {
-                    let mut vp = VectorPoint::from(p);
+                    let mut vp = VectorPoint::from(*p);
                     if let Some(m) = &geo.m_values {
                         vp.m = Some(m[i].clone());
                     }
                     vp
                 })
                 .collect(),
-            bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
+            bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
             ..Default::default()
         }),
         Geometry::LineString3D(geo) => VectorGeometry::LineString(VectorLineStringGeometry {
@@ -208,7 +205,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                 .iter()
                 .enumerate()
                 .map(|(i, p)| {
-                    let mut vp = VectorPoint::from(p);
+                    let mut vp = VectorPoint::from(*p);
                     if let Some(m) = &geo.m_values {
                         vp.m = Some(m[i].clone());
                     }
@@ -230,7 +227,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                         line.iter()
                             .enumerate()
                             .map(|(j, p)| {
-                                let mut vp = VectorPoint::from(p);
+                                let mut vp = VectorPoint::from(*p);
                                 if let Some(m) = &geo.m_values {
                                     vp.m = Some(m[i][j].clone());
                                 }
@@ -239,7 +236,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                             .collect()
                     })
                     .collect(),
-                bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
+                bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
                 ..Default::default()
             })
         }
@@ -255,7 +252,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                         line.iter()
                             .enumerate()
                             .map(|(j, p)| {
-                                let mut vp = VectorPoint::from(p);
+                                let mut vp = VectorPoint::from(*p);
                                 if let Some(m) = &geo.m_values {
                                     vp.m = Some(m[i][j].clone());
                                 }
@@ -279,7 +276,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                     line.iter()
                         .enumerate()
                         .map(|(j, p)| {
-                            let mut vp = VectorPoint::from(p);
+                            let mut vp = VectorPoint::from(*p);
                             if let Some(m) = &geo.m_values {
                                 vp.m = Some(m[i][j].clone());
                             }
@@ -288,7 +285,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                         .collect()
                 })
                 .collect(),
-            bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
+            bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
             ..Default::default()
         }),
         Geometry::Polygon3D(geo) => VectorGeometry::Polygon(VectorPolygonGeometry {
@@ -302,7 +299,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                     line.iter()
                         .enumerate()
                         .map(|(j, p)| {
-                            let mut vp = VectorPoint::from(p);
+                            let mut vp = VectorPoint::from(*p);
                             if let Some(m) = &geo.m_values {
                                 vp.m = Some(m[i][j].clone());
                             }
@@ -329,7 +326,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                             line.iter()
                                 .enumerate()
                                 .map(|(k, p)| {
-                                    let mut vp = VectorPoint::from(p);
+                                    let mut vp = VectorPoint::from(*p);
                                     if let Some(m) = &geo.m_values {
                                         vp.m = Some(m[i][j][k].clone());
                                     }
@@ -340,7 +337,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                         .collect()
                 })
                 .collect(),
-            bbox: geo.bbox.as_ref().map(|bbox| bbox.into()),
+            bbox: geo.bbox.as_ref().map(|bbox| (*bbox).into()),
             ..Default::default()
         }),
         Geometry::MultiPolygon3D(geo) => VectorGeometry::MultiPolygon(VectorMultiPolygonGeometry {
@@ -358,7 +355,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
                             line.iter()
                                 .enumerate()
                                 .map(|(k, p)| {
-                                    let mut vp = VectorPoint::from(p);
+                                    let mut vp = VectorPoint::from(*p);
                                     if let Some(m) = &geo.m_values {
                                         vp.m = Some(m[i][j][k].clone());
                                     }
@@ -431,7 +428,8 @@ fn convert_geometry_wm_to_s2(
 fn convert_geometry_point(geometry: &VectorPointGeometry) -> ConvertedGeometryList {
     let VectorPointGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
     let mut new_point = coordinates.clone();
-    let ll: S2Point = (&LonLat::new(new_point.x, new_point.y, new_point.m.clone())).into();
+    let ll: S2Point =
+        (&LonLat::new(new_point.x, new_point.y, core::mem::take(&mut new_point.m))).into();
     let (face, s, t) = ll.to_face_st();
     new_point.x = s;
     new_point.y = t;
@@ -444,17 +442,12 @@ fn convert_geometry_point(geometry: &VectorPointGeometry) -> ConvertedGeometryLi
             is_3d: *is_3d,
             bbox: *bbox,
             vec_bbox,
-            offset: None,
-            indices: None,
-            tesselation: None,
+            ..Default::default()
         }),
     }]
 }
 
-// /**
-//  * @param geometry - GeoJSON PointGeometry
-//  * @returns - S2 PointGeometry
-//  */
+/// Convert a GeoJSON MultiPointGeometry to S2 MultiPointGeometry
 fn convert_geometry_multipoint(geometry: &VectorMultiPointGeometry) -> ConvertedGeometryList {
     let VectorMultiPointGeometry { is_3d, coordinates, bbox, .. } = geometry;
     coordinates
@@ -465,10 +458,7 @@ fn convert_geometry_multipoint(geometry: &VectorMultiPointGeometry) -> Converted
                 is_3d: *is_3d,
                 coordinates: coordinates.clone(),
                 bbox: *bbox,
-                offset: None,
-                vec_bbox: None,
-                indices: None,
-                tesselation: None,
+                ..Default::default()
             })
         })
         .collect()
@@ -481,13 +471,13 @@ fn convert_geometry_linestring(geometry: &VectorLineStringGeometry) -> Converted
     convert_line_string(coordinates, false)
         .into_iter()
         .map(|cline| {
-            let ConvertedLineString { face, line, offset, vec_bbox } = cline;
+            let ConvertedLineString { face, mut line, offset, vec_bbox } = cline;
             ConvertedGeometry {
                 face,
                 geometry: VectorGeometry::LineString(VectorLineStringGeometry {
                     _type: VectorGeometryType::LineString,
                     is_3d: *is_3d,
-                    coordinates: line.to_vec(),
+                    coordinates: core::mem::take(&mut line),
                     bbox: *bbox,
                     offset: Some(offset),
                     vec_bbox: Some(vec_bbox),
@@ -533,7 +523,7 @@ fn convert_geometry_polygon(geometry: &VectorPolygonGeometry) -> ConvertedGeomet
 
     // for each face, build a new polygon
     for ConvertedLineString { face, line, offset, vec_bbox: poly_bbox } in &mut outer_ring {
-        let mut polygon: VectorPolygon = vec![line.to_vec()];
+        let mut polygon: VectorPolygon = vec![core::mem::take(line)];
         let mut polygon_offsets = vec![*offset];
         let mut poly_bbox = *poly_bbox;
         for ConvertedLineString {

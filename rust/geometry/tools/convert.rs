@@ -60,7 +60,7 @@ fn convert_feature<M: Clone + ConvertFeature<M> + ConvertVectorFeatureS2<M>>(
     let mut vf: VectorFeature<M> = Feature::<M>::to_vector(data, build_bbox);
     match projection {
         Projection::S2 => vf.to_s2(tolerance, maxzoom),
-        Projection::WM => {
+        Projection::WG => {
             vf.to_unit_scale(tolerance, maxzoom);
             vec![vf]
         }
@@ -76,7 +76,7 @@ fn convert_vector_feature<M: Clone + ConvertVectorFeatureWM<M>>(
 ) -> Vec<VectorFeature<M>> {
     match projection {
         Projection::S2 => data.to_s2(tolerance, maxzoom),
-        Projection::WM => {
+        Projection::WG => {
             let mut vf = data.to_wm();
             vf.to_unit_scale(tolerance, maxzoom);
             vec![vf]

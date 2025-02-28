@@ -545,9 +545,9 @@ checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
 name = "s2json"
-version = "1.6.0"
+version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67dde87e8cd74deb7165d50fae6083bcd3b470d404f4a82bca88067e47368775"
+checksum = "ded7b9a7ef811286bb0daa96a8494b983f1faad909fbaacdacd060813cb7e881"
 dependencies = [
  "libm",
  "serde",

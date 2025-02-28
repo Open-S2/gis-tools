@@ -1,9 +1,9 @@
 use core::f64::consts::PI;
 
-use libm::{atan, floor, round, sqrt, tan};
+use libm::{atan, round, sqrt, tan};
 
-use super::coords_internal::{K_FACE_UVW_AXES, K_FACE_UVW_FACES};
-use crate::geometry::{Point, S2Point};
+use super::coords_internal::K_FACE_UVW_AXES;
+use crate::geometry::S2Point;
 
 // This file contains documentation of the various coordinate systems used
 // throughout the library.  Most importantly, S2 defines a framework for
@@ -266,6 +266,7 @@ pub fn st_to_si_ti(s: f64) -> u32 {
 }
 
 /// Convert a direction vector (not necessarily unit length) to an (s,t) point.
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct ST {
     /// the s coordinate
     pub s: f64,
@@ -280,6 +281,7 @@ pub fn to_face_st(p: &S2Point, face: u8) -> ST {
 }
 
 /// A U-V coordinate pair.
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct UV {
     /// the u coordinate
     pub u: f64,
@@ -431,87 +433,142 @@ pub fn get_uvw_axis(face: u8, axis: usize) -> S2Point {
     S2Point::new(p[0], p[1], p[2])
 }
 
-/// With respect to the (u,v,w) coordinate system of a given face, return the
-/// face that lies in the given direction (negative=0, positive=1) of the
-/// given axis (u=0, v=1, w=2).  For example, GetUVWFace(4, 0, 1) returns the
-/// face that is adjacent to face 4 in the positive u-axis direction.
-pub fn get_uvw_face(face: u8, axis: usize, direction: usize) -> i32 {
-    if !(0..=5).contains(&face) {
-        unreachable!();
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_st_to_uvlinear() {
+        assert_eq!(st_to_uvlinear(0.0), -1.);
+        assert_eq!(st_to_uvlinear(0.5), 0.);
+        assert_eq!(st_to_uvlinear(1.0), 1.0);
     }
-    if !(0..=2).contains(&axis) {
-        unreachable!();
+
+    #[test]
+    fn test_st_to_uvtan() {
+        assert_eq!(st_to_uvtan(0.0), -1.);
+        assert_eq!(st_to_uvtan(0.5), 0.);
+        assert_eq!(st_to_uvtan(1.0), 1.0);
     }
-    if !(0..=1).contains(&direction) {
-        unreachable!();
+
+    #[test]
+    fn test_uv_to_stlinear() {
+        assert_eq!(uv_to_stlinear(-1.), 0.);
+        assert_eq!(uv_to_stlinear(0.), 0.5);
+        assert_eq!(uv_to_stlinear(1.0), 1.0);
     }
-    K_FACE_UVW_FACES[face as usize][axis][direction]
-}
 
-/// Convert a direction vector (not necessarily unit length) to
-/// (face, si, ti) coordinates and, if p is exactly equal to the center of a
-/// cell, return the level of this cell (31 otherwise as its outside the bounds of levels).
-/// Return (face, zoom, si, ti).
-pub fn xyz_to_face_si_ti(p: &S2Point) -> (u8, u8, u32, u32) {
-    let (face, u, v) = xyz_to_face_uv(p);
-    let si = st_to_si_ti(UV_TO_ST(u));
-    let ti = st_to_si_ti(UV_TO_ST(v));
-    // If the levels corresponding to si,ti are not equal, then p is not a cell
-    // center.  The si,ti values 0 and kMaxSiTi need to be handled specially
-    // because they do not correspond to cell centers at any valid level; they
-    // are mapped to level -1 by the code below.
-    // let level = K_MAX_CELL_LEVEL - (si.* | K_MAX_SI_TI);
-    let level: i32 = K_MAX_CELL_LEVEL as i32 - ((si | K_MAX_SI_TI).trailing_zeros() as i32);
-    // if (level < 0 or level != K_MAX_CELL_LEVEL - @ctz(ti.* | K_MAX_SI_TI)) return 31;
-    if level < 0 || level != K_MAX_CELL_LEVEL as i32 - ((ti | K_MAX_SI_TI).trailing_zeros() as i32)
-    {
-        return (face, 31, si, ti);
+    #[test]
+    fn test_uv_to_st_tan() {
+        assert_eq!(uv_to_st_tan(-1.), 0.);
+        assert_eq!(uv_to_st_tan(0.), 0.5);
+        assert_eq!(uv_to_st_tan(1.0), 1.0);
     }
-    // In infinite precision, this test could be changed to ST == SiTi. However,
-    // due to rounding errors, UV_TO_ST(xyz_to_face_uv(face_uv_to_xyz(STtoUV(...)))) is
-    // not idempotent. On the other hand, center_raw is computed exactly the same
-    // way p was originally computed (if it is indeed the center of an S2Cell):
-    // the comparison can be exact.
-    // let center: &S2Point = FaceSiTitoXYZ(face, si, ti).Normalize();
-    let mut center = face_si_ti_to_xyz(face, si, ti);
-    center.normalize();
-    if *p == center {
-        (face, level as u8, si, ti)
-    } else {
-        (face, 31, si, ti)
+
+    #[test]
+    #[should_panic(expected = "internal error: entered unreachable code")]
+    fn test_ij_to_st() {
+        // NEEDS TO FAIL
+        ij_to_st(K_LIMIT_IJ + 1);
     }
-}
 
-/// Convert (face, si, ti) coordinates to a direction vector (not necessarily
-/// unit length).
-pub fn face_si_ti_to_xyz(face: u8, si: u32, ti: u32) -> S2Point {
-    let u = ST_TO_UV(si_ti_to_st(si));
-    let v = ST_TO_UV(si_ti_to_st(ti));
-    face_uv_to_xyz(face, u, v)
-}
+    #[test]
+    #[should_panic(expected = "internal error: entered unreachable code")]
+    fn test_si_ti_to_st() {
+        // needs to fail
+        si_ti_to_st(K_MAX_SI_TI + 1);
+    }
 
-/// Convert an u-v-zoom coordinate to a tile coordinate
-/// returns the tile X-Y coordinate
-pub fn tile_xy_from_uv_zoom(u: f64, v: f64, zoom: u8) -> Point {
-    tile_xy_from_st_zoom(UV_TO_ST(u), UV_TO_ST(v), zoom)
-}
+    #[test]
+    fn test_st_to_si_ti() {
+        assert_eq!(st_to_si_ti(0.0), 0);
+        assert_eq!(st_to_si_ti(0.5), K_MAX_SI_TI / 2);
+        assert_eq!(st_to_si_ti(1.0), K_MAX_SI_TI);
+    }
 
-/// Convert an s-t-zoom coordinate to a tile coordinate
-/// returns the tile X-Y coordinate
-pub fn tile_xy_from_st_zoom(s: f64, t: f64, zoom: u8) -> Point {
-    let division_factor = (2 / (1 << zoom)) as f64 * 0.5;
+    #[test]
+    fn test_to_face_st() {
+        assert_eq!(to_face_st(&S2Point { x: 1.0, y: 0.0, z: 0.0 }, 0), ST { s: 0.5, t: 0.5 });
+    }
 
-    (floor(s / division_factor), floor(t / division_factor))
-}
+    #[test]
+    fn test_to_face_uv() {
+        let p = S2Point::new(1.0, 0.0, 0.0);
+        assert_eq!(to_face_uv(&p, 0), UV { u: 0., v: 0. });
+    }
 
-// **** TEST FUNCTIONS ****
+    #[test]
+    fn test_face_xyz_to_uv() {
+        let p = S2Point::new(1.0, 0.0, 0.0);
+        assert_eq!(face_xyz_to_uv(0, &p), (true, 0., 0.));
+        assert_eq!(face_xyz_to_uv(1, &p), (false, 0., 0.));
+        assert_eq!(face_xyz_to_uv(2, &p), (false, 0., 0.));
+        assert_eq!(face_xyz_to_uv(3, &p), (false, 0., 0.));
+        assert_eq!(face_xyz_to_uv(4, &p), (false, 0., 0.));
+        assert_eq!(face_xyz_to_uv(5, &p), (false, 0., 0.));
+    }
 
-/// swap the i and j axes
-pub fn swap_axes(ij: usize) -> usize {
-    ((ij >> 1) & 1) + ((ij & 1) << 1)
-}
+    #[test]
+    fn test_face_xyz_to_uvw() {
+        let p = S2Point::new(1.0, 0.0, 0.0);
+        let uvw_0 = face_xyz_to_uvw(0, &p);
+        assert_eq!(uvw_0, S2Point::new(0., 0., 1.));
+        let uvw_1 = face_xyz_to_uvw(1, &p);
+        assert_eq!(uvw_1, S2Point::new(-1., 0., 0.));
+        let uvw_2 = face_xyz_to_uvw(2, &p);
+        assert_eq!(uvw_2, S2Point::new(-1., 0., 0.));
+        let uvw_3 = face_xyz_to_uvw(3, &p);
+        assert_eq!(uvw_3, S2Point::new(0., 0., -1.));
+        let uvw_4 = face_xyz_to_uvw(4, &p);
+        assert_eq!(uvw_4, S2Point::new(0., 1., 0.));
+        let uvw_5 = face_xyz_to_uvw(5, &p);
+        assert_eq!(uvw_5, S2Point::new(0., 1., 0.));
+    }
 
-/// invert the i and j axes
-pub fn invert_bits(ij: usize) -> usize {
-    ij ^ 3
+    #[test]
+    fn test_get_u_norm() {
+        assert_eq!(get_u_norm(0, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_u_norm(0, 0.25), S2Point::new(0.25, -1., 0.));
+
+        assert_eq!(get_u_norm(1, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_u_norm(1, 1.), S2Point::new(1., 1., 0.));
+
+        assert_eq!(get_u_norm(2, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_u_norm(2, 1.), S2Point::new(1., 0., 1.));
+
+        assert_eq!(get_u_norm(3, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_u_norm(3, 1.), S2Point::new(-1., 0., 1.));
+
+        assert_eq!(get_u_norm(4, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_u_norm(4, 1.), S2Point::new(0., -1., 1.));
+
+        assert_eq!(get_u_norm(5, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_u_norm(5, 1.), S2Point::new(0., -1., -1.));
+    }
+
+    #[test]
+    fn test_get_v_norm() {
+        assert_eq!(get_v_norm(0, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_v_norm(1, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_v_norm(2, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_v_norm(3, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_v_norm(4, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_v_norm(5, 0.), S2Point::new(1., 0., 0.));
+    }
+
+    #[test]
+    fn test_get_u_axis() {
+        assert_eq!(get_u_axis(0), S2Point::new(0., 1., 0.));
+    }
+
+    #[test]
+    fn test_get_v_axis() {
+        assert_eq!(get_v_axis(0), S2Point::new(0., 0., 1.));
+    }
+
+    #[test]
+    #[should_panic(expected = "internal error: entered unreachable code")]
+    fn test_valid_face_xyz_to_uv() {
+        valid_face_xyz_to_uv(0, &S2Point::new(0., 0., 0.));
+    }
 }
