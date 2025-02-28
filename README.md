@@ -79,7 +79,7 @@ cargo add gis-tools
 
 | Main Modules             | Size                          | Description                                                      |
 | ------------------------ | ----------------------------- | ---------------------------------------------------------------- |
-| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
+| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data. <img width="441" height="1">    |
 | [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
 
 [toJSON]: /docs-ts/converters/toJSON.md
