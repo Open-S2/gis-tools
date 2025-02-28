@@ -1,5 +1,12 @@
 # GIS Tools Typescript Documentation
 
+<style>
+table {
+    display:table;
+    width:100%;
+}
+</style>
+
 ## Purpose
 
 ## Components

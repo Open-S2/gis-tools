@@ -29,6 +29,13 @@
   </a>
 </p>
 
+<style>
+table {
+    display:table;
+    width:100%;
+}
+</style>
+
 ## About
 
 A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.
