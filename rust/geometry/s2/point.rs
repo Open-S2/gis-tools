@@ -14,6 +14,7 @@ use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
 /// arithmetic expressions (e.g. (1-x)*p1 + x*p2).
 /// NOTE: asumes only f64 or greater is used.
 #[derive(Debug, Copy, Clone, Default, PartialEq)]
+#[repr(C)]
 pub struct S2Point {
     /// The x component.
     pub x: f64,

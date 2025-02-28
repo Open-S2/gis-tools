@@ -4,8 +4,6 @@
 // orientations of the Hilbert curve (axes swapped and/or directions
 // of the axes reversed).
 
-// use crate::geometry::K_LOOKUP_BITS;
-
 /// Together these flags define a cell orientation.  If 'kSwapMask'
 /// is true, then canonical traversal order is flipped around the
 /// diagonal (i.e. i and j are swapped with each other).  If
@@ -246,98 +244,3 @@ pub const LOOKUP_IJ: [u16; 1024] = [
     249, 114, 775, 972, 253, 50, 771, 971, 190, 53, 832, 966, 127, 56, 897, 903, 122, 121, 900,
     899, 58, 125, 964, 960, 61, 62, 963,
 ];
-
-// /// Lookup table for position to (i,j)
-// pub static LOOKUP_POS: [u16; 1024] = init_cells(false);
-// /// Lookup table for (i,j) to position
-// pub static LOOKUP_IJ: [u16; 1024] = init_cells(true);
-
-// const fn init_cells(is_ij: bool) -> [u16; 1024] {
-//     let res: [u16; 1024] = [0; 1024];
-//     init_lookup_cell(res, is_ij, 0, 0, 0, 0, 0, 0);
-//     init_lookup_cell(res, is_ij, 0, 0, 0, K_SWAP_MASK as usize, 0, K_SWAP_MASK as usize);
-//     init_lookup_cell(res, is_ij, 0, 0, 0, K_INVERT_MASK as usize, 0, K_INVERT_MASK as usize);
-//     init_lookup_cell(
-//         res,
-//         is_ij,
-//         0,
-//         0,
-//         0,
-//         (K_SWAP_MASK | K_INVERT_MASK) as usize,
-//         0,
-//         (K_SWAP_MASK | K_INVERT_MASK) as usize,
-//     );
-
-//     res
-// }
-
-// #[allow(clippy::too_many_arguments)]
-// const fn init_lookup_cell(
-//     mut res: [u16; 1024],
-//     is_ij: bool,
-//     level: u8,
-//     i: usize,
-//     j: usize,
-//     orig_orientation: usize,
-//     pos: usize,
-//     orientation: usize,
-// ) {
-//     let mut level = level;
-//     let mut i = i;
-//     let mut j = j;
-//     let mut pos = pos;
-//     if level == K_LOOKUP_BITS {
-//         let ij = (i << K_LOOKUP_BITS) + j;
-//         if is_ij {
-//             res[(pos << 2) + orig_orientation] = ((ij << 2) + orientation) as u16;
-//         } else {
-//             res[(ij << 2) + orig_orientation] = ((pos << 2) + orientation) as u16;
-//         }
-//     } else {
-//         level += 1;
-//         i <<= 1;
-//         j <<= 1;
-//         pos <<= 2;
-//         let r = K_POS_TO_IJ[orientation];
-//         init_lookup_cell(
-//             res,
-//             is_ij,
-//             level,
-//             i + (r[0] >> 1),
-//             j + (r[0] & 1),
-//             orig_orientation,
-//             pos,
-//             orientation ^ K_POS_TO_ORIENTATION[0] as usize,
-//         );
-//         init_lookup_cell(
-//             res,
-//             is_ij,
-//             level,
-//             i + (r[1] >> 1),
-//             j + (r[1] & 1),
-//             orig_orientation,
-//             pos + 1,
-//             orientation ^ K_POS_TO_ORIENTATION[1] as usize,
-//         );
-//         init_lookup_cell(
-//             res,
-//             is_ij,
-//             level,
-//             i + (r[2] >> 1),
-//             j + (r[2] & 1),
-//             orig_orientation,
-//             pos + 2,
-//             orientation ^ K_POS_TO_ORIENTATION[2] as usize,
-//         );
-//         init_lookup_cell(
-//             res,
-//             is_ij,
-//             level,
-//             i + (r[3] >> 1),
-//             j + (r[3] & 1),
-//             orig_orientation,
-//             pos + 3,
-//             orientation ^ K_POS_TO_ORIENTATION[3] as usize,
-//         );
-//     }
-// }

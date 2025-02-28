@@ -1,6 +1,19 @@
 import { K_MAX_LEVEL } from '../id';
 
 /**
+ * Returns mantissa * 2^exponent
+ * @param mantissa - mantissa
+ * @param exponent - exponent
+ * @returns - mantissa * 2^exponent
+ */
+function ldexp(mantissa: number, exponent: number): number {
+  const steps = Math.min(3, Math.ceil(Math.abs(exponent) / 1023));
+  let result = mantissa;
+  for (let i = 0; i < steps; i++) result *= Math.pow(2, Math.floor((exponent + i) / steps));
+  return result;
+}
+
+/**
  * The following are various constants that describe the shapes and sizes of
  * S2Cells (see s2coords.h and s2cell_id.h).  They are useful for deciding
  * which cell level to use in order to satisfy a given condition (e.g. that
@@ -45,7 +58,7 @@ export class Metric {
    * @returns The value of the metric
    */
   getValue(level: number): number {
-    return this.deriv * Math.pow(2, -this.dim * level);
+    return this.deriv * ldexp(2.0, -this.dim * level);
   }
 
   /**

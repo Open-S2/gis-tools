@@ -22,10 +22,10 @@ import { describe, expect, it } from 'bun:test';
 describe('K_AVG_ANGLE_SPAN', () => {
   const kAvgAngleSpan = K_AVG_ANGLE_SPAN();
   it('getValue', () => {
-    expect(kAvgAngleSpan.getValue(0)).toEqual(1.5707963267948966);
-    expect(kAvgAngleSpan.getValue(1)).toEqual(0.7853981633974483);
-    expect(kAvgAngleSpan.getValue(2)).toEqual(0.39269908169872414);
-    expect(kAvgAngleSpan.getValue(3)).toEqual(0.19634954084936207);
+    expect(kAvgAngleSpan.getValue(0)).toEqual(3.141592653589793);
+    expect(kAvgAngleSpan.getValue(1)).toEqual(1.5707963267948966);
+    expect(kAvgAngleSpan.getValue(2)).toEqual(0.7853981633974483);
+    expect(kAvgAngleSpan.getValue(3)).toEqual(0.39269908169872414);
   });
 
   it('getClosestLevel', () => {
@@ -62,10 +62,10 @@ describe('K_AVG_ANGLE_SPAN', () => {
 describe('K_MAX_ANGLE_SPAN', () => {
   const kMaxAngleSpan = K_MAX_ANGLE_SPAN();
   it('getValue', () => {
-    expect(kMaxAngleSpan.getValue(0)).toEqual(1.704897179199218);
-    expect(kMaxAngleSpan.getValue(1)).toEqual(0.852448589599609);
-    expect(kMaxAngleSpan.getValue(2)).toEqual(0.4262242947998045);
-    expect(kMaxAngleSpan.getValue(3)).toEqual(0.21311214739990225);
+    expect(kMaxAngleSpan.getValue(0)).toEqual(3.409794358398436);
+    expect(kMaxAngleSpan.getValue(1)).toEqual(1.704897179199218);
+    expect(kMaxAngleSpan.getValue(2)).toEqual(0.852448589599609);
+    expect(kMaxAngleSpan.getValue(3)).toEqual(0.4262242947998045);
   });
 
   it('getClosestLevel', () => {
@@ -102,10 +102,10 @@ describe('K_MAX_ANGLE_SPAN', () => {
 describe('K_MIN_ANGLE_SPAN', () => {
   const kMinAreaSpan = K_MIN_ANGLE_SPAN();
   it('getValue', () => {
-    expect(kMinAreaSpan.getValue(0)).toEqual(1.3333333333333333);
-    expect(kMinAreaSpan.getValue(1)).toEqual(0.6666666666666666);
-    expect(kMinAreaSpan.getValue(2)).toEqual(0.3333333333333333);
-    expect(kMinAreaSpan.getValue(3)).toEqual(0.16666666666666666);
+    expect(kMinAreaSpan.getValue(0)).toEqual(2.6666666666666665);
+    expect(kMinAreaSpan.getValue(1)).toEqual(1.3333333333333333);
+    expect(kMinAreaSpan.getValue(2)).toEqual(0.6666666666666666);
+    expect(kMinAreaSpan.getValue(3)).toEqual(0.3333333333333333);
   });
 
   it('getClosestLevel', () => {
@@ -144,10 +144,10 @@ describe('K_MIN_ANGLE_SPAN', () => {
 describe('K_AVG_AREA', () => {
   const kAvgArea = K_AVG_AREA();
   it('getValue', () => {
-    expect(kAvgArea.getValue(0)).toEqual(2.0943951023931953);
-    expect(kAvgArea.getValue(1)).toEqual(0.5235987755982988);
-    expect(kAvgArea.getValue(2)).toEqual(0.1308996938995747);
-    expect(kAvgArea.getValue(3)).toEqual(0.032724923474893676);
+    expect(kAvgArea.getValue(0)).toEqual(4.1887902047863905);
+    expect(kAvgArea.getValue(1)).toEqual(1.0471975511965976);
+    expect(kAvgArea.getValue(2)).toEqual(0.2617993877991494);
+    expect(kAvgArea.getValue(3)).toEqual(0.06544984694978735);
   });
 
   it('getClosestLevel', () => {
@@ -184,10 +184,10 @@ describe('K_AVG_AREA', () => {
 describe('K_MAX_AREA', () => {
   const kMaxArea = K_MAX_AREA();
   it('getValue', () => {
-    expect(kMaxArea.getValue(0)).toEqual(2.6357992569631614);
-    expect(kMaxArea.getValue(1)).toEqual(0.6589498142407904);
-    expect(kMaxArea.getValue(2)).toEqual(0.1647374535601976);
-    expect(kMaxArea.getValue(3)).toEqual(0.0411843633900494);
+    expect(kMaxArea.getValue(0)).toEqual(5.271598513926323);
+    expect(kMaxArea.getValue(1)).toEqual(1.3178996284815807);
+    expect(kMaxArea.getValue(2)).toEqual(0.3294749071203952);
+    expect(kMaxArea.getValue(3)).toEqual(0.0823687267800988);
   });
 
   it('getClosestLevel', () => {
@@ -224,10 +224,10 @@ describe('K_MAX_AREA', () => {
 describe('K_MIN_AREA', () => {
   const kMinArea = K_MIN_AREA();
   it('getValue', () => {
-    expect(kMinArea.getValue(0)).toEqual(1.257078722109418);
-    expect(kMinArea.getValue(1)).toEqual(0.3142696805273545);
-    expect(kMinArea.getValue(2)).toEqual(0.07856742013183862);
-    expect(kMinArea.getValue(3)).toEqual(0.019641855032959656);
+    expect(kMinArea.getValue(0)).toEqual(2.514157444218836);
+    expect(kMinArea.getValue(1)).toEqual(0.628539361054709);
+    expect(kMinArea.getValue(2)).toEqual(0.15713484026367724);
+    expect(kMinArea.getValue(3)).toEqual(0.03928371006591931);
   });
 
   it('getClosestLevel', () => {
@@ -266,10 +266,10 @@ describe('K_MIN_AREA', () => {
 describe('K_AVG_DIAG', () => {
   const kAvgDiag = K_AVG_DIAG();
   it('getValue', () => {
-    expect(kAvgDiag.getValue(0)).toEqual(2.060422738998471);
-    expect(kAvgDiag.getValue(1)).toEqual(1.0302113694992354);
-    expect(kAvgDiag.getValue(2)).toEqual(0.5151056847496177);
-    expect(kAvgDiag.getValue(3)).toEqual(0.25755284237480885);
+    expect(kAvgDiag.getValue(0)).toEqual(4.120845477996942);
+    expect(kAvgDiag.getValue(1)).toEqual(2.060422738998471);
+    expect(kAvgDiag.getValue(2)).toEqual(1.0302113694992354);
+    expect(kAvgDiag.getValue(3)).toEqual(0.5151056847496177);
   });
 
   it('getClosestLevel', () => {
@@ -306,10 +306,10 @@ describe('K_AVG_DIAG', () => {
 describe('K_MAX_DIAG', () => {
   const kMaxDiag = K_MAX_DIAG();
   it('getValue', () => {
-    expect(kMaxDiag.getValue(0)).toEqual(2.438654594434021);
-    expect(kMaxDiag.getValue(1)).toEqual(1.2193272972170106);
-    expect(kMaxDiag.getValue(2)).toEqual(0.6096636486085053);
-    expect(kMaxDiag.getValue(3)).toEqual(0.30483182430425265);
+    expect(kMaxDiag.getValue(0)).toEqual(4.877309188868042);
+    expect(kMaxDiag.getValue(1)).toEqual(2.438654594434021);
+    expect(kMaxDiag.getValue(2)).toEqual(1.2193272972170106);
+    expect(kMaxDiag.getValue(3)).toEqual(0.6096636486085053);
   });
 
   it('getClosestLevel', () => {
@@ -346,10 +346,10 @@ describe('K_MAX_DIAG', () => {
 describe('K_MIN_DIAG', () => {
   const kMinDiag = K_MIN_DIAG();
   it('getValue', () => {
-    expect(kMinDiag.getValue(0)).toEqual(1.257078722109418);
-    expect(kMinDiag.getValue(1)).toEqual(0.628539361054709);
-    expect(kMinDiag.getValue(2)).toEqual(0.3142696805273545);
-    expect(kMinDiag.getValue(3)).toEqual(0.15713484026367724);
+    expect(kMinDiag.getValue(0)).toEqual(2.514157444218836);
+    expect(kMinDiag.getValue(1)).toEqual(1.257078722109418);
+    expect(kMinDiag.getValue(2)).toEqual(0.628539361054709);
+    expect(kMinDiag.getValue(3)).toEqual(0.3142696805273545);
   });
 
   it('getClosestLevel', () => {
@@ -388,10 +388,10 @@ describe('K_MIN_DIAG', () => {
 describe('K_AVG_EDGE', () => {
   const kAvgEdge = K_AVG_EDGE();
   it('getValue', () => {
-    expect(kAvgEdge.getValue(0)).toEqual(1.459213746386106);
-    expect(kAvgEdge.getValue(1)).toEqual(0.729606873193053);
-    expect(kAvgEdge.getValue(2)).toEqual(0.3648034365965265);
-    expect(kAvgEdge.getValue(3)).toEqual(0.18240171829826324);
+    expect(kAvgEdge.getValue(0)).toEqual(2.918427492772212);
+    expect(kAvgEdge.getValue(1)).toEqual(1.459213746386106);
+    expect(kAvgEdge.getValue(2)).toEqual(0.729606873193053);
+    expect(kAvgEdge.getValue(3)).toEqual(0.3648034365965265);
   });
 
   it('getClosestLevel', () => {
@@ -428,10 +428,10 @@ describe('K_AVG_EDGE', () => {
 describe('K_MAX_EDGE', () => {
   const kMaxEdge = K_MAX_EDGE();
   it('getValue', () => {
-    expect(kMaxEdge.getValue(0)).toEqual(1.704897179199218);
-    expect(kMaxEdge.getValue(1)).toEqual(0.852448589599609);
-    expect(kMaxEdge.getValue(2)).toEqual(0.4262242947998045);
-    expect(kMaxEdge.getValue(3)).toEqual(0.21311214739990225);
+    expect(kMaxEdge.getValue(0)).toEqual(3.409794358398436);
+    expect(kMaxEdge.getValue(1)).toEqual(1.704897179199218);
+    expect(kMaxEdge.getValue(2)).toEqual(0.852448589599609);
+    expect(kMaxEdge.getValue(3)).toEqual(0.4262242947998045);
   });
 
   it('getClosestLevel', () => {
@@ -468,10 +468,10 @@ describe('K_MAX_EDGE', () => {
 describe('K_MIN_EDGE', () => {
   const kMinEdge = K_MIN_EDGE();
   it('getValue', () => {
-    expect(kMinEdge.getValue(0)).toEqual(0.9428090415820635);
-    expect(kMinEdge.getValue(1)).toEqual(0.47140452079103173);
-    expect(kMinEdge.getValue(2)).toEqual(0.23570226039551587);
-    expect(kMinEdge.getValue(3)).toEqual(0.11785113019775793);
+    expect(kMinEdge.getValue(0)).toEqual(1.885618083164127);
+    expect(kMinEdge.getValue(1)).toEqual(0.9428090415820635);
+    expect(kMinEdge.getValue(2)).toEqual(0.47140452079103173);
+    expect(kMinEdge.getValue(3)).toEqual(0.23570226039551587);
   });
 
   it('getClosestLevel', () => {
@@ -510,10 +510,10 @@ describe('K_MIN_EDGE', () => {
 describe('K_AVG_WIDTH', () => {
   const kAvgWidth = K_AVG_WIDTH();
   it('getValue', () => {
-    expect(kAvgWidth.getValue(0)).toEqual(1.4345236728860993);
-    expect(kAvgWidth.getValue(1)).toEqual(0.7172618364430496);
-    expect(kAvgWidth.getValue(2)).toEqual(0.3586309182215248);
-    expect(kAvgWidth.getValue(3)).toEqual(0.1793154591107624);
+    expect(kAvgWidth.getValue(0)).toEqual(2.8690473457721986);
+    expect(kAvgWidth.getValue(1)).toEqual(1.4345236728860993);
+    expect(kAvgWidth.getValue(2)).toEqual(0.7172618364430496);
+    expect(kAvgWidth.getValue(3)).toEqual(0.3586309182215248);
   });
 
   it('getClosestLevel', () => {
@@ -550,10 +550,10 @@ describe('K_AVG_WIDTH', () => {
 describe('K_MAX_WIDTH', () => {
   const kMaxWidth = K_MAX_WIDTH();
   it('getValue', () => {
-    expect(kMaxWidth.getValue(0)).toEqual(1.704897179199218);
-    expect(kMaxWidth.getValue(1)).toEqual(0.852448589599609);
-    expect(kMaxWidth.getValue(2)).toEqual(0.4262242947998045);
-    expect(kMaxWidth.getValue(3)).toEqual(0.21311214739990225);
+    expect(kMaxWidth.getValue(0)).toEqual(3.409794358398436);
+    expect(kMaxWidth.getValue(1)).toEqual(1.704897179199218);
+    expect(kMaxWidth.getValue(2)).toEqual(0.852448589599609);
+    expect(kMaxWidth.getValue(3)).toEqual(0.4262242947998045);
   });
 
   it('getClosestLevel', () => {
@@ -590,10 +590,10 @@ describe('K_MAX_WIDTH', () => {
 describe('K_MIN_WIDTH', () => {
   const kMinWidth = K_MIN_WIDTH();
   it('getValue', () => {
-    expect(kMinWidth.getValue(0)).toEqual(0.9428090415820635);
-    expect(kMinWidth.getValue(1)).toEqual(0.47140452079103173);
-    expect(kMinWidth.getValue(2)).toEqual(0.23570226039551587);
-    expect(kMinWidth.getValue(3)).toEqual(0.11785113019775793);
+    expect(kMinWidth.getValue(0)).toEqual(1.885618083164127);
+    expect(kMinWidth.getValue(1)).toEqual(0.9428090415820635);
+    expect(kMinWidth.getValue(2)).toEqual(0.47140452079103173);
+    expect(kMinWidth.getValue(3)).toEqual(0.23570226039551587);
   });
 
   it('getClosestLevel', () => {

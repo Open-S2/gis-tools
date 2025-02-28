@@ -128,7 +128,7 @@ export function angleFromLonLat(a: LonLat, b: LonLat): S1Angle {
 }
 
 /**
- * convert an angle in radians to an angle in meters
+ * Convert an angle in radians to an distance in meters
  * @param angle - input angle in radians
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
@@ -138,7 +138,7 @@ export function angleToMeters(angle: S1Angle, radius = EARTH_RADIUS): number {
 }
 
 /**
- * convert an angle in meters to an angle in radians
+ * Convert an distance in meters to an S1Angle
  * @param angle - angle in meters
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in radians
@@ -148,7 +148,7 @@ export function angleFromMeters(angle: number, radius = EARTH_RADIUS): S1Angle {
 }
 
 /**
- * convert an angle in radians to an angle in kilometers
+ * convert an angle in radians to an distance in kilometers
  * @param angle - input angle in radians
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in meters
@@ -158,7 +158,7 @@ export function angleToKM(angle: S1Angle, radius = EARTH_RADIUS): number {
 }
 
 /**
- * convert an angle in kilometers to an angle in radians
+ * Convert an distance in kilometers to an S1Angle
  * @param angle - angle in kilometers
  * @param radius - radius of the planet (defaults to Earth's radius)
  * @returns - angle in radians

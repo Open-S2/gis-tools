@@ -9,22 +9,17 @@ import {
   LAZPoint10v1Reader,
   LAZPoint10v2Reader,
   LAZPoint14v3Reader,
-  LAZPoint14v4Reader,
   LAZbyte10v1Reader,
   LAZbyte10v2Reader,
   LAZbyte14v3Reader,
-  LAZbyte14v4Reader,
   LAZgpstime11v1Reader,
   LAZgpstime11v2Reader,
   LAZrgb12v1Reader,
   LAZrgb12v2Reader,
   LAZrgb14v3Reader,
-  LAZrgb14v4Reader,
   LAZrgbNir14v3Reader,
-  LAZrgbNir14v4Reader,
   LAZwavepacket13v1Reader,
   LAZwavepacket14v3Reader,
-  LAZwavepacket14v4Reader,
   modifyPoint14RawInput,
 } from './laz';
 import { LAZCompressor, LAZHeaderItemType } from './types';
@@ -575,20 +570,20 @@ export class LASZipReader
       if (version === 1) return new LAZbyte10v1Reader(this.#dec!, size);
       else if (version === 2) return new LAZbyte10v2Reader(this.#dec!, size);
     } else if (type === LAZHeaderItemType.POINT14) {
-      if (version === 3) return new LAZPoint14v3Reader(this.#dec!);
-      else if (version === 4) return new LAZPoint14v4Reader(this.#dec!);
+      if (version === 3 || version === 4) return new LAZPoint14v3Reader(this.#dec!);
+      // else if (version === 4) return new LAZPoint14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.RGB14) {
-      if (version === 3) return new LAZrgb14v3Reader(this.#dec!);
-      else if (version === 4) return new LAZrgb14v4Reader(this.#dec!);
+      if (version === 3 || version === 4) return new LAZrgb14v3Reader(this.#dec!);
+      // else if (version === 4) return new LAZrgb14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.RGBNIR14) {
-      if (version === 3) return new LAZrgbNir14v3Reader(this.#dec!);
-      else if (version === 4) return new LAZrgbNir14v4Reader(this.#dec!);
+      if (version === 3 || version === 4) return new LAZrgbNir14v3Reader(this.#dec!);
+      // else if (version === 4) return new LAZrgbNir14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.WAVEPACKET14) {
-      if (version === 3) return new LAZwavepacket14v3Reader(this.#dec!);
-      else if (version === 4) return new LAZwavepacket14v4Reader(this.#dec!);
+      if (version === 3 || version === 4) return new LAZwavepacket14v3Reader(this.#dec!);
+      // else if (version === 4) return new LAZwavepacket14v4Reader(this.#dec!);
     } else if (type === LAZHeaderItemType.BYTE14) {
-      if (version === 3) return new LAZbyte14v3Reader(this.#dec!, size);
-      else if (version === 4) return new LAZbyte14v4Reader(this.#dec!, size);
+      if (version === 3 || version === 4) return new LAZbyte14v3Reader(this.#dec!, size);
+      // else if (version === 4) return new LAZbyte14v4Reader(this.#dec!, size);
     }
     throw Error(`Unsupported compressed point type: ${type} & version: ${version}`);
   }
