@@ -43,8 +43,8 @@ test('IDW interpolation RGBA', () => {
   const point = { x: 0.5, y: 0.5 };
   const interpolatedValue = getRGBAInterpolation('idw')(point, data);
   expect(interpolatedValue).toEqual({
-    r: 143.57402271998927,
-    g: 151.28945766311676,
+    g: 107.07682192685724,
+    r: 84.47960893525712,
     b: 60,
     a: 255,
   });
@@ -52,9 +52,9 @@ test('IDW interpolation RGBA', () => {
   const point2 = { x: 0.65, y: 0.15 };
   const interp2 = rgbaIDWInterpolation(point2, data);
   expect(interp2).toEqual({
-    r: 93.60831766267944,
-    g: 119.8569843283535,
     b: 60,
+    g: 91.59677282227581,
+    r: 45.82393178026002,
     a: 255,
   });
 });

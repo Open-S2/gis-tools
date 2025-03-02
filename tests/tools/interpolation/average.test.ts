@@ -43,17 +43,17 @@ test('average interpolation RGBA', () => {
   const point = { x: 0.5, y: 0.5 };
   const interpolatedValue = getRGBAInterpolation('average')(point, data);
   expect(interpolatedValue).toEqual({
-    r: 143.57402271998927,
-    g: 151.28945766311676,
+    g: 107.07682192685724,
+    r: 84.47960893525712,
     b: 60,
     a: 255,
   });
 
-  const point2 = { x: 0.65, y: 0.15 };
+  const point2 = { x: 0.9, y: 0.1 };
   const interp2 = rgbaAverageInterpolation(point2, data);
   expect(interp2).toEqual({
-    r: 143.57402271998927,
-    g: 151.28945766311676,
+    g: 107.07682192685724,
+    r: 84.47960893525712,
     b: 60,
     a: 255,
   });

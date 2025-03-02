@@ -1,5 +1,6 @@
 import { pointDistance as distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
+import { lRGBToGamma, sRGBToLinear } from '../..';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -121,25 +122,24 @@ export function bilinearInterpolation<T extends MValue = Properties>(
 
 /**
  * Helper function for {@link bilinearInterpolation} on RGB(A) data.
- * Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
+ * Light in RGB data is logarithmically weighted (gamma corrected), so we need to expand each component by n^2 to
  * get the correct weight for each component.
  * @param point - Point to interpolate
  * @param refData - Reference data points
  * @returns - The interpolated RGBA data.
  */
 export function rgbaBilinearInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
-  const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
   const corners = getBilinearPoints(point, refData);
-  const rData = bilinearInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2), corners);
-  const gData = bilinearInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2), corners);
-  const bData = bilinearInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2), corners);
+  const rData = bilinearInterpolation(point, refData, (p) => sRGBToLinear(p.m?.r ?? 0), corners);
+  const gData = bilinearInterpolation(point, refData, (p) => sRGBToLinear(p.m?.g ?? 0), corners);
+  const bData = bilinearInterpolation(point, refData, (p) => sRGBToLinear(p.m?.b ?? 0), corners);
   const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
 
   return {
-    r: sqrt(rData),
-    g: sqrt(gData),
-    b: sqrt(bData),
+    r: lRGBToGamma(rData),
+    g: lRGBToGamma(gData),
+    b: lRGBToGamma(bData),
     a,
   };
 }

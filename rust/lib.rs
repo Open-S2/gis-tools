@@ -24,5 +24,7 @@ pub mod geometry;
 pub mod readers;
 /// Space Tools
 pub mod space;
+/// Generic Geospatial Tools
+pub mod tools;
 /// Utility Tools
 pub mod util;

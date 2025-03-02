@@ -5,6 +5,8 @@ pub mod buffer;
 /// File Reader for reading data from a file
 #[cfg(feature = "std")]
 pub mod file;
+/// Image based Readers
+pub mod image;
 /// Memory Mapped Reader for reading data from a file
 #[cfg(feature = "std")]
 pub mod mmap;
@@ -12,6 +14,7 @@ pub mod mmap;
 pub use buffer::*;
 #[cfg(feature = "std")]
 pub use file::*;
+pub use image::*;
 #[cfg(feature = "std")]
 pub use mmap::*;
 

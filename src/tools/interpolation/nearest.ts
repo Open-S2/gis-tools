@@ -1,5 +1,6 @@
 import { defaultGetInterpolateCurrentValue } from '.';
 import { pointDistance as distance } from '../../geometry/s2/point';
+import { lRGBToGamma, sRGBToLinear } from '../..';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -70,17 +71,16 @@ export function nearestInterpolation<T extends MValue = Properties>(
  * @returns - The interpolated RGBA data.
  */
 export function rgbaNearestInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
-  const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
-  const rData = nearestInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2));
-  const gData = nearestInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2));
-  const bData = nearestInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2));
+  const rData = nearestInterpolation(point, refData, (p) => sRGBToLinear(p.m?.r ?? 0));
+  const gData = nearestInterpolation(point, refData, (p) => sRGBToLinear(p.m?.g ?? 0));
+  const bData = nearestInterpolation(point, refData, (p) => sRGBToLinear(p.m?.b ?? 0));
   const a = nearestInterpolation(point, refData, (p) => p.m?.a ?? 255);
 
   return {
-    r: sqrt(rData),
-    g: sqrt(gData),
-    b: sqrt(bData),
+    r: lRGBToGamma(rData),
+    g: lRGBToGamma(gData),
+    b: lRGBToGamma(bData),
     a,
   };
 }

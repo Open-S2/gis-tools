@@ -1,5 +1,6 @@
 import { pointDistance as distance } from '../../geometry/s2/point';
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
+import { lRGBToGamma, sRGBToLinear } from '../..';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -44,7 +45,7 @@ export function lanczosInterpolation<T extends MValue = Properties>(
   getValue: GetInterpolateValue<T> = defaultGetInterpolateCurrentValue,
   kernelRadius: number = 2,
 ): number {
-  if (refData.length === 0) throw new Error('Reference data cannot be empty.');
+  if (refData.length === 0) return 0;
   let numerator = 0;
   let denom = 0;
 
@@ -75,17 +76,31 @@ export function rgbaLanczosInterpolation(
   refData: VectorPoint<RGBA>[],
   kernelRadius: number = 2,
 ): RGBA {
-  const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
-  const rData = lanczosInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2), kernelRadius);
-  const gData = lanczosInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2), kernelRadius);
-  const bData = lanczosInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2), kernelRadius);
+  const rData = lanczosInterpolation(
+    point,
+    refData,
+    (p) => sRGBToLinear(p.m?.r ?? 0),
+    kernelRadius,
+  );
+  const gData = lanczosInterpolation(
+    point,
+    refData,
+    (p) => sRGBToLinear(p.m?.g ?? 0),
+    kernelRadius,
+  );
+  const bData = lanczosInterpolation(
+    point,
+    refData,
+    (p) => sRGBToLinear(p.m?.b ?? 0),
+    kernelRadius,
+  );
   const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
 
   return {
-    r: sqrt(rData),
-    g: sqrt(gData),
-    b: sqrt(bData),
+    r: lRGBToGamma(rData),
+    g: lRGBToGamma(gData),
+    b: lRGBToGamma(bData),
     a,
   };
 }

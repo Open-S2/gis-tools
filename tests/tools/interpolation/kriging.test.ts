@@ -86,8 +86,8 @@ test('kriging interpolation RGBA', () => {
   const interpolatedValue = rgbaKrigingInterpolation(point, data);
   expect(interpolatedValue).toEqual({
     b: 0,
-    g: 161.7287828230922,
-    r: 153.48096960327914,
+    g: 143.6155771422932,
+    r: 113.30736070760729,
     a: 255,
   });
 
@@ -97,7 +97,7 @@ test('kriging interpolation RGBA', () => {
   expect(interp2).toEqual({
     a: 255,
     b: 0,
-    g: 157.69362582696115,
-    r: 147.49018570315383,
+    g: 139.79102184752253,
+    r: 104.5080112497241,
   });
 });

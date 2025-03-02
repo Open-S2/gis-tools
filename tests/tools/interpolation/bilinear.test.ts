@@ -40,8 +40,8 @@ test('bilinear interpolation RGBA', () => {
   const point = { x: 0.5, y: 0.5 };
   const interpolatedValue = rgbaBilinearInterpolation(point, data);
   expect(interpolatedValue).toEqual({
-    r: 143.57402271998927,
-    g: 151.28945766311676,
+    g: 107.07682192685724,
+    r: 84.47960893525715,
     b: 60,
     a: 255,
   });
@@ -51,7 +51,7 @@ test('bilinear interpolation RGBA', () => {
   expect(interp2).toEqual({
     a: 255,
     b: 60,
-    g: 113.2727239894936,
-    r: 88.33436477385231,
+    g: 79.9674775634677,
+    r: 41.50520518622988,
   });
 });

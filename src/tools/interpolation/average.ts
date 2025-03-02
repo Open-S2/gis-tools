@@ -1,4 +1,5 @@
 import { defaultGetInterpolateCurrentValue } from '.';
+import { lRGBToGamma, sRGBToLinear } from '../..';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -49,24 +50,24 @@ export function averageInterpolation<T extends MValue = Properties>(
 
 /**
  * Helper function for {@link averageInterpolation} on RGB(A) data.
- * Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
+ * Light in RGB data is logarithmically weighted (gamma corrected), so we need to expand each component by n^2 to
  * get the correct weight for each component.
  * @param point - Point to interpolate
  * @param refData - Reference data points
  * @returns - The interpolated RGBA data.
  */
 export function rgbaAverageInterpolation(point: VectorPoint, refData: VectorPoint<RGBA>[]): RGBA {
-  const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
-  const rData = averageInterpolation(point, refData, (p) => pow(p.m?.r ?? 0, 2));
-  const gData = averageInterpolation(point, refData, (p) => pow(p.m?.g ?? 0, 2));
-  const bData = averageInterpolation(point, refData, (p) => pow(p.m?.b ?? 0, 2));
-  const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
+
+  const rData = averageInterpolation(point, refData, (p) => sRGBToLinear(p.m?.r ?? 0));
+  const gData = averageInterpolation(point, refData, (p) => sRGBToLinear(p.m?.g ?? 0));
+  const bData = averageInterpolation(point, refData, (p) => sRGBToLinear(p.m?.b ?? 0));
+  const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255); // Alpha stays linear!
 
   return {
-    r: sqrt(rData),
-    g: sqrt(gData),
-    b: sqrt(bData),
-    a,
+    r: lRGBToGamma(rData),
+    g: lRGBToGamma(gData),
+    b: lRGBToGamma(bData),
+    a, // No gamma correction on alpha
   };
 }

@@ -43,8 +43,8 @@ test('nearest interpolation RGBA', () => {
   const point = { x: 0.5, y: 0.5 };
   const interpolatedValue = getRGBAInterpolation('nearest')(point, data);
   expect(interpolatedValue).toEqual({
-    r: 20,
-    g: 20,
+    g: 19.999999999999996,
+    r: 19.999999999999996,
     b: 60,
     a: 255,
   });
@@ -52,8 +52,8 @@ test('nearest interpolation RGBA', () => {
   const point2 = { x: 0.65, y: 0.15 };
   const interp2 = rgbaNearestInterpolation(point2, data);
   expect(interp2).toEqual({
+    g: 99.99999999999999,
     r: 30,
-    g: 100,
     b: 60,
     a: 255,
   });

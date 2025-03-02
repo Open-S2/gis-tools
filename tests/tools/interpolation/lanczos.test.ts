@@ -43,9 +43,9 @@ test('lanczos interpolation RGBA', () => {
   const point = { x: 0.5, y: 0.5 };
   const interpolatedValue = getRGBAInterpolation('lanczos')(point, data);
   expect(interpolatedValue).toEqual({
-    r: 143.57402271998927,
-    g: 151.28945766311676,
-    b: 59.99999999999999,
+    b: 60,
+    g: 107.07682192685724,
+    r: 84.47960893525712,
     a: 255,
   });
 
@@ -53,8 +53,8 @@ test('lanczos interpolation RGBA', () => {
   const interp2 = rgbaLanczosInterpolation(point2, data);
   expect(interp2).toEqual({
     a: 255,
-    b: 60.00000000000001,
-    g: 98.95711759121838,
-    r: 60.88101077653883,
+    b: 60.00000000000003,
+    g: 72.34097596234541,
+    r: 30.313261080809447,
   });
 });

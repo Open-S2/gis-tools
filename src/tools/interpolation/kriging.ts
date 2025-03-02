@@ -1,4 +1,5 @@
 import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
+import { lRGBToGamma, sRGBToLinear } from '../..';
 
 import type { GetInterpolateValue } from '.';
 import type { MValue, Properties, RGBA, VectorPoint } from '../..';
@@ -83,13 +84,12 @@ export function rgbaKrigingInterpolation(
   sigma2 = 0,
   alpha = 100,
 ): RGBA {
-  const { pow, sqrt } = Math;
   if (refData.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
 
   const rData = krigingInterpolation(
     point,
     refData,
-    (p) => pow(p.m?.r ?? 0, 2),
+    (p) => sRGBToLinear(p.m?.r ?? 0),
     model,
     sigma2,
     alpha,
@@ -97,7 +97,7 @@ export function rgbaKrigingInterpolation(
   const gData = krigingInterpolation(
     point,
     refData,
-    (p) => pow(p.m?.g ?? 0, 2),
+    (p) => sRGBToLinear(p.m?.g ?? 0),
     model,
     sigma2,
     alpha,
@@ -105,7 +105,7 @@ export function rgbaKrigingInterpolation(
   const bData = krigingInterpolation(
     point,
     refData,
-    (p) => pow(p.m?.b ?? 0, 2),
+    (p) => sRGBToLinear(p.m?.b ?? 0),
     model,
     sigma2,
     alpha,
@@ -113,9 +113,9 @@ export function rgbaKrigingInterpolation(
   const a = averageInterpolation(point, refData, (p) => p.m?.a ?? 255);
 
   return {
-    r: sqrt(rData),
-    g: sqrt(gData),
-    b: sqrt(bData),
+    r: lRGBToGamma(rData),
+    g: lRGBToGamma(gData),
+    b: lRGBToGamma(bData),
     a,
   };
 }
