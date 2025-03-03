@@ -7,6 +7,8 @@ use s2json::{MValueCompatible, VectorPoint};
 
 use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
 
+use super::{face_uv_to_xyz, ST_TO_UV};
+
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
 /// points are normalized to be unit length, but some methods do not require
 /// this.  See util/math/vector.h for the methods available.  Among other
@@ -141,6 +143,20 @@ impl S2Point {
             self.y + ((b.y - self.y) * (1.0 - t)),
             self.z + ((b.z - self.z) * (1.0 - t)),
         )
+    }
+
+    /// Convert a u-v coordinate to an XYZ Point.
+    pub fn from_face_uv(face: u8, u: f64, v: f64) -> Self {
+        let mut p = face_uv_to_xyz(face, u, v);
+        p.normalize();
+        p
+    }
+
+    /// Convert an s-t coordinate to an XYZ Point.
+    pub fn from_face_st(face: u8, s: f64, t: f64) -> Self {
+        let u = ST_TO_UV(s);
+        let v = ST_TO_UV(t);
+        Self::from_face_uv(face, u, v)
     }
 }
 impl<M: MValueCompatible> From<&LonLat<M>> for S2Point {
