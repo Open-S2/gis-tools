@@ -1,7 +1,7 @@
 use s2json::MValueCompatible;
 pub use s2json::{MValue, ValueType, VectorPoint};
 
-use super::{average_interpolation, get_channel, RgbaChannel, VectorPointRGBA};
+use super::{average_interpolation, get_channel, get_channel_m, RgbaChannel, VectorPointRGBA};
 use crate::readers::RGBA;
 use crate::tools::{default_get_interpolate_current_value, GetInterpolateValue};
 
@@ -54,6 +54,21 @@ pub fn lanczos_interpolation_rgba(point: &VectorPoint, ref_data: &[VectorPointRG
     let g = lanczos_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::G)));
     let b = lanczos_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::B)));
     let a = average_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::A)));
+
+    RGBA::new(r, g, b, a)
+}
+
+/// Helper function for lanczos_interpolation on RGB(A) data.
+/// Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
+/// get the correct weight for each component.
+pub fn lanczos_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint]) -> RGBA {
+    if ref_data.is_empty() {
+        return RGBA::default();
+    }
+    let r = lanczos_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::R)));
+    let g = lanczos_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::G)));
+    let b = lanczos_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::B)));
+    let a = average_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::A)));
 
     RGBA::new(r, g, b, a)
 }
@@ -128,6 +143,70 @@ mod tests {
 
         // test 3
         let result = lanczos_interpolation_rgba(&point, &[]);
+        assert_eq!(result.to_u8s(), (0, 0, 0, 255));
+    }
+
+    #[test]
+    fn test_lanczos_interpolation_m_rgba() {
+        let ref_data: vec::Vec<VectorPoint> = vec![
+            VectorPoint::new(
+                0.,
+                0.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 20_u64.into()),
+                    ("g".into(), 20_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                1.,
+                0.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 30_u64.into()),
+                    ("g".into(), 100_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                0.,
+                1.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 127_u64.into()),
+                    ("g".into(), 127_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                1.,
+                1.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 255_u64.into()),
+                    ("g".into(), 255_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+        ];
+
+        // test 1
+        let point = VectorPoint::new(0.5, 0.5, None, None);
+        let result = lanczos_interpolation_m_rgba(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
+
+        // test 2
+        let point = VectorPoint::new(0.65, 0.15, None, None);
+        let result = lanczos_interpolation_m_rgba(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (30, 72, 60, 255));
+
+        // test 3
+        let result = lanczos_interpolation_m_rgba(&point, &[]);
         assert_eq!(result.to_u8s(), (0, 0, 0, 255));
     }
 }

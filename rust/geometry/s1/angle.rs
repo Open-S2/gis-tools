@@ -3,6 +3,8 @@ use crate::{
     space::EARTH_RADIUS,
 };
 
+use s2json::MValueCompatible;
+
 use libm::{fabs, fmod};
 
 use core::f64::consts::PI;
@@ -109,7 +111,10 @@ impl S1Angle {
     /// two S2LatLng points.  This function has about 15 digits of accuracy for
     /// small distances but only about 8 digits of accuracy as the distance
     /// approaches 180 degrees (i.e., nearly-antipodal points).
-    pub fn from_lon_lat(a: &LonLat, b: &LonLat) -> Self {
+    pub fn from_lon_lat<M1: MValueCompatible, M2: MValueCompatible>(
+        a: &LonLat<M1>,
+        b: &LonLat<M2>,
+    ) -> Self {
         a.get_distance(b).into()
     }
 
@@ -280,6 +285,8 @@ impl Eq for S1Angle {}
 
 #[cfg(test)]
 mod tests {
+    use s2json::MValue;
+
     use super::*;
 
     #[test]
@@ -328,22 +335,22 @@ mod tests {
         assert_eq!(
             S1Angle::new(0.),
             S1Angle::from_s2points(
-                &(&LonLat::new(0., 0., None)).into(),
-                &(&LonLat::new(0., 0., None)).into()
+                &(&LonLat::<MValue>::new(0., 0., None)).into(),
+                &(&LonLat::<MValue>::new(0., 0., None)).into()
             )
         );
         assert_eq!(
             S1Angle::new(0.017453292519943295),
             S1Angle::from_s2points(
-                &(&LonLat::new(1., 0., None)).into(),
-                &(&LonLat::new(0., 0., None)).into()
+                &(&LonLat::<MValue>::new(1., 0., None)).into(),
+                &(&LonLat::<MValue>::new(0., 0., None)).into()
             )
         );
         assert_eq!(
             S1Angle::new(1.5707963267948966),
             S1Angle::from_s2points(
-                &(&LonLat::new(90., 0., None)).into(),
-                &(&LonLat::new(0., 0., None)).into()
+                &(&LonLat::<MValue>::new(90., 0., None)).into(),
+                &(&LonLat::<MValue>::new(0., 0., None)).into()
             )
         );
     }
@@ -353,15 +360,24 @@ mod tests {
     pub fn from_lon_lat() {
         assert_eq!(
             S1Angle::new(0.),
-            S1Angle::from_lon_lat(&LonLat::new(0., 0., None), &LonLat::new(0., 0., None))
+            S1Angle::from_lon_lat(
+                &LonLat::<MValue>::new(0., 0., None),
+                &LonLat::<MValue>::new(0., 0., None)
+            )
         );
         assert_eq!(
             S1Angle::new(0.017453292519943295),
-            S1Angle::from_lon_lat(&LonLat::new(1., 0., None), &LonLat::new(0., 0., None))
+            S1Angle::from_lon_lat(
+                &LonLat::<MValue>::new(1., 0., None),
+                &LonLat::<MValue>::new(0., 0., None)
+            )
         );
         assert_eq!(
             S1Angle::new(1.5707963267948963),
-            S1Angle::from_lon_lat(&LonLat::new(90., 0., None), &LonLat::new(0., 0., None))
+            S1Angle::from_lon_lat(
+                &LonLat::<MValue>::new(90., 0., None),
+                &LonLat::<MValue>::new(0., 0., None)
+            )
         );
     }
 

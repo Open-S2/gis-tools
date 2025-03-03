@@ -13,7 +13,7 @@ pub use lanczos::*;
 pub use nearest::*;
 use s2json::MValueCompatible;
 
-use crate::readers::RGBA;
+use crate::readers::{gamma_to_linear, RGBA};
 
 /// Interpolation method
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -71,6 +71,24 @@ pub fn get_rgba_interpolation(method: InterpolationMethod) -> RGBAInterpolationF
     }
 }
 
+/// Interpolation function To get the RGBA value of a point
+pub type MRGBAInterpolationFunction = fn(point: &VectorPoint, ref_data: &[VectorPoint]) -> RGBA;
+
+/// Get the RGBA interpolation function based on the method type
+/// Options are:
+/// - average
+/// - nearest
+/// - idw
+/// - lanczos [Best]
+pub fn get_m_rgba_interpolation(method: InterpolationMethod) -> MRGBAInterpolationFunction {
+    match method {
+        InterpolationMethod::Average => average_interpolation_m_rgba,
+        InterpolationMethod::Nearest => nearest_interpolation_m_rgba,
+        InterpolationMethod::IDW => idw_interpolation_m_rgba,
+        InterpolationMethod::Lanczos => lanczos_interpolation_m_rgba,
+    }
+}
+
 /// Function to get the value of a point
 pub type GetInterpolateValue<T> = fn(point: &VectorPoint<T>) -> f64;
 
@@ -93,6 +111,22 @@ pub enum RgbaChannel {
     /// Alpha
     A,
 }
+impl RgbaChannel {
+    /// Check if the channel is RGB or not
+    pub fn is_rgb(&self) -> bool {
+        !matches!(self, RgbaChannel::A)
+    }
+}
+impl From<RgbaChannel> for &str {
+    fn from(channel: RgbaChannel) -> Self {
+        match channel {
+            RgbaChannel::R => "r",
+            RgbaChannel::G => "g",
+            RgbaChannel::B => "b",
+            RgbaChannel::A => "a",
+        }
+    }
+}
 
 fn get_channel(p: &VectorPointRGBA, channel: RgbaChannel) -> f64 {
     if let Some(rgba) = &p.m {
@@ -102,6 +136,19 @@ fn get_channel(p: &VectorPointRGBA, channel: RgbaChannel) -> f64 {
             RgbaChannel::B => rgba.b,
             RgbaChannel::A => rgba.a,
         };
+    }
+    0.
+}
+
+fn get_channel_m(p: &VectorPoint, channel: RgbaChannel) -> f64 {
+    if let Some(m) = &p.m {
+        let is_rgb = channel.is_rgb();
+        let v = m.get(channel.into()).unwrap().to_prim().unwrap().to_f64().unwrap();
+        if is_rgb {
+            return gamma_to_linear(v);
+        } else {
+            return v / 255.0;
+        }
     }
     0.
 }
@@ -122,6 +169,28 @@ mod tests {
         let p = VectorPointRGBA { x: 0., y: 0., z: None, m: None, t: None };
 
         assert_eq!(get_channel(&p, RgbaChannel::R), 0.);
+    }
+
+    #[test]
+    fn test_get_channel_m() {
+        let p = VectorPoint {
+            x: 0.,
+            y: 0.,
+            z: None,
+            m: Some(MValue::from([
+                ("r".into(), 20_u64.into()),
+                ("g".into(), 20_u64.into()),
+                ("b".into(), 60_u64.into()),
+                ("a".into(), 255_u64.into()),
+            ])),
+            t: None,
+        };
+
+        assert_eq!(get_channel_m(&p, RgbaChannel::R), 0.314409290505088);
+
+        let p = VectorPoint { x: 0., y: 0., z: None, m: None, t: None };
+
+        assert_eq!(get_channel_m(&p, RgbaChannel::R), 0.);
     }
 
     #[test]
@@ -190,6 +259,81 @@ mod tests {
         // NEAREST
         let method = InterpolationMethod::Nearest;
         let interpolation = get_rgba_interpolation(method);
+        let result = interpolation(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (20, 20, 60, 255));
+    }
+
+    #[test]
+    fn test_get_m_rgba_interpolation() {
+        let point = VectorPoint::new(0.5, 0.5, None, None);
+        let ref_data: vec::Vec<VectorPoint> = vec![
+            VectorPoint::new(
+                0.,
+                0.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 20_u64.into()),
+                    ("g".into(), 20_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                1.,
+                0.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 30_u64.into()),
+                    ("g".into(), 100_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                0.,
+                1.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 127_u64.into()),
+                    ("g".into(), 127_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+            VectorPoint::new(
+                1.,
+                1.,
+                None,
+                Some(MValue::from([
+                    ("r".into(), 255_u64.into()),
+                    ("g".into(), 255_u64.into()),
+                    ("b".into(), 60_u64.into()),
+                    ("a".into(), 255_u64.into()),
+                ])),
+            ),
+        ];
+
+        // AVERAGE
+        let method = InterpolationMethod::Average;
+        let interpolation = get_m_rgba_interpolation(method);
+        let result = interpolation(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
+
+        // IDW
+        let method = InterpolationMethod::IDW;
+        let interpolation = get_m_rgba_interpolation(method);
+        let result = interpolation(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
+
+        // LANCZOS
+        let method = InterpolationMethod::Lanczos;
+        let interpolation = get_m_rgba_interpolation(method);
+        let result = interpolation(&point, &ref_data);
+        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
+
+        // NEAREST
+        let method = InterpolationMethod::Nearest;
+        let interpolation = get_m_rgba_interpolation(method);
         let result = interpolation(&point, &ref_data);
         assert_eq!(result.to_u8s(), (20, 20, 60, 255));
     }

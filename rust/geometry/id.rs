@@ -3,6 +3,7 @@ extern crate alloc;
 use libm::{fmax, fmin};
 
 use alloc::{string::String, vec::Vec};
+use s2json::MValueCompatible;
 
 use core::fmt;
 
@@ -121,7 +122,7 @@ impl S2CellId {
     }
 
     /// Construct a leaf cell containing the given normalized S2LatLng.
-    pub fn from_lon_lat(ll: &LonLat) -> S2CellId {
+    pub fn from_lon_lat<M: MValueCompatible>(ll: &LonLat<M>) -> S2CellId {
         S2CellId::from_s2_point(&ll.to_point())
     }
 
@@ -214,6 +215,13 @@ impl S2CellId {
         ((distance << (level + 1)) + (1 << level)).into()
     }
 
+    /// convert an id to the appropriate face-zoom-i-j of the cell ID
+    pub fn to_face_ij(&self) -> (u8, u8, u32, u32) {
+        let level = self.level();
+        let (face, i, j, _or) = self.to_face_ij_orientation(Some(level));
+        (face, level, i, j)
+    }
+
     /// convert an id to a zoom-i-j after setting it to a new parent zoom
     pub fn to_zoom_ij(&self, level: Option<u8>) -> (u8, u32, u32) {
         let (face, i, j, _or) = self.to_face_ij_orientation(level);
@@ -253,7 +261,7 @@ impl S2CellId {
         }
 
         // adjust bits to the orientation
-        let lsb = self.id & (!self.id + 1);
+        let lsb = self.id & ((!self.id).wrapping_add(1));
         if (lsb & 0x1111111111111110) != 0 {
             bits ^= K_SWAP_MASK as u64;
         }
@@ -756,8 +764,8 @@ impl From<u64> for S2CellId {
         S2CellId::new(value)
     }
 }
-impl From<LonLat> for S2CellId {
-    fn from(value: LonLat) -> Self {
+impl<M: MValueCompatible> From<LonLat<M>> for S2CellId {
+    fn from(value: LonLat<M>) -> Self {
         S2CellId::from_lon_lat(&value)
     }
 }
@@ -814,6 +822,7 @@ mod tests {
     use crate::geometry::ll;
     use alloc::string::ToString;
     use alloc::vec;
+    use s2json::MValue;
 
     use super::*;
 
@@ -873,19 +882,19 @@ mod tests {
 
     #[test]
     fn from_lon_lat() {
-        let ll = ll::LonLat::new(0.0, 0.0, None);
+        let ll: LonLat = ll::LonLat::new(0.0, 0.0, None);
         let id = S2CellId::from_lon_lat(&ll);
         assert_eq!(id.id, 1152921504606846977);
-        let ll = ll::LonLat::new(90.0, 0.0, None);
+        let ll: LonLat = ll::LonLat::new(90.0, 0.0, None);
         let id = S2CellId::from_lon_lat(&ll);
         assert_eq!(id.id, 3458764513820540929);
-        let ll = ll::LonLat::new(0.0, 90.0, None);
+        let ll: LonLat = ll::LonLat::new(0.0, 90.0, None);
         let id = S2CellId::from_lon_lat(&ll);
         assert_eq!(id.id, 5764607523034234881);
-        let ll = ll::LonLat::new(-90.0, 0.0, None);
+        let ll: LonLat = ll::LonLat::new(-90.0, 0.0, None);
         let id = S2CellId::from_lon_lat(&ll);
         assert_eq!(id.id, 10376293541461622785);
-        let ll = ll::LonLat::new(0.0, -90.0, None);
+        let ll: LonLat = ll::LonLat::new(0.0, -90.0, None);
         let id: S2CellId = ll.into();
         assert_eq!(id.id, 12682136550675316737);
     }
@@ -1020,8 +1029,8 @@ mod tests {
     #[test]
     fn contains_s2point() {
         let face_0 = S2CellId::from_face(0);
-        let point: S2Point = (&LonLat::new(0., 0., None)).into();
-        let point2: S2Point = (&LonLat::new(-160., 70., None)).into();
+        let point: S2Point = (&LonLat::<MValue>::new(0., 0., None)).into();
+        let point2: S2Point = (&LonLat::<MValue>::new(-160., 70., None)).into();
         assert!(face_0.contains_s2point(&point));
         assert!(!face_0.contains_s2point(&point2));
     }
@@ -1130,6 +1139,7 @@ mod tests {
 
     #[test]
     fn to_zoom_ij() {
+        assert_eq!(S2CellId::from(0_u64).to_zoom_ij(None), (0, 0, 0));
         assert_eq!(S2CellId::from_face(0).to_zoom_ij(None), (0, 536870912, 536870912));
         assert_eq!(S2CellId::from_face(1).to_zoom_ij(None), (1, 536870912, 536870912));
         assert_eq!(S2CellId::from_face(2).to_zoom_ij(None), (2, 536870912, 536870912));

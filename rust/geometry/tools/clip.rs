@@ -1,6 +1,7 @@
 use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
+use s2json::{MValueCompatible, Properties};
 
 use crate::data_structures::{HasLayer, Tile};
 use crate::geometry::{
@@ -14,20 +15,20 @@ use crate::geometry::{
 // TODO: Cases of `to_vec` clones large swathes of data. Can we optimize this?
 
 /// The children of a tile
-pub struct TileChildren<M> {
+pub struct TileChildren<M = (), P: MValueCompatible = Properties, D: MValueCompatible = MValue> {
     /// The bottom left child tile
-    pub bottom_left: Tile<M>,
+    pub bottom_left: Tile<M, P, D>,
     /// The bottom right child tile
-    pub bottom_right: Tile<M>,
+    pub bottom_right: Tile<M, P, D>,
     /// The top left child tile
-    pub top_left: Tile<M>,
+    pub top_left: Tile<M, P, D>,
     /// The top right child tile
-    pub top_right: Tile<M>,
+    pub top_right: Tile<M, P, D>,
 }
 
-impl<M: HasLayer + Clone> Tile<M> {
+impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D> {
     /// split tile into 4 children
-    pub fn split(&mut self, buffer: Option<f64>) -> TileChildren<M> {
+    pub fn split(&mut self, buffer: Option<f64>) -> TileChildren<M, P, D> {
         split_tile(self, buffer)
     }
 }
@@ -37,7 +38,10 @@ impl<M: HasLayer + Clone> Tile<M> {
  * @param buffer - the buffer around the tile for lines and polygons
  * @returns - the tile's children split into 4 sub-tiles
  */
-pub fn split_tile<M: HasLayer + Clone>(tile: &mut Tile<M>, buffer: Option<f64>) -> TileChildren<M> {
+pub fn split_tile<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible>(
+    tile: &mut Tile<M, P, D>,
+    buffer: Option<f64>,
+) -> TileChildren<M, P, D> {
     let buffer = buffer.unwrap_or(0.0625);
     let face = tile.id.face();
     let (zoom, i, j) = tile.id.to_zoom_ij(None);
@@ -56,10 +60,10 @@ pub fn split_tile<M: HasLayer + Clone>(tile: &mut Tile<M>, buffer: Option<f64>) 
     let i = i as f64;
     let j = j as f64;
 
-    let mut tl: Option<Vec<VectorFeature<M>>>;
-    let mut bl: Option<Vec<VectorFeature<M>>>;
-    let mut tr: Option<Vec<VectorFeature<M>>>;
-    let mut br: Option<Vec<VectorFeature<M>>>;
+    let mut tl: Option<Vec<VectorFeature<M, P, D>>>;
+    let mut bl: Option<Vec<VectorFeature<M, P, D>>>;
+    let mut tr: Option<Vec<VectorFeature<M, P, D>>>;
+    let mut br: Option<Vec<VectorFeature<M, P, D>>>;
 
     for (name, layer) in tile.layers.iter_mut() {
         let features = &layer.features;
@@ -101,14 +105,14 @@ pub fn split_tile<M: HasLayer + Clone>(tile: &mut Tile<M>, buffer: Option<f64>) 
 }
 
 /// Internal clip function for a collection of VectorFeatures
-fn _clip<M>(
-    features: &[VectorFeature<M>],
+fn _clip<M, P: MValueCompatible, D: MValueCompatible>(
+    features: &[VectorFeature<M, P, D>],
     scale: f64,
     k1: f64,
     k2: f64,
     axis: Axis,
     base_buffer: f64,
-) -> Option<Vec<VectorFeature<M>>>
+) -> Option<Vec<VectorFeature<M, P, D>>>
 where
     M: Clone,
 {
@@ -119,7 +123,7 @@ where
     let buffer = base_buffer / scale;
     let k1b = k1 - buffer;
     let k2b = k2 + buffer;
-    let mut clipped: Vec<VectorFeature<M>> = vec![];
+    let mut clipped: Vec<VectorFeature<M, P, D>> = vec![];
     let axis_x = axis == Axis::X;
 
     for feature in features {
@@ -136,7 +140,7 @@ where
             }
         }
         // build the new clipped geometry
-        let new_geometry: Option<VectorGeometry> = match geometry {
+        let new_geometry: Option<VectorGeometry<D>> = match geometry {
             VectorGeometry::Point(geo) => clip_point(geo, axis, k1, k2),
             VectorGeometry::MultiPoint(geo) => clip_multi_point(geo, axis, k1, k2),
             VectorGeometry::LineString(geo) => clip_line_string(geo, axis, k1b, k2b),
@@ -160,12 +164,12 @@ where
 }
 
 /// Clip a point to an axis and range
-fn clip_point(
-    geometry: &VectorPointGeometry,
+fn clip_point<M: MValueCompatible>(
+    geometry: &VectorPointGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
-) -> Option<VectorGeometry> {
+) -> Option<VectorGeometry<M>> {
     let coords = &geometry.coordinates;
     let value = if axis == Axis::X { coords.x } else { coords.y };
     if value >= k1 && value < k2 {
@@ -176,12 +180,12 @@ fn clip_point(
 }
 
 /// Clip a MultiPoint to an axis and range
-fn clip_multi_point(
-    geometry: &VectorMultiPointGeometry,
+fn clip_multi_point<M: MValueCompatible>(
+    geometry: &VectorMultiPointGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
-) -> Option<VectorGeometry> {
+) -> Option<VectorGeometry<M>> {
     let mut new_geo = geometry.clone();
     new_geo.coordinates = geometry
         .coordinates
@@ -201,16 +205,16 @@ fn clip_multi_point(
 }
 
 /// Clip a LineString to an axis and range
-fn clip_line_string(
-    geometry: &VectorLineStringGeometry,
+fn clip_line_string<M: MValueCompatible>(
+    geometry: &VectorLineStringGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
-) -> Option<VectorGeometry> {
+) -> Option<VectorGeometry<M>> {
     let VectorLineStringGeometry { is_3d, coordinates: line, bbox, vec_bbox, .. } = geometry;
     let init_o = geometry.offset.unwrap_or(0.);
     let mut new_offsets: VectorMultiLineOffset = vec![];
-    let mut new_lines: VectorMultiLineString = vec![];
+    let mut new_lines: VectorMultiLineString<M> = vec![];
     for clip in
         _clip_line(ClipLineResult { line: line.to_vec(), offset: init_o }, k1, k2, axis, false)
     {
@@ -233,18 +237,18 @@ fn clip_line_string(
 }
 
 /// Clip a MultiLineString geometry to an axis and range
-fn clip_multi_line_string(
-    geometry: &VectorMultiLineStringGeometry,
+fn clip_multi_line_string<M: MValueCompatible>(
+    geometry: &VectorMultiLineStringGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
     is_polygon: bool,
-) -> Option<VectorGeometry> {
-    let VectorMultiLineStringGeometry { is_3d, coordinates, bbox, vec_bbox, .. } = geometry;
+) -> Option<VectorGeometry<M>> {
+    let VectorMultiLineStringGeometry::<M> { is_3d, coordinates, bbox, vec_bbox, .. } = geometry;
     let init_o =
         geometry.offset.clone().unwrap_or_else(|| coordinates.iter().map(|_| 0.).collect());
     let mut new_offsets: VectorMultiLineOffset = vec![];
-    let mut new_lines: VectorMultiLineString = vec![];
+    let mut new_lines: VectorMultiLineString<M> = vec![];
     let vec_bbox = vec_bbox.unwrap_or_default().clip(axis, k1, k2);
     coordinates.iter().enumerate().for_each(|(i, line)| {
         for clip in _clip_line(
@@ -284,28 +288,28 @@ fn clip_multi_line_string(
 }
 
 /// Clip a Polygon geometry to an axis and range
-fn clip_polygon(
-    geometry: &VectorPolygonGeometry,
+fn clip_polygon<M: MValueCompatible>(
+    geometry: &VectorPolygonGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
-) -> Option<VectorGeometry> {
+) -> Option<VectorGeometry<M>> {
     clip_multi_line_string(geometry, axis, k1, k2, true)
 }
 
 /// Clip a MultiPolygon geometry to an axis and range
-fn clip_multi_polygon(
-    geometry: &VectorMultiPolygonGeometry,
+fn clip_multi_polygon<M: MValueCompatible>(
+    geometry: &VectorMultiPolygonGeometry<M>,
     axis: Axis,
     k1: f64,
     k2: f64,
-) -> Option<VectorGeometry> {
+) -> Option<VectorGeometry<M>> {
     let VectorMultiPolygonGeometry { is_3d, coordinates, bbox, vec_bbox, .. } = geometry;
     let init_o = geometry
         .offset
         .clone()
         .unwrap_or_else(|| coordinates.iter().map(|l| l.iter().map(|_| 0.).collect()).collect());
-    let mut new_coordinates: VectorMultiPolygon = vec![];
+    let mut new_coordinates: VectorMultiPolygon<M> = vec![];
     let mut new_offsets: VectorMultiPolygonOffset = vec![];
     coordinates.iter().enumerate().for_each(|(p, polygon)| {
         let new_polygon = clip_polygon(
@@ -346,16 +350,16 @@ fn clip_multi_polygon(
 /// After clipping a line, return the altered line,
 /// the offset the new line starts at,
 /// and if the line is ccw
-pub struct ClipLineResult {
+pub struct ClipLineResult<M: MValueCompatible> {
     /// The clipped line
-    pub line: VectorLineString,
+    pub line: VectorLineString<M>,
     /// The offset the new line starts at
     pub offset: f64,
 }
 /// Ensuring `vec_bbox` exists
-pub struct ClipLineResultWithBBox {
+pub struct ClipLineResultWithBBox<M: MValueCompatible> {
     /// The clipped line
-    pub line: VectorLineString,
+    pub line: VectorLineString<M>,
     /// The offset the new line starts at
     pub offset: f64,
     /// The new vector bounding box
@@ -364,16 +368,16 @@ pub struct ClipLineResultWithBBox {
 
 /// clip an input line to a bounding box
 /// Data should always be in a 0->1 coordinate system to use this clip function
-pub fn clip_line(
-    geom: &VectorLineString,
+pub fn clip_line<M: MValueCompatible>(
+    geom: &VectorLineString<M>,
     bbox: BBox3D,
     is_polygon: bool,
     offset: Option<f64>,
     buffer: Option<f64>, // default for a full size tile. Assuming 1024 extent and a 64 point buffer
-) -> Vec<ClipLineResultWithBBox> {
+) -> Vec<ClipLineResultWithBBox<M>> {
     let offset = offset.unwrap_or(0.);
     let buffer = buffer.unwrap_or(0.0625);
-    let mut res: Vec<ClipLineResult> = vec![];
+    let mut res: Vec<ClipLineResult<M>> = vec![];
     let BBox3D { left, bottom, right, top, .. } = bbox;
     // clip horizontally
     let horizontal_clips = _clip_line(
@@ -408,18 +412,18 @@ pub fn clip_line(
 }
 
 /// Interal clip tool
-fn _clip_line(
-    input: ClipLineResult,
+fn _clip_line<M: MValueCompatible>(
+    input: ClipLineResult<M>,
     k1: f64,
     k2: f64,
     axis: Axis,
     is_polygon: bool,
-) -> Vec<ClipLineResult> {
+) -> Vec<ClipLineResult<M>> {
     //   let { line: geom, offset: startOffset } = input;
     let geom = &input.line;
     let start_offset = input.offset;
-    let mut new_geom: Vec<ClipLineResult> = vec![];
-    let mut slice: VectorLineString = vec![];
+    let mut new_geom: Vec<ClipLineResult<M>> = vec![];
+    let mut slice: VectorLineString<M> = vec![];
     let mut last = geom.len() - 1;
     let intersect = if axis == Axis::X { intersect_x } else { intersect_y };
 
@@ -430,8 +434,8 @@ fn _clip_line(
 
     let mut i = 0;
     while i < last {
-        let VectorPoint { x: ax, y: ay, z: az, m: am, .. } = &geom[i];
-        let VectorPoint { x: bx, y: by, z: bz, m: bm, .. } = &geom[i + 1];
+        let VectorPoint::<M> { x: ax, y: ay, z: az, m: am, .. } = &geom[i];
+        let VectorPoint::<M> { x: bx, y: by, z: bz, m: bm, .. } = &geom[i + 1];
         let a: f64 = if axis == Axis::X { *ax } else { *ay };
         let b: f64 = if axis == Axis::X { *bx } else { *by };
         let z: Option<f64> = match (az, bz) {
@@ -442,7 +446,7 @@ fn _clip_line(
         };
         let mut entered = false;
         let mut exited = false;
-        let mut int_p: Option<VectorPoint> = None;
+        let mut int_p: Option<VectorPoint<M>> = None;
 
         // ENTER OR CONTINUE CASES
         if a < k1 {
@@ -526,29 +530,29 @@ fn _clip_line(
 }
 
 /// Find the intersection of two points on the X axis
-fn intersect_x(
+fn intersect_x<M: MValueCompatible>(
     ax: f64,
     ay: f64,
     bx: f64,
     by: f64,
     x: f64,
     z: Option<f64>,
-    m: &Option<MValue>,
-) -> VectorPoint {
+    m: &Option<M>,
+) -> VectorPoint<M> {
     let t = (x - ax) / (bx - ax);
-    VectorPoint { x, y: ay + (by - ay) * t, z, m: m.clone(), t: Some(1.) }
+    VectorPoint::<M> { x, y: ay + (by - ay) * t, z, m: m.clone(), t: Some(1.) }
 }
 
 /// Find the intersection of two points on the Y axis
-fn intersect_y(
+fn intersect_y<M: MValueCompatible>(
     ax: f64,
     ay: f64,
     bx: f64,
     by: f64,
     y: f64,
     z: Option<f64>,
-    m: &Option<MValue>,
-) -> VectorPoint {
+    m: &Option<M>,
+) -> VectorPoint<M> {
     let t = (y - ay) / (by - ay);
-    VectorPoint { x: ax + (bx - ax) * t, y, z, m: m.clone(), t: Some(1.) }
+    VectorPoint::<M> { x: ax + (bx - ax) * t, y, z, m: m.clone(), t: Some(1.) }
 }

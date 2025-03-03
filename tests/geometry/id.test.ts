@@ -348,6 +348,7 @@ describe('idSizeST', () => {
 
 describe('idToIJ', () => {
   it('should return the i-j for a given cell', () => {
+    expect(idToIJ(0n)).toEqual([0, 0, 0, 0]);
     expect(idToIJ(idFromFace(0))).toEqual([0, 536870912, 536870912, 0]);
     expect(idToIJ(idFromFace(1))).toEqual([1, 536870912, 536870912, 1]);
     expect(idToIJ(idFromFace(2))).toEqual([2, 536870912, 536870912, 0]);

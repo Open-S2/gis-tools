@@ -182,23 +182,6 @@ impl From<RGBA> for MValue {
         ])
     }
 }
-//     fn to_mvalue(&self) -> MValue {
-//         let (r, g, b, a) = self.to_u8s();
-//         MValue::from([
-//             ("r".into(), (r as u64).into()),
-//             ("g".into(), (g as u64).into()),
-//             ("b".into(), (b as u64).into()),
-//             ("a".into(), (a as u64).into()),
-//         ])
-//     }
-//     fn from_mvalue(mvalue: &MValue) -> Option<Self> {
-//         let r = mvalue.get("r")?.to_prim()?.to_u64()? as u8;
-//         let g = mvalue.get("g")?.to_prim()?.to_u64()? as u8;
-//         let b = mvalue.get("b")?.to_prim()?.to_u64()? as u8;
-//         let a = mvalue.get("a")?.to_prim()?.to_u64()? as u8;
-//         Some(RGBA::from_u8s(r, g, b, a))
-//     }
-// }
 
 #[cfg(test)]
 mod tests {

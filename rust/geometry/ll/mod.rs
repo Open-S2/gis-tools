@@ -5,17 +5,19 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::geometry::{MValue, S1Angle, S2CellId, S2Point, VectorPoint};
 
+use s2json::MValueCompatible;
+
 /// This class represents a point on the unit sphere as a pair
 /// of latitude-longitude coordinates.  Like the rest of the "geometry"
 /// package, the intent is to represent spherical geometry as a mathematical
 /// abstraction, so functions that are specifically related to the Earth's
 /// geometry (e.g. easting/northing conversions) should be put elsewhere.
 #[derive(Clone, PartialEq, Debug)]
-pub struct LonLat(VectorPoint);
+pub struct LonLat<M: MValueCompatible = MValue>(VectorPoint<M>);
 
-impl LonLat {
+impl<M: MValueCompatible> LonLat<M> {
     /// Build a new LonLat
-    pub fn new(lon: f64, lat: f64, m: Option<MValue>) -> LonLat {
+    pub fn new(lon: f64, lat: f64, m: Option<M>) -> LonLat<M> {
         LonLat(VectorPoint::new(lon, lat, None, m))
     }
 
@@ -32,13 +34,13 @@ impl LonLat {
     }
 
     /// Convert a S2CellId to an LonLat
-    pub fn from_s2cellid(cellid: S2CellId) -> LonLat {
+    pub fn from_s2cellid(cellid: S2CellId) -> Self {
         let p = cellid.to_point();
-        LonLat::from_s2_point(&p)
+        Self::from_s2_point(&p)
     }
 
     /// Convert a direction vector (not necessarily unit length) to an LonLat.
-    pub fn from_s2_point(p: &S2Point) -> LonLat {
+    pub fn from_s2_point(p: &S2Point) -> Self {
         let lon_rad = atan2(p.y + 0.0, p.x + 0.0);
         let lat_rad = atan2(p.z, sqrt(p.x * p.x + p.y * p.y));
         let ll = LonLat::new((lon_rad).to_degrees(), (lat_rad).to_degrees(), None);
@@ -125,7 +127,7 @@ impl LonLat {
     /// except that this function is slightly faster, and is also somewhat less
     /// accurate for distances approaching 180 degrees (see s1angle.h for
     /// details).  Both LngLats must be normalized.
-    pub fn get_distance(&self, b: &LonLat) -> f64 {
+    pub fn get_distance<M2: MValueCompatible>(&self, b: &LonLat<M2>) -> f64 {
         // This implements the Haversine formula, which is numerically stable for
         // small distances but only gets about 8 digits of precision for very large
         // distances (e.g. antipodal points).  Note that 8 digits is still accurate
@@ -149,7 +151,7 @@ impl LonLat {
     }
 
     /// Returns the bearing from the first point to the second point.
-    pub fn get_bearing(&self, b: &LonLat) -> f64 {
+    pub fn get_bearing<M2: MValueCompatible>(&self, b: &LonLat<M2>) -> f64 {
         debug_assert!(self.is_valid(), "get_bearing() called on invalid LonLat (self)");
         debug_assert!(b.is_valid(), "get_bearing() called on invalid LonLat (self)");
         let lat1 = self.lat().to_radians();
@@ -162,37 +164,37 @@ impl LonLat {
         (atan2(y, x).to_degrees() + 360.) % 360.
     }
 }
-impl From<S2CellId> for LonLat {
+impl<M: MValueCompatible> From<S2CellId> for LonLat<M> {
     fn from(c: S2CellId) -> Self {
         LonLat::from_s2cellid(c)
     }
 }
-impl From<&S2Point> for LonLat {
+impl<M: MValueCompatible> From<&S2Point> for LonLat<M> {
     fn from(p: &S2Point) -> Self {
         LonLat::from_s2_point(p)
     }
 }
-impl Add<LonLat> for LonLat {
-    type Output = LonLat;
-    fn add(self, rhs: LonLat) -> Self::Output {
+impl<M1: MValueCompatible, M2: MValueCompatible> Add<LonLat<M2>> for LonLat<M1> {
+    type Output = LonLat<M1>;
+    fn add(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() + rhs.lon(), self.lat() + rhs.lat(), self.0.m)
     }
 }
-impl Sub<LonLat> for LonLat {
-    type Output = LonLat;
-    fn sub(self, rhs: LonLat) -> Self::Output {
+impl<M1: MValueCompatible, M2: MValueCompatible> Sub<LonLat<M2>> for LonLat<M1> {
+    type Output = LonLat<M1>;
+    fn sub(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() - rhs.lon(), self.lat() - rhs.lat(), self.0.m)
     }
 }
-impl Mul<LonLat> for LonLat {
-    type Output = LonLat;
-    fn mul(self, rhs: LonLat) -> Self::Output {
-        LonLat::new(self.lon() * rhs.lon(), self.lat() * rhs.lat(), rhs.0.m)
+impl<M1: MValueCompatible, M2: MValueCompatible> Mul<LonLat<M2>> for LonLat<M1> {
+    type Output = LonLat<M1>;
+    fn mul(self, rhs: LonLat<M2>) -> Self::Output {
+        LonLat::new(self.lon() * rhs.lon(), self.lat() * rhs.lat(), self.0.m)
     }
 }
-impl Div<LonLat> for LonLat {
-    type Output = LonLat;
-    fn div(self, rhs: LonLat) -> Self::Output {
+impl<M1: MValueCompatible, M2: MValueCompatible> Div<LonLat<M2>> for LonLat<M1> {
+    type Output = LonLat<M1>;
+    fn div(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() / rhs.lon(), self.lat() / rhs.lat(), self.0.m)
     }
 }
@@ -227,52 +229,52 @@ mod tests {
 
     #[test]
     fn from_points() {
-        let ll = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: 0.0 });
+        let ll: LonLat = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: 0.0 });
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
-        let ll = LonLat::from(&S2Point { x: 1.0, y: 0.0, z: 0.0 });
+        let ll: LonLat = LonLat::from(&S2Point { x: 1.0, y: 0.0, z: 0.0 });
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
-        let ll = LonLat::from(&S2Point { x: 0.0, y: 1.0, z: 0.0 });
+        let ll: LonLat = LonLat::from(&S2Point { x: 0.0, y: 1.0, z: 0.0 });
         assert_eq!(ll, LonLat::new(90.0, 0.0, None));
-        let ll = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: -1.0 });
+        let ll: LonLat = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: -1.0 });
         assert_eq!(ll, LonLat::new(0.0, -90.0, None));
-        let ll = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: 1.0 });
+        let ll: LonLat = LonLat::from(&S2Point { x: 0.0, y: 0.0, z: 1.0 });
         assert_eq!(ll, LonLat::new(0.0, 90.0, None));
     }
 
     #[test]
     fn from_s2cell_id() {
-        let ll = LonLat::from(S2CellId::new(1152921504606846977));
+        let ll: LonLat = LonLat::from(S2CellId::new(1152921504606846977));
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
     }
 
     #[test]
     fn coords() {
-        let ll = LonLat::new(20.0, 50.0, None);
+        let ll: LonLat = LonLat::new(20.0, 50.0, None);
         assert_eq!(ll.coords(), (20.0, 50.0));
     }
 
     #[test]
     fn get_distance() {
-        let ll = LonLat::new(0.0, 0.0, None);
-        assert_eq!(ll.get_distance(&LonLat::new(0.0, 0.0, None)), 0.0);
+        let ll: LonLat = LonLat::new(0.0, 0.0, None);
+        assert_eq!(ll.get_distance(&LonLat::<MValue>::new(0.0, 0.0, None)), 0.0);
         assert_eq!(
-            ll.get_distance(&LonLat::new(0.017453292519943295, 0.0, None)),
+            ll.get_distance(&LonLat::<MValue>::new(0.017453292519943295, 0.0, None)),
             0.00030461741978670857
         );
     }
 
     #[test]
     fn normalize() {
-        let mut ll = LonLat::new(0.0, 0.0, None);
+        let mut ll: LonLat = LonLat::new(0.0, 0.0, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
-        let mut ll = LonLat::new(0.01745329251994, 0.111111, None);
+        let mut ll: LonLat = LonLat::new(0.01745329251994, 0.111111, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(0.01745329251991734, 0.111111, None));
-        let mut ll = LonLat::new(640.0, 100.0, None);
+        let mut ll: LonLat = LonLat::new(640.0, 100.0, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(-80.0, 90.0, None));
-        let mut ll = LonLat::new(-640.0, -100.0, None);
+        let mut ll: LonLat = LonLat::new(-640.0, -100.0, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(80.0, -90.0, None));
     }
@@ -280,61 +282,61 @@ mod tests {
     #[test]
     #[allow(clippy::approx_constant)]
     fn to_angles() {
-        let ll = LonLat::new(0.0, 0.0, None);
+        let ll: LonLat = LonLat::new(0.0, 0.0, None);
         assert_eq!(ll.to_angles(), (0.0.into(), 0.0.into()));
-        let ll = LonLat::new(0.01745329251994, 0.111111, None);
+        let ll: LonLat = LonLat::new(0.01745329251994, 0.111111, None);
         assert_eq!(ll.to_angles(), (0.00030461741978665105.into(), 0.0019392527851834196.into()));
-        let ll = LonLat::new(90.0, 180.0, None);
+        let ll: LonLat = LonLat::new(90.0, 180.0, None);
         assert_eq!(ll.to_angles(), (1.5707963267948966.into(), 3.141592653589793.into()));
     }
 
     #[test]
     fn to_point_and_gl() {
-        let ll = LonLat::new(0.0, 0.0, None);
+        let ll: LonLat = LonLat::new(0.0, 0.0, None);
         assert_eq!(S2Point::from(&ll), S2Point { x: 1.0, y: 0.0, z: 0.0 });
-        let ll = LonLat::new(90.0, 0.0, None);
+        let ll: LonLat = LonLat::new(90.0, 0.0, None);
         assert_eq!(ll.to_point(), S2Point { x: 6.123233995736766e-17, y: 1.0, z: 0.0 });
-        let ll = LonLat::new(0.0, 90.0, None);
+        let ll: LonLat = LonLat::new(0.0, 90.0, None);
         assert_eq!(ll.to_point(), S2Point { x: 6.123233995736766e-17, y: 0.0, z: 1.0 });
-        let ll = LonLat::new(180.0, 0., None);
+        let ll: LonLat = LonLat::new(180.0, 0., None);
         assert_eq!(ll.to_point(), S2Point { x: -1.0, y: 1.2246467991473532e-16, z: 0.0 });
         assert_eq!(ll.to_point_gl(), S2Point { x: 1.2246467991473532e-16, y: 0.0, z: -1.0 });
     }
 
     #[test]
     fn bearing() {
-        let ll = LonLat::new(0.0, 0.0, None);
-        assert_eq!(ll.get_bearing(&LonLat::new(0.0, 0.0, None)), 0.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(90.0, 0.0, None)), 90.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(180.0, 0.0, None)), 90.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(0.0, 90.0, None)), 0.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(-89.9, 0.0, None)), 270.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(0.0, -90.0, None)), 180.0);
-        assert_eq!(ll.get_bearing(&LonLat::new(-180.0, 0.0, None)), 270.0);
-        let ll = LonLat::new(-60.0, -40.0, None);
-        assert_eq!(ll.get_bearing(&LonLat::new(20.0, 10.0, None)), 75.936859467864);
+        let ll: LonLat = LonLat::new(0.0, 0.0, None);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(0.0, 0.0, None)), 0.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(90.0, 0.0, None)), 90.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(180.0, 0.0, None)), 90.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(0.0, 90.0, None)), 0.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(-89.9, 0.0, None)), 270.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(0.0, -90.0, None)), 180.0);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(-180.0, 0.0, None)), 270.0);
+        let ll = LonLat::<MValue>::new(-60.0, -40.0, None);
+        assert_eq!(ll.get_bearing(&LonLat::<MValue>::new(20.0, 10.0, None)), 75.936859467864);
     }
 
     #[test]
     fn maths() {
         // ADD
-        let ll1 = LonLat::new(15.0, -20.0, None);
-        let ll2 = LonLat::new(30.0, 40.0, None);
-        let ll3 = ll1 + ll2;
+        let ll1: LonLat = LonLat::new(15.0, -20.0, None);
+        let ll2: LonLat = LonLat::new(30.0, 40.0, None);
+        let ll3: LonLat = ll1 + ll2;
         assert_eq!(ll3, LonLat::new(45.0, 20.0, None));
         // SUB
-        let ll1 = LonLat::new(15.0, -20.0, None);
-        let ll2 = LonLat::new(30.0, 40.0, None);
-        let ll3 = ll1 - ll2;
+        let ll1: LonLat = LonLat::new(15.0, -20.0, None);
+        let ll2: LonLat = LonLat::new(30.0, 40.0, None);
+        let ll3: LonLat = ll1 - ll2;
         assert_eq!(ll3, LonLat::new(-15.0, -60.0, None));
         // MUL
-        let ll1 = LonLat::new(15.0, -20.0, None);
-        let ll2 = LonLat::new(30.0, 40.0, None);
-        let ll3 = ll1 * ll2;
+        let ll1: LonLat = LonLat::new(15.0, -20.0, None);
+        let ll2: LonLat = LonLat::new(30.0, 40.0, None);
+        let ll3: LonLat = ll1 * ll2;
         assert_eq!(ll3, LonLat::new(450.0, -800.0, None));
         // DIV
-        let ll1 = LonLat::new(15.0, -20.0, None);
-        let ll2 = LonLat::new(30.0, 40.0, None);
+        let ll1: LonLat = LonLat::new(15.0, -20.0, None);
+        let ll2: LonLat = LonLat::new(30.0, 40.0, None);
         let ll3 = ll1 / ll2;
         assert_eq!(ll3, LonLat::new(0.5, -0.5, None));
         // NEG
@@ -356,11 +358,11 @@ mod tests {
         assert!(ll2 > ll1);
         assert!(ll2 >= ll1);
 
-        let ll1 = LonLat::new(15.0, -20.0, None);
+        let ll1: LonLat = LonLat::new(15.0, -20.0, None);
         let ll2 = LonLat::new(15.0, -20.0, None);
         assert!(ll1 == ll2);
 
-        let ll1 = LonLat::new(15.0, f64::NAN, None);
+        let ll1: LonLat = LonLat::new(15.0, f64::NAN, None);
         let ll2 = LonLat::new(15.0, f64::NAN, None);
         assert!(ll1 != ll2);
     }

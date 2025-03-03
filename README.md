@@ -33,6 +33,20 @@
 
 A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2.
 
+## Features
+
+Notable features of GIS-Tools are:
+
+* 🔗 Lightweight, fast, and memory efficient. `no_std` builds for Rust. Tree-shaking for Typescript.
+* 🗺️ Full toolkit support for WGS84, Web Mercator, and S2 projections.
+* 🌱 A large list of projections can be converted to/from one of the above 3 via Transformers.
+* 📦 Build Vector Tiles, Raster Tiles, and Gridded Data Tiles. Vector supports 3 output formats (Mapbox Vector Tile, Open S2 Tiles, and Flat Open S2 Tiles).
+* All data structures support all projections and also handle large data sets through working with the filesystem and mmap buffers.
+* 📖 Contains **23** native GIS readers. The list of readers are: CSV, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, Shapefiles, raster and vector tiles, WKT, and XML.
+* 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript or Rust.
+* 🧲 Full suite of tools for points, lines, polygons, greater-circle-arcs, predicates, and more.
+* 🌌 Space specific tools for planets and satellite orbits.
+
 ## Goals
 
 Making GIS data easy to parse and work with. One of the biggest issues in GIS right now is how segmented various niche tools are. The other issue is how most solutions to read GIS data are half baked, deprecated, or partially parse results that need to be transformed one more time to use them.
@@ -65,7 +79,7 @@ cargo add gis-tools
 
 ### Converters
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
 | [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
@@ -77,7 +91,7 @@ cargo add gis-tools
 
 ### Data Stores
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
 | [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
@@ -95,7 +109,7 @@ cargo add gis-tools
 
 ### Data Structures
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
 | [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |
@@ -122,7 +136,7 @@ cargo add gis-tools
 
 ### Geometry
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [angles]                 | ![Angle Badge][anglesBadge]   | Spherical geodetic angle methods.                                |
 | [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
@@ -152,7 +166,7 @@ cargo add gis-tools
 
 ### PROJ4
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
 | [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
@@ -169,7 +183,7 @@ cargo add gis-tools
 
 Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/docs-ts/readers/reader.md).
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [jpeg]                   | ![JPEG Badge][jpegBadge]      | Read/parse JPEG data.                                            |
 | [jpeg2000]               | ![JPEG2 Badge][jpeg2Badge]    | Read/parse JPEG 2000 data.                                       |
@@ -238,7 +252,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Space
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [planets]                | ![Planet Badge][planetBadge]  | Collection of planet constants with observation tools.           |
 | [satellite]              | ![SAT Badge][satBadge]        | Satellite Orbit Class from TLE data                              |
@@ -250,7 +264,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Tools
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [delaunator]             | ![DEL Badge][delBadge]        | Delaunay triangulation of 2D points.                             |
 | [interpolators]          | ![INT Badge][intBadge]        | Interpolate values from points and weights.                      |
@@ -268,7 +282,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Writers
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
 | [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
@@ -280,7 +294,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Utils
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
 | [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |

@@ -3,16 +3,17 @@ use crate::geometry::{VectorGeometry, VectorLineString, VectorPoint};
 use libm::pow;
 
 use alloc::vec;
+use s2json::{MValue, MValueCompatible};
 
 /// Functions to simplify a vector geometry
-pub trait SimplifyVectorGeometry {
+pub trait SimplifyVectorGeometry<M: MValueCompatible = MValue> {
     /// Build sequential distances for a vector geometry
     fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>);
     /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
     fn simplify(&mut self, tolerance: f64, zoom: u8, maxzoom: Option<u8>);
 }
 
-impl SimplifyVectorGeometry for VectorGeometry {
+impl<M: MValueCompatible> SimplifyVectorGeometry<M> for VectorGeometry<M> {
     /// Build sqdistances for a vector geometry
     fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>) {
         build_sq_dists(self, tolerance, maxzoom);
@@ -25,7 +26,11 @@ impl SimplifyVectorGeometry for VectorGeometry {
 }
 
 /// build sqdistances for line vector data
-pub fn build_sq_dists(geometry: &mut VectorGeometry, tolerance: f64, maxzoom: Option<u8>) {
+pub fn build_sq_dists<M: MValueCompatible>(
+    geometry: &mut VectorGeometry<M>,
+    tolerance: f64,
+    maxzoom: Option<u8>,
+) {
     let maxzoom = maxzoom.unwrap_or(16);
     let tol = pow(tolerance / ((1 << maxzoom) as f64 * 4_096.), 2.);
 
@@ -50,7 +55,12 @@ pub fn build_sq_dists(geometry: &mut VectorGeometry, tolerance: f64, maxzoom: Op
 
 /// calculate simplification of line vector data using
 /// optimized Douglas-Peucker algorithm
-fn build_sq_dist(coords: &mut VectorLineString, first: usize, last: usize, sq_tolerance: f64) {
+fn build_sq_dist<M: MValueCompatible>(
+    coords: &mut VectorLineString<M>,
+    first: usize,
+    last: usize,
+    sq_tolerance: f64,
+) {
     coords[first].t = Some(1.);
     _build_sq_dist(coords, first, last, sq_tolerance);
     coords[last].t = Some(1.);
@@ -58,7 +68,12 @@ fn build_sq_dist(coords: &mut VectorLineString, first: usize, last: usize, sq_to
 
 /// calculate simplification of line vector data using
 /// optimized Douglas-Peucker algorithm
-fn _build_sq_dist(coords: &mut VectorLineString, first: usize, last: usize, sq_tolerance: f64) {
+fn _build_sq_dist<M: MValueCompatible>(
+    coords: &mut VectorLineString<M>,
+    first: usize,
+    last: usize,
+    sq_tolerance: f64,
+) {
     let mid = (last - first) >> 1;
     let mut max_sq_dist = sq_tolerance;
     let mut min_pos_to_mid = last - first;
@@ -127,7 +142,12 @@ fn get_sq_seg_dist(ps: f64, pt: f64, s: f64, t: f64, bs: f64, bt: f64) -> f64 {
 }
 
 /// Simplify a vector geometry
-pub fn simplify(geometry: &mut VectorGeometry, tolerance: f64, zoom: u8, maxzoom: Option<u8>) {
+pub fn simplify<M: MValueCompatible>(
+    geometry: &mut VectorGeometry<M>,
+    tolerance: f64,
+    zoom: u8,
+    maxzoom: Option<u8>,
+) {
     let maxzoom = maxzoom.unwrap_or(16);
     let zoom_tol =
         if zoom >= maxzoom { 0. } else { tolerance / ((1 << (zoom as u64)) as f64 * 4_096.) };
@@ -156,19 +176,19 @@ pub fn simplify(geometry: &mut VectorGeometry, tolerance: f64, zoom: u8, maxzoom
 }
 
 /// simplified a vector line
-fn simplify_line(
-    line: &VectorLineString,
+fn simplify_line<M: MValueCompatible>(
+    line: &VectorLineString<M>,
     tolerance: f64,
     is_polygon: bool,
     is_outer: bool,
-) -> VectorLineString {
+) -> VectorLineString<M> {
     let sq_tolerance = tolerance * tolerance;
     let size = line.len() as f64;
     if tolerance > 0. && size < (if is_polygon { sq_tolerance } else { tolerance }) {
         return line.clone();
     }
 
-    let mut ring: VectorLineString = vec![];
+    let mut ring: VectorLineString<M> = vec![];
     for point in line {
         if tolerance == 0. || (point.t.unwrap_or(0.0)) > sq_tolerance {
             ring.push(point.clone());
@@ -182,7 +202,7 @@ fn simplify_line(
 }
 
 /// In place adjust the ring if necessary
-pub fn rewind(ring: &mut VectorLineString, clockwise: bool) {
+pub fn rewind<M: MValueCompatible>(ring: &mut VectorLineString<M>, clockwise: bool) {
     let len = ring.len();
     let mut area: f64 = 0.;
     let mut i = 0;
@@ -205,8 +225,8 @@ pub fn rewind(ring: &mut VectorLineString, clockwise: bool) {
 #[cfg(test)]
 mod tests {
     use s2json::{
-        VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPolygonGeometry,
-        VectorPolygonGeometry,
+        MValue, VectorLineStringGeometry, VectorMultiLineStringGeometry,
+        VectorMultiPolygonGeometry, VectorPolygonGeometry,
     };
 
     use super::*;
@@ -216,7 +236,7 @@ mod tests {
     #[test]
     fn test_rewind() {
         let mut ring = vec![
-            VectorPoint::new(0., 0., None, None),
+            VectorPoint::<MValue>::new(0., 0., None, None),
             VectorPoint::new(0., 1., None, None),
             VectorPoint::new(1., 1., None, None),
             VectorPoint::new(1., 0., None, None),
@@ -241,7 +261,7 @@ mod tests {
             _type: "LineString".into(),
             is_3d: false,
             coordinates: vec![
-                VectorPoint::new(0.25, 0.25, None, None),
+                VectorPoint::<MValue>::new(0.25, 0.25, None, None),
                 VectorPoint::new(0.75, 0.25, None, None),
                 VectorPoint::new(0.75, 0.75, None, None),
                 VectorPoint::new(0.25, 0.75, None, None),
@@ -292,7 +312,7 @@ mod tests {
             _type: "MultiLineString".into(),
             coordinates: vec![
                 vec![
-                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::<MValue>::new(0.25, 0.25, None, None),
                     VectorPoint::new(0.75, 0.25, None, None),
                     VectorPoint::new(0.75, 0.75, None, None),
                     VectorPoint::new(0.25, 0.75, None, None),
@@ -365,7 +385,7 @@ mod tests {
             _type: "Polygon".into(),
             coordinates: vec![
                 vec![
-                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::<MValue>::new(0.25, 0.25, None, None),
                     VectorPoint::new(0.75, 0.25, None, None),
                     VectorPoint::new(0.75, 0.75, None, None),
                     VectorPoint::new(0.25, 0.75, None, None),
@@ -438,7 +458,7 @@ mod tests {
             _type: "MultiPolygon".into(),
             coordinates: vec![vec![
                 vec![
-                    VectorPoint::new(0.25, 0.25, None, None),
+                    VectorPoint::<MValue>::new(0.25, 0.25, None, None),
                     VectorPoint::new(0.75, 0.25, None, None),
                     VectorPoint::new(0.75, 0.75, None, None),
                     VectorPoint::new(0.25, 0.75, None, None),

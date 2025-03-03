@@ -9,19 +9,27 @@ use crate::geometry::{
 use alloc::collections::BTreeSet;
 use alloc::vec;
 use alloc::vec::Vec;
+use s2json::{MValue, MValueCompatible, Properties};
 
 /// Underlying conversion mechanic to move GeoJSON Feature to GeoJSON Vector Feature
-pub trait ConvertFeature<M: Clone> {
+pub trait ConvertFeature<
+    M: Clone = (),
+    P: MValueCompatible = Properties,
+    D: MValueCompatible = MValue,
+>
+{
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
-    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M>;
+    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M, P, D>;
 }
 
 // TODO: We are cloning geometry twice at times. Let's optimize (check "to_vec" and "clone" cases)
 // TODO: To fix just use mem::take
 
-impl<M: Clone> ConvertFeature<M> for Feature<M> {
+impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertFeature<M, P, D>
+    for Feature<M, P, D>
+{
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
-    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M> {
+    fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M, P, D> {
         let build_bbox = build_bbox.unwrap_or(false);
         let Feature { id, properties, metadata, geometry, .. } = self;
         let vector_geo = convert_geometry(geometry, build_bbox);
@@ -30,16 +38,23 @@ impl<M: Clone> ConvertFeature<M> for Feature<M> {
 }
 
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2 Geometry
-pub trait ConvertVectorFeatureWM<M: Clone> {
+pub trait ConvertVectorFeatureWM<
+    M: Clone = (),
+    P: MValueCompatible = Properties,
+    D: MValueCompatible = MValue,
+>
+{
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
     fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>);
     /// Convert a 0->1 coordinate system to lon-lat
     fn to_ll(&mut self);
     /// Convert a GeoJSON Vector Feature to an S2 Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M>>;
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M, P, D>>;
 }
 
-impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
+impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureWM<M, P, D>
+    for VectorFeature<M, P, D>
+{
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
     fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>) {
         let mut bbox = BBox3D::default();
@@ -92,16 +107,16 @@ impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
     }
 
     /// Convet a GeoJSON Feature to an S2Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M>> {
+    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M, P, D>> {
         let VectorFeature { _type, id, properties, metadata, geometry, .. } = self;
-        let mut res: Vec<VectorFeature<M>> = vec![];
+        let mut res: Vec<VectorFeature<M, P, D>> = vec![];
 
         if _type == "S2Feature" {
             res.push(self.clone());
         } else {
             let vector_geo = convert_geometry_wm_to_s2(geometry, tolerance, maxzoom);
             for ConvertedGeometry { geometry, face } in vector_geo {
-                res.push(VectorFeature::<M>::new_s2(
+                res.push(VectorFeature::<M, P, D>::new_s2(
                     *id,
                     face,
                     properties.clone(),
@@ -116,11 +131,14 @@ impl<M: Clone> ConvertVectorFeatureWM<M> for VectorFeature<M> {
 }
 
 /// Convert a GeoJSON Geometry to an Vector Geometry
-fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
+fn convert_geometry<M: MValueCompatible>(
+    geometry: &Geometry<M>,
+    _build_bbox: bool,
+) -> VectorGeometry<M> {
     // TODO: build a bbox if user wants it
     match geometry {
         Geometry::Point(geo) => {
-            let mut coordinates: VectorPoint = (geo.coordinates).into();
+            let mut coordinates: VectorPoint<M> = (geo.coordinates).into();
             coordinates.m = geo.m_values.clone();
             VectorGeometry::Point(VectorPointGeometry {
                 _type: VectorGeometryType::Point,
@@ -132,7 +150,7 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
             })
         }
         Geometry::Point3D(geo) => {
-            let mut coordinates: VectorPoint = (geo.coordinates).into();
+            let mut coordinates: VectorPoint<M> = (geo.coordinates).into();
             coordinates.m = geo.m_values.clone();
             VectorGeometry::Point(VectorPointGeometry {
                 _type: VectorGeometryType::Point,
@@ -373,22 +391,22 @@ fn convert_geometry(geometry: &Geometry, _build_bbox: bool) -> VectorGeometry {
 }
 
 /// The resultant geometry after conversion
-pub struct ConvertedGeometry {
+pub struct ConvertedGeometry<M: MValueCompatible = MValue> {
     /// The converted geometry
-    pub geometry: VectorGeometry,
+    pub geometry: VectorGeometry<M>,
     /// The face of the geometry
     pub face: Face,
 }
 /// A list of converted geometries
-pub type ConvertedGeometryList = Vec<ConvertedGeometry>;
+pub type ConvertedGeometryList<M> = Vec<ConvertedGeometry<M>>;
 
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
-fn convert_geometry_wm_to_s2(
-    geometry: &VectorGeometry,
+fn convert_geometry_wm_to_s2<M: MValueCompatible>(
+    geometry: &VectorGeometry<M>,
     tolerance: Option<f64>,
     maxzoom: Option<u8>,
-) -> ConvertedGeometryList {
-    let mut res: ConvertedGeometryList = vec![];
+) -> ConvertedGeometryList<M> {
+    let mut res: ConvertedGeometryList<M> = vec![];
 
     match geometry {
         VectorGeometry::Point(geo) => {
@@ -420,13 +438,11 @@ fn convert_geometry_wm_to_s2(
     res
 }
 
-// /**
-//  * @param geometry - GeoJSON PointGeometry
-//  * @returns - S2 PointGeometry
-//  */
 /// Convert a GeoJSON PointGeometry to a S2 PointGeometry
-fn convert_geometry_point(geometry: &VectorPointGeometry) -> ConvertedGeometryList {
-    let VectorPointGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
+fn convert_geometry_point<M: MValueCompatible>(
+    geometry: &VectorPointGeometry<M>,
+) -> ConvertedGeometryList<M> {
+    let VectorPointGeometry::<M> { _type, is_3d, coordinates, bbox, .. } = geometry;
     let mut new_point = coordinates.clone();
     let ll: S2Point =
         (&LonLat::new(new_point.x, new_point.y, core::mem::take(&mut new_point.m))).into();
@@ -448,7 +464,9 @@ fn convert_geometry_point(geometry: &VectorPointGeometry) -> ConvertedGeometryLi
 }
 
 /// Convert a GeoJSON MultiPointGeometry to S2 MultiPointGeometry
-fn convert_geometry_multipoint(geometry: &VectorMultiPointGeometry) -> ConvertedGeometryList {
+fn convert_geometry_multipoint<M: MValueCompatible>(
+    geometry: &VectorMultiPointGeometry<M>,
+) -> ConvertedGeometryList<M> {
     let VectorMultiPointGeometry { is_3d, coordinates, bbox, .. } = geometry;
     coordinates
         .iter()
@@ -465,7 +483,9 @@ fn convert_geometry_multipoint(geometry: &VectorMultiPointGeometry) -> Converted
 }
 
 /// Convert a GeoJSON LineStringGeometry to S2 LineStringGeometry
-fn convert_geometry_linestring(geometry: &VectorLineStringGeometry) -> ConvertedGeometryList {
+fn convert_geometry_linestring<M: MValueCompatible>(
+    geometry: &VectorLineStringGeometry<M>,
+) -> ConvertedGeometryList<M> {
     let VectorLineStringGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
 
     convert_line_string(coordinates, false)
@@ -489,9 +509,9 @@ fn convert_geometry_linestring(geometry: &VectorLineStringGeometry) -> Converted
 }
 
 /// Convert a GeoJSON MultiLineStringGeometry to S2 MultiLineStringGeometry
-fn convert_geometry_multilinestring(
-    geometry: &VectorMultiLineStringGeometry,
-) -> ConvertedGeometryList {
+fn convert_geometry_multilinestring<M: MValueCompatible>(
+    geometry: &VectorMultiLineStringGeometry<M>,
+) -> ConvertedGeometryList<M> {
     let VectorMultiLineStringGeometry { is_3d, coordinates, bbox, .. } = geometry;
 
     coordinates
@@ -513,9 +533,11 @@ fn convert_geometry_multilinestring(
 }
 
 /// Convert a GeoJSON PolygonGeometry to S2 PolygonGeometry
-fn convert_geometry_polygon(geometry: &VectorPolygonGeometry) -> ConvertedGeometryList {
+fn convert_geometry_polygon<M: MValueCompatible>(
+    geometry: &VectorPolygonGeometry<M>,
+) -> ConvertedGeometryList<M> {
     let VectorPolygonGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
-    let mut res: ConvertedGeometryList = vec![];
+    let mut res: ConvertedGeometryList<M> = vec![];
 
     // conver all lines
     let mut outer_ring = convert_line_string(&coordinates[0], true);
@@ -523,7 +545,7 @@ fn convert_geometry_polygon(geometry: &VectorPolygonGeometry) -> ConvertedGeomet
 
     // for each face, build a new polygon
     for ConvertedLineString { face, line, offset, vec_bbox: poly_bbox } in &mut outer_ring {
-        let mut polygon: VectorPolygon = vec![core::mem::take(line)];
+        let mut polygon: VectorPolygon<M> = vec![core::mem::take(line)];
         let mut polygon_offsets = vec![*offset];
         let mut poly_bbox = *poly_bbox;
         for ConvertedLineString {
@@ -558,7 +580,9 @@ fn convert_geometry_polygon(geometry: &VectorPolygonGeometry) -> ConvertedGeomet
 }
 
 /// Convert a GeoJSON MultiPolygonGeometry to S2 MultiPolygonGeometry
-fn convert_geometry_multipolygon(geometry: &VectorMultiPolygonGeometry) -> ConvertedGeometryList {
+fn convert_geometry_multipolygon<M: MValueCompatible>(
+    geometry: &VectorMultiPolygonGeometry<M>,
+) -> ConvertedGeometryList<M> {
     let VectorMultiPolygonGeometry { is_3d, coordinates, bbox, offset, .. } = geometry;
     coordinates
         .iter()
@@ -578,18 +602,21 @@ fn convert_geometry_multipolygon(geometry: &VectorMultiPolygonGeometry) -> Conve
 }
 
 /// LineString converted from WM to S2
-pub struct ConvertedLineString {
+pub struct ConvertedLineString<M: MValueCompatible = MValue> {
     face: Face,
-    line: VectorLineString,
+    line: VectorLineString<M>,
     offset: f64,
     vec_bbox: BBox3D,
 }
 
 /// Convert WM LineString to S2
-fn convert_line_string(line: &VectorLineString, is_polygon: bool) -> Vec<ConvertedLineString> {
-    let mut res: Vec<ConvertedLineString> = vec![];
+fn convert_line_string<M: MValueCompatible>(
+    line: &VectorLineString<M>,
+    is_polygon: bool,
+) -> Vec<ConvertedLineString<M>> {
+    let mut res: Vec<ConvertedLineString<M>> = vec![];
     // first re-project all the coordinates to S2
-    let mut new_geometry: Vec<STPoint> = vec![];
+    let mut new_geometry: Vec<STPoint<M>> = vec![];
     for VectorPoint { x: lon, y: lat, z, m, .. } in line {
         let ll: S2Point = (&LonLat::new(*lon, *lat, m.clone())).into();
         let (face, s, t) = ll.to_face_st();
@@ -602,7 +629,7 @@ fn convert_line_string(line: &VectorLineString, is_polygon: bool) -> Vec<Convert
     });
     // for each face, build a line
     for face in faces {
-        let mut line: VectorLineString = vec![];
+        let mut line: VectorLineString<M> = vec![];
         for st_point in &new_geometry {
             line.push(st_point_to_face(face, st_point));
         }
@@ -616,7 +643,7 @@ fn convert_line_string(line: &VectorLineString, is_polygon: bool) -> Vec<Convert
 }
 
 /// Given a face, rotate the point into it's 0->1 coordinate system
-fn st_point_to_face(target_face: Face, stp: &STPoint) -> VectorPoint {
+fn st_point_to_face<M: MValueCompatible>(target_face: Face, stp: &STPoint<M>) -> VectorPoint<M> {
     let cur_face = stp.face;
     if target_face == cur_face {
         return VectorPoint { x: stp.s, y: stp.t, z: stp.z, m: stp.m.clone(), t: None };

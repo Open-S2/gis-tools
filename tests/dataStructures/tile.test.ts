@@ -96,7 +96,7 @@ test('transformPoint', () => {
 });
 
 test('Tile', () => {
-  const tile = new Tile(0n);
+  const tile = new Tile(idFromFace(0));
   expect(tile).toEqual({
     face: 0,
     zoom: 0,

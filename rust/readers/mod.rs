@@ -19,6 +19,7 @@ pub use image::*;
 pub use mmap::*;
 
 use alloc::{string::String, vec::Vec};
+use s2json::MValueCompatible;
 
 /// Reader interface. Implemented to read data from either a buffer or a filesystem
 pub trait Reader {
@@ -84,7 +85,9 @@ pub trait Reader {
 }
 
 /// A feature iterator that all readers should implement
-pub trait FeatureIterator<M = ()>: Iterator<Item = VectorFeature<M>> {
+pub trait FeatureIterator<M: Clone, P: MValueCompatible, D: MValueCompatible>:
+    Iterator<Item = VectorFeature<M, P, D>>
+{
     /// Get the next feature
-    fn next_feature(&mut self) -> Option<VectorFeature<M>>;
+    fn next_feature(&mut self) -> Option<VectorFeature<M, P, D>>;
 }
