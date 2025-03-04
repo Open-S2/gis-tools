@@ -1,15 +1,13 @@
 import { expect, test } from 'bun:test';
 import { incircle, incirclefast } from '../../../src/geometry/predicates';
 
-import nextafter from 'nextafter';
-
 test('incircle', async () => {
   expect(incircle(0, -1, 0, 1, 1, 0, -0.5, 0) < 0, 'inside');
   expect(incircle(0, -1, 1, 0, 0, 1, -1, 0) === 0, 'on circle');
   expect(incircle(0, -1, 0, 1, 1, 0, -1.5, 0) > 0, 'outside');
 
-  const a = nextafter(-1, 0);
-  const b = nextafter(-1, -2);
+  const a = -0.9999999999999999;
+  const b = -1.0000000000000002;
 
   expect(incircle(1, 0, -1, 0, 0, 1, 0, a) < 0, 'near inside');
   expect(incircle(1, 0, -1, 0, 0, 1, 0, b) > 0, 'near outside');
