@@ -380,9 +380,12 @@ pub const FACE_RULE_SET: [[(Rotation, i8, i8); 6]; 6] = [
 
 #[cfg(test)]
 mod tests {
-    use s2json::VectorFeature;
+    use s2json::{
+        FeatureCollection, JSONCollection, Projection, S2FeatureCollection, VectorFeature,
+        WMFeature,
+    };
 
-    use crate::geometry::ConvertVectorFeatureWM;
+    use crate::geometry::{convert, ConvertVectorFeatureWM};
 
     use super::*;
 
@@ -421,6 +424,121 @@ mod tests {
                 ..Default::default()
             }]
         );
+    }
+
+    #[test]
+    fn to_wm_vectorpoint_convert() {
+        let m_value = Some(MValue::from([("a".into(), (1_u64).into())]));
+        let coords = VectorPoint::new(0., 0., None, m_value.clone());
+        let bbox = Some(BBox3D::new(1., 2., 3., 4., 5., 6.));
+        let feature: VectorFeature = VectorFeature {
+            _type: "VectorFeature".into(),
+            id: Some(1337),
+            geometry: VectorGeometry::new_point(coords, bbox),
+            ..Default::default()
+        };
+        let s2_feature = convert(
+            Projection::WG,
+            &JSONCollection::VectorFeature(feature),
+            Some(3.),
+            Some(12),
+            Some(true),
+        );
+
+        assert_eq!(
+            s2_feature,
+            vec![VectorFeature {
+                _type: "VectorFeature".into(),
+                id: Some(1337),
+                face: 0.into(),
+                geometry: VectorGeometry::Point(VectorPointGeometry {
+                    _type: "Point".into(),
+                    is_3d: false,
+                    coordinates: VectorPoint::new(0.5, 0.5, None, m_value),
+                    bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
+                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]
+        );
+    }
+
+    #[test]
+    fn to_s2_point_fc_convert() {
+        let m_value = Some(MValue::from([("a".into(), (1_u64).into())]));
+        let coords = VectorPoint::new(0., 0., None, m_value.clone());
+        let bbox = Some(BBox3D::new(1., 2., 3., 4., 5., 6.));
+        let feature: VectorFeature = VectorFeature {
+            _type: "VectorFeature".into(),
+            id: Some(1337),
+            geometry: VectorGeometry::new_point(coords, bbox),
+            ..Default::default()
+        };
+        let fc: FeatureCollection = FeatureCollection {
+            _type: "FeatureCollection".into(),
+            features: vec![WMFeature::VectorFeature(feature.clone())],
+            ..Default::default()
+        };
+        let s2_feature = convert(
+            Projection::S2,
+            &JSONCollection::FeatureCollection(fc),
+            Some(3.),
+            Some(12),
+            Some(true),
+        );
+
+        assert_eq!(
+            s2_feature,
+            vec![VectorFeature {
+                _type: "S2Feature".into(),
+                id: Some(1337),
+                face: 0.into(),
+                geometry: VectorGeometry::Point(VectorPointGeometry {
+                    _type: "Point".into(),
+                    is_3d: false,
+                    coordinates: VectorPoint::new(0.5, 0.5, None, m_value),
+                    bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
+                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]
+        );
+    }
+
+    #[test]
+    fn to_s2_already_s2() {
+        let m_value = Some(MValue::from([("a".into(), (1_u64).into())]));
+        let s2f: VectorFeature = VectorFeature {
+            _type: "S2Feature".into(),
+            id: Some(1337),
+            face: 0.into(),
+            geometry: VectorGeometry::Point(VectorPointGeometry {
+                _type: "Point".into(),
+                is_3d: false,
+                coordinates: VectorPoint::new(0.5, 0.5, None, m_value.clone()),
+                bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
+                vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let s2fc: S2FeatureCollection = S2FeatureCollection {
+            _type: "S2FeatureCollection".into(),
+            features: vec![s2f.clone()],
+            ..Default::default()
+        };
+        let s2_feature = convert(
+            Projection::S2,
+            &JSONCollection::S2FeatureCollection(s2fc),
+            Some(3.),
+            Some(12),
+            Some(true),
+        );
+
+        assert_eq!(s2_feature, vec![s2f]);
     }
 
     #[test]

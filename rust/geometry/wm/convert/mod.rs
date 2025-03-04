@@ -131,11 +131,14 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureWM<
 
 #[cfg(test)]
 mod test {
+    use crate::geometry::convert;
+
     use super::*;
 
     use s2json::{
-        VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
-        VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry, VectorPolygonGeometry,
+        BBox, Geometry, JSONCollection, Point, PointGeometry, Projection, VectorLineStringGeometry,
+        VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygonGeometry,
+        VectorPoint, VectorPointGeometry, VectorPolygonGeometry,
     };
 
     #[test]
@@ -471,6 +474,60 @@ mod test {
                 vec_bbox: Some(BBox3D::new(0., 0., 1., 1., 0., 0.)),
                 ..Default::default()
             })
+        );
+    }
+
+    #[test]
+    fn to_wm_point_convert() {
+        let m_value = Some(MValue::from([("a".into(), (1_u64).into())]));
+        let coords = Point(1., 1.);
+        let feature: Feature = Feature {
+            _type: "Feature".into(),
+            id: Some(1337),
+            geometry: Geometry::Point(PointGeometry {
+                _type: "Point".into(),
+                coordinates: coords,
+                m_values: m_value.clone(),
+                bbox: Some(BBox::new(1., 2., 3., 4.)),
+            }),
+            ..Default::default()
+        };
+        let wm_feature = convert(
+            Projection::WG,
+            &JSONCollection::Feature(feature.clone()),
+            Some(3.),
+            Some(12),
+            Some(true),
+        );
+
+        assert_eq!(
+            wm_feature,
+            vec![VectorFeature {
+                _type: "Feature".into(),
+                id: Some(1337),
+                face: 0.into(),
+                geometry: VectorGeometry::Point(VectorPointGeometry {
+                    _type: "Point".into(),
+                    is_3d: false,
+                    coordinates: VectorPoint::new(
+                        0.5027777777777778,
+                        0.49722208118489825,
+                        None,
+                        m_value
+                    ),
+                    bbox: Some(BBox3D::new(1., 1., 1., 1., f64::INFINITY, -f64::INFINITY)),
+                    vec_bbox: Some(BBox3D::new(
+                        0.5027777777777778,
+                        0.49722208118489825,
+                        0.5027777777777778,
+                        0.49722208118489825,
+                        f64::INFINITY,
+                        -f64::INFINITY
+                    )),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]
         );
     }
 }
