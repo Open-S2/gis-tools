@@ -1,15 +1,17 @@
 mod convert_to_vector;
 mod convert_wm_to_s2;
 
-use crate::geometry::{
-    build_sq_dists, BBox3D, Feature, MValue, MValueCompatible, Properties, VectorFeature,
-    VectorGeometry,
-};
+use crate::geometry::build_sq_dists;
 
 use alloc::{vec, vec::Vec};
 
 use convert_to_vector::convert_geometry_to_vector;
 use convert_wm_to_s2::{convert_geometry_wm_to_s2, ConvertedGeometry};
+
+use s2json::{
+    BBox3D, Feature, MValue, MValueCompatible, Properties, VectorFeature, VectorFeatureType,
+    VectorGeometry,
+};
 
 /// Underlying conversion mechanic to move GeoJSON Feature to GeoJSON Vector Feature
 pub trait ConvertFeature<
@@ -108,7 +110,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureWM<
         let VectorFeature { _type, id, properties, metadata, geometry, .. } = self;
         let mut res: Vec<VectorFeature<M, P, D>> = vec![];
 
-        if _type == "S2Feature" {
+        if *_type == VectorFeatureType::S2Feature {
             res.push(self.clone());
         } else {
             let vector_geo = convert_geometry_wm_to_s2(geometry, tolerance, maxzoom);

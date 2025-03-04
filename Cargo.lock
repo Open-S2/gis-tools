@@ -545,13 +545,14 @@ checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
 name = "s2json"
-version = "1.10.6"
+version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "761bf4c28f95b77ba74f3da1e8b1c8ce7d9dc931e5a6abc9fb7db8a4639ea8c2"
+checksum = "7ccf07dc7a80c8a7e1fb712d3310fb71405e8141a3d406b44e4548fcc81ecf92"
 dependencies = [
  "libm",
  "serde",
  "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -593,6 +594,17 @@ dependencies = [
  "memchr",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_repr"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "175ee3e80ae9982737ca543e96133087cbd9a485eecc3bc4de9c1a37b47ea59c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

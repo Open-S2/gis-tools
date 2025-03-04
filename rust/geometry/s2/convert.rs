@@ -1,4 +1,4 @@
-use s2json::{MValue, MValueCompatible, Properties};
+use s2json::{MValue, MValueCompatible, Properties, VectorFeatureType};
 
 use crate::geometry::{Face, LonLat, VectorFeature, VectorGeometry, VectorPoint};
 
@@ -20,7 +20,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureS2<
 {
     /// Convert an S2 Feature to a GeoJSON Vector Feature
     fn to_wm(&self) -> Self {
-        if self._type == "VectorFeature" {
+        if self._type == VectorFeatureType::VectorFeature {
             return self.clone();
         }
         let mut geometry = self.geometry.clone();

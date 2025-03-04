@@ -1,15 +1,16 @@
-use alloc::string::ToString;
-use alloc::vec;
-use alloc::vec::Vec;
-use s2json::{MValueCompatible, Properties};
+use crate::{
+    data_structures::{HasLayer, Tile},
+    geometry::S2CellId,
+};
 
-use crate::data_structures::{HasLayer, Tile};
-use crate::geometry::{
-    Axis, BBox3D, MValue, S2CellId, VectorFeature, VectorGeometry, VectorGeometryType,
-    VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset, VectorMultiLineString,
-    VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygon,
-    VectorMultiPolygonGeometry, VectorMultiPolygonOffset, VectorPoint, VectorPointGeometry,
-    VectorPolygonGeometry,
+use alloc::{string::ToString, vec, vec::Vec};
+
+use s2json::{
+    Axis, BBox3D, MValue, MValueCompatible, Properties, VectorFeature, VectorGeometry,
+    VectorGeometryType, VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset,
+    VectorMultiLineString, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
+    VectorMultiPolygon, VectorMultiPolygonGeometry, VectorMultiPolygonOffset, VectorPoint,
+    VectorPointGeometry, VectorPolygonGeometry,
 };
 
 // TODO: Cases of `to_vec` clones large swathes of data. Can we optimize this?

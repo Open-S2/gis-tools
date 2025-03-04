@@ -322,7 +322,12 @@ impl<M: MValueCompatible> TransformVectorGeometry<M> for VectorPoint<M> {
 
 #[cfg(test)]
 mod tests {
-    use s2json::{Map, VectorPointGeometry};
+    use core::f64;
+
+    use s2json::{
+        BBox3D, Map, VectorLineStringGeometry, VectorMultiLineStringGeometry,
+        VectorMultiPointGeometry, VectorPointGeometry,
+    };
 
     use crate::geometry::S2CellId;
 
@@ -482,5 +487,358 @@ mod tests {
         assert_eq!(face_0_tile.len(), 1);
         let default_layer = face_0_tile.layers.get("default").unwrap();
         assert_eq!(default_layer.features.len(), 4);
+
+        assert_eq!(
+            default_layer.features,
+            vec![
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: MValue::from([("a".into(), 1_u64.into())]),
+                    geometry: VectorGeometry::Point(VectorPointGeometry {
+                        _type: "Point".into(),
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 1.0, y: 1.0, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.5,
+                            bottom: 0.5,
+                            right: 0.5,
+                            top: 0.5,
+                            near: f64::INFINITY,
+                            far: -f64::INFINITY
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: MValue::from([("b".into(), 2_u64.into())]),
+                    geometry: VectorGeometry::Point(VectorPointGeometry {
+                        _type: "Point".into(),
+                        is_3d: true,
+                        coordinates: VectorPoint { x: 1.0, y: 0.0, z: Some(1.0), m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.625,
+                            bottom: 0.35972503691520497,
+                            right: 0.625,
+                            top: 0.35972503691520497,
+                            near: 1.0,
+                            far: 1.0
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: MValue::from([("c".into(), 3_u64.into())]),
+                    geometry: VectorGeometry::MultiPoint(VectorMultiPointGeometry {
+                        _type: "MultiPoint".into(),
+                        is_3d: false,
+                        coordinates: vec![
+                            VectorPoint { x: 0.0, y: 1.0, z: None, m: None, t: None },
+                            VectorPoint { x: 0.0, y: 0.0, z: None, m: None, t: None }
+                        ],
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.375,
+                            bottom: 0.35972503691520497,
+                            right: 0.375,
+                            top: 0.640274963084795,
+                            near: f64::INFINITY,
+                            far: -f64::INFINITY
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: MValue::from([("d".into(), 4_u64.into())]),
+                    geometry: VectorGeometry::MultiPoint(VectorMultiPointGeometry {
+                        _type: "MultiPoint".into(),
+                        is_3d: true,
+                        coordinates: vec![
+                            VectorPoint { x: 1.0, y: 1.0, z: Some(1.0), m: None, t: None },
+                            VectorPoint { x: 0.0, y: 0.0, z: Some(2.0), m: None, t: None }
+                        ],
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.0,
+                            bottom: 0.4432805993614054,
+                            right: 0.625,
+                            top: 0.640274963084795,
+                            near: 1.0,
+                            far: 2.0
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_tile_store_s2_points() {
+        let json_string = r#"{
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "a": 1 },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [0, 0]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "b": 2 },
+                    "geometry": {
+                        "type": "Point3D",
+                        "coordinates": [45, 45, 1]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "c": 3 },
+                    "geometry": {
+                        "type": "MultiPoint",
+                        "coordinates": [
+                            [-45, -45],
+                            [-45, 45]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "d": 4 },
+                    "geometry": {
+                        "type": "MultiPoint3D",
+                        "coordinates": [
+                            [45, -45, 1],
+                            [-180, 20, 2]
+                        ]
+                    }
+                }
+            ]
+        }"#;
+        let data: JSONCollection = serde_json::from_str(json_string).unwrap();
+        let mut tile_store: TileStore = TileStore::<_, _, _>::new(
+            data,
+            TileStoreOptions { projection: Some(Projection::S2), ..Default::default() },
+        );
+
+        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
+        assert_eq!(face_0_tile.len(), 1);
+        let default_layer = face_0_tile.layers.get("default").unwrap();
+        assert_eq!(default_layer.features.len(), 1);
+
+        assert_eq!(
+            default_layer.features,
+            vec![VectorFeature {
+                _type: "S2Feature".into(),
+                id: None,
+                face: 0.into(),
+                properties: MValue::from([("a".into(), 1_u64.into())]),
+                geometry: VectorGeometry::Point(VectorPointGeometry {
+                    _type: "Point".into(),
+                    is_3d: false,
+                    coordinates: VectorPoint { x: 1.0, y: 1.0, z: None, m: None, t: None },
+                    offset: None,
+                    bbox: None,
+                    vec_bbox: Some(BBox3D {
+                        left: 0.5,
+                        bottom: 0.5,
+                        right: 0.5,
+                        top: 0.5,
+                        near: f64::INFINITY,
+                        far: -f64::INFINITY
+                    }),
+                    indices: None,
+                    tesselation: None
+                }),
+                metadata: None
+            }]
+        );
+    }
+
+    #[test]
+    fn test_tile_store_wg_lines() {
+        let json_string = r#"{
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [-13.292352825505162, 54.34883408204476],
+                            [36.83102287804303, 59.56941785818924],
+                            [50.34083898563978, 16.040052775278994],
+                            [76.38149901912357, 35.155968522292056]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "MultiLineString3D",
+                        "coordinates": [
+                            [
+                                [138.2192704758947, 53.37525605304839, -1.0],
+                                [138.02907780308504, 45.48182328687463, 2.0],
+                                [166.1775933788045, 52.68902110529311, 4.0],
+                                [161.99335457700874, 40.765696887535825, -0.5]
+                            ], [
+                                [139.16452129458895, -69.38636090051318, 1.0],
+                                [143.85299782010844, -63.55049044056966, 2.0],
+                                [128.5373078367444, -51.22800042702269, -0.5],
+                                [134.78860987076968, -45.63638565920266, 8.0]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        }"#;
+        let data: JSONCollection = serde_json::from_str(json_string).unwrap();
+        let mut tile_store: TileStore = TileStore::<_, _, _>::new(
+            data,
+            TileStoreOptions { projection: Some(Projection::WG), ..Default::default() },
+        );
+
+        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
+        assert_eq!(face_0_tile.len(), 1);
+        let default_layer = face_0_tile.layers.get("default").unwrap();
+        assert_eq!(default_layer.features.len(), 2);
+
+        assert_eq!(
+            default_layer.features,
+            vec![
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: Map::default(),
+                    geometry: VectorGeometry::LineString(VectorLineStringGeometry {
+                        _type: "LineString".into(),
+                        is_3d: false,
+                        coordinates: vec![
+                            VectorPoint { x: 0.0, y: 0.0, z: None, m: None, t: None },
+                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None },
+                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None },
+                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None }
+                        ],
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.4630767977069301,
+                            bottom: 0.29277635129241236,
+                            right: 0.7121708306086766,
+                            top: 0.45485063470883236,
+                            near: f64::INFINITY,
+                            far: -f64::INFINITY
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: "VectorFeature".into(),
+                    id: None,
+                    face: 0.into(),
+                    properties: Map::default(),
+                    geometry: VectorGeometry::MultiLineString(VectorMultiLineStringGeometry {
+                        _type: "MultiLineString".into(),
+                        is_3d: true,
+                        coordinates: vec![
+                            vec![
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 0.0,
+                                    z: Some(-1.0),
+                                    m: None,
+                                    t: Some(1.0)
+                                },
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 0.0,
+                                    z: Some(2.0),
+                                    m: None,
+                                    t: Some(0.0011428082308213008)
+                                },
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 0.0,
+                                    z: Some(4.0),
+                                    m: None,
+                                    t: Some(0.0020631440003536124)
+                                },
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 0.0,
+                                    z: Some(-0.5),
+                                    m: None,
+                                    t: Some(1.0)
+                                }
+                            ],
+                            vec![
+                                VectorPoint { x: 1.0, y: 1.0, z: Some(1.0), m: None, t: Some(1.0) },
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 1.0,
+                                    z: Some(2.0),
+                                    m: None,
+                                    t: Some(0.0005558708889643396)
+                                },
+                                VectorPoint {
+                                    x: 1.0,
+                                    y: 1.0,
+                                    z: Some(-0.5),
+                                    m: None,
+                                    t: Some(0.0003800636747767906)
+                                },
+                                VectorPoint { x: 1.0, y: 1.0, z: Some(8.0), m: None, t: Some(1.0) }
+                            ]
+                        ],
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: Some(BBox3D {
+                            left: 0.8570480773242899,
+                            bottom: 0.3240121995384903,
+                            right: 0.9616044260522347,
+                            top: 0.7712879476591746,
+                            near: -1.0,
+                            far: 8.0
+                        }),
+                        indices: None,
+                        tesselation: None
+                    }),
+                    metadata: None
+                }
+            ]
+        );
     }
 }
