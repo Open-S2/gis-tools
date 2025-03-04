@@ -12,7 +12,8 @@ fn build_cells() {
     let mut cells: Vec<S2CellId> = vec![];
 
     for _ in 0..COUNT {
-        let mut ll = LonLat::new(get_random_int(-180.0, 180.0), get_random_int(-90.0, 90.0), None);
+        let mut ll: LonLat =
+            LonLat::new(get_random_int(-180.0, 180.0), get_random_int(-90.0, 90.0), None);
         ll.normalize();
         cells.push(ll.into());
     }

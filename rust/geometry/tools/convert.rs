@@ -75,7 +75,6 @@ where
 }
 
 /// Convert a GeoJSON VectorFeature to the appropriate VectorFeature
-// fn convert_vector_feature<M: Clone + ConvertVectorFeatureWM<M>>(
 fn convert_vector_feature<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     projection: Projection,
     data: &VectorFeature<M, P, D>,

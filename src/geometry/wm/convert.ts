@@ -319,15 +319,16 @@ function convertLineString<M extends MValue = Properties>(
   isPolygon: boolean,
 ): ConvertedLineString<M>[] {
   const res: ConvertedLineString<M>[] = [];
+  // find all the faces that exist in the line while reprojectiong
+  const faces = new Set<Face>();
   // first re-project all the coordinates to S2
   const newGeometry: STPoint<M>[] = [];
   for (const { x, y, z, m } of line) {
     const [face, s, t] = toST(fromLonLat({ x, y }));
-    newGeometry.push({ face, s, t, z, m });
+    const point: STPoint<M> = { face, s, t, z, m };
+    faces.add(face);
+    newGeometry.push(point);
   }
-  // find all the faces that exist in the line
-  const faces = new Set<Face>();
-  newGeometry.forEach(({ face }) => faces.add(face));
   // for each face, build a line
   for (const face of faces) {
     const line: VectorLineString<M> = [];
