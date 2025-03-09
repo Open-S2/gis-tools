@@ -2,22 +2,22 @@ use std::string::ToString;
 
 use crate::readers::Reader;
 
-use alloc::{str::from_utf8, string::String, vec::Vec};
+use alloc::{string::String, vec::Vec};
 
 /// A basic buffer reader for reading data from a buffer
 #[derive(Default, Debug)]
-pub struct BufferReader<'a> {
+pub struct BufferReader {
     /// The buffer
-    pub buffer: &'a [u8], // This struct contains some data
+    pub buffer: Vec<u8>, // This struct contains some data
     cursor: usize,
 }
-impl<'a> BufferReader<'a> {
+impl BufferReader {
     /// Creates a new buffer reader
-    pub fn new(buffer: &'a [u8]) -> Self {
+    pub fn new(buffer: Vec<u8>) -> Self {
         Self { buffer, cursor: 0 }
     }
 }
-impl BufferReader<'_> {
+impl BufferReader {
     fn get_bytes(&mut self, byte_offset: Option<usize>, byte_length: usize) -> &[u8] {
         let offset = byte_offset.unwrap_or(self.cursor);
         assert!(offset + byte_length <= self.buffer.len());
@@ -27,7 +27,7 @@ impl BufferReader<'_> {
         bytes
     }
 }
-impl Reader for BufferReader<'_> {
+impl Reader for BufferReader {
     fn len(&self) -> usize {
         self.buffer.len()
     }
@@ -141,18 +141,26 @@ impl Reader for BufferReader<'_> {
     fn parse_string(&mut self, byte_offset: Option<usize>, byte_length: Option<usize>) -> String {
         let offset = byte_offset.unwrap_or(self.cursor);
         let length = byte_length.unwrap_or(self.buffer.len() - offset);
-        let string = from_utf8(&self.buffer[offset..offset + length]).unwrap();
+        let str_buf = &self.buffer[offset..offset + length];
+        // Remove null bytes from the byte slice before decoding it
+        let cleaned_str_buf: Vec<u8> = str_buf.iter().cloned().filter(|&b| b != 0).collect();
+        let string = String::from_utf8_lossy(&cleaned_str_buf).to_string();
         self.cursor = offset + length;
-        string.to_string()
+        string
     }
 }
-impl<'a, const N: usize> From<&'a [u8; N]> for BufferReader<'a> {
-    fn from(buffer: &'a [u8; N]) -> Self {
-        BufferReader::new(buffer) // `&[u8; N]` coerces to `&[u8]` automatically here
+impl<const N: usize> From<&[u8; N]> for BufferReader {
+    fn from(buffer: &[u8; N]) -> Self {
+        BufferReader::new(buffer.into()) // `&[u8; N]` coerces to `&[u8]` automatically here
     }
 }
-impl<'a> From<&'a [u8]> for BufferReader<'a> {
-    fn from(buffer: &'a [u8]) -> Self {
+impl From<&[u8]> for BufferReader {
+    fn from(buffer: &[u8]) -> Self {
+        BufferReader::new(buffer.into()) // Converts the slice into a `Vec<u8>` and creates a `BufferReader`
+    }
+}
+impl From<Vec<u8>> for BufferReader {
+    fn from(buffer: Vec<u8>) -> Self {
         BufferReader::new(buffer) // Converts the slice into a `Vec<u8>` and creates a `BufferReader`
     }
 }
@@ -167,7 +175,11 @@ mod tests {
     #[test]
     fn test_buffer_reader() {
         let buffer = b"Hello, world!";
-        let mut reader: BufferReader = buffer.into();
+        let mut reader = BufferReader::from(buffer);
+        assert_eq!(reader.parse_string(None, None), "Hello, world!");
+
+        let vec_buff = Vec::<u8>::from(buffer);
+        let mut reader = BufferReader::from(vec_buff);
         assert_eq!(reader.parse_string(None, None), "Hello, world!");
     }
 

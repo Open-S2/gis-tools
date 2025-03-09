@@ -117,7 +117,7 @@ const fn compute_rev() -> [usize; 32768] {
 }
 
 /// Expands compressed GZIP, Zlib/DEFLATE, or DEFLATE_RAW data, automatically detecting the format
-pub fn decompress_sync(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
+pub fn decompress_fflate(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FFlateError> {
     let data_0 = data[0] as usize;
     let data_1 = data[1] as usize;
     let data_2 = data[2] as usize;
@@ -548,7 +548,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateSync_dictionary_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, Some(&dictionary)).unwrap();
+        let decompressed = decompress_fflate(&compressed, Some(&dictionary)).unwrap();
 
         assert_eq!(decompressed.len(), expected.len());
 
@@ -569,7 +569,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateRawSync_level_0_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, None).unwrap();
+        let decompressed = decompress_fflate(&compressed, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -585,7 +585,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateSync_level_9_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, None).unwrap();
+        let decompressed = decompress_fflate(&compressed, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -601,7 +601,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateSync_memLevel_9_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, None).unwrap();
+        let decompressed = decompress_fflate(&compressed, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -617,7 +617,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateSync_strategy_0_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, None).unwrap();
+        let decompressed = decompress_fflate(&compressed, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -633,7 +633,7 @@ mod tests {
         path.push("tests/util/fixtures/deflateRawSync_windowBits_15_compressed.bin");
         let compressed: Vec<u8> = fs::read(&path).expect("Failed to read file compressed");
 
-        let decompressed = decompress_sync(&compressed, None).unwrap();
+        let decompressed = decompress_fflate(&compressed, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -650,7 +650,7 @@ mod tests {
             [104, 101, 108, 108, 111, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100]
                 .to_vec();
 
-        let decompressed = decompress_sync(&compressed, Some(&dict)).unwrap();
+        let decompressed = decompress_fflate(&compressed, Some(&dict)).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -673,7 +673,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
+        let decompressed = decompress_fflate(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -695,7 +695,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
+        let decompressed = decompress_fflate(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -716,7 +716,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompressed = decompress_sync(&compressed_gzip, None).unwrap();
+        let decompressed = decompress_fflate(&compressed_gzip, None).unwrap();
 
         assert_eq!(decompressed, expected);
     }
@@ -730,7 +730,7 @@ mod tests {
         ]
         .to_vec();
 
-        let decompress_error = decompress_sync(&compressed_gzip, None);
+        let decompress_error = decompress_fflate(&compressed_gzip, None);
         assert_eq!(decompress_error.unwrap_err(), FFlateError::InvalidLengthLiteral);
     }
 

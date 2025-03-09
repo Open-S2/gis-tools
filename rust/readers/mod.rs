@@ -7,9 +7,15 @@ pub mod buffer;
 pub mod file;
 /// Image based Readers
 pub mod image;
+/// JSON Reader
+pub mod json;
 /// Memory Mapped Reader for reading data from a file
 #[cfg(feature = "std")]
 pub mod mmap;
+/// (S2)PMTiles Reader
+pub mod pmtiles;
+/// Shapefile Reader
+pub mod shapefile;
 
 pub use buffer::*;
 #[cfg(feature = "std")]
@@ -17,6 +23,8 @@ pub use file::*;
 pub use image::*;
 #[cfg(feature = "std")]
 pub use mmap::*;
+pub use pmtiles::*;
+pub use shapefile::*;
 
 use alloc::{string::String, vec::Vec};
 use s2json::MValueCompatible;
@@ -86,8 +94,6 @@ pub trait Reader {
 
 /// A feature iterator that all readers should implement
 pub trait FeatureIterator<M: Clone, P: MValueCompatible, D: MValueCompatible>:
-    Iterator<Item = VectorFeature<M, P, D>>
+    IntoIterator<Item = VectorFeature<M, P, D>>
 {
-    /// Get the next feature
-    fn next_feature(&mut self) -> Option<VectorFeature<M, P, D>>;
 }

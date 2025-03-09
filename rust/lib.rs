@@ -16,10 +16,14 @@ extern crate pbf;
 #[cfg(feature = "std")]
 extern crate std;
 
+/// Conversion Tools
+pub mod converters;
 /// Data structures
 pub mod data_structures;
 /// Geometry Tools
 pub mod geometry;
+/// Projection Tools
+pub mod proj;
 /// GIS Readers
 pub mod readers;
 /// Space Tools
@@ -28,3 +32,5 @@ pub mod space;
 pub mod tools;
 /// Utility Tools
 pub mod util;
+/// GIS Writers
+pub mod writers;

@@ -179,7 +179,7 @@ fn convert_geometry_polygon<M: MValueCompatible>(
             if inner_face == *face {
                 polygon.push(inner_line);
                 polygon_offsets.push(inner_offset);
-                poly_bbox = poly_bbox.merge(&vec_bbox);
+                poly_bbox.merge_in_place(&vec_bbox);
             }
         }
 

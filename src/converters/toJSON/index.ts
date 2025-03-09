@@ -59,7 +59,7 @@ export async function toJSON(
         if (buildBBox && userFeature.geometry.bbox !== undefined)
           bbox = mergeBBoxes(bbox, userFeature.geometry.bbox);
         if (!first) await writer.appendString(',\n');
-        first = false;
+        else first = false;
         await writer.appendString(`\t\t${JSON.stringify(userFeature)}`);
       }
     }

@@ -1,5 +1,5 @@
 import { Cache as DirCache } from '../../dataStructures/cache';
-import { Compression, decompressStream } from '../../util';
+import { Compression, compressionToFormat, decompressStream } from '../../util';
 import { FetchReader, toReader } from '..';
 import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles';
 import { bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
@@ -300,15 +300,7 @@ export class S2PMTilesReader {
  * @returns - the decompressed data
  */
 async function decompress(data: Uint8Array, compression: Compression): Promise<Uint8Array> {
-  switch (compression) {
-    case Compression.Gzip:
-      return await decompressStream(data);
-    case Compression.Brotli:
-      throw new Error('Brotli decompression not implemented');
-    case Compression.Zstd:
-      throw new Error('Zstd decompression not implemented');
-    case Compression.None:
-    default:
-      return data;
-  }
+  const format = compressionToFormat(compression);
+  if (format === 'none') return data;
+  return await decompressStream(data, format);
 }

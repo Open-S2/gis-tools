@@ -1,6 +1,9 @@
 use alloc::collections::BTreeMap;
 use alloc::vec::Vec;
 
+/// Function to be called when a value is deleted from the cache
+pub type CacheDeleteFunction<K, V> = fn(&K, &V);
+
 /// # Cache System
 ///
 /// ## Description
@@ -23,24 +26,23 @@ use alloc::vec::Vec;
 /// println!("{:?}", cache.get(&"key".to_string())); // Some("value")
 /// cache.delete(&"key".to_string());
 /// ```
-pub struct Cache<K, V, F>
+#[derive(Debug, Clone, Default)]
+pub struct Cache<K, V>
 where
     K: Ord + Clone,
-    F: Fn(&K, &V),
 {
     map: BTreeMap<K, V>,
     order: Vec<K>,
     max_size: usize,
-    on_delete: Option<F>,
+    on_delete: Option<CacheDeleteFunction<K, V>>,
 }
 
-impl<K, V, F> Cache<K, V, F>
+impl<K, V> Cache<K, V>
 where
     K: Ord + Clone,
-    F: Fn(&K, &V),
 {
     /// Creates a new cache with a given max size and an optional deletion callback.
-    pub fn new(max_size: usize, on_delete: Option<F>) -> Self {
+    pub fn new(max_size: usize, on_delete: Option<CacheDeleteFunction<K, V>>) -> Self {
         Self { map: BTreeMap::new(), order: Vec::new(), max_size, on_delete }
     }
 
@@ -64,11 +66,7 @@ where
 
         while self.order.len() > self.max_size {
             if let Some(oldest) = self.order.pop() {
-                if let Some(val) = self.map.remove(&oldest) {
-                    if let Some(ref callback) = self.on_delete {
-                        callback(&oldest, &val);
-                    }
-                }
+                self.delete(&oldest);
             }
         }
     }
@@ -140,7 +138,7 @@ mod tests {
             println!("Deleted key {} with value {}", key, value);
         }
 
-        let mut cache = Cache::<i32, i32, fn(&i32, &i32)>::new(5, Some(on_delete)); // Cache::new(5, None);
+        let mut cache = Cache::<i32, i32>::new(5, Some(on_delete)); // Cache::new(5, None);
         assert!(cache.is_empty());
 
         cache.set(1, 2);

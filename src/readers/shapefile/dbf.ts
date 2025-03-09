@@ -59,7 +59,7 @@ export class DataBaseFile {
    */
   getProperties(index: number): Properties | undefined {
     const { records, recLen } = this.#header;
-    if (index > records) return undefined;
+    if (index > records - 1) return undefined;
     const offset = ((this.#rows.length + 1) << 5) + 2 + index * recLen;
     return this.#parseProperties(offset);
   }
@@ -126,10 +126,10 @@ export class DataBaseFile {
    */
   #parseProperties(offset: number): Properties {
     const properties: Properties = {};
-    for (const header of this.#rows) {
-      const value = this.#parseValue(offset, header.len, header.dataType);
-      offset += header.len;
-      if (typeof value !== 'undefined') properties[header.name] = value;
+    for (const row of this.#rows) {
+      const value = this.#parseValue(offset, row.len, row.dataType);
+      offset += row.len;
+      if (typeof value !== 'undefined') properties[row.name] = value;
     }
 
     return properties;
@@ -142,7 +142,7 @@ export class DataBaseFile {
    * @param type - the type of the value
    * @returns - the value as a string, number or boolean
    */
-  #parseValue(offset: number, len: number, type: string) {
+  #parseValue(offset: number, len: number, type: string): string | number | boolean {
     const { reader } = this;
     const textData = reader.parseString(offset, len).trim();
 
@@ -156,7 +156,7 @@ export class DataBaseFile {
           parseFloat(textData.slice(0, 4)),
           parseInt(textData.slice(4, 6)) - 1,
           parseFloat(textData.slice(6, 8)),
-        ).getUTCDate();
+        ).getTime();
       case 'L':
         return textData.toLowerCase() === 'y' || textData.toLowerCase() === 't';
       default:

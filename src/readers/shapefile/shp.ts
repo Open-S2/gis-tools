@@ -285,7 +285,7 @@ export class ShapeFileReader<
     }
 
     if (numPoints === 1) {
-      return { type: 'Point', is3D, coordinates: coordinates[0] };
+      return { type: 'Point', is3D, coordinates: coordinates[0], bbox };
     } else {
       return { type: 'MultiPoint', is3D, coordinates, bbox };
     }

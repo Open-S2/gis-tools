@@ -1,17 +1,17 @@
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::readers::Reader;
 
 use alloc::{
-    str::from_utf8,
     string::{String, ToString},
     vec,
     vec::Vec,
 };
 
 /// A file reader for reading data from a file
+#[derive(Debug)]
 pub struct FileReader {
     file: File,
     size: usize,
@@ -20,7 +20,7 @@ pub struct FileReader {
 
 impl FileReader {
     /// Creates a new file reader from a file path
-    pub fn new(path: PathBuf) -> io::Result<Self> {
+    pub fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let file = File::open(path)?;
         let size = file.metadata().map(|metadata| metadata.len() as usize).unwrap_or(0);
         Ok(Self { file, size, cursor: 0 })
@@ -166,13 +166,26 @@ impl Reader for FileReader {
         let offset = byte_offset.unwrap_or(self.cursor);
         let length = byte_length.unwrap_or(self.size - offset);
         let bytes = self.get_bytes(Some(offset), length);
-        let string: &str = from_utf8(&bytes).unwrap();
-        string.to_string()
+        // Remove null bytes from the byte slice before decoding it
+        let cleaned_str_buf: Vec<u8> = bytes.iter().cloned().filter(|&b| b != 0).collect();
+        let string = String::from_utf8_lossy(&cleaned_str_buf).to_string();
+        self.cursor = offset + length;
+        string
+    }
+}
+impl From<PathBuf> for FileReader {
+    fn from(path: PathBuf) -> Self {
+        FileReader::new(path).unwrap()
+    }
+}
+impl From<String> for FileReader {
+    fn from(path: String) -> Self {
+        FileReader::new(path).unwrap()
     }
 }
 impl From<&str> for FileReader {
     fn from(path: &str) -> Self {
-        FileReader::new(PathBuf::from(path)).unwrap()
+        FileReader::new(path).unwrap()
     }
 }
 
@@ -186,6 +199,21 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/codepage.cpg");
 
         let mut reader = FileReader::new(path).unwrap();
+        let string = reader.parse_string(None, None);
+        assert_eq!(string, "ANSI 1250\n");
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/codepage.cpg");
+
+        let mut reader = FileReader::from(path);
+        let string = reader.parse_string(None, None);
+        assert_eq!(string, "ANSI 1250\n");
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/codepage.cpg");
+        let path_str: String = path.to_str().unwrap().to_string();
+
+        let mut reader = FileReader::from(path_str);
         let string = reader.parse_string(None, None);
         assert_eq!(string, "ANSI 1250\n");
     }

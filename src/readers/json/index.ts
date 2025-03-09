@@ -318,8 +318,7 @@ export class JSONReader<
       if (this.#buffer[this.#pos] === BACKSLASH) {
         this.#pos++;
       } else if (this.#buffer[this.#pos] === STRING) {
-        if (!this.#isObject) this.#isObject = true;
-        else this.#isObject = false;
+        this.#isObject = !this.#isObject;
       } else if (this.#buffer[this.#pos] === LEFT_BRACE && this.#isObject) {
         if (this.#braceDepth === 0) this.#start = this.#pos;
         this.#braceDepth++; // first brace is the start of the feature

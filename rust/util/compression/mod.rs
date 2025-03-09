@@ -53,20 +53,45 @@ impl From<FFlateError> for CompressError {
 }
 
 /// Compression formats
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum CompressionFormat {
     /// No compression
-    None,
+    #[default]
+    None = 1,
     /// Gzip
-    Gzip,
-    /// Deflate
-    Deflate,
-    /// Deflate raw
-    DeflateRaw,
+    Gzip = 2,
     /// Brotli
-    Brotli,
+    Brotli = 3,
     /// Zstd
-    Zstd,
+    Zstd = 4,
+    /// Deflate
+    Deflate = 5,
+    /// Deflate raw
+    DeflateRaw = 6,
+}
+impl From<u8> for CompressionFormat {
+    fn from(value: u8) -> Self {
+        match value {
+            2 => CompressionFormat::Gzip,
+            3 => CompressionFormat::Brotli,
+            4 => CompressionFormat::Zstd,
+            5 => CompressionFormat::Deflate,
+            6 => CompressionFormat::DeflateRaw,
+            _ => CompressionFormat::None,
+        }
+    }
+}
+impl From<CompressionFormat> for u8 {
+    fn from(compression: CompressionFormat) -> Self {
+        match compression {
+            CompressionFormat::None => 1,
+            CompressionFormat::Gzip => 2,
+            CompressionFormat::Brotli => 3,
+            CompressionFormat::Zstd => 4,
+            CompressionFormat::Deflate => 5,
+            CompressionFormat::DeflateRaw => 6,
+        }
+    }
 }
 impl From<&str> for CompressionFormat {
     fn from(s: &str) -> Self {
@@ -77,6 +102,18 @@ impl From<&str> for CompressionFormat {
             "brotli" => CompressionFormat::Brotli,
             "zstd" => CompressionFormat::Zstd,
             _ => CompressionFormat::None,
+        }
+    }
+}
+impl From<CompressionFormat> for String {
+    fn from(s: CompressionFormat) -> Self {
+        match s {
+            CompressionFormat::None => "none".into(),
+            CompressionFormat::Gzip => "gzip".into(),
+            CompressionFormat::Deflate => "deflate".into(),
+            CompressionFormat::DeflateRaw => "deflate-raw".into(),
+            CompressionFormat::Brotli => "brotli".into(),
+            CompressionFormat::Zstd => "zstd".into(),
         }
     }
 }
@@ -155,7 +192,7 @@ pub fn decompress_data(input: &[u8], format: CompressionFormat) -> Result<Vec<u8
     match format {
         CompressionFormat::None => output.extend_from_slice(input),
         CompressionFormat::Gzip | CompressionFormat::Deflate | CompressionFormat::DeflateRaw => {
-            output = decompress_sync(input, None)?;
+            output = decompress_fflate(input, None)?;
         }
         CompressionFormat::Brotli => {
             return Err(CompressError::UnimplementedBrotli);
@@ -181,7 +218,7 @@ pub struct ZipItem<'a> {
 }
 
 /// Iterates through the items in a zip file
-pub fn iter_items(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
+pub fn iter_zip_folder(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
     let mut at: usize = find_end_central_directory(raw)?;
     let mut items = Vec::new();
     let mut reader: BufferReader = raw.into();
@@ -232,7 +269,7 @@ pub fn iter_items(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
 
         let read_fn = Box::new(move || {
             if compression_method & 8 > 0 {
-                decompress_sync(bytes, None).map_err(|_| CompressError::ReadError)
+                decompress_fflate(bytes, None).map_err(|_| CompressError::ReadError)
             } else if compression_method > 0 {
                 Err(CompressError::InvalidCompressionMethod)
             } else {
@@ -381,6 +418,64 @@ mod tests {
 
         let compression_format = CompressionFormat::from("none");
         assert_eq!(compression_format, CompressionFormat::None);
+
+        let string_format = String::from(CompressionFormat::Gzip);
+        assert_eq!(string_format, "gzip");
+
+        let string_format = String::from(CompressionFormat::Deflate);
+        assert_eq!(string_format, "deflate");
+
+        let string_format = String::from(CompressionFormat::DeflateRaw);
+        assert_eq!(string_format, "deflate-raw");
+
+        let string_format = String::from(CompressionFormat::Brotli);
+        assert_eq!(string_format, "brotli");
+
+        let string_format = String::from(CompressionFormat::Zstd);
+        assert_eq!(string_format, "zstd");
+
+        let string_format = String::from(CompressionFormat::None);
+        assert_eq!(string_format, "none");
+
+        let number: u8 = CompressionFormat::Gzip.into();
+        assert_eq!(number, 2);
+
+        let number: u8 = CompressionFormat::Deflate.into();
+        assert_eq!(number, 5);
+
+        let number: u8 = CompressionFormat::DeflateRaw.into();
+        assert_eq!(number, 6);
+
+        let number: u8 = CompressionFormat::Brotli.into();
+        assert_eq!(number, 3);
+
+        let number: u8 = CompressionFormat::Zstd.into();
+        assert_eq!(number, 4);
+
+        let number: u8 = CompressionFormat::None.into();
+        assert_eq!(number, 1);
+
+        // from number
+        let compression_format = CompressionFormat::from(2);
+        assert_eq!(compression_format, CompressionFormat::Gzip);
+
+        let compression_format = CompressionFormat::from(5);
+        assert_eq!(compression_format, CompressionFormat::Deflate);
+
+        let compression_format = CompressionFormat::from(6);
+        assert_eq!(compression_format, CompressionFormat::DeflateRaw);
+
+        let compression_format = CompressionFormat::from(3);
+        assert_eq!(compression_format, CompressionFormat::Brotli);
+
+        let compression_format = CompressionFormat::from(4);
+        assert_eq!(compression_format, CompressionFormat::Zstd);
+
+        let compression_format = CompressionFormat::from(1);
+        assert_eq!(compression_format, CompressionFormat::None);
+
+        let compression_format = CompressionFormat::from(20);
+        assert_eq!(compression_format, CompressionFormat::None);
     }
 
     #[test]
@@ -397,7 +492,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // get files
-        let items = iter_items(&expected).unwrap();
+        let items = iter_zip_folder(&expected).unwrap();
         assert_eq!(items.len(), 6);
         // check each string
         // pull out all filenames

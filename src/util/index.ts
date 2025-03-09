@@ -55,6 +55,24 @@ export function encodingToCompression(encoding: Encoding): Compression {
 }
 
 /**
+ * Converts a compression algorithm enum to a string encoding
+ * @param compression - the compression algorithm as an Enum
+ * @returns the encoding as a string
+ */
+export function compressionToFormat(compression: Compression): Format | 'none' {
+  switch (compression) {
+    case Compression.Gzip:
+      return 'gzip';
+    case Compression.Brotli:
+      return 'br';
+    case Compression.Zstd:
+      return 'zstd';
+    default:
+      return 'none';
+  }
+}
+
+/**
  * Provide a decompression implementation that acts on `buf` and returns decompressed data.
  *
  * Should use the native DecompressionStream on browsers, zlib on node.
