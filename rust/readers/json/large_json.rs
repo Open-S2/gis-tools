@@ -1,17 +1,13 @@
-use core::marker::PhantomData;
-
-use s2json::{MValue, MValueCompatible, VectorFeature, WMFeature};
-
+use super::{FeatureIterator, ToGisJSON};
+use crate::{geometry::ConvertFeature, readers::Reader};
 use alloc::{
     string::{String, ToString},
     vec,
     vec::Vec,
 };
+use core::marker::PhantomData;
+use s2json::{MValue, MValueCompatible, VectorFeature, WMFeature};
 use serde::de::DeserializeOwned;
-
-use crate::{geometry::ConvertFeature, readers::Reader};
-
-use super::{FeatureIterator, ToGisJSON};
 
 const LEFT_BRACE: u8 = 0x7b;
 const RIGHT_BRACE: u8 = 0x7d;

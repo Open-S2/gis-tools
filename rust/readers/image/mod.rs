@@ -1,9 +1,7 @@
+use core::ops::{Add, Div, Mul, Sub};
+use libm::pow;
 use s2json::{MValue, MValueCompatible};
 use serde::{Deserialize as SDeserialize, Serialize as SSerialize};
-
-use core::ops::{Add, Div, Mul, Sub};
-
-use libm::pow;
 
 /// Gamma correction
 const GAMMA: f64 = 2.2;

@@ -1,3 +1,8 @@
+use crate::{
+    proj::ProjectionTransformDefinition,
+    readers::{BufferReader, FileReader},
+};
+use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
     fs::{exists, File},
@@ -5,13 +10,6 @@ use std::{
     path::Path,
     string::{String, ToString},
     vec::Vec,
-};
-
-use s2json::MValueCompatible;
-
-use crate::{
-    proj::ProjectionTransformDefinition,
-    readers::{BufferReader, FileReader},
 };
 
 use super::{

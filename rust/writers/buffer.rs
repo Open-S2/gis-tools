@@ -26,6 +26,8 @@ impl Writer for BufferWriter {
     fn take(&mut self) -> Vec<u8> {
         self.buffer.to_owned()
     }
+
+    fn flush(&mut self) {}
 }
 
 #[cfg(test)]

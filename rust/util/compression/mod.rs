@@ -1,28 +1,26 @@
 /// Flate decompression (gzip, inflate, inflate-raw)
 pub mod fflate;
 
+use crate::readers::{BufferReader, Reader};
+use alloc::{
+    boxed::Box,
+    string::{String, ToString},
+    vec::Vec,
+};
+use core::result::Result;
 pub use fflate::*;
-
 #[cfg(feature = "std")]
 use flate2::{
     read::{DeflateDecoder, GzDecoder, ZlibDecoder},
     write::{DeflateEncoder, GzEncoder, ZlibEncoder},
     Compression,
 };
-// #[cfg(feature = "std")]
-// use ruzstd::decoding::StreamingDecoder;
 #[cfg(feature = "std")]
 use ruzstd::io::Read;
 #[cfg(feature = "std")]
 use std::io::Write;
-
-use alloc::boxed::Box;
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-
-use core::result::Result;
-
-use crate::readers::{BufferReader, Reader};
+// #[cfg(feature = "std")]
+// use ruzstd::decoding::StreamingDecoder;
 
 /// Handles compression errors
 #[derive(Debug, PartialEq)]
@@ -305,8 +303,7 @@ fn find_end_central_directory(raw: &[u8]) -> Result<usize, CompressError> {
 mod tests {
     use super::*;
     use alloc::vec;
-    use std::fs;
-    use std::path::PathBuf;
+    use std::{fs, path::PathBuf};
 
     #[test]
     fn encode_decode_none() {

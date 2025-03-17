@@ -1,13 +1,11 @@
-use s2json::MValueCompatible;
-pub use s2json::{MValue, ValueType, VectorPoint};
-
-use super::{average_interpolation, get_channel, get_channel_m, RgbaChannel, VectorPointRGBA};
-use crate::readers::RGBA;
-use crate::tools::{default_get_interpolate_current_value, GetInterpolateValue};
-
-use libm::{fabs, sin};
-
+use super::{average_interpolation, get_channel, get_channel_m, RgbaChannel};
+use crate::{
+    readers::RGBA,
+    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
+};
 use core::f64::consts::PI;
+use libm::{fabs, sin};
+use s2json::{MValueCompatible, VectorPoint};
 
 /// # Lanczos Interpolation
 ///
@@ -90,6 +88,7 @@ pub fn lanczos_kernel(x: f64, a: f64) -> f64 {
 mod tests {
     use super::*;
     use alloc::vec;
+    use s2json::MValue;
 
     #[test]
     fn lanczos_kernel_test() {

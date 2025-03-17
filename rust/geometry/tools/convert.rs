@@ -1,11 +1,9 @@
-use alloc::vec;
-use alloc::vec::Vec;
-use s2json::MValueCompatible;
-
 use crate::geometry::{
     ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Feature, JSONCollection,
     Projection, VectorFeature, WMFeature,
 };
+use alloc::{vec, vec::Vec};
+use s2json::MValueCompatible;
 
 /// Given an input data, convert it to a vector of VectorFeature
 pub fn convert<M: Clone, P: MValueCompatible, D: MValueCompatible>(

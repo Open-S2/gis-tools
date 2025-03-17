@@ -168,14 +168,16 @@ export function scale(
   return hindex;
 }
 
-// /**
-//  * @param elen
-//  * @param e
-//  */
-// export function negate(elen: number, e: number[] | Float64Array): number {
-//   for (let i = 0; i < elen; i++) e[i] = -e[i];
-//   return elen;
-// }
+/**
+ * negate routine from oritinal code
+ * @param elen - number of elements in expansion
+ * @param e - expansion
+ * @returns - the size of the h expansion
+ */
+export function negate(elen: number, e: number[] | Float64Array): number {
+  for (let i = 0; i < elen; i++) e[i] = -e[i];
+  return elen;
+}
 
 /**
  * estimation of expansion sum

@@ -6,17 +6,14 @@ pub mod line_delimited;
 pub use large_json::*;
 pub use line_delimited::*;
 
+use super::FeatureIterator;
+use crate::geometry::ConvertFeature;
+use alloc::{vec, vec::Vec};
 use s2json::{
     Feature, FeatureCollection, JSONCollection, MValueCompatible, S2FeatureCollection,
     VectorFeature, WMFeature,
 };
-
-use alloc::{vec, vec::Vec};
 use serde::{de::DeserializeOwned, Deserialize};
-
-use crate::geometry::ConvertFeature;
-
-use super::FeatureIterator;
 
 /// Error type for ToGisJSON
 #[derive(Debug, Deserialize)]
@@ -163,7 +160,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> From<&mut JSONCollectio
                 }
             }
             JSONCollection::S2FeatureCollection(collection) => {
-                features.extend(std::mem::take(&mut collection.features));
+                features.extend(core::mem::take(&mut collection.features));
             }
             JSONCollection::Feature(feature) => {
                 features.push(feature.to_vector(Some(true)));
@@ -212,7 +209,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> IntoIterator
     for JSONCollectionReader<M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = alloc::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.features.into_iter()

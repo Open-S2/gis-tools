@@ -1,3 +1,6 @@
+use super::{DataBaseFile, Definition, ShapeFileReader};
+use crate::{proj::ProjectionTransformDefinition, readers::MMapReader};
+use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
     fs::{exists, File},
@@ -6,12 +9,6 @@ use std::{
     string::{String, ToString},
     vec::Vec,
 };
-
-use s2json::MValueCompatible;
-
-use crate::{proj::ProjectionTransformDefinition, readers::MMapReader};
-
-use super::{DataBaseFile, Definition, ShapeFileReader};
 
 /// # Build a Shapefile from an input path
 ///

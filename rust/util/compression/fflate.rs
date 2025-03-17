@@ -13,9 +13,7 @@
 // Sometimes 0 will appear where -1 would be more appropriate. This is because using a uint
 // is better for memory in most engines (I *think*).
 
-use alloc::vec;
-use alloc::vec::Vec;
-
+use alloc::{vec, vec::Vec};
 use core::result::Result;
 
 /// Handles compression errors
@@ -42,12 +40,15 @@ pub enum FFlateError {
 /// fixed length extra bits
 const FLEB: [u8; 32] = [
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0,
-    /* unused */ 0, 0, /* impossible */ 0,
+    // unused
+    0, 0, // impossible
+    0,
 ];
 /// fixed distance extra bits
 const FDEB: [u8; 32] = [
     0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13,
-    13, /* unused */ 0, 0,
+    13, // unused
+    0, 0,
 ];
 /// code length index map
 const CLIM: [u8; 19] = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
@@ -530,8 +531,7 @@ fn zls(d: &[u8], dict: Option<&[u8]>) -> Result<usize, FFlateError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
-    use std::path::PathBuf;
+    use std::{fs, path::PathBuf};
 
     #[test]
     fn deflate_sync_dictionary() {

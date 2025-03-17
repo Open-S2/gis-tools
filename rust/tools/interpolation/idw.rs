@@ -1,9 +1,9 @@
-use s2json::MValueCompatible;
-pub use s2json::{MValue, ValueType, VectorPoint};
-
-use super::{average_interpolation, get_channel, get_channel_m, RgbaChannel, VectorPointRGBA};
-use crate::readers::RGBA;
-use crate::tools::{default_get_interpolate_current_value, GetInterpolateValue};
+use super::{average_interpolation, get_channel, get_channel_m, RgbaChannel};
+use crate::{
+    readers::RGBA,
+    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
+};
+use s2json::{MValueCompatible, VectorPoint};
 
 use libm::pow;
 
@@ -71,6 +71,7 @@ pub fn idw_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint]) -
 mod tests {
     use super::*;
     use alloc::vec;
+    use s2json::MValue;
 
     #[test]
     fn test_idw_interpolation() {

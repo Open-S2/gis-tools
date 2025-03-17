@@ -1,8 +1,6 @@
 pub use crate::geometry::K_MAX_CELL_LEVEL;
-
-use libm::{ilogb, ldexp, sqrt};
-
 use core::f64::consts::{PI, SQRT_2, SQRT_3};
+use libm::{ilogb, ldexp, sqrt};
 
 /// sqrt(2/3)
 #[cfg(feature = "tan")]

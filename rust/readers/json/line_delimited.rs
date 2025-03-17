@@ -1,16 +1,12 @@
+use super::{FeatureIterator, ToGisJSON};
+use crate::{geometry::ConvertFeature, readers::Reader};
+use alloc::{string::String, vec, vec::Vec};
 use core::{
     marker::PhantomData,
     ops::{Deref, DerefMut},
 };
-
 use s2json::{MValue, MValueCompatible, VectorFeature, WMFeature};
-
-use alloc::{string::String, vec, vec::Vec};
 use serde::de::DeserializeOwned;
-
-use crate::{geometry::ConvertFeature, readers::Reader};
-
-use super::{FeatureIterator, ToGisJSON};
 
 /// # NewLine Delimited JSON Reader
 pub struct NewLineDelimitedJSONReader<

@@ -22,4 +22,6 @@ pub trait Writer {
     fn append_string(&mut self, string: &str);
     /// Take the data for oneself
     fn take(&mut self) -> Vec<u8>;
+    /// Flush the writer (if applicable)
+    fn flush(&mut self);
 }

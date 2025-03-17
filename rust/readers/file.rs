@@ -1,10 +1,8 @@
-use std::fs::File;
-use std::io::{self, Read, Seek, SeekFrom};
-use std::path::{Path, PathBuf};
-
 use crate::readers::Reader;
-
-use alloc::{
+use std::{
+    fs::File,
+    io::{self, Read, Seek, SeekFrom},
+    path::{Path, PathBuf},
     string::{String, ToString},
     vec,
     vec::Vec,

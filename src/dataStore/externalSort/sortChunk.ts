@@ -43,7 +43,7 @@ async function _sortChunk(
   const keys = bufferToKeys(inputBuffer);
   keys.sort(keySort);
   // update keys to correct offset
-  for (let i = 0; i < keys.length; i++) keys[i].offset += valueOffset;
+  for (const key of keys) key.offset += valueOffset;
   // write out the sorted chunk
   const sortedBuffer = keysToBuffer(keys);
   await outputHandle.appendFile(sortedBuffer);

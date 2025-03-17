@@ -1,8 +1,6 @@
-use libm::{atan, cos, exp, floor, fmax, fmin, log, pow, sin, tan};
-
 use crate::space::EARTH_CIRCUMFERENCE;
-
 use core::f64::consts::PI;
+use libm::{atan, cos, exp, floor, fmax, fmin, log, pow, sin, tan};
 
 /// 900913 (Web Mercator) constant
 pub const A: f64 = 6_378_137.0;

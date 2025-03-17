@@ -1,10 +1,9 @@
-use libm::{asin, atan2, cos, sin, sqrt};
-
-use core::cmp::Ordering;
-use core::ops::{Add, Div, Mul, Neg, Sub};
-
 use crate::geometry::{MValue, S1Angle, S2CellId, S2Point, VectorPoint};
-
+use core::{
+    cmp::Ordering,
+    ops::{Add, Div, Mul, Neg, Sub},
+};
+use libm::{asin, atan2, cos, sin, sqrt};
 use s2json::MValueCompatible;
 
 /// This class represents a point on the unit sphere as a pair
@@ -19,6 +18,11 @@ impl<M: MValueCompatible> LonLat<M> {
     /// Build a new LonLat
     pub fn new(lon: f64, lat: f64, m: Option<M>) -> LonLat<M> {
         LonLat(VectorPoint::new(lon, lat, None, m))
+    }
+
+    /// Take the underlying VectorPoint
+    pub fn take(&mut self) -> VectorPoint<M> {
+        core::mem::take(&mut self.0)
     }
 
     /// Return the longitude in degrees
@@ -251,6 +255,13 @@ mod tests {
     fn coords() {
         let ll: LonLat = LonLat::new(20.0, 50.0, None);
         assert_eq!(ll.coords(), (20.0, 50.0));
+    }
+
+    #[test]
+    fn take() {
+        let mut ll: LonLat = LonLat::new(20.0, 50.0, None);
+        let vp = ll.take();
+        assert_eq!(vp, VectorPoint::new(20.0, 50.0, None, None));
     }
 
     #[test]

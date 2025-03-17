@@ -25,13 +25,11 @@ impl Writer for FileWriter {
     fn write(&mut self, data: &[u8], offset: usize) {
         self.file.seek(SeekFrom::Start(offset as u64)).expect("Seek failed");
         self.file.write_all(data).expect("Write failed");
-        self.file.flush().expect("Flush failed");
     }
 
     fn append(&mut self, data: &[u8]) {
         self.file.seek(SeekFrom::End(0)).expect("Seek failed");
         self.file.write_all(data).expect("Write failed");
-        self.file.flush().expect("Flush failed");
     }
 
     fn append_string(&mut self, string: &str) {
@@ -43,6 +41,10 @@ impl Writer for FileWriter {
         let mut buffer = Vec::new();
         self.file.read_to_end(&mut buffer).expect("Read failed");
         buffer
+    }
+
+    fn flush(&mut self) {
+        self.file.flush().expect("Flush failed");
     }
 }
 

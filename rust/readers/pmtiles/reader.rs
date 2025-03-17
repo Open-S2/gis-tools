@@ -1,16 +1,15 @@
-use s2_tilejson::Metadata;
-
-use s2json::Face;
-
-use alloc::{string::String, vec::Vec};
-
-use crate::readers::Reader;
-use crate::{data_structures::Cache, util::decompress_data};
-
 use super::{
     find_tile, PMDirectory, PMTilePos, S2PMEntries, S2PMHeader, S2_PM_HEADER_SIZE_BYTES,
     S2_PM_ROOT_SIZE,
 };
+use crate::{
+    data_structures::Cache,
+    readers::Reader,
+    util::{decompress_data, Buffer},
+};
+use alloc::{string::String, vec::Vec};
+use s2_tilejson::Metadata;
+use s2json::Face;
 
 /// The File reader is to be used by the local filesystem.
 #[derive(Debug)]
@@ -43,7 +42,7 @@ impl<R: Reader> PMTilesReader<R> {
         }
 
         let data = self.get_range(0, S2_PM_ROOT_SIZE as u64);
-        let header_data = &data[0..S2_PM_HEADER_SIZE_BYTES];
+        let header_data = data[0..S2_PM_HEADER_SIZE_BYTES].to_vec();
         // header
         let mut header = S2PMHeader::from_bytes(&mut header_data.into());
 
@@ -66,7 +65,7 @@ impl<R: Reader> PMTilesReader<R> {
             header.internal_compression,
         )
         .unwrap();
-        self.root_dir = PMDirectory::from_buffer(&mut (&root_dir_data[..]).into());
+        self.root_dir = PMDirectory::from_buffer(&mut root_dir_data.into());
 
         if header.is_s2 {
             self.get_s2_metadata(&data, &mut header);
@@ -90,8 +89,7 @@ impl<R: Reader> PMTilesReader<R> {
                 header.internal_compression,
             )
             .unwrap();
-            self.root_dir_s2
-                .set_dir(face, PMDirectory::from_buffer(&mut (&face_dir_data[..]).into()));
+            self.root_dir_s2.set_dir(face, PMDirectory::from_buffer(&mut face_dir_data.into()));
         }
     }
 
@@ -166,12 +164,13 @@ impl<R: Reader> PMTilesReader<R> {
             // get from archive
             let resp = self.get_range(offset, length);
             let data = decompress_data(&resp, internal_compression).unwrap();
-            let directory = PMDirectory::from_buffer(&mut (&data[..]).into());
+            let mut buffer: Buffer = Buffer::new(data);
+            let directory = PMDirectory::from_buffer(&mut buffer);
             if directory.is_empty() {
                 panic!("Empty directory is invalid");
             }
             // save in cache
-            self.dir_cache.set(offset, PMDirectory::from_buffer(&mut (&data[..]).into()));
+            self.dir_cache.set(offset, directory.clone());
 
             directory
         }

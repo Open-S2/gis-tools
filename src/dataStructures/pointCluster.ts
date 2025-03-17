@@ -67,7 +67,7 @@ function toCluster<M extends MValue = Properties>(data: M, value: number): Clust
 }
 
 /** Compare two data items, return true to merge data */
-export type Comparitor<M extends MValue = Properties> = (a: M, b: M) => boolean;
+export type ClusterDataComparitor<M extends MValue = Properties> = (a: M, b: M) => boolean;
 
 /**
  * # Point Cluster
@@ -213,9 +213,9 @@ export class PointCluster<M extends MValue = Properties> {
    * Build the clusters when done adding points
    * @param cmp_ - custom compare function
    */
-  async buildClusters(cmp_?: Comparitor<M>): Promise<void> {
+  async buildClusters(cmp_?: ClusterDataComparitor<M>): Promise<void> {
     const { minzoom, maxzoom } = this;
-    const cmp: Comparitor<M> = cmp_ ?? ((_a: M, _b: M) => true);
+    const cmp: ClusterDataComparitor<M> = cmp_ ?? ((_a: M, _b: M) => true);
     for (let zoom = maxzoom; zoom >= minzoom; zoom--) {
       const curIndex = this.indexes.get(zoom);
       const queryIndex = this.indexes.get(zoom + 1);
@@ -237,7 +237,7 @@ export class PointCluster<M extends MValue = Properties> {
     zoom: number,
     queryIndex: PointIndex<Cluster<M>>,
     currIndex: PointIndex<Cluster<M>>,
-    cmp: Comparitor<M>,
+    cmp: ClusterDataComparitor<M>,
   ): Promise<void> {
     const radius = this.#getLevelRadius(zoom);
     for await (const clusterPoint of queryIndex) {

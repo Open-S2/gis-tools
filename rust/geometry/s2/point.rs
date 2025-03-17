@@ -1,13 +1,12 @@
-use core::cmp::Ordering;
-use core::fmt::Debug;
-use core::ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub};
-
+use super::{face_uv_to_xyz, ST_TO_UV};
+use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
+use core::{
+    cmp::Ordering,
+    fmt::Debug,
+    ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub},
+};
 use libm::{atan2, fabs, sqrt};
 use s2json::{MValueCompatible, VectorPoint};
-
-use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
-
-use super::{face_uv_to_xyz, ST_TO_UV};
 
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
 /// points are normalized to be unit length, but some methods do not require
@@ -164,8 +163,8 @@ impl<M: MValueCompatible> From<&LonLat<M>> for S2Point {
         lonlat.to_point()
     }
 }
-impl From<&VectorPoint> for S2Point {
-    fn from(v: &VectorPoint) -> Self {
+impl<M: MValueCompatible> From<&VectorPoint<M>> for S2Point {
+    fn from(v: &VectorPoint<M>) -> Self {
         Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
     }
 }
@@ -394,10 +393,10 @@ mod tests {
 
     #[test]
     fn from_vector_point() {
-        let vp = VectorPoint::new(1., 2., None, None);
+        let vp: VectorPoint = VectorPoint::new(1., 2., None, None);
         assert_eq!(S2Point::from(&vp), S2Point { x: 1.0, y: 2.0, z: 0.0 });
 
-        let vp = VectorPoint::new(1., 2., Some(3.), None);
+        let vp: VectorPoint = VectorPoint::new(1., 2., Some(3.), None);
         assert_eq!(S2Point::from(&vp), S2Point { x: 1.0, y: 2.0, z: 3.0 });
     }
 

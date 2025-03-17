@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { orient2d, orient2dfast } from '../../../src/geometry/predicates';
+import { orient2d, orient2dfast } from '../../../src';
 
 import robustOrientation from 'robust-orientation';
 

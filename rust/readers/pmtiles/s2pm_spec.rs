@@ -225,7 +225,7 @@ impl S2PMHeader {
 
     /// Convert a S2Header into a buffer
     pub fn to_bytes(&self) -> Buffer {
-        let mut buffer = Buffer::new();
+        let mut buffer = Buffer::default();
 
         // default id
         buffer.set_u8(b'S');
@@ -428,7 +428,7 @@ mod tests {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             ]
         );
-        let from_bytes = S2PMHeader::from_bytes(&mut Buffer::from(bytes.as_slice()));
+        let from_bytes = S2PMHeader::from_bytes(&mut Buffer::new(bytes));
         assert_eq!(default_header, from_bytes);
 
         // set a complex header:

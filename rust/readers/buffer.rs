@@ -1,8 +1,5 @@
-use std::string::ToString;
-
 use crate::readers::Reader;
-
-use alloc::{string::String, vec::Vec};
+use alloc::{string::String, string::ToString, vec::Vec};
 
 /// A basic buffer reader for reading data from a buffer
 #[derive(Default, Debug)]

@@ -4,4 +4,5 @@ export * from './pointGrid';
 export * from './pointIndex';
 export * from './pointIndexFast';
 export * from './priorityQueue';
+export * from './splayTree';
 export * from './tile';

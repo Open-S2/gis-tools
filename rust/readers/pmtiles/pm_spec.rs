@@ -1,10 +1,7 @@
-use pbf::bit_cast::BitCast;
-
-use alloc::{string::String, vec::Vec};
-
 use crate::util::{Buffer, CompressionFormat};
-
+use alloc::{string::String, vec::Vec};
 use core::cmp::Ordering;
+use pbf::bit_cast::BitCast;
 
 /// zoom values for each zoom level. Supports up to 27 zooms
 pub const PM_TZ_VALUES: [u64; 27] = [
@@ -189,7 +186,7 @@ impl PMDirectory {
     /// Serialize the directory into a buffer
     pub fn serialize(&self) -> Vec<u8> {
         // then write the entries
-        let mut buffer = Buffer::new();
+        let mut buffer = Buffer::default();
 
         buffer.write_varint(self.entries.len().to_u64());
 
@@ -418,7 +415,7 @@ impl PMHeader {
 
     /// Write the header to a buffer
     pub fn to_bytes(&self) -> Buffer {
-        let mut buffer = Buffer::new();
+        let mut buffer = Buffer::default();
         // set id
         buffer.set_u16_at(0, 0x4d50); // set PM
                                       // Version number at position 7
@@ -561,8 +558,8 @@ mod tests {
 
         // serialize
         let data = directory.serialize();
-        let mut buf = Buffer::from(data.as_slice());
         assert_eq!(data, vec![3, 1, 4, 4, 4, 8, 12, 3, 7, 11, 3, 7, 11]);
+        let mut buf = Buffer::new(data);
         // from_buffer
         let d2 = PMDirectory::from_buffer(&mut buf);
         assert_eq!(d2, directory);
@@ -658,7 +655,7 @@ mod tests {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             ]
         );
-        let from_bytes = PMHeader::from_bytes(&mut Buffer::from(bytes.as_slice()));
+        let from_bytes = PMHeader::from_bytes(&mut Buffer::new(bytes));
         assert_eq!(default_header, from_bytes);
 
         // set a complex header:

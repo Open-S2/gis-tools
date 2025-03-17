@@ -1,5 +1,4 @@
 use alloc::{vec, vec::Vec};
-
 use s2json::{
     BBox3D, BaseGeometry, Geometry, LineStringMValues, MValueCompatible, MultiLineStringMValues,
     MultiPolygonMValues, PointOrPoint3D, VectorGeometry, VectorPoint,

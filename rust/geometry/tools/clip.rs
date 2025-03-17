@@ -2,9 +2,7 @@ use crate::{
     data_structures::{HasLayer, Tile},
     geometry::S2CellId,
 };
-
 use alloc::{string::ToString, vec, vec::Vec};
-
 use s2json::{
     Axis, BBox3D, MValue, MValueCompatible, Properties, VectorFeature, VectorGeometry,
     VectorGeometryType, VectorLineString, VectorLineStringGeometry, VectorMultiLineOffset,

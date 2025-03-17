@@ -1,8 +1,6 @@
-use s2json::{MValue, MValueCompatible, Properties, VectorFeatureType};
-
-use crate::geometry::{Face, LonLat, VectorFeature, VectorGeometry, VectorPoint};
-
 use super::S2Point;
+use crate::geometry::{Face, LonLat, VectorFeature, VectorGeometry, VectorPoint};
+use s2json::{MValue, MValueCompatible, Properties, VectorFeatureType};
 
 /// Underlying conversion mechanic to move S2 Geometry to GeoJSON Geometry
 pub trait ConvertVectorFeatureS2<

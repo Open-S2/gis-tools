@@ -1,8 +1,6 @@
 use crate::geometry::{VectorGeometry, VectorLineString, VectorPoint};
-
-use libm::pow;
-
 use alloc::vec;
+use libm::pow;
 use s2json::{MValue, MValueCompatible};
 
 /// Functions to simplify a vector geometry

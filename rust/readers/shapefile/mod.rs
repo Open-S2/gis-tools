@@ -11,22 +11,19 @@ pub mod shp;
 
 use core::panic;
 
-pub use dbf::*;
-use s2json::MValueCompatible;
-pub use shp::*;
-
+use super::BufferReader;
+use crate::{
+    proj::{ProjectionTransformDefinition, Transformer},
+    util::iter_zip_folder,
+};
 use alloc::{
     collections::BTreeMap,
     string::{String, ToString},
     vec::Vec,
 };
-
-use crate::{
-    proj::{ProjectionTransformDefinition, Transformer},
-    util::iter_zip_folder,
-};
-
-use super::BufferReader;
+pub use dbf::*;
+use s2json::MValueCompatible;
+pub use shp::*;
 
 /// A description of what relevant files exist and where
 #[cfg(feature = "std")]

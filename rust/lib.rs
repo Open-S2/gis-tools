@@ -18,6 +18,8 @@ extern crate std;
 
 /// Conversion Tools
 pub mod converters;
+/// Data Storage Tools
+pub mod data_store;
 /// Data structures
 pub mod data_structures;
 /// Geometry Tools

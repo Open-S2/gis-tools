@@ -1,11 +1,7 @@
-use core::marker::PhantomData;
-
+use crate::{readers::Reader, util::Date};
 use alloc::{string::String, vec, vec::Vec};
-
+use core::marker::PhantomData;
 use s2json::{MValue, MValueCompatible, PrimitiveValue, Properties, ValueType};
-
-use crate::readers::Reader;
-use crate::util::Date;
 
 /// The Header data explaining the contents of the DBF file
 #[derive(Debug, PartialEq)]

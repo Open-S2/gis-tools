@@ -1,11 +1,7 @@
-use alloc::format;
-
-use alloc::{collections::BTreeSet, vec::Vec};
-
+use crate::{geometry::convert, readers::FeatureIterator, writers::Writer};
+use alloc::{collections::BTreeSet, format, vec::Vec};
 use s2json::{BBox3D, JSONCollection, MValueCompatible, Projection, VectorFeature};
 use serde::Serialize;
-
-use crate::{geometry::convert, readers::FeatureIterator, writers::Writer};
 
 /// User defined function on how to process the features
 pub type OnFeature<M, P, D> = fn(feature: VectorFeature<M, P, D>) -> Option<VectorFeature<M, P, D>>;

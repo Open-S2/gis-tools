@@ -1,9 +1,7 @@
-use core::f64::consts::PI;
-
-use libm::{atan, round, sqrt, tan};
-
 use super::coords_internal::K_FACE_UVW_AXES;
 use crate::geometry::S2Point;
+use core::f64::consts::PI;
+use libm::{atan, round, sqrt, tan};
 
 // This file contains documentation of the various coordinate systems used
 // throughout the library.  Most importantly, S2 defines a framework for

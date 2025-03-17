@@ -1,18 +1,15 @@
 extern crate alloc;
 
-use libm::{fmax, fmin};
-
-use alloc::{string::String, vec::Vec};
-use s2json::MValueCompatible;
-
-use core::fmt;
-
+use super::{get_u_norm, get_v_norm, LOOKUP_IJ};
 use crate::geometry::{
     face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox, LonLat, S2Point,
     K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
 };
-
-use super::{get_u_norm, get_v_norm, LOOKUP_IJ};
+use alloc::{string::String, vec::Vec};
+use core::fmt;
+use libm::{fmax, fmin};
+use s2json::{MValueCompatible, VectorPoint};
+use serde::{Deserialize, Serialize};
 
 /// Cell ID works with both S2 and WM with a common interface
 pub type CellId = S2CellId;
@@ -93,7 +90,7 @@ pub const K_WRAP_OFFSET: u64 = (K_NUM_FACES as u64) << K_POS_BITS;
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Hash, Serialize, Deserialize)]
 #[repr(C)]
 pub struct S2CellId {
     /// the id contains the face, s, and t components
@@ -784,6 +781,12 @@ impl From<&str> for S2CellId {
         S2CellId::from_string(s)
     }
 }
+impl<M: MValueCompatible> From<&VectorPoint<M>> for S2CellId {
+    fn from(value: &VectorPoint<M>) -> Self {
+        let point: S2Point = value.into();
+        point.into()
+    }
+}
 
 /// Return the lowest-numbered bit that is on for cells at the given level.
 pub fn lsb_for_level(level: u8) -> u64 {
@@ -820,8 +823,7 @@ pub fn ij_level_to_bound_uv(i: u32, j: u32, level: u8) -> BBox {
 #[cfg(test)]
 mod tests {
     use crate::geometry::ll;
-    use alloc::string::ToString;
-    use alloc::vec;
+    use alloc::{string::ToString, vec};
     use s2json::MValue;
 
     use super::*;
@@ -913,6 +915,16 @@ mod tests {
         let p = S2Point { x: -1.0, y: 0.0, z: 0.0 };
         let id: S2CellId = p.into();
         assert_eq!(id.id, 8070450532247928833);
+    }
+
+    #[test]
+    fn from_vector_point() {
+        let vp: VectorPoint = VectorPoint::new(1., 0., None, None);
+        let id = S2CellId::from(&vp);
+        assert_eq!(id.id, 1152921504606846977);
+        let vp: VectorPoint = VectorPoint::new(0., 1., Some(0.), None);
+        let id = S2CellId::from(&vp);
+        assert_eq!(id.id, 3458764513820540929);
     }
 
     #[test]

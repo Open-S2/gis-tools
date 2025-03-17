@@ -1,9 +1,9 @@
-use s2json::MValueCompatible;
-pub use s2json::{MValue, ValueType, VectorPoint};
-
-use super::{get_channel, get_channel_m, RgbaChannel, VectorPointRGBA};
-use crate::readers::RGBA;
-use crate::tools::{default_get_interpolate_current_value, GetInterpolateValue};
+use super::{get_channel, get_channel_m, RgbaChannel};
+use crate::{
+    readers::RGBA,
+    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
+};
+use s2json::{MValueCompatible, VectorPoint};
 
 /// # Nearest Neighbor Interpolation
 ///
@@ -75,6 +75,7 @@ pub fn nearest_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint
 mod tests {
     use super::*;
     use alloc::vec;
+    use s2json::MValue;
 
     #[test]
     fn test_nearest_interpolation() {

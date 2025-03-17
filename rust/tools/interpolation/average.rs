@@ -1,9 +1,9 @@
-use s2json::MValueCompatible;
-pub use s2json::{MValue, ValueType, VectorPoint};
-
 use super::{get_channel, get_channel_m, RgbaChannel};
-use crate::readers::RGBA;
-use crate::tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA};
+use crate::{
+    readers::RGBA,
+    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
+};
+use s2json::{MValueCompatible, VectorPoint};
 
 /// # Average Neighbor Interpolation
 ///
@@ -59,6 +59,7 @@ pub fn average_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint
 mod tests {
     use super::*;
     use alloc::{vec, vec::Vec};
+    use s2json::MValue;
 
     #[test]
     fn test_average_interpolation() {

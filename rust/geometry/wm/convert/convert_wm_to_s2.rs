@@ -5,7 +5,6 @@ use crate::geometry::{
     VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry, VectorPolygon,
     VectorPolygonGeometry,
 };
-
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 
 /// The resultant geometry after conversion

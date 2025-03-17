@@ -1,18 +1,21 @@
-use alloc::collections::{BTreeMap, BTreeSet};
-use alloc::string::String;
-use alloc::string::ToString;
-use alloc::vec;
-use alloc::vec::Vec;
+use alloc::{
+    collections::{BTreeMap, BTreeSet},
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 
 use libm::round;
 use s2json::{Feature, MValue, MValueCompatible, Properties};
 
-use crate::geometry::{
-    convert, CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
-    JSONCollection, Projection, SimplifyVectorGeometry, TileChildren, VectorFeature,
-    VectorGeometry, VectorPoint,
+use crate::{
+    geometry::{
+        convert, CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
+        JSONCollection, Projection, SimplifyVectorGeometry, TileChildren, VectorFeature,
+        VectorGeometry, VectorPoint,
+    },
+    readers::FeatureIterator,
 };
-use crate::readers::FeatureIterator;
 
 /// If a user creates metadata for a VectorFeature, it needs to define a get_layer function
 pub trait HasLayer {

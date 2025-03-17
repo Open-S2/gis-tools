@@ -1,20 +1,16 @@
-use core::marker::PhantomData;
-
+use super::DataBaseFile;
+use crate::{
+    proj::Transformer,
+    readers::{BufferReader, FeatureIterator, Reader},
+};
 use alloc::{vec, vec::Vec};
-
+use core::marker::PhantomData;
 use s2json::{
     BBox3D, MValue, MValueCompatible, VectorFeature, VectorFeatureType, VectorGeometry,
     VectorGeometryType, VectorLineString, VectorLineStringGeometry, VectorMultiLineString,
     VectorMultiPoint, VectorMultiPointGeometry, VectorPoint, VectorPointGeometry,
     VectorPolygonGeometry,
 };
-
-use crate::{
-    proj::Transformer,
-    readers::{BufferReader, FeatureIterator, Reader},
-};
-
-use super::DataBaseFile;
 
 /// A Shapefile Header describing the internal data
 #[derive(Debug, PartialEq)]

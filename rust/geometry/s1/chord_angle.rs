@@ -1,12 +1,10 @@
 use crate::geometry::{S1Angle, S2Point};
-
-use libm::{asin, fabs, fmod, sin, sqrt};
-
 use core::{
     cmp::Ordering,
     f64::consts::PI,
     ops::{Add, Deref, Div, Mul, Neg, Rem, RemAssign, Sub},
 };
+use libm::{asin, fabs, fmod, sin, sqrt};
 
 /// The Maximum allowed squared chord length.
 pub const K_MAX_LENGTH_2: f64 = 4.0;

@@ -1,8 +1,7 @@
-use libm::fabs;
-
 use super::util::{
     estimate, pred_sum, CCWERRBOUND_A, CCWERRBOUND_B, CCWERRBOUND_C, RESULTERRBOUND, SPLITTER,
 };
+use libm::fabs;
 
 /// a negative value if the points a, b, and c occur in counterclockwise order
 /// (c lies to the left of the directed line defined by points a and b).

@@ -158,6 +158,8 @@ impl<W: Writer> PMTilesWriter<W> {
         } else {
             self.commit_s2(metadata);
         }
+
+        self.writer.flush();
     }
 
     /// Finish writing by building the header with root and leaf directories

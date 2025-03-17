@@ -1,959 +1,1050 @@
-// import {
-//   epsilon,
-//   estimate,
-//   negate,
-//   resulterrbound,
-//   scale,
-//   splitter,
-//   sum,
-//   predSumThree,
-//   vec,
-// } from './util.js';
+import {
+  estimate,
+  negate,
+  predSum,
+  predSumThree,
+  resulterrbound,
+  scale,
+  splitter,
+  vec,
+} from './util';
 
-// const isperrboundA = (16 + 224 * epsilon) * epsilon;
-// const isperrboundB = (5 + 72 * epsilon) * epsilon;
-// const isperrboundC = (71 + 1408 * epsilon) * epsilon * epsilon;
+const isperrboundA = 1.7763568394002532e-15; // (16 + 224 * epsilon) * epsilon;
+const isperrboundB = 5.551115123125792e-16; // (5 + 72 * epsilon) * epsilon;
+const isperrboundC = 8.751425667295619e-31; // (71 + 1408 * epsilon) * epsilon * epsilon;
 
-// const ab = vec(4);
-// const bc = vec(4);
-// const cd = vec(4);
-// const de = vec(4);
-// const ea = vec(4);
-// const ac = vec(4);
-// const bd = vec(4);
-// const ce = vec(4);
-// const da = vec(4);
-// const eb = vec(4);
+const ab = vec(4);
+const bc = vec(4);
+const cd = vec(4);
+const de = vec(4);
+const ea = vec(4);
+const ac = vec(4);
+const bd = vec(4);
+const ce = vec(4);
+const da = vec(4);
+const eb = vec(4);
 
-// const abc = vec(24);
-// const bcd = vec(24);
-// const cde = vec(24);
-// const dea = vec(24);
-// const eab = vec(24);
-// const abd = vec(24);
-// const bce = vec(24);
-// const cda = vec(24);
-// const deb = vec(24);
-// const eac = vec(24);
+const abc = vec(24);
+const bcd = vec(24);
+const cde = vec(24);
+const dea = vec(24);
+const eab = vec(24);
+const abd = vec(24);
+const bce = vec(24);
+const cda = vec(24);
+const deb = vec(24);
+const eac = vec(24);
 
-// const adet = vec(1152);
-// const bdet = vec(1152);
-// const cdet = vec(1152);
-// const ddet = vec(1152);
-// const edet = vec(1152);
-// const abdet = vec(2304);
-// const cddet = vec(2304);
-// const cdedet = vec(3456);
-// const deter = vec(5760);
+const adet = vec(1152);
+const bdet = vec(1152);
+const cdet = vec(1152);
+const ddet = vec(1152);
+const edet = vec(1152);
+const abdet = vec(2304);
+const cddet = vec(2304);
+const cdedet = vec(3456);
+const deter = vec(5760);
 
-// const _8 = vec(8);
-// const _8b = vec(8);
-// const _8c = vec(8);
-// const _16 = vec(16);
-// const _24 = vec(24);
-// const _48 = vec(48);
-// const _48b = vec(48);
-// const _96 = vec(96);
-// const _192 = vec(192);
-// const _384x = vec(384);
-// const _384y = vec(384);
-// const _384z = vec(384);
-// const _768 = vec(768);
+const _8 = vec(8);
+const _8b = vec(8);
+const _8c = vec(8);
+const _16 = vec(16);
+const _24 = vec(24);
+const _48 = vec(48);
+const _48b = vec(48);
+const _96 = vec(96);
+const _192 = vec(192);
+const _384x = vec(384);
+const _384y = vec(384);
+const _384z = vec(384);
+const _768 = vec(768);
 
-// /**
-//  * @param a
-//  * @param b
-//  * @param c
-//  * @param az
-//  * @param bz
-//  * @param cz
-//  * @param out
-//  */
-// function predSumThree_scale(a, b, c, az, bz, cz, out) {
-//   return predSumThree(
-//     scale(4, a, az, _8),
-//     _8,
-//     scale(4, b, bz, _8b),
-//     _8b,
-//     scale(4, c, cz, _8c),
-//     _8c,
-//     _16,
-//     out,
-//   );
-// }
+/**
+ * Build the sum of three scaled vectors
+ * @param a - the first vector's values
+ * @param b - the second vector's values
+ * @param c - the third vector's values
+ * @param az - the first vector's scale
+ * @param bz - the second vector's scale
+ * @param cz - the third vector's scale
+ * @param out - the output vector
+ * @returns - the output vector's sum
+ */
+function predSumThreeScale(
+  a: number[] | Float64Array,
+  b: number[] | Float64Array,
+  c: number[] | Float64Array,
+  az: number,
+  bz: number,
+  cz: number,
+  out: number[] | Float64Array,
+): number {
+  return predSumThree(
+    scale(4, a, az, _8),
+    _8,
+    scale(4, b, bz, _8b),
+    _8b,
+    scale(4, c, cz, _8c),
+    _8c,
+    _16,
+    out,
+  );
+}
 
-// /**
-//  * @param alen
-//  * @param a
-//  * @param blen
-//  * @param b
-//  * @param clen
-//  * @param c
-//  * @param dlen
-//  * @param d
-//  * @param x
-//  * @param y
-//  * @param z
-//  * @param out
-//  */
-// function liftexact(alen, a, blen, b, clen, c, dlen, d, x, y, z, out) {
-//   const len = sum(
-//     sum(alen, a, blen, b, _48),
-//     _48,
-//     negate(sum(clen, c, dlen, d, _48b), _48b),
-//     _48b,
-//     _96,
-//   );
+/**
+ * Lift an exact result
+ * @param alen - length of A vector array
+ * @param a - A vector data
+ * @param blen - length of B vector array
+ * @param b - B vector data
+ * @param clen - length of C vector array
+ * @param c - C vector data
+ * @param dlen - length of D vector array
+ * @param d - D vector data
+ * @param x - x direction
+ * @param y - y direction
+ * @param z - z direction
+ * @param out - output
+ * @returns - the sum
+ */
+function liftexact(
+  alen: number,
+  a: number[] | Float64Array,
+  blen: number,
+  b: number[] | Float64Array,
+  clen: number,
+  c: number[] | Float64Array,
+  dlen: number,
+  d: number[] | Float64Array,
+  x: number,
+  y: number,
+  z: number,
+  out: number[] | Float64Array,
+): number {
+  const len = predSum(
+    predSum(alen, a, blen, b, _48),
+    _48,
+    negate(predSum(clen, c, dlen, d, _48b), _48b),
+    _48b,
+    _96,
+  );
 
-//   return predSumThree(
-//     scale(scale(len, _96, x, _192), _192, x, _384x),
-//     _384x,
-//     scale(scale(len, _96, y, _192), _192, y, _384y),
-//     _384y,
-//     scale(scale(len, _96, z, _192), _192, z, _384z),
-//     _384z,
-//     _768,
-//     out,
-//   );
-// }
+  return predSumThree(
+    scale(scale(len, _96, x, _192), _192, x, _384x),
+    _384x,
+    scale(scale(len, _96, y, _192), _192, y, _384y),
+    _384y,
+    scale(scale(len, _96, z, _192), _192, z, _384z),
+    _384z,
+    _768,
+    out,
+  );
+}
 
-// /**
-//  * @param ax
-//  * @param ay
-//  * @param az
-//  * @param bx
-//  * @param by
-//  * @param bz
-//  * @param cx
-//  * @param cy
-//  * @param cz
-//  * @param dx
-//  * @param dy
-//  * @param dz
-//  * @param ex
-//  * @param ey
-//  * @param ez
-//  */
-// function insphereexact(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez) {
-//   let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
+/**
+ * Compute the signed volume of a tetrahedron
+ * @param ax - the first x
+ * @param ay - the first y
+ * @param az - the first z
+ * @param bx - the second x
+ * @param by - the second y
+ * @param bz - the second z
+ * @param cx - the relative plane x
+ * @param cy - the relative plane y
+ * @param cz - the relative plane z
+ * @param dx - the first compare point x
+ * @param dy - the first compare point y
+ * @param dz - the first compare point z
+ * @param ex - the second compare point x
+ * @param ey - the second compare point y
+ * @param ez - the second compare point z
+ * @returns - the signed volume of the tetrahedron
+ */
+function insphereExact(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  dx: number,
+  dy: number,
+  dz: number,
+  ex: number,
+  ey: number,
+  ez: number,
+): number {
+  let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
 
-//   s1 = ax * by;
-//   c = splitter * ax;
-//   ahi = c - (c - ax);
-//   alo = ax - ahi;
-//   c = splitter * by;
-//   bhi = c - (c - by);
-//   blo = by - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = bx * ay;
-//   c = splitter * bx;
-//   ahi = c - (c - bx);
-//   alo = bx - ahi;
-//   c = splitter * ay;
-//   bhi = c - (c - ay);
-//   blo = ay - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   ab[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   ab[3] = u3;
-//   s1 = bx * cy;
-//   c = splitter * bx;
-//   ahi = c - (c - bx);
-//   alo = bx - ahi;
-//   c = splitter * cy;
-//   bhi = c - (c - cy);
-//   blo = cy - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = cx * by;
-//   c = splitter * cx;
-//   ahi = c - (c - cx);
-//   alo = cx - ahi;
-//   c = splitter * by;
-//   bhi = c - (c - by);
-//   blo = by - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   bc[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   bc[3] = u3;
-//   s1 = cx * dy;
-//   c = splitter * cx;
-//   ahi = c - (c - cx);
-//   alo = cx - ahi;
-//   c = splitter * dy;
-//   bhi = c - (c - dy);
-//   blo = dy - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = dx * cy;
-//   c = splitter * dx;
-//   ahi = c - (c - dx);
-//   alo = dx - ahi;
-//   c = splitter * cy;
-//   bhi = c - (c - cy);
-//   blo = cy - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   cd[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   cd[3] = u3;
-//   s1 = dx * ey;
-//   c = splitter * dx;
-//   ahi = c - (c - dx);
-//   alo = dx - ahi;
-//   c = splitter * ey;
-//   bhi = c - (c - ey);
-//   blo = ey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = ex * dy;
-//   c = splitter * ex;
-//   ahi = c - (c - ex);
-//   alo = ex - ahi;
-//   c = splitter * dy;
-//   bhi = c - (c - dy);
-//   blo = dy - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   de[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   de[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   de[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   de[3] = u3;
-//   s1 = ex * ay;
-//   c = splitter * ex;
-//   ahi = c - (c - ex);
-//   alo = ex - ahi;
-//   c = splitter * ay;
-//   bhi = c - (c - ay);
-//   blo = ay - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = ax * ey;
-//   c = splitter * ax;
-//   ahi = c - (c - ax);
-//   alo = ax - ahi;
-//   c = splitter * ey;
-//   bhi = c - (c - ey);
-//   blo = ey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ea[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ea[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   ea[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   ea[3] = u3;
-//   s1 = ax * cy;
-//   c = splitter * ax;
-//   ahi = c - (c - ax);
-//   alo = ax - ahi;
-//   c = splitter * cy;
-//   bhi = c - (c - cy);
-//   blo = cy - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = cx * ay;
-//   c = splitter * cx;
-//   ahi = c - (c - cx);
-//   alo = cx - ahi;
-//   c = splitter * ay;
-//   bhi = c - (c - ay);
-//   blo = ay - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   ac[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   ac[3] = u3;
-//   s1 = bx * dy;
-//   c = splitter * bx;
-//   ahi = c - (c - bx);
-//   alo = bx - ahi;
-//   c = splitter * dy;
-//   bhi = c - (c - dy);
-//   blo = dy - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = dx * by;
-//   c = splitter * dx;
-//   ahi = c - (c - dx);
-//   alo = dx - ahi;
-//   c = splitter * by;
-//   bhi = c - (c - by);
-//   blo = by - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   bd[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   bd[3] = u3;
-//   s1 = cx * ey;
-//   c = splitter * cx;
-//   ahi = c - (c - cx);
-//   alo = cx - ahi;
-//   c = splitter * ey;
-//   bhi = c - (c - ey);
-//   blo = ey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = ex * cy;
-//   c = splitter * ex;
-//   ahi = c - (c - ex);
-//   alo = ex - ahi;
-//   c = splitter * cy;
-//   bhi = c - (c - cy);
-//   blo = cy - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ce[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ce[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   ce[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   ce[3] = u3;
-//   s1 = dx * ay;
-//   c = splitter * dx;
-//   ahi = c - (c - dx);
-//   alo = dx - ahi;
-//   c = splitter * ay;
-//   bhi = c - (c - ay);
-//   blo = ay - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = ax * dy;
-//   c = splitter * ax;
-//   ahi = c - (c - ax);
-//   alo = ax - ahi;
-//   c = splitter * dy;
-//   bhi = c - (c - dy);
-//   blo = dy - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   da[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   da[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   da[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   da[3] = u3;
-//   s1 = ex * by;
-//   c = splitter * ex;
-//   ahi = c - (c - ex);
-//   alo = ex - ahi;
-//   c = splitter * by;
-//   bhi = c - (c - by);
-//   blo = by - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = bx * ey;
-//   c = splitter * bx;
-//   ahi = c - (c - bx);
-//   alo = bx - ahi;
-//   c = splitter * ey;
-//   bhi = c - (c - ey);
-//   blo = ey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   eb[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   eb[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   u3 = _j + _i;
-//   bvirt = u3 - _j;
-//   eb[2] = _j - (u3 - bvirt) + (_i - bvirt);
-//   eb[3] = u3;
+  s1 = ax * by;
+  c = splitter * ax;
+  ahi = c - (c - ax);
+  alo = ax - ahi;
+  c = splitter * by;
+  bhi = c - (c - by);
+  blo = by - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = bx * ay;
+  c = splitter * bx;
+  ahi = c - (c - bx);
+  alo = bx - ahi;
+  c = splitter * ay;
+  bhi = c - (c - ay);
+  blo = ay - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  ab[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  ab[3] = u3;
+  s1 = bx * cy;
+  c = splitter * bx;
+  ahi = c - (c - bx);
+  alo = bx - ahi;
+  c = splitter * cy;
+  bhi = c - (c - cy);
+  blo = cy - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = cx * by;
+  c = splitter * cx;
+  ahi = c - (c - cx);
+  alo = cx - ahi;
+  c = splitter * by;
+  bhi = c - (c - by);
+  blo = by - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  bc[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  bc[3] = u3;
+  s1 = cx * dy;
+  c = splitter * cx;
+  ahi = c - (c - cx);
+  alo = cx - ahi;
+  c = splitter * dy;
+  bhi = c - (c - dy);
+  blo = dy - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = dx * cy;
+  c = splitter * dx;
+  ahi = c - (c - dx);
+  alo = dx - ahi;
+  c = splitter * cy;
+  bhi = c - (c - cy);
+  blo = cy - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  cd[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  cd[3] = u3;
+  s1 = dx * ey;
+  c = splitter * dx;
+  ahi = c - (c - dx);
+  alo = dx - ahi;
+  c = splitter * ey;
+  bhi = c - (c - ey);
+  blo = ey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = ex * dy;
+  c = splitter * ex;
+  ahi = c - (c - ex);
+  alo = ex - ahi;
+  c = splitter * dy;
+  bhi = c - (c - dy);
+  blo = dy - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  de[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  de[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  de[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  de[3] = u3;
+  s1 = ex * ay;
+  c = splitter * ex;
+  ahi = c - (c - ex);
+  alo = ex - ahi;
+  c = splitter * ay;
+  bhi = c - (c - ay);
+  blo = ay - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = ax * ey;
+  c = splitter * ax;
+  ahi = c - (c - ax);
+  alo = ax - ahi;
+  c = splitter * ey;
+  bhi = c - (c - ey);
+  blo = ey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ea[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ea[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  ea[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  ea[3] = u3;
+  s1 = ax * cy;
+  c = splitter * ax;
+  ahi = c - (c - ax);
+  alo = ax - ahi;
+  c = splitter * cy;
+  bhi = c - (c - cy);
+  blo = cy - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = cx * ay;
+  c = splitter * cx;
+  ahi = c - (c - cx);
+  alo = cx - ahi;
+  c = splitter * ay;
+  bhi = c - (c - ay);
+  blo = ay - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  ac[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  ac[3] = u3;
+  s1 = bx * dy;
+  c = splitter * bx;
+  ahi = c - (c - bx);
+  alo = bx - ahi;
+  c = splitter * dy;
+  bhi = c - (c - dy);
+  blo = dy - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = dx * by;
+  c = splitter * dx;
+  ahi = c - (c - dx);
+  alo = dx - ahi;
+  c = splitter * by;
+  bhi = c - (c - by);
+  blo = by - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  bd[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  bd[3] = u3;
+  s1 = cx * ey;
+  c = splitter * cx;
+  ahi = c - (c - cx);
+  alo = cx - ahi;
+  c = splitter * ey;
+  bhi = c - (c - ey);
+  blo = ey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = ex * cy;
+  c = splitter * ex;
+  ahi = c - (c - ex);
+  alo = ex - ahi;
+  c = splitter * cy;
+  bhi = c - (c - cy);
+  blo = cy - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ce[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ce[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  ce[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  ce[3] = u3;
+  s1 = dx * ay;
+  c = splitter * dx;
+  ahi = c - (c - dx);
+  alo = dx - ahi;
+  c = splitter * ay;
+  bhi = c - (c - ay);
+  blo = ay - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = ax * dy;
+  c = splitter * ax;
+  ahi = c - (c - ax);
+  alo = ax - ahi;
+  c = splitter * dy;
+  bhi = c - (c - dy);
+  blo = dy - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  da[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  da[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  da[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  da[3] = u3;
+  s1 = ex * by;
+  c = splitter * ex;
+  ahi = c - (c - ex);
+  alo = ex - ahi;
+  c = splitter * by;
+  bhi = c - (c - by);
+  blo = by - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = bx * ey;
+  c = splitter * bx;
+  ahi = c - (c - bx);
+  alo = bx - ahi;
+  c = splitter * ey;
+  bhi = c - (c - ey);
+  blo = ey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  eb[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  eb[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  u3 = _j + _i;
+  bvirt = u3 - _j;
+  eb[2] = _j - (u3 - bvirt) + (_i - bvirt);
+  eb[3] = u3;
 
-//   const abclen = predSumThree_scale(ab, bc, ac, cz, az, -bz, abc);
-//   const bcdlen = predSumThree_scale(bc, cd, bd, dz, bz, -cz, bcd);
-//   const cdelen = predSumThree_scale(cd, de, ce, ez, cz, -dz, cde);
-//   const dealen = predSumThree_scale(de, ea, da, az, dz, -ez, dea);
-//   const eablen = predSumThree_scale(ea, ab, eb, bz, ez, -az, eab);
-//   const abdlen = predSumThree_scale(ab, bd, da, dz, az, bz, abd);
-//   const bcelen = predSumThree_scale(bc, ce, eb, ez, bz, cz, bce);
-//   const cdalen = predSumThree_scale(cd, da, ac, az, cz, dz, cda);
-//   const deblen = predSumThree_scale(de, eb, bd, bz, dz, ez, deb);
-//   const eaclen = predSumThree_scale(ea, ac, ce, cz, ez, az, eac);
+  const abclen = predSumThreeScale(ab, bc, ac, cz, az, -bz, abc);
+  const bcdlen = predSumThreeScale(bc, cd, bd, dz, bz, -cz, bcd);
+  const cdelen = predSumThreeScale(cd, de, ce, ez, cz, -dz, cde);
+  const dealen = predSumThreeScale(de, ea, da, az, dz, -ez, dea);
+  const eablen = predSumThreeScale(ea, ab, eb, bz, ez, -az, eab);
+  const abdlen = predSumThreeScale(ab, bd, da, dz, az, bz, abd);
+  const bcelen = predSumThreeScale(bc, ce, eb, ez, bz, cz, bce);
+  const cdalen = predSumThreeScale(cd, da, ac, az, cz, dz, cda);
+  const deblen = predSumThreeScale(de, eb, bd, bz, dz, ez, deb);
+  const eaclen = predSumThreeScale(ea, ac, ce, cz, ez, az, eac);
 
-//   const deterlen = predSumThree(
-//     liftexact(cdelen, cde, bcelen, bce, deblen, deb, bcdlen, bcd, ax, ay, az, adet),
-//     adet,
-//     liftexact(dealen, dea, cdalen, cda, eaclen, eac, cdelen, cde, bx, by, bz, bdet),
-//     bdet,
-//     predSumThree(
-//       liftexact(eablen, eab, deblen, deb, abdlen, abd, dealen, dea, cx, cy, cz, cdet),
-//       cdet,
-//       liftexact(abclen, abc, eaclen, eac, bcelen, bce, eablen, eab, dx, dy, dz, ddet),
-//       ddet,
-//       liftexact(bcdlen, bcd, abdlen, abd, cdalen, cda, abclen, abc, ex, ey, ez, edet),
-//       edet,
-//       cddet,
-//       cdedet,
-//     ),
-//     cdedet,
-//     abdet,
-//     deter,
-//   );
+  const deterlen = predSumThree(
+    liftexact(cdelen, cde, bcelen, bce, deblen, deb, bcdlen, bcd, ax, ay, az, adet),
+    adet,
+    liftexact(dealen, dea, cdalen, cda, eaclen, eac, cdelen, cde, bx, by, bz, bdet),
+    bdet,
+    predSumThree(
+      liftexact(eablen, eab, deblen, deb, abdlen, abd, dealen, dea, cx, cy, cz, cdet),
+      cdet,
+      liftexact(abclen, abc, eaclen, eac, bcelen, bce, eablen, eab, dx, dy, dz, ddet),
+      ddet,
+      liftexact(bcdlen, bcd, abdlen, abd, cdalen, cda, abclen, abc, ex, ey, ez, edet),
+      edet,
+      cddet,
+      cdedet,
+    ),
+    cdedet,
+    abdet,
+    deter,
+  );
 
-//   return deter[deterlen - 1];
-// }
+  return deter[deterlen - 1];
+}
 
-// const xdet = vec(96);
-// const ydet = vec(96);
-// const zdet = vec(96);
-// const fin = vec(1152);
+const xdet = vec(96);
+const ydet = vec(96);
+const zdet = vec(96);
+const fin = vec(1152);
 
-// /**
-//  * @param a
-//  * @param b
-//  * @param c
-//  * @param az
-//  * @param bz
-//  * @param cz
-//  * @param x
-//  * @param y
-//  * @param z
-//  * @param out
-//  */
-// function liftadapt(a, b, c, az, bz, cz, x, y, z, out) {
-//   const len = predSumThree_scale(a, b, c, az, bz, cz, _24);
-//   return predSumThree(
-//     scale(scale(len, _24, x, _48), _48, x, xdet),
-//     xdet,
-//     scale(scale(len, _24, y, _48), _48, y, ydet),
-//     ydet,
-//     scale(scale(len, _24, z, _48), _48, z, zdet),
-//     zdet,
-//     _192,
-//     out,
-//   );
-// }
+/**
+ * @param a - a vector data
+ * @param b - b vector data
+ * @param c - c vector data
+ * @param az - a vector scale
+ * @param bz - b vector scale
+ * @param cz - c vector scale
+ * @param x - lift point x
+ * @param y - lift point y
+ * @param z - lift point z
+ * @param out - output
+ * @returns - the sum
+ */
+function liftadapt(
+  a: number[] | Float64Array,
+  b: number[] | Float64Array,
+  c: number[] | Float64Array,
+  az: number,
+  bz: number,
+  cz: number,
+  x: number,
+  y: number,
+  z: number,
+  out: number[] | Float64Array,
+) {
+  const len = predSumThreeScale(a, b, c, az, bz, cz, _24);
+  return predSumThree(
+    scale(scale(len, _24, x, _48), _48, x, xdet),
+    xdet,
+    scale(scale(len, _24, y, _48), _48, y, ydet),
+    ydet,
+    scale(scale(len, _24, z, _48), _48, z, zdet),
+    zdet,
+    _192,
+    out,
+  );
+}
 
-// /**
-//  * @param ax
-//  * @param ay
-//  * @param az
-//  * @param bx
-//  * @param by
-//  * @param bz
-//  * @param cx
-//  * @param cy
-//  * @param cz
-//  * @param dx
-//  * @param dy
-//  * @param dz
-//  * @param ex
-//  * @param ey
-//  * @param ez
-//  * @param permanent
-//  */
-// function insphereadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez, permanent) {
-//   let ab3, bc3, cd3, da3, ac3, bd3;
+/**
+ * Get the 3D orientation of a tetrahedron for sphere queries
+ * @param ax - x coordinate of first point
+ * @param ay - y coordinate of first point
+ * @param az - z coordinate of first point
+ * @param bx - x coordinate of second point
+ * @param by - y coordinate of second point
+ * @param bz - z coordinate of second point
+ * @param cx - x coordinate of origin point to create the abcd plane
+ * @param cy - y coordinate of origin point to create the abcd plane
+ * @param cz - z coordinate of origin point to create the abcd plane
+ * @param dx - x coordinate of second origin point to create the abcd plane
+ * @param dy - y coordinate of second origin point to create the abcd plane
+ * @param dz - z coordinate of second origin point to create the abcd plane
+ * @param ex - x coordinate of compare point
+ * @param ey - y coordinate of compare point
+ * @param ez - z coordinate of compare point
+ * @param permanent - a value used to determine if the result can be cached
+ * @returns - a positive value if the point-plane of a-b-c via d occur in counterclockwise order
+ */
+function insphereAdapt(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  dx: number,
+  dy: number,
+  dz: number,
+  ex: number,
+  ey: number,
+  ez: number,
+  permanent: number,
+): number {
+  let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0;
 
-//   let aextail, bextail, cextail, dextail;
-//   let aeytail, beytail, ceytail, deytail;
-//   let aeztail, beztail, ceztail, deztail;
+  const aex = ax - ex;
+  const bex = bx - ex;
+  const cex = cx - ex;
+  const dex = dx - ex;
+  const aey = ay - ey;
+  const bey = by - ey;
+  const cey = cy - ey;
+  const dey = dy - ey;
+  const aez = az - ez;
+  const bez = bz - ez;
+  const cez = cz - ez;
+  const dez = dz - ez;
 
-//   let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0;
+  s1 = aex * bey;
+  c = splitter * aex;
+  ahi = c - (c - aex);
+  alo = aex - ahi;
+  c = splitter * bey;
+  bhi = c - (c - bey);
+  blo = bey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = bex * aey;
+  c = splitter * bex;
+  ahi = c - (c - bex);
+  alo = bex - ahi;
+  c = splitter * aey;
+  bhi = c - (c - aey);
+  blo = aey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const ab3 = _j + _i;
+  bvirt = ab3 - _j;
+  ab[2] = _j - (ab3 - bvirt) + (_i - bvirt);
+  ab[3] = ab3;
+  s1 = bex * cey;
+  c = splitter * bex;
+  ahi = c - (c - bex);
+  alo = bex - ahi;
+  c = splitter * cey;
+  bhi = c - (c - cey);
+  blo = cey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = cex * bey;
+  c = splitter * cex;
+  ahi = c - (c - cex);
+  alo = cex - ahi;
+  c = splitter * bey;
+  bhi = c - (c - bey);
+  blo = bey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const bc3 = _j + _i;
+  bvirt = bc3 - _j;
+  bc[2] = _j - (bc3 - bvirt) + (_i - bvirt);
+  bc[3] = bc3;
+  s1 = cex * dey;
+  c = splitter * cex;
+  ahi = c - (c - cex);
+  alo = cex - ahi;
+  c = splitter * dey;
+  bhi = c - (c - dey);
+  blo = dey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = dex * cey;
+  c = splitter * dex;
+  ahi = c - (c - dex);
+  alo = dex - ahi;
+  c = splitter * cey;
+  bhi = c - (c - cey);
+  blo = cey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const cd3 = _j + _i;
+  bvirt = cd3 - _j;
+  cd[2] = _j - (cd3 - bvirt) + (_i - bvirt);
+  cd[3] = cd3;
+  s1 = dex * aey;
+  c = splitter * dex;
+  ahi = c - (c - dex);
+  alo = dex - ahi;
+  c = splitter * aey;
+  bhi = c - (c - aey);
+  blo = aey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = aex * dey;
+  c = splitter * aex;
+  ahi = c - (c - aex);
+  alo = aex - ahi;
+  c = splitter * dey;
+  bhi = c - (c - dey);
+  blo = dey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  da[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  da[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const da3 = _j + _i;
+  bvirt = da3 - _j;
+  da[2] = _j - (da3 - bvirt) + (_i - bvirt);
+  da[3] = da3;
+  s1 = aex * cey;
+  c = splitter * aex;
+  ahi = c - (c - aex);
+  alo = aex - ahi;
+  c = splitter * cey;
+  bhi = c - (c - cey);
+  blo = cey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = cex * aey;
+  c = splitter * cex;
+  ahi = c - (c - cex);
+  alo = cex - ahi;
+  c = splitter * aey;
+  bhi = c - (c - aey);
+  blo = aey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const ac3 = _j + _i;
+  bvirt = ac3 - _j;
+  ac[2] = _j - (ac3 - bvirt) + (_i - bvirt);
+  ac[3] = ac3;
+  s1 = bex * dey;
+  c = splitter * bex;
+  ahi = c - (c - bex);
+  alo = bex - ahi;
+  c = splitter * dey;
+  bhi = c - (c - dey);
+  blo = dey - bhi;
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
+  t1 = dex * bey;
+  c = splitter * dex;
+  ahi = c - (c - dex);
+  alo = dex - ahi;
+  c = splitter * bey;
+  bhi = c - (c - bey);
+  blo = bey - bhi;
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
+  _i = s0 - t0;
+  bvirt = s0 - _i;
+  bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
+  _j = s1 + _i;
+  bvirt = _j - s1;
+  _0 = s1 - (_j - bvirt) + (_i - bvirt);
+  _i = _0 - t1;
+  bvirt = _0 - _i;
+  bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
+  const bd3 = _j + _i;
+  bvirt = bd3 - _j;
+  bd[2] = _j - (bd3 - bvirt) + (_i - bvirt);
+  bd[3] = bd3;
 
-//   const aex = ax - ex;
-//   const bex = bx - ex;
-//   const cex = cx - ex;
-//   const dex = dx - ex;
-//   const aey = ay - ey;
-//   const bey = by - ey;
-//   const cey = cy - ey;
-//   const dey = dy - ey;
-//   const aez = az - ez;
-//   const bez = bz - ez;
-//   const cez = cz - ez;
-//   const dez = dz - ez;
+  const finlen = predSum(
+    predSum(
+      negate(liftadapt(bc, cd, bd, dez, bez, -cez, aex, aey, aez, adet), adet),
+      adet,
+      liftadapt(cd, da, ac, aez, cez, dez, bex, bey, bez, bdet),
+      bdet,
+      abdet,
+    ),
+    abdet,
+    predSum(
+      negate(liftadapt(da, ab, bd, bez, dez, aez, cex, cey, cez, cdet), cdet),
+      cdet,
+      liftadapt(ab, bc, ac, cez, aez, -bez, dex, dey, dez, ddet),
+      ddet,
+      cddet,
+    ),
+    cddet,
+    fin,
+  );
 
-//   s1 = aex * bey;
-//   c = splitter * aex;
-//   ahi = c - (c - aex);
-//   alo = aex - ahi;
-//   c = splitter * bey;
-//   bhi = c - (c - bey);
-//   blo = bey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = bex * aey;
-//   c = splitter * bex;
-//   ahi = c - (c - bex);
-//   alo = bex - ahi;
-//   c = splitter * aey;
-//   bhi = c - (c - aey);
-//   blo = aey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ab[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ab[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   ab3 = _j + _i;
-//   bvirt = ab3 - _j;
-//   ab[2] = _j - (ab3 - bvirt) + (_i - bvirt);
-//   ab[3] = ab3;
-//   s1 = bex * cey;
-//   c = splitter * bex;
-//   ahi = c - (c - bex);
-//   alo = bex - ahi;
-//   c = splitter * cey;
-//   bhi = c - (c - cey);
-//   blo = cey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = cex * bey;
-//   c = splitter * cex;
-//   ahi = c - (c - cex);
-//   alo = cex - ahi;
-//   c = splitter * bey;
-//   bhi = c - (c - bey);
-//   blo = bey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   bc[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   bc[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   bc3 = _j + _i;
-//   bvirt = bc3 - _j;
-//   bc[2] = _j - (bc3 - bvirt) + (_i - bvirt);
-//   bc[3] = bc3;
-//   s1 = cex * dey;
-//   c = splitter * cex;
-//   ahi = c - (c - cex);
-//   alo = cex - ahi;
-//   c = splitter * dey;
-//   bhi = c - (c - dey);
-//   blo = dey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = dex * cey;
-//   c = splitter * dex;
-//   ahi = c - (c - dex);
-//   alo = dex - ahi;
-//   c = splitter * cey;
-//   bhi = c - (c - cey);
-//   blo = cey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   cd[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   cd[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   cd3 = _j + _i;
-//   bvirt = cd3 - _j;
-//   cd[2] = _j - (cd3 - bvirt) + (_i - bvirt);
-//   cd[3] = cd3;
-//   s1 = dex * aey;
-//   c = splitter * dex;
-//   ahi = c - (c - dex);
-//   alo = dex - ahi;
-//   c = splitter * aey;
-//   bhi = c - (c - aey);
-//   blo = aey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = aex * dey;
-//   c = splitter * aex;
-//   ahi = c - (c - aex);
-//   alo = aex - ahi;
-//   c = splitter * dey;
-//   bhi = c - (c - dey);
-//   blo = dey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   da[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   da[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   da3 = _j + _i;
-//   bvirt = da3 - _j;
-//   da[2] = _j - (da3 - bvirt) + (_i - bvirt);
-//   da[3] = da3;
-//   s1 = aex * cey;
-//   c = splitter * aex;
-//   ahi = c - (c - aex);
-//   alo = aex - ahi;
-//   c = splitter * cey;
-//   bhi = c - (c - cey);
-//   blo = cey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = cex * aey;
-//   c = splitter * cex;
-//   ahi = c - (c - cex);
-//   alo = cex - ahi;
-//   c = splitter * aey;
-//   bhi = c - (c - aey);
-//   blo = aey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   ac[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   ac[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   ac3 = _j + _i;
-//   bvirt = ac3 - _j;
-//   ac[2] = _j - (ac3 - bvirt) + (_i - bvirt);
-//   ac[3] = ac3;
-//   s1 = bex * dey;
-//   c = splitter * bex;
-//   ahi = c - (c - bex);
-//   alo = bex - ahi;
-//   c = splitter * dey;
-//   bhi = c - (c - dey);
-//   blo = dey - bhi;
-//   s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo);
-//   t1 = dex * bey;
-//   c = splitter * dex;
-//   ahi = c - (c - dex);
-//   alo = dex - ahi;
-//   c = splitter * bey;
-//   bhi = c - (c - bey);
-//   blo = bey - bhi;
-//   t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo);
-//   _i = s0 - t0;
-//   bvirt = s0 - _i;
-//   bd[0] = s0 - (_i + bvirt) + (bvirt - t0);
-//   _j = s1 + _i;
-//   bvirt = _j - s1;
-//   _0 = s1 - (_j - bvirt) + (_i - bvirt);
-//   _i = _0 - t1;
-//   bvirt = _0 - _i;
-//   bd[1] = _0 - (_i + bvirt) + (bvirt - t1);
-//   bd3 = _j + _i;
-//   bvirt = bd3 - _j;
-//   bd[2] = _j - (bd3 - bvirt) + (_i - bvirt);
-//   bd[3] = bd3;
+  let det = estimate(finlen, fin);
+  let errbound = isperrboundB * permanent;
+  if (det >= errbound || -det >= errbound) {
+    return det;
+  }
 
-//   const finlen = sum(
-//     sum(
-//       negate(liftadapt(bc, cd, bd, dez, bez, -cez, aex, aey, aez, adet), adet),
-//       adet,
-//       liftadapt(cd, da, ac, aez, cez, dez, bex, bey, bez, bdet),
-//       bdet,
-//       abdet,
-//     ),
-//     abdet,
-//     sum(
-//       negate(liftadapt(da, ab, bd, bez, dez, aez, cex, cey, cez, cdet), cdet),
-//       cdet,
-//       liftadapt(ab, bc, ac, cez, aez, -bez, dex, dey, dez, ddet),
-//       ddet,
-//       cddet,
-//     ),
-//     cddet,
-//     fin,
-//   );
+  bvirt = ax - aex;
+  const aextail = ax - (aex + bvirt) + (bvirt - ex);
+  bvirt = ay - aey;
+  const aeytail = ay - (aey + bvirt) + (bvirt - ey);
+  bvirt = az - aez;
+  const aeztail = az - (aez + bvirt) + (bvirt - ez);
+  bvirt = bx - bex;
+  const bextail = bx - (bex + bvirt) + (bvirt - ex);
+  bvirt = by - bey;
+  const beytail = by - (bey + bvirt) + (bvirt - ey);
+  bvirt = bz - bez;
+  const beztail = bz - (bez + bvirt) + (bvirt - ez);
+  bvirt = cx - cex;
+  const cextail = cx - (cex + bvirt) + (bvirt - ex);
+  bvirt = cy - cey;
+  const ceytail = cy - (cey + bvirt) + (bvirt - ey);
+  bvirt = cz - cez;
+  const ceztail = cz - (cez + bvirt) + (bvirt - ez);
+  bvirt = dx - dex;
+  const dextail = dx - (dex + bvirt) + (bvirt - ex);
+  bvirt = dy - dey;
+  const deytail = dy - (dey + bvirt) + (bvirt - ey);
+  bvirt = dz - dez;
+  const deztail = dz - (dez + bvirt) + (bvirt - ez);
+  if (
+    aextail === 0 &&
+    aeytail === 0 &&
+    aeztail === 0 &&
+    bextail === 0 &&
+    beytail === 0 &&
+    beztail === 0 &&
+    cextail === 0 &&
+    ceytail === 0 &&
+    ceztail === 0 &&
+    dextail === 0 &&
+    deytail === 0 &&
+    deztail === 0
+  ) {
+    return det;
+  }
 
-//   let det = estimate(finlen, fin);
-//   let errbound = isperrboundB * permanent;
-//   if (det >= errbound || -det >= errbound) {
-//     return det;
-//   }
+  errbound = isperrboundC * permanent + resulterrbound * Math.abs(det);
 
-//   bvirt = ax - aex;
-//   aextail = ax - (aex + bvirt) + (bvirt - ex);
-//   bvirt = ay - aey;
-//   aeytail = ay - (aey + bvirt) + (bvirt - ey);
-//   bvirt = az - aez;
-//   aeztail = az - (aez + bvirt) + (bvirt - ez);
-//   bvirt = bx - bex;
-//   bextail = bx - (bex + bvirt) + (bvirt - ex);
-//   bvirt = by - bey;
-//   beytail = by - (bey + bvirt) + (bvirt - ey);
-//   bvirt = bz - bez;
-//   beztail = bz - (bez + bvirt) + (bvirt - ez);
-//   bvirt = cx - cex;
-//   cextail = cx - (cex + bvirt) + (bvirt - ex);
-//   bvirt = cy - cey;
-//   ceytail = cy - (cey + bvirt) + (bvirt - ey);
-//   bvirt = cz - cez;
-//   ceztail = cz - (cez + bvirt) + (bvirt - ez);
-//   bvirt = dx - dex;
-//   dextail = dx - (dex + bvirt) + (bvirt - ex);
-//   bvirt = dy - dey;
-//   deytail = dy - (dey + bvirt) + (bvirt - ey);
-//   bvirt = dz - dez;
-//   deztail = dz - (dez + bvirt) + (bvirt - ez);
-//   if (
-//     aextail === 0 &&
-//     aeytail === 0 &&
-//     aeztail === 0 &&
-//     bextail === 0 &&
-//     beytail === 0 &&
-//     beztail === 0 &&
-//     cextail === 0 &&
-//     ceytail === 0 &&
-//     ceztail === 0 &&
-//     dextail === 0 &&
-//     deytail === 0 &&
-//     deztail === 0
-//   ) {
-//     return det;
-//   }
+  const abeps = aex * beytail + bey * aextail - (aey * bextail + bex * aeytail);
+  const bceps = bex * ceytail + cey * bextail - (bey * cextail + cex * beytail);
+  const cdeps = cex * deytail + dey * cextail - (cey * dextail + dex * ceytail);
+  const daeps = dex * aeytail + aey * dextail - (dey * aextail + aex * deytail);
+  const aceps = aex * ceytail + cey * aextail - (aey * cextail + cex * aeytail);
+  const bdeps = bex * deytail + dey * bextail - (bey * dextail + dex * beytail);
+  det +=
+    (bex * bex + bey * bey + bez * bez) *
+      (cez * daeps + dez * aceps + aez * cdeps + (ceztail * da3 + deztail * ac3 + aeztail * cd3)) +
+    (dex * dex + dey * dey + dez * dez) *
+      (aez * bceps - bez * aceps + cez * abeps + (aeztail * bc3 - beztail * ac3 + ceztail * ab3)) -
+    ((aex * aex + aey * aey + aez * aez) *
+      (bez * cdeps - cez * bdeps + dez * bceps + (beztail * cd3 - ceztail * bd3 + deztail * bc3)) +
+      (cex * cex + cey * cey + cez * cez) *
+        (dez * abeps +
+          aez * bdeps +
+          bez * daeps +
+          (deztail * ab3 + aeztail * bd3 + beztail * da3))) +
+    2 *
+      ((bex * bextail + bey * beytail + bez * beztail) * (cez * da3 + dez * ac3 + aez * cd3) +
+        (dex * dextail + dey * deytail + dez * deztail) * (aez * bc3 - bez * ac3 + cez * ab3) -
+        ((aex * aextail + aey * aeytail + aez * aeztail) * (bez * cd3 - cez * bd3 + dez * bc3) +
+          (cex * cextail + cey * ceytail + cez * ceztail) * (dez * ab3 + aez * bd3 + bez * da3)));
 
-//   errbound = isperrboundC * permanent + resulterrbound * Math.abs(det);
+  if (det >= errbound || -det >= errbound) return det;
 
-//   const abeps = aex * beytail + bey * aextail - (aey * bextail + bex * aeytail);
-//   const bceps = bex * ceytail + cey * bextail - (bey * cextail + cex * beytail);
-//   const cdeps = cex * deytail + dey * cextail - (cey * dextail + dex * ceytail);
-//   const daeps = dex * aeytail + aey * dextail - (dey * aextail + aex * deytail);
-//   const aceps = aex * ceytail + cey * aextail - (aey * cextail + cex * aeytail);
-//   const bdeps = bex * deytail + dey * bextail - (bey * dextail + dex * beytail);
-//   det +=
-//     (bex * bex + bey * bey + bez * bez) *
-//       (cez * daeps + dez * aceps + aez * cdeps + (ceztail * da3 + deztail * ac3 + aeztail * cd3)) +
-//     (dex * dex + dey * dey + dez * dez) *
-//       (aez * bceps - bez * aceps + cez * abeps + (aeztail * bc3 - beztail * ac3 + ceztail * ab3)) -
-//     ((aex * aex + aey * aey + aez * aez) *
-//       (bez * cdeps - cez * bdeps + dez * bceps + (beztail * cd3 - ceztail * bd3 + deztail * bc3)) +
-//       (cex * cex + cey * cey + cez * cez) *
-//         (dez * abeps +
-//           aez * bdeps +
-//           bez * daeps +
-//           (deztail * ab3 + aeztail * bd3 + beztail * da3))) +
-//     2 *
-//       ((bex * bextail + bey * beytail + bez * beztail) * (cez * da3 + dez * ac3 + aez * cd3) +
-//         (dex * dextail + dey * deytail + dez * deztail) * (aez * bc3 - bez * ac3 + cez * ab3) -
-//         ((aex * aextail + aey * aeytail + aez * aeztail) * (bez * cd3 - cez * bd3 + dez * bc3) +
-//           (cex * cextail + cey * ceytail + cez * ceztail) * (dez * ab3 + aez * bd3 + bez * da3)));
+  return insphereExact(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez);
+}
 
-//   if (det >= errbound || -det >= errbound) {
-//     return det;
-//   }
+/**
+ * Get the orientation of a tetrahedron querying against a sphere
+ * @param ax - x coordinate of first point
+ * @param ay - y coordinate of first point
+ * @param az - z coordinate of first point
+ * @param bx - x coordinate of second point
+ * @param by - y coordinate of second point
+ * @param bz - z coordinate of second point
+ * @param cx - x coordinate of origin point to create the abcd plane
+ * @param cy - y coordinate of origin point to create the abcd plane
+ * @param cz - z coordinate of origin point to create the abcd plane
+ * @param dx - x coordinate of second origin point to create the abcd plane
+ * @param dy - y coordinate of second origin point to create the abcd plane
+ * @param dz - z coordinate of second origin point to create the abcd plane
+ * @param ex - x coordinate of compare point
+ * @param ey - y coordinate of compare point
+ * @param ez - z coordinate of compare point
+ * @returns - a positive value if the point-plane of a-b-c-d via e occur in counterclockwise order
+ * (d lies to the left of the directed line defined by points a and b).
+ * - Returns a negative value if they occur in clockwise order (d lies to the right of the directed line ab).
+ * - Returns zero if they are collinear.
+ */
+export function insphere(
+  ax: number,
+  ay: number,
+  az: number,
+  bx: number,
+  by: number,
+  bz: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  dx: number,
+  dy: number,
+  dz: number,
+  ex: number,
+  ey: number,
+  ez: number,
+): number {
+  const aex = ax - ex;
+  const bex = bx - ex;
+  const cex = cx - ex;
+  const dex = dx - ex;
+  const aey = ay - ey;
+  const bey = by - ey;
+  const cey = cy - ey;
+  const dey = dy - ey;
+  const aez = az - ez;
+  const bez = bz - ez;
+  const cez = cz - ez;
+  const dez = dz - ez;
 
-//   return insphereexact(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez);
-// }
+  const aexbey = aex * bey;
+  const bexaey = bex * aey;
+  const ab = aexbey - bexaey;
+  const bexcey = bex * cey;
+  const cexbey = cex * bey;
+  const bc = bexcey - cexbey;
+  const cexdey = cex * dey;
+  const dexcey = dex * cey;
+  const cd = cexdey - dexcey;
+  const dexaey = dex * aey;
+  const aexdey = aex * dey;
+  const da = dexaey - aexdey;
+  const aexcey = aex * cey;
+  const cexaey = cex * aey;
+  const ac = aexcey - cexaey;
+  const bexdey = bex * dey;
+  const dexbey = dex * bey;
+  const bd = bexdey - dexbey;
 
-// /**
-//  * @param ax
-//  * @param ay
-//  * @param az
-//  * @param bx
-//  * @param by
-//  * @param bz
-//  * @param cx
-//  * @param cy
-//  * @param cz
-//  * @param dx
-//  * @param dy
-//  * @param dz
-//  * @param ex
-//  * @param ey
-//  * @param ez
-//  */
-// export function insphere(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez) {
-//   const aex = ax - ex;
-//   const bex = bx - ex;
-//   const cex = cx - ex;
-//   const dex = dx - ex;
-//   const aey = ay - ey;
-//   const bey = by - ey;
-//   const cey = cy - ey;
-//   const dey = dy - ey;
-//   const aez = az - ez;
-//   const bez = bz - ez;
-//   const cez = cz - ez;
-//   const dez = dz - ez;
+  const alift = aex * aex + aey * aey + aez * aez;
+  const blift = bex * bex + bey * bey + bez * bez;
+  const clift = cex * cex + cey * cey + cez * cez;
+  const dlift = dex * dex + dey * dey + dez * dez;
 
-//   const aexbey = aex * bey;
-//   const bexaey = bex * aey;
-//   const ab = aexbey - bexaey;
-//   const bexcey = bex * cey;
-//   const cexbey = cex * bey;
-//   const bc = bexcey - cexbey;
-//   const cexdey = cex * dey;
-//   const dexcey = dex * cey;
-//   const cd = cexdey - dexcey;
-//   const dexaey = dex * aey;
-//   const aexdey = aex * dey;
-//   const da = dexaey - aexdey;
-//   const aexcey = aex * cey;
-//   const cexaey = cex * aey;
-//   const ac = aexcey - cexaey;
-//   const bexdey = bex * dey;
-//   const dexbey = dex * bey;
-//   const bd = bexdey - dexbey;
+  const det =
+    clift * (dez * ab + aez * bd + bez * da) -
+    dlift * (aez * bc - bez * ac + cez * ab) +
+    (alift * (bez * cd - cez * bd + dez * bc) - blift * (cez * da + dez * ac + aez * cd));
 
-//   const alift = aex * aex + aey * aey + aez * aez;
-//   const blift = bex * bex + bey * bey + bez * bez;
-//   const clift = cex * cex + cey * cey + cez * cez;
-//   const dlift = dex * dex + dey * dey + dez * dez;
+  const aezplus = Math.abs(aez);
+  const bezplus = Math.abs(bez);
+  const cezplus = Math.abs(cez);
+  const dezplus = Math.abs(dez);
+  const aexbeyplus = Math.abs(aexbey) + Math.abs(bexaey);
+  const bexceyplus = Math.abs(bexcey) + Math.abs(cexbey);
+  const cexdeyplus = Math.abs(cexdey) + Math.abs(dexcey);
+  const dexaeyplus = Math.abs(dexaey) + Math.abs(aexdey);
+  const aexceyplus = Math.abs(aexcey) + Math.abs(cexaey);
+  const bexdeyplus = Math.abs(bexdey) + Math.abs(dexbey);
+  const permanent =
+    (cexdeyplus * bezplus + bexdeyplus * cezplus + bexceyplus * dezplus) * alift +
+    (dexaeyplus * cezplus + aexceyplus * dezplus + cexdeyplus * aezplus) * blift +
+    (aexbeyplus * dezplus + bexdeyplus * aezplus + dexaeyplus * bezplus) * clift +
+    (bexceyplus * aezplus + aexceyplus * bezplus + aexbeyplus * cezplus) * dlift;
 
-//   const det =
-//     clift * (dez * ab + aez * bd + bez * da) -
-//     dlift * (aez * bc - bez * ac + cez * ab) +
-//     (alift * (bez * cd - cez * bd + dez * bc) - blift * (cez * da + dez * ac + aez * cd));
+  const errbound = isperrboundA * permanent;
+  if (det > errbound || -det > errbound) {
+    return det;
+  }
+  return -insphereAdapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez, permanent);
+}
 
-//   const aezplus = Math.abs(aez);
-//   const bezplus = Math.abs(bez);
-//   const cezplus = Math.abs(cez);
-//   const dezplus = Math.abs(dez);
-//   const aexbeyplus = Math.abs(aexbey) + Math.abs(bexaey);
-//   const bexceyplus = Math.abs(bexcey) + Math.abs(cexbey);
-//   const cexdeyplus = Math.abs(cexdey) + Math.abs(dexcey);
-//   const dexaeyplus = Math.abs(dexaey) + Math.abs(aexdey);
-//   const aexceyplus = Math.abs(aexcey) + Math.abs(cexaey);
-//   const bexdeyplus = Math.abs(bexdey) + Math.abs(dexbey);
-//   const permanent =
-//     (cexdeyplus * bezplus + bexdeyplus * cezplus + bexceyplus * dezplus) * alift +
-//     (dexaeyplus * cezplus + aexceyplus * dezplus + cexdeyplus * aezplus) * blift +
-//     (aexbeyplus * dezplus + bexdeyplus * aezplus + dexaeyplus * bezplus) * clift +
-//     (bexceyplus * aezplus + aexceyplus * bezplus + aexbeyplus * cezplus) * dlift;
+/**
+ * Get the orientation of a tetrahedron using a fast method that uses the volume of the tetrahedron
+ * @param pax - x coordinate of first point
+ * @param pay - y coordinate of first point
+ * @param paz - z coordinate of first point
+ * @param pbx - x coordinate of second point
+ * @param pby - y coordinate of second point
+ * @param pbz - z coordinate of second point
+ * @param pcx - x coordinate of origin point to create the abcd plane
+ * @param pcy - y coordinate of origin point to create the abcd plane
+ * @param pcz - z coordinate of origin point to create the abcd plane
+ * @param pdx - x coordinate of second origin point to create the abcd plane
+ * @param pdy - y coordinate of second origin point to create the abcd plane
+ * @param pdz - z coordinate of second origin point to create the abcd plane
+ * @param pex - x coordinate of compare point
+ * @param pey - y coordinate of compare point
+ * @param pez - z coordinate of compare point
+ * @returns - a positive value if the point-plane of a-b-c via d occur in counterclockwise order
+ * (c lies to the left of the directed line defined by points a and b).
+ * - Returns a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
+ * - Returns zero if they are collinear.
+ */
+export function inspherefast(
+  pax: number,
+  pay: number,
+  paz: number,
+  pbx: number,
+  pby: number,
+  pbz: number,
+  pcx: number,
+  pcy: number,
+  pcz: number,
+  pdx: number,
+  pdy: number,
+  pdz: number,
+  pex: number,
+  pey: number,
+  pez: number,
+): number {
+  const aex = pax - pex;
+  const bex = pbx - pex;
+  const cex = pcx - pex;
+  const dex = pdx - pex;
+  const aey = pay - pey;
+  const bey = pby - pey;
+  const cey = pcy - pey;
+  const dey = pdy - pey;
+  const aez = paz - pez;
+  const bez = pbz - pez;
+  const cez = pcz - pez;
+  const dez = pdz - pez;
 
-//   const errbound = isperrboundA * permanent;
-//   if (det > errbound || -det > errbound) {
-//     return det;
-//   }
-//   return -insphereadapt(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez, permanent);
-// }
+  const ab = aex * bey - bex * aey;
+  const bc = bex * cey - cex * bey;
+  const cd = cex * dey - dex * cey;
+  const da = dex * aey - aex * dey;
+  const ac = aex * cey - cex * aey;
+  const bd = bex * dey - dex * bey;
 
-// /**
-//  * @param pax
-//  * @param pay
-//  * @param paz
-//  * @param pbx
-//  * @param pby
-//  * @param pbz
-//  * @param pcx
-//  * @param pcy
-//  * @param pcz
-//  * @param pdx
-//  * @param pdy
-//  * @param pdz
-//  * @param pex
-//  * @param pey
-//  * @param pez
-//  */
-// export function inspherefast(
-//   pax,
-//   pay,
-//   paz,
-//   pbx,
-//   pby,
-//   pbz,
-//   pcx,
-//   pcy,
-//   pcz,
-//   pdx,
-//   pdy,
-//   pdz,
-//   pex,
-//   pey,
-//   pez,
-// ) {
-//   const aex = pax - pex;
-//   const bex = pbx - pex;
-//   const cex = pcx - pex;
-//   const dex = pdx - pex;
-//   const aey = pay - pey;
-//   const bey = pby - pey;
-//   const cey = pcy - pey;
-//   const dey = pdy - pey;
-//   const aez = paz - pez;
-//   const bez = pbz - pez;
-//   const cez = pcz - pez;
-//   const dez = pdz - pez;
+  const abc = aez * bc - bez * ac + cez * ab;
+  const bcd = bez * cd - cez * bd + dez * bc;
+  const cda = cez * da + dez * ac + aez * cd;
+  const dab = dez * ab + aez * bd + bez * da;
 
-//   const ab = aex * bey - bex * aey;
-//   const bc = bex * cey - cex * bey;
-//   const cd = cex * dey - dex * cey;
-//   const da = dex * aey - aex * dey;
-//   const ac = aex * cey - cex * aey;
-//   const bd = bex * dey - dex * bey;
+  const alift = aex * aex + aey * aey + aez * aez;
+  const blift = bex * bex + bey * bey + bez * bez;
+  const clift = cex * cex + cey * cey + cez * cez;
+  const dlift = dex * dex + dey * dey + dez * dez;
 
-//   const abc = aez * bc - bez * ac + cez * ab;
-//   const bcd = bez * cd - cez * bd + dez * bc;
-//   const cda = cez * da + dez * ac + aez * cd;
-//   const dab = dez * ab + aez * bd + bez * da;
-
-//   const alift = aex * aex + aey * aey + aez * aez;
-//   const blift = bex * bex + bey * bey + bez * bez;
-//   const clift = cex * cex + cey * cey + cez * cez;
-//   const dlift = dex * dex + dey * dey + dez * dez;
-
-//   return clift * dab - dlift * abc + (alift * bcd - blift * cda);
-// }
+  return clift * dab - dlift * abc + (alift * bcd - blift * cda);
+}

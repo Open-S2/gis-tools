@@ -7,13 +7,12 @@ pub mod lanczos;
 /// Nearest Interpolation tools
 pub mod nearest;
 
+use crate::readers::{gamma_to_linear, RGBA};
 pub use average::*;
 pub use idw::*;
 pub use lanczos::*;
 pub use nearest::*;
-use s2json::MValueCompatible;
-
-use crate::readers::{gamma_to_linear, RGBA};
+use s2json::{MValueCompatible, VectorPoint};
 
 /// Interpolation method
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -156,6 +155,8 @@ fn get_channel_m(p: &VectorPoint, channel: RgbaChannel) -> f64 {
 #[cfg(test)]
 mod tests {
     use std::{vec, vec::Vec};
+
+    use s2json::MValue;
 
     use super::*;
 

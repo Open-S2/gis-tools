@@ -1,12 +1,12 @@
 import { estimate, predSum, resulterrbound, splitter, vec } from './util';
 
+import type { VectorPoint } from 's2json-spec';
+
 const ccwerrboundA = 3.3306690738754716e-16; // (3 + 16 * epsilon) * epsilon;
 const ccwerrboundB = 2.2204460492503146e-16; // (2 + 12 * epsilon) * epsilon;
 const ccwerrboundC = 1.1093356479670487e-31; // (9 + 64 * epsilon) * epsilon * epsilon;
 
-/**
- * Constants for orient2d
- */
+/** Constants for orient2d */
 export interface Orient2dConstants {
   B: Float64Array;
   C1: Float64Array;
@@ -44,7 +44,7 @@ function buildConstants(): Orient2dConstants {
  * - Returns a positive value if they occur in clockwise order (c lies to the right of the directed line ab).
  * - Returns zero if they are collinear.
  */
-function orient2dadapt(
+function orient2dAdapt(
   ax: number,
   ay: number,
   bx: number,
@@ -212,6 +212,21 @@ function orient2dadapt(
 }
 
 /**
+ * Check the orientation of c relative to the line through a and b
+ * @param a - first point
+ * @param b - second point
+ * @param c - comparison point
+ * @returns - a positive value if the points a, b, and c occur in counterclockwise order
+ * (c lies to the left of the directed line defined by points a and b).
+ * - Returns a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
+ * - Returns zero if they are collinear.
+ */
+export function orient2dVector(a: VectorPoint, b: VectorPoint, c: VectorPoint): number {
+  return orient2d(a.x, a.y, b.x, b.y, c.x, c.y);
+}
+
+/**
+ * Check the orientation of c relative to the line through a and b
  * @param ax - x coordinate of first point
  * @param ay - y coordinate of first point
  * @param bx - x coordinate of second point
@@ -239,7 +254,20 @@ export function orient2d(
   const detsum = abs(detleft + detright);
   if (abs(det) >= ccwerrboundA * detsum) return det;
 
-  return -orient2dadapt(ax, ay, bx, by, cx, cy, detsum);
+  return -orient2dAdapt(ax, ay, bx, by, cx, cy, detsum);
+}
+
+/**
+ * @param a - first point
+ * @param b - second point
+ * @param c - comparison point
+ * @returns - a positive value if the points a, b, and c occur in counterclockwise order
+ * (c lies to the left of the directed line defined by points a and b).
+ * - Returns a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
+ * - Returns zero if they are collinear.
+ */
+export function orient2dfastVector(a: VectorPoint, b: VectorPoint, c: VectorPoint): number {
+  return orient2dfast(a.x, a.y, b.x, b.y, c.x, c.y);
 }
 
 /**

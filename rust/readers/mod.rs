@@ -17,6 +17,7 @@ pub mod pmtiles;
 /// Shapefile Reader
 pub mod shapefile;
 
+use alloc::{string::String, vec::Vec};
 pub use buffer::*;
 #[cfg(feature = "std")]
 pub use file::*;
@@ -24,10 +25,8 @@ pub use image::*;
 #[cfg(feature = "std")]
 pub use mmap::*;
 pub use pmtiles::*;
-pub use shapefile::*;
-
-use alloc::{string::String, vec::Vec};
 use s2json::MValueCompatible;
+pub use shapefile::*;
 
 /// Reader interface. Implemented to read data from either a buffer or a filesystem
 pub trait Reader {

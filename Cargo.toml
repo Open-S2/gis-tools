@@ -51,7 +51,7 @@ std = ["memmap2", "flate2", "brotli", "ruzstd"]
 
 [dependencies]
 pbf = "1"
-s2json = "1"
+s2json = "1.21.0"
 s2-tilejson = "1"
 libm = "0.2"
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }

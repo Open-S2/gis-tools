@@ -2,14 +2,13 @@ use crate::{
     geometry::{LonLat, S2Point},
     space::EARTH_RADIUS,
 };
-
-use s2json::MValueCompatible;
-
+use core::{
+    cmp::Ordering,
+    f64::consts::PI,
+    ops::{Add, Deref, Div, Mul, Neg, Rem, RemAssign, Sub},
+};
 use libm::{fabs, fmod};
-
-use core::f64::consts::PI;
-use core::ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub};
-use core::{cmp::Ordering, ops::Deref};
+use s2json::MValueCompatible;
 
 /// This class represents a one-dimensional angle (as opposed to a
 /// two-dimensional solid angle).  It has methods for converting angles to
