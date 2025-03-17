@@ -16,7 +16,6 @@ use libm::{atan, round, sqrt, tan};
 //
 //
 ////////////////////////// S2Cell Decomposition /////////////////////////
-//
 // The following methods define the cube-to-sphere projection used by
 // the S2Cell decomposition.
 //

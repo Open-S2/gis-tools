@@ -1,6 +1,5 @@
-use pbf::bit_cast::BitCast;
-
 use alloc::vec::Vec;
+use pbf::bit_cast::BitCast;
 
 const MAX_VARINT_LENGTH: usize = u64::BITS as usize * 8 / 7 + 1;
 const BIT_SHIFT: [u64; 10] = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63];

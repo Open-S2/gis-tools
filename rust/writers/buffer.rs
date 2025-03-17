@@ -1,6 +1,5 @@
-use alloc::{borrow::ToOwned, vec::Vec};
-
 use super::Writer;
+use alloc::{borrow::ToOwned, vec::Vec};
 
 /// Buffer writer is used on smaller datasets that are easy to write in memory. Faster then the Filesystem
 #[derive(Debug, Default)]

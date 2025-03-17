@@ -40,12 +40,10 @@ pub struct Definition {
     cpg: Option<String>,
 }
 
-/**
- * # Read a Shapefile from a Gzip folder.
- *
- * ## Description
- * Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
- */
+/// # Read a Shapefile from a Gzip folder.
+///
+/// ## Description
+/// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
 pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     input: &[u8],
     _defs: Option<Vec<ProjectionTransformDefinition>>,

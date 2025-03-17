@@ -1,6 +1,4 @@
-/**
- *
- */
+/** PJI output units */
 export enum pjIoUnits {
   PJ_IO_UNITS_WHATEVER = 0 /* Doesn't matter (or depends on pipeline neighbours) */,
   PJ_IO_UNITS_CLASSIC = 1 /* Scaled meters (right), projected system */,
@@ -10,7 +8,7 @@ export enum pjIoUnits {
   PJ_IO_UNITS_DEGREES = 5 /* Degrees */,
 }
 
-/** \brief Object category. */
+/** brief Object category. */
 export enum PJ_CATEGORY {
   PJ_CATEGORY_ELLIPSOID,
   PJ_CATEGORY_PRIME_MERIDIAN,
@@ -20,9 +18,7 @@ export enum PJ_CATEGORY {
   PJ_CATEGORY_DATUM_ENSEMBLE,
 }
 
-/**
- *
- */
+/** brief Object type. */
 export enum PJ_TYPE {
   PJ_TYPE_UNKNOWN,
 

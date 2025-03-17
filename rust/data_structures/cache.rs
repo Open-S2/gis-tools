@@ -1,5 +1,4 @@
-use alloc::collections::BTreeMap;
-use alloc::vec::Vec;
+use alloc::{collections::BTreeMap, vec::Vec};
 
 /// Function to be called when a value is deleted from the cache
 pub type CacheDeleteFunction<K, V> = fn(&K, &V);
@@ -105,8 +104,10 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::borrow::ToOwned;
-    use alloc::string::{String, ToString};
+    use alloc::{
+        borrow::ToOwned,
+        string::{String, ToString},
+    };
     use std::println;
 
     #[test]

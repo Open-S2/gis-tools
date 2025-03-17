@@ -1,10 +1,10 @@
-use std::fs::{File, OpenOptions};
-use std::io::{Read, Seek, SeekFrom, Write};
-use std::path::Path;
-
-use alloc::vec::Vec;
-
 use super::Writer;
+use alloc::vec::Vec;
+use std::{
+    fs::{File, OpenOptions},
+    io::{Read, Seek, SeekFrom, Write},
+    path::Path,
+};
 
 /// A writer that operates on the filesystem
 #[derive(Debug)]

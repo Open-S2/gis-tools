@@ -1,3 +1,6 @@
+use super::{
+    shapefile_from_gzip as shapefile_from_gzip_local, DataBaseFile, Definition, ShapeFileReader,
+};
 use crate::{
     proj::ProjectionTransformDefinition,
     readers::{BufferReader, FileReader},
@@ -10,10 +13,6 @@ use std::{
     path::Path,
     string::{String, ToString},
     vec::Vec,
-};
-
-use super::{
-    shapefile_from_gzip as shapefile_from_gzip_local, DataBaseFile, Definition, ShapeFileReader,
 };
 
 /// # Build a Shapefile from an input path
@@ -86,12 +85,10 @@ pub fn shapefile_from_definition<M: Clone, P: MValueCompatible, D: MValueCompati
     ShapeFileReader::new(FileReader::from(shp), database_file, transform)
 }
 
-/**
- * # Read a Shapefile from a Gzip folder.
- *
- * ## Description
- * Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
- */
+/// # Read a Shapefile from a Gzip folder.
+///
+/// ## Description
+/// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
 pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     input: &str,
     _defs: Option<Vec<ProjectionTransformDefinition>>,

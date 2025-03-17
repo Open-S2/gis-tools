@@ -1,5 +1,8 @@
 use crate::readers::Reader;
-use alloc::{string::String, string::ToString, vec::Vec};
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
 
 /// A basic buffer reader for reading data from a buffer
 #[derive(Default, Debug)]
@@ -166,8 +169,7 @@ impl From<Vec<u8>> for BufferReader {
 mod tests {
     use super::*;
     use alloc::vec::Vec;
-    use std::fs;
-    use std::path::PathBuf;
+    use std::{fs, path::PathBuf};
 
     #[test]
     fn test_buffer_reader() {

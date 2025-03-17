@@ -6,11 +6,10 @@ pub mod file;
 /// The (S2)PMTiles Writer
 pub mod pmtiles;
 
+use alloc::vec::Vec;
 pub use buffer::*;
 #[cfg(feature = "std")]
 pub use file::*;
-
-use alloc::vec::Vec;
 
 /// The defacto interface for all writers.
 pub trait Writer {

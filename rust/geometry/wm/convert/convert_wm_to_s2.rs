@@ -290,12 +290,10 @@ fn st_point_to_face<M: MValueCompatible>(
     }
 }
 
-/**
- * @param rot - rotation
- * @param s - input s
- * @param t - input t
- * @returns - new [s, t] after rotating
- */
+/// @param rot - rotation
+/// @param s - input s
+/// @param t - input t
+/// @returns - new [s, t] after rotating
 fn rotate(rot: Rotation, s: f64, t: f64) -> (f64, f64) {
     match rot {
         Rotation::_0 => (s, t),

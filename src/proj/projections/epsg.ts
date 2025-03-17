@@ -29905,7 +29905,7 @@ export const EPSG_5384 =
   'COORDINATEOPERATION["SIRGAS-ROU98 to WGS 84 (1)",VERSION["OGP-Ury"],SOURCECRS[GEOGCRS["SIRGAS-ROU98",DATUM["SIRGAS-ROU98",ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",7030]],ID["EPSG",1068]],CS[ellipsoidal,2,ID["EPSG",6422]],AXIS["Geodetic latitude (Lat)",north],AXIS["Geodetic longitude (Lon)",east],ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",5381]]],TARGETCRS[GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble", MEMBER["World Geodetic System 1984 (Transit)", ID["EPSG",1166]], MEMBER["World Geodetic System 1984 (G730)", ID["EPSG",1152]], MEMBER["World Geodetic System 1984 (G873)", ID["EPSG",1153]], MEMBER["World Geodetic System 1984 (G1150)", ID["EPSG",1154]], MEMBER["World Geodetic System 1984 (G1674)", ID["EPSG",1155]], MEMBER["World Geodetic System 1984 (G1762)", ID["EPSG",1156]], MEMBER["World Geodetic System 1984 (G2139)", ID["EPSG",1309]], MEMBER["World Geodetic System 1984 (G2296)", ID["EPSG",1383]], ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",7030]], ENSEMBLEACCURACY[2],ID["EPSG",6326]],CS[ellipsoidal,2,ID["EPSG",6422]],AXIS["Geodetic latitude (Lat)",north],AXIS["Geodetic longitude (Lon)",east],ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",4326]]],METHOD["Geocentric translations (geog2D domain)",ID["EPSG",9603]],PARAMETER["X-axis translation",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8605]],PARAMETER["Y-axis translation",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8606]],PARAMETER["Z-axis translation",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8607]],OPERATIONACCURACY[1],ID["EPSG",5384]]';
 
 /**
- * # DKMSL depth 
+ * # DKMSL depth
  * - **Type**: VERTCRS
  * - **Datum**: N/A
  */
@@ -37205,8 +37205,7 @@ export const EPSG_3234 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_6358 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_6358 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # ETRS89 / UTM zone 31N (N-zE)
@@ -64317,8 +64316,7 @@ export const EPSG_7362 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_8051 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_8051 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # RT90 + RH70 height
@@ -65669,8 +65667,7 @@ export const EPSG_7360 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_8053 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_8053 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # Scoresbysund 1952 / Greenland zone 5 east
@@ -67997,8 +67994,7 @@ export const EPSG_22348 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_5614 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_5614 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # NAD83(2011) / Oregon Ochoco Summit zone (ft)

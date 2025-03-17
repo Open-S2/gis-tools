@@ -3,9 +3,8 @@ use crate::{
     readers::RGBA,
     tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
 };
-use s2json::{MValueCompatible, VectorPoint};
-
 use libm::pow;
+use s2json::{MValueCompatible, VectorPoint};
 
 /// # Inverse Distance Weighting Interpolation
 ///

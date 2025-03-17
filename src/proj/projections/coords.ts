@@ -11,9 +11,7 @@ export interface PJ_REGION_S {
   ur_lat: number; // F64
 }
 
-/**
- *
- */
+/** Area structure */
 export class PJ_AREA {
   /**
    * @param bbox_set - if true, the area is defined by a bounding box

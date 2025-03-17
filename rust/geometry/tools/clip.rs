@@ -32,11 +32,9 @@ impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D
     }
 }
 
-/**
- * @param tile - the tile to split
- * @param buffer - the buffer around the tile for lines and polygons
- * @returns - the tile's children split into 4 sub-tiles
- */
+/// @param tile - the tile to split
+/// @param buffer - the buffer around the tile for lines and polygons
+/// @returns - the tile's children split into 4 sub-tiles
 pub fn split_tile<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible>(
     tile: &mut Tile<M, P, D>,
     buffer: Option<f64>,
@@ -372,7 +370,7 @@ pub fn clip_line<M: MValueCompatible>(
     bbox: BBox3D,
     is_polygon: bool,
     offset: Option<f64>,
-    buffer: Option<f64>, // default for a full size tile. Assuming 1024 extent and a 64 point buffer
+    buffer: Option<f64>, /* default for a full size tile. Assuming 1024 extent and a 64 point buffer */
 ) -> Vec<ClipLineResultWithBBox<M>> {
     let offset = offset.unwrap_or(0.);
     let buffer = buffer.unwrap_or(0.0625);

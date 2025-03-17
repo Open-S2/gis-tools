@@ -66,9 +66,7 @@ import type { ProjectionTransform } from '../projections';
 //
 // Transformation pipeline manager
 
-/**
- *
- */
+/** Step of a transformation pipeline */
 export interface Step {
   // PJ *pj = nullptr;
   // bool omit_fwd = false;

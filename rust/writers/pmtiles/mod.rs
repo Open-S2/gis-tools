@@ -1,3 +1,4 @@
+use super::Writer;
 use crate::{
     readers::{
         PMDirectory, PMEntry, PMHeader, PMTilePos, PMTileType, S2PMEntries, S2PMHeader,
@@ -8,8 +9,6 @@ use crate::{
 use alloc::{vec, vec::Vec};
 use s2_tilejson::Metadata;
 use s2json::Face;
-
-use super::Writer;
 
 /// The result of an optimized directory computation
 #[derive(Debug, Clone, Default)]
