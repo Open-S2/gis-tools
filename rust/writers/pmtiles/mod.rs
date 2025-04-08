@@ -214,8 +214,8 @@ impl<W: Writer> PMTilesWriter<W> {
 
         // write header
         self.writer.write(&serialized_header, 0);
-        self.writer.write(&root_bytes, root_directory_offset as usize);
-        self.writer.write(&meta_buffer, metadata_offset as usize);
+        self.writer.write(&root_bytes, root_directory_offset);
+        self.writer.write(&meta_buffer, metadata_offset);
     }
 
     /// Finish writing by building the header with root and leaf directories
@@ -345,13 +345,13 @@ impl<W: Writer> PMTilesWriter<W> {
 
         // write header
         self.writer.write(&serialized_header, 0);
-        self.writer.write(&root_bytes, root_directory_offset as usize);
-        self.writer.write(&root_bytes1, root_directory_offset1 as usize);
-        self.writer.write(&root_bytes2, root_directory_offset2 as usize);
-        self.writer.write(&root_bytes3, root_directory_offset3 as usize);
-        self.writer.write(&root_bytes4, root_directory_offset4 as usize);
-        self.writer.write(&root_bytes5, root_directory_offset5 as usize);
-        self.writer.write(&meta_buffer, metadata_offset as usize);
+        self.writer.write(&root_bytes, root_directory_offset);
+        self.writer.write(&root_bytes1, root_directory_offset1);
+        self.writer.write(&root_bytes2, root_directory_offset2);
+        self.writer.write(&root_bytes3, root_directory_offset3);
+        self.writer.write(&root_bytes4, root_directory_offset4);
+        self.writer.write(&root_bytes5, root_directory_offset5);
+        self.writer.write(&meta_buffer, metadata_offset);
     }
 }
 

@@ -76,7 +76,7 @@ export function splitTile<
   let br: null | VectorFeatures<M, D, P>[] = null;
 
   for (const [name, { features }] of Object.entries(tile.layers)) {
-    const left = _clip<M, D, P>(features, scale, i - k1, i + k3, 0, buffer);
+    const left = _clip(features, scale, i - k1, i + k3, 0, buffer);
     const right = _clip(features, scale, i + k2, i + k4, 0, buffer);
 
     if (left !== null) {
@@ -400,13 +400,10 @@ function _clipLine<M extends MValue = Properties>(
   let firstEnter = false;
 
   for (let i = 0; i < last; i++) {
-    const { x: ax, y: ay, z: az, m: am } = geom[i];
-    const { x: bx, y: by, z: bz, m: bm } = geom[i + 1];
+    const { x: ax, y: ay, t: az, m: am } = geom[i];
+    const { x: bx, y: by, m: bm } = geom[i + 1];
     const a = axis === 0 ? ax : ay;
     const b = axis === 0 ? bx : by;
-    const azNU = az !== undefined;
-    const bzNU = bz !== undefined;
-    const z = azNU && bzNU ? (az + bz) / 2 : azNU ? az : bzNU ? bz : undefined;
     let entered = false;
     let exited = false;
     let intP: VectorPoint<M> | undefined;
@@ -415,19 +412,19 @@ function _clipLine<M extends MValue = Properties>(
     if (a < k1) {
       // ---|-->  | (line enters the clip region from the left)
       if (b > k1) {
-        intP = intersect(ax, ay, bx, by, k1, z, bm);
+        intP = intersect(ax, ay, bx, by, k1, bm);
         slice.push(intP);
         entered = true;
       }
     } else if (a > k2) {
       // |  <--|--- (line enters the clip region from the right)
       if (b < k2) {
-        intP = intersect(ax, ay, bx, by, k2, z, bm);
+        intP = intersect(ax, ay, bx, by, k2, bm);
         slice.push(intP);
         entered = true;
       }
     } else {
-      intP = { x: ax, y: ay, z: az, m: am };
+      intP = { x: ax, y: ay, t: az, m: am };
       slice.push(intP);
     }
 
@@ -443,13 +440,13 @@ function _clipLine<M extends MValue = Properties>(
     // EXIT CASES
     if (b < k1 && a >= k1) {
       // <--|---  | or <--|-----|--- (line exits the clip region on the left)
-      intP = intersect(ax, ay, bx, by, k1, z, bm ?? am);
+      intP = intersect(ax, ay, bx, by, k1, bm ?? am);
       slice.push(intP);
       exited = true;
     }
     if (b > k2 && a <= k2) {
       // |  ---|--> or ---|-----|--> (line exits the clip region on the right)
-      intP = intersect(ax, ay, bx, by, k2, z, bm ?? am);
+      intP = intersect(ax, ay, bx, by, k2, bm ?? am);
       slice.push(intP);
       exited = true;
     }
@@ -502,11 +499,10 @@ function intersectX<M extends MValue = Properties>(
   bx: number,
   by: number,
   x: number,
-  z?: number,
   m?: M,
 ): VectorPoint<M> {
   const t = (x - ax) / (bx - ax);
-  return { x, y: ay + (by - ay) * t, z, m, t: 1 };
+  return { x, y: ay + (by - ay) * t, m, t: 1 };
 }
 
 /**
@@ -525,11 +521,10 @@ function intersectY<M extends MValue = Properties>(
   bx: number,
   by: number,
   y: number,
-  z?: number,
   m?: M,
 ): VectorPoint<M> {
   const t = (y - ay) / (by - ay);
-  return { x: ax + (bx - ax) * t, y, z, m, t: 1 };
+  return { x: ax + (bx - ax) * t, y, m, t: 1 };
 }
 
 /**

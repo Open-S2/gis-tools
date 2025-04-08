@@ -2,6 +2,9 @@ import { compareIDs } from '../..';
 
 import type { S2CellId } from '../..';
 
+// TODO: has isn't correct because it doesn't search
+// TODO: switch to get and getIndex
+
 /** The kind of input required to store a vector for proper indexing */
 export interface VectorKey {
   cell: S2CellId;

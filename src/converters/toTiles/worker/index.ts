@@ -1,4 +1,4 @@
-declare let self: Worker;
+declare let self: DedicatedWorkerGlobalScope;
 
 import VectorTileWorker from './tileWorker';
 

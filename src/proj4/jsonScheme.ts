@@ -678,18 +678,6 @@ export interface DatumEnsemble {
 }
 
 /**
- * DeformationModel Interface
- *
- * Represents a deformation model associated with a geodetic CRS.
- */
-export interface DeformationModel {
-  /** The name of the deformation model. */
-  name: string;
-  /** An identifier for the deformation model. */
-  id?: Id;
-}
-
-/**
  * Ellipsoid Interface
  *
  * Represents an ellipsoid, a geometric figure used in geodetic reference frames.

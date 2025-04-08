@@ -1,4 +1,4 @@
-import { chordAngFromS2Points } from '../geometry/s1/chordAngle';
+import { K_AVG_ANGLE_SPAN, convert, idLevel, idRange } from '../geometry';
 import { PointIndex, PointShape, Tile } from '..';
 import {
   pointAddMut as addMut,
@@ -8,7 +8,6 @@ import {
   pointNormalize as normalize,
   pointToST as toST,
 } from '../geometry/s2/point';
-import { convert, idFromFacePosLevel, idGetVertices, idLevel, idRange } from '../geometry';
 
 import type { FeatureIterator } from '..';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle';
@@ -29,9 +28,6 @@ import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
 export type ClusterStore<M extends MValue = Properties> = VectorStoreConstructor<
   PointShape<Cluster<M>>
 >;
-
-/** The type of search to use */
-export type ClusterSearch = 'radial' | 'cell';
 
 /** Options for point clustering */
 export interface ClusterOptions<M extends MValue = Properties> {
@@ -102,6 +98,7 @@ export class PointCluster<M extends MValue = Properties> {
   radius: number;
   gridSize = 512; // a default is a 512x512 pixel tile
   indexes = new Map<number, PointIndex<Cluster<M>>>();
+  avgAngleSpan = K_AVG_ANGLE_SPAN();
 
   /**
    * @param data - if provided, the data to index
@@ -136,7 +133,7 @@ export class PointCluster<M extends MValue = Properties> {
    */
   insert(point: VectorPointM<M>): void {
     const { x, y, z, m } = point;
-    const maxzoomIndex = this.indexes.get(this.maxzoom);
+    const maxzoomIndex = this.indexes.get(this.maxzoom + 1);
     maxzoomIndex?.insert({ x, y, z, m: toCluster<M>(m, 1) });
   }
 
@@ -155,7 +152,7 @@ export class PointCluster<M extends MValue = Properties> {
    * @param data - any source of data like a feature collection or features themselves
    */
   insertFeature(data: JSONCollection<unknown, M, M>): void {
-    const features = convert(this.projection, data, undefined, undefined, undefined, true);
+    const features = convert(this.projection, data, undefined, true);
     for (const { face = 0, geometry, properties } of features) {
       const { type, coordinates } = geometry;
       if (type === 'Point') {
@@ -318,10 +315,11 @@ export class PointCluster<M extends MValue = Properties> {
    * @returns - the appropriate radius for the given zoom
    */
   #getLevelRadius(zoom: number): S1ChordAngle {
-    const multiplier = this.radius / this.gridSize;
-    const cell = idFromFacePosLevel(0, 0n, zoom);
-    const [lo, hi] = idGetVertices(cell);
-    const angle = chordAngFromS2Points(lo, hi);
-    return angle * multiplier;
+    const { min, floor, log2 } = Math;
+    const { gridSize, avgAngleSpan, radius } = this;
+    const zoomGridCellLevel = min(zoom + floor(log2(gridSize)), 30);
+    const angleSpan = avgAngleSpan.getValue(zoomGridCellLevel) / 2;
+
+    return angleSpan * radius;
   }
 }

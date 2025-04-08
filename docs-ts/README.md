@@ -38,7 +38,7 @@
 
 ### Data Structures
 
-| Main Modules             | Size                          | <img width="550" height="0"> Description                         |
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
 | [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |
@@ -46,6 +46,7 @@
 | [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
 | [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
 | [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
+| [splayTree]              | ![ST Badge][stBadge]          | Self balancing binary tree with O(log n) access                  |
 | [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
 
 [cache]: /docs-ts/dataStructures/cache.md
@@ -60,6 +61,8 @@
 [pifBadge]: /assets/badges/pointIndexFast-gzip-cover.svg
 [priorityQueue]: /docs-ts/dataStructures/priorityQueue.md
 [pqBadge]: /assets/badges/priorityQueue-gzip-cover.svg
+[splayTree]: /docs-ts/dataStructures/splayTree.md
+[stBadge]: /assets/badges/splayTree-gzip-cover.svg
 [tile]: /docs-ts/dataStructures/tile.md
 [tileBadge]: /assets/badges/dataTile-gzip-cover.svg
 

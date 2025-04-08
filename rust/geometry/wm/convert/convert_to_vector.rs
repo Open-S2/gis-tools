@@ -1,13 +1,13 @@
 use alloc::{vec, vec::Vec};
 use s2json::{
-    BBox3D, BaseGeometry, Geometry, LineStringMValues, MValueCompatible, MultiLineStringMValues,
-    MultiPolygonMValues, PointOrPoint3D, VectorGeometry, VectorPoint,
+    BBox3D, BaseGeometry, Geometry, LineStringMValues, MultiLineStringMValues, MultiPolygonMValues,
+    PointOrPoint3D, VectorGeometry, VectorPoint,
 };
 
 // TODO: Consider taking m-value data rather then clones
 
 /// Convert a GeoJSON Geometry to an Vector Geometry
-pub fn convert_geometry_to_vector<M: MValueCompatible>(
+pub fn convert_geometry_to_vector<M: Clone + Default>(
     geometry: &Geometry<M>,
     build_bbox: bool,
 ) -> VectorGeometry<M> {
@@ -64,7 +64,7 @@ pub fn convert_geometry_to_vector<M: MValueCompatible>(
     }
 }
 
-fn convert_point<M: MValueCompatible>(
+fn convert_point<M: Clone + Default>(
     point: PointOrPoint3D,
     m: Option<M>,
     bbox: &mut Option<BBox3D>,
@@ -76,7 +76,7 @@ fn convert_point<M: MValueCompatible>(
     new_point
 }
 
-fn to_vector_point<M: MValueCompatible, G: Copy, B>(
+fn to_vector_point<M: Clone + Default, G: Copy, B>(
     geo: &BaseGeometry<M, G, B>,
     bbox: &mut Option<BBox3D>,
 ) -> VectorPoint<M>
@@ -86,7 +86,7 @@ where
     convert_point(geo.coordinates.into(), geo.m_values.clone(), bbox)
 }
 
-fn to_vector_multipoint<M: MValueCompatible, G: Copy, B>(
+fn to_vector_multipoint<M: Clone + Default, G: Copy, B>(
     geo: &BaseGeometry<LineStringMValues<M>, Vec<G>, B>,
     bbox: &mut Option<BBox3D>,
 ) -> Vec<VectorPoint<M>>
@@ -102,7 +102,7 @@ where
         .collect()
 }
 
-fn to_vector_multilinestring<M: MValueCompatible, G: Copy, B>(
+fn to_vector_multilinestring<M: Clone + Default, G: Copy, B>(
     geo: &BaseGeometry<MultiLineStringMValues<M>, Vec<Vec<G>>, B>,
     bbox: &mut Option<BBox3D>,
 ) -> Vec<Vec<VectorPoint<M>>>
@@ -126,7 +126,7 @@ where
         .collect()
 }
 
-fn to_vector_multipolygon<M: MValueCompatible, G: Copy, B>(
+fn to_vector_multipolygon<M: Clone + Default, G: Copy, B>(
     geo: &BaseGeometry<MultiPolygonMValues<M>, Vec<Vec<Vec<G>>>, B>,
     bbox: &mut Option<BBox3D>,
 ) -> Vec<Vec<Vec<VectorPoint<M>>>>
@@ -187,7 +187,7 @@ mod tests {
             vector,
             VectorGeometry::new_point(
                 VectorPoint::new(1., 2., None, m_value),
-                Some(BBox3D::new(1., 2., 1., 2., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 1., 2., f64::MAX, f64::MIN))
             )
         );
     }
@@ -253,7 +253,7 @@ mod tests {
                         Some(MValue::from([("b".into(), (2_u64).into())]))
                     ),
                 ],
-                Some(BBox3D::new(1., 2., 3., 4., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 3., 4., f64::MAX, f64::MIN))
             )
         );
     }
@@ -341,7 +341,7 @@ mod tests {
                         Some(MValue::from([("b".into(), (2_u64).into())]))
                     ),
                 ],
-                Some(BBox3D::new(1., 2., 3., 4., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 3., 4., f64::MAX, f64::MIN))
             )
         );
     }
@@ -436,7 +436,7 @@ mod tests {
                         ),
                     ]
                 ],
-                Some(BBox3D::new(1., 2., 7., 8., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 7., 8., f64::MAX, f64::MIN))
             )
         );
     }
@@ -586,7 +586,7 @@ mod tests {
                         ),
                     ]
                 ],
-                Some(BBox3D::new(1., 2., 7., 8., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 7., 8., f64::MAX, f64::MIN))
             )
         );
     }
@@ -706,7 +706,7 @@ mod tests {
                         ),
                     ]
                 ]],
-                Some(BBox3D::new(1., 2., 7., 8., f64::INFINITY, -f64::INFINITY))
+                Some(BBox3D::new(1., 2., 7., 8., f64::MAX, f64::MIN))
             )
         );
     }

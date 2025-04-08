@@ -3,10 +3,11 @@ use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
 use core::{
     cmp::Ordering,
     fmt::Debug,
-    ops::{Add, Div, Mul, Neg, Rem, RemAssign, Sub},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign},
 };
 use libm::{atan2, fabs, sqrt};
-use s2json::{MValueCompatible, VectorPoint};
+use s2json::{GetXY, GetZ, VectorPoint};
+use serde::{Deserialize, Serialize};
 
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
 /// points are normalized to be unit length, but some methods do not require
@@ -14,7 +15,7 @@ use s2json::{MValueCompatible, VectorPoint};
 /// things, there are overloaded operators that make it convenient to write
 /// arithmetic expressions (e.g. (1-x)*p1 + x*p2).
 /// NOTE: asumes only f64 or greater is used.
-#[derive(Debug, Copy, Clone, Default, PartialEq)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[repr(C)]
 pub struct S2Point {
     /// The x component.
@@ -23,6 +24,19 @@ pub struct S2Point {
     pub y: f64,
     /// The z component.
     pub z: f64,
+}
+impl GetXY for S2Point {
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+}
+impl GetZ for S2Point {
+    fn z(&self) -> Option<f64> {
+        Some(self.z)
+    }
 }
 impl S2Point {
     /// Creates a new S2Point.
@@ -54,7 +68,7 @@ impl S2Point {
         atan2(self.cross(b).norm(), self.dot(b))
     }
 
-    /// Get the corss product of two XYZ Points
+    /// Get the cross product of two XYZ Points
     pub fn cross(&self, b: &Self) -> Self {
         Self::new(
             self.y * b.z - self.z * b.y,
@@ -158,14 +172,24 @@ impl S2Point {
         Self::from_face_uv(face, u, v)
     }
 }
-impl<M: MValueCompatible> From<&LonLat<M>> for S2Point {
+impl<M: Clone + Default> From<&LonLat<M>> for S2Point {
     fn from(lonlat: &LonLat<M>) -> Self {
         lonlat.to_point()
     }
 }
-impl<M: MValueCompatible> From<&VectorPoint<M>> for S2Point {
+impl<M: Clone + Default> From<&VectorPoint<M>> for S2Point {
     fn from(v: &VectorPoint<M>) -> Self {
         Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
+    }
+}
+impl<M: Clone + Default> From<&mut VectorPoint<M>> for S2Point {
+    fn from(v: &mut VectorPoint<M>) -> Self {
+        Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
+    }
+}
+impl<M: Clone + Default> From<&S2Point> for VectorPoint<M> {
+    fn from(p: &S2Point) -> Self {
+        VectorPoint::new_xyz(p.x, p.y, p.z, Some(M::default()))
     }
 }
 impl From<S2CellId> for S2Point {
@@ -180,10 +204,24 @@ impl Add<S2Point> for S2Point {
         S2Point { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
     }
 }
+impl AddAssign<S2Point> for S2Point {
+    fn add_assign(&mut self, other: S2Point) {
+        self.x += other.x;
+        self.y += other.y;
+        self.z += other.z;
+    }
+}
 impl Add<f64> for S2Point {
     type Output = Self;
     fn add(self, other: f64) -> Self::Output {
         S2Point { x: self.x + other, y: self.y + other, z: self.z + other }
+    }
+}
+impl AddAssign<f64> for S2Point {
+    fn add_assign(&mut self, other: f64) {
+        self.x += other;
+        self.y += other;
+        self.z += other;
     }
 }
 // Implementing the Sub trait for S2Point
@@ -193,10 +231,24 @@ impl Sub<S2Point> for S2Point {
         S2Point { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z }
     }
 }
+impl SubAssign<S2Point> for S2Point {
+    fn sub_assign(&mut self, other: S2Point) {
+        self.x -= other.x;
+        self.y -= other.y;
+        self.z -= other.z;
+    }
+}
 impl Sub<f64> for S2Point {
     type Output = Self;
     fn sub(self, other: f64) -> Self::Output {
         S2Point { x: self.x - other, y: self.y - other, z: self.z - other }
+    }
+}
+impl SubAssign<f64> for S2Point {
+    fn sub_assign(&mut self, other: f64) {
+        self.x -= other;
+        self.y -= other;
+        self.z -= other;
     }
 }
 // Implementing the Neg trait for S2Point
@@ -213,10 +265,24 @@ impl Div<S2Point> for S2Point {
         S2Point { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z }
     }
 }
+impl DivAssign<S2Point> for S2Point {
+    fn div_assign(&mut self, other: S2Point) {
+        self.x /= other.x;
+        self.y /= other.y;
+        self.z /= other.z;
+    }
+}
 impl Div<f64> for S2Point {
     type Output = Self;
     fn div(self, other: f64) -> Self::Output {
         S2Point { x: self.x / other, y: self.y / other, z: self.z / other }
+    }
+}
+impl DivAssign<f64> for S2Point {
+    fn div_assign(&mut self, other: f64) {
+        self.x /= other;
+        self.y /= other;
+        self.z /= other;
     }
 }
 // Implementing the Mul trait for S2Point
@@ -226,10 +292,24 @@ impl Mul<S2Point> for S2Point {
         S2Point { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
     }
 }
+impl MulAssign<S2Point> for S2Point {
+    fn mul_assign(&mut self, other: S2Point) {
+        self.x *= other.x;
+        self.y *= other.y;
+        self.z *= other.z;
+    }
+}
 impl Mul<f64> for S2Point {
     type Output = Self;
     fn mul(self, other: f64) -> Self::Output {
         S2Point { x: self.x * other, y: self.y * other, z: self.z * other }
+    }
+}
+impl MulAssign<f64> for S2Point {
+    fn mul_assign(&mut self, other: f64) {
+        self.x *= other;
+        self.y *= other;
+        self.z *= other;
     }
 }
 impl Rem<f64> for S2Point {

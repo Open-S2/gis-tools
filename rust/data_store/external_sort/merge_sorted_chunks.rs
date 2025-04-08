@@ -1,7 +1,8 @@
 use super::{buffer_to_keys, keys_to_buffer, Key};
-use crate::util::Buffer;
+use crate::{data_store::file::KEY_STORE_LENGTH, util::Buffer};
 use std::{
     cmp::Ordering,
+    collections::VecDeque,
     format,
     fs::{File, OpenOptions},
     io::Write,
@@ -13,7 +14,7 @@ use std::{
 
 /// A wrapper of a readable stream to handle reading in the sorted data
 struct SortedFile {
-    keys: Vec<Key>,
+    keys: VecDeque<Key>,
     offset: u64,
     is_done: bool,
     input: File,
@@ -24,29 +25,29 @@ impl SortedFile {
     pub fn new(input: &str) -> SortedFile {
         let input = OpenOptions::new().read(true).open(input).unwrap();
         let size = input.metadata().unwrap().len();
-        SortedFile { input, size, keys: vec![], offset: 0, is_done: false }
+        SortedFile { input, size, keys: VecDeque::new(), offset: 0, is_done: false }
     }
 
     /// Check the current key in the buffer
     pub fn current(&self) -> Option<&Key> {
-        self.keys.first()
+        self.keys.front()
     }
 
     /// return the next key in the buffer. Assumes the user has called current first to
     /// validate that there is a current key
-    pub fn take(&mut self) -> Key {
-        self.keys.remove(0)
+    pub fn take(&mut self) -> Option<Key> {
+        self.keys.pop_front()
     }
 
     /// Update the current key store if necessary
-    pub fn prepare(&mut self) {
+    pub fn prepare(&mut self, max_heap: usize) {
         if self.is_done {
             return;
         }
         // if there are no keys in the buffer, read in the next chunk
         if self.keys.is_empty() {
-            let length = u64::min(16 * 1_024, self.size - self.offset);
-            self.keys = buffer_to_keys(&mut self.read_buffer(length));
+            let length = u64::min(KEY_STORE_LENGTH * max_heap as u64, self.size - self.offset);
+            self.keys = buffer_to_keys(&mut self.read_buffer(length)).into();
             if self.offset >= self.size {
                 self.is_done = true;
             }
@@ -64,24 +65,22 @@ impl SortedFile {
 }
 
 /// merge a collection of sorted chunks
-pub fn merge_sorted_chunks(inputs: &[String], output: &str) {
+pub fn merge_sorted_chunks(inputs: &[String], output: &str, max_heap: usize) {
     let mut input_files: Vec<SortedFile> = vec![];
     for input in inputs {
         input_files.push(SortedFile::new(input));
     }
-    // let output = createWriteStream(format!("{}.sortedKeys", output));
-    let mut output =
-        OpenOptions::new().append(true).open(format!("{}.sortedKeys", output)).unwrap();
+    let mut output = OpenOptions::new().write(true).open(format!("{}.keys", output)).unwrap();
 
     // loop through all the input files and grab the next key in order
     let mut key_writes: Vec<Key> = vec![];
     loop {
-        let next_key = get_next_lowest_key(&mut input_files);
+        let next_key = get_next_lowest_key(&mut input_files, max_heap);
         if next_key.is_none() {
             break;
         }
         key_writes.push(next_key.unwrap());
-        if key_writes.len() > 1_024 {
+        if key_writes.len() > max_heap {
             let _ = output.write(&keys_to_buffer(key_writes));
             key_writes = vec![];
         }
@@ -94,10 +93,10 @@ pub fn merge_sorted_chunks(inputs: &[String], output: &str) {
 }
 
 /// given a list of sorted files, return the next lowest key
-fn get_next_lowest_key(sorted_files: &mut [SortedFile]) -> Option<Key> {
+fn get_next_lowest_key(sorted_files: &mut [SortedFile], max_heap: usize) -> Option<Key> {
     // make sure all files are up to date on their current key
     for file in &mut *sorted_files {
-        file.prepare();
+        file.prepare(max_heap);
     }
     // 1) sort the files by their current key
     sorted_files.sort_by(|a, b| {
@@ -112,6 +111,6 @@ fn get_next_lowest_key(sorted_files: &mut [SortedFile]) -> Option<Key> {
     if sorted_files.is_empty() {
         None
     } else {
-        Some(sorted_files[0].take())
+        sorted_files[0].take()
     }
 }

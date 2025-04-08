@@ -1,14 +1,12 @@
-extern crate alloc;
-
 use super::{get_u_norm, get_v_norm, LOOKUP_IJ};
 use crate::geometry::{
     face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox, LonLat, S2Point,
     K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
 };
 use alloc::{string::String, vec::Vec};
-use core::fmt;
+use core::{fmt, ops::Deref};
 use libm::{fmax, fmin};
-use s2json::{MValueCompatible, VectorPoint};
+use s2json::VectorPoint;
 use serde::{Deserialize, Serialize};
 
 /// Cell ID works with both S2 and WM with a common interface
@@ -90,11 +88,20 @@ pub const K_WRAP_OFFSET: u64 = (K_NUM_FACES as u64) << K_POS_BITS;
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Hash, Serialize, Deserialize)]
+#[derive(
+    Debug, Default, Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Hash, Serialize, Deserialize,
+)]
 #[repr(C)]
 pub struct S2CellId {
     /// the id contains the face, s, and t components
     pub id: u64,
+}
+impl Deref for S2CellId {
+    type Target = u64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.id
+    }
 }
 impl S2CellId {
     /// Construct a cell id from the given 64-bit integer.
@@ -119,7 +126,7 @@ impl S2CellId {
     }
 
     /// Construct a leaf cell containing the given normalized S2LatLng.
-    pub fn from_lon_lat<M: MValueCompatible>(ll: &LonLat<M>) -> S2CellId {
+    pub fn from_lon_lat<M: Clone + Default>(ll: &LonLat<M>) -> S2CellId {
         S2CellId::from_s2_point(&ll.to_point())
     }
 
@@ -520,7 +527,7 @@ impl S2CellId {
 
     /// Check if an S2CellID contains an S2Point
     pub fn contains_s2point(&self, p: &S2Point) -> bool {
-        self.contains((*p).into())
+        self.contains(p.into())
     }
 
     /// Check if an S2CellID intersects another. This includes edges touching.
@@ -756,19 +763,24 @@ impl fmt::Display for S2CellId {
         Ok(())
     }
 }
+impl From<&u64> for S2CellId {
+    fn from(value: &u64) -> Self {
+        S2CellId::new(*value)
+    }
+}
 impl From<u64> for S2CellId {
     fn from(value: u64) -> Self {
         S2CellId::new(value)
     }
 }
-impl<M: MValueCompatible> From<LonLat<M>> for S2CellId {
-    fn from(value: LonLat<M>) -> Self {
-        S2CellId::from_lon_lat(&value)
+impl<M: Clone + Default> From<&LonLat<M>> for S2CellId {
+    fn from(value: &LonLat<M>) -> Self {
+        S2CellId::from_lon_lat(value)
     }
 }
-impl From<S2Point> for S2CellId {
-    fn from(value: S2Point) -> Self {
-        S2CellId::from_s2_point(&value)
+impl From<&S2Point> for S2CellId {
+    fn from(value: &S2Point) -> Self {
+        S2CellId::from_s2_point(value)
     }
 }
 impl From<String> for S2CellId {
@@ -781,10 +793,10 @@ impl From<&str> for S2CellId {
         S2CellId::from_string(s)
     }
 }
-impl<M: MValueCompatible> From<&VectorPoint<M>> for S2CellId {
+impl<M: Clone + Default> From<&VectorPoint<M>> for S2CellId {
     fn from(value: &VectorPoint<M>) -> Self {
         let point: S2Point = value.into();
-        point.into()
+        (&point).into()
     }
 }
 
@@ -897,7 +909,7 @@ mod tests {
         let id = S2CellId::from_lon_lat(&ll);
         assert_eq!(id.id, 10376293541461622785);
         let ll: LonLat = ll::LonLat::new(0.0, -90.0, None);
-        let id: S2CellId = ll.into();
+        let id: S2CellId = (&ll).into();
         assert_eq!(id.id, 12682136550675316737);
     }
 
@@ -913,7 +925,7 @@ mod tests {
         let id = S2CellId::from_s2_point(&p);
         assert_eq!(id.id, 5764607523034234881);
         let p = S2Point { x: -1.0, y: 0.0, z: 0.0 };
-        let id: S2CellId = p.into();
+        let id: S2CellId = (&p).into();
         assert_eq!(id.id, 8070450532247928833);
     }
 

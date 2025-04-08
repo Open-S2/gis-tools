@@ -1,17 +1,17 @@
 use crate::geometry::{VectorGeometry, VectorLineString, VectorPoint};
 use alloc::vec;
 use libm::pow;
-use s2json::{MValue, MValueCompatible};
+use s2json::MValue;
 
 /// Functions to simplify a vector geometry
-pub trait SimplifyVectorGeometry<M: MValueCompatible = MValue> {
+pub trait SimplifyVectorGeometry<M: Clone + Default = MValue> {
     /// Build sequential distances for a vector geometry
     fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>);
     /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
     fn simplify(&mut self, tolerance: f64, zoom: u8, maxzoom: Option<u8>);
 }
 
-impl<M: MValueCompatible> SimplifyVectorGeometry<M> for VectorGeometry<M> {
+impl<M: Clone + Default> SimplifyVectorGeometry<M> for VectorGeometry<M> {
     /// Build sqdistances for a vector geometry
     fn build_sq_dists(&mut self, tolerance: f64, maxzoom: Option<u8>) {
         build_sq_dists(self, tolerance, maxzoom);
@@ -24,13 +24,13 @@ impl<M: MValueCompatible> SimplifyVectorGeometry<M> for VectorGeometry<M> {
 }
 
 /// build sqdistances for line vector data
-pub fn build_sq_dists<M: MValueCompatible>(
+pub fn build_sq_dists<M: Clone + Default>(
     geometry: &mut VectorGeometry<M>,
     tolerance: f64,
     maxzoom: Option<u8>,
 ) {
     let maxzoom = maxzoom.unwrap_or(16);
-    let tol = pow(tolerance / ((1 << maxzoom) as f64 * 4_096.), 2.);
+    let tol = pow(tolerance / (1 << maxzoom) as f64, 2.);
 
     match geometry {
         VectorGeometry::LineString(geo) => {
@@ -53,7 +53,7 @@ pub fn build_sq_dists<M: MValueCompatible>(
 
 /// calculate simplification of line vector data using
 /// optimized Douglas-Peucker algorithm
-fn build_sq_dist<M: MValueCompatible>(
+fn build_sq_dist<M: Clone + Default>(
     coords: &mut VectorLineString<M>,
     first: usize,
     last: usize,
@@ -66,7 +66,7 @@ fn build_sq_dist<M: MValueCompatible>(
 
 /// calculate simplification of line vector data using
 /// optimized Douglas-Peucker algorithm
-fn _build_sq_dist<M: MValueCompatible>(
+fn _build_sq_dist<M: Clone + Default>(
     coords: &mut VectorLineString<M>,
     first: usize,
     last: usize,
@@ -140,15 +140,14 @@ fn get_sq_seg_dist(ps: f64, pt: f64, s: f64, t: f64, bs: f64, bt: f64) -> f64 {
 }
 
 /// Simplify a vector geometry
-pub fn simplify<M: MValueCompatible>(
+pub fn simplify<M: Clone + Default>(
     geometry: &mut VectorGeometry<M>,
     tolerance: f64,
     zoom: u8,
     maxzoom: Option<u8>,
 ) {
     let maxzoom = maxzoom.unwrap_or(16);
-    let zoom_tol =
-        if zoom >= maxzoom { 0. } else { tolerance / ((1 << (zoom as u64)) as f64 * 4_096.) };
+    let zoom_tol = if zoom >= maxzoom { 0. } else { tolerance / (1 << (zoom as u64)) as f64 };
     match geometry {
         VectorGeometry::LineString(geo) => {
             geo.coordinates = simplify_line(&geo.coordinates, zoom_tol, false, false);
@@ -174,7 +173,7 @@ pub fn simplify<M: MValueCompatible>(
 }
 
 /// simplified a vector line
-fn simplify_line<M: MValueCompatible>(
+fn simplify_line<M: Clone + Default>(
     line: &VectorLineString<M>,
     tolerance: f64,
     is_polygon: bool,
@@ -200,7 +199,7 @@ fn simplify_line<M: MValueCompatible>(
 }
 
 /// In place adjust the ring if necessary
-pub fn rewind<M: MValueCompatible>(ring: &mut VectorLineString<M>, clockwise: bool) {
+pub fn rewind<M: Clone + Default>(ring: &mut VectorLineString<M>, clockwise: bool) {
     let len = ring.len();
     let mut area: f64 = 0.;
     let mut i = 0;
@@ -215,7 +214,7 @@ pub fn rewind<M: MValueCompatible>(ring: &mut VectorLineString<M>, clockwise: bo
         let len_half = len / 2;
         while i < len_half {
             ring.swap(i, len - i - 1);
-            i += 2;
+            i += 1;
         }
     }
 }
@@ -268,7 +267,7 @@ mod tests {
             bbox: None,
             vec_bbox: None,
             indices: None,
-            tesselation: None,
+            tessellation: None,
         });
         line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
 

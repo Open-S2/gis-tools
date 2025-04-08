@@ -1,6 +1,6 @@
 import { convert } from '../geometry/tools/convert';
-import { simplify } from '../geometry';
 import { splitTile } from '../geometry/tools/clip';
+import { buildSqDists, simplify } from '../geometry';
 import {
   idFace as getFace,
   idContains,
@@ -18,6 +18,7 @@ import type {
   MValue,
   Projection,
   Properties,
+  S2CellId,
   VectorFeatures,
   VectorGeometry,
   VectorPoint,
@@ -31,7 +32,6 @@ import type {
  *
  * ## Fields
  *
- * - `extent` - the extent of the tile
  * - `face` - the tile's face
  * - `zoom` - the tile's zoom
  * - `i` - the tile's x position
@@ -81,7 +81,7 @@ export class Tile<
    * @param transformed - whether the tile feature geometry has been transformed to tile coordinates
    */
   constructor(
-    id: bigint,
+    id: S2CellId,
     public layers: Record<string, Layer<M, D, P>> = {},
     public transformed = false,
   ) {
@@ -121,9 +121,7 @@ export class Tile<
     const { metadata = {} } = feature;
     // @ts-expect-error - ignore if meta doesn't have layer. its ok
     const layerName = (metadata.layer as string) ?? layer ?? 'default';
-    if (this.layers[layerName] === undefined) {
-      this.layers[layerName] = new Layer(layerName, []);
-    }
+    if (this.layers[layerName] === undefined) this.layers[layerName] = new Layer(layerName, []);
     this.layers[layerName].features.push(feature);
   }
 
@@ -209,6 +207,11 @@ export class Layer<
     public name: string,
     public features: VectorFeatures<M, D, P>[] = [],
   ) {}
+
+  /** @returns The number of features in the layer */
+  get length(): number {
+    return this.features.length;
+  }
 }
 
 /** Options for creating a TileStore */
@@ -221,7 +224,10 @@ export interface TileStoreOptions {
   maxzoom?: number;
   /** max zoom to index data on construction */
   indexMaxzoom?: number;
-  /** simplification tolerance (higher means simpler) */
+  /**
+   * simplification tolerance (higher means simpler). 3 is a good default.
+   * Since the default extent is 1, the algorithm will build a unit square of 4_096x4_096 for you.
+   */
   tolerance?: number;
   /** tile buffer on each side so lines and polygons don't get clipped */
   buffer?: number;
@@ -258,12 +264,12 @@ export class TileStore<
   P extends Properties = Properties,
 > {
   minzoom = 0; // min zoom to preserve detail on
-  maxzoom = 18; // max zoom to preserve detail on
+  maxzoom = 16; // max zoom to preserve detail on
   faces = new Set<Face>(); // store which faces are active. 0 face could be entire WM projection
   indexMaxzoom = 4; // max zoom in the tile index
-  tolerance = 3; // simplification tolerance (higher means simpler)
+  tolerance = 3 / 4_096; // simplification tolerance (higher means simpler)
   buffer = 0.0625; // tile buffer for lines and polygons
-  tiles: Map<bigint, Tile<M, D, P>> = new Map(); // stores both WM and S2 tiles
+  tiles: Map<S2CellId, Tile<M, D, P>> = new Map(); // stores both WM and S2 tiles
   projection: Projection; // projection to build tiles for
   buildBBox = false; // whether to build the bounding box for each tile feature
   /**
@@ -273,9 +279,9 @@ export class TileStore<
   constructor(data: JSONCollection<M, D, P>, options?: TileStoreOptions) {
     // set options should they exist
     this.minzoom = options?.minzoom ?? 0;
-    this.maxzoom = options?.maxzoom ?? 20;
+    this.maxzoom = options?.maxzoom ?? 16;
     this.indexMaxzoom = options?.indexMaxzoom ?? 4;
-    this.tolerance = options?.tolerance ?? 3;
+    this.tolerance = (options?.tolerance ?? 3) / 4_096;
     this.buffer = options?.buffer ?? 0.0625;
     this.buildBBox = options?.buildBBox ?? false;
     // update projection
@@ -286,14 +292,7 @@ export class TileStore<
     if (this.maxzoom < 0 || this.maxzoom > 20)
       throw new Error('maxzoom should be in the 0-20 range');
     // convert features
-    const features = convert(
-      this.projection,
-      data,
-      this.buildBBox,
-      this.tolerance,
-      this.maxzoom,
-      true,
-    );
+    const features = convert(this.projection, data, this.buildBBox, true);
     for (const feature of features) this.#addFeature(feature);
     for (let face = 0; face < 6; face++) {
       const id = idFromFace(face as Face);
@@ -305,7 +304,7 @@ export class TileStore<
    * @param id - the tile id to acquire
    * @returns - the tile if it exists
    */
-  getTile(id: bigint): undefined | Tile<M, D, P> {
+  getTile(id: S2CellId): undefined | Tile<M, D, P> {
     const { tiles, faces } = this;
     const zoom = idLevel(id);
     const face = getFace(id);
@@ -327,7 +326,9 @@ export class TileStore<
    * @param feature - the feature to store to a face tile. Creates the tile if it doesn't exist
    */
   #addFeature(feature: VectorFeatures<M, D, P>): void {
-    const { faces, tiles } = this;
+    const { faces, tiles, tolerance, maxzoom } = this;
+    // Prep Douglas-Peucker simplification by setting t-values.
+    buildSqDists(feature.geometry, tolerance, maxzoom);
     const face = feature.face ?? 0;
     const id = idFromFace(face);
     let tile = tiles.get(id);
@@ -345,9 +346,9 @@ export class TileStore<
    * @param endID - where to stop tiling
    * @param endZoom - stop tiling at this zoom
    */
-  #splitTile(startID: bigint, endID?: bigint, endZoom: number = this.maxzoom): void {
+  #splitTile(startID: S2CellId, endID?: S2CellId, endZoom: number = this.maxzoom): void {
     const { buffer, tiles, tolerance, maxzoom, indexMaxzoom } = this;
-    const stack: bigint[] = [startID];
+    const stack: S2CellId[] = [startID];
     // avoid recursion by using a processing queue
     while (stack.length > 0) {
       // find our next tile to split

@@ -10,11 +10,11 @@ pub struct DBFHeader {
     #[allow(dead_code)]
     last_updated: Date,
     /// The number of records
-    records: usize,
+    records: u64,
     /// The length of the header data
-    header_len: usize,
+    header_len: u64,
     /// The length of each row
-    rec_len: usize,
+    rec_len: u64,
 }
 
 /// Each row is a key definition to build the properties for each column
@@ -25,10 +25,10 @@ pub struct DBFRow {
     /// The data type of the row
     data_type: char,
     /// The length of the row
-    len: usize,
+    len: u64,
     /// The decimal places of the row
     #[allow(dead_code)]
-    decimal: usize,
+    decimal: u64,
 }
 
 /// A DBF data class to parse the data from a DBF
@@ -57,18 +57,18 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
     }
 
     /// Get the properties for the given index
-    pub fn get_properties(&mut self, index: usize) -> Option<M> {
+    pub fn get_properties(&self, index: u64) -> Option<M> {
         let DBFHeader { records, rec_len, .. } = self.header;
         if index > records - 1 {
             return None;
         }
-        let offset = ((self.rows.len() + 1) << 5) + 2 + index * rec_len;
+        let offset = ((self.rows.len() as u64 + 1) << 5) + 2 + index * rec_len;
 
         Some(self.parse_properties(offset))
     }
 
     /// Get all the properties in the DBF
-    pub fn get_all_properties(&mut self) -> Vec<M> {
+    pub fn get_all_properties(&self) -> Vec<M> {
         let DBFHeader { records, .. } = self.header;
         let mut res: Vec<M> = vec![];
         for i in 0..records {
@@ -88,9 +88,9 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
                 reader.uint8(Some(2)),
                 reader.uint8(Some(3)),
             ),
-            records: reader.uint32_le(Some(4)) as usize,
-            header_len: reader.uint16_le(Some(8)) as usize,
-            rec_len: reader.uint16_le(Some(10)) as usize,
+            records: reader.uint32_le(Some(4)) as u64,
+            header_len: reader.uint16_le(Some(8)) as u64,
+            rec_len: reader.uint16_le(Some(10)) as u64,
         }
     }
 
@@ -105,8 +105,8 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
             res.push(DBFRow {
                 name: reader.parse_string(Some(offset), Some(11)),
                 data_type: char::from(reader.uint8(Some(offset + 11))),
-                len: reader.uint8(Some(offset + 16)) as usize,
-                decimal: reader.uint8(Some(offset + 17)) as usize,
+                len: reader.uint8(Some(offset + 16)) as u64,
+                decimal: reader.uint8(Some(offset + 17)) as u64,
             });
             if reader.uint8(Some(offset + 32)) == 13 {
                 break;
@@ -119,7 +119,7 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
     }
 
     /// Parse the properties starting from the given offset
-    fn parse_properties(&mut self, mut offset: usize) -> M
+    fn parse_properties(&self, mut offset: u64) -> M
     where
         M: MValueCompatible,
     {
@@ -134,7 +134,7 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
     }
 
     /// Parse the value at the given offset
-    fn parse_value(&mut self, offset: usize, len: usize, v_type: char) -> PrimitiveValue {
+    fn parse_value(&self, offset: u64, len: u64, v_type: char) -> PrimitiveValue {
         let text_data: String = self.reader.parse_string(Some(offset), Some(len)).trim().into();
 
         match v_type {
@@ -174,7 +174,7 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/empty.dbf");
 
         let reader = FileReader::new(path).unwrap();
-        let mut dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+        let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
 
         assert_eq!(
             dbf.get_header(),
@@ -202,7 +202,7 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/codepage.dbf");
 
         let reader = FileReader::new(path).unwrap();
-        let mut dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+        let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
 
         assert_eq!(
             dbf.get_header(),
@@ -242,7 +242,7 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/utf.dbf");
 
         let reader = FileReader::new(path).unwrap();
-        let mut dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+        let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
 
         assert_eq!(
             dbf.get_header(),
@@ -282,7 +282,7 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/watershed.dbf");
 
         let reader = FileReader::new(path).unwrap();
-        let mut dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+        let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
 
         assert_eq!(
             dbf.get_header(),
@@ -328,7 +328,7 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/watershed-specialCharacters.dbf");
 
         let reader = FileReader::new(path).unwrap();
-        let mut dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+        let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
 
         assert_eq!(
             dbf.get_header(),

@@ -19,16 +19,14 @@ export function buildSqDists<M extends MValue = Properties>(
   tolerance: number,
   maxzoom = 16,
 ): void {
-  const tol = Math.pow(tolerance / ((1 << maxzoom) * 4_096), 2);
+  const tol = Math.pow(tolerance / (1 << maxzoom), 2);
   const { type, coordinates: coords } = geometry;
-  if (type === 'LineString')
-    buildSqDist(coords as VectorLineString, 0, (coords as VectorLineString).length - 1, tol);
+  if (type === 'LineString') buildSqDist(coords, 0, coords.length - 1, tol);
   else if (type === 'MultiLineString')
-    (coords as VectorMultiLineString).forEach((line) => buildSqDist(line, 0, line.length - 1, tol));
-  else if (type === 'Polygon')
-    (coords as VectorPolygon).forEach((line) => buildSqDist(line, 0, line.length - 1, tol));
+    coords.forEach((line) => buildSqDist(line, 0, line.length - 1, tol));
+  else if (type === 'Polygon') coords.forEach((line) => buildSqDist(line, 0, line.length - 1, tol));
   else if (type === 'MultiPolygon')
-    (coords as VectorMultiPolygon).forEach((polygon) =>
+    coords.forEach((polygon) =>
       polygon.forEach((line) => buildSqDist(line, 0, line.length - 1, tol)),
     );
 }
@@ -151,8 +149,9 @@ export function simplify<M extends MValue = Properties>(
   tolerance: number,
   zoom: number,
   maxzoom = 16,
-) {
-  const zoomTol = zoom >= maxzoom ? 0 : tolerance / ((1 << zoom) * 4_096);
+): void {
+  if (geometry.type === 'Point' || geometry.type === 'MultiPoint') return;
+  const zoomTol = zoom >= maxzoom ? 0 : tolerance / (1 << zoom);
   const { type, coordinates: coords } = geometry;
   if (type === 'LineString') {
     geometry.coordinates = simplifyLine(coords as VectorLineString<M>, zoomTol, false, false);
@@ -192,8 +191,7 @@ function simplifyLine<M extends MValue = Properties>(
   isOuter: boolean,
 ): VectorLineString<M> {
   const sqTolerance = tolerance * tolerance;
-  const size = line.length;
-  if (tolerance > 0 && size < (isPolygon ? sqTolerance : tolerance)) return line;
+  if (tolerance > 0 && line.length < (isPolygon ? sqTolerance : tolerance)) return line;
 
   const ring: VectorLineString<M> = [];
   for (const point of line) {
@@ -223,24 +221,8 @@ export function rewind<M extends MValue = Properties>(
     area += (ring[i].x - ring[j].x) * (ring[i].y + ring[j].y);
   }
   if (area > 0 === clockwise) {
-    for (let i = 0, len = ring.length; i < len / 2; i += 2) {
-      swapPoints(ring, i, len - i - 1);
+    for (let i = 0, len = ring.length; i < len / 2; i++) {
+      [ring[i], ring[len - i - 1]] = [ring[len - i - 1], ring[i]];
     }
   }
-}
-
-/**
- * Only swap the x, y, and z coordinates
- * @param ring - the ring
- * @param i - i position in the ring
- * @param j - j position in the ring
- */
-function swapPoints<M extends MValue = Properties>(
-  ring: VectorLineString<M>,
-  i: number,
-  j: number,
-): void {
-  const tmp = ring[i];
-  ring[i] = ring[j];
-  ring[j] = tmp;
 }

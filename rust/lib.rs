@@ -5,6 +5,9 @@
 #![feature(more_float_constants)]
 #![feature(stmt_expr_attributes)]
 #![feature(register_tool)]
+#![feature(trivial_bounds)]
+#![feature(coverage_attribute)]
+#![feature(let_chains)]
 #![register_tool(tarpaulin)]
 #![warn(clippy::print_stdout)]
 //! # GIS Tools

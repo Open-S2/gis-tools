@@ -30,6 +30,7 @@ await build({
     `${__dirname}/builds/dataStructures/pointIndex.ts`,
     `${__dirname}/builds/dataStructures/pointIndexFast.ts`,
     `${__dirname}/builds/dataStructures/priorityQueue.ts`,
+    `${__dirname}/builds/dataStructures/splayTree.ts`,
     `${__dirname}/builds/dataStructures/dataTile.ts`,
     // GEOMETRY
     `${__dirname}/builds/geometry/angles.ts`,

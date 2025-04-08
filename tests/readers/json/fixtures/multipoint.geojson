@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","properties":{"name":"Melbourne"},"geometry":{"type":"MultiPoint","coordinates":[[144.9584,-37.8173], [151.2144,-33.8766]]}},
+    {"type":"Feature","properties":{"name":"Sydney"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766]}}
+  ]
+}

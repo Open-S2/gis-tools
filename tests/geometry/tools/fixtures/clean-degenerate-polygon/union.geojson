@@ -1,0 +1,12 @@
+{
+  "type": "Feature",
+  "properties": {
+    "options": { 
+      "precision": 2.220446049250313e-16
+    }
+  },
+  "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": []
+  }
+}

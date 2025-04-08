@@ -1,10 +1,10 @@
 use crate::{
     geometry::{
-        convert, CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
+        CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
         JSONCollection, Projection, SimplifyVectorGeometry, TileChildren, VectorFeature,
-        VectorGeometry, VectorPoint,
+        VectorGeometry, VectorPoint, convert,
     },
-    readers::FeatureIterator,
+    readers::FeatureReader,
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
@@ -12,8 +12,8 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use libm::round;
-use s2json::{Feature, MValue, MValueCompatible, Properties};
+use s2json::{Feature, MValue, Properties};
+use serde::{Deserialize, Serialize};
 
 /// If a user creates metadata for a VectorFeature, it needs to define a get_layer function
 pub trait HasLayer {
@@ -25,10 +25,19 @@ impl HasLayer for () {
         None
     }
 }
+impl HasLayer for MValue {
+    fn get_layer(&self) -> Option<String> {
+        let layer = self.get("layer");
+        match layer {
+            Some(l) => l.to_prim()?.to_string(),
+            _ => None,
+        }
+    }
+}
 
 /// Tile Class to contain the tile information for splitting or simplifying
 #[derive(Debug, Clone, PartialEq)]
-pub struct Tile<M = (), P: MValueCompatible = Properties, D: MValueCompatible = MValue> {
+pub struct Tile<M = (), P: Clone + Default = Properties, D: Clone + Default = MValue> {
     /// the tile id
     pub id: CellId,
     /// the tile's layers
@@ -36,7 +45,7 @@ pub struct Tile<M = (), P: MValueCompatible = Properties, D: MValueCompatible = 
     /// whether the tile feature geometry has been transformed
     pub transformed: bool,
 }
-impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D> {
+impl<M: HasLayer + Clone, P: Clone + Default, D: Clone + Default> Tile<M, P, D> {
     /// Create a new Tile
     pub fn new(id: CellId) -> Self {
         Self { id, layers: BTreeMap::new(), transformed: false }
@@ -61,9 +70,9 @@ impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D
     /// Add any reader to the tile
     pub fn add_reader<R>(&mut self, reader: R, layer: Option<String>)
     where
-        R: FeatureIterator<M, P, D>,
+        R: FeatureReader<M, P, D>,
     {
-        for feature in reader {
+        for feature in reader.iter() {
             self.add_feature(feature, layer.clone());
         }
     }
@@ -77,21 +86,20 @@ impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D
             .or(layer) // Fall back to the provided layer
             .unwrap_or_else(|| "default".to_string()); // Fall back to "default" if none found
 
-        if !self.layers.contains_key(&layer_name) {
-            self.layers.insert(layer_name.clone(), Layer::new(layer_name.clone()));
-        }
-        self.layers.get_mut(&layer_name).unwrap().features.push(feature);
+        let layer = self.layers.entry(layer_name.clone()).or_insert(Layer::new(layer_name));
+        layer.features.push(feature);
     }
 
     /// Simplify the geometry to have a tolerance which will be relative to the tile's zoom level.
     /// NOTE: This should be called after the tile has been split into children if that functionality
     /// is needed.
     pub fn transform(&mut self, tolerance: f64, maxzoom: Option<u8>) {
-        if self.transformed {
+        if self.transformed || self.id.is_face() {
+            self.transformed = true;
             return;
         }
-        let (_, zoom, i, j) = self.id.to_face_ij();
 
+        let (_, zoom, i, j) = self.id.to_face_ij();
         for layer in self.layers.values_mut() {
             for feature in layer.features.iter_mut() {
                 feature.geometry.simplify(tolerance, zoom, maxzoom);
@@ -105,13 +113,13 @@ impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Tile<M, P, D
 
 /// Layer Class to contain the layer information for splitting or simplifying
 #[derive(Debug, Clone, PartialEq)]
-pub struct Layer<M = (), P: MValueCompatible = Properties, D: MValueCompatible = MValue> {
+pub struct Layer<M = (), P: Clone + Default = Properties, D: Clone + Default = MValue> {
     /// the layer name
     pub name: String,
     /// the layer's features
     pub features: Vec<VectorFeature<M, P, D>>,
 }
-impl<M, P: MValueCompatible, D: MValueCompatible> Layer<M, P, D> {
+impl<M, P: Clone + Default, D: Clone + Default> Layer<M, P, D> {
     /// Create a new Layer
     pub fn new(name: String) -> Self {
         Self { name, features: vec![] }
@@ -119,7 +127,7 @@ impl<M, P: MValueCompatible, D: MValueCompatible> Layer<M, P, D> {
 }
 
 /// Options for creating a TileStore
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct TileStoreOptions {
     /// manually set the projection, otherwise it defaults to whatever the data type is
     pub projection: Option<Projection>,
@@ -129,7 +137,8 @@ pub struct TileStoreOptions {
     pub maxzoom: Option<u8>,
     /// tile buffer on each side in pixels
     pub index_maxzoom: Option<u8>,
-    /// simplification tolerance (higher means simpler)
+    /// simplification tolerance (higher means simpler). Default is 3.
+    /// Note: this tolerance is measured against a 4_096x4_096 unit grid when applying simplification.
     pub tolerance: Option<f64>,
     /// tile buffer on each side so lines and polygons don't get clipped
     pub buffer: Option<f64>,
@@ -139,8 +148,8 @@ pub struct TileStoreOptions {
 #[derive(Debug, Clone, PartialEq)]
 pub struct TileStore<
     M: HasLayer + Clone = (),
-    P: MValueCompatible = Properties,
-    D: MValueCompatible = MValue,
+    P: Clone + Default = Properties,
+    D: Clone + Default = MValue,
 > {
     minzoom: u8,                            // min zoom to preserve detail on
     maxzoom: u8,                            // max zoom to preserve detail on
@@ -151,21 +160,21 @@ pub struct TileStore<
     tiles: BTreeMap<CellId, Tile<M, P, D>>, // stores both WM and S2 tiles
     projection: Projection, // projection to build tiles for
 }
-impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> Default for TileStore<M, P, D> {
+impl<M: HasLayer + Clone, P: Clone + Default, D: Clone + Default> Default for TileStore<M, P, D> {
     fn default() -> Self {
         Self {
             minzoom: 0,
-            maxzoom: 18,
+            maxzoom: 16,
             faces: BTreeSet::<Face>::new(),
             index_maxzoom: 4,
-            tolerance: 3.,
+            tolerance: 3. / 4_096.,
             buffer: 0.0625,
             tiles: BTreeMap::<CellId, Tile<M, P, D>>::new(),
             projection: Projection::S2,
         }
     }
 }
-impl<M: HasLayer + Clone, P: MValueCompatible, D: MValueCompatible> TileStore<M, P, D>
+impl<M: HasLayer + Clone, P: Clone + Default, D: Clone + Default> TileStore<M, P, D>
 where
     VectorFeature<M, P, D>: ConvertVectorFeatureWM<M, P, D> + ConvertVectorFeatureS2<M, P, D>,
     Feature<M, P, D>: ConvertFeature<M, P, D>,
@@ -174,10 +183,10 @@ where
     pub fn new(data: JSONCollection<M, P, D>, options: TileStoreOptions) -> Self {
         let mut tile_store = Self {
             minzoom: options.minzoom.unwrap_or(0),
-            maxzoom: options.maxzoom.unwrap_or(20),
+            maxzoom: options.maxzoom.unwrap_or(16),
             faces: BTreeSet::<Face>::new(),
             index_maxzoom: options.index_maxzoom.unwrap_or(4),
-            tolerance: options.tolerance.unwrap_or(3.),
+            tolerance: options.tolerance.unwrap_or(3.) / 4_096.,
             buffer: options.buffer.unwrap_or(64.),
             tiles: BTreeMap::<CellId, Tile<M, P, D>>::new(),
             projection: options.projection.unwrap_or(Projection::S2),
@@ -290,11 +299,11 @@ where
 }
 
 /// A trait for transforming a geometry from the 0->1 coordinate system to a tile coordinate system
-pub trait TransformVectorGeometry<M: MValueCompatible = MValue> {
+pub trait TransformVectorGeometry<M: Clone + Default = MValue> {
     /// Transform the geometry from the 0->1 coordinate system to a tile coordinate system
     fn transform(&mut self, zoom: f64, ti: f64, tj: f64);
 }
-impl<M: MValueCompatible> TransformVectorGeometry<M> for VectorGeometry<M> {
+impl<M: Clone + Default> TransformVectorGeometry<M> for VectorGeometry<M> {
     /// Transform the geometry from the 0->1 coordinate system to a tile coordinate system
     fn transform(&mut self, zoom: f64, ti: f64, tj: f64) {
         let zoom = (1 << (zoom as u64)) as f64;
@@ -313,26 +322,23 @@ impl<M: MValueCompatible> TransformVectorGeometry<M> for VectorGeometry<M> {
         }
     }
 }
-impl<M: MValueCompatible> TransformVectorGeometry<M> for VectorPoint<M> {
+impl<M: Clone + Default> TransformVectorGeometry<M> for VectorPoint<M> {
     /// Transform the point from the 0->1 coordinate system to a tile coordinate system
     fn transform(&mut self, zoom: f64, ti: f64, tj: f64) {
-        self.x = round(self.x * zoom - ti);
-        self.y = round(self.y * zoom - tj);
+        self.x = (self.x * zoom - ti);
+        self.y = (self.y * zoom - tj);
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::geometry::S2CellId;
     use core::f64;
-
     use s2json::{
         BBox3D, Map, VectorLineStringGeometry, VectorMultiLineStringGeometry,
         VectorMultiPointGeometry, VectorPointGeometry,
     };
-
-    use crate::geometry::S2CellId;
-
-    use super::*;
 
     const SIMPLIFY_MAXZOOM: u8 = 16;
 
@@ -407,7 +413,7 @@ mod tests {
             tile_store,
             TileStore {
                 minzoom: 0,
-                maxzoom: 18,
+                maxzoom: 16,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
                 tolerance: 3.,
@@ -422,7 +428,7 @@ mod tests {
             tile_store,
             TileStore {
                 minzoom: 0,
-                maxzoom: 18,
+                maxzoom: 16,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
                 tolerance: 3.,
@@ -500,7 +506,7 @@ mod tests {
                     geometry: VectorGeometry::Point(VectorPointGeometry {
                         _type: "Point".into(),
                         is_3d: false,
-                        coordinates: VectorPoint { x: 1.0, y: 1.0, z: None, m: None, t: None },
+                        coordinates: VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: None },
                         offset: None,
                         bbox: None,
                         vec_bbox: Some(BBox3D {
@@ -508,11 +514,11 @@ mod tests {
                             bottom: 0.5,
                             right: 0.5,
                             top: 0.5,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -524,7 +530,13 @@ mod tests {
                     geometry: VectorGeometry::Point(VectorPointGeometry {
                         _type: "Point".into(),
                         is_3d: true,
-                        coordinates: VectorPoint { x: 1.0, y: 0.0, z: Some(1.0), m: None, t: None },
+                        coordinates: VectorPoint {
+                            x: 0.625,
+                            y: 0.35972503691520497,
+                            z: Some(1.0),
+                            m: None,
+                            t: None
+                        },
                         offset: None,
                         bbox: None,
                         vec_bbox: Some(BBox3D {
@@ -536,7 +548,7 @@ mod tests {
                             far: 1.0
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -549,8 +561,20 @@ mod tests {
                         _type: "MultiPoint".into(),
                         is_3d: false,
                         coordinates: vec![
-                            VectorPoint { x: 0.0, y: 1.0, z: None, m: None, t: None },
-                            VectorPoint { x: 0.0, y: 0.0, z: None, m: None, t: None }
+                            VectorPoint {
+                                x: 0.375,
+                                y: 0.640274963084795,
+                                z: None,
+                                m: None,
+                                t: None
+                            },
+                            VectorPoint {
+                                x: 0.375,
+                                y: 0.35972503691520497,
+                                z: None,
+                                m: None,
+                                t: None
+                            }
                         ],
                         offset: None,
                         bbox: None,
@@ -559,11 +583,11 @@ mod tests {
                             bottom: 0.35972503691520497,
                             right: 0.375,
                             top: 0.640274963084795,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -576,8 +600,20 @@ mod tests {
                         _type: "MultiPoint".into(),
                         is_3d: true,
                         coordinates: vec![
-                            VectorPoint { x: 1.0, y: 1.0, z: Some(1.0), m: None, t: None },
-                            VectorPoint { x: 0.0, y: 0.0, z: Some(2.0), m: None, t: None }
+                            VectorPoint {
+                                x: 0.625,
+                                y: 0.640274963084795,
+                                z: Some(1.0),
+                                m: None,
+                                t: None
+                            },
+                            VectorPoint {
+                                x: 0.0,
+                                y: 0.4432805993614054,
+                                z: Some(2.0),
+                                m: None,
+                                t: None
+                            }
                         ],
                         offset: None,
                         bbox: None,
@@ -590,7 +626,7 @@ mod tests {
                             far: 2.0
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }
@@ -664,7 +700,7 @@ mod tests {
                 geometry: VectorGeometry::Point(VectorPointGeometry {
                     _type: "Point".into(),
                     is_3d: false,
-                    coordinates: VectorPoint { x: 1.0, y: 1.0, z: None, m: None, t: None },
+                    coordinates: VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: None },
                     offset: None,
                     bbox: None,
                     vec_bbox: Some(BBox3D {
@@ -672,11 +708,11 @@ mod tests {
                         bottom: 0.5,
                         right: 0.5,
                         top: 0.5,
-                        near: f64::INFINITY,
-                        far: -f64::INFINITY
+                        near: f64::MAX,
+                        far: f64::MIN
                     }),
                     indices: None,
-                    tesselation: None
+                    tessellation: None
                 }),
                 metadata: None
             }]
@@ -734,6 +770,8 @@ mod tests {
         let default_layer = face_0_tile.layers.get("default").unwrap();
         assert_eq!(default_layer.features.len(), 2);
 
+        // [], []], offset: None, bbox: None, vec_bbox: Some(BBox3D { left: 0.8570480773242899, bottom: 0.3240121995384903, right: 0.9616044260522347, top: 0.7712879476591746, near: -1.0, far: 8.0 }), indices: None, tessellation: None }), metadata: None }]
+
         assert_eq!(
             default_layer.features,
             vec![
@@ -746,10 +784,34 @@ mod tests {
                         _type: "LineString".into(),
                         is_3d: false,
                         coordinates: vec![
-                            VectorPoint { x: 0.0, y: 0.0, z: None, m: None, t: None },
-                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None },
-                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None },
-                            VectorPoint { x: 1.0, y: 0.0, z: None, m: None, t: None }
+                            VectorPoint {
+                                x: 0.4630767977069301,
+                                y: 0.31942614957229354,
+                                z: None,
+                                m: None,
+                                t: Some(1.),
+                            },
+                            VectorPoint {
+                                x: 0.6023083968834528,
+                                y: 0.29277635129241236,
+                                z: None,
+                                m: None,
+                                t: Some(0.01120038734713082),
+                            },
+                            VectorPoint {
+                                x: 0.6398356638489994,
+                                y: 0.45485063470883236,
+                                z: None,
+                                m: None,
+                                t: Some(0.00605876326361668)
+                            },
+                            VectorPoint {
+                                x: 0.7121708306086766,
+                                y: 0.3955684303719546,
+                                z: None,
+                                m: None,
+                                t: Some(1.0)
+                            }
                         ],
                         offset: None,
                         bbox: None,
@@ -758,11 +820,11 @@ mod tests {
                             bottom: 0.29277635129241236,
                             right: 0.7121708306086766,
                             top: 0.45485063470883236,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -777,51 +839,63 @@ mod tests {
                         coordinates: vec![
                             vec![
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 0.0,
+                                    x: 0.8839424179885964,
+                                    y: 0.3240121995384903,
                                     z: Some(-1.0),
                                     m: None,
                                     t: Some(1.0)
                                 },
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 0.0,
+                                    x: 0.8834141050085695,
+                                    y: 0.3578242302600759,
                                     z: Some(2.0),
                                     m: None,
                                     t: Some(0.0011428082308213008)
                                 },
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 0.0,
+                                    x: 0.9616044260522347,
+                                    y: 0.32718207741863975,
                                     z: Some(4.0),
                                     m: None,
                                     t: Some(0.0020631440003536124)
                                 },
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 0.0,
+                                    x: 0.9499815404916909,
+                                    y: 0.37578687158091856,
                                     z: Some(-0.5),
                                     m: None,
                                     t: Some(1.0)
                                 }
                             ],
                             vec![
-                                VectorPoint { x: 1.0, y: 1.0, z: Some(1.0), m: None, t: Some(1.0) },
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 1.0,
+                                    x: 0.8865681147071915,
+                                    y: 0.7712879476591746,
+                                    z: Some(1.0),
+                                    m: None,
+                                    t: Some(1.0)
+                                },
+                                VectorPoint {
+                                    x: 0.8995916606114123,
+                                    y: 0.730480837159282,
                                     z: Some(2.0),
                                     m: None,
                                     t: Some(0.0005558708889643396)
                                 },
                                 VectorPoint {
-                                    x: 1.0,
-                                    y: 1.0,
+                                    x: 0.8570480773242899,
+                                    y: 0.6662313440317926,
                                     z: Some(-0.5),
                                     m: None,
                                     t: Some(0.0003800636747767906)
                                 },
-                                VectorPoint { x: 1.0, y: 1.0, z: Some(8.0), m: None, t: Some(1.0) }
+                                VectorPoint {
+                                    x: 0.8744128051965825,
+                                    y: 0.6427889614041957,
+                                    z: Some(8.0),
+                                    m: None,
+                                    t: Some(1.0)
+                                }
                             ]
                         ],
                         offset: None,
@@ -835,7 +909,7 @@ mod tests {
                             far: 8.0
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }

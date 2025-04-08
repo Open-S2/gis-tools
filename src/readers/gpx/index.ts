@@ -24,6 +24,8 @@ import type {
   GPXWaypoint,
 } from './types';
 
+export * from './types';
+
 /** Represents a waypoint, point of interest, or named feature on a map. */
 export interface GPXWaypointProperties extends Properties {
   /** Optional timestamp in ISO 8601 format */

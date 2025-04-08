@@ -6,22 +6,21 @@ use alloc::{vec, vec::Vec};
 use convert_to_vector::convert_geometry_to_vector;
 use convert_wm_to_s2::{convert_geometry_wm_to_s2, ConvertedGeometry};
 use s2json::{
-    BBox3D, Feature, MValue, MValueCompatible, Properties, VectorFeature, VectorFeatureType,
-    VectorGeometry,
+    BBox3D, Feature, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
 };
 
 /// Underlying conversion mechanic to move GeoJSON Feature to GeoJSON Vector Feature
 pub trait ConvertFeature<
     M: Clone = (),
-    P: MValueCompatible = Properties,
-    D: MValueCompatible = MValue,
+    P: Clone + Default = Properties,
+    D: Clone + Default = MValue,
 >
 {
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
     fn to_vector(&self, build_bbox: Option<bool>) -> VectorFeature<M, P, D>;
 }
 
-impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertFeature<M, P, D>
+impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertFeature<M, P, D>
     for Feature<M, P, D>
 {
     /// Convert a GeoJSON Feature to a GeoJSON Vector Feature
@@ -36,8 +35,8 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertFeature<M, P, D>
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2 Geometry
 pub trait ConvertVectorFeatureWM<
     M: Clone = (),
-    P: MValueCompatible = Properties,
-    D: MValueCompatible = MValue,
+    P: Clone + Default = Properties,
+    D: Clone + Default = MValue,
 >
 {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
@@ -48,7 +47,7 @@ pub trait ConvertVectorFeatureWM<
     fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M, P, D>>;
 }
 
-impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureWM<M, P, D>
+impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureWM<M, P, D>
     for VectorFeature<M, P, D>
 {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
@@ -512,14 +511,14 @@ mod test {
                         None,
                         m_value
                     ),
-                    bbox: Some(BBox3D::new(1., 1., 1., 1., f64::INFINITY, -f64::INFINITY)),
+                    bbox: Some(BBox3D::new(1., 1., 1., 1., f64::MAX, f64::MIN)),
                     vec_bbox: Some(BBox3D::new(
                         0.5027777777777778,
                         0.49722208118489825,
                         0.5027777777777778,
                         0.49722208118489825,
-                        f64::INFINITY,
-                        -f64::INFINITY
+                        f64::MAX,
+                        f64::MIN
                     )),
                     ..Default::default()
                 }),

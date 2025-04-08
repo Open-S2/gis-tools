@@ -112,7 +112,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
    * @param data - any source of data like a feature collection or features themselves
    */
   insertFeature(data: JSONCollection<unknown, M, M>): void {
-    const features = convert(this.projection, data, undefined, undefined, undefined, true);
+    const features = convert(this.projection, data, undefined, true);
     for (const { face = 0, geometry, properties } of features) {
       const { type, coordinates } = geometry;
       if (type === 'Point') {
@@ -197,7 +197,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
       const { cell: midCell } = await this.#store.get(mid);
-      if (compareIDs(midCell, id) === -1) {
+      if (compareIDs(midCell, id) < 0) {
         lo = mid + 1;
       } else {
         hi = mid;

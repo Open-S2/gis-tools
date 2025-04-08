@@ -2,6 +2,8 @@
 pub mod cache;
 /// Point Cluster
 pub mod point_cluster;
+/// Point Grid
+pub mod point_grid;
 /// Point Index
 pub mod point_index;
 /// Priority Queue
@@ -10,7 +12,8 @@ pub mod priority_queue;
 pub mod tile;
 
 pub use cache::*;
-// pub use point_cluster::*;
+pub use point_cluster::*;
+pub use point_grid::*;
 pub use point_index::*;
 pub use priority_queue::*;
 pub use tile::*;

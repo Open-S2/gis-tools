@@ -8,7 +8,7 @@ use crate::{
     util::{decompress_data, Buffer},
 };
 use alloc::{string::String, vec::Vec};
-use s2_tilejson::Metadata;
+use s2_tilejson::{Metadata, UnknownMetadata};
 use s2json::Face;
 
 /// The File reader is to be used by the local filesystem.
@@ -54,8 +54,9 @@ impl<R: Reader> PMTilesReader<R> {
             header.internal_compression,
         )
         .unwrap();
-        self.metadata = serde_json::from_str(&String::from_utf8_lossy(&json_metadata))
+        let meta: UnknownMetadata = serde_json::from_str(&String::from_utf8_lossy(&json_metadata))
             .unwrap_or_else(|e| panic!("ERROR: {}", e));
+        self.metadata = meta.to_metadata();
 
         // root directory data
         let root_dir_offset = header.root_directory_offset as usize;
@@ -178,8 +179,8 @@ impl<R: Reader> PMTilesReader<R> {
 
     /// Get a range of bytes given an offset and length
     fn get_range(&mut self, offset: u64, length: u64) -> Vec<u8> {
-        let end = usize::min(self.reader.len(), (offset + length) as usize);
-        self.reader.slice(Some(offset as usize), Some(end))
+        let end = u64::min(self.reader.len(), offset + length);
+        self.reader.slice(Some(offset), Some(end))
     }
 }
 
@@ -262,16 +263,16 @@ mod tests {
         assert_eq!(
             *metadata,
             Metadata {
-                s2tilejson: "".into(),
+                s2tilejson: "1.0.0".into(),
                 version: "2".into(),
                 name: "test_fixture_1.pmtiles".into(),
                 scheme: Scheme::Fzxy,
                 description: "test_fixture_1.pmtiles".into(),
-                type_: SourceType::Unknown,
-                extension: "".into(),
+                r#type: SourceType::Unknown,
+                extension: "pbf".into(),
                 encoding: Encoding::None,
                 minzoom: 0,
-                maxzoom: 0,
+                maxzoom: 27,
                 vector_layers: vec![VectorLayer {
                     id: "test_fixture_1pmtiles".into(),
                     description: Some("".into()),
@@ -359,16 +360,16 @@ mod tests {
         assert_eq!(
             *metadata,
             Metadata {
-                s2tilejson: "".into(),
+                s2tilejson: "1.0.0".into(),
                 version: "2".into(),
                 name: "test_fixture_1.pmtiles".into(),
                 scheme: Scheme::Fzxy,
                 description: "test_fixture_1.pmtiles".into(),
-                type_: SourceType::Unknown,
-                extension: "".into(),
+                r#type: SourceType::Unknown,
+                extension: "pbf".into(),
                 encoding: Encoding::None,
                 minzoom: 0,
-                maxzoom: 0,
+                maxzoom: 27,
                 vector_layers: vec![VectorLayer {
                     id: "test_fixture_1pmtiles".into(),
                     description: Some("".into()),

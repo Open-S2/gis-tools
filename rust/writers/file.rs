@@ -22,8 +22,12 @@ impl FileWriter {
 }
 
 impl Writer for FileWriter {
-    fn write(&mut self, data: &[u8], offset: usize) {
-        self.file.seek(SeekFrom::Start(offset as u64)).expect("Seek failed");
+    fn offset(&mut self) -> u64 {
+        self.file.stream_position().expect("Seek failed")
+    }
+
+    fn write(&mut self, data: &[u8], offset: u64) {
+        self.file.seek(SeekFrom::Start(offset)).expect("Seek failed");
         self.file.write_all(data).expect("Write failed");
     }
 

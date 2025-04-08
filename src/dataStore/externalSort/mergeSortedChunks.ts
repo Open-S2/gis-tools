@@ -67,7 +67,7 @@ export async function mergeSortedChunks(inputs: string[], output: string): Promi
   for (const input of inputs) {
     inputFiles.push(new SortedFile(await open(input, 'r'), statSync(input).size));
   }
-  const outputStream = createWriteStream(`${output}.sortedKeys`);
+  const outputStream = createWriteStream(`${output}.keys`);
 
   // loop through all the input files and grab the next key in order
   let keyWrites: Key[] = [];

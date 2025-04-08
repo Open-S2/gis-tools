@@ -1,4 +1,4 @@
-declare let self: Worker;
+declare let self: DedicatedWorkerGlobalScope;
 
 import { DrawType } from 's2-tilejson';
 import { MultiMap } from '../../../dataStore';
@@ -91,7 +91,7 @@ export default class TileWorker {
    * Tile-ize input vector features and store them
    * @param event - the init message or a feature message
    */
-  onmessage(event: Bun.MessageEvent<InitMessage | FeatureMessage>): void {
+  onmessage(event: MessageEvent<InitMessage | FeatureMessage>): void {
     this.handleMessage(event.data);
   }
 
@@ -210,7 +210,7 @@ export default class TileWorker {
     // store vector features
     const vectorFeatures = await this.vectorStore.get(id);
     if (vectorFeatures !== undefined) {
-      if (buildIndices) earclipPolygons(vectorFeatures, tile.zoom, tile.extent);
+      if (buildIndices) earclipPolygons(vectorFeatures, tile.zoom);
       for (const feature of vectorFeatures) tile.addFeature(feature, feature.metadata?.layerName);
     }
     // store all cluster features
@@ -431,9 +431,8 @@ function toDrawType(feature: VectorFeatures): DrawType {
  * Pre-earclip polygons for faster processing in the tile
  * @param features - the features to be stored in the tile
  * @param zoom - the tile zoom
- * @param extent - the tile extent
  */
-function earclipPolygons(features: VectorFeatures[], zoom: number, extent: number): void {
+function earclipPolygons(features: VectorFeatures[], zoom: number): void {
   const { max, min, floor, fround } = Math;
 
   for (const feature of features) {
@@ -466,12 +465,12 @@ function earclipPolygons(features: VectorFeatures[], zoom: number, extent: numbe
 
     const level = 1 << max(min(floor(zoom / 2), 4), 0);
     const division = 16 / level;
-    if (division > 1) tesselate(verts, indices, extent / division, 2);
+    if (division > 1) tesselate(verts, indices, 1 / division, 2);
 
     const tessPoints = verts.slice(tessPos).map((n) => fround(n));
 
     // store
     geometry.indices = indices;
-    geometry.tesselation = tessPoints;
+    geometry.tessellation = tessPoints;
   }
 }

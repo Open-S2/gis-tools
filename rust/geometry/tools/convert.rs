@@ -1,12 +1,11 @@
 use crate::geometry::{
-    ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Feature, JSONCollection,
-    Projection, VectorFeature, WMFeature,
+    ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Feature, Features,
+    JSONCollection, Projection, VectorFeature,
 };
 use alloc::{vec, vec::Vec};
-use s2json::MValueCompatible;
 
 /// Given an input data, convert it to a vector of VectorFeature
-pub fn convert<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+pub fn convert<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &JSONCollection<M, P, D>,
     tolerance: Option<f64>,
@@ -23,12 +22,12 @@ where
         JSONCollection::FeatureCollection(feature_collection) => {
             for feature in &feature_collection.features {
                 match &feature {
-                    WMFeature::Feature(feature) => {
+                    Features::Feature(feature) => {
                         res.extend(convert_feature(
                             projection, feature, tolerance, maxzoom, build_bbox,
                         ));
                     }
-                    WMFeature::VectorFeature(feature) => {
+                    Features::VectorFeature(feature) => {
                         res.extend(convert_vector_feature(projection, feature, tolerance, maxzoom))
                     }
                 }
@@ -51,7 +50,7 @@ where
 }
 
 /// Convert a GeoJSON Feature to the appropriate VectorFeature
-fn convert_feature<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+fn convert_feature<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &Feature<M, P, D>,
     tolerance: Option<f64>,
@@ -73,7 +72,7 @@ where
 }
 
 /// Convert a GeoJSON VectorFeature to the appropriate VectorFeature
-fn convert_vector_feature<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+fn convert_vector_feature<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &VectorFeature<M, P, D>,
     tolerance: Option<f64>,

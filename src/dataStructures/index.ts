@@ -6,3 +6,4 @@ export * from './pointIndexFast';
 export * from './priorityQueue';
 export * from './splayTree';
 export * from './tile';
+export * from './vectorSet';

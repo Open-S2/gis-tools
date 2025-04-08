@@ -17,6 +17,7 @@ use flate2::{
 };
 #[cfg(feature = "std")]
 use ruzstd::io::Read;
+use s2_tilejson::Encoding;
 #[cfg(feature = "std")]
 use std::io::Write;
 // #[cfg(feature = "std")]
@@ -79,6 +80,16 @@ impl From<u8> for CompressionFormat {
         }
     }
 }
+impl From<&Encoding> for CompressionFormat {
+    fn from(encoding: &Encoding) -> Self {
+        match encoding {
+            Encoding::Gzip => CompressionFormat::Gzip,
+            Encoding::Brotli => CompressionFormat::Brotli,
+            Encoding::Zstd => CompressionFormat::Zstd,
+            _ => CompressionFormat::None,
+        }
+    }
+}
 impl From<CompressionFormat> for u8 {
     fn from(compression: CompressionFormat) -> Self {
         match compression {
@@ -118,29 +129,29 @@ impl From<CompressionFormat> for String {
 
 /// Compresses data using the specified format
 #[cfg(feature = "std")]
-pub fn compress_data(input: &[u8], format: CompressionFormat) -> Result<Vec<u8>, CompressError> {
+pub fn compress_data(input: Vec<u8>, format: CompressionFormat) -> Result<Vec<u8>, CompressError> {
     let mut output = Vec::new();
 
     match format {
-        CompressionFormat::None => output.extend_from_slice(input),
+        CompressionFormat::None => output = input,
         CompressionFormat::Gzip => {
             let mut encoder = GzEncoder::new(&mut output, Compression::default());
-            encoder.write_all(input).map_err(|_| CompressError::WriteError)?;
+            encoder.write_all(&input).map_err(|_| CompressError::WriteError)?;
             encoder.finish().map_err(|_| CompressError::WriteError)?;
         }
         CompressionFormat::Deflate => {
             let mut encoder = DeflateEncoder::new(&mut output, Compression::default());
-            encoder.write_all(input).map_err(|_| CompressError::WriteError)?;
+            encoder.write_all(&input).map_err(|_| CompressError::WriteError)?;
             encoder.finish().map_err(|_| CompressError::WriteError)?;
         }
         CompressionFormat::DeflateRaw => {
             let mut encoder = ZlibEncoder::new(&mut output, Compression::default());
-            encoder.write_all(input).map_err(|_| CompressError::WriteError)?;
+            encoder.write_all(&input).map_err(|_| CompressError::WriteError)?;
             encoder.finish().map_err(|_| CompressError::WriteError)?;
         }
         CompressionFormat::Brotli => {
             let mut encoder = brotli::CompressorWriter::new(&mut output, 4096, 11, 22);
-            encoder.write_all(input).map_err(|_| CompressError::WriteError)?;
+            encoder.write_all(&input).map_err(|_| CompressError::WriteError)?;
         }
         CompressionFormat::Zstd => return Err(CompressError::UnimplementedZstd),
     }
@@ -217,9 +228,9 @@ pub struct ZipItem<'a> {
 
 /// Iterates through the items in a zip file
 pub fn iter_zip_folder(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
-    let mut at: usize = find_end_central_directory(raw)?;
+    let mut at = find_end_central_directory(raw)? as u64;
     let mut items = Vec::new();
-    let mut reader: BufferReader = raw.into();
+    let reader: BufferReader = raw.into();
 
     // Read end central directory
     let file_count = reader.uint16_le(Some(10 + at));
@@ -227,42 +238,40 @@ pub fn iter_zip_folder(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
         return Err(CompressError::ZipMultiDiskNotSupported);
     }
     let central_directory_start = reader.uint32_le(Some(16 + at));
-    at = central_directory_start as usize;
+    at = central_directory_start as u64;
 
     // Read central directory
     for _ in 0..file_count {
-        let compression_method = reader.uint16_le(Some(10 + at));
-        let filename_length = reader.uint16_le(Some(28 + at));
-        let extra_fields_length = reader.uint16_le(Some(30 + at));
-        let comment_length = reader.uint16_le(Some(32 + at));
-        let compressed_size = reader.uint32_le(Some(20 + at));
+        let compression_method = reader.uint16_le(Some(10 + at)) as usize;
+        let filename_length = reader.uint16_le(Some(28 + at)) as usize;
+        let extra_fields_length = reader.uint16_le(Some(30 + at)) as usize;
+        let comment_length = reader.uint16_le(Some(32 + at)) as usize;
+        let compressed_size = reader.uint32_le(Some(20 + at)) as usize;
 
         // Find local entry location
-        let local_entry_at = reader.uint32_le(Some(42 + at));
+        let local_entry_at = reader.uint32_le(Some(42 + at)) as usize;
 
         // Read buffers, move at to after entry, and store where we were
         let filename =
-            String::from_utf8_lossy(&raw[at + 46..at + 46 + filename_length as usize]).to_string();
+            String::from_utf8_lossy(&raw[(at + 46) as usize..(at as usize + 46 + filename_length)])
+                .to_string();
         let comment = String::from_utf8_lossy(
-            &raw[at + 46 + filename_length as usize + extra_fields_length as usize
-                ..at + 46
-                    + filename_length as usize
-                    + extra_fields_length as usize
-                    + comment_length as usize],
+            &raw[at as usize + 46 + filename_length + extra_fields_length
+                ..at as usize + 46 + filename_length + extra_fields_length + comment_length],
         )
         .to_string();
 
         let next_central_directory_entry = at;
 
         // >> Start reading entry
-        at = local_entry_at as usize;
+        at = local_entry_at as u64;
 
         // This is the local entry (filename + extra fields) length, which we skip
-        let bytes_start = at
+        let bytes_start = at as usize
             + 30
             + reader.uint16_le(Some(26 + at)) as usize
             + reader.uint16_le(Some(28 + at)) as usize;
-        let bytes_end = at + compressed_size as usize + bytes_start;
+        let bytes_end = at as usize + compressed_size + bytes_start;
         let bytes = &raw[bytes_start..bytes_end];
 
         let read_fn = Box::new(move || {
@@ -313,7 +322,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let encoded = compress_data(&expected, CompressionFormat::None).unwrap();
+        let encoded = compress_data(expected.clone(), CompressionFormat::None).unwrap();
         // decode
         let decoded = decompress_data(&encoded, CompressionFormat::None).unwrap();
 
@@ -328,7 +337,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let encoded = compress_data(&expected, CompressionFormat::Gzip).unwrap();
+        let encoded = compress_data(expected.clone(), CompressionFormat::Gzip).unwrap();
         // decode
         let decoded = decompress_data(&encoded, CompressionFormat::Gzip).unwrap();
 
@@ -343,7 +352,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let encoded = compress_data(&expected, CompressionFormat::Deflate).unwrap();
+        let encoded = compress_data(expected.clone(), CompressionFormat::Deflate).unwrap();
         // decode
         let decoded = decompress_data(&encoded, CompressionFormat::Deflate).unwrap();
 
@@ -358,7 +367,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let encoded = compress_data(&expected, CompressionFormat::DeflateRaw).unwrap();
+        let encoded = compress_data(expected.clone(), CompressionFormat::DeflateRaw).unwrap();
         // decode
         let decoded = decompress_data(&encoded, CompressionFormat::DeflateRaw).unwrap();
 
@@ -373,7 +382,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let encoded = compress_data(&expected, CompressionFormat::Brotli).unwrap();
+        let encoded = compress_data(expected.clone(), CompressionFormat::Brotli).unwrap();
         // decode
         let decoded = decompress_data(&encoded, CompressionFormat::Brotli).unwrap();
 
@@ -388,7 +397,7 @@ mod tests {
         let expected: Vec<u8> = fs::read(&path).expect("Failed to read file expected");
 
         // encode
-        let _encoded = compress_data(&expected, CompressionFormat::Zstd).unwrap_err();
+        let _encoded = compress_data(expected.clone(), CompressionFormat::Zstd).unwrap_err();
         // assert_eq!(encoded, CompressError::UnimplementedZstd);
         // decode
         let _decoded = decompress_data(&expected, CompressionFormat::Zstd).unwrap_err();

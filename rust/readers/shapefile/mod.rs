@@ -44,11 +44,11 @@ pub struct Definition {
 ///
 /// ## Description
 /// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
-pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+pub fn shapefile_from_gzip<P: MValueCompatible>(
     input: &[u8],
     _defs: Option<Vec<ProjectionTransformDefinition>>,
     _epsg_codes: BTreeMap<String, String>,
-) -> ShapeFileReader<BufferReader, M, P, D> {
+) -> ShapeFileReader<BufferReader, P> {
     let mut encoding = None;
     let mut transform = None;
     let mut dbf_reader = None;

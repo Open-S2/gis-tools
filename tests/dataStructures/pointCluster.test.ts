@@ -50,7 +50,7 @@ test('PointCluster', async () => {
           {
             face: 0,
             geometry: {
-              coordinates: { m: { value: 3 }, x: 0.5129213455463228, y: 0.48707282292783416 },
+              coordinates: { m: { value: 3 }, x: 0.5129216695148089, y: 0.4870724987162167 },
               is3D: false,
               type: 'Point',
             },

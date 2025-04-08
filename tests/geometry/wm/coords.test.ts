@@ -1,7 +1,7 @@
 import {
   altitudeFromMercatorZ,
   bboxToXYZBounds,
-  convert,
+  convertBBox,
   latFromMercatorY,
   llToMerc,
   llToPX,
@@ -24,47 +24,69 @@ import type { BBox } from '../../../src/geometry';
 
 describe('llToPX', () => {
   it('PX with int zoom value converts when antiMeridian=true', () => {
-    expect(llToPX([-179, 85], 9, true, 256)).toEqual([364.0888888888876, 214.68476683766494]);
+    expect(llToPX({ x: -179, y: 85 }, 9, true, 256)).toEqual({
+      x: 364.0888888888876,
+      y: 214.68476683766494,
+    });
   });
 
   it('PX with int zoom value converts when antiMeridian=false', () => {
-    expect(llToPX([-179, 85], 9, false, 256)).toEqual([364.0888888888876, 214.68476683766494]);
+    expect(llToPX({ x: -179, y: 85 }, 9, false, 256)).toEqual({
+      x: 364.0888888888876,
+      y: 214.68476683766494,
+    });
   });
 
   it('PX with float zoom value converts when antiMeridian=false', () => {
-    expect(llToPX([-179, 85], 8.6574, false, 256)).toEqual([
-      287.12734093961626, 169.30444219392666,
-    ]);
+    expect(llToPX({ x: -179, y: 85 }, 8.6574, false, 256)).toEqual({
+      x: 287.12734093961626,
+      y: 169.30444219392666,
+    });
   });
 
   it('PX with float zoom value converts when antiMeridian=true', () => {
-    expect(llToPX([-179, 85], 8.6574, true, 256)).toEqual([287.12734093961626, 169.30444219392666]);
+    expect(llToPX({ x: -179, y: 85 }, 8.6574, true, 256)).toEqual({
+      x: 287.12734093961626,
+      y: 169.30444219392666,
+    });
   });
 
   it('Clamps PX by default when lon >180 when antiMeridian=false', () => {
-    expect(llToPX([250, 3], 4, false, 256)).toEqual([4096, 2013.8510595566413]);
+    expect(llToPX({ x: 250, y: 3 }, 4, false, 256)).toEqual({ x: 4096, y: 2013.8510595566413 });
   });
 
   it('PX with lon > 180 converts when antimeridian=true', () => {
-    expect(llToPX([250, 3], 4, true, 256)).toEqual([4892.444444444444, 2013.8510595566413]);
+    expect(llToPX({ x: 250, y: 3 }, 4, true, 256)).toEqual({
+      x: 4892.444444444444,
+      y: 2013.8510595566413,
+    });
   });
 
   it('Clamps PX when lon >360 and antimeridian=true', () => {
-    expect(llToPX([400, 3], 4, true, 256)).toEqual([6599.111111111111, 2013.8510595566413]);
+    expect(llToPX({ x: 400, y: 3 }, 4, true, 256)).toEqual({
+      x: 6599.111111111111,
+      y: 2013.8510595566413,
+    });
   });
 
   it('Clamps PX when lon >360 and antimeridian=false', () => {
-    expect(llToPX([400, 3], 4, false, 256)).toEqual([4096, 2013.8510595566413]);
+    expect(llToPX({ x: 400, y: 3 }, 4, false, 256)).toEqual({ x: 4096, y: 2013.8510595566413 });
   });
 });
 
 describe('pxToLL', () => {
   it('LL with int zoom value converts', () => {
-    expect(pxToLL([200, 200], 9, 256)).toEqual([-179.45068359375, 85.00351401304401]);
+    expect(pxToLL({ x: 200, y: 200 }, 9, 256)).toEqual({
+      x: -179.45068359375,
+      y: 85.00351401304401,
+    });
   });
 
   it('LL with float zoom value converts', () => {
-    expect(pxToLL([200, 200], 8.6574, 256)).toEqual([-179.3034449476476, 84.99067388699072]);
+    expect(pxToLL({ x: 200, y: 200 }, 8.6574, 256)).toEqual({
+      x: -179.3034449476476,
+      y: 84.99067388699072,
+    });
   });
 });
 
@@ -144,19 +166,19 @@ describe('bboxToXYZBounds', () => {
   });
 });
 
-describe('convert', () => {
+describe('convertBBox', () => {
   it('extremes', () => {
     expect(
-      convert(
+      convertBBox(
         [-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244],
         'WGS84',
       ),
     ).toEqual([-180.00000000000003, -85.05112877980659, 180.00000000000003, 85.05112877980659]);
-    expect(convert([-180, -85.05112877980659, 180, 85.05112877980659], '900913')).toEqual([
+    expect(convertBBox([-180, -85.05112877980659, 180, 85.05112877980659], '900913')).toEqual([
       -20037508.34278924, -20037508.342789236, 20037508.34278924, 20037508.342789244,
     ]);
     expect(
-      convert(
+      convertBBox(
         [-20037508.34278924, -20037508.34278924, 20037508.34278924, 20037508.342789244],
         'WGS84',
       ),
@@ -164,7 +186,7 @@ describe('convert', () => {
   });
 
   it('extents', () => {
-    expect(convert([-240, -90, 240, 90], '900913')).toEqual([
+    expect(convertBBox([-240, -90, 240, 90], '900913')).toEqual([
       -20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244,
     ]);
 
@@ -173,8 +195,8 @@ describe('convert', () => {
 });
 
 test('high precision float 256', () => {
-  let withInt = pxToLL([200, 200], 4, 256);
-  let withFloat = pxToLL([200, 200], 4.0000000001, 256);
+  let withInt = pxToLL({ x: 200, y: 200 }, 4, 256);
+  let withFloat = pxToLL({ x: 200, y: 200 }, 4.0000000001, 256);
 
   /**
    * @param val - input
@@ -188,16 +210,16 @@ test('high precision float 256', () => {
   expect(round(withInt[1])).toEqual(round(withFloat[1]));
 
   // utilize cache
-  withInt = pxToLL([200, 200], 4, 256);
-  withFloat = pxToLL([200, 200], 4.0000000001, 256);
+  withInt = pxToLL({ x: 200, y: 200 }, 4, 256);
+  withFloat = pxToLL({ x: 200, y: 200 }, 4.0000000001, 256);
 
   expect(round(withInt[0])).toEqual(round(withFloat[0]));
   expect(round(withInt[1])).toEqual(round(withFloat[1]));
 });
 
 test('high precision float 512', () => {
-  let withInt = pxToLL([400, 400], 2, 512);
-  let withFloat = pxToLL([400, 400], 2.00000000001, 512);
+  let withInt = pxToLL({ x: 400, y: 400 }, 2, 512);
+  let withFloat = pxToLL({ x: 400, y: 400 }, 2.00000000001, 512);
 
   /**
    * @param val - input
@@ -211,8 +233,8 @@ test('high precision float 512', () => {
   expect(round(withInt[1])).toEqual(round(withFloat[1]));
 
   // utilize cache
-  withInt = pxToLL([200, 200], 4, 512);
-  withFloat = pxToLL([200, 200], 4.0000000001, 512);
+  withInt = pxToLL({ x: 200, y: 200 }, 4, 512);
+  withFloat = pxToLL({ x: 200, y: 200 }, 4.0000000001, 512);
 
   expect(round(withInt[0])).toEqual(round(withFloat[0]));
   expect(round(withInt[1])).toEqual(round(withFloat[1]));
@@ -220,97 +242,99 @@ test('high precision float 512', () => {
 
 describe('llToTile', () => {
   it('0-0-0: center point', () => {
-    const tile = llToTile([0, 0], 0, 512);
-    expect(tile).toEqual([0, 0]);
+    const tile = llToTile({ x: 0, y: 0 }, 0, 512);
+    expect(tile).toEqual({ x: 0, y: 0 });
   });
 
   it('0-0-0: top left', () => {
-    const tile = llToTile([-180, 85.05], 0, 512);
-    expect(tile).toEqual([0, 0]);
+    const tile = llToTile({ x: -180, y: 85.05 }, 0, 512);
+    expect(tile).toEqual({ x: 0, y: 0 });
   });
 
   // zoom 1
   it('1-0-0: center point', () => {
-    const tile = llToTile([0, 0], 1, 512);
-    expect(tile).toEqual([1, 1]);
+    const tile = llToTile({ x: 0, y: 0 }, 1, 512);
+    expect(tile).toEqual({ x: 1, y: 1 });
   });
 
   it('1-0-0: top left', () => {
-    const tile = llToTile([-180, 85.05], 1, 512);
-    expect(tile).toEqual([0, 0]);
+    const tile = llToTile({ x: -180, y: 85.05 }, 1, 512);
+    expect(tile).toEqual({ x: 0, y: 0 });
   });
 });
 
 describe('llToTilePx', () => {
   it('0-0-0: center point', () => {
-    const tileOffset = llToTilePx([0, 0], [0, 0, 0], 512);
-    expect(tileOffset).toEqual([0.5, 0.5]);
+    const tileOffset = llToTilePx({ x: 0, y: 0 }, [0, 0, 0], 512);
+    expect(tileOffset).toEqual({ x: 0.5, y: 0.5 });
   });
 
   it('2-3-3: center point', () => {
-    const tileOffset = llToTilePx([0, 0], [2, 3, 3], 512);
-    expect(tileOffset).toEqual([-1, -1]);
+    const tileOffset = llToTilePx({ x: 0, y: 0 }, [2, 3, 3], 512);
+    expect(tileOffset).toEqual({ x: -1, y: -1 });
   });
 
   it('0-1-0: out of bounds tile with center point (used for world wrapping)', () => {
-    const tileOffset = llToTilePx([0, 0], [0, 2, 0], 512);
-    expect(tileOffset).toEqual([-1.5, 0.5]);
+    const tileOffset = llToTilePx({ x: 0, y: 0 }, [0, 2, 0], 512);
+    expect(tileOffset).toEqual({ x: -1.5, y: 0.5 });
   });
 
   it('0-0-0: top left', () => {
-    const tileOffset = llToTilePx([-180, 85.05], [0, 0, 0], 512);
-    expect(tileOffset).toEqual([0, 0.00003634242909722474]);
+    const tileOffset = llToTilePx({ x: -180, y: 85.05 }, [0, 0, 0], 512);
+    expect(tileOffset).toEqual({ x: 0, y: 0.00003634242909722474 });
   });
 
   it('0-0-0: top right', () => {
-    const tileOffset = llToTilePx([180, 85.05], [0, 0, 0], 512);
-    expect(tileOffset).toEqual([1, 0.00003634242909722474]);
+    const tileOffset = llToTilePx({ x: 180, y: 85.05 }, [0, 0, 0], 512);
+    expect(tileOffset).toEqual({ x: 1, y: 0.00003634242909722474 });
   });
 
   it('0-0-0: bottom right', () => {
-    const tileOffset = llToTilePx([180, -85.05], [0, 0, 0], 512);
-    expect(tileOffset).toEqual([1, 0.9999636575709028]);
+    const tileOffset = llToTilePx({ x: 180, y: -85.05 }, [0, 0, 0], 512);
+    expect(tileOffset).toEqual({ x: 1, y: 0.9999636575709028 });
   });
 
   it('0-0-0: bottom left', () => {
-    const tileOffset = llToTilePx([-180, -85.05], [0, 0, 0], 512);
-    expect(tileOffset).toEqual([0, 0.9999636575709028]);
+    const tileOffset = llToTilePx({ x: -180, y: -85.05 }, [0, 0, 0], 512);
+    expect(tileOffset).toEqual({ x: 0, y: 0.9999636575709028 });
   });
 
   it('center for zoom 1 tiles', () => {
-    const tileOffset00 = llToTilePx([0, 0], [1, 0, 0], 512);
-    expect(tileOffset00).toEqual([1, 1]);
+    const tileOffset00 = llToTilePx({ x: 0, y: 0 }, [1, 0, 0], 512);
+    expect(tileOffset00).toEqual({ x: 1, y: 1 });
 
-    const tileOffset10 = llToTilePx([0, 0], [1, 1, 0], 512);
-    expect(tileOffset10).toEqual([0, 1]);
+    const tileOffset10 = llToTilePx({ x: 0, y: 0 }, [1, 1, 0], 512);
+    expect(tileOffset10).toEqual({ x: 0, y: 1 });
 
-    const tileOffset01 = llToTilePx([0, 0], [1, 0, 1], 512);
-    expect(tileOffset01).toEqual([1, 0]);
+    const tileOffset01 = llToTilePx({ x: 0, y: 0 }, [1, 0, 1], 512);
+    expect(tileOffset01).toEqual({ x: 1, y: 0 });
 
-    const tileOffset11 = llToTilePx([0, 0], [1, 1, 1], 512);
-    expect(tileOffset11).toEqual([0, 0]);
+    const tileOffset11 = llToTilePx({ x: 0, y: 0 }, [1, 1, 1], 512);
+    expect(tileOffset11).toEqual({ x: 0, y: 0 });
   });
 });
 
 test('llToMerc', () => {
-  expect(llToMerc([0, 0])).toEqual([0, -7.081154551613622e-10]);
-  expect(llToMerc([-180, 90])).toEqual([-20037508.34278924, 20037508.342789244]);
-  expect(llToMerc([180, -90])).toEqual([20037508.34278924, -20037508.342789244]);
+  expect(llToMerc({ x: 0, y: 0 })).toEqual({ x: 0, y: -7.081154551613622e-10 });
+  expect(llToMerc({ x: -180, y: 90 })).toEqual({ x: -20037508.34278924, y: 20037508.342789244 });
+  expect(llToMerc({ x: 180, y: -90 })).toEqual({ x: 20037508.34278924, y: -20037508.342789244 });
 });
 
 test('mercToLL', () => {
-  expect(mercToLL([0, -7.081154551613622e-10])).toEqual([0, 0]);
-  expect(mercToLL([-20037508.34278924, 20037508.342789244])).toEqual([
-    -179.99999999999997, 85.05112877980659,
-  ]);
-  expect(mercToLL([20037508.34278924, -20037508.342789244])).toEqual([
-    179.99999999999997, -85.05112877980659,
-  ]);
+  expect(mercToLL({ x: 0, y: -7.081154551613622e-10 })).toEqual({ x: 0, y: 0 });
+  expect(mercToLL({ x: -20037508.34278924, y: 20037508.342789244 })).toEqual({
+    x: -179.99999999999997,
+    y: 85.05112877980659,
+  });
+  expect(mercToLL({ x: 20037508.34278924, y: -20037508.342789244 })).toEqual({
+    x: 179.99999999999997,
+    y: -85.05112877980659,
+  });
 });
 
 test('pxToTile', () => {
-  expect(pxToTile([0, 0])).toEqual([0, 0]);
-  expect(pxToTile([600, 2_000])).toEqual([1, 3]);
+  expect(pxToTile({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
+  expect(pxToTile({ x: 600, y: 2_000 })).toEqual({ x: 1, y: 3 });
 });
 
 test('tilePxBounds', () => {

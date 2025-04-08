@@ -1,3 +1,5 @@
+use alloc::{format, string::String};
+
 /// Helper function to check if a year is a leap year
 const fn is_leap_year(year: u16) -> bool {
     (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
@@ -10,19 +12,28 @@ const DAYS_IN_MONTH: [[u16; 12]; 2] = [
 ];
 
 /// Convenience Date structure to model like a Javascript Date object.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Clone, Default)]
 pub struct Date {
     year: u16,
     month: u8,
     day: u8,
+    hour: u8,
+    minute: u8,
+    second: u8,
 }
+
 impl Date {
     /// Creates a new Date
     pub fn new(year: u16, month: u8, day: u8) -> Date {
-        Date { year, month, day }
+        Date { year, month, day, hour: 0, minute: 0, second: 0 }
     }
 
-    /// Returns the number of milliseconds since 1970-01-01 (UTC)
+    /// Creates a full Date
+    pub fn new_full(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> Date {
+        Date { year, month, day, hour, minute, second }
+    }
+
+    /// Returns the number of milliseconds since 1970-01-01T00:00:00Z (UTC)
     pub fn get_time(&self) -> i64 {
         let mut days = 0;
 
@@ -42,6 +53,17 @@ impl Date {
 
         // Convert to milliseconds
         days * 86_400_000
+            + (self.hour as i64 * 3_600_000)
+            + (self.minute as i64 * 60_000)
+            + (self.second as i64 * 1_000)
+    }
+
+    /// Returns a string representing the Date in ISO 8601 extended format.
+    pub fn to_iso_string(&self) -> String {
+        format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.000Z",
+            self.year, self.month, self.day, self.hour, self.minute, self.second
+        )
     }
 }
 
@@ -51,10 +73,18 @@ mod tests {
 
     #[test]
     fn test_date() {
-        let date = Date::new(2020, 1, 1);
+        let date = Date::new_full(2020, 1, 1, 0, 0, 0);
         assert_eq!(date.get_time(), 1577836800000);
 
-        let date = Date::new(2020, 2, 29);
-        assert_eq!(date.get_time(), 1582934400000);
+        let date = Date::new_full(2020, 2, 29, 12, 30, 45);
+        assert_eq!(date.get_time(), 1582979445000);
+
+        let date = Date::new_full(1970, 1, 1, 0, 0, 0);
+        assert_eq!(date.get_time(), 0);
+
+        let date = Date::new_full(1970, 1, 1, 1, 1, 1);
+        assert_eq!(date.get_time(), 3661000);
+
+        assert_eq!(date.to_iso_string(), "1970-01-01T01:01:01.000Z");
     }
 }

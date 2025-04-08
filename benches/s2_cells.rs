@@ -15,7 +15,7 @@ fn build_cells() {
         let mut ll: LonLat =
             LonLat::new(get_random_int(-180.0, 180.0), get_random_int(-90.0, 90.0), None);
         ll.normalize();
-        cells.push(ll.into());
+        cells.push((&ll).into());
     }
 }
 

@@ -124,10 +124,10 @@ async function sortChunksWithWorkers(chunks: SortChunk[], tc: number): Promise<s
       const worker = new Worker(new URL('./worker', import.meta.url).href, { type: 'module' });
       worker.postMessage(chunks.shift());
       /** @param msg - a sorted file */
-      worker.onmessage = (msg: Bun.MessageEvent<string>) => {
+      worker.onmessage = async (msg: MessageEvent<string>) => {
         sortedFiles.push(msg.data);
         if (chunks.length === 0) {
-          worker.terminate();
+          await worker.terminate();
           threadsComplete++;
           if (threadsComplete === threads) resolve();
         } else {

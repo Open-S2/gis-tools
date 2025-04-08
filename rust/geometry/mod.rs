@@ -1,6 +1,3 @@
-extern crate alloc;
-extern crate s2json;
-
 /// Id system for S2 and WM
 pub mod id;
 /// ALl LL tooling

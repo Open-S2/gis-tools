@@ -1,9 +1,7 @@
-use super::{get_channel, get_channel_m, RgbaChannel};
-use crate::{
-    readers::RGBA,
-    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
-};
-use s2json::{MValueCompatible, VectorPoint};
+use crate::tools::GetInterpolateValue;
+use s2json::{GetM, GetXY, GetZ};
+
+use super::Interpolatable;
 
 /// # Average Neighbor Interpolation
 ///
@@ -11,66 +9,42 @@ use s2json::{MValueCompatible, VectorPoint};
 /// Finds the avarage point in the reference data to the given point and returns its value.
 ///
 /// ## Usage
-pub fn average_interpolation<T: MValueCompatible>(
-    _point: &VectorPoint,
-    ref_data: &[VectorPoint<T>],
-    get_value: Option<GetInterpolateValue<T>>,
-) -> f64 {
-    let get_value = get_value.unwrap_or(default_get_interpolate_current_value);
-    let mut total = 0.;
+pub fn average_interpolation<M: Clone, P: GetXY + GetZ, R: GetM<M>, V: Interpolatable>(
+    _point: &P,
+    ref_data: &[R],
+    get_value: GetInterpolateValue<R, V>,
+) -> V {
+    let mut res = V::default();
     for ref_point in ref_data {
-        total += get_value(ref_point);
+        res += get_value(ref_point);
     }
 
-    total / ref_data.len() as f64
-}
+    res /= ref_data.len() as f64;
 
-/// Helper function for {@link averageInterpolation} on RGB(A) data.
-/// Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
-/// get the correct weight for each component.
-pub fn average_interpolation_rgba(point: &VectorPoint, ref_data: &[VectorPointRGBA]) -> RGBA {
-    if ref_data.is_empty() {
-        return RGBA::default();
-    }
-    let r = average_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::R)));
-    let g = average_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::G)));
-    let b = average_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::B)));
-    let a = average_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::A)));
-
-    RGBA::new(r, g, b, a)
-}
-
-/// Helper function for {@link averageInterpolation} on RGB(A) data.
-/// Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
-/// get the correct weight for each component.
-pub fn average_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint]) -> RGBA {
-    if ref_data.is_empty() {
-        return RGBA::default();
-    }
-    let r = average_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::R)));
-    let g = average_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::G)));
-    let b = average_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::B)));
-    let a = average_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::A)));
-
-    RGBA::new(r, g, b, a)
+    res
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        readers::RGBA,
+        tools::{default_get_interpolate_current_value, VectorPointRGBA},
+    };
     use alloc::{vec, vec::Vec};
-    use s2json::MValue;
+    use s2json::{MValue, VectorPoint};
 
     #[test]
     fn test_average_interpolation() {
-        let point = VectorPoint::new(0.5, 0.5, None, None);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
         let ref_data: Vec<VectorPoint> = vec![
             VectorPoint::new(0., 0., Some(1.), None),
             VectorPoint::new(1., 0., Some(2.), None),
             VectorPoint::new(0., 1., Some(3.), None),
             VectorPoint::new(1., 1., Some(4.), None),
         ];
-        let result = average_interpolation(&point, &ref_data, None);
+        let result =
+            average_interpolation(&point, &ref_data, default_get_interpolate_current_value);
         assert_eq!(result, 2.5);
     }
 
@@ -84,17 +58,21 @@ mod tests {
         ];
 
         // test 1
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let result = average_interpolation_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
+        let result =
+            average_interpolation(&point, &ref_data, |p| p.m().cloned().unwrap_or_default());
         assert_eq!(result.to_u8s(), (84, 107, 60, 255));
 
         // test 2
-        let point = VectorPoint::new(0.65, 0.15, None, None);
-        let result = average_interpolation_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.65, 0.15, None, None);
+        let result =
+            average_interpolation(&point, &ref_data, |p| p.m().cloned().unwrap_or_default());
         assert_eq!(result.to_u8s(), (84, 107, 60, 255));
 
         // test 3
-        let result = average_interpolation_rgba(&point, &[]);
+        let ref_data: Vec<VectorPoint<RGBA>> = vec![];
+        let result =
+            average_interpolation(&point, &ref_data, |p| p.m().cloned().unwrap_or_default());
         assert_eq!(result.to_u8s(), (0, 0, 0, 255));
     }
 
@@ -148,17 +126,18 @@ mod tests {
         ];
 
         // test 1
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let result = average_interpolation_m_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
+        let result = average_interpolation(&point, &ref_data, |p| RGBA::from(p.m().unwrap()));
         assert_eq!(result.to_u8s(), (84, 107, 60, 255));
 
         // test 2
-        let point = VectorPoint::new(0.65, 0.15, None, None);
-        let result = average_interpolation_m_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.65, 0.15, None, None);
+        let result = average_interpolation(&point, &ref_data, |p| RGBA::from(p.m().unwrap()));
         assert_eq!(result.to_u8s(), (84, 107, 60, 255));
 
         // test 3
-        let result = average_interpolation_m_rgba(&point, &[]);
+        let result =
+            average_interpolation(&point, &[] as &[VectorPoint], |p| RGBA::from(p.m().unwrap()));
         assert_eq!(result.to_u8s(), (0, 0, 0, 255));
     }
 }

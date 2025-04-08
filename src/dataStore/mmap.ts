@@ -2,7 +2,7 @@ import { compareIDs } from '..';
 import { externalSort } from './externalSort';
 import { mmap } from 'bun';
 import { tmpdir } from 'os';
-import { closeSync, openSync, unlinkSync, writeSync } from 'fs';
+import { closeSync, existsSync, openSync, unlinkSync, writeSync } from 'fs';
 
 import type { S2CellId } from '..';
 import type { Properties, Value, VectorKey } from '..';
@@ -65,7 +65,7 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
     this.#tmpDir = options?.tmpDir;
     if (!this.#sorted) this.#switchToWriteState();
     else {
-      this.#keyReader = mmap(`${this.fileName}.sortedKeys`) as Uint8Array;
+      this.#keyReader = mmap(`${this.fileName}.keys`) as Uint8Array;
       if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`) as Uint8Array;
       this.#size = this.#keyReader.length / 16;
     }
@@ -83,6 +83,7 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
    */
   set(key: number | S2CellId, value: V): void {
     this.#switchToWriteState();
+    this.#sorted = false;
     // prepare value
     // @ts-expect-error - we know its an object
     if (typeof value === 'object' && 'cell' in value && typeof value.cell === 'bigint')
@@ -185,7 +186,6 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
     if (cleanup) {
       unlinkSync(`${this.fileName}.keys`);
       if (!this.#indexIsValues) unlinkSync(`${this.fileName}.values`);
-      if (this.#sorted) unlinkSync(`${this.fileName}.sortedKeys`);
     }
   }
 
@@ -240,7 +240,7 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
     }
     if (this.#size === 0) return;
     await this.#sort();
-    this.#keyReader = mmap(`${this.fileName}.sortedKeys`);
+    this.#keyReader = mmap(`${this.fileName}.keys`);
     if (!this.#indexIsValues) this.#valueReader = mmap(`${this.fileName}.values`);
   }
 
@@ -270,7 +270,7 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
     while (lo < hi) {
       mid = Math.floor(lo + (hi - lo) / 2);
       const loHi = this.#getKey(mid);
-      if (compareIDs(loHi, id) === -1) {
+      if (compareIDs(loHi, id) < 0) {
         lo = mid + 1;
       } else {
         hi = mid;
@@ -298,5 +298,9 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
 function buildTmpFileName(tmpDir?: string): string {
   const tmpd = tmpDir ?? tmpdir();
   const randomName = Math.random().toString(36).slice(2);
-  return `${tmpd}/${randomName}`;
+  const file = `${tmpd}/${randomName}`;
+  // If the tmp filename already exists, let's delete it
+  if (existsSync(file)) unlinkSync(file);
+
+  return file;
 }

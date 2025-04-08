@@ -14,3 +14,4 @@ coverage/
 docs/
 build_bundle_tmp/
 tools/
+rustc-ice-*

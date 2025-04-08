@@ -218,7 +218,7 @@ export function createImage(
     }
   }
 
-  return { data, width, height };
+  return { data, width, height } as ImageData;
 }
 
 /**

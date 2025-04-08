@@ -1,5 +1,5 @@
 import { clipLine } from '../tools/clip';
-import { buildSqDists, radToDeg } from '../';
+import { radToDeg } from '../';
 import { extendBBox, fromPoint, mergeBBoxes } from '../bbox';
 import { pointFromLonLat as fromLonLat, pointToST as toST } from '../s2/point';
 
@@ -31,8 +31,6 @@ import type {
 /**
  * Convet a GeoJSON Feature to an S2Feature
  * @param data - GeoJSON Feature
- * @param tolerance - optional tolerance
- * @param maxzoom - optional maxzoom
  * @param buildBBox - optional - build a bbox for the feature if desired
  * @returns - S2Feature
  */
@@ -42,15 +40,13 @@ export function toS2<
   P extends Properties = Properties,
 >(
   data: Feature<M, D, P, Geometry<D>> | VectorFeature<M, D, P, VectorGeometry<D>>,
-  tolerance?: number,
-  maxzoom?: number,
   buildBBox?: boolean,
 ): S2Feature<M, D, P, VectorGeometry<D>>[] {
   const { id, properties, metadata } = data;
   const res: S2Feature<M, D, P>[] = [];
   const vectorGeo =
     data.type === 'VectorFeature' ? data.geometry : convertGeometry<D>(data.geometry, buildBBox);
-  for (const { geometry, face } of convertVectorGeometry<D>(vectorGeo, tolerance, maxzoom)) {
+  for (const { geometry, face } of convertVectorGeometry<D>(vectorGeo)) {
     res.push({
       id,
       type: 'S2Feature',
@@ -158,14 +154,10 @@ export type ConvertedGeometryList<M extends MValue = Properties> = ConvertedGeom
 /**
  * Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
  * @param geometry - GeoJSON Geometry
- * @param tolerance - if provided, geometry will be prepared for simplification by this tolerance
- * @param maxzoom - if provided, geometry will be prepared for simplification up to this zoom
  * @returns - S2Geometry
  */
 function convertVectorGeometry<M extends MValue = Properties>(
   geometry: VectorGeometry<M>,
-  tolerance?: number,
-  maxzoom?: number,
 ): ConvertedGeometryList<M> {
   const { type } = geometry;
   let cGeo: ConvertedGeometryList<M>;
@@ -178,8 +170,6 @@ function convertVectorGeometry<M extends MValue = Properties>(
   else {
     throw new Error('Either the conversion is not yet supported or Invalid S2Geometry type.');
   }
-  if (tolerance !== undefined)
-    for (const { geometry } of cGeo) buildSqDists(geometry, tolerance, maxzoom);
   return cGeo;
 }
 
@@ -343,14 +333,12 @@ function convertLineString<M extends MValue = Properties>(
 /**
  * Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
  * @param feature - input GeoJSON
- * @param tolerance - if provided, geometry will be prepared for simplification by this tolerance
- * @param maxzoom - if provided,
  */
 export function toUnitScale<
   M = Record<string, unknown>,
   D extends MValue = Properties,
   P extends Properties = Properties,
->(feature: VectorFeature<M, D, P>, tolerance?: number, maxzoom?: number): void {
+>(feature: VectorFeature<M, D, P>): void {
   const { geometry } = feature;
   const { type, coordinates } = geometry;
   if (type === 'Point') projectPoint(coordinates, geometry);
@@ -364,7 +352,6 @@ export function toUnitScale<
   else {
     throw new Error('Either the conversion is not yet supported or Invalid S2Geometry type.');
   }
-  if (tolerance !== undefined) buildSqDists(geometry, tolerance, maxzoom);
 }
 
 /**

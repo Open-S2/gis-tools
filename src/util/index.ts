@@ -85,7 +85,7 @@ export type DecompressFunc = (buf: Uint8Array, compression: Compression) => Prom
  * @param base64 - base64 encoded string
  * @returns converted ArrayBuffer of the string data
  */
-export function base64ToArrayBuffer(base64: string): ArrayBufferLike {
+export function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);

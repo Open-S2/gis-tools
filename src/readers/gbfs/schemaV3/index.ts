@@ -328,7 +328,6 @@ export async function buildGBFSReaderV3(gbfs: GBFSV3, path?: string): Promise<GB
       if (feed.name === 'gbfs') return;
       const url = path !== undefined ? `${path}/${feed.name}.json` : feed.url;
       const json = await fetch(url).then(async (res) => await res.json());
-      // @ts-expect-error - We really don't care, we know it categorizes correctly
       feedData[feed.name] = json;
     }),
   );

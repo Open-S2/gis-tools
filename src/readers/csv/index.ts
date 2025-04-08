@@ -82,12 +82,11 @@ export class CSVReader<
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<M, D, P>> {
     const { reader } = this;
-    let cursor = 0;
     let offset = 0;
     let partialLine = '';
 
     while (offset < reader.byteLength) {
-      const length = Math.min(65_536, reader.byteLength - cursor);
+      const length = Math.min(65_536, reader.byteLength - offset);
       // Prepend any partial line to the new chunk
       const chunk = partialLine + reader.parseString(offset, length);
       partialLine = '';
@@ -105,9 +104,8 @@ export class CSVReader<
       }
       // Store the remaining partial line for the next iteration
       partialLine = lines[lines.length - 1];
-      // Update the cursor and offset
+      // Update the offset
       offset += length;
-      cursor += length;
     }
 
     // Yield any remaining partial line after the loop

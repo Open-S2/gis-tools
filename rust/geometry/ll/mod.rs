@@ -4,7 +4,7 @@ use core::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 use libm::{asin, atan2, cos, sin, sqrt};
-use s2json::MValueCompatible;
+use s2json::{GetM, GetXY};
 
 /// This class represents a point on the unit sphere as a pair
 /// of latitude-longitude coordinates.  Like the rest of the "geometry"
@@ -12,9 +12,21 @@ use s2json::MValueCompatible;
 /// abstraction, so functions that are specifically related to the Earth's
 /// geometry (e.g. easting/northing conversions) should be put elsewhere.
 #[derive(Clone, PartialEq, Debug)]
-pub struct LonLat<M: MValueCompatible = MValue>(VectorPoint<M>);
-
-impl<M: MValueCompatible> LonLat<M> {
+pub struct LonLat<M: Clone + Default = MValue>(pub VectorPoint<M>);
+impl GetXY for LonLat {
+    fn x(&self) -> f64 {
+        self.0.x
+    }
+    fn y(&self) -> f64 {
+        self.0.y
+    }
+}
+impl<M: Clone + Default> GetM<M> for LonLat<M> {
+    fn m(&self) -> Option<&M> {
+        self.0.m.as_ref()
+    }
+}
+impl<M: Clone + Default> LonLat<M> {
     /// Build a new LonLat
     pub fn new(lon: f64, lat: f64, m: Option<M>) -> LonLat<M> {
         LonLat(VectorPoint::new(lon, lat, None, m))
@@ -131,7 +143,7 @@ impl<M: MValueCompatible> LonLat<M> {
     /// except that this function is slightly faster, and is also somewhat less
     /// accurate for distances approaching 180 degrees (see s1angle.h for
     /// details).  Both LngLats must be normalized.
-    pub fn get_distance<M2: MValueCompatible>(&self, b: &LonLat<M2>) -> f64 {
+    pub fn get_distance<M2: Clone + Default>(&self, b: &LonLat<M2>) -> f64 {
         // This implements the Haversine formula, which is numerically stable for
         // small distances but only gets about 8 digits of precision for very large
         // distances (e.g. antipodal points).  Note that 8 digits is still accurate
@@ -155,7 +167,7 @@ impl<M: MValueCompatible> LonLat<M> {
     }
 
     /// Returns the bearing from the first point to the second point.
-    pub fn get_bearing<M2: MValueCompatible>(&self, b: &LonLat<M2>) -> f64 {
+    pub fn get_bearing<M2: Clone + Default>(&self, b: &LonLat<M2>) -> f64 {
         debug_assert!(self.is_valid(), "get_bearing() called on invalid LonLat (self)");
         debug_assert!(b.is_valid(), "get_bearing() called on invalid LonLat (self)");
         let lat1 = self.lat().to_radians();
@@ -168,35 +180,35 @@ impl<M: MValueCompatible> LonLat<M> {
         (atan2(y, x).to_degrees() + 360.) % 360.
     }
 }
-impl<M: MValueCompatible> From<S2CellId> for LonLat<M> {
+impl<M: Clone + Default> From<S2CellId> for LonLat<M> {
     fn from(c: S2CellId) -> Self {
         LonLat::from_s2cellid(c)
     }
 }
-impl<M: MValueCompatible> From<&S2Point> for LonLat<M> {
+impl<M: Clone + Default> From<&S2Point> for LonLat<M> {
     fn from(p: &S2Point) -> Self {
         LonLat::from_s2_point(p)
     }
 }
-impl<M1: MValueCompatible, M2: MValueCompatible> Add<LonLat<M2>> for LonLat<M1> {
+impl<M1: Clone + Default, M2: Clone + Default> Add<LonLat<M2>> for LonLat<M1> {
     type Output = LonLat<M1>;
     fn add(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() + rhs.lon(), self.lat() + rhs.lat(), self.0.m)
     }
 }
-impl<M1: MValueCompatible, M2: MValueCompatible> Sub<LonLat<M2>> for LonLat<M1> {
+impl<M1: Clone + Default, M2: Clone + Default> Sub<LonLat<M2>> for LonLat<M1> {
     type Output = LonLat<M1>;
     fn sub(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() - rhs.lon(), self.lat() - rhs.lat(), self.0.m)
     }
 }
-impl<M1: MValueCompatible, M2: MValueCompatible> Mul<LonLat<M2>> for LonLat<M1> {
+impl<M1: Clone + Default, M2: Clone + Default> Mul<LonLat<M2>> for LonLat<M1> {
     type Output = LonLat<M1>;
     fn mul(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() * rhs.lon(), self.lat() * rhs.lat(), self.0.m)
     }
 }
-impl<M1: MValueCompatible, M2: MValueCompatible> Div<LonLat<M2>> for LonLat<M1> {
+impl<M1: Clone + Default, M2: Clone + Default> Div<LonLat<M2>> for LonLat<M1> {
     type Output = LonLat<M1>;
     fn div(self, rhs: LonLat<M2>) -> Self::Output {
         LonLat::new(self.lon() / rhs.lon(), self.lat() / rhs.lat(), self.0.m)

@@ -1,7 +1,7 @@
 import { Delaunator } from '../../src';
 import { beforeAll, expect, test } from 'bun:test';
 
-import { Point } from '../../src/geometry';
+import type { Point } from '../../src/geometry';
 
 let points: Point[];
 

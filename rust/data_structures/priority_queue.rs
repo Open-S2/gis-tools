@@ -29,7 +29,7 @@ pub struct PriorityQueue<T> {
 
 impl<T> PriorityQueue<T>
 where
-    T: Ord + Clone,
+    T: Clone,
 {
     /// Creates a new priority queue with an optional comparison function.
     pub fn new(compare: PriorityCompare<T>) -> Self {

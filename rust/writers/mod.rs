@@ -5,16 +5,21 @@ pub mod buffer;
 pub mod file;
 /// The (S2)PMTiles Writer
 pub mod pmtiles;
+/// Tile based writers
+pub mod tile;
 
 use alloc::vec::Vec;
 pub use buffer::*;
 #[cfg(feature = "std")]
 pub use file::*;
+pub use tile::*;
 
 /// The defacto interface for all writers.
 pub trait Writer {
+    /// Get the current offset of the writer
+    fn offset(&mut self) -> u64;
     /// Write data at the specified offset to the writer
-    fn write(&mut self, data: &[u8], offset: usize);
+    fn write(&mut self, data: &[u8], offset: u64);
     /// Append data to the writer
     fn append(&mut self, data: &[u8]);
     /// Append string to the writer

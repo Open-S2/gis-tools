@@ -1,9 +1,6 @@
-use super::{get_channel, get_channel_m, RgbaChannel};
-use crate::{
-    readers::RGBA,
-    tools::{default_get_interpolate_current_value, GetInterpolateValue, VectorPointRGBA},
-};
-use s2json::{MValueCompatible, VectorPoint};
+use super::{get_distance, Interpolatable};
+use crate::tools::GetInterpolateValue;
+use s2json::{GetM, GetXY, GetZ};
 
 /// # Nearest Neighbor Interpolation
 ///
@@ -11,22 +8,22 @@ use s2json::{MValueCompatible, VectorPoint};
 /// Finds the nearest point in the reference data to the given point and returns its value.
 ///
 /// ## Usage
-pub fn nearest_interpolation<T: MValueCompatible>(
-    point: &VectorPoint,
-    ref_data: &[VectorPoint<T>],
-    get_value: Option<GetInterpolateValue<T>>,
-) -> f64 {
-    if ref_data.is_empty() {
-        return 0.;
-    }
-    let get_value = get_value.unwrap_or(default_get_interpolate_current_value);
-
+pub fn nearest_interpolation<
+    M: Clone,
+    P: GetXY + GetZ,
+    R: GetM<M> + GetXY + GetZ,
+    V: Interpolatable,
+>(
+    point: &P,
+    ref_data: &[R],
+    get_value: GetInterpolateValue<R, V>,
+) -> V {
     // Find the nearest point
-    let mut nearest_point: Option<&VectorPoint<T>> = None;
+    let mut nearest_point: Option<&R> = None;
     let mut min_distance = f64::INFINITY;
 
     for ref_point in ref_data {
-        let dist = point.distance(ref_point);
+        let dist = get_distance(point, ref_point);
         if dist < min_distance || nearest_point.is_none() {
             min_distance = dist;
             nearest_point = Some(ref_point);
@@ -37,45 +34,20 @@ pub fn nearest_interpolation<T: MValueCompatible>(
     if let Some(nearest_point) = nearest_point {
         get_value(nearest_point)
     } else {
-        0.
+        V::default()
     }
-}
-
-/// Helper function for nearest_interpolation on RGB(A) data.
-/// Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
-/// get the correct weight for each component.
-pub fn nearest_interpolation_rgba(point: &VectorPoint, ref_data: &[VectorPointRGBA]) -> RGBA {
-    if ref_data.is_empty() {
-        return RGBA::default();
-    }
-    let r = nearest_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::R)));
-    let g = nearest_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::G)));
-    let b = nearest_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::B)));
-    let a = nearest_interpolation(point, ref_data, Some(|p| get_channel(p, RgbaChannel::A)));
-
-    RGBA::new(r, g, b, a)
-}
-
-/// Helper function for nearest_interpolation on RGB(A) data.
-/// Light in RGB data is logarithmically weighted, so we need to expand each component by n^2 to
-/// get the correct weight for each component.
-pub fn nearest_interpolation_m_rgba(point: &VectorPoint, ref_data: &[VectorPoint]) -> RGBA {
-    if ref_data.is_empty() {
-        return RGBA::default();
-    }
-    let r = nearest_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::R)));
-    let g = nearest_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::G)));
-    let b = nearest_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::B)));
-    let a = nearest_interpolation(point, ref_data, Some(|p| get_channel_m(p, RgbaChannel::A)));
-
-    RGBA::new(r, g, b, a)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        readers::RGBA,
+        tools::{default_get_interpolate_current_value, VectorPointRGBA},
+    };
     use alloc::vec;
-    use s2json::MValue;
+    use s2json::{MValue, VectorPoint};
+    use std::vec::Vec;
 
     #[test]
     fn test_nearest_interpolation() {
@@ -87,17 +59,21 @@ mod tests {
         ];
 
         // test 1
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let result = nearest_interpolation(&point, &ref_data, None);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
+        let result =
+            nearest_interpolation(&point, &ref_data, default_get_interpolate_current_value);
         assert_eq!(result, 1.);
 
         // test 2
-        let point = VectorPoint::new(0.65, 0.15, None, None);
-        let result = nearest_interpolation(&point, &ref_data, None);
-        assert_eq!(result, 2.);
+        let point: VectorPoint = VectorPoint::new(0.65, 0.15, None, None);
+        let result =
+            nearest_interpolation(&point, &ref_data, default_get_interpolate_current_value);
+        assert_eq!(result, 1.);
 
         // test 3
-        let result = nearest_interpolation::<MValue>(&point, &[], None);
+        let ref_data: Vec<VectorPoint> = vec![];
+        let result =
+            nearest_interpolation(&point, &ref_data, default_get_interpolate_current_value);
         assert_eq!(result, 0.);
     }
 
@@ -111,17 +87,18 @@ mod tests {
         ];
 
         // test 1
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let result = nearest_interpolation_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
+        let result = nearest_interpolation(&point, &ref_data, |p| p.m.unwrap());
         assert_eq!(result.to_u8s(), (20, 20, 60, 255));
 
         // test 2
-        let point = VectorPoint::new(0.65, 0.15, None, None);
-        let result = nearest_interpolation_rgba(&point, &ref_data);
+        let point: VectorPoint = VectorPoint::new(0.65, 0.15, None, None);
+        let result = nearest_interpolation(&point, &ref_data, |p| p.m.unwrap());
         assert_eq!(result.to_u8s(), (30, 100, 60, 255));
 
         // test 3
-        let result = nearest_interpolation_rgba(&point, &[]);
+        let ref_data: Vec<VectorPoint<RGBA>> = vec![];
+        let result = nearest_interpolation(&point, &ref_data, |p| p.m.unwrap());
         assert_eq!(result.to_u8s(), (0, 0, 0, 255));
     }
 
@@ -175,17 +152,21 @@ mod tests {
         ];
 
         // test 1
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let result = nearest_interpolation_m_rgba(&point, &ref_data);
+        let point: VectorPoint<MValue> = VectorPoint::new(0.5, 0.5, None, None);
+        let result =
+            nearest_interpolation(&point, &ref_data, |p| RGBA::from(p.m.as_ref().unwrap()));
         assert_eq!(result.to_u8s(), (20, 20, 60, 255));
 
         // test 2
-        let point = VectorPoint::new(0.65, 0.15, None, None);
-        let result = nearest_interpolation_m_rgba(&point, &ref_data);
+        let point: VectorPoint<MValue> = VectorPoint::new(0.65, 0.15, None, None);
+        let result =
+            nearest_interpolation(&point, &ref_data, |p| RGBA::from(p.m.as_ref().unwrap()));
         assert_eq!(result.to_u8s(), (30, 100, 60, 255));
 
         // test 3
-        let result = nearest_interpolation_m_rgba(&point, &[]);
+        let result = nearest_interpolation(&point, &[] as &[VectorPoint<MValue>], |p| {
+            RGBA::from(p.m.as_ref().unwrap())
+        });
         assert_eq!(result.to_u8s(), (0, 0, 0, 255));
     }
 }

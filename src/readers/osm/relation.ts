@@ -262,10 +262,10 @@ export function getNodeRelationPairs(members: IntermediateMember[]): Intermediat
 function buildGeometry(ways: WayMember[]): undefined | RelationGeometry {
   // prep variables
   const polygons: VectorMultiPolygon = [];
-  const currentPolygon: VectorPolygon = [];
-  const currentRing: VectorLineString = [];
+  let currentPolygon: VectorPolygon = [];
+  let currentRing: VectorLineString = [];
 
-  const isArea = ways.some((m) => m.role === 'outer') || ways.some((m) => m.role === 'inner');
+  const isArea = ways.some((m) => m.role === 'outer' || m.role === 'inner');
 
   // prepare step: members are stored out of order
   sortMembers(ways);
@@ -298,8 +298,10 @@ function buildGeometry(ways: WayMember[]): undefined | RelationGeometry {
       // current polygon.
       if (member.role === 'outer' && currentPolygon.length > 0) {
         polygons.push(currentPolygon);
+        currentPolygon = [];
       }
       currentPolygon.push(currentRing);
+      currentRing = [];
     }
   }
 
@@ -334,7 +336,7 @@ function sortMembers(members: WayMember[]): void {
     const curFirstPoint = curWay[0];
     const curLastPoint = curWay[curWay.length - 1];
     // if current way is already self closing break
-    if (curFirstPoint === curLastPoint) break;
+    if (equalPoints(curFirstPoint, curLastPoint)) break;
     for (let j = i + 1; j < members.length; j++) {
       const nextWay = members[j].way;
       const nextFirstPoint = nextWay[0];

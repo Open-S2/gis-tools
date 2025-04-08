@@ -317,7 +317,7 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint, P extend
       for (let px = 0; px < tileSize; px++) {
         const xPos = west + (px + 0.5) * xStep; // Center of the column
         const index = (py * tileSize + px) * channels;
-        const [lon, lat] = mercToLL([xPos, yPos]);
+        const { x: lon, y: lat } = mercToLL({ x: xPos, y: yPos });
         const m: RGBA | ElevationPoint =
           this.converter !== undefined
             ? { elev: this.converter(data[index], data[index + 1], data[index + 2]) }

@@ -1,7 +1,8 @@
-use core::ops::{Add, Div, Mul, Sub};
+use super::GetRasterTileValue;
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub};
 use libm::pow;
-use s2json::{MValue, MValueCompatible};
-use serde::{Deserialize as SDeserialize, Serialize as SSerialize};
+use s2json::{GetM, MValue, MValueCompatible};
+use serde::{Deserialize, Serialize};
 
 /// Gamma correction
 const GAMMA: f64 = 2.2;
@@ -19,7 +20,7 @@ pub fn linear_to_gamma(n: f64) -> f64 {
 /// RGBA data in 0->1 range floats
 /// These values remove gamma-corrected values so that you can apply maths on them
 /// This means the RGBA values are in linear space
-#[derive(Debug, Clone, Copy, PartialEq, SSerialize, SDeserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct RGBA {
     /// Gamma corrected Red between 0 and 1
     pub r: f64,
@@ -135,10 +136,36 @@ impl RGBA {
             | ((a * max_u16).round() as u64)
     }
 }
+impl GetRasterTileValue for RGBA {
+    fn get_raster_tile_value(r: u8, g: u8, b: u8, a: Option<u8>) -> Self {
+        RGBA::from_u8s(r, g, b, a.unwrap_or(255))
+    }
+}
+impl GetM<RGBA> for RGBA {
+    fn m(&self) -> Option<&RGBA> {
+        Some(self)
+    }
+}
 impl Add<RGBA> for RGBA {
     type Output = RGBA;
     fn add(self, rhs: RGBA) -> Self::Output {
         RGBA::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b, self.a + rhs.a)
+    }
+}
+impl AddAssign<RGBA> for RGBA {
+    fn add_assign(&mut self, rhs: RGBA) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
+        self.a += rhs.a;
+    }
+}
+impl AddAssign<f64> for RGBA {
+    fn add_assign(&mut self, rhs: f64) {
+        self.r += rhs;
+        self.g += rhs;
+        self.b += rhs;
+        self.a += rhs;
     }
 }
 impl Sub<RGBA> for RGBA {
@@ -153,15 +180,61 @@ impl Mul<RGBA> for RGBA {
         RGBA::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b, self.a * rhs.a)
     }
 }
+impl MulAssign<RGBA> for RGBA {
+    fn mul_assign(&mut self, rhs: RGBA) {
+        self.r *= rhs.r;
+        self.g *= rhs.g;
+        self.b *= rhs.b;
+        self.a *= rhs.a;
+    }
+}
+impl MulAssign<f64> for RGBA {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.r *= rhs;
+        self.g *= rhs;
+        self.b *= rhs;
+        self.a *= rhs;
+    }
+}
 impl Div<RGBA> for RGBA {
     type Output = RGBA;
     fn div(self, rhs: RGBA) -> Self::Output {
         RGBA::new(self.r / rhs.r, self.g / rhs.g, self.b / rhs.b, self.a / rhs.a)
     }
 }
+impl DivAssign<RGBA> for RGBA {
+    fn div_assign(&mut self, rhs: RGBA) {
+        self.r /= rhs.r;
+        self.g /= rhs.g;
+        self.b /= rhs.b;
+        self.a /= rhs.a;
+    }
+}
+impl DivAssign<f64> for RGBA {
+    fn div_assign(&mut self, rhs: f64) {
+        self.r /= rhs;
+        self.g /= rhs;
+        self.b /= rhs;
+        self.a /= rhs;
+    }
+}
+impl PartialEq<f64> for RGBA {
+    fn eq(&self, rhs: &f64) -> bool {
+        self.r == *rhs || self.g == *rhs || self.b == *rhs || self.a == *rhs
+    }
+}
 impl MValueCompatible for RGBA {}
 impl From<MValue> for RGBA {
     fn from(mvalue: MValue) -> Self {
+        let r = mvalue.get("r").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let g = mvalue.get("g").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let b = mvalue.get("b").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let a = mvalue.get("a").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        RGBA::from_u8s(r, g, b, a)
+    }
+}
+impl From<&MValue> for RGBA {
+    fn from(mvalue: &MValue) -> Self {
         let r = mvalue.get("r").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
         let g = mvalue.get("g").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
         let b = mvalue.get("b").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;

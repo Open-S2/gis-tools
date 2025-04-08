@@ -1,19 +1,19 @@
 use super::S2Point;
 use crate::geometry::{Face, LonLat, VectorFeature, VectorGeometry, VectorPoint};
-use s2json::{MValue, MValueCompatible, Properties, VectorFeatureType};
+use s2json::{MValue, Properties, VectorFeatureType};
 
 /// Underlying conversion mechanic to move S2 Geometry to GeoJSON Geometry
 pub trait ConvertVectorFeatureS2<
     M: Clone = (),
-    P: MValueCompatible = Properties,
-    D: MValueCompatible = MValue,
+    P: Clone + Default = Properties,
+    D: Clone + Default = MValue,
 >
 {
     /// Convert an S2 Feature to a GeoJSON Vector Feature
     fn to_wm(&self) -> Self;
 }
 
-impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureS2<M, P, D>
+impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureS2<M, P, D>
     for VectorFeature<M, P, D>
 {
     /// Convert an S2 Feature to a GeoJSON Vector Feature
@@ -33,7 +33,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> ConvertVectorFeatureS2<
 }
 
 /// Underlying conversion mechanic to move S2Geometry to GeoJSON Geometry
-fn convert_geometry<M: MValueCompatible>(face: Face, geometry: &mut VectorGeometry<M>) {
+fn convert_geometry<M: Clone + Default>(face: Face, geometry: &mut VectorGeometry<M>) {
     match geometry {
         VectorGeometry::Point(point) => convert_geometry_point(face, &mut point.coordinates),
         VectorGeometry::LineString(points) | VectorGeometry::MultiPoint(points) => {
@@ -54,7 +54,7 @@ fn convert_geometry<M: MValueCompatible>(face: Face, geometry: &mut VectorGeomet
 }
 
 /// Mutate an S2 Point to a GeoJSON Point
-fn convert_geometry_point<M: MValueCompatible>(face: Face, point: &mut VectorPoint<M>) {
+fn convert_geometry_point<M: Clone + Default>(face: Face, point: &mut VectorPoint<M>) {
     let ll: LonLat = (&S2Point::from_face_st(face.into(), point.x, point.y)).into();
     point.x = ll.lon();
     point.y = ll.lat();

@@ -4,7 +4,8 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import jsdoc from 'eslint-plugin-jsdoc';
 import prettierConfig from 'eslint-config-prettier';
-// TODO: Eventually support tsdoc instead of jsdoc
+// TODO: Eventually support tsdoc instead of jsdoc [https://github.com/microsoft/tsdoc/issues/374]
+// albiet it seems like jsdoc gets way more love and has a ton of ts support
 // import tsdocs from 'eslint-plugin-tsdoc';
 import tseslint from 'typescript-eslint';
 

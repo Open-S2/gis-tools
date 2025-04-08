@@ -19,16 +19,11 @@ use std::{
 ///
 /// ## Description
 /// Given a path to where all the shapefile relevant files exist, build a Shapefile
-pub fn shapefile_from_path<
-    I: AsRef<Path> + ToString,
-    M: Clone,
-    P: MValueCompatible,
-    D: MValueCompatible,
->(
+pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
     input: I,
     defs: Option<Vec<ProjectionTransformDefinition>>,
     epsg_codes: BTreeMap<String, String>,
-) -> ShapeFileReader<FileReader, M, P, D> {
+) -> ShapeFileReader<FileReader, P> {
     let path = input.to_string().replace(".shp", "");
     let shp = path.clone() + ".shp";
     let dbf_str = path.clone() + ".dbf";
@@ -50,11 +45,11 @@ pub fn shapefile_from_path<
 ///
 /// ## Description
 /// Given a collection of files, build a Shapefile
-pub fn shapefile_from_definition<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+pub fn shapefile_from_definition<P: MValueCompatible>(
     def: Definition,
     _defs: Option<Vec<ProjectionTransformDefinition>>,
     _epsg_codes: BTreeMap<String, String>,
-) -> ShapeFileReader<FileReader, M, P, D> {
+) -> ShapeFileReader<FileReader, P> {
     let Definition { shp, dbf, cpg, .. } = def;
     let mut database_file = None;
     let mut encoding = None;
@@ -89,11 +84,11 @@ pub fn shapefile_from_definition<M: Clone, P: MValueCompatible, D: MValueCompati
 ///
 /// ## Description
 /// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
-pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible>(
     input: &str,
     _defs: Option<Vec<ProjectionTransformDefinition>>,
     _epsg_codes: BTreeMap<String, String>,
-) -> ShapeFileReader<BufferReader, M, P, D> {
+) -> ShapeFileReader<BufferReader, P> {
     let data = std::fs::read(input).unwrap();
 
     shapefile_from_gzip_local(&data, None, BTreeMap::new())

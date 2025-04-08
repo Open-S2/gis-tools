@@ -96,7 +96,7 @@ export class Node {
     node.id = id;
     node.info = info;
     node.lat = 0.000000001 * (pb.latOffset + pb.granularity * lat);
-    node.lon = 0.000000001 * (pb.latOffset + pb.granularity * lon);
+    node.lon = 0.000000001 * (pb.lonOffset + pb.granularity * lon);
     node.#keys = keys;
     node.#vals = vals;
 
@@ -146,8 +146,10 @@ export class Node {
     else if (tag === 2) this.#keys = pbf.readPackedVarint();
     else if (tag === 3) this.#vals = pbf.readPackedVarint();
     else if (tag === 4) this.info = new Info(pb, pbf);
-    else if (tag === 8) this.lat = 0.000000001 * pb.latOffset + pb.granularity * pbf.readSVarint();
-    else if (tag === 9) this.lon = 0.000000001 * pb.latOffset + pb.granularity * pbf.readSVarint();
+    else if (tag === 8)
+      this.lat = 0.000000001 * (pb.latOffset + pb.granularity * pbf.readSVarint());
+    else if (tag === 9)
+      this.lon = 0.000000001 * (pb.lonOffset + pb.granularity * pbf.readSVarint());
     else throw new Error(`Unknown tag: ${tag}`);
   }
 

@@ -1,15 +1,14 @@
 use crate::geometry::{
-    build_sq_dists, clip_line, BBox3D, ClipLineResultWithBBox, Face, LonLat, MValue,
-    MValueCompatible, S2Point, STPoint, VectorGeometry, VectorGeometryType, VectorLineString,
-    VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
-    VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry, VectorPolygon,
-    VectorPolygonGeometry,
+    build_sq_dists, clip_line, BBox3D, ClipLineResultWithBBox, Face, LonLat, MValue, S2Point,
+    STPoint, VectorGeometry, VectorGeometryType, VectorLineString, VectorLineStringGeometry,
+    VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygonGeometry,
+    VectorPoint, VectorPointGeometry, VectorPolygon, VectorPolygonGeometry,
 };
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 
 /// The resultant geometry after conversion
 #[derive(Debug)]
-pub struct ConvertedGeometry<M: MValueCompatible = MValue> {
+pub struct ConvertedGeometry<M: Clone + Default = MValue> {
     /// The converted geometry
     pub geometry: VectorGeometry<M>,
     /// The face of the geometry
@@ -21,7 +20,7 @@ pub type ConvertedGeometryList<M> = Vec<ConvertedGeometry<M>>;
 // TODO: We may be able to optimize clones. Do we just take ownership with mutables?
 
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
-pub fn convert_geometry_wm_to_s2<M: MValueCompatible>(
+pub fn convert_geometry_wm_to_s2<M: Clone + Default>(
     geometry: &VectorGeometry<M>,
     tolerance: Option<f64>,
     maxzoom: Option<u8>,
@@ -59,13 +58,12 @@ pub fn convert_geometry_wm_to_s2<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON PointGeometry to a S2 PointGeometry
-fn convert_geometry_point<M: MValueCompatible>(
+fn convert_geometry_point<M: Clone + Default>(
     geometry: &VectorPointGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorPointGeometry::<M> { _type, is_3d, coordinates, bbox, .. } = geometry;
     let mut new_point = coordinates.clone();
-    let ll: S2Point =
-        (&LonLat::new(new_point.x, new_point.y, core::mem::take(&mut new_point.m))).into();
+    let ll: S2Point = (&LonLat::<M>::new(new_point.x, new_point.y, None)).into();
     let (face, s, t) = ll.to_face_st();
     new_point.x = s;
     new_point.y = t;
@@ -84,7 +82,7 @@ fn convert_geometry_point<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON MultiPointGeometry to S2 MultiPointGeometry
-fn convert_geometry_multipoint<M: MValueCompatible>(
+fn convert_geometry_multipoint<M: Clone + Default>(
     geometry: &VectorMultiPointGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorMultiPointGeometry { is_3d, coordinates, bbox, .. } = geometry;
@@ -103,7 +101,7 @@ fn convert_geometry_multipoint<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON LineStringGeometry to S2 LineStringGeometry
-fn convert_geometry_linestring<M: MValueCompatible>(
+fn convert_geometry_linestring<M: Clone + Default>(
     geometry: &VectorLineStringGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorLineStringGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
@@ -129,7 +127,7 @@ fn convert_geometry_linestring<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON MultiLineStringGeometry to S2 MultiLineStringGeometry
-fn convert_geometry_multilinestring<M: MValueCompatible>(
+fn convert_geometry_multilinestring<M: Clone + Default>(
     geometry: &VectorMultiLineStringGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorMultiLineStringGeometry { is_3d, coordinates, bbox, .. } = geometry;
@@ -153,7 +151,7 @@ fn convert_geometry_multilinestring<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON PolygonGeometry to S2 PolygonGeometry
-fn convert_geometry_polygon<M: MValueCompatible>(
+fn convert_geometry_polygon<M: Clone + Default>(
     geometry: &VectorPolygonGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorPolygonGeometry { _type, is_3d, coordinates, bbox, .. } = geometry;
@@ -200,7 +198,7 @@ fn convert_geometry_polygon<M: MValueCompatible>(
 }
 
 /// Convert a GeoJSON MultiPolygonGeometry to S2 MultiPolygonGeometry
-fn convert_geometry_multipolygon<M: MValueCompatible>(
+fn convert_geometry_multipolygon<M: Clone + Default>(
     geometry: &VectorMultiPolygonGeometry<M>,
 ) -> ConvertedGeometryList<M> {
     let VectorMultiPolygonGeometry { is_3d, coordinates, bbox, offset, .. } = geometry;
@@ -222,7 +220,7 @@ fn convert_geometry_multipolygon<M: MValueCompatible>(
 }
 
 /// LineString converted from WM to S2
-pub struct ConvertedLineString<M: MValueCompatible = MValue> {
+pub struct ConvertedLineString<M: Clone + Default = MValue> {
     face: Face,
     line: VectorLineString<M>,
     offset: f64,
@@ -230,7 +228,7 @@ pub struct ConvertedLineString<M: MValueCompatible = MValue> {
 }
 
 /// Convert WM LineString to S2
-fn convert_line_string<M: MValueCompatible>(
+fn convert_line_string<M: Clone + Default>(
     line: &VectorLineString<M>,
     is_polygon: bool,
 ) -> Vec<ConvertedLineString<M>> {
@@ -263,10 +261,7 @@ fn convert_line_string<M: MValueCompatible>(
 }
 
 /// Given a face, rotate the point into it's 0->1 coordinate system
-fn st_point_to_face<M: MValueCompatible>(
-    target_face: Face,
-    stp: &mut STPoint<M>,
-) -> VectorPoint<M> {
+fn st_point_to_face<M: Clone + Default>(target_face: Face, stp: &mut STPoint<M>) -> VectorPoint<M> {
     let cur_face = stp.face;
     if target_face == cur_face {
         return VectorPoint {
@@ -378,8 +373,7 @@ pub const FACE_RULE_SET: [[(Rotation, i8, i8); 6]; 6] = [
 #[cfg(test)]
 mod tests {
     use s2json::{
-        FeatureCollection, JSONCollection, Projection, S2FeatureCollection, VectorFeature,
-        WMFeature,
+        FeatureCollection, Features, JSONCollection, Projection, S2FeatureCollection, VectorFeature,
     };
 
     use crate::geometry::{convert, ConvertVectorFeatureWM};
@@ -415,7 +409,7 @@ mod tests {
                     is_3d: false,
                     coordinates: VectorPoint::new(0.5, 0.5, None, m_value),
                     bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -453,7 +447,7 @@ mod tests {
                     is_3d: false,
                     coordinates: VectorPoint::new(0.5, 0.5, None, m_value),
                     bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -474,7 +468,7 @@ mod tests {
         };
         let fc: FeatureCollection = FeatureCollection {
             _type: "FeatureCollection".into(),
-            features: vec![WMFeature::VectorFeature(feature.clone())],
+            features: vec![Features::VectorFeature(feature.clone())],
             ..Default::default()
         };
         let s2_feature = convert(
@@ -496,7 +490,7 @@ mod tests {
                     is_3d: false,
                     coordinates: VectorPoint::new(0.5, 0.5, None, m_value),
                     bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                    vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -516,7 +510,7 @@ mod tests {
                 is_3d: false,
                 coordinates: VectorPoint::new(0.5, 0.5, None, m_value.clone()),
                 bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::INFINITY, -f64::INFINITY)),
+                vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                 ..Default::default()
             }),
             ..Default::default()
@@ -606,14 +600,7 @@ mod tests {
                             Some(MValue::from([("a".into(), (1_u64).into())]))
                         ),
                         bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                        vec_bbox: Some(BBox3D::new(
-                            0.5,
-                            0.5,
-                            0.5,
-                            0.5,
-                            f64::INFINITY,
-                            -f64::INFINITY
-                        )),
+                        vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -633,14 +620,7 @@ mod tests {
                             Some(MValue::from([("b".into(), (2_u64).into())]))
                         ),
                         bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                        vec_bbox: Some(BBox3D::new(
-                            0.5,
-                            0.5,
-                            0.5,
-                            0.5,
-                            f64::INFINITY,
-                            -f64::INFINITY
-                        )),
+                        vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -660,14 +640,7 @@ mod tests {
                             Some(MValue::from([("c".into(), (3_u64).into())]))
                         ),
                         bbox: Some(BBox3D::new(1., 2., 3., 4., 5., 6.)),
-                        vec_bbox: Some(BBox3D::new(
-                            0.5,
-                            0.5,
-                            0.5,
-                            0.5,
-                            f64::INFINITY,
-                            -f64::INFINITY
-                        )),
+                        vec_bbox: Some(BBox3D::new(0.5, 0.5, 0.5, 0.5, f64::MAX, f64::MIN)),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -751,11 +724,11 @@ mod tests {
                             bottom: 0.5,
                             right: 0.8264458251405347,
                             top: 1.0625,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -797,11 +770,11 @@ mod tests {
                             bottom: 0.091961822201713,
                             right: 0.033200039883945376,
                             top: 0.17012925937810885,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }
@@ -886,11 +859,11 @@ mod tests {
                             bottom: 0.5,
                             right: 0.8264458251405347,
                             top: 1.0625,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -932,11 +905,11 @@ mod tests {
                             bottom: 0.091961822201713,
                             right: 0.033200039883945376,
                             top: 0.17012925937810885,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -985,11 +958,11 @@ mod tests {
                             bottom: 0.0919618222017129,
                             right: 1.0625,
                             top: 0.17355417485946534,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -1045,11 +1018,11 @@ mod tests {
                             bottom: 0.0919618222017129,
                             right: 0.3169872981077806,
                             top: 0.209430584957905,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }
@@ -1247,11 +1220,11 @@ mod tests {
                             bottom: 0.5,
                             right: 0.9377231592442196,
                             top: 1.0625,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -1307,11 +1280,11 @@ mod tests {
                             bottom: 0.091961822201713,
                             right: 0.033200039883945376,
                             top: 0.19165525141383033,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }
@@ -1509,11 +1482,11 @@ mod tests {
                             bottom: 0.5,
                             right: 0.9377231592442196,
                             top: 1.0625,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 },
@@ -1569,11 +1542,11 @@ mod tests {
                             bottom: 0.091961822201713,
                             right: 0.033200039883945376,
                             top: 0.19165525141383033,
-                            near: f64::INFINITY,
-                            far: -f64::INFINITY
+                            near: f64::MAX,
+                            far: f64::MIN
                         }),
                         indices: None,
-                        tesselation: None
+                        tessellation: None
                     }),
                     metadata: None
                 }

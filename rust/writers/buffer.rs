@@ -13,7 +13,11 @@ impl BufferWriter {
     }
 }
 impl Writer for BufferWriter {
-    fn write(&mut self, data: &[u8], offset: usize) {
+    fn offset(&mut self) -> u64 {
+        self.buffer.len() as u64
+    }
+    fn write(&mut self, data: &[u8], offset: u64) {
+        let offset = offset as usize;
         self.buffer[offset..offset + data.len()].copy_from_slice(data);
     }
     fn append(&mut self, data: &[u8]) {

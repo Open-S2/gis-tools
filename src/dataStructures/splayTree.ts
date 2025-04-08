@@ -1,7 +1,7 @@
 import type { PriorityCompare } from './priorityQueue';
 
 /** A basic node for a splay tree */
-class SplayTreeNode<T> {
+export class SplayTreeNode<T> {
   left?: SplayTreeNode<T>;
   right?: SplayTreeNode<T>;
   /** @param key - the element to store */
@@ -23,16 +23,27 @@ class SplayTreeNode<T> {
  *
  * const tree = new SplayTreeSet<number>([], (a, b) => a - b);
  *
- * tree.add(1);
+ * // If the element already exists, the existing element will be returned otherwise
+ * // the new element will be both added and returned
+ * let element = tree.add(1);
  * tree.add(2);
  *
- * const current = tree.peek(); // 1
  * console.log(tree.length); // 2
- * let next = tree.pop(); // 1
- * console.log(tree.length); // 1
- * next = tree.pop(); // 2
- * console.log(tree.length); // 0
+ * // Get first and last elements
+ * let firstElement = tree.first(); // 1
+ * let lastElement = tree.last(); // 2
+ * // check if a value exists
+ * console.log(tree.has(1)); // true
+ * // look for a value right before one provided
+ * console.log(tree.lastBefore(2)); // 1
+ * // look for a value right after one provided
+ * console.log(tree.firstAfter(1)); // 2
  * ```
+ *
+ * ## Links
+ * - https://en.wikipedia.org/wiki/Splay_tree
+ * - [Splay Tree Visualizer](http://slmoore.github.io/SplayTreeVisualizer/)
+ * - [Visualizer Source Code](https://github.com/slmoore/SplayTreeVisualizer)
  */
 export class SplayTreeSet<T> {
   #root?: SplayTreeNode<T>;
@@ -53,10 +64,10 @@ export class SplayTreeSet<T> {
    * @param element - the element to add
    * @returns - the added element OR if the element already exists, the existing element
    */
-  add(element: T): T | undefined {
+  add(element: T): T {
     const compare = this.#splay(element);
     if (compare !== 0) this.#addNewRoot(new SplayTreeNode(element), compare);
-    return this.#root?.key;
+    return this.#root!.key;
   }
 
   /**

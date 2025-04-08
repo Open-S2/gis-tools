@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 import sharp from 'sharp';
 
 import type { Blob } from 'node:buffer';
@@ -11,32 +10,12 @@ declare global {
     readonly height: number;
   }
 
-  /** Declare the ImageData class globally */
-  interface ImageData {
-    readonly data: Uint8ClampedArray;
-    readonly width: number;
-    readonly height: number;
-  }
-
   /** What the OffscreenCanvas interface looks like */
   interface OffscreenCanvasInterface {
     readonly width: number;
     readonly height: number;
     getContext(type: string): null | OffscreenCanvasRenderingContext2D;
   }
-
-  /** Declare the OffscreenCanvas class globally */
-  var OffscreenCanvas: {
-    prototype: OffscreenCanvasInterface;
-    new (width: number, height: number): OffscreenCanvasInterface;
-  };
-
-  /**
-   * Declare the createImageBitmap function globally
-   * @param blob - the blob input
-   * @returns an ImageBitmap
-   */
-  function createImageBitmap(blob: Blob): Promise<ImageBitmap>;
 
   /** Declare the OffscreenCanvasRenderingContext2D class globally */
   interface OffscreenCanvasRenderingContext2D {
@@ -152,7 +131,8 @@ class OffscreenCanvasRenderingContext2D {
   getImageData(x: number, y: number, width: number, height: number): ImageData {
     const channels = this.data.length / (this.width * this.height);
     const size = width * height * channels;
-    if (this.data.length === size) return { data: this.data.slice(0, size), width, height };
+    if (this.data.length === size)
+      return { data: this.data.slice(0, size), width, height } as ImageData;
 
     const imageData = new Uint8ClampedArray(size);
     for (let row = 0; row < height; row++) {
@@ -170,9 +150,10 @@ class OffscreenCanvasRenderingContext2D {
       }
     }
 
-    return { data: imageData, width, height };
+    return { data: imageData, width, height } as ImageData;
   }
 }
 
-globalThis.createImageBitmap ??= createImageBitmap;
-globalThis.OffscreenCanvas ??= OffscreenCanvasPolyfill;
+// @ts-expect-error - fills only one of the many options. We only need blob case.
+globalThis.createImageBitmap ??= createImageBitmap as typeof createImageBitmap;
+globalThis.OffscreenCanvas ??= OffscreenCanvasPolyfill as typeof OffscreenCanvas;

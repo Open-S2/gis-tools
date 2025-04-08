@@ -145,6 +145,7 @@ test('read in s2 modis-mini', async () => {
   );
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - just old spec
   expect(metadata).toEqual({
     attributions: {
       MODIS: 'https://modis.gsfc.nasa.gov',
@@ -220,8 +221,7 @@ test('read in s2 modis-mini', async () => {
     },
     scheme: 'fzxy',
     type: 'raster',
-    // @ts-expect-error - just old spec
-    version: 1,
+    version: '1.0.0',
   });
 
   // has tile
@@ -247,6 +247,7 @@ test('read in s2 modis-mini - file', async () => {
   const reader = new RasterTilesFileReader(`${__dirname}/fixtures/s2/modis-mini`, 0);
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - just old spec
   expect(metadata).toEqual({
     attributions: {
       MODIS: 'https://modis.gsfc.nasa.gov',
@@ -322,8 +323,7 @@ test('read in s2 modis-mini - file', async () => {
     },
     scheme: 'fzxy',
     type: 'raster',
-    // @ts-expect-error - just old spec
-    version: 1,
+    version: '1.0.0',
   });
 
   // has tile

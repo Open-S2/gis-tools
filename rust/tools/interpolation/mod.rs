@@ -7,15 +7,19 @@ pub mod lanczos;
 /// Nearest Interpolation tools
 pub mod nearest;
 
-use crate::readers::{gamma_to_linear, RGBA};
+use crate::readers::RGBA;
 pub use average::*;
+use core::ops::{AddAssign, DivAssign, MulAssign};
 pub use idw::*;
 pub use lanczos::*;
+use libm::pow;
 pub use nearest::*;
-use s2json::{MValueCompatible, VectorPoint};
+use s2json::{GetM, GetXY, GetZ, VectorPoint};
+use serde::{Deserialize, Serialize};
 
 /// Interpolation method
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum InterpolationMethod {
     /// Average interpolation
     Average,
@@ -29,11 +33,39 @@ pub enum InterpolationMethod {
 }
 
 /// Interpolation function To get the value of a point
-pub type InterpolationFunction<T> = fn(
-    point: &VectorPoint,
-    ref_data: &[VectorPoint<T>],
-    get_value: Option<GetInterpolateValue<T>>,
-) -> f64;
+pub type InterpolationFunction<P, R, V> =
+    fn(point: &P, ref_data: &[R], get_value: GetInterpolateValue<R, V>) -> V;
+
+/// A trait for values that can be used in interpolation
+pub trait Interpolatable:
+    Default
+    + AddAssign<Self>
+    + AddAssign<f64>
+    + DivAssign<f64>
+    + DivAssign<Self>
+    + MulAssign<f64>
+    + PartialEq<f64>
+    + PartialEq<Self>
+    + Clone
+    + Copy
+where
+    Self: Sized,
+{
+}
+impl<T> Interpolatable for T where
+    T: Default
+        + AddAssign<T>
+        + AddAssign<f64>
+        + DivAssign<f64>
+        + DivAssign<T>
+        + MulAssign<f64>
+        + PartialEq<f64>
+        + PartialEq<T>
+        + Clone
+        + Copy
+        + Sized
+{
+}
 
 /// Get the interpolation function based on the method type
 /// Options are:
@@ -41,9 +73,14 @@ pub type InterpolationFunction<T> = fn(
 /// - nearest
 /// - idw
 /// - lanczos [Best]
-pub fn get_interpolation<T: MValueCompatible>(
+pub fn get_interpolation<
+    M: Clone,
+    P: GetXY + GetZ,
+    R: GetM<M> + GetXY + GetZ,
+    V: Interpolatable,
+>(
     method: InterpolationMethod,
-) -> InterpolationFunction<T> {
+) -> InterpolationFunction<P, R, V> {
     match method {
         InterpolationMethod::Average => average_interpolation,
         InterpolationMethod::Nearest => nearest_interpolation,
@@ -52,151 +89,33 @@ pub fn get_interpolation<T: MValueCompatible>(
     }
 }
 
-/// Interpolation function To get the RGBA value of a point
-pub type RGBAInterpolationFunction = fn(point: &VectorPoint, ref_data: &[VectorPointRGBA]) -> RGBA;
-
-/// Get the RGBA interpolation function based on the method type
-/// Options are:
-/// - average
-/// - nearest
-/// - idw
-/// - lanczos [Best]
-pub fn get_rgba_interpolation(method: InterpolationMethod) -> RGBAInterpolationFunction {
-    match method {
-        InterpolationMethod::Average => average_interpolation_rgba,
-        InterpolationMethod::Nearest => nearest_interpolation_rgba,
-        InterpolationMethod::IDW => idw_interpolation_rgba,
-        InterpolationMethod::Lanczos => lanczos_interpolation_rgba,
-    }
-}
-
-/// Interpolation function To get the RGBA value of a point
-pub type MRGBAInterpolationFunction = fn(point: &VectorPoint, ref_data: &[VectorPoint]) -> RGBA;
-
-/// Get the RGBA interpolation function based on the method type
-/// Options are:
-/// - average
-/// - nearest
-/// - idw
-/// - lanczos [Best]
-pub fn get_m_rgba_interpolation(method: InterpolationMethod) -> MRGBAInterpolationFunction {
-    match method {
-        InterpolationMethod::Average => average_interpolation_m_rgba,
-        InterpolationMethod::Nearest => nearest_interpolation_m_rgba,
-        InterpolationMethod::IDW => idw_interpolation_m_rgba,
-        InterpolationMethod::Lanczos => lanczos_interpolation_m_rgba,
-    }
-}
-
 /// Function to get the value of a point
-pub type GetInterpolateValue<T> = fn(point: &VectorPoint<T>) -> f64;
+pub type GetInterpolateValue<R, V> = fn(point: &R) -> V;
 
 /// Default function to get the value of a point
-pub fn default_get_interpolate_current_value<T: MValueCompatible>(point: &VectorPoint<T>) -> f64 {
-    point.z.unwrap_or(0.0)
+pub fn default_get_interpolate_current_value<T: GetZ>(point: &T) -> f64 {
+    point.z().unwrap_or_default()
+}
+
+/// Get the distance between two points
+pub fn get_distance<A: GetXY + GetZ, B: GetXY + GetZ>(a: &A, b: &B) -> f64 {
+    let dx = a.x() - b.x();
+    let dy = a.y() - b.y();
+    let dz = a.z().unwrap_or_default() - b.z().unwrap_or_default();
+    pow(dx * dx + dy * dy + dz * dz, 0.5)
 }
 
 /// Vector Point with RGBA data
 pub type VectorPointRGBA = VectorPoint<RGBA>;
 
-/// RGBA Channel
-pub enum RgbaChannel {
-    /// Red
-    R,
-    /// Green
-    G,
-    /// Blue
-    B,
-    /// Alpha
-    A,
-}
-impl RgbaChannel {
-    /// Check if the channel is RGB or not
-    pub fn is_rgb(&self) -> bool {
-        !matches!(self, RgbaChannel::A)
-    }
-}
-impl From<RgbaChannel> for &str {
-    fn from(channel: RgbaChannel) -> Self {
-        match channel {
-            RgbaChannel::R => "r",
-            RgbaChannel::G => "g",
-            RgbaChannel::B => "b",
-            RgbaChannel::A => "a",
-        }
-    }
-}
-
-fn get_channel(p: &VectorPointRGBA, channel: RgbaChannel) -> f64 {
-    if let Some(rgba) = &p.m {
-        return match channel {
-            RgbaChannel::R => rgba.r,
-            RgbaChannel::G => rgba.g,
-            RgbaChannel::B => rgba.b,
-            RgbaChannel::A => rgba.a,
-        };
-    }
-    0.
-}
-
-fn get_channel_m(p: &VectorPoint, channel: RgbaChannel) -> f64 {
-    if let Some(m) = &p.m {
-        let is_rgb = channel.is_rgb();
-        let v = m.get(channel.into()).unwrap().to_prim().unwrap().to_f64().unwrap();
-        if is_rgb {
-            return gamma_to_linear(v);
-        } else {
-            return v / 255.0;
-        }
-    }
-    0.
-}
-
 #[cfg(test)]
 mod tests {
-    use std::{vec, vec::Vec};
-
-    use s2json::MValue;
-
     use super::*;
-
-    #[test]
-    fn test_get_channel() {
-        let p =
-            VectorPointRGBA { x: 0., y: 0., z: None, m: Some(RGBA::new(1., 2., 3., 4.)), t: None };
-
-        assert_eq!(get_channel(&p, RgbaChannel::R), 1.);
-
-        let p = VectorPointRGBA { x: 0., y: 0., z: None, m: None, t: None };
-
-        assert_eq!(get_channel(&p, RgbaChannel::R), 0.);
-    }
-
-    #[test]
-    fn test_get_channel_m() {
-        let p = VectorPoint {
-            x: 0.,
-            y: 0.,
-            z: None,
-            m: Some(MValue::from([
-                ("r".into(), 20_u64.into()),
-                ("g".into(), 20_u64.into()),
-                ("b".into(), 60_u64.into()),
-                ("a".into(), 255_u64.into()),
-            ])),
-            t: None,
-        };
-
-        assert_eq!(get_channel_m(&p, RgbaChannel::R), 0.314409290505088);
-
-        let p = VectorPoint { x: 0., y: 0., z: None, m: None, t: None };
-
-        assert_eq!(get_channel_m(&p, RgbaChannel::R), 0.);
-    }
+    use std::{vec, vec::Vec};
 
     #[test]
     fn test_get_interpolation() {
-        let point = VectorPoint::new(0.5, 0.5, None, None);
+        let point: VectorPoint = VectorPoint::new(0.5, 0.5, None, None);
         let ref_data: Vec<VectorPoint> = vec![
             VectorPoint::new(0., 0., Some(1.), None),
             VectorPoint::new(1., 0., Some(2.), None),
@@ -207,135 +126,25 @@ mod tests {
         // AVERAGE
         let method = InterpolationMethod::Average;
         let interpolation = get_interpolation(method);
-        let result = interpolation(&point, &ref_data, None);
+        let result = interpolation(&point, &ref_data, default_get_interpolate_current_value);
         assert_eq!(result, 2.5);
 
         // IDW
         let method = InterpolationMethod::IDW;
         let interpolation = get_interpolation(method);
-        let result = interpolation(&point, &ref_data, None);
-        assert_eq!(result, 2.4999999999999996);
+        let result = interpolation(&point, &ref_data, default_get_interpolate_current_value);
+        assert_eq!(result, 1.5826612903225805);
 
         // LANCZOS
         let method = InterpolationMethod::Lanczos;
         let interpolation = get_interpolation(method);
-        let result = interpolation(&point, &ref_data, None);
-        assert_eq!(result, 2.5);
+        let result = interpolation(&point, &ref_data, default_get_interpolate_current_value);
+        assert_eq!(result, 1.0);
 
         // NEAREST
         let method = InterpolationMethod::Nearest;
         let interpolation = get_interpolation(method);
-        let result = interpolation(&point, &ref_data, None);
+        let result = interpolation(&point, &ref_data, default_get_interpolate_current_value);
         assert_eq!(result, 1.);
-    }
-
-    #[test]
-    fn test_get_rgba_interpolation() {
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let ref_data: vec::Vec<VectorPointRGBA> = vec![
-            VectorPointRGBA::new(0., 0., None, Some(RGBA::from_u8s(20, 20, 60, 255))),
-            VectorPoint::new(1., 0., None, Some(RGBA::from_u8s(30, 100, 60, 255))),
-            VectorPoint::new(0., 1., None, Some(RGBA::from_u8s(127, 127, 60, 255))),
-            VectorPoint::new(1., 1., None, Some(RGBA::from_u8s(255, 255, 60, 255))),
-        ];
-
-        // AVERAGE
-        let method = InterpolationMethod::Average;
-        let interpolation = get_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // IDW
-        let method = InterpolationMethod::IDW;
-        let interpolation = get_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // LANCZOS
-        let method = InterpolationMethod::Lanczos;
-        let interpolation = get_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // NEAREST
-        let method = InterpolationMethod::Nearest;
-        let interpolation = get_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (20, 20, 60, 255));
-    }
-
-    #[test]
-    fn test_get_m_rgba_interpolation() {
-        let point = VectorPoint::new(0.5, 0.5, None, None);
-        let ref_data: vec::Vec<VectorPoint> = vec![
-            VectorPoint::new(
-                0.,
-                0.,
-                None,
-                Some(MValue::from([
-                    ("r".into(), 20_u64.into()),
-                    ("g".into(), 20_u64.into()),
-                    ("b".into(), 60_u64.into()),
-                    ("a".into(), 255_u64.into()),
-                ])),
-            ),
-            VectorPoint::new(
-                1.,
-                0.,
-                None,
-                Some(MValue::from([
-                    ("r".into(), 30_u64.into()),
-                    ("g".into(), 100_u64.into()),
-                    ("b".into(), 60_u64.into()),
-                    ("a".into(), 255_u64.into()),
-                ])),
-            ),
-            VectorPoint::new(
-                0.,
-                1.,
-                None,
-                Some(MValue::from([
-                    ("r".into(), 127_u64.into()),
-                    ("g".into(), 127_u64.into()),
-                    ("b".into(), 60_u64.into()),
-                    ("a".into(), 255_u64.into()),
-                ])),
-            ),
-            VectorPoint::new(
-                1.,
-                1.,
-                None,
-                Some(MValue::from([
-                    ("r".into(), 255_u64.into()),
-                    ("g".into(), 255_u64.into()),
-                    ("b".into(), 60_u64.into()),
-                    ("a".into(), 255_u64.into()),
-                ])),
-            ),
-        ];
-
-        // AVERAGE
-        let method = InterpolationMethod::Average;
-        let interpolation = get_m_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // IDW
-        let method = InterpolationMethod::IDW;
-        let interpolation = get_m_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // LANCZOS
-        let method = InterpolationMethod::Lanczos;
-        let interpolation = get_m_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (84, 107, 60, 255));
-
-        // NEAREST
-        let method = InterpolationMethod::Nearest;
-        let interpolation = get_m_rgba_interpolation(method);
-        let result = interpolation(&point, &ref_data);
-        assert_eq!(result.to_u8s(), (20, 20, 60, 255));
     }
 }

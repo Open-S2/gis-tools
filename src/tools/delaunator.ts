@@ -116,14 +116,14 @@ export class Delaunator {
    * memory allocations. Useful for iterative relaxation algorithms such as
    * [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
    */
-  update() {
+  update(): void {
     const { coords } = this;
     const hullPrev = this.#hullPrev;
     const hullNext = this.#hullNext;
     const hullTri = this.#hullTri;
     const hullHash = this.#hullHash;
     const n = coords.length >> 1;
-    const EPSILON = Math.pow(2, -52);
+    const EPSILON = Number.EPSILON * 2;
 
     // populate an array of point indices; calculate input data bbox
     let minX = Infinity;
@@ -274,8 +274,8 @@ export class Delaunator {
       }
 
       start = hullPrev[start];
-      let e = start,
-        q;
+      let e = start;
+      let q: number;
       while (
         ((q = hullNext[e]),
         orient2d(x, y, coords[2 * e], coords[2 * e + 1], coords[2 * q], coords[2 * q + 1]) >= 0)
@@ -545,6 +545,11 @@ function circumradius(
 }
 
 /**
+ * A Voronoi diagram is built by connecting the Delaunay triangle circumcenters together using the
+ * dual of the Delaunay graph.
+ * 1. Calculate the circumcenters of each triangle
+ * 2. Construct the Voronoi edges from two circumcenters
+ * 3. Connect the edges into Voronoi cells
  * @param ax - x coordinate of first point
  * @param ay - y coordinate of first point
  * @param bx - x coordinate of second point

@@ -15,3 +15,4 @@ coverage/
 docs/
 build_bundle_tmp/
 tools/EPSG-*-WKT/
+rustc-ice-*

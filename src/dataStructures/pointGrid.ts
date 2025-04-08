@@ -7,15 +7,7 @@ import {
   getInterpolation,
   getRGBAInterpolation,
 } from '..';
-import {
-  convert,
-  idBoundsST,
-  idChildrenIJ,
-  idFace,
-  idFromST,
-  idParent,
-  idToFaceIJ,
-} from '../geometry';
+import { idBoundsST, idChildrenIJ, idFace, idFromST, idParent, idToFaceIJ } from '../geometry';
 
 import type {
   Face,
@@ -187,7 +179,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param reader - a reader containing the input data
    */
   async insertReader(reader: FeatureIterator<unknown, M, M>): Promise<void> {
-    for await (const feature of reader) this.insertFeature(feature);
+    await this.pointIndex?.insertReader(reader);
   }
 
   /**
@@ -196,19 +188,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param data - any source of data like a feature collection or features themselves
    */
   insertFeature(data: JSONCollection<unknown, M, M>): void {
-    const features = convert(this.projection, data, undefined, undefined, undefined, true);
-    for (const { face = 0, geometry, properties } of features) {
-      const { type, coordinates } = geometry;
-      if (type === 'Point') {
-        const { x: s, y: t, m } = coordinates;
-        this.#insertFaceST(face, s, t, m ?? properties);
-      } else if (type === 'MultiPoint') {
-        for (const point of coordinates) {
-          const { x: s, y: t, m } = point;
-          this.#insertFaceST(face, s, t, m ?? properties);
-        }
-      }
-    }
+    this.pointIndex?.insertFeature(data);
   }
 
   /**
@@ -216,11 +196,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param ll - lon-lat vector point in degrees
    */
   insertLonLat(ll: VectorPoint<M>): void {
-    this.insertFeature({
-      type: 'VectorFeature',
-      properties: ll.m ?? ({} as M),
-      geometry: { type: 'Point', coordinates: ll, is3D: false },
-    });
+    this.pointIndex?.insertLonLat(ll);
   }
 
   /**
@@ -231,23 +207,7 @@ export class PointGrid<M extends MValue = Properties | RGBA> {
    * @param data - the data associated with the point
    */
   insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insertFeature({
-      type: 'S2Feature',
-      face,
-      properties: data,
-      geometry: { type: 'Point', coordinates: { x: s, y: t, m: data }, is3D: false },
-    });
-  }
-
-  /**
-   * Insert an STPoint to the index
-   * @param face - the face of the cell
-   * @param s - the s coordinate
-   * @param t - the t coordinate
-   * @param data - the data associated with the point
-   */
-  #insertFaceST(face: Face, s: number, t: number, data: M): void {
-    this.insert(pointFromST(face, s, t, data) as VectorPointM<M>);
+    this.pointIndex?.insertFaceST(face, s, t, data);
   }
 
   /** Build the grid cluster tiles */

@@ -209,7 +209,7 @@ export function pointToS2CellID(xyz: VectorPoint): S2CellId {
  * @returns - The XYZ Point with the added XYZ Point.
  */
 export function pointAdd(a: VectorPoint, b: VectorPoint): VectorPoint {
-  return { x: a.x + b.x, y: a.y + b.y, z: (a.z ?? 1) + (b.z ?? 1) };
+  return { x: a.x + b.x, y: a.y + b.y, z: (a.z ?? 0) + (b.z ?? 0) };
 }
 
 /**
@@ -231,7 +231,7 @@ export function pointAddMut(a: VectorPoint, b: VectorPoint): void {
  * @returns - The XYZ Point with the added amount.
  */
 export function pointAddScalar(xyz: VectorPoint, n: number): VectorPoint {
-  return { x: xyz.x + n, y: xyz.y + n, z: (xyz.z ?? 1) + n };
+  return { x: xyz.x + n, y: xyz.y + n, z: (xyz.z ?? 0) + n };
 }
 
 /**
@@ -241,7 +241,7 @@ export function pointAddScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @returns - The XYZ Point with the subtracted XYZ Point.
  */
 export function pointSub(a: VectorPoint, b: VectorPoint): VectorPoint {
-  return { x: a.x - b.x, y: a.y - b.y, z: (a.z ?? 1) - (b.z ?? 1) };
+  return { x: a.x - b.x, y: a.y - b.y, z: (a.z ?? 0) - (b.z ?? 0) };
 }
 
 /**
@@ -251,7 +251,7 @@ export function pointSub(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @returns - The XYZ Point with the subtracted amount.
  */
 export function pointSubScalar(xyz: VectorPoint, n: number): VectorPoint {
-  return { x: xyz.x - n, y: xyz.y - n, z: (xyz.z ?? 1) - n };
+  return { x: xyz.x - n, y: xyz.y - n, z: (xyz.z ?? 0) - n };
 }
 
 /**
@@ -261,7 +261,7 @@ export function pointSubScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @returns - The XYZ Point with the multiplied XYZ Point.
  */
 export function pointMul(a: VectorPoint, b: VectorPoint): VectorPoint {
-  return { x: a.x * b.x, y: a.y * b.y, z: (a.z ?? 1) * (b.z ?? 1) };
+  return { x: a.x * b.x, y: a.y * b.y, z: (a.z ?? 0) * (b.z ?? 0) };
 }
 
 /**
@@ -271,7 +271,7 @@ export function pointMul(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @returns - The XYZ Point with the multiplied amount.
  */
 export function pointMulScalar(xyz: VectorPoint, n: number): VectorPoint {
-  return { x: xyz.x * n, y: xyz.y * n, z: (xyz.z ?? 1) * n };
+  return { x: xyz.x * n, y: xyz.y * n, z: (xyz.z ?? 0) * n };
 }
 
 /**
@@ -281,7 +281,7 @@ export function pointMulScalar(xyz: VectorPoint, n: number): VectorPoint {
  * @returns - The XYZ Point with the multiplied XYZ Point.
  */
 export function pointDiv(a: VectorPoint, b: VectorPoint): VectorPoint {
-  return { x: a.x / b.x, y: a.y / b.y, z: (a.z ?? 1) / (b.z ?? 1) };
+  return { x: a.x / b.x, y: a.y / b.y, z: (a.z ?? 0) / (b.z ?? 0) };
 }
 
 /**
@@ -291,7 +291,7 @@ export function pointDiv(a: VectorPoint, b: VectorPoint): VectorPoint {
  * @returns - The XYZ Point with the multiplied amount.
  */
 export function pointDivScalar(xyz: VectorPoint, n: number): VectorPoint {
-  return { x: xyz.x / n, y: xyz.y / n, z: (xyz.z ?? 1) / n };
+  return { x: xyz.x / n, y: xyz.y / n, z: (xyz.z ?? 0) / n };
 }
 
 /**
@@ -344,7 +344,7 @@ export function pointNorm2(xyz: VectorPoint): number {
  */
 export function pointInvert<M extends MValue = Properties>(xyz: VectorPoint<M>): VectorPoint<M> {
   const { x, y, z, m } = xyz;
-  return { x: -x, y: -y, z: -(z ?? 1), m };
+  return { x: -x, y: -y, z: -(z ?? 0), m };
 }
 
 /**
@@ -354,18 +354,18 @@ export function pointInvert<M extends MValue = Properties>(xyz: VectorPoint<M>):
  * @returns - The dot product of the two XYZ Points
  */
 export function pointDot(a: VectorPoint, b: VectorPoint): number {
-  return a.x * b.x + a.y * b.y + (a.z ?? 1) * (b.z ?? 1);
+  return a.x * b.x + a.y * b.y + (a.z ?? 0) * (b.z ?? 0);
 }
 
 /**
- * Get the corss product of two XYZ Points
+ * Get the cross product of two XYZ Points
  * @param a - The first XYZ Point
  * @param b - The second XYZ Point
  * @returns - The cross product of the two XYZ Points
  */
 export function pointCross(a: VectorPoint, b: VectorPoint): VectorPoint {
-  const az = a.z ?? 1;
-  const bz = b.z ?? 1;
+  const az = a.z ?? 0;
+  const bz = b.z ?? 0;
   return { x: a.y * bz - az * b.y, y: az * b.x - a.x * bz, z: a.x * b.y - a.y * b.x };
 }
 

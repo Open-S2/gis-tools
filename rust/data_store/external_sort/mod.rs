@@ -1,6 +1,7 @@
 mod merge_sorted_chunks;
 mod sort_chunk;
 
+use super::file::KEY_STORE_LENGTH;
 use merge_sorted_chunks::*;
 use sort_chunk::*;
 use std::{
@@ -19,18 +20,18 @@ use std::{
 pub fn external_sort(
     inputs: &[&str], /* a list of input files without their extensions. e.g. './file1', './file2', './file3' */
     output: &str,    // output folder to place the sorted keys
-    max_heap: Option<u64>, // max instance of the parsed entity in memory
-    thread_count: Option<u64>, // number of workers
+    max_heap: Option<usize>, // max instance of the parsed entity in memory
+    thread_count: Option<usize>, // number of workers
     tmp_dir: Option<&str>, // temporary directory to store intermediate sorted files
 ) {
     let max_heap = max_heap.unwrap_or(100_000);
-    let thread_count = thread_count.unwrap_or(1) as usize;
+    let thread_count = thread_count.unwrap_or(1);
     let binding = tmpdir();
     let tmp_dir = tmp_dir.unwrap_or(&binding);
     // 1) Get the size of the input
     let sizes = get_sizes(inputs);
     // 2) Build chunk list
-    let chunks = build_chunks(&sizes, tmp_dir, max_heap);
+    let chunks = build_chunks(&sizes, tmp_dir, max_heap as u64);
     // 3) Sort chunks - using either workers or single threaded
     let mut sorted_files: Vec<String> = vec![];
     if thread_count == 1 || chunks.len() <= 10 {
@@ -41,7 +42,7 @@ pub fn external_sort(
         sorted_files = sort_chunks_with_threads(chunks, thread_count);
     }
     // 4) Merge chunks
-    merge_sorted_chunks(&sorted_files, output);
+    merge_sorted_chunks(&sorted_files, output, max_heap);
     merge_values(output, sizes);
     // 5) Cleanup
     for file in sorted_files {
@@ -110,7 +111,7 @@ fn build_chunks(file_sizes: &[FileSize], out_dir: &str, max_heap: u64) -> Vec<So
         let FileSize { name, input, key_size, value_offset, .. } = file_size;
         let mut start = 0;
         while start < *key_size {
-            let end = (start + max_heap * 16).min(*key_size);
+            let end = (start + max_heap * KEY_STORE_LENGTH).min(*key_size);
             chunks.push(SortChunk {
                 name: name.clone(),
                 input: format!("{}.keys", input),
@@ -119,7 +120,7 @@ fn build_chunks(file_sizes: &[FileSize], out_dir: &str, max_heap: u64) -> Vec<So
                 end,
                 value_offset: *value_offset,
             });
-            start += max_heap * 16;
+            start += max_heap * KEY_STORE_LENGTH;
         }
     }
 
@@ -192,3 +193,47 @@ fn merge_values(output: &str, sizes: Vec<FileSize>) {
 fn tmpdir() -> String {
     env::temp_dir().to_str().unwrap().to_string()
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     fn test_sort_single_thread() {
+//         #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+//         struct TestKey {
+//             a: f64,
+//         }
+
+//         let mut kv_store = KV::<u64, TestKey>::new(None);
+//     }
+// }
+
+// test('sort - single threaded', async () => {
+//     const dir = tmp.dirSync({ prefix: 'externalSort_single' });
+//     const name = `${dir.name}/sort-single-threaded`;
+//     const store = new S2FileStore<{ a: number }>(name);
+
+//     store.set(0, { a: 1 });
+//     store.set(1, { a: 2 });
+//     store.set(5_005, { a: 3 });
+//     store.set(22, { a: 4 });
+//     store.set(22, { a: 5 });
+//     store.set(22, { a: 6 });
+
+//     store.close();
+
+//     await externalSort([name], name);
+
+//     const storeSorted = new S2FileStore<{ a: number }>(name, { isSorted: true });
+//     const data = await Array.fromAsync(storeSorted.entries());
+
+//     expect(data).toStrictEqual([
+//       { key: 0n, value: { a: 1 } },
+//       { key: 1n, value: { a: 2 } },
+//       { key: 22n, value: { a: 4 } },
+//       { key: 22n, value: { a: 5 } },
+//       { key: 22n, value: { a: 6 } },
+//       { key: 5_005n, value: { a: 3 } },
+//     ]);
+//   });
