@@ -28,7 +28,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=merc
  * ```
  *
@@ -67,41 +67,27 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  *
  * **Spherical Form**
  * - **Forward Projection**:
- *   ```
- *   x = k_0 * R * λ
- *   y = k_0 * R * ψ
- *   ```
+ *   $$x = k_0 \cdot R \cdot \lambda$$
+ *   $$y = k_0 \cdot R \cdot \psi$$
  *   where
- *   ```
- *   ψ = ln(tan(π/4 + φ/2))
- *   ```
+ *   $$\psi = \ln\left(\tan\left(\frac{\pi}{4} + \frac{\phi}{2}\right)\right)$$
  * - **Inverse Projection**:
- *   ```
- *   λ = x / (k_0 * R)
- *   ψ = y / (k_0 * R)
- *   φ = π/2 - 2 * atan(exp(-ψ))
- *   ```
+ *   $$\lambda = x / (k_0 \cdot R)$$
+ *   $$\psi = y / (k_0 \cdot R)$$
+ *   $$\phi = \frac{\pi}{2} - 2 \cdot \arctan\left(\exp(-\psi)\right)$$
  *
  * **Ellipsoidal Form**
  * - **Forward Projection**:
- *   ```
- *   x = k_0 * a * λ
- *   y = k_0 * a * ψ
- *   ```
+ *   $$x = k_0 \cdot a \cdot \lambda$$
+ *   $$y = k_0 \cdot a \cdot \psi$$
  *   where
- *   ```
- *   ψ = ln(tan(π/4 + φ/2)) - 0.5 * e * ln((1 + e * sin(φ)) / (1 - e * sin(φ)))
- *   ```
+ *   $$\psi = \ln\left(\tan\left(\frac{\pi}{4} + \frac{\phi}{2}\right)\right) - 0.5 \cdot e \cdot \ln\left(\frac{1 + e \cdot \sin(\phi)}{1 - e \cdot \sin(\phi)}\right)$$
  * - **Inverse Projection**:
- *   ```
- *   λ = x / (k_0 * a)
- *   ψ = y / (k_0 * a)
- *   φ = tan^-1(τ)
- *   ```
+ *   $$\lambda = x / (k_0 \cdot a)$$
+ *   $$\psi = y / (k_0 \cdot a)$$
+ *   $$\phi = \arctan(\tau)$$
  *   where
- *   ```
- *   τ = tan(φ)
- *   ```
+ *   $$\tau = \tan(\phi)$$
  *
  * ## Further Reading
  * - [Wikipedia: Mercator Projection](https://en.wikipedia.org/wiki/Mercator_projection)

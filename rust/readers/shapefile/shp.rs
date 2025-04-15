@@ -190,7 +190,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         let mut point =
             VectorPoint::new(data.f64_le(Some(offset)), data.f64_le(Some(offset + 8)), z, None);
         if let Some(transformer) = &self.transform {
-            point = transformer.forward(point);
+            point = transformer.forward(&point);
         }
 
         point
@@ -315,6 +315,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
     }
 }
 /// The GPX Iterator tool
+#[derive(Debug)]
 pub struct ShapefileIterator<'a, T: Reader, P: MValueCompatible> {
     reader: &'a ShapeFileReader<T, P>,
     index: usize,

@@ -1,4 +1,4 @@
-use super::{get_distance, Interpolatable};
+use super::{Interpolatable, get_distance};
 use crate::tools::GetInterpolateValue;
 use libm::pow;
 use s2json::{GetM, GetXY, GetZ};
@@ -45,7 +45,7 @@ mod tests {
     use super::*;
     use crate::{
         readers::RGBA,
-        tools::{default_get_interpolate_current_value, VectorPointRGBA},
+        tools::{VectorPointRGBA, default_get_interpolate_current_value},
     };
     use alloc::vec;
     use s2json::{MValue, VectorPoint};

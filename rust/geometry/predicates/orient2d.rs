@@ -1,5 +1,5 @@
 use super::util::{
-    estimate, pred_sum, CCWERRBOUND_A, CCWERRBOUND_B, CCWERRBOUND_C, RESULTERRBOUND, SPLITTER,
+    CCWERRBOUND_A, CCWERRBOUND_B, CCWERRBOUND_C, RESULTERRBOUND, SPLITTER, estimate, pred_sum,
 };
 use libm::fabs;
 

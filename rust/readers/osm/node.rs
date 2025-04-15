@@ -1,9 +1,9 @@
 use super::{
+    OSMFilterable, OSMReader, OSMTagFilterType,
     info::{DenseInfo, Info, InfoBlock},
     primitive::{OSMMetadata, PrimitiveBlock},
     relation::{IntermediateRelation, MemberType},
     way::{IntermediateWay, WayNodes},
-    OSMFilterable, OSMReader, OSMTagFilterType,
 };
 use crate::{data_store::kv::KVStore, readers::Reader};
 use alloc::{string::String, vec, vec::Vec};
@@ -238,9 +238,5 @@ fn get_elevation(props: &Properties) -> Option<f64> {
 /// returns the altitude assuming it is in meters
 fn parse_altitude(alt: &str) -> Option<f64> {
     let digits: String = alt.chars().filter(|c| c.is_ascii_digit()).collect();
-    if digits.is_empty() {
-        None
-    } else {
-        digits.parse().ok()
-    }
+    if digits.is_empty() { None } else { digits.parse().ok() }
 }

@@ -32,11 +32,11 @@ pub struct NewLineDelimitedJSONReader<
     _phantom: PhantomData<VectorFeature<M, P, D>>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > NewLineDelimitedJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> NewLineDelimitedJSONReader<T, M, P, D>
 {
     /// Create a Newline-Delimited JSON Reader
     pub fn new(reader: T, seperator: Option<char>) -> NewLineDelimitedJSONReader<T, M, P, D> {
@@ -113,11 +113,11 @@ impl<
     }
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for NewLineDelimitedJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for NewLineDelimitedJSONReader<T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -125,6 +125,7 @@ impl<
     }
 }
 /// The Newline Delimited JSON Iterator tool
+#[derive(Debug)]
 pub struct NewLineDelimitedJSONIterator<
     'a,
     T: Reader,
@@ -135,11 +136,11 @@ pub struct NewLineDelimitedJSONIterator<
     reader: &'a NewLineDelimitedJSONReader<T, M, P, D>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for NewLineDelimitedJSONIterator<'_, T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for NewLineDelimitedJSONIterator<'_, T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
 
@@ -149,11 +150,11 @@ impl<
 }
 /// A feature reader trait with a callback-based approach
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > FeatureReader<M, P, D> for NewLineDelimitedJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> FeatureReader<M, P, D> for NewLineDelimitedJSONReader<T, M, P, D>
 {
     type FeatureIterator<'a>
         = NewLineDelimitedJSONIterator<'a, T, M, P, D>
@@ -169,6 +170,7 @@ impl<
 }
 
 /// # Text Sequence JSON Reader
+#[derive(Debug)]
 pub struct SequenceJSONReader<
     T: Reader,
     M: Clone + DeserializeOwned = (),
@@ -178,11 +180,11 @@ pub struct SequenceJSONReader<
     newline: NewLineDelimitedJSONReader<T, M, P, D>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > SequenceJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> SequenceJSONReader<T, M, P, D>
 {
     /// Create a new SequenceJSONReader
     pub fn new(reader: T) -> SequenceJSONReader<T, M, P, D> {
@@ -190,11 +192,11 @@ impl<
     }
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for SequenceJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for SequenceJSONReader<T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
 
@@ -203,6 +205,7 @@ impl<
     }
 }
 /// The  Delimited JSON Iterator tool
+#[derive(Debug)]
 pub struct SequenceJSONIterator<
     'a,
     T: Reader,
@@ -213,11 +216,11 @@ pub struct SequenceJSONIterator<
     reader: &'a SequenceJSONReader<T, M, P, D>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for SequenceJSONIterator<'_, T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for SequenceJSONIterator<'_, T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
 
@@ -227,11 +230,11 @@ impl<
 }
 /// A feature reader trait with a callback-based approach
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > FeatureReader<M, P, D> for SequenceJSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> FeatureReader<M, P, D> for SequenceJSONReader<T, M, P, D>
 {
     type FeatureIterator<'a>
         = SequenceJSONIterator<'a, T, M, P, D>

@@ -22,7 +22,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=utm
  * ```
  *
@@ -38,19 +38,19 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Usage Examples
  *
  * Convert geodetic coordinates to UTM Zone 32 on the northern hemisphere:
- * ```
+ * ```bash
  * $ echo 12 56 | proj +proj=utm +zone=32
  * 687071.44       6210141.33
  * ```
  *
  * Convert geodetic coordinates to UTM Zone 59 on the southern hemisphere:
- * ```
+ * ```bash
  * $ echo 174 -44 | proj +proj=utm +zone=59 +south
  * 740526.32       5123750.87
  * ```
  *
  * Show the relationship of UTM to TM:
- * ```
+ * ```bash
  * $ echo 121 24 | proj +proj=utm +lon_0=123 | proj -I +proj=tmerc +lon_0=123 +x_0=500000 +k=0.9996
  * 121dE 24dN
  * ```

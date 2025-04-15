@@ -23,7 +23,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=aeqd
  * ```
  *
@@ -31,7 +31,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * None
  *
  * ## Optional Parameters
- * - `guam`: Use Guam ellipsoidal formulas (accurate near Guam: λ ≈ 144.5°, φ ≈ 13.5°)
+ * - `guam`: Use Guam ellipsoidal formulas (accurate near Guam: $λ ≈ 144.5°$, $φ ≈ 13.5°$)
  * - `lat0`: Latitude of origin
  * - `lon0`: Longitude of origin
  * - `x0`: False easting

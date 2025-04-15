@@ -1,8 +1,8 @@
 use crate::geometry::{
-    build_sq_dists, clip_line, BBox3D, ClipLineResultWithBBox, Face, LonLat, MValue, S2Point,
-    STPoint, VectorGeometry, VectorGeometryType, VectorLineString, VectorLineStringGeometry,
-    VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygonGeometry,
-    VectorPoint, VectorPointGeometry, VectorPolygon, VectorPolygonGeometry,
+    BBox3D, ClipLineResultWithBBox, Face, LonLat, MValue, S2Point, STPoint, VectorGeometry,
+    VectorGeometryType, VectorLineString, VectorLineStringGeometry, VectorMultiLineStringGeometry,
+    VectorMultiPointGeometry, VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
+    VectorPolygon, VectorPolygonGeometry, build_sq_dists, clip_line,
 };
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 
@@ -376,7 +376,7 @@ mod tests {
         FeatureCollection, Features, JSONCollection, Projection, S2FeatureCollection, VectorFeature,
     };
 
-    use crate::geometry::{convert, ConvertVectorFeatureWM};
+    use crate::geometry::{ConvertVectorFeatureWM, convert};
 
     use super::*;
 

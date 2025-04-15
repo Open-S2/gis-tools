@@ -25,7 +25,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=mill
  * ```
  *
@@ -47,14 +47,11 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  *
  * ## Mathematical Definition
  * ### Forward projection:
- * ```
- * x = \lambda
- * y = 1.25 * \ln \left[ \tan \left(\frac{\pi}{4} + 0.4 * \phi \right) \right]
- * ```
+ * $$x = \lambda$$
+ * $$y = 1.25 * \ln \left[ \tan \left(\frac{\pi}{4} + 0.4 * \phi \right) \right]$$
  * ### Inverse projection:
- * ```
- * \lambda = x
- * \phi = 2.5 * ( \arctan \left[ e^{0.8 * y} \right] - \frac{\pi}{4} )
+ * $$\lambda = x$$
+ * $$\phi = 2.5 * ( \arctan \left[ e^{0.8 * y} \right] - \frac{\pi}{4} )$$
  * ```
  *
  * ## Further reading

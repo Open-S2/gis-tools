@@ -11,9 +11,9 @@ use core::result::Result;
 pub use fflate::*;
 #[cfg(feature = "std")]
 use flate2::{
+    Compression,
     read::{DeflateDecoder, GzDecoder, ZlibDecoder},
     write::{DeflateEncoder, GzEncoder, ZlibEncoder},
-    Compression,
 };
 #[cfg(feature = "std")]
 use ruzstd::io::Read;
@@ -215,14 +215,13 @@ pub fn decompress_data(input: &[u8], format: CompressionFormat) -> Result<Vec<u8
 }
 
 /// Represents a zip item
-// #[cfg_attr(not(feature = "std"), derive(Debug))]
+#[allow(missing_debug_implementations)]
 pub struct ZipItem<'a> {
     /// The file name
     pub filename: String,
     /// The file comment
     pub comment: String,
     /// If the user wants to read the contents of the file, they can use this function and it will unzip it
-    // #[cfg_attr(not(feature = "std"), debug(skip))]
     pub read: Box<dyn Fn() -> Result<Vec<u8>, CompressError> + Send + Sync + 'a>,
 }
 

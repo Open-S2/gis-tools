@@ -22,7 +22,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=cea
  * ```
  *
@@ -43,11 +43,9 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `x_0`: False easting
  * - `y_0`: False northing
  *
- * > **Note**: `lat_ts` and `k_0` are mutually exclusive. If `lat_ts` is specified, it is equivalent to setting `k_0` to:
- * >
- * > ```
- * > k_0 = cos(lat_ts) / sqrt(1 - e^2 * sin^2(lat_ts))
- * > ```
+ * **Note**: `lat_ts` and `k_0` are mutually exclusive. If `lat_ts` is specified, it is equivalent to setting `k_0` to:
+ *
+ * $$k_0 = \cos(lat_{ts}) / \sqrt{1 - e^2 \sin^2(lat_{ts})}$$
  *
  * reference:
  * "Cartographic Projection Procedures for the UNIX Environment-

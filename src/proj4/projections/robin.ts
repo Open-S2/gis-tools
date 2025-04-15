@@ -71,7 +71,7 @@ const NODES = 18;
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=robin
  * ```
  *

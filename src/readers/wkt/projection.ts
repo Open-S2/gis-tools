@@ -51,7 +51,17 @@ export interface VertCS {
 }
 
 /** Datum parameters. Can be 3 or 7 elements. */
-export type DatumParams = [number, number, number, number, number, number, number];
+export type DatumParams =
+  | [translateX: number, translateY: number, translateZ: number]
+  | [
+      translateX: number,
+      translateY: number,
+      translateZ: number,
+      rotationX: number,
+      rotationY: number,
+      rotationZ: number,
+      scale: number,
+    ];
 
 /**
  * WKT CRS

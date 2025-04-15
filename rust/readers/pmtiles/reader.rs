@@ -1,11 +1,11 @@
 use super::{
-    find_tile, PMDirectory, PMTilePos, S2PMEntries, S2PMHeader, S2_PM_HEADER_SIZE_BYTES,
-    S2_PM_ROOT_SIZE,
+    PMDirectory, PMTilePos, S2_PM_HEADER_SIZE_BYTES, S2_PM_ROOT_SIZE, S2PMEntries, S2PMHeader,
+    find_tile,
 };
 use crate::{
     data_structures::Cache,
     readers::Reader,
-    util::{decompress_data, Buffer},
+    util::{Buffer, decompress_data},
 };
 use alloc::{string::String, vec::Vec};
 use s2_tilejson::{Metadata, UnknownMetadata};

@@ -2,7 +2,7 @@ use super::{
     GetRasterTileValue, S2TileMetadata, TileFetcher, TileMetadata, TileReader, WMTileMetadata,
 };
 use crate::{
-    geometry::{merc_to_ll, xyz_to_bbox, Source},
+    geometry::{Source, merc_to_ll, xyz_to_bbox},
     readers::FeatureReader,
 };
 use alloc::{format, string::String, vec, vec::Vec};
@@ -28,6 +28,7 @@ use std::{
 /// ## Links
 /// - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
 /// - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
+#[derive(Debug)]
 pub struct RasterTileFetcher<D: Clone + Default + GetRasterTileValue> {
     path: PathBuf,
     threshold: Option<u8>,
@@ -99,6 +100,7 @@ impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, (), D>
 }
 
 /// Iterator for the S2 Raster Tile Fetcher
+#[derive(Debug)]
 pub struct RasterIterator<'a, D: Clone + Default + GetRasterTileValue> {
     container: &'a RasterTileFetcher<D>,
     stack: Vec<(Face, u8, u32, u32)>,
@@ -138,6 +140,7 @@ impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D>
 }
 
 /// Raster Tile Reader
+#[derive(Debug)]
 pub struct RasterTileReader<D: Clone + Default + GetRasterTileValue> {
     /// Tile Metadata
     pub metadata: TileMetadata,

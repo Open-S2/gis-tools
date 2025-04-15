@@ -48,7 +48,7 @@ export const enum MODE {
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=tpers +h=5500000 +lat_0=40
  * ```
  *

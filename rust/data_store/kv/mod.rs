@@ -4,7 +4,7 @@ use super::U64;
 pub mod file;
 use alloc::collections::btree_map::BTreeMap;
 use s2json::Properties;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 /// Represents a key-value store
 pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {

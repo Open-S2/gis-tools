@@ -282,11 +282,7 @@ pub fn xml_index_of_match_end(xml: &str, pattern: &str, start_index: usize) -> u
         .captures_iter(&xml[start_index..])
         .map(|cap| (cap.get(0).unwrap().start(), cap.get(0).unwrap().as_str()))
         .collect();
-    if !mtch.is_empty() {
-        start_index + mtch[0].0 + mtch[0].1.len() - 1
-    } else {
-        NO_INDEX
-    }
+    if !mtch.is_empty() { start_index + mtch[0].0 + mtch[0].1.len() - 1 } else { NO_INDEX }
 }
 
 /// Find the index of the first match
@@ -301,11 +297,7 @@ pub fn xml_index_of_match(xml: &str, pattern: &str, start_index: usize) -> usize
         .captures_iter(&xml[start_index..])
         .map(|cap| (cap.get(0).unwrap().start(), cap.get(0).unwrap().as_str()))
         .collect();
-    if !mtch.is_empty() {
-        start_index + mtch[0].0
-    } else {
-        NO_INDEX
-    }
+    if !mtch.is_empty() { start_index + mtch[0].0 } else { NO_INDEX }
 }
 
 /// Remove comments

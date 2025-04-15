@@ -1,4 +1,4 @@
-use crate::util::{decompress_data, CompressionFormat::DeflateRaw};
+use crate::util::{CompressionFormat::DeflateRaw, decompress_data};
 use alloc::{string::String, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
 

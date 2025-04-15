@@ -1,7 +1,7 @@
 import { DrawType } from 's2-tilejson';
 
 import type { Extents } from 'open-vector-tile';
-import type { Attribution, Encoding, Extensions, ImageExtensions, Shape } from 's2-tilejson';
+import type { Attributions, Encoding, Extensions, ImageExtensions, Shape } from 's2-tilejson';
 import type {
   ClusterOptions,
   FeatureIterator,
@@ -176,7 +176,7 @@ export interface BuildGuide<V extends MValue = Properties, G extends MValue = Pr
   /** The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none'] */
   encoding?: Encoding;
   /** The attribution of the data. Store as `{ 'presentation name': 'href' }`. */
-  attribution?: Attribution;
+  attribution?: Attributions;
   /**
    * The vector format if applicable helps define how the vector data is stored.
    * - The more modern vector format is the 'open-s2' which supports things like m-values

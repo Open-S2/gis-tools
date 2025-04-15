@@ -1,7 +1,7 @@
 use super::{IndexPoint, PointIndex, Tile};
 use crate::{
     data_store::vector::{Vector, VectorStore},
-    geometry::{convert, LonLat, S1ChordAngle, S2CellId, S2Point, K_AVG_ANGLE_SPAN},
+    geometry::{K_AVG_ANGLE_SPAN, LonLat, S1ChordAngle, S2CellId, S2Point, convert},
     readers::FeatureReader,
 };
 use alloc::{collections::BTreeMap, string::String};
@@ -11,7 +11,7 @@ use s2json::{
     Face, GetXY, JSONCollection, MValue, Projection, VectorFeature, VectorFeatureType,
     VectorGeometry, VectorGeometryType, VectorPoint, VectorPointGeometry,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 /// Options for point clustering
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -79,10 +79,8 @@ pub struct PointCluster<
     grid_size: u32, // a default is a 512x512 pixel tile
     indexes: BTreeMap<u8, RefCell<PointIndex<Cluster<M>, S>>>, // zoom => index
 }
-impl<
-        M: Clone + Default + Serialize + DeserializeOwned,
-        S: VectorStore<S2CellId, ClusterPoint<M>>,
-    > PointCluster<M, S>
+impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId, ClusterPoint<M>>>
+    PointCluster<M, S>
 {
     /// Create a new point cluster
     pub fn new(
@@ -326,7 +324,7 @@ mod tests {
     use alloc::{vec, vec::Vec};
     use s2json::MValueCompatible;
 
-    use crate::readers::{json::JSONReader, FileReader};
+    use crate::readers::{FileReader, json::JSONReader};
 
     use super::*;
 

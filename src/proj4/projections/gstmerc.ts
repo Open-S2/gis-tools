@@ -22,7 +22,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=gstmerc
  * ```
  *
@@ -36,7 +36,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+y_0=<value>`: False northing.
  *
  * ## Usage Example
- * ```
+ * ```bash
  * echo 12 55 | proj +proj=gstmerc +ellps=WGS84
  * echo 12 55 | proj +proj=gstmerc +k_0=1 +lon_0=0 +x_0=500000 +y_0=0
  * ```

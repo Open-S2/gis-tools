@@ -1,7 +1,7 @@
-use super::{get_u_norm, get_v_norm, LOOKUP_IJ};
+use super::{LOOKUP_IJ, get_u_norm, get_v_norm};
 use crate::geometry::{
-    face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv, BBox, LonLat, S2Point,
-    K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, ST_TO_UV, UV_TO_ST,
+    BBox, K_INVERT_MASK, K_MAX_CELL_LEVEL, K_SWAP_MASK, LOOKUP_POS, LonLat, S2Point, ST_TO_UV,
+    UV_TO_ST, face_uv_to_xyz, ij_to_st, si_ti_to_st, st_to_ij, xyz_to_face_uv,
 };
 use alloc::{string::String, vec::Vec};
 use core::{fmt, ops::Deref};
@@ -205,11 +205,7 @@ impl S2CellId {
 
         let id: S2CellId = ((n << 1) + 1).into();
 
-        if let Some(level) = level {
-            id.parent(Some(level))
-        } else {
-            id
-        }
+        if let Some(level) = level { id.parent(Some(level)) } else { id }
     }
 
     /// Given a distance and optional zoom level, construct a cell ID at that distance
@@ -548,21 +544,13 @@ impl S2CellId {
     /// Get the next S2CellID in the hilbert space
     pub fn next(&self) -> S2CellId {
         let next = self.id.wrapping_add(self.lsb() << 1);
-        if next < K_WRAP_OFFSET {
-            next.into()
-        } else {
-            (next - K_WRAP_OFFSET).into()
-        }
+        if next < K_WRAP_OFFSET { next.into() } else { (next - K_WRAP_OFFSET).into() }
     }
 
     /// Get the previous S2CellID in the hilbert space
     pub fn prev(&self) -> S2CellId {
         let prev = self.id.wrapping_sub(self.lsb() << 1);
-        if prev < K_WRAP_OFFSET {
-            prev.into()
-        } else {
-            (prev.wrapping_add(K_WRAP_OFFSET)).into()
-        }
+        if prev < K_WRAP_OFFSET { prev.into() } else { (prev.wrapping_add(K_WRAP_OFFSET)).into() }
     }
 
     /// Given an S2CellID and level (zoom), get the center point of that cell in S-T space
@@ -740,6 +728,15 @@ impl S2CellId {
     /// Return the high 32 bits of the cell id
     pub fn high_bits(&self) -> u32 {
         (self.id >> 32) as u32
+    }
+
+    /// Check if the tile is not a real world tile that fits inside a WM quad tree
+    /// Out of bounds tiles exist if the map has `duplicateHorizontally` set to true.
+    /// This is useful for filling in the canvas on the x axis instead of leaving it blank.
+    /// @param id - a tile ID
+    /// @returns - true if the id is out of bounds for WM
+    pub fn is_out_of_bounds_wm(&self) -> bool {
+        self.face() != 0
     }
 }
 impl fmt::Display for S2CellId {

@@ -1,5 +1,5 @@
 import KDBush from 'kdbush';
-import { fromLonLat } from '../src/geometry/s2/point';
+import { pointFromLonLat } from '../src/geometry/s2/point';
 import { PointIndex, PointIndexFast } from '../src';
 
 const TOTAL_SIZE = 1_000_000;
@@ -53,7 +53,7 @@ console.info('index Build time: ', indexBuildSeconds);
 console.info('index Sort time: ', indexSortSeconds);
 
 const indexSearchTime = Bun.nanoseconds();
-const _withinSearch2 = index.searchRadius(fromLonLat(lls[0]), 1);
+const _withinSearch2 = index.searchRadius(pointFromLonLat(lls[0]), 1);
 const withinSearchEnd2 = Bun.nanoseconds();
 const withinSearchSeconds2 = (withinSearchEnd2 - indexSearchTime) / 1_000_000_000;
 console.info('index Search time: ', withinSearchSeconds2);

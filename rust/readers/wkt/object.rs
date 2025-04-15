@@ -6,7 +6,7 @@ use alloc::{
 };
 
 /// WKT value or array of values
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum WKTValue {
     /// A string
     String(String),
@@ -22,6 +22,13 @@ impl WKTValue {
             WKTValue::Array(_) => "".into(),
         }
     }
+    /// To Float
+    pub fn to_float(&self) -> f64 {
+        match self {
+            WKTValue::String(s) => s.parse().unwrap_or_default(),
+            WKTValue::Array(_) => 0.,
+        }
+    }
     /// Get the Array if it exists
     pub fn to_arr(&self) -> Option<&Vec<WKTValue>> {
         match self {
@@ -33,7 +40,7 @@ impl WKTValue {
 /// WKT object is a collection of WKT values or even nested WKT objects
 pub type WKTObject = Vec<WKTValue>;
 
-/// A trait for converting to WKT
+/// A trait for converting from WKT string (pre-parsed as an object)
 pub trait WKTParser: Default {
     /// Converts from WKT
     fn from_wkt(wkt: &WKTValue) -> Self;

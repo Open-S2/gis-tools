@@ -1,16 +1,17 @@
 use super::KVStore;
 use crate::data_store::{
-    file::{FileOptions, S2FileStore},
     U64,
+    file::{FileOptions, S2FileStore},
 };
 use core::{
     cell::{RefCell, RefMut},
     ops::{Deref, DerefMut},
 };
 use s2json::Properties;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 /// File based reader that implements the KVStore trait
+#[derive(Debug)]
 pub struct FileKV<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
     store: RefCell<S2FileStore<K, V>>,
     tmp_val: RefCell<Option<V>>,

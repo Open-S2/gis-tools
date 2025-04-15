@@ -51,7 +51,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=eqearth
  * ```
  *
@@ -60,7 +60,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * The Equal Earth projection is designed for world maps and retains the relative size of areas. It was inspired by the Robinson projection.
  *
  * Example:
- * ```
+ * ```bash
  * $ echo 122 47 | proj +proj=eqearth +R=1
  * 1.55    0.89
  * ```

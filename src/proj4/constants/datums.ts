@@ -1,6 +1,8 @@
+import type { DatumParams } from 'gis-tools/readers';
+
 /** Description of a WGS84 datum */
 export interface ToWGS84Datum {
-  datumParams: number[];
+  datumParams: DatumParams;
   ellipse: string;
   datumName: string;
 }

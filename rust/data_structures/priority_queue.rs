@@ -22,6 +22,7 @@ pub type PriorityCompare<T> = fn(&T, &T) -> core::cmp::Ordering;
 /// assert_eq!(queue.pop(), Some(1));
 /// assert_eq!(queue.len(), 2);
 /// ```
+#[derive(Debug)]
 pub struct PriorityQueue<T> {
     data: Vec<T>,
     compare: PriorityCompare<T>,

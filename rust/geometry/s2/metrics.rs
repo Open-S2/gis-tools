@@ -30,6 +30,7 @@ const SQRT_2_3: f64 = 0.816496580927726;
 /// coordinate changes when they are measured as distances on the unit sphere.
 ///
 /// Defines a cell metric of the given dimension (1 == length, 2 == area).
+#[derive(Debug, Copy, Clone)]
 pub struct Metric<const DIM: i32> {
     /// The "deriv" value of a metric is a derivative, and must be multiplied by
     /// a length or area in (s,t)-space to get a useful value.

@@ -14,6 +14,7 @@ static NO_REF: usize = usize::MAX;
 ///
 /// ## Links
 /// - https://en.wikipedia.org/wiki/Delaunay_triangulation
+#[derive(Debug)]
 pub struct Delaunator {
     edge_stack: Vec<usize>,
     coords: Vec<f64>,
@@ -839,11 +840,7 @@ mod tests {
         let Point(qx, qy) = q;
         let l = (ry - py) * (qx - px);
         let r = (rx - px) * (qy - py);
-        if fabs(l - r) >= 3.3306690738754716e-16 * fabs(l + r) {
-            l - r
-        } else {
-            0.
-        }
+        if fabs(l - r) >= 3.3306690738754716e-16 * fabs(l + r) { l - r } else { 0. }
     }
 
     fn convex(r: Point, q: Point, p: Point) -> bool {

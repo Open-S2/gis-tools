@@ -38,7 +38,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=lcc +lon_0=-90 +lat_1=33 +lat_2=45
  * ```
  *

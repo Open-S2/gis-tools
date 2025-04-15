@@ -1,5 +1,5 @@
-use super::{face_uv_to_xyz, ST_TO_UV};
-use crate::geometry::{xyz_to_face_st, xyz_to_face_uv, LonLat, S2CellId};
+use super::{ST_TO_UV, face_uv_to_xyz};
+use crate::geometry::{LonLat, S2CellId, xyz_to_face_st, xyz_to_face_uv};
 use core::{
     cmp::Ordering,
     fmt::Debug,
@@ -137,11 +137,7 @@ impl S2Point {
     pub fn largest_abs_component(&self) -> u8 {
         let tmp = self.abs();
         if tmp.x > tmp.y {
-            if tmp.x > tmp.z {
-                0
-            } else {
-                2
-            }
+            if tmp.x > tmp.z { 0 } else { 2 }
         } else if tmp.y > tmp.z {
             1
         } else {

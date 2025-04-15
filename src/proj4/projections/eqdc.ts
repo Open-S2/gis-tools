@@ -23,7 +23,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=eqdc +lat_1=55 +lat_2=60
  * ```
  *

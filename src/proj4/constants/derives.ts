@@ -1,8 +1,6 @@
 import { ellipsoids } from './ellipsoid';
 import { EPSLN, RA4, RA6, SIXTH } from './values';
 
-import type { Ellipsoid } from './ellipsoid';
-
 /** Describes an ellipsoid's eccentricity */
 export interface EccentricityParams {
   a?: number;
@@ -54,7 +52,7 @@ export interface SphereParams {
 export function deriveSphere(obj: SphereParams): void {
   if (obj.a === undefined) {
     // do we have an ellipsoid?
-    let ellipse = match<Ellipsoid>(ellipsoids, obj.ellps);
+    let ellipse = obj.ellps !== undefined ? ellipsoids[obj.ellps] : undefined;
     if (ellipse === undefined) ellipse = ellipsoids.WGS84;
     obj.a = ellipse.a;
     obj.b = ellipse.b;
@@ -70,14 +68,4 @@ export function deriveSphere(obj: SphereParams): void {
     obj.sphere = true;
     obj.b = obj.a;
   }
-}
-
-/**
- * @param obj - the object to search
- * @param key - the key to search with
- * @returns - the value of the key
- */
-function match<T>(obj: Record<string, T>, key?: string): T | undefined {
-  if (key === undefined) return;
-  if (obj[key] !== undefined) return obj[key];
 }

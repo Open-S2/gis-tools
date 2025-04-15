@@ -7,7 +7,7 @@ use sort_chunk::*;
 use std::{
     env, format,
     fs::{self, File},
-    io::{copy, BufReader, BufWriter, Write},
+    io::{BufReader, BufWriter, Write, copy},
     path::Path,
     string::{String, ToString},
     sync::{Arc, Mutex},
@@ -51,7 +51,7 @@ pub fn external_sort(
 }
 
 /// A File name and it's size
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct FileSize {
     /// Name of the folder
     name: String,
@@ -94,6 +94,7 @@ fn file_size(file: &str) -> u64 {
 }
 
 /// A chunk of a file to be sorted
+#[derive(Debug)]
 pub struct SortChunk {
     name: String, // name of the input (there could be multiple input files to sort)
     input: String,

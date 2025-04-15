@@ -10,6 +10,7 @@ use std::{
 
 /// A Local Memory Tile Write Store
 /// Useful for testing
+#[derive(Debug)]
 pub struct FileTileWriter {
     /// The tiles
     path: PathBuf,

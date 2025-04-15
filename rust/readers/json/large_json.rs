@@ -47,11 +47,11 @@ pub struct JSONReader<
     _phantom: PhantomData<VectorFeature<M, P, D>>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > JSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> JSONReader<T, M, P, D>
 {
     /// Create a new JSONReader
     pub fn new(reader: T, chunk_size: Option<u64>) -> JSONReader<T, M, P, D> {
@@ -170,7 +170,7 @@ impl<
         // what if the last char in current buffer was a BACKSLASH?
         // we need to make sure in the next buffer we account for increment
         let chunk_size = parser.chunk_size as usize;
-        let increment_space = if parser.pos > chunk_size { parser.pos - chunk_size } else { 0 };
+        let increment_space = parser.pos.saturating_sub(chunk_size);
 
         if let (Some(start), Some(end)) = (parser.start, parser.end) {
             parser.pos += 1;
@@ -210,11 +210,11 @@ impl<
     }
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for JSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for JSONReader<T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -222,6 +222,7 @@ impl<
     }
 }
 /// The JSON Iterator tool
+#[derive(Debug)]
 pub struct JSONIterator<
     'a,
     T: Reader,
@@ -232,11 +233,11 @@ pub struct JSONIterator<
     reader: &'a JSONReader<T, M, P, D>,
 }
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for JSONIterator<'_, T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for JSONIterator<'_, T, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
 
@@ -246,11 +247,11 @@ impl<
 }
 /// A feature reader trait with a callback-based approach
 impl<
-        T: Reader,
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > FeatureReader<M, P, D> for JSONReader<T, M, P, D>
+    T: Reader,
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> FeatureReader<M, P, D> for JSONReader<T, M, P, D>
 {
     type FeatureIterator<'a>
         = JSONIterator<'a, T, M, P, D>

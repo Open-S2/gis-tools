@@ -27,6 +27,7 @@ pub use shp::*;
 
 /// A description of what relevant files exist and where
 #[cfg(feature = "std")]
+#[derive(Debug)]
 pub struct Definition {
     /// The path to the .shp file
     shp: String,

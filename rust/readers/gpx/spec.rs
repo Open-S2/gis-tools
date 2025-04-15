@@ -1,7 +1,7 @@
 use super::GPXProperties;
 use crate::{
     data_structures::HasLayer,
-    readers::{xml_find_tag_by_name, xml_find_tags_by_name, xml_get_attribute, XMLTagItem},
+    readers::{XMLTagItem, xml_find_tag_by_name, xml_find_tags_by_name, xml_get_attribute},
 };
 use alloc::{
     string::{String, ToString},

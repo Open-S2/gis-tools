@@ -1,11 +1,11 @@
 use crate::{
-    converters::OnFeature,
+    converter::OnFeature,
     data_structures::{ClusterOptions, GridOptions, HasLayer, TileStoreOptions},
-    readers::{ReaderType, RGBA},
+    readers::{RGBA, ReaderType},
 };
 use alloc::{collections::BTreeMap, string::String, vec, vec::Vec};
 use open_vector_tile::Extent;
-use s2_tilejson::{Attribution, DrawType, Encoding, LayerMetaData, SourceType};
+use s2_tilejson::{Attributions, DrawType, Encoding, LayerMetaData, SourceType};
 use s2json::{MValue, MValueCompatible, Projection, Properties, Shape, VectorFeature};
 use serde::{Deserialize, Serialize};
 
@@ -31,6 +31,7 @@ impl HasLayer for ToTileMetadata {
 pub type MVectorFeature = VectorFeature<ToTileMetadata, Properties, MValue>;
 
 /// This is a generic handler for any layer type
+#[derive(Debug)]
 pub struct LayerHandler<M: Clone + HasLayer, P: MValueCompatible, D: MValueCompatible> {
     /// Name of the layer
     pub layer_name: String,
@@ -228,11 +229,11 @@ impl From<&LayerGuide> for LayerMetaData {
 
 /// The vector format if applicable helps define how the vector data is stored.
 /// - The more modern vector format is the 'open-s2' which supports things like m-values
-///     and 3D geometries.
+///   and 3D geometries.
 /// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
-///     properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
+///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
 /// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
-///     older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
+///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
 /// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
 /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
 ///
@@ -313,14 +314,14 @@ pub struct JSONBuildGuide {
     /// The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none']
     pub encoding: Encoding,
     /// The attribution of the data. Store as `{ 'presentation name': 'href' }`.
-    pub attribution: Attribution,
+    pub attribution: Attributions,
     /// The vector format if applicable helps define how the vector data is stored.
     /// - The more modern vector format is the 'open-s2' which supports things like m-values
-    ///     and 3D geometries.
+    ///   and 3D geometries.
     /// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
-    ///     properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
+    ///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
     /// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
-    ///     older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
+    ///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
     /// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
     /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
     ///
@@ -390,14 +391,14 @@ pub struct BuildGuide {
     /// The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none']
     pub encoding: Encoding,
     /// The attribution of the data. Store as `{ 'presentation name': 'href' }`.
-    pub attribution: Attribution,
+    pub attributions: Attributions,
     /// The vector format if applicable helps define how the vector data is stored.
     /// - The more modern vector format is the 'open-s2' which supports things like m-values
-    ///     and 3D geometries.
+    ///   and 3D geometries.
     /// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
-    ///     properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
+    ///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
     /// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
-    ///     older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
+    ///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
     /// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
     /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
     ///
@@ -420,7 +421,7 @@ impl Default for BuildGuide {
             extension: "pbf".into(),
             projection: Projection::S2,
             encoding: Encoding::None,
-            attribution: BTreeMap::default(),
+            attributions: BTreeMap::default(),
             format: FormatOutput::default(),
             build_indices: true,
             layer_guides: vec![],

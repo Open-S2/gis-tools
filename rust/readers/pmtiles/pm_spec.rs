@@ -418,7 +418,7 @@ impl PMHeader {
         let mut buffer = Buffer::default();
         // set id
         buffer.set_u16_at(0, 0x4d50); // set PM
-                                      // Version number at position 7
+        // Version number at position 7
         buffer.set_u8_at(7, 3);
         // Root directory offset and length at positions 8 and 16
         buffer.set_u64_at(8, self.root_directory_offset);

@@ -377,6 +377,26 @@ export function toLL<
 }
 
 /**
+ * Convert a longitude to a 0->1 coordinate
+ * @param x - longitude
+ * @returns a 0->1 coordinate
+ */
+export function projectX(x: number): number {
+  return x / 360 + 0.5;
+}
+
+/**
+ * Convert a latitude to a 0->1 coordinate
+ * @param y - latitude
+ * @returns a 0->1 coordinate
+ */
+export function projectY(y: number): number {
+  const sin = Math.sin((y * Math.PI) / 180);
+  const y2 = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
+  return y2 < 0 ? 0 : y2 > 1 ? 1 : y2;
+}
+
+/**
  * Project a point from lon-lat to a 0->1 coordinate system in place
  * @param input - input point
  * @param geo - input geometry (used to update the bbox)
@@ -386,10 +406,8 @@ function projectPoint<M extends MValue = Properties>(
   geo: VectorGeometry<M>,
 ): void {
   const { x, y } = input;
-  const sin = Math.sin((y * Math.PI) / 180);
-  const y2 = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
-  input.x = x / 360 + 0.5;
-  input.y = y2 < 0 ? 0 : y2 > 1 ? 1 : y2;
+  input.x = projectX(x);
+  input.y = projectY(y);
   // update bbox
   geo.vecBBox = extendBBox(geo.vecBBox, input);
 }

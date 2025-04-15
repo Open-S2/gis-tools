@@ -388,11 +388,7 @@ fn inflt(dat: &[u8], bf: Option<&[u8]>, dict: Option<&[u8]>) -> Result<Vec<u8>, 
         }
     }
     // don't reallocate for streams or user buffers
-    if bt != buf.len() && no_buf {
-        Ok(slc(&buf, 0, bt).to_vec())
-    } else {
-        Ok(buf[0..bt].to_vec())
-    }
+    if bt != buf.len() && no_buf { Ok(slc(&buf, 0, bt).to_vec()) } else { Ok(buf[0..bt].to_vec()) }
 }
 
 /// create huffman tree from u8 "map": index -> code length for code index

@@ -16,7 +16,7 @@ pub mod relation;
 pub mod way;
 
 use super::{FeatureReader, Reader};
-use crate::data_store::{KVStore, KV};
+use crate::data_store::{KV, KVStore};
 use alloc::{boxed::Box, vec::Vec};
 use blob::{Blob, BlobHeader};
 use filter::*;
@@ -121,13 +121,13 @@ pub struct OSMReader<
     relations: R,
 }
 impl<
-        T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
-        N: KVStore<u64, IntermediateNode>,
-        _W: KVStore<u64, WayNodes>,
-        W: KVStore<u64, IntermediateWay>,
-        R: KVStore<u64, IntermediateRelation>,
-    > OSMReader<T, _N, N, _W, W, R>
+    T: Reader,
+    _N: KVStore<u64, VectorPoint<()>>,
+    N: KVStore<u64, IntermediateNode>,
+    _W: KVStore<u64, WayNodes>,
+    W: KVStore<u64, IntermediateWay>,
+    R: KVStore<u64, IntermediateRelation>,
+> OSMReader<T, _N, N, _W, W, R>
 {
     /// Creates a new OSM Reader
     pub fn new(reader: T, options: Option<OSMReaderOptions>) -> Self {
@@ -298,6 +298,7 @@ impl<
 }
 
 /// OSM Reader iterator
+#[allow(missing_debug_implementations)]
 pub struct OsmReaderIter<
     'a,
     T: Reader,
@@ -314,13 +315,13 @@ pub struct OsmReaderIter<
 }
 
 impl<
-        T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
-        N: KVStore<u64, IntermediateNode>,
-        _W: KVStore<u64, WayNodes>,
-        W: KVStore<u64, IntermediateWay>,
-        R: KVStore<u64, IntermediateRelation>,
-    > Iterator for OsmReaderIter<'_, T, _N, N, _W, W, R>
+    T: Reader,
+    _N: KVStore<u64, VectorPoint<()>>,
+    N: KVStore<u64, IntermediateNode>,
+    _W: KVStore<u64, WayNodes>,
+    W: KVStore<u64, IntermediateWay>,
+    R: KVStore<u64, IntermediateRelation>,
+> Iterator for OsmReaderIter<'_, T, _N, N, _W, W, R>
 {
     type Item = VectorFeature<OSMMetadata, Properties, ()>;
 
@@ -340,13 +341,13 @@ impl<
     }
 }
 impl<
-        T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
-        N: KVStore<u64, IntermediateNode>,
-        _W: KVStore<u64, WayNodes>,
-        W: KVStore<u64, IntermediateWay>,
-        R: KVStore<u64, IntermediateRelation>,
-    > FeatureReader<OSMMetadata, Properties, ()> for OSMReader<T, _N, N, _W, W, R>
+    T: Reader,
+    _N: KVStore<u64, VectorPoint<()>>,
+    N: KVStore<u64, IntermediateNode>,
+    _W: KVStore<u64, WayNodes>,
+    W: KVStore<u64, IntermediateWay>,
+    R: KVStore<u64, IntermediateRelation>,
+> FeatureReader<OSMMetadata, Properties, ()> for OSMReader<T, _N, N, _W, W, R>
 {
     type FeatureIterator<'a>
         = OsmReaderIter<'a, T, _N, N, _W, W, R>

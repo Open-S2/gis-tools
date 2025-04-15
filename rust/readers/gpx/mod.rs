@@ -40,6 +40,7 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 ///
 /// ## Links
 /// https://www.topografix.com/gpx.asp
+#[derive(Debug)]
 pub struct GPXReader {
     /// GPX object
     pub gpx: GPX,
@@ -55,6 +56,7 @@ impl GPXReader {
     }
 }
 /// The GPX Iterator tool
+#[derive(Debug)]
 pub struct GPXIterator<'a> {
     reader: &'a GPXReader,
     wpt_offset: usize,

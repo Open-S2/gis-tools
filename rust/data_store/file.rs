@@ -5,7 +5,7 @@ use crate::{
 use alloc::{string::String, vec, vec::Vec};
 use core::marker::PhantomData;
 use s2json::Properties;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::{
     env, format,
     fs::{self},
@@ -13,7 +13,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use super::{external_sort, U64};
+use super::{U64, external_sort};
 
 /// Options to create a S2BaseStore
 #[derive(Debug, Default)]
@@ -197,11 +197,7 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> S2BaseStore<R, K, V>
             lower_index += 1;
         }
 
-        if res.is_empty() {
-            None
-        } else {
-            Some((lower_index - res.len() as u64, res))
-        }
+        if res.is_empty() { None } else { Some((lower_index - res.len() as u64, res)) }
     }
 
     /// Get the value at the given index. Return (key, value)
@@ -339,6 +335,7 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> S2BaseStore<R, K, V>
     }
 }
 /// Iterator for S2BaseStore
+#[derive(Debug)]
 pub struct Iter<'a, R: StdReader, K: U64, V: Serialize + DeserializeOwned> {
     container: &'a mut S2BaseStore<R, K, V>,
     index: u64,
@@ -352,6 +349,7 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> Iterator for Iter<'_
     }
 }
 /// Multi-Value Iterator for S2BaseStore
+#[derive(Debug)]
 pub struct IterMulti<'a, R: StdReader, K: U64, V: Serialize + DeserializeOwned> {
     container: &'a mut S2BaseStore<R, K, V>,
     index: u64,
@@ -381,13 +379,11 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> Iterator for IterMul
 }
 
 fn build_tmp_dir(tmp_dir: Option<String>) -> String {
-    let tmp_d = tmp_dir.unwrap_or_else(|| {
+    tmp_dir.unwrap_or_else(|| {
         let tmp_dir = env::temp_dir().join("s2_data_store");
         fs::create_dir_all(&tmp_dir).unwrap();
         tmp_dir.to_string_lossy().into()
-    });
-
-    tmp_d
+    })
 }
 
 /// Builds a temporary file name

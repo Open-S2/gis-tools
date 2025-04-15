@@ -185,6 +185,7 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> Iterator for CSVReader<T
     }
 }
 /// The CSV Iterator tool
+#[derive(Debug)]
 pub struct CSVIterator<'a, T: Reader, P: MValueCompatible + DeserializeOwned> {
     reader: &'a CSVReader<T, P>,
 }

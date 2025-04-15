@@ -1,4 +1,4 @@
-use super::{buffer_to_keys, keys_to_buffer, Key};
+use super::{Key, buffer_to_keys, keys_to_buffer};
 use crate::{data_store::file::KEY_STORE_LENGTH, util::Buffer};
 use std::{
     cmp::Ordering,
@@ -108,9 +108,5 @@ fn get_next_lowest_key(sorted_files: &mut [SortedFile], max_heap: usize) -> Opti
             (Some(a_key), Some(b_key)) => a_key.id.cmp(&b_key.id),
         }
     });
-    if sorted_files.is_empty() {
-        None
-    } else {
-        sorted_files[0].take()
-    }
+    if sorted_files.is_empty() { None } else { sorted_files[0].take() }
 }

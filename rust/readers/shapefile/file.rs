@@ -1,5 +1,5 @@
 use super::{
-    shapefile_from_gzip as shapefile_from_gzip_local, DataBaseFile, Definition, ShapeFileReader,
+    DataBaseFile, Definition, ShapeFileReader, shapefile_from_gzip as shapefile_from_gzip_local,
 };
 use crate::{
     proj::ProjectionTransformDefinition,
@@ -8,7 +8,7 @@ use crate::{
 use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
-    fs::{exists, File},
+    fs::{File, exists},
     io::Read,
     path::Path,
     string::{String, ToString},

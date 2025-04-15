@@ -1,8 +1,8 @@
 use super::Writer;
 use crate::{
     readers::{
-        PMDirectory, PMEntry, PMHeader, PMTilePos, PMTileType, S2PMEntries, S2PMHeader,
-        S2_PM_HEADER_SIZE_BYTES, S2_PM_ROOT_SIZE,
+        PMDirectory, PMEntry, PMHeader, PMTilePos, PMTileType, S2_PM_HEADER_SIZE_BYTES,
+        S2_PM_ROOT_SIZE, S2PMEntries, S2PMHeader,
     },
     util::CompressionFormat,
 };

@@ -1,9 +1,9 @@
 use super::{
+    OSMFilterable, OSMReader, OSMTagFilterType,
     info::{Info, InfoBlock},
     node::IntermediateNode,
     primitive::{OSMMetadata, PrimitiveBlock},
     way::{IntermediateWay, WayNodes},
-    OSMFilterable, OSMReader, OSMTagFilterType,
 };
 use crate::{data_store::kv::KVStore, readers::Reader};
 use alloc::{string::String, vec, vec::Vec};
@@ -64,11 +64,7 @@ impl IntermediateRelation {
         let i_nodes: Vec<IntermediateNodeMember> = members
             .iter()
             .filter_map(|m| {
-                if let IntermediateMember::Node(node) = m {
-                    Some(node.clone())
-                } else {
-                    None
-                }
+                if let IntermediateMember::Node(node) = m { Some(node.clone()) } else { None }
             })
             .collect();
         let mut nodes: Vec<NodeMember> = vec![];

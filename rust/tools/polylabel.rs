@@ -206,11 +206,7 @@ fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -
         }
     }
 
-    if min_dist_sq == 0. {
-        0.
-    } else {
-        (if inside { 1. } else { -1. }) * sqrt(min_dist_sq)
-    }
+    if min_dist_sq == 0. { 0. } else { (if inside { 1. } else { -1. }) * sqrt(min_dist_sq) }
 }
 
 /// get polygon centroid

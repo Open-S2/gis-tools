@@ -11,7 +11,7 @@ pub use line_delimited::*;
 use s2json::{
     Feature, FeatureCollection, Features, JSONCollection, S2FeatureCollection, VectorFeature,
 };
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 
 /// Error type for ToGisJSON
 #[derive(Debug, Deserialize)]
@@ -221,6 +221,7 @@ impl<M: Clone, P: Clone + Default, D: Clone + Default> IntoIterator
     }
 }
 /// The JSON Iterator tool
+#[derive(Debug)]
 pub struct JSONCollectionIterator<
     'a,
     M: Clone + DeserializeOwned,
@@ -232,10 +233,10 @@ pub struct JSONCollectionIterator<
     size: usize,
 }
 impl<
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > Iterator for JSONCollectionIterator<'_, M, P, D>
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> Iterator for JSONCollectionIterator<'_, M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
 
@@ -249,10 +250,10 @@ impl<
 }
 /// A feature reader trait with a callback-based approach
 impl<
-        M: Clone + DeserializeOwned,
-        P: Clone + Default + DeserializeOwned,
-        D: Clone + Default + DeserializeOwned,
-    > FeatureReader<M, P, D> for JSONCollectionReader<M, P, D>
+    M: Clone + DeserializeOwned,
+    P: Clone + Default + DeserializeOwned,
+    D: Clone + Default + DeserializeOwned,
+> FeatureReader<M, P, D> for JSONCollectionReader<M, P, D>
 {
     type FeatureIterator<'a>
         = JSONCollectionIterator<'a, M, P, D>

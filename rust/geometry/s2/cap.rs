@@ -1,4 +1,4 @@
-use crate::geometry::{S1Angle, S1ChordAngle, S2CellId, S2Point, K_MAX_EDGE, K_MAX_LENGTH_2};
+use crate::geometry::{K_MAX_EDGE, K_MAX_LENGTH_2, S1Angle, S1ChordAngle, S2CellId, S2Point};
 use alloc::{vec, vec::Vec};
 use core::f64::consts::PI;
 
@@ -33,6 +33,7 @@ use core::f64::consts::PI;
 ///   d^2 = 2 * h
 ///       = a^2 + h^2
 /// ```
+#[derive(Debug, Copy, Clone)]
 pub struct S2Cap<T = ()> {
     /// the center of the cap
     pub center: S2Point,

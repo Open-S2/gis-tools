@@ -1,9 +1,9 @@
 use super::{
+    OSMFilterable, OSMReader, OSMTagFilterType,
     info::{Info, InfoBlock},
     node::IntermediateNode,
     primitive::{OSMMetadata, PrimitiveBlock},
     relation::{IntermediateRelation, MemberType},
-    OSMFilterable, OSMReader, OSMTagFilterType,
 };
 use crate::{data_store::kv::KVStore, readers::Reader};
 use alloc::{vec, vec::Vec};

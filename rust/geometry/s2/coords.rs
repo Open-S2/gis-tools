@@ -144,7 +144,7 @@ pub const K_MAX_SI_TI: u32 = 1 << (K_MAX_CELL_LEVEL + 1);
 /// within the same cell is about 1.7.
 ///
 /// NOTE: Currently Tan only has 1e-12 accuracy while Quadratic is within 1e-15.
-#[derive(Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum S2Projection {
     /// Linear projection
     S2LinearProjection,
@@ -204,11 +204,7 @@ pub fn uv_to_stlinear(u: f64) -> f64 {
 /// The inverse of the STtoUV transformation.  Note that it is not always
 /// true that UV_TO_ST(STtoUV(x)) == x due to numerical errors.
 pub fn uv_to_st_quadratic(u: f64) -> f64 {
-    if u >= 0. {
-        0.5 * sqrt(1.0 + 3.0 * u)
-    } else {
-        1.0 - 0.5 * sqrt(1.0 - 3.0 * u)
-    }
+    if u >= 0. { 0.5 * sqrt(1.0 + 3.0 * u) } else { 1.0 - 0.5 * sqrt(1.0 - 3.0 * u) }
 }
 /// The inverse of the STtoUV transformation.  Note that it is not always
 /// true that UV_TO_ST(STtoUV(x)) == x due to numerical errors.

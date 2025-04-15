@@ -29,7 +29,7 @@ mod tests {
     use super::*;
     use crate::{
         readers::RGBA,
-        tools::{default_get_interpolate_current_value, VectorPointRGBA},
+        tools::{VectorPointRGBA, default_get_interpolate_current_value},
     };
     use alloc::{vec, vec::Vec};
     use s2json::{MValue, VectorPoint};

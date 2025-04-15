@@ -325,8 +325,8 @@ impl<M: Clone + Default> TransformVectorGeometry<M> for VectorGeometry<M> {
 impl<M: Clone + Default> TransformVectorGeometry<M> for VectorPoint<M> {
     /// Transform the point from the 0->1 coordinate system to a tile coordinate system
     fn transform(&mut self, zoom: f64, ti: f64, tj: f64) {
-        self.x = (self.x * zoom - ti);
-        self.y = (self.y * zoom - tj);
+        self.x = self.x * zoom - ti;
+        self.y = self.y * zoom - tj;
     }
 }
 
@@ -416,7 +416,7 @@ mod tests {
                 maxzoom: 16,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
-                tolerance: 3.,
+                tolerance: 0.000732421875,
                 buffer: 0.0625,
                 tiles: BTreeMap::new(),
                 projection: Projection::S2,
@@ -431,7 +431,7 @@ mod tests {
                 maxzoom: 16,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
-                tolerance: 3.,
+                tolerance: 0.000732421875,
                 buffer: 0.0625,
                 tiles: BTreeMap::new(),
                 projection: Projection::S2,

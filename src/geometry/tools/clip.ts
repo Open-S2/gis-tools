@@ -489,7 +489,6 @@ function _clipLine<M extends MValue = Properties>(
  * @param bx - the second x
  * @param by - the second y
  * @param x - the x to intersect
- * @param z - the elevation if it exists
  * @param m - the MValue
  * @returns - the intersecting point
  */
@@ -511,7 +510,6 @@ function intersectX<M extends MValue = Properties>(
  * @param bx - the second x
  * @param by - the second y
  * @param y - the y to intersect
- * @param z - the elevation if it exists
  * @param m - the MValue
  * @returns - the intersecting point
  */

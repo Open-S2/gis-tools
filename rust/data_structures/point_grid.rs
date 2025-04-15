@@ -1,16 +1,16 @@
 use crate::{
-    data_store::{KVStore, Vector, VectorStore, KV},
+    data_store::{KV, KVStore, Vector, VectorStore},
     geometry::{LonLat, S2CellId, S2Point},
     readers::{FeatureReader, RGBA},
     tools::{
-        get_interpolation, GetInterpolateValue, Interpolatable, InterpolationFunction,
-        InterpolationMethod,
+        GetInterpolateValue, Interpolatable, InterpolationFunction, InterpolationMethod,
+        get_interpolation,
     },
 };
 use alloc::{collections::BTreeSet, string::String, vec, vec::Vec};
 use libm::{floor, log2};
 use s2json::{BBox, Face, GetXY, JSONCollection, Projection};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use super::{IndexPoint, PointIndex};
 
@@ -83,10 +83,10 @@ pub struct PointGrid<
     grid_tile_store: G,
 }
 impl<
-        V: Interpolatable + Serialize + DeserializeOwned,
-        S: VectorStore<S2CellId, IndexPoint<V>>,
-        G: KVStore<S2CellId, Vec<V>>,
-    > PointGrid<V, S, G>
+    V: Interpolatable + Serialize + DeserializeOwned,
+    S: VectorStore<S2CellId, IndexPoint<V>>,
+    G: KVStore<S2CellId, Vec<V>>,
+> PointGrid<V, S, G>
 {
     /// Create a new point grid
     pub fn new(options: Option<GridOptions<V>>) -> Self {
@@ -181,7 +181,7 @@ impl<
 
         for (cell, _) in self.point_index.iter() {
             let maxzoom_id = cell.parent(Some(self.maxzoom)); // idParent(cell, maxzoom);
-                                                              // if maxzoom_id grid tile already exists, skip
+            // if maxzoom_id grid tile already exists, skip
             if self.grid_tile_store.has(maxzoom_id) {
                 continue;
             }
@@ -204,7 +204,7 @@ impl<
                     if self.projection == Projection::WG {
                         s = (s + 1.) % 1.;
                     } // ensure within 0-1 range via wrapping to the other side
-                      // search for points within a reasonable cell size
+                    // search for points within a reasonable cell size
                     let mut grid_level_search = zoom_grid_level;
                     let mut point_shapes: Vec<IndexPoint<V>>;
                     let fst_point = S2CellId::from_face_st(face, s, t);

@@ -9,10 +9,10 @@
 import { parseWKTProjection } from '../src';
 import { appendFileSync, existsSync, readdirSync, unlinkSync } from 'fs';
 
-const folder = 'EPSG-v11_031-WKT';
+const folder = 'EPSG-v12_007-WKT';
 const out = `${__dirname}/../src/proj/projections/epsg.ts`;
 
-// get list of files in ./EPSG-v11_031-WKT
+// get list of files in ./EPSG-v12_007-WKT
 const files = readdirSync(`${__dirname}/${folder}`);
 
 // delete file if it exsts: `${__dirname}/../src/proj/projections/epsg.ts`

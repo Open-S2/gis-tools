@@ -1,9 +1,9 @@
 use super::{
+    OSMReader,
     node::IntermediateNode,
     primitive::PrimitiveBlock,
     relation::IntermediateRelation,
     way::{IntermediateWay, WayNodes},
-    OSMReader,
 };
 use crate::{data_store::KVStore, readers::Reader};
 use alloc::{collections::BTreeMap, string::String};
@@ -27,7 +27,7 @@ pub trait OSMFilterable {
 }
 
 /// Types of objects that can be filtered
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum OSMTagFilterType {
     /// Apply filter to all object types
     All,

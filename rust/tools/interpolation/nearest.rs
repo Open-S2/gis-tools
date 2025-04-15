@@ -1,4 +1,4 @@
-use super::{get_distance, Interpolatable};
+use super::{Interpolatable, get_distance};
 use crate::tools::GetInterpolateValue;
 use s2json::{GetM, GetXY, GetZ};
 
@@ -31,11 +31,7 @@ pub fn nearest_interpolation<
     }
 
     // Return the value of the nearest point
-    if let Some(nearest_point) = nearest_point {
-        get_value(nearest_point)
-    } else {
-        V::default()
-    }
+    if let Some(nearest_point) = nearest_point { get_value(nearest_point) } else { V::default() }
 }
 
 #[cfg(test)]
@@ -43,7 +39,7 @@ mod tests {
     use super::*;
     use crate::{
         readers::RGBA,
-        tools::{default_get_interpolate_current_value, VectorPointRGBA},
+        tools::{VectorPointRGBA, default_get_interpolate_current_value},
     };
     use alloc::vec;
     use s2json::{MValue, VectorPoint};

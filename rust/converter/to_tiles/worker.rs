@@ -14,7 +14,7 @@ use core::mem::take;
 use earclip::{earclip, tesselate};
 use libm::{floor, fmax, fmin};
 use open_vector_tile::{
-    base::{BaseVectorLayer, BaseVectorTile},
+    base::{BaseVectorLayer, BaseVectorTile, s2json_to_base},
     mapbox, write_tile,
 };
 use s2_tilejson::DrawType;
@@ -24,6 +24,7 @@ use s2json::{
 };
 
 /// A built tile that is ready to be written to the filesystem
+#[derive(Debug)]
 pub struct BuiltTile {
     /// Face of the tile
     pub face: Face,
@@ -36,8 +37,6 @@ pub struct BuiltTile {
     /// compressed data
     pub data: Vec<u8>,
 }
-
-// TODO: When building Vector Tiles, we need to have the Tile_Store have a get_mut so I can take the data rather than clone it
 
 /// Convert a vector feature to a collection of tiles and store each tile feature
 #[derive(Debug)]
@@ -54,7 +53,9 @@ pub struct TileWorker {
     pub vector_store: MultiMap<S2CellId, MVectorFeature>,
     /// Unique store for each layer that describes itself as a cluster source
     pub cluster_stores: BTreeMap<String, PointCluster<MValue>>, /* { [layerName: string]: PointCluster } = {}; */
+    /// Unique store for each layer that describes itself as a raster source
     pub raster_stores: BTreeMap<String, PointGrid<RGBA>>, /* { [layerName: string]: PointGrid<RGBA> } = {}; */
+    /// Unique store for each layer that describes itself as a grid source
     pub grid_stores: BTreeMap<String, PointGrid<f64>>, // { [layerName: string]: PointGrid } = {};
 }
 impl TileWorker {
@@ -201,7 +202,7 @@ impl TileWorker {
                     layer.shape,
                     layer.m_shape,
                 ));
-                layer.add_feature((&feature).into());
+                layer.add_feature(s2json_to_base(&feature, layer.extent));
             }
         }
         // // store all cluster features
@@ -232,6 +233,7 @@ impl TileWorker {
     }
 }
 /// Iterate through the stores and build tiles, compressing as we go if required
+#[derive(Debug)]
 pub struct TileWorkerTileBuilder<'a> {
     worker: &'a mut TileWorker,
     tile_stack: Vec<S2CellId>,

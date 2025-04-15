@@ -23,7 +23,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=stere +lat_0=90 +latTs=75
  * ```
  *

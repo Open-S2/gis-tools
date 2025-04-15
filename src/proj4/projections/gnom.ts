@@ -32,7 +32,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=gnom +lat_0=90 +lon_0=-50 +R=6.4e6
  * ```
  *

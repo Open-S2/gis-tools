@@ -4,7 +4,7 @@
 use super::U64;
 use alloc::{collections::btree_map::BTreeMap, vec::Vec};
 use s2json::Properties;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 /// Represents a key-multiValue store
 pub trait MultiMapStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {

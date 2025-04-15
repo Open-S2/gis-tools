@@ -1,6 +1,6 @@
 use crate::{
     data_store::vector::{Vector, VectorStore},
-    geometry::{convert, LonLat, S1ChordAngle, S2Cap, S2CellId, S2Point},
+    geometry::{LonLat, S1ChordAngle, S2Cap, S2CellId, S2Point, convert},
     readers::FeatureReader,
 };
 use alloc::{vec, vec::Vec};
@@ -9,7 +9,7 @@ use s2json::{
     Face, GetM, GetXY, GetZ, JSONCollection, MValue, Projection, VectorFeature, VectorFeatureType,
     VectorGeometry, VectorPoint,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 /// Locally allocated Point Index
 pub type LocalPointIndex<M = MValue> = PointIndex<M, Vector<S2CellId, IndexPoint<M>>>;
@@ -62,10 +62,8 @@ pub struct PointIndex<
     projection: Projection,
     _marker: PhantomData<M>,
 }
-impl<
-        M: Clone + Default + Serialize + DeserializeOwned,
-        S: VectorStore<S2CellId, IndexPoint<M>>,
-    > PointIndex<M, S>
+impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId, IndexPoint<M>>>
+    PointIndex<M, S>
 {
     /// Create a new PointIndex
     pub fn new(store: Option<S>, projection: Option<Projection>) -> Self {
@@ -403,7 +401,7 @@ impl<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::readers::{json::JSONReader, FileReader};
+    use crate::readers::{FileReader, json::JSONReader};
     use alloc::string::String;
     use s2json::MValueCompatible;
     use serde::Deserialize;

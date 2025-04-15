@@ -22,7 +22,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=eqc
  * ```
  *
@@ -36,15 +36,15 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  *
  * ### Special Cases of Cylindrical Equidistant Projection:
  *
- * - Plain/Plane Chart: 0°
- * - Simple Cylindrical: 0°
- * - Plate Carrée: 0°
- * - Ronald Miller—minimum overall scale distortion: 37°30'
- * - E. Grafarend and A. Niermann: 42°
- * - Ronald Miller—minimum continental scale distortion: 43°30'
- * - Gall Isographic: 45°
- * - Ronald Miller Equirectangular: 50°30'
- * - E. Grafarend and A. Niermann minimum linear distortion: 61°7'
+ * - Plain/Plane Chart: $0°$
+ * - Simple Cylindrical: $0°$
+ * - Plate Carrée: $0°$
+ * - Ronald Miller—minimum overall scale distortion: $37°30'$
+ * - E. Grafarend and A. Niermann: $42°$
+ * - Ronald Miller—minimum continental scale distortion: $43°30'$
+ * - Gall Isographic: $45°$
+ * - Ronald Miller Equirectangular: $50°30'$
+ * - E. Grafarend and A. Niermann minimum linear distortion: $61°7'$
  *
  * ## Example
  *
@@ -73,16 +73,12 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * ## Mathematical Definition
  *
  * ### Forward projection:
- * ```
- * x = λ * cos(φ_ts)
- * y = φ - φ_0
- * ```
+ * $$x = \lambda \cos(\phi_{ts})$$
+ * $$y = \phi - \phi_0$$
  *
  * ### Inverse projection:
- * ```
- * λ = x / cos(φ_ts)
- * φ = y + φ_0
- * ```
+ * $$\lambda = x / \cos(\phi_{ts})$$
+ * $$\phi = y + \phi_0$$
  *
  * ## Further Reading
  *

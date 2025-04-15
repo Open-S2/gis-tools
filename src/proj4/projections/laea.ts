@@ -40,7 +40,7 @@ export type APA = [number, number, number];
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=laea
  * ```
  *

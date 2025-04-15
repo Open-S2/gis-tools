@@ -4,7 +4,7 @@ use super::U64;
 // pub mod file;
 use alloc::{vec, vec::Vec};
 use s2json::Properties;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 /// Represents a Vector store
 pub trait VectorStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {

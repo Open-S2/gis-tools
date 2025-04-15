@@ -22,7 +22,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=geos +h=35785831.0 +lon_0=-60 +sweep=y
  * ```
  *

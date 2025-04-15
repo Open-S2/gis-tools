@@ -4,7 +4,7 @@ mod convert_wm_to_s2;
 use crate::geometry::build_sq_dists;
 use alloc::{vec, vec::Vec};
 use convert_to_vector::convert_geometry_to_vector;
-use convert_wm_to_s2::{convert_geometry_wm_to_s2, ConvertedGeometry};
+use convert_wm_to_s2::{ConvertedGeometry, convert_geometry_wm_to_s2};
 use s2json::{
     BBox3D, Feature, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
 };

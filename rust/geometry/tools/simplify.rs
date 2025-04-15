@@ -245,8 +245,8 @@ mod tests {
             ring,
             vec![
                 VectorPoint::new(1., 0., None, None),
-                VectorPoint::new(0., 1., None, None),
                 VectorPoint::new(1., 1., None, None),
+                VectorPoint::new(0., 1., None, None),
                 VectorPoint::new(0., 0., None, None),
             ]
         );
@@ -269,7 +269,7 @@ mod tests {
             indices: None,
             tessellation: None,
         });
-        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.build_sq_dists(3. / 4_096., Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::LineString(ref mut line) = line_string_geo {
             assert_eq!(
@@ -286,7 +286,7 @@ mod tests {
         }
 
         // simplify
-        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.simplify(3. / 4_096., 0, Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::LineString(ref mut line) = line_string_geo {
             assert_eq!(
@@ -324,7 +324,7 @@ mod tests {
             ],
             ..Default::default()
         });
-        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.build_sq_dists(3. / 4_096., Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::MultiLineString(ref mut line) = line_string_geo {
             assert_eq!(
@@ -350,7 +350,7 @@ mod tests {
         }
 
         // simplify
-        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.simplify(3. / 4_096., 0, Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::MultiLineString(ref mut line) = line_string_geo {
             assert_eq!(
@@ -397,7 +397,7 @@ mod tests {
             ],
             ..Default::default()
         });
-        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.build_sq_dists(3. / 4_096., Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::Polygon(ref mut line) = line_string_geo {
             assert_eq!(
@@ -423,7 +423,7 @@ mod tests {
         }
 
         // simplify
-        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.simplify(3. / 4_096., 0, Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::Polygon(ref mut line) = line_string_geo {
             assert_eq!(
@@ -470,7 +470,7 @@ mod tests {
             ]],
             ..Default::default()
         });
-        line_string_geo.build_sq_dists(3., Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.build_sq_dists(3. / 4_096., Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::MultiPolygon(ref mut line) = line_string_geo {
             assert_eq!(
@@ -496,7 +496,7 @@ mod tests {
         }
 
         // simplify
-        line_string_geo.simplify(3., 0, Some(SIMPLIFY_MAXZOOM));
+        line_string_geo.simplify(3. / 4_096., 0, Some(SIMPLIFY_MAXZOOM));
 
         if let VectorGeometry::MultiPolygon(ref mut line) = line_string_geo {
             assert_eq!(

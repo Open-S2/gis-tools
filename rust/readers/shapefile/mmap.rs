@@ -3,7 +3,7 @@ use crate::{proj::ProjectionTransformDefinition, readers::MMapReader};
 use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
-    fs::{exists, File},
+    fs::{File, exists},
     io::Read,
     path::Path,
     string::{String, ToString},

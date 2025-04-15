@@ -122,7 +122,7 @@ impl<W: TileWriter> TileBuilder<W> {
 /// Setup a metadata builder
 fn setup_builder(build_guide: &BuildGuide) -> MetadataBuilder {
     let mut meta_builder = MetadataBuilder::default();
-    let BuildGuide { name, description, version, projection, attribution, .. } = build_guide;
+    let BuildGuide { name, description, version, projection, attributions, .. } = build_guide;
 
     meta_builder.set_name(name.into());
     meta_builder.set_extension(build_guide.extension.clone());
@@ -135,7 +135,7 @@ fn setup_builder(build_guide: &BuildGuide) -> MetadataBuilder {
 
     meta_builder.set_encoding(build_guide.encoding.clone());
     // Add attribution
-    for (display_name, href) in attribution.iter() {
+    for (display_name, href) in attributions.iter() {
         meta_builder.add_attribution(display_name, href);
     }
     // add layer guides

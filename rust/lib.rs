@@ -4,12 +4,11 @@
 #![feature(f16)]
 #![feature(more_float_constants)]
 #![feature(stmt_expr_attributes)]
-#![feature(register_tool)]
 #![feature(trivial_bounds)]
 #![feature(coverage_attribute)]
 #![feature(let_chains)]
-#![register_tool(tarpaulin)]
 #![warn(clippy::print_stdout)]
+#![warn(missing_debug_implementations)]
 //! # GIS Tools
 //! TODO
 
@@ -20,7 +19,7 @@ extern crate pbf;
 extern crate std;
 
 /// Conversion Tools
-pub mod converters;
+pub mod converter;
 /// Data Storage Tools
 pub mod data_store;
 /// Data structures

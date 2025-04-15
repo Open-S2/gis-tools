@@ -35,7 +35,6 @@ export function buildDatum(params: ProjectionParams, transformer: Transformer): 
   if (params.datumParams === undefined) {
     const datum = DATUMS[params.datumCode?.toLowerCase() ?? ''];
     if (datum !== undefined) {
-      // @ts-expect-error - this will be fixed in the next line
       params.datumParams = datum.datumParams;
       params.ellps = datum.ellipse;
     }
@@ -45,7 +44,7 @@ export function buildDatum(params: ProjectionParams, transformer: Transformer): 
     if (params.datumParams[0] !== 0 || params.datumParams[1] !== 0 || params.datumParams[2] !== 0) {
       params.datumType = PJD_3PARAM;
     }
-    if (params.datumParams.length > 3) {
+    if (params.datumParams.length === 7) {
       if (
         params.datumParams[3] !== 0 ||
         params.datumParams[4] !== 0 ||
@@ -267,7 +266,7 @@ export function geocentricToWgs84(
     p.x += datumParams[0];
     p.y += datumParams[1];
     p.z = z + datumParams[2];
-  } else if (datumType === PJD_7PARAM) {
+  } else if (datumType === PJD_7PARAM && datumParams.length === 7) {
     const Dx_BF = datumParams[0];
     const Dy_BF = datumParams[1];
     const Dz_BF = datumParams[2];
@@ -304,7 +303,7 @@ export function geocentricFromWgs84(
     p.x -= datumParams[0];
     p.y -= datumParams[1];
     p.z = z - datumParams[2];
-  } else if (datumType === PJD_7PARAM) {
+  } else if (datumType === PJD_7PARAM && datumParams.length === 7) {
     const Dx_BF = datumParams[0];
     const Dy_BF = datumParams[1];
     const Dz_BF = datumParams[2];

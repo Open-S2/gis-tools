@@ -24,7 +24,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=sinu
  * ```
  *
@@ -44,21 +44,15 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * projection are:
  *
  * Forward projection:
- * ```
- * x = C * λ * (m + cos(θ)) / (m + 1)
- * y = C * θ
- * ```
+ * $$x = C\lambda(m+cos\theta) / ( m + 1)$$
+ * $$y = C\theta$$
  *
  * Inverse projection:
- * ```
- * λ = x * (m + 1) / (C * (m + cos(y / C)))
- * θ = y / C
- * ```
+ * $$\lambda = x \cdot \frac{m + 1}{C \cdot (m + \cos(y / C))}$$
+ * $$\theta = y / C$$
  *
  * Where:
- * ```
- * C = sqrt((m + 1) / n)
- * ```
+ * $$C = \sqrt { (m + 1 ) / n }$$
  *
  * ## Further Reading
  * - [Wikipedia](https://en.wikipedia.org/wiki/Sinusoidal_projection)

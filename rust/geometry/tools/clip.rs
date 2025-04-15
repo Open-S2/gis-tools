@@ -14,6 +14,7 @@ use s2json::{
 // TODO: Cases of `to_vec` clones large swathes of data. Can we optimize this?
 
 /// The children of a tile
+#[derive(Debug)]
 pub struct TileChildren<M = (), P: Clone + Default = Properties, D: Clone + Default = MValue> {
     /// The bottom left child tile
     pub bottom_left: Tile<M, P, D>,
@@ -335,6 +336,7 @@ fn clip_multi_polygon<M: Clone + Default>(
 /// After clipping a line, return the altered line,
 /// the offset the new line starts at,
 /// and if the line is ccw
+#[derive(Debug)]
 pub struct ClipLineResult<M: Clone + Default> {
     /// The clipped line
     pub line: VectorLineString<M>,
@@ -342,6 +344,7 @@ pub struct ClipLineResult<M: Clone + Default> {
     pub offset: f64,
 }
 /// Ensuring `vec_bbox` exists
+#[derive(Debug)]
 pub struct ClipLineResultWithBBox<M: Clone + Default> {
     /// The clipped line
     pub line: VectorLineString<M>,
@@ -419,7 +422,7 @@ fn _clip_line<M: Clone + Default>(
 
     let mut i = 0;
     while i < last {
-        let VectorPoint::<M> { x: ax, y: ay, z: az, m: am, .. } = &geom[i];
+        let VectorPoint::<M> { x: ax, y: ay, t: az, m: am, .. } = &geom[i];
         let VectorPoint::<M> { x: bx, y: by, m: bm, .. } = &geom[i + 1];
         let a: f64 = if axis == Axis::X { *ax } else { *ay };
         let b: f64 = if axis == Axis::X { *bx } else { *by };

@@ -1,15 +1,19 @@
-use alloc::{boxed::Box, string::String, vec::Vec};
+use super::util::to_camel_case;
+use alloc::{
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec::Vec,
+};
+use libm::fabs;
 use serde::{Deserialize, Serialize};
 
-// NOTE: r#type has been replaced with Option<String> instead of String because I find too
-// many examples of it not being used.
-// NOTE: A few variables have been switched to Option because the 0.7 spec is not being followed
-// correctly by generators.
+// NOTE: Because the 0.7 spec is not being followed correctly by generators, serde(default) is applied to everything
 
 /// # Schema for PROJJSON (v0.7)
 /// @see https://proj.org/schemas/v0.7/projjson.schema.json
 /// @see https://docs.ogc.org/is/18-010r7/18-010r7.html#1
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum ProjJSON {
     /// Coordinate Reference System
@@ -36,7 +40,7 @@ impl Default for ProjJSON {
 }
 
 /// Coordinate Reference System
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum CRS {
     /// Represents a coordinate reference system that is bounded by a source and target CRS with a transformation.
@@ -78,7 +82,7 @@ impl Default for CRS {
 /// # Datum Interface
 ///
 /// Represents a datum which can be one of several types of reference frames or datums.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum Datum {
     /// Represents the geodetic reference frame associated with a geodetic CRS.
@@ -97,24 +101,54 @@ pub enum Datum {
     EngineeringDatum(EngineeringDatum),
 }
 
-/// # Bounding Box Interface
+/// # Geographic Bounding Box
 ///
-/// Represents a bounding box defined by its east, west, south, and north boundaries.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// ## Description
+/// The geographic bounding box is an optional attribute which describes a "north up" area.
+/// Upper right latitude will be greater than the lower left latitude. Generally the upper right
+/// longitude will be greater than the lower left longitude. However when the area crosses the
+/// 180° meridian, the value of the lower left longitude will be greater than the value of the
+/// upper right longitude.
+/// The geographic bounding box is an approximate description of location. For most purposes a
+/// coordinate precision of two decimal places of a degree is sufficient. At this resolution the
+/// identification of the geodetic CRS to which the bounding box coordinates are referenced is not
+/// required.
+///
+/// ## Requirement
+/// Bounding box latitude coordinates shall be given in decimal degrees in the range -90 to +90,
+/// longitude coordinates shall be given in decimal degrees in the range -180 to +180 relative to
+/// the international reference meridian.
+///
+/// ## Examples
+/// - `BBOX[51.43,2.54,55.77,6.40]`
+/// - `BBOX[-55.95,160.60,-25.88,-171.20]`
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ProjBBox {
-    /// The easternmost longitude of the bounding box.
-    pub east_longitude: f64,
-    /// The westernmost longitude of the bounding box.
-    pub west_longitude: f64,
     /// The southernmost latitude of the bounding box.
     pub south_latitude: f64,
+    /// The westernmost longitude of the bounding box.
+    pub west_longitude: f64,
     /// The northernmost latitude of the bounding box.
     pub north_latitude: f64,
+    /// The easternmost longitude of the bounding box.
+    pub east_longitude: f64,
 }
 
-/// Vertical Extent
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// # VerticalExtent
+///
+/// ## Description
+/// Vertical extent is an optional attribute which describes a height range over which a CRS or
+/// coordinate operation is applicable. Depths have negative height values. Vertical extent is an
+/// approximate description of location; heights are relative to an unspecified mean sea level.
+///
+/// ## Requirement
+/// If vertical extent units are not stated they shall be assumed to be metres.
+///
+/// ## Examples
+/// - `VERTICALEXTENT[-1000,0,LENGTHUNIT["metre",1.0]]`
+/// - `VERTICALEXTENT[-1000,0]` (where the heights are implicitly in metres).
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct VerticalExtent {
     /// Minimum height
@@ -125,10 +159,23 @@ pub struct VerticalExtent {
     pub unit: Unit,
 }
 
-/// Temporal Extent
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// # Temporal Extent
+///
+/// ## Description
+/// Temporal extent is an optional attribute which describes a date or time range over which a CRS
+/// or coordinate operation is applicable. The format for date and time values is defined in
+/// ISO/IEC 9075-2. Start time is earlier than end time.
+///
+/// ## Requirement
+/// `<temporal extent end>` should have the same data type (dateTime or quoted Latin text) as
+/// `<temporal extent start>`.
+///
+/// ## Examples
+/// - `TIMEEXTENT[2013-01-01,2013-12-31]`
+/// - `TIMEEXTENT["Jurassic","Quaternary"]`
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-pub struct TemporalExtent {
+pub struct TimeExtent {
     /// Start time (ISO 8601 format)
     pub start: String,
     /// End time (ISO 8601 format)
@@ -138,68 +185,123 @@ pub struct TemporalExtent {
 /// String or Number
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum StringOrNumber {
-    /// String
+pub enum ProjValue {
+    /// Boolean case
+    Bool(bool),
+    /// Float case
+    F64(f64),
+    /// Integer case
+    I64(i64),
+    /// String case
     String(String),
-    /// Unsigned
-    Unsigned(u64),
-    /// Signed
-    Signed(i64),
-    /// Float
-    Float(f64),
 }
-impl Default for StringOrNumber {
+impl Default for ProjValue {
     fn default() -> Self {
-        StringOrNumber::String(String::default())
+        ProjValue::String(String::default())
     }
 }
-impl StringOrNumber {
-    /// Grab the unsigned integer if it exists. Otherwise default to 0
-    pub fn to_u64(&self) -> u64 {
-        match self {
-            StringOrNumber::String(s) => s.parse().unwrap_or(0),
-            StringOrNumber::Unsigned(u) => *u,
-            _ => 0,
-        }
-    }
-    /// Grab the signed integer if it exists. Otherwise default to 0
-    pub fn to_i64(&self) -> i64 {
-        match self {
-            StringOrNumber::String(s) => s.parse().unwrap_or(0),
-            StringOrNumber::Signed(i) => *i,
-            _ => 0,
-        }
-    }
-    /// Get the float. If a string, convert to float
-    pub fn to_f64(&self) -> f64 {
-        match self {
-            StringOrNumber::String(s) => s.parse().unwrap_or(0.0),
-            StringOrNumber::Unsigned(u) => *u as f64,
-            StringOrNumber::Signed(i) => *i as f64,
-            StringOrNumber::Float(f) => *f,
+impl PartialEq for ProjValue {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ProjValue::Bool(a), ProjValue::Bool(b)) => a == b,
+            (ProjValue::F64(a), ProjValue::F64(b)) => fabs(*a - *b) < f64::EPSILON,
+            (ProjValue::I64(a), ProjValue::I64(b)) => a == b,
+            (ProjValue::String(a), ProjValue::String(b)) => a == b,
+            _ => false,
         }
     }
 }
-impl From<StringOrNumber> for String {
-    fn from(v: StringOrNumber) -> String {
+impl ProjValue {
+    /// Get the boolean representation
+    pub fn bool(&self) -> bool {
+        match self {
+            ProjValue::Bool(b) => *b,
+            ProjValue::F64(f) => *f != 0.0,
+            ProjValue::I64(i) => *i != 0,
+            ProjValue::String(_) => self.i64() != 0,
+        }
+    }
+    /// Get the float representation
+    pub fn f64(&self) -> f64 {
+        match self {
+            ProjValue::Bool(b) => {
+                if *b {
+                    1.0
+                } else {
+                    0.0
+                }
+            }
+            ProjValue::F64(f) => *f,
+            ProjValue::I64(i) => *i as f64,
+            ProjValue::String(s) => s.parse().unwrap_or(0.0),
+        }
+    }
+    /// Get the integer representation
+    pub fn i64(&self) -> i64 {
+        match self {
+            ProjValue::Bool(b) => {
+                if *b {
+                    1
+                } else {
+                    0
+                }
+            }
+            ProjValue::F64(f) => *f as i64,
+            ProjValue::I64(i) => *i,
+            ProjValue::String(s) => s.parse().unwrap_or(0),
+        }
+    }
+    /// Get the string representation
+    pub fn string(&self) -> String {
+        match self {
+            ProjValue::Bool(b) => b.to_string(),
+            ProjValue::F64(f) => f.to_string(),
+            ProjValue::I64(i) => i.to_string(),
+            ProjValue::String(s) => s.clone(),
+        }
+    }
+}
+impl From<&str> for ProjValue {
+    fn from(v: &str) -> ProjValue {
+        ProjValue::String(v.into())
+    }
+}
+impl From<String> for ProjValue {
+    fn from(v: String) -> ProjValue {
+        ProjValue::String(v)
+    }
+}
+impl From<ProjValue> for String {
+    fn from(v: ProjValue) -> String {
         match v {
-            StringOrNumber::String(s) => s,
+            ProjValue::String(s) => s,
             _ => "".into(),
         }
     }
 }
 
-/// ID Object
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// # Identifier
+///
+/// ## Description
+/// Identifier is an optional attribute which references an external description of the object and
+/// which may be applied to a coordinate reference system, a coordinate operation or a bound CRS.
+/// Multiple identifiers may be given for any object.
+///
+/// ## Examples
+/// - `ID["Authority name","Abcd_Ef",7.1]`
+/// - `ID["EPSG",4326]`
+/// - `ID["EPSG",4326,URI["urn:ogc:def:crs:EPSG::4326"]]`
+/// - `ID["EuroGeographics","ES_ED50 (BAL99) to ETRS89","2001-04-20"]`
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Id {
     /// Authority issuing the identifier
     pub authority: String,
     /// Code associated with the identifier
-    pub code: StringOrNumber,
+    pub code: ProjValue,
     /// Version of the identifier
     /// NOTE: This is not supposed to be optional, but it rarely shows up
-    pub version: Option<StringOrNumber>,
+    pub version: Option<ProjValue>,
     /// Citation of the authority
     #[serde(skip_serializing_if = "Option::is_none")]
     pub authority_citation: Option<String>,
@@ -211,29 +313,56 @@ pub struct Id {
 /// Identifiers list
 pub type Ids = Vec<Id>;
 
-/// Usage Object
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// # Usage
+///
+/// ## Description
+/// Usage is an optional attribute which if included in a WKT string shall include both
+/// <scope> and <extent>. Multiple pairs of scope/extent may be used to describe the usage for
+/// different purposes over different extents. In this document the <scope> and <extent> elements
+/// may not be given alone but only as a pairing. Within each pairing, extent may consist of one or
+/// more of area textual description, area bounding box, vertical extent and/or temporal extent,
+/// see 7.3.2.3.
+///
+/// ## Examples
+/// - `USAGE[<scope>,<extent>]`
+/// - `USAGE[scope1,extent1],USAGE[scope2,extent2]`
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Usage {
-    /// Scope of the usage
+    /// Scope describes the purpose or purposes for which a CRS, datum, datum ensemble,
+    /// coordinate operation or bound CRS is applied.
+    pub scope: String,
+    /// Extent is an optional attribute which if included in a WKT string shall describe the
+    /// geographic area over which a CRS or coordinate operation is applicable.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub scope: Option<String>,
-    /// Defined area
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub area: Option<String>,
-    /// Bounding box
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bbox: Option<ProjBBox>,
-    /// Vertical extent
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub vertical_extent: Option<VerticalExtent>,
+    pub extent: Option<Extent>,
+}
+
+/// # Extent
+///
+/// ## Description
+/// Extent is an optional attribute which if included in a WKT string shall describe the geographic
+/// area over which a CRS or coordinate operation is applicable.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum Extent {
     /// Temporal extent
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temporal_extent: Option<TemporalExtent>,
+    TimeExtent(TimeExtent),
+    /// Vertical extent
+    VerticalExtent(VerticalExtent),
+    /// Geographic bounding box
+    BBox(ProjBBox),
+    /// Area description
+    Area(String),
+}
+impl Default for Extent {
+    fn default() -> Self {
+        Extent::Area("".into())
+    }
 }
 
 /// Parameter Value
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ParameterValue {
     /// Schema reference
@@ -245,7 +374,7 @@ pub struct ParameterValue {
     /// Name of the parameter
     pub name: String,
     /// Parameter value, which can be a string or number
-    pub value: StringOrNumber,
+    pub value: ProjValue,
     /// Optional unit of measurement
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<Unit>,
@@ -260,7 +389,7 @@ pub struct ParameterValue {
 /// # Parametric CRS
 ///
 /// Represents a parametric coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ParametricCRS {
     /// Type identifier - always 'ParametricCRS'
@@ -275,42 +404,15 @@ pub struct ParametricCRS {
     /// Schema reference
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
-    /// Scope of the CRS
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scope: Option<String>,
-    /// Defined area
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub area: Option<String>,
-    /// Bounding box
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bbox: Option<ProjBBox>,
-    /// Vertical extent
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub vertical_extent: Option<VerticalExtent>,
-    /// Temporal extent
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temporal_extent: Option<TemporalExtent>,
-    /// Usages
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub usages: Option<Vec<Usage>>,
-    /// Additional remarks
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub remarks: Option<String>,
-    /// Identifier
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// Alternative identifiers
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # Parametric Datum
 ///
 /// Represents the parametric datum associated with a parametric CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ParametricDatum {
     /// Type identifier - always 'ParametricDatum'
@@ -322,13 +424,13 @@ pub struct ParametricDatum {
     pub anchor: String,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # Point Motion Operation
 ///
 /// Represents a point motion operation
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct PointMotionOperation {
     /// Type identifier
@@ -347,13 +449,13 @@ pub struct PointMotionOperation {
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # Method Object
 ///
 /// Defines an operation method with a name and identifier
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Method {
     /// Schema reference
@@ -373,7 +475,7 @@ pub struct Method {
 }
 
 /// Base Unit - common units as string input
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BaseUnit {
     /// Metre
     #[serde(rename = "metre")]
@@ -388,7 +490,7 @@ pub enum BaseUnit {
 }
 
 /// Unit Type - String input
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub enum UnitType {
     /// Linear
@@ -407,7 +509,7 @@ pub enum UnitType {
 }
 
 /// Unit Object
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct UnitObject {
     /// Type of unit
@@ -425,9 +527,40 @@ pub struct UnitObject {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ids: Option<Ids>,
 }
+impl UnitObject {
+    /// Set the unit type
+    pub fn set_unit_type(&mut self, unit_type: UnitType) {
+        self.r#type = unit_type;
+    }
+}
 
-/// Unit Definition
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// # Unit
+///
+/// ## Description
+/// Defines the unit of measure for lengths or distances, typically used within other spatial
+/// extent definitions like `VerticalExtent`. It consists of a unit name (e.g., "metre", "foot")
+/// and a corresponding numeric value, often representing the conversion factor to a base unit.
+///
+/// ## Common naming convention
+/// - LENGTHUNIT
+/// - ANGLEUNIT
+/// - SCALEUNIT
+/// - TIMEUNIT
+/// - PARAMETRICUNIT
+///
+/// ## Requirement
+/// The WKT representation of a `<length unit>` shall be:
+/// ```bnf
+/// <length unit> ::= <length unit keyword> <left delimiter> <quoted text> <wkt separator> <number> <right delimiter>
+/// <length unit keyword> ::= LENGTHUNIT
+/// ```
+///
+/// Unprovided defaults to BaseUnit->Metre
+///
+/// ## Examples
+/// - `LENGTHUNIT["metre",1.0]`
+/// - `LENGTHUNIT["foot",0.3048]`
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum Unit {
     /// Base case
@@ -440,16 +573,25 @@ impl Default for Unit {
         Unit::BaseUnit(BaseUnit::default())
     }
 }
+impl Unit {
+    /// Set the unit type assuming the unit is a UnitObject
+    pub fn set_unit_type(&mut self, unit_type: UnitType) {
+        match self {
+            Unit::BaseUnit(_) => {}
+            Unit::UnitObject(unit) => unit.set_unit_type(unit_type),
+        };
+    }
+}
 
 /// # BoundCRS Interface
 ///
 /// Represents a coordinate reference system that is bounded by a source and target CRS with a transformation.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct BoundCRS {
     /// Indicates the type of object. Always "BoundCRS" for this interface.
-    #[serde(rename = "type")]
-    pub r#type: String, // 'BoundCRS';
+    #[serde(rename = "type", default = "BoundCRS::default_type")]
+    pub r#type: String,
     /// The name of the bound CRS.
     pub name: String,
     /// The source coordinate reference system.
@@ -460,13 +602,18 @@ pub struct BoundCRS {
     pub transformation: AbridgedTransformation,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
+}
+impl BoundCRS {
+    fn default_type() -> String {
+        "BoundCRS".to_string()
+    }
 }
 
 /// # ConcatenatedOperation Interface
 ///
 /// Represents an operation that is composed of multiple steps, transforming one CRS to another.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ConcatenatedOperation {
     /// Indicates the type of object. Always "ConcatenatedOperation" for this interface.
@@ -485,18 +632,15 @@ pub struct ConcatenatedOperation {
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # AbridgedTransformation Interface
 ///
 /// Represents an abridged transformation used for converting between different coordinate reference systems.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct AbridgedTransformation {
-    /// The schema URL or identifier.
-    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
     /// Indicates the type of object. Always "AbridgedTransformation" for this interface.
     #[serde(rename = "type")]
     pub r#type: String, // 'AbridgedTransformation';
@@ -509,18 +653,15 @@ pub struct AbridgedTransformation {
     pub method: Method,
     /// The parameters used in the transformation.
     pub parameters: Vec<ParameterValue>,
-    /// An identifier for the transformation.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// An array of identifiers for the transformation.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    /// Base Properties
+    #[serde(flatten)]
+    pub base_properties: BaseProperties,
 }
 
 /// # CompoundCRS Interface
 ///
 /// Represents a compound coordinate reference system, consisting of multiple components.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct CompoundCRS {
     /// Indicates the type of object. Always "CompoundCRS" for this interface.
@@ -532,13 +673,13 @@ pub struct CompoundCRS {
     pub components: Vec<CRS>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # EngineeringCRS Interface
 ///
 /// Represents an engineering coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct EngineeringCRS {
     /// Indicates the type of CRS. Always "EngineeringCRS" for this interface.
@@ -552,13 +693,13 @@ pub struct EngineeringCRS {
     pub coordinate_system: Option<CoordinateSystem>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # EngineeringDatum Interface
 ///
 /// Represents the datum associated with an engineering CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct EngineeringDatum {
     /// Indicates the type of datum. Always "EngineeringDatum" for this interface.
@@ -571,11 +712,11 @@ pub struct EngineeringDatum {
     pub anchor: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// Axis Direction defines an axis direction
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum AxisDirection {
     /// North
@@ -660,9 +801,14 @@ pub enum AxisDirection {
     #[default]
     Unspecified,
 }
+impl From<String> for AxisDirection {
+    fn from(s: String) -> Self {
+        serde_json::from_str(&format!("\"{}\"", to_camel_case(&s))).unwrap_or_default()
+    }
+}
 
 /// Axis Range Meaning
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AxisRangeMeaning {
     /// Exact
@@ -675,7 +821,7 @@ pub enum AxisRangeMeaning {
 /// # Axis Interface
 ///
 /// Represents an individual axis in a coordinate system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Axis {
     /// Indicates the type of axis. Always "Axis" for this interface.
@@ -715,7 +861,7 @@ pub struct Axis {
 /// # Meridian Interface
 ///
 /// Represents a meridian, which defines the longitude for an axis.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Meridian {
     /// Indicates the type of meridian. Always "Meridian" for this interface.
@@ -737,20 +883,20 @@ pub struct Meridian {
 /// # ValueAndUnit Interface
 ///
 /// Represents a value paired with a unit of measurement.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ValueAndUnit {
-    /// The numeric value.
+    /// The numeric degree value.
     pub value: f64,
     /// The unit of measurement.
     pub unit: Unit,
 }
 
 /// Value in Degrees or Value and Unit
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum ValueInDegreeOrValueAndUnit {
-    /// Float value
+    /// Float value (degrees)
     F64(f64),
     /// Value and Unit Object
     ValueAndUnit(ValueAndUnit),
@@ -762,7 +908,7 @@ impl Default for ValueInDegreeOrValueAndUnit {
 }
 
 /// Value in Metres or Value and Unit
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum ValueInMetreOrValueAndUnit {
     /// Float
@@ -770,16 +916,27 @@ pub enum ValueInMetreOrValueAndUnit {
     /// Value and Unit
     ValueAndUnit(ValueAndUnit),
 }
+impl ValueInMetreOrValueAndUnit {
+    /// Create a new `ValueInMetreOrValueAndUnit` from a unit and value
+    pub fn from_unit(unit: Unit, value: f64) -> Self {
+        ValueInMetreOrValueAndUnit::ValueAndUnit(ValueAndUnit { value, unit })
+    }
+}
 impl Default for ValueInMetreOrValueAndUnit {
     fn default() -> Self {
         ValueInMetreOrValueAndUnit::F64(0.0)
+    }
+}
+impl From<f64> for ValueInMetreOrValueAndUnit {
+    fn from(value: f64) -> Self {
+        ValueInMetreOrValueAndUnit::F64(value)
     }
 }
 
 /// # Single Operation
 ///
 /// Represents a single operation, which can be a conversion, transformation, or point motion operation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum SingleOperation {
     /// Conversion Operation
@@ -793,7 +950,7 @@ pub enum SingleOperation {
 /// # DatumMember Interface
 ///
 /// Represents a member of a datum ensemble.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DatumMember {
     /// The name of the datum member.
@@ -809,7 +966,7 @@ pub struct DatumMember {
 /// # DeformationModel Interface
 ///
 /// Represents a deformation model associated with a point motion operation.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DeformationModel {
     /// The name of the deformation model.
@@ -822,7 +979,7 @@ pub struct DeformationModel {
 /// # DerivedEngineeringCRS Interface
 ///
 /// Represents a derived engineering coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedEngineeringCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedEngineeringCRS" for this interface.
@@ -838,13 +995,13 @@ pub struct DerivedEngineeringCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DerivedGeodeticCRS Interface
 ///
 /// Represents a derived geodetic or geographic coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedGeodeticCRS {
     /// Indicates the type of coordinate reference system. Can be either "DerivedGeodeticCRS" or "DerivedGeographicCRS".
@@ -860,13 +1017,13 @@ pub struct DerivedGeodeticCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # GeodeticCRS Interface
 ///
 /// Represents a geodetic or geographic coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct GeodeticCRS {
     /// Indicates the type of CRS. Can be "GeodeticCRS" or "GeographicCRS".
@@ -890,13 +1047,13 @@ pub struct GeodeticCRS {
     pub deformation_models: Option<Vec<DeformationModel>>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # GeodeticReferenceFrame Interface
 ///
 /// Represents the geodetic reference frame associated with a geodetic CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct GeodeticReferenceFrame {
     /// Indicates the type of reference frame. Always "GeodeticReferenceFrame" for this interface.
@@ -917,13 +1074,13 @@ pub struct GeodeticReferenceFrame {
     pub prime_meridian: Option<PrimeMeridian>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DerivedParametricCRS Interface
 ///
 /// Represents a derived parametric coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedParametricCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedParametricCRS" for this interface.
@@ -939,13 +1096,13 @@ pub struct DerivedParametricCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DerivedProjectedCRS Interface
 ///
 /// Represents a derived projected coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedProjectedCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedProjectedCRS" for this interface.
@@ -961,13 +1118,13 @@ pub struct DerivedProjectedCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DerivedTemporalCRS Interface
 ///
 /// Represents a derived temporal coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedTemporalCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedTemporalCRS" for this interface.
@@ -983,13 +1140,13 @@ pub struct DerivedTemporalCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DerivedVerticalCRS Interface
 ///
 /// Represents a derived vertical coordinate reference system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DerivedVerticalCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedVerticalCRS" for this interface.
@@ -1005,13 +1162,13 @@ pub struct DerivedVerticalCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DynamicGeodeticReferenceFrame Interface
 ///
 /// Represents a dynamic geodetic reference frame.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DynamicGeodeticReferenceFrame {
     /// Indicates the type of reference frame. Always "DynamicGeodeticReferenceFrame" for this interface.
@@ -1033,11 +1190,11 @@ pub struct DynamicGeodeticReferenceFrame {
     pub frame_reference_epoch: f64,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// members in the datum ensemble
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DatumEnsembleMember {
     /// The name of the datum.
@@ -1053,7 +1210,7 @@ pub struct DatumEnsembleMember {
 /// # DatumEnsemble Interface
 ///
 /// Represents a datum ensemble, which is a collection of datums.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DatumEnsemble {
     /// Indicates the type of datum ensemble. Always "DatumEnsemble" for this interface.
@@ -1076,10 +1233,44 @@ pub struct DatumEnsemble {
     pub ids: Option<Ids>,
 }
 
-/// # Ellipsoid Interface
+/// # Ellipsoid
 ///
-/// Represents an ellipsoid, a geometric figure used in geodetic reference frames.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+/// ## Description
+/// The `<ellipsoid>` object is an attribute of `<geodetic reference frame>`. It is not used with other types of datum.
+///
+/// ISO 19111 allows an oblate ellipsoid to be defined through semi-major axis (a) and either
+/// semi-minor axis (b) or inverse flattening (1/f). If semi-minor axis is used as the second
+/// defining parameter the value for inverse flattening to be shown in the WKT string should be
+/// calculated from 1/f  =  a / (a – b).
+///
+/// ISO 19111 also allows for the earth model to be a sphere, for which 1/f is infinite.
+/// In this document if the earth model is a sphere `<inverse flattening>` shall be given an
+/// artificial value of zero.
+///
+/// ## Requirements:
+/// a) The WKT representation of a sphere shall have an `<inverse flattening>` value of 0.
+/// b) `<length unit>` is an optional attribute, optional for reasons of backward compatibility,
+/// but it is recommended that it is explicitly included in WKT strings. Its `<conversion factor>`
+/// shall be to metres and is the number of metres per unit. `<length unit>` is described in 7.4.
+/// If it is omitted then the value for the length of the semi-axis or -axes shall be given in metres.
+/// Conversely, if it is omitted then the value for the semi-major axis shall be assumed to be in
+/// metres.
+///
+/// ## Note:
+/// - In the WKT for a geodetic, geographic or projected CRS, the length unit for the ellipsoid may
+///   differ from the length unit for the coordinate system. The units in which coordinates are expressed
+///   are given by the CS element.
+/// - In this document the preferred keyword is ELLIPSOID. SPHEROID is permitted for backward compatibility.
+///   Implementations should be prepared to read both forms.
+///
+/// ## Examples of WKT describing an ellipsoid:
+/// - `ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1.0]]`
+/// - `SPHEROID["GRS 1980",6378137.0,298.257222101]` (unit = metre is implied)
+/// - `ELLIPSOID["Clark 1866",20925832.164,294.97869821, LENGTHUNIT["US survey foot",0.304800609601219]]`
+/// - `ELLIPSOID["Sphere",6371000,0,LENGTHUNIT["metre",1.0]]`
+///
+/// The definition of WKT for a triaxial ellipsoid required for planetary mapping is given in Annex E.
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Ellipsoid {
     /// Indicates the type of ellipsoid. Always "Ellipsoid" for this interface.
@@ -1096,23 +1287,19 @@ pub struct Ellipsoid {
     pub semi_minor_axis: Option<ValueInMetreOrValueAndUnit>,
     /// The inverse flattening of the ellipsoid.
     /// Required when `semi_minor_axis` is not provided.
-    pub inverse_flattening: Option<f64>,
+    pub inverse_flattening: Option<ValueInMetreOrValueAndUnit>,
     /// The radius of the ellipsoid, used for spherical representations.
     /// Required when neither `semi_minor_axis` nor `inverse_flattening` are provided.
     pub radius: Option<ValueInMetreOrValueAndUnit>,
-    /// The schema URL or identifier.
-    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
-    /// An identifier for the ellipsoid.
-    pub id: Option<Id>,
-    /// An array of identifiers for the ellipsoid.
-    pub ids: Option<Ids>,
+    /// Base Properties
+    #[serde(flatten)]
+    pub base_properties: BaseProperties,
 }
 
 /// # PrimeMeridian Interface
 ///
 /// Represents a prime meridian, which defines the origin of longitude in a geographic coordinate system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct PrimeMeridian {
     /// Indicates the type of prime meridian. Always "PrimeMeridian" for this interface.
@@ -1123,20 +1310,16 @@ pub struct PrimeMeridian {
     /// The longitude of the prime meridian.
     /// Represented as a number or a value with a unit.
     pub longitude: ValueInDegreeOrValueAndUnit,
-    /// The schema URL or identifier.
-    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
-    /// An identifier for the prime meridian.
-    pub id: Option<Id>,
-    /// An array of identifiers for the prime meridian.
-    pub ids: Option<Ids>,
+    /// Base Properties
+    #[serde(flatten)]
+    pub base_properties: BaseProperties,
 }
 
 /// # ProjectedCRS Interface
 ///
 /// Represents a projected coordinate reference system, which transforms geodetic or geographic coordinates
 /// into a flat, two-dimensional plane using a map projection.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ProjectedCRS {
     /// Indicates the type of CRS. Always "ProjectedCRS" for this interface.
@@ -1154,13 +1337,13 @@ pub struct ProjectedCRS {
     pub coordinate_system: Option<CoordinateSystem>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # Conversion Interface
 ///
 /// Represents the map projection or transformation used in a projected CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Conversion {
     /// Indicates the type of conversion. Always "Conversion" for this interface.
@@ -1173,21 +1356,15 @@ pub struct Conversion {
     /// An array of parameter values defining the conversion.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<ParameterValue>>,
-    /// The schema URL or identifier.
-    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
-    /// An identifier for the conversion.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// An array of identifiers for the conversion.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    /// Base Properties
+    #[serde(flatten)]
+    pub base_properties: BaseProperties,
 }
 
 /// # CoordinateMetadata Interface
 ///
 /// Represents metadata associated with a coordinate, including its reference system and epoch.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct CoordinateMetadata {
     /// The schema URL or identifier.
@@ -1204,7 +1381,7 @@ pub struct CoordinateMetadata {
 }
 
 /// The subtype of the coordinate system.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub enum CoordinateSystemSubtype {
     /// Cartesian
     #[serde(rename = "Cartesian")]
@@ -1242,7 +1419,7 @@ pub enum CoordinateSystemSubtype {
 /// # CoordinateSystem Interface
 ///
 /// Represents a coordinate system, including its subtype and axes.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct CoordinateSystem {
     /// The schema URL or identifier.
@@ -1258,18 +1435,15 @@ pub struct CoordinateSystem {
     pub subtype: CoordinateSystemSubtype,
     /// The axes of the coordinate system.
     pub axis: Vec<Axis>,
-    /// An identifier for the coordinate system.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// An array of identifiers for the coordinate system.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    /// Base Properties
+    #[serde(flatten)]
+    pub base_properties: BaseProperties,
 }
 
 /// # Transformation Interface
 ///
 /// Represents a transformation between two coordinate reference systems.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Transformation {
     /// Type identifier
@@ -1293,13 +1467,13 @@ pub struct Transformation {
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # TemporalCRS Interface
 ///
 /// Represents a temporal coordinate reference system, which defines time-based coordinates.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct TemporalCRS {
     /// Indicates the type of CRS. Always "TemporalCRS" for this interface.
@@ -1314,13 +1488,13 @@ pub struct TemporalCRS {
     pub coordinate_system: Option<CoordinateSystem>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # TemporalDatum Interface
 ///
 /// Represents the temporal datum associated with a temporal CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct TemporalDatum {
     /// Indicates the type of datum. Always "TemporalDatum" for this interface.
@@ -1334,13 +1508,13 @@ pub struct TemporalDatum {
     pub time_origin: String,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # VerticalCRS Interface
 ///
 /// Represents a vertical coordinate reference system, which is used for height or depth measurements.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct VerticalCRS {
     /// Indicates the type of CRS. Always "VerticalCRS" for this interface.
@@ -1370,13 +1544,13 @@ pub struct VerticalCRS {
     pub deformation_models: Option<Vec<DeformationModel>>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # VerticalReferenceFrame Interface
 ///
 /// Represents the vertical reference frame associated with a vertical CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct VerticalReferenceFrame {
     /// Indicates the type of reference frame. Always "VerticalReferenceFrame" for this interface.
@@ -1392,13 +1566,13 @@ pub struct VerticalReferenceFrame {
     pub anchor_epoch: Option<f64>,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # DynamicVerticalReferenceFrame Interface
 ///
 /// Represents a dynamic vertical reference frame.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DynamicVerticalReferenceFrame {
     /// Indicates the type of reference frame. Always "DynamicVerticalReferenceFrame" for this interface.
@@ -1416,13 +1590,13 @@ pub struct DynamicVerticalReferenceFrame {
     pub frame_reference_epoch: f64,
     /// Base Properties
     #[serde(flatten)]
-    pub object_usage: ObjectUsage,
+    pub base_properties: BaseProperties,
 }
 
 /// # GeoidModel Interface
 ///
 /// Represents a geoid model associated with a vertical CRS.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct GeoidModel {
     /// The name of the geoid model.
@@ -1436,27 +1610,18 @@ pub struct GeoidModel {
 /// # Object Usage
 ///
 /// Represents common variables across all coordinate reference systems.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-pub struct ObjectUsage {
+pub struct BaseProperties {
     /// The schema URL or identifier.
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
     /// The scope of the CRS.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scope: Option<String>,
-    /// The area of use for the CRS.
+    /// The extent if applicable.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub area: Option<String>,
-    /// The bounding box of the CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bbox: Option<ProjBBox>,
-    /// The vertical extent of the CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub vertical_extent: Option<VerticalExtent>,
-    /// The temporal extent of the CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temporal_extent: Option<TemporalExtent>,
+    pub extent: Option<Extent>,
     /// An array of usages for the CRS.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub usages: Option<Vec<Usage>>,
@@ -1467,13 +1632,77 @@ pub struct ObjectUsage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    // TODO: https://proj.org/en/stable/specifications/projjson.html#schema <- more examples to play with
+
+    #[test]
+    fn test_axis_direction_from_string() {
+        assert_eq!(AxisDirection::from("north".to_string()), AxisDirection::North);
+        assert_eq!(
+            AxisDirection::from("northNorthEast".to_string()),
+            AxisDirection::NorthNorthEast
+        );
+        assert_eq!(AxisDirection::from("east".to_string()), AxisDirection::East);
+        assert_eq!(
+            AxisDirection::from("southSouthWest".to_string()),
+            AxisDirection::SouthSouthWest
+        );
+        assert_eq!(AxisDirection::from("up".to_string()), AxisDirection::Up);
+        assert_eq!(AxisDirection::from("East ".to_string()), AxisDirection::East);
+        assert_eq!(
+            AxisDirection::from(" South South West ".to_string()),
+            AxisDirection::SouthSouthWest
+        );
+        assert_eq!(AxisDirection::from(" Up ".to_string()), AxisDirection::Up);
+        assert_eq!(AxisDirection::from("Geocentric_X".to_string()), AxisDirection::GeocentricX);
+        assert_eq!(
+            AxisDirection::from("Column_Positive".to_string()),
+            AxisDirection::ColumnPositive
+        );
+        assert_eq!(AxisDirection::from("Row_Negative".to_string()), AxisDirection::RowNegative);
+        assert_eq!(AxisDirection::from("Display_Right".to_string()), AxisDirection::DisplayRight);
+        assert_eq!(AxisDirection::from("North".to_string()), AxisDirection::North);
+        assert_eq!(
+            AxisDirection::from("North-North-East".to_string()),
+            AxisDirection::NorthNorthEast
+        );
+        assert_eq!(AxisDirection::from("East".to_string()), AxisDirection::East);
+        assert_eq!(
+            AxisDirection::from("South-South-West".to_string()),
+            AxisDirection::SouthSouthWest
+        );
+        assert_eq!(AxisDirection::from("Up".to_string()), AxisDirection::Up);
+        assert_eq!(
+            AxisDirection::from("North_North East".to_string()),
+            AxisDirection::NorthNorthEast
+        );
+        assert_eq!(
+            AxisDirection::from("East-North East".to_string()),
+            AxisDirection::EastNorthEast
+        );
+        assert_eq!(
+            AxisDirection::from("South South_West".to_string()),
+            AxisDirection::SouthSouthWest
+        );
+
+        assert_eq!(AxisDirection::from("Unknown".to_string()), AxisDirection::Unspecified);
+        assert_eq!(AxisDirection::from("".to_string()), AxisDirection::Unspecified);
+        assert_eq!(AxisDirection::from(" ".to_string()), AxisDirection::Unspecified);
+        assert_eq!(AxisDirection::from("__--".to_string()), AxisDirection::Unspecified);
+
+        assert_eq!(AxisDirection::from("north".to_string()), AxisDirection::North);
+        assert_eq!(
+            AxisDirection::from("northNorthEast".to_string()),
+            AxisDirection::NorthNorthEast
+        );
+        assert_eq!(AxisDirection::from("geocentricY".to_string()), AxisDirection::GeocentricY);
+    }
 
     #[test]
     fn id() {
@@ -1485,7 +1714,7 @@ mod tests {
         let id: Id = serde_json::from_str(json).unwrap();
 
         assert_eq!(id.authority, "EPSG");
-        assert_eq!(id.code.to_u64(), 8251);
+        assert_eq!(id.code.i64(), 8251);
     }
 
     #[test]
@@ -1726,12 +1955,12 @@ mod tests {
         }"#;
 
         let proj: ProjectedCRS = serde_json::from_str(json).unwrap();
-        assert_eq!(proj.object_usage.id.unwrap().code.to_u64(), 3857);
+        assert_eq!(proj.base_properties.id.unwrap().code.i64(), 3857);
 
         let full: ProjJSON = serde_json::from_str(json).unwrap();
         if let ProjJSON::CRS(crs) = full {
             if let CRS::ProjectedCRS(proj) = *crs {
-                assert_eq!(proj.object_usage.id.unwrap().code.to_u64(), 3857);
+                assert_eq!(proj.base_properties.id.unwrap().code.i64(), 3857);
             }
         } else {
             panic!("Expected ProjectedCRS");

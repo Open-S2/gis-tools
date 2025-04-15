@@ -23,7 +23,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=omerc +lat_1=45 +lat_2=55
  * ```
  *
@@ -43,7 +43,7 @@ import type { ProjectionParams, ProjectionTransform } from '.';
  * - `+y_0=<value>`: False northing.
  *
  * ## Usage Example
- * ```
+ * ```bash
  * echo 12 55 | proj +proj=omerc +alpha=90 +ellps=GRS80
  * echo 12 55 | proj +proj=omerc +alpha=0 +R=6400000
  * echo 12 55 | proj +proj=omerc +lon_1=0 +lat_1=-1 +lon_2=0 +lat_2=0 +R=6400000

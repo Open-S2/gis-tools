@@ -48,7 +48,7 @@ interface Area {
  * **Output type**: Projected coordinates
  *
  * ## Projection String
- * ```
+ * ```ini
  * +proj=qsc
  * ```
  *
@@ -94,7 +94,7 @@ interface Area {
  * - `+y_0=<value>`: False northing.
  *
  * ## Usage Example
- * ```
+ * ```bash
  * gdalwarp -t_srs "+wktext +proj=qsc +units=m +ellps=WGS84  +lat_0=0 +lon_0=0"        \
  *     -wo SOURCE_EXTRA=100 -wo SAMPLE_GRID=YES -te -6378137 -6378137 6378137 6378137  \
  *     worldmap.tiff frontside.tiff

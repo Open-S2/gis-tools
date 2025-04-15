@@ -28,7 +28,7 @@ const BIT_SHIFT: [u64; 10] = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63];
 /// // DO STUFF
 /// let res = buf.take();
 /// ```
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Buffer {
     buf: Vec<u8>,
     pos: usize,
