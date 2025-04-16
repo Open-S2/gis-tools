@@ -1,5 +1,5 @@
-// export * from './gpu';
-export * from './planets';
-export * from './propagation';
-export * from './util';
-export * from './sat';
+// export * from './gpu/index.js';
+export * from './planets/index.js';
+export * from './propagation/index.js';
+export * from './util/index.js';
+export * from './sat.js';

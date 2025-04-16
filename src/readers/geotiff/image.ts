@@ -1,13 +1,17 @@
-import { applyPredictor } from './predictor';
-import { buildTransformFromGeoKeys } from './proj';
-import { getDecoder } from './decoder';
-import { buildSamples, convertColorSpace } from './color';
-import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil';
+import { applyPredictor } from './predictor.js';
+import { buildTransformFromGeoKeys } from './proj.js';
+import { getDecoder } from './decoder.js';
+import { buildSamples, convertColorSpace } from './color.js';
+import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil.js';
 
-import type { ArrayTypes, Decoder, GridReader, ImageFileDirectory } from '.';
-import type { ProjectionTransformDefinition, Transformer } from '../../proj4';
-import type { RGBA, Reader } from '..';
-import type { VectorMultiPoint, VectorMultiPointGeometry, VectorPoint } from '../../geometry';
+import type { ArrayTypes, Decoder, GridReader, ImageFileDirectory } from './index.js';
+import type { ProjectionTransformDefinition, Transformer } from '../../proj4/index.js';
+import type { RGBA, Reader } from '../index.js';
+import type {
+  VectorMultiPoint,
+  VectorMultiPointGeometry,
+  VectorPoint,
+} from '../../geometry/index.js';
 
 /** Metadata for a GeoTIFF image */
 export interface GeoTIFFMetadata {

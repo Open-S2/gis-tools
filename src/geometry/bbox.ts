@@ -7,7 +7,7 @@ import type {
   VectorMultiPolygon,
   VectorPoint,
   VectorPolygon,
-} from './';
+} from './index.js';
 
 /**
  * Creates a bounding box from a point

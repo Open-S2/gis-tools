@@ -1,6 +1,6 @@
 import type { Encoding } from 's2-tilejson';
 
-export * from './compression';
+export * from './compression.js';
 
 /** The formats available to DecompressionStream */
 export type Format = 'deflate' | 'deflate-raw' | 'gzip' | 'br' | 'zstd';

@@ -3,5 +3,5 @@
 // https://gtfs.org/documentation/schedule/reference/#tripstxt
 // https://mobilitydata.github.io/
 // https://www.transit.land
-export * from './realtime';
-export * from './schedule';
+export * from './realtime/index.js';
+export * from './schedule/index.js';

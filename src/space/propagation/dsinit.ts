@@ -1,4 +1,4 @@
-import { pi, twoPi, x2o3, xke } from '../util/constants';
+import { pi, twoPi, x2o3, xke } from '../util/constants.js';
 
 /** Options for DsInit */
 export interface DsInitOptions {

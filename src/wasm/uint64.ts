@@ -1,5 +1,5 @@
-import { base64ToArrayBuffer } from '../util';
-import wasmBase64 from './uint64.wasm';
+import { base64ToArrayBuffer } from '../util/index.js';
+import wasmBase64 from './uint64.wasm.js';
 
 /**
  * An Uint64 is a 64-bit unsigned integer that uniquely identifies a cell in the S2

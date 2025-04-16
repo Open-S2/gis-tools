@@ -1,9 +1,9 @@
-import { GTFSRealtimeTranslatedString } from '..';
+import { GTFSRealtimeTranslatedString } from '../index.js';
 
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
-export * from './timeEvent';
-export * from './update';
+export * from './timeEvent.js';
+export * from './update.js';
 
 /** The type of wheelchair boarding accessibility at a stop. */
 export const enum GTFSRealtimeWheelchairBoarding {

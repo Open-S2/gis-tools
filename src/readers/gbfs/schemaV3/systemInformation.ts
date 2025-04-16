@@ -1,6 +1,6 @@
-import { LICENSES, TIMEZONE_IDENTIFIER_LIST } from '../../..';
+import { LICENSES, TIMEZONE_IDENTIFIER_LIST } from '../../../index.js';
 
-import type { Licenses, TimeZone } from '../../..';
+import type { Licenses, TimeZone } from '../../../index.js';
 
 /**
  * # GBFS System Information Schema V3.1-RC & V3.0

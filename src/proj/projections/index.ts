@@ -1,7 +1,7 @@
-import type { VectorPoint } from '../..';
+import type { VectorPoint } from '../../index.js';
 
-export * from './base';
-export * from './coords';
+export * from './base.js';
+export * from './coords.js';
 
 /** All projections need these parameters */
 export interface ProjectionTransform {

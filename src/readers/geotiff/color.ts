@@ -1,6 +1,6 @@
-import { EXTRA_SAMPLES_VALUES, PHOTOMETRIC_INTERPRETATIONS } from './constants';
+import { EXTRA_SAMPLES_VALUES, PHOTOMETRIC_INTERPRETATIONS } from './constants.js';
 
-import type { Raster } from './image';
+import type { Raster } from './image.js';
 
 /**
  * Converts photometric interpretation to samples

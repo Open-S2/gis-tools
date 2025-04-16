@@ -1,8 +1,8 @@
-import { S2MMapStore } from '../mmap';
+import { S2MMapStore } from '../mmap.js';
 
-import type { KVStore } from '.';
-import type { S2CellId } from '../..';
-import type { Properties, Value } from '../..';
+import type { KVStore } from './index.js';
+import type { S2CellId } from '../../index.js';
+import type { Properties, Value } from '../../index.js';
 
 /**
  * # Key-Value MMap Store

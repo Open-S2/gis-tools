@@ -1,9 +1,9 @@
 // References:
 // - Wikipedia: https://en.wikipedia.org/wiki/Military_Grid_Reference_System
 // - GEOTRANS: https://earth-info.nga.mil/#geotrans
-import { degToRad, radToDeg } from '../geometry';
+import { degToRad, radToDeg } from '../geometry/index.js';
 
-import type { BBox, VectorPoint } from '../geometry';
+import type { BBox, VectorPoint } from '../geometry/index.js';
 
 /** UTM zones are grouped, and assigned to one of a group of 6 sets. */
 const NUM_100K_SETS = 6;

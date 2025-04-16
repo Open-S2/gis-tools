@@ -1,9 +1,9 @@
-import { getGrib2Template3 } from './templates';
-import { grib2LookupTable31 } from './tables';
+import { getGrib2Template3 } from './templates.js';
+import { grib2LookupTable31 } from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
-export * from './tables';
+export * from './tables.js';
 
 /** The output of `parseGrib2Section3` */
 export type GridDefinitionSection = ReturnType<typeof parseGrib2Section3>;

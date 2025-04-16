@@ -1,6 +1,6 @@
-import { imageDecoder } from '../image';
+import { imageDecoder } from '../image/index.js';
 import { toMetadata } from 's2-tilejson';
-import { RasterS2TileReader, RasterTileReader } from '.';
+import { RasterS2TileReader, RasterTileReader } from './index.js';
 import { readFile, readdir, stat } from 'fs/promises';
 
 import type {
@@ -9,7 +9,7 @@ import type {
   S2TileMetadata,
   TileMetadata,
   TileReader,
-} from '.';
+} from './index.js';
 import type {
   Face,
   FeatureIterator,
@@ -19,7 +19,7 @@ import type {
   S2Feature,
   S2PMTilesReader,
   VectorFeature,
-} from '../..';
+} from '../../index.js';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
 // TODO: Get encoding from the metadata and decode the data if necessary

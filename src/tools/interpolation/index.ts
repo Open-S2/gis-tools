@@ -7,16 +7,16 @@ import {
   rgbaIDWInterpolation,
   rgbaLanczosInterpolation,
   rgbaNearestInterpolation,
-} from '.';
+} from './index.js';
 
-import type { MValue, Properties, RGBA, VectorPoint } from '../..';
+import type { MValue, Properties, RGBA, VectorPoint } from '../../index.js';
 
-export * from './average';
-export * from './bilinear';
-export * from './idw';
-export * from './kriging';
-export * from './lanczos';
-export * from './nearest';
+export * from './average.js';
+export * from './bilinear.js';
+export * from './idw.js';
+export * from './kriging.js';
+export * from './lanczos.js';
+export * from './nearest.js';
 
 /** Interpolation method */
 export type InterpolationMethod = 'average' | 'nearest' | 'idw' | 'lanczos';

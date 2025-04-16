@@ -1,7 +1,7 @@
-import { earthRadius, j2, j3oj2, j4, pi, x2o3 } from '../util/constants';
+import { earthRadius, j2, j3oj2, j4, pi, x2o3 } from '../util/constants.js';
 
-import { Satellite } from '../sat';
-import { dpper, dscom, dsinit, initl } from '.';
+import { Satellite } from '../sat.js';
+import { dpper, dscom, dsinit, initl } from './index.js';
 
 /**
  * -----------------------------------------------------------------------------

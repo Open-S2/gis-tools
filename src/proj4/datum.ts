@@ -1,4 +1,4 @@
-import { adjustLon } from './common';
+import { adjustLon } from './common.js';
 import {
   DATUMS,
   HALF_PI,
@@ -12,12 +12,12 @@ import {
   SRS_WGS84_ESQUARED,
   SRS_WGS84_SEMIMAJOR,
   SRS_WGS84_SEMIMINOR,
-} from './constants';
+} from './constants/index.js';
 
-import type { DatumParams } from '../readers/wkt';
-import type { NadSubGrid } from '../readers/nadgrid';
-import type { VectorPoint } from '../geometry';
-import type { ProjectionParams, ProjectionTransform, Transformer } from '.';
+import type { DatumParams } from '../readers/wkt/index.js';
+import type { NadSubGrid } from '../readers/nadgrid.js';
+import type { VectorPoint } from '../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform, Transformer } from './index.js';
 
 /**
  * Modifies projection parameters to properly define a datum

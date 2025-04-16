@@ -1,4 +1,4 @@
-import type { ProjectionTransform } from '../projections';
+import type { ProjectionTransform } from '../projections/index.js';
 
 // Geodetic transformations are typically organized in a number of
 //     steps. For example, a datum shift could be carried out through

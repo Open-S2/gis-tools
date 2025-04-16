@@ -5,9 +5,9 @@ import {
   grib2LookupTable55,
   grib2LookupTable56,
   grib2LookupTable57,
-} from './tables';
+} from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
 /**
  * Returns a template generator for the given template number

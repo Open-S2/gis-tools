@@ -1,4 +1,4 @@
-import { decompressStream } from '../../util';
+import { decompressStream } from '../../util/index.js';
 
 import type { PbfReader } from 'pbf-ts';
 

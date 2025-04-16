@@ -1,12 +1,12 @@
-import { BufferReader } from '../../..';
-import { getGrib2Template7 } from './templates';
+import { BufferReader } from '../../../index.js';
+import { getGrib2Template7 } from './templates.js';
 
-import type { Grib2Sections } from '..';
-import type { Reader } from '../../..';
+import type { Grib2Sections } from '../index.js';
+import type { Reader } from '../../../index.js';
 
-export * from './complexUnpacking';
-export * from './spectral';
-export * from './templates';
+export * from './complexUnpacking.js';
+export * from './spectral.js';
+export * from './templates.js';
 
 /** Data Section Return Type */
 export type Grib2DataSection = ReturnType<typeof parseGrib2Section7>;

@@ -1,5 +1,5 @@
-import { ellipsoids } from './ellipsoid';
-import { EPSLN, RA4, RA6, SIXTH } from './values';
+import { ellipsoids } from './ellipsoid.js';
+import { EPSLN, RA4, RA6, SIXTH } from './values.js';
 
 /** Describes an ellipsoid's eccentricity */
 export interface EccentricityParams {

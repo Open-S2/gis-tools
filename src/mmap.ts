@@ -1,9 +1,9 @@
 import './util/polyfills/local';
 
-export * from './dataStore/externalSort/index';
-export * from './dataStore/mmap';
-export * from './dataStore/kv/mmap';
-export * from './dataStore/multimap/mmap';
-export * from './dataStore/vector/mmap';
-export * from './readers/shapefile/mmap';
-export * from './readers/mmap';
+export * from './dataStore/externalSort/index.js';
+export * from './dataStore/mmap.js';
+export * from './dataStore/kv/mmap.js';
+export * from './dataStore/multimap/mmap.js';
+export * from './dataStore/vector/mmap.js';
+export * from './readers/shapefile/mmap.js';
+export * from './readers/mmap.js';

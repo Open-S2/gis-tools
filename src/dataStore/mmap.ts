@@ -1,11 +1,11 @@
-import { compareIDs } from '..';
-import { externalSort } from './externalSort';
+import { compareIDs } from '../index.js';
+import { externalSort } from './externalSort/index.js';
 import { mmap } from 'bun';
 import { tmpdir } from 'os';
 import { closeSync, existsSync, openSync, unlinkSync, writeSync } from 'fs';
 
-import type { S2CellId } from '..';
-import type { Properties, Value, VectorKey } from '..';
+import type { S2CellId } from '../index.js';
+import type { Properties, Value, VectorKey } from '../index.js';
 
 /** Options to create a S2MMapStore */
 export interface MMapOptions {

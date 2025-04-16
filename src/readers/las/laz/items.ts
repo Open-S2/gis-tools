@@ -1,7 +1,11 @@
-import { toLASClassification, toLASClassification14, toLASClassificationFlag } from '../getPoint';
+import {
+  toLASClassification,
+  toLASClassification14,
+  toLASClassificationFlag,
+} from '../getPoint.js';
 
-import type { LASFormat, LASHeader, VectorPointM } from '../../..';
-import { i16Quantize, i8Clamp } from '../util';
+import type { LASFormat, LASHeader, VectorPointM } from '../../../index.js';
+import { i16Quantize, i8Clamp } from '../util.js';
 
 /**
  * @param input - 30bits input

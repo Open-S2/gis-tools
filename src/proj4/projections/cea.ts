@@ -1,8 +1,8 @@
-import { ProjectionBase } from './base';
-import { adjustLon, iqsfnz, msfnz, qsfnz } from '../common';
+import { ProjectionBase } from './base.js';
+import { adjustLon, iqsfnz, msfnz, qsfnz } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Equal Area Cylindrical Projection

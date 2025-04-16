@@ -1,9 +1,9 @@
-import { EARTH_RADIUS } from '../../space/planets';
-import { angleFromKM, angleFromMeters, angleToKM, angleToMeters } from './angle';
-import { pointNorm2, pointSub } from '../s2/point';
+import { EARTH_RADIUS } from '../../space/planets/index.js';
+import { angleFromKM, angleFromMeters, angleToKM, angleToMeters } from './angle.js';
+import { pointNorm2, pointSub } from '../s2/point.js';
 
-import type { S1Angle } from './angle';
-import type { VectorPoint } from '../';
+import type { S1Angle } from './angle.js';
+import type { VectorPoint } from '../index.js';
 
 /**
  * S1ChordAngle represents the angle subtended by a chord (i.e., the straight

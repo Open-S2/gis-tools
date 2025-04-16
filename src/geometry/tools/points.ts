@@ -4,7 +4,7 @@ import type {
   VectorFeature,
   VectorMultiPointGeometry,
   VectorPoint,
-} from '../..';
+} from '../../index.js';
 
 /**
  * Check if two XYZ Points are equal

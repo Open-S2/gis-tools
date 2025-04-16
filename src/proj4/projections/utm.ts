@@ -1,8 +1,8 @@
-import { D2R } from '../constants';
-import { ExtendedTransverseMercator } from './etmerc';
-import { adjustZone } from '../common';
+import { D2R } from '../constants/index.js';
+import { ExtendedTransverseMercator } from './etmerc.js';
+import { adjustZone } from '../common.js';
 
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Universal Transverse Mercator (UTM)

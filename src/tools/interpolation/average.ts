@@ -1,8 +1,8 @@
-import { defaultGetInterpolateCurrentValue } from '.';
-import { lRGBToGamma, sRGBToLinear } from '../..';
+import { defaultGetInterpolateCurrentValue } from './index.js';
+import { lRGBToGamma, sRGBToLinear } from '../../index.js';
 
-import type { GetInterpolateValue } from '.';
-import type { MValue, Properties, RGBA, VectorPoint } from '../..';
+import type { GetInterpolateValue } from './index.js';
+import type { MValue, Properties, RGBA, VectorPoint } from '../../index.js';
 
 /**
  * # Average Neighbor Interpolation

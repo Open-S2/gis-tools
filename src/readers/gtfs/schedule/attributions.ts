@@ -1,4 +1,4 @@
-import { parseCSVAsRecord } from '../../';
+import { parseCSVAsRecord } from '../../index.js';
 
 /**
  * Indicates an organization’s role in producing the dataset:

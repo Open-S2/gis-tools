@@ -1,4 +1,4 @@
-import type { ProjectionTransform } from '.';
+import type { ProjectionTransform } from './index.js';
 /**
  *
  */

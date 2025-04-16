@@ -1,5 +1,5 @@
-import { mergeSortedChunks } from './mergeSortedChunks';
-import { sortChunk } from './sortChunk';
+import { mergeSortedChunks } from './mergeSortedChunks.js';
+import { sortChunk } from './sortChunk.js';
 import { availableParallelism, tmpdir } from 'os';
 import { createReadStream, createWriteStream } from 'fs';
 import { exists, stat, unlink } from 'fs/promises';

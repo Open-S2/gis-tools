@@ -5,11 +5,11 @@ import {
   LASrgba,
   numberReturnLevel,
   numberReturnMap,
-} from '.';
-import { U64I64F64, u32ZeroBit0, u8Clamp, u8Fold } from '../util';
+} from './index.js';
+import { U64I64F64, u32ZeroBit0, u8Clamp, u8Fold } from '../util.js';
 
-import type { Reader } from '../..';
-import type { ArithmeticDecoder, ItemReader } from '.';
+import type { Reader } from '../../index.js';
+import type { ArithmeticDecoder, ItemReader } from './index.js';
 
 const LASZIP_GPSTIME_MULTI = 500;
 const LASZIP_GPSTIME_MULTI_MINUS = -10;

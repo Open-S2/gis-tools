@@ -1,4 +1,4 @@
-import { twoPi } from '../util/constants';
+import { twoPi } from '../util/constants.js';
 
 /** Options for Dspace */
 export interface DspaceOptions {

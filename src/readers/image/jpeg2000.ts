@@ -1,5 +1,5 @@
 // https://github.com/runk/jpeg2000/tree/main
-import type { Reader } from '..';
+import type { Reader } from '../index.js';
 
 /** Image and tile size */
 interface SIZ {

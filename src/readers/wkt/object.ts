@@ -1,4 +1,4 @@
-import { cleanString } from '.';
+import { cleanString } from './index.js';
 
 /** WKT value or array of values */
 export type WKTValue = string | WKTValue[];

@@ -1,4 +1,4 @@
-import { estimate, predSum, predSumThree, resulterrbound, scale, splitter, vec } from './util';
+import { estimate, predSum, predSumThree, resulterrbound, scale, splitter, vec } from './util.js';
 
 const iccerrboundA = 1.1102230246251577e-15; // (10 + 96 * epsilon) * epsilon;
 const iccerrboundB = 4.440892098500632e-16; // (4 + 48 * epsilon) * epsilon;

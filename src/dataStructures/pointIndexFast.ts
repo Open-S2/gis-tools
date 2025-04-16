@@ -1,9 +1,9 @@
-import { EARTH_RADIUS } from '..';
-import { KDSpatialIndex } from '../dataStore';
-import { PriorityQueue } from './priorityQueue';
-import { pointFromST } from '../geometry/s2/point';
-import { toWM } from '../geometry';
-import { xyzToLonLat } from '../geometry/s2/coords';
+import { EARTH_RADIUS } from '../index.js';
+import { KDSpatialIndex } from '../dataStore/index.js';
+import { PriorityQueue } from './priorityQueue.js';
+import { pointFromST } from '../geometry/s2/point.js';
+import { toWM } from '../geometry/index.js';
+import { xyzToLonLat } from '../geometry/s2/coords.js';
 
 import type {
   Face,
@@ -13,8 +13,8 @@ import type {
   RGBA,
   VectorFeatures,
   VectorPoint,
-} from '..';
-import type { KDStore, KDStoreConstructor } from '../dataStore';
+} from '../index.js';
+import type { KDStore, KDStoreConstructor } from '../dataStore/index.js';
 
 /** A query node in the kd-tree used by a spherical search */
 interface NodeQuery<M extends MValue = Properties> {

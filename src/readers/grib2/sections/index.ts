@@ -1,15 +1,15 @@
-import { BufferReader } from '../../';
-import { parseGrib2Section0 } from './0';
-import { parseGrib2Section1 } from './1';
-import { parseGrib2Section2 } from './2';
-import { parseGrib2Section3 } from './3';
-import { parseGrib2Section4 } from './4';
-import { parseGrib2Section5 } from './5';
-import { parseGrib2Section6 } from './6';
-import { parseGrib2Section7 } from './7';
-import { parseGrib2Section8 } from './8';
+import { BufferReader } from '../..//index.js';
+import { parseGrib2Section0 } from './0/index.js';
+import { parseGrib2Section1 } from './1/index.js';
+import { parseGrib2Section2 } from './2/index.js';
+import { parseGrib2Section3 } from './3/index.js';
+import { parseGrib2Section4 } from './4/index.js';
+import { parseGrib2Section5 } from './5/index.js';
+import { parseGrib2Section6 } from './6/index.js';
+import { parseGrib2Section7 } from './7/index.js';
+import { parseGrib2Section8 } from './8/index.js';
 
-import type { Reader } from '../..';
+import type { Reader } from '../../index.js';
 import type {
   Grib2BitMapSection,
   Grib2DataRepresentationSection,
@@ -20,18 +20,18 @@ import type {
   Grib2LocalUseSection,
   Grib2ProductDefinitionSection,
   GridDefinitionSection,
-} from '.';
+} from './index.js';
 
-export * from './0';
-export * from './1';
-export * from './2';
-export * from './3';
-export * from './4';
-export * from './5';
-export * from './6';
-export * from './7';
-export * from './8';
-export * from './other';
+export * from './0/index.js';
+export * from './1/index.js';
+export * from './2/index.js';
+export * from './3/index.js';
+export * from './4/index.js';
+export * from './5/index.js';
+export * from './6/index.js';
+export * from './7/index.js';
+export * from './8/index.js';
+export * from './other/index.js';
 
 /** A parsed GRIB Section */
 export type Grib2Sections = {

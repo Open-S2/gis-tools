@@ -1,9 +1,9 @@
-import { ProjectionBase } from '.';
-import { D2R, EPSLN, HALF_PI, QUART_PI, TWO_PI } from '../constants';
-import { adjustLon, phi2z, tsfnz } from '../common';
+import { ProjectionBase } from './index.js';
+import { D2R, EPSLN, HALF_PI, QUART_PI, TWO_PI } from '../constants/index.js';
+import { adjustLon, phi2z, tsfnz } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Oblique Mercator

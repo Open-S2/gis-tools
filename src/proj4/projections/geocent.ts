@@ -1,8 +1,8 @@
-import { ProjectionBase } from '.';
-import { geocentricToGeodetic, geodeticToGeocentric } from '../datum';
+import { ProjectionBase } from './index.js';
+import { geocentricToGeodetic, geodeticToGeocentric } from '../datum.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /** Geocentric Projection */
 export class Geocentric extends ProjectionBase implements ProjectionTransform {

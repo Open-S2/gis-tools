@@ -1,14 +1,14 @@
-import { DataBaseFile } from './dbf';
-import { FileReader } from '../file';
-import { ShapeFileReader } from './shp';
-import { Transformer } from '../../proj4';
-import { shapefileFromGzip } from '.';
+import { DataBaseFile } from './dbf.js';
+import { FileReader } from '../file.js';
+import { ShapeFileReader } from './shp.js';
+import { Transformer } from '../../proj4/index.js';
+import { shapefileFromGzip } from './index.js';
 import { exists, readFile } from 'fs/promises';
 
-import type { ProjectionTransformDefinition } from '../../proj4';
+import type { ProjectionTransformDefinition } from '../../proj4/index.js';
 
-export * from './dbf';
-export * from './shp';
+export * from './dbf.js';
+export * from './shp.js';
 
 /** A description of what relevant files exist and where */
 export interface Definition {

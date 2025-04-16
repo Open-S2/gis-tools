@@ -1,8 +1,14 @@
-import { U64I64F64 } from '../util';
-import { ArithmeticModel, IntegerCompressor, LASWavePacket13, LASpoint10, LASrgba } from '.';
+import { U64I64F64 } from '../util.js';
+import {
+  ArithmeticModel,
+  IntegerCompressor,
+  LASWavePacket13,
+  LASpoint10,
+  LASrgba,
+} from './index.js';
 
-import type { Reader } from '../..';
-import type { ArithmeticDecoder, ItemReader, LAZContext } from '.';
+import type { Reader } from '../../index.js';
+import type { ArithmeticDecoder, ItemReader, LAZContext } from './index.js';
 
 const LASZIP_GPSTIME_MULTIMAX = 512;
 

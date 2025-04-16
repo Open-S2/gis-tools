@@ -1,9 +1,9 @@
-import { convert } from '../../geometry/tools/convert';
-import { mergeBBoxes } from '../../geometry';
+import { convert } from '../../geometry/tools/convert.js';
+import { mergeBBoxes } from '../../geometry/index.js';
 
-import type { FeatureIterator } from '../../readers';
-import type { Writer } from '../../writers';
-import type { BBOX, Projection, VectorFeatures } from '../../geometry';
+import type { FeatureIterator } from '../../readers/index.js';
+import type { Writer } from '../../writers/index.js';
+import type { BBOX, Projection, VectorFeatures } from '../../geometry/index.js';
 
 /** User defined options on how to store the features */
 export interface ToJSONOptions {

@@ -1,4 +1,4 @@
-import { pointFromST as fromST, pointToLonLat as toLonLat } from './point';
+import { pointFromST as fromST, pointToLonLat as toLonLat } from './point.js';
 
 import type {
   Face,
@@ -8,7 +8,7 @@ import type {
   VectorFeature,
   VectorGeometry,
   VectorPoint,
-} from '../';
+} from '../index.js';
 
 /**
  * Convert an S2Feature to a GeoJSON Feature

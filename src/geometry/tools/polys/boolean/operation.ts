@@ -1,11 +1,11 @@
-import { MultiPolyIn } from './geomIn';
-import { PrecisionTree } from './precision';
-import { SweepLine } from './sweepLine';
-import { compareSweepEvents } from './sweepEvent';
-import { MultiPolyOut, ringOutFactory } from './geomOut';
-import { SplayTreeSet, bboxOverlap } from '../../../..';
+import { MultiPolyIn } from './geomIn.js';
+import { PrecisionTree } from './precision.js';
+import { SweepLine } from './sweepLine.js';
+import { compareSweepEvents } from './sweepEvent.js';
+import { MultiPolyOut, ringOutFactory } from './geomOut.js';
+import { SplayTreeSet, bboxOverlap } from '../../../../index.js';
 
-import type { MultiPolygon, Polygon } from '../../..';
+import type { MultiPolygon, Polygon } from '../../../index.js';
 
 /** Types of operations to apply to MultiPolygons */
 export type OperationType = 'union' | 'intersection' | 'xor' | 'difference';

@@ -1,28 +1,33 @@
-import { HeaderBlock } from './headerBlock';
-import { KV } from '../../dataStore';
+import { HeaderBlock } from './headerBlock.js';
+import { KV } from '../../dataStore/index.js';
 import { PbfReader } from 'pbf-ts';
-import { PrimitiveBlock } from './primitive';
-import { intermediateRelationToVectorFeature } from './relation';
-import { intermediateWayToVectorFeature } from './way';
-import { mergeRelationIfExists } from './node';
-import { toReader } from '..';
-import { Blob, BlobHeader } from './blob';
+import { PrimitiveBlock } from './primitive.js';
+import { intermediateRelationToVectorFeature } from './relation.js';
+import { intermediateWayToVectorFeature } from './way.js';
+import { mergeRelationIfExists } from './node.js';
+import { toReader } from '../index.js';
+import { Blob, BlobHeader } from './blob.js';
 
-import type { KVStore } from '../../dataStore';
-import type { OSMHeader } from './headerBlock';
-import type { OSMMetadata } from './primitive';
-import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { IntermediateNodeMember, IntermediateRelation } from './relation';
-import type { IntermediateWay, WayNodes } from './way';
-import type { Properties, VectorFeature, VectorPoint, VectorPointGeometry } from '../../geometry';
+import type { KVStore } from '../../dataStore/index.js';
+import type { OSMHeader } from './headerBlock.js';
+import type { OSMMetadata } from './primitive.js';
+import type { FeatureIterator, Reader, ReaderInputs } from '../index.js';
+import type { IntermediateNodeMember, IntermediateRelation } from './relation.js';
+import type { IntermediateWay, WayNodes } from './way.js';
+import type {
+  Properties,
+  VectorFeature,
+  VectorPoint,
+  VectorPointGeometry,
+} from '../../geometry/index.js';
 
-export type * from './blob';
-export type * from './headerBlock';
-export type * from './info';
-export type * from './node';
-export type * from './primitive';
-export type * from './relation';
-export type * from './way';
+export type * from './blob.js';
+export type * from './headerBlock.js';
+export type * from './info.js';
+export type * from './node.js';
+export type * from './primitive.js';
+export type * from './relation.js';
+export type * from './way.js';
 
 // TODO: Add threads for reading the blocks
 

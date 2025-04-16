@@ -1,7 +1,7 @@
-import wasmBase64 from './s2cell.wasm';
-import { pointFromLonLat, pointToST } from '../geometry/s2/point';
+import wasmBase64 from './s2cell.wasm.js';
+import { pointFromLonLat, pointToST } from '../geometry/s2/point.js';
 
-import type { Face, VectorPoint } from '../geometry';
+import type { Face, VectorPoint } from '../geometry/index.js';
 
 /**
  * An S2CellId is a 64-bit unsigned integer that uniquely identifies a cell in the S2

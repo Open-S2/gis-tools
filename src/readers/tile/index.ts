@@ -1,7 +1,7 @@
-import { bboxST } from '../../geometry/s2/coords';
-import { imageDecoder } from '../image';
+import { bboxST } from '../../geometry/s2/coords.js';
+import { imageDecoder } from '../image/index.js';
 import { toMetadata } from 's2-tilejson';
-import { mercToLL, xyzToBBOX } from '../../geometry/wm/coords';
+import { mercToLL, xyzToBBOX } from '../../geometry/wm/coords.js';
 
 import type {
   Face,
@@ -13,7 +13,7 @@ import type {
   S2PMTilesReader,
   VectorFeature,
   VectorPoint,
-} from '../..';
+} from '../../index.js';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
 // TODO: Add VectorTileReader

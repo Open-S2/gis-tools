@@ -1,7 +1,7 @@
-import { S2_HEADER_SIZE_BYTES } from '../../readers/pmtiles';
-import { headerToBytes, setUint64 } from './pmtiles';
+import { S2_HEADER_SIZE_BYTES } from '../../readers/pmtiles/index.js';
+import { headerToBytes, setUint64 } from './pmtiles.js';
 
-import type { S2Header } from '../../readers/pmtiles';
+import type { S2Header } from '../../readers/pmtiles/index.js';
 
 /**
  * Create raw header bytes from an S2Header object.

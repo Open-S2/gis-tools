@@ -1,7 +1,7 @@
-import { readVarint } from './varint';
+import { readVarint } from './varint.js';
 
-import type { Compression } from '../..';
-import type { Point } from '../../geometry';
+import type { Compression } from '../../index.js';
+import type { Point } from '../../geometry/index.js';
 
 /** A tile, in the format of ZXY. */
 export type FlatTile = [zoom: number, x: number, y: number];

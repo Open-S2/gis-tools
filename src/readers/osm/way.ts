@@ -1,18 +1,16 @@
-import { Info } from './info';
-import { extendBBox } from '../../geometry';
+import { Info } from './info.js';
+import { extendBBox } from '../../geometry/index.js';
 
-import type { OSMMetadata } from './primitive';
 import type { PbfReader } from 'pbf-ts';
-import type { PrimitiveBlock } from './primitive';
-import type { InfoBlock, OSMProperties, OSMReader } from '.';
-
 import type {
   BBOX,
   Properties,
   VectorFeature,
   VectorGeometry,
   VectorLineString,
-} from '../../geometry';
+} from '../../geometry/index.js';
+import type { InfoBlock, OSMProperties, OSMReader } from './index.js';
+import type { OSMMetadata, PrimitiveBlock } from './primitive.js';
 
 /** Linebased node reference store */
 export type WayNodes = number[];

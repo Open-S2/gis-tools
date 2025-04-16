@@ -2,7 +2,7 @@
 import zlib from 'node:zlib';
 
 import type { Duplex } from 'node:stream';
-import type { Format } from '..';
+import type { Format } from '../index.js';
 
 // fyi, Byte streams aren't really implemented anywhere yet
 // It only exist as a issue: https://github.com/WICG/compression/issues/31

@@ -1,6 +1,6 @@
-import { degToRad, radToDeg } from '../geometry';
+import { degToRad, radToDeg } from '../geometry/index.js';
 
-import type { LonLat } from '../geometry';
+import type { LonLat } from '../geometry/index.js';
 
 /**
  * # Orthodrome

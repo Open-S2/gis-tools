@@ -10,21 +10,26 @@ import {
   GBFSSystemRegionsV1,
   GBFSV1,
   GBFSVersionsV1,
-} from '.';
+} from './index.js';
 
-import type { FeatureIterator, Properties, VectorFeature, VectorPointGeometry } from '../../..';
+import type {
+  FeatureIterator,
+  Properties,
+  VectorFeature,
+  VectorPointGeometry,
+} from '../../../index.js';
 
-export * from './freeBikeStatus';
-export * from './gbfs';
-export * from './gbfsVersions';
-export * from './stationInformation';
-export * from './stationStatus';
-export * from './systemAlerts';
-export * from './systemCalendar';
-export * from './systemHours';
-export * from './systemInformation';
-export * from './systemPricingPlans';
-export * from './systemRegions';
+export * from './freeBikeStatus.js';
+export * from './gbfs.js';
+export * from './gbfsVersions.js';
+export * from './stationInformation.js';
+export * from './stationStatus.js';
+export * from './systemAlerts.js';
+export * from './systemCalendar.js';
+export * from './systemHours.js';
+export * from './systemInformation.js';
+export * from './systemPricingPlans.js';
+export * from './systemRegions.js';
 
 /** Station Information feature properties */
 export interface GBFSStationV1FeaturesV1Properties extends Properties {

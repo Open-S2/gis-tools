@@ -1,10 +1,10 @@
-import { HALF_PI } from '../constants';
-import { ProjectionBase } from './base';
-import { adjustLat, adjustLon, hypot, pjEnfn, pjInvMlfn, pjMlfn } from '../common';
+import { HALF_PI } from '../constants/index.js';
+import { ProjectionBase } from './base.js';
+import { adjustLat, adjustLon, hypot, pjEnfn, pjInvMlfn, pjMlfn } from '../common.js';
 
-import type { En } from '../common';
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { En } from '../common.js';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Bonne (Werner lat_1=90) Projection

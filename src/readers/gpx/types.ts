@@ -1,4 +1,4 @@
-import type { ValueArrayObject } from '../..';
+import type { ValueArrayObject } from '../../index.js';
 
 /** Represents the root GPX document. */
 export interface GPX {

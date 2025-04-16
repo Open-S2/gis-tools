@@ -1,10 +1,10 @@
-import { JpxImage } from '../../../image';
-import { complexUnpacking, spectralComplexUnpacking, spectralSimpleUnpacking } from '.';
+import { JpxImage } from '../../../image/index.js';
+import { complexUnpacking, spectralComplexUnpacking, spectralSimpleUnpacking } from './index.js';
 
-import type { Grib2BitMapSection } from '../6';
-import type { Grib2DataRepresentationSection } from '../5';
-import type { Grib2Sections } from '..';
-import type { Reader } from '../../..';
+import type { Grib2BitMapSection } from '../6/index.js';
+import type { Grib2DataRepresentationSection } from '../5/index.js';
+import type { Grib2Sections } from '../index.js';
+import type { Reader } from '../../../index.js';
 
 // TODO: spectrals are not implemented correctly yet.
 // TODO: case 41: case 40010: PNG

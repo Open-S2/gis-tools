@@ -1,10 +1,10 @@
-import { Way } from './way';
-import { DenseNodes, Node } from './node';
-import { Relation, getNodeRelationPairs } from './relation';
+import { Way } from './way.js';
+import { DenseNodes, Node } from './node.js';
+import { Relation, getNodeRelationPairs } from './relation.js';
 
-import type { IntermediateNodeMember } from './relation';
+import type { IntermediateNodeMember } from './relation.js';
 import type { PbfReader } from 'pbf-ts';
-import type { InfoBlock, OSMProperties, OSMReader } from '.';
+import type { InfoBlock, OSMProperties, OSMReader } from './index.js';
 
 /** The expected metadata in the VectorFeature for all types (node, way, relation) */
 export interface OSMMetadata {

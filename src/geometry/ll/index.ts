@@ -1,8 +1,8 @@
-import { lonLatToXYZ } from '../s2/coords';
-import { degToRad, radToDeg } from '../util';
+import { lonLatToXYZ } from '../s2/coords.js';
+import { degToRad, radToDeg } from '../util.js';
 
-import type { S1Angle } from '../s1/angle';
-import type { MValue, Properties, VectorPoint } from '../';
+import type { S1Angle } from '../s1/angle.js';
+import type { MValue, Properties, VectorPoint } from '../index.js';
 
 /** Just another way of defining a standard 2D point. */
 export type LonLat<M extends MValue = Properties> = VectorPoint<M>;

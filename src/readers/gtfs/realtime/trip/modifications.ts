@@ -1,4 +1,4 @@
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /** NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future. */
 export class GTFSRealtimeTripModifications {

@@ -1,6 +1,6 @@
-import { convert } from '../geometry/tools/convert';
-import { splitTile } from '../geometry/tools/clip';
-import { buildSqDists, simplify } from '../geometry';
+import { convert } from '../geometry/tools/convert.js';
+import { splitTile } from '../geometry/tools/clip.js';
+import { buildSqDists, simplify } from '../geometry/index.js';
 import {
   idFace as getFace,
   idContains,
@@ -9,9 +9,9 @@ import {
   idLevel,
   idParent,
   idToFaceIJ,
-} from '../geometry/id';
+} from '../geometry/id.js';
 
-import type { FeatureIterator } from '..';
+import type { FeatureIterator } from '../index.js';
 import type {
   Face,
   JSONCollection,
@@ -22,7 +22,7 @@ import type {
   VectorFeatures,
   VectorGeometry,
   VectorPoint,
-} from '../geometry';
+} from '../geometry/index.js';
 
 /**
  * # Tile Class

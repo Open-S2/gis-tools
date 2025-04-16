@@ -1,7 +1,7 @@
 import computeShader from './sgp4.wgsl';
-import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util';
+import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/index.js';
 
-import type { Satellite } from '../sat';
+import type { Satellite } from '../sat.js';
 
 /**
  * # SGP4GPU

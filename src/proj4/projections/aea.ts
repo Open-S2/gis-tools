@@ -1,9 +1,9 @@
-import { EPSLN } from '../constants';
-import { ProjectionBase } from './base';
-import { adjustLon, asinz, msfnz, qsfnz } from '../common';
+import { EPSLN } from '../constants/index.js';
+import { ProjectionBase } from './base.js';
+import { adjustLon, asinz, msfnz, qsfnz } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Albers Conic Equal Area Projection

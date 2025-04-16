@@ -1,4 +1,4 @@
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /**
  * Describes the physical path that a vehicle takes when it's not part of the (CSV) GTFS,

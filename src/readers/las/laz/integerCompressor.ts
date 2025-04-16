@@ -1,7 +1,7 @@
-import { U32I32F32 } from '../util';
-import { ArithmeticBitModel, ArithmeticModel } from '.';
+import { U32I32F32 } from '../util.js';
+import { ArithmeticBitModel, ArithmeticModel } from './index.js';
 
-import type { ArithmeticDecoder, LAZContext } from '.';
+import type { ArithmeticDecoder, LAZContext } from './index.js';
 
 const I32_MIN = -2147483648; // ((I32)0x80000000)
 const I32_MAX = 2147483647; // ((I32)0x7FFFFFFF)

@@ -1,6 +1,6 @@
-import { incirclefast, orient2d } from '../geometry/predicates';
+import { incirclefast, orient2d } from '../geometry/predicates/index.js';
 
-import type { Point, VectorPoint } from '../geometry';
+import type { Point, VectorPoint } from '../geometry/index.js';
 
 /**
  * # Delaunator

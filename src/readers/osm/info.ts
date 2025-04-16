@@ -1,5 +1,5 @@
 import type { PbfReader } from 'pbf-ts';
-import type { PrimitiveBlock } from './primitive';
+import type { PrimitiveBlock } from './primitive.js';
 
 /** Info Block - decoded into an object */
 export interface InfoBlock {

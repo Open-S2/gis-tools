@@ -1,8 +1,8 @@
 import { promisify } from 'util';
-import { bufferToKeys, keySort, keysToBuffer } from './sortChunk';
+import { bufferToKeys, keySort, keysToBuffer } from './sortChunk.js';
 import { close as closeFS, createWriteStream, open as openFS, read as readFS, statSync } from 'fs';
 
-import type { Key } from './sortChunk';
+import type { Key } from './sortChunk.js';
 
 const open = promisify(openFS);
 const read = promisify(readFS);

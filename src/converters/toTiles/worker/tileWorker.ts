@@ -1,23 +1,23 @@
 declare let self: DedicatedWorkerGlobalScope;
 
 import { DrawType } from 's2-tilejson';
-import { MultiMap } from '../../../dataStore';
-import { compressStream } from '../../../util';
+import { MultiMap } from '../../../dataStore/index.js';
+import { compressStream } from '../../../util/index.js';
 import { BaseVectorTile, writeMVTile, writeOVTile } from 'open-vector-tile';
-import { PointCluster, PointGrid, Tile, TileStore } from '../../../dataStructures';
+import { PointCluster, PointGrid, Tile, TileStore } from '../../../dataStructures/index.js';
 import { earclip, tesselate } from 'earclip';
-import { idChildrenIJ, idFromFace, idToFaceIJ } from '../../../geometry';
+import { idChildrenIJ, idFromFace, idToFaceIJ } from '../../../geometry/index.js';
 
 import type { Encoding } from 's2-tilejson';
-import type { MultiMapStore } from '../../../dataStore';
-import type { RGBA } from '../../..';
+import type { MultiMapStore } from '../../../dataStore/index.js';
+import type { RGBA } from '../../../index.js';
 import type {
   Face,
   Projection,
   Properties,
   VectorFeatures,
   VectorMultiPolygon,
-} from '../../../geometry';
+} from '../../../geometry/index.js';
 import type {
   FormatOutput,
   GetPointValue,
@@ -26,7 +26,7 @@ import type {
   OnFeature,
   StringifiedLayerGuide,
   VectorLayer,
-} from '../types';
+} from '../types.js';
 import type { GridInput, ImageDataInput, S2JSONLayerMap } from 'open-vector-tile';
 
 /** Take in options that will be used to create a tiled data correctly */

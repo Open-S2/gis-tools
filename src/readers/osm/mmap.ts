@@ -1,8 +1,8 @@
-import { OSMReader } from '.';
-import { MMapKV, MMapReader } from '../../mmap';
+import { OSMReader } from './index.js';
+import { MMapKV, MMapReader } from '../../mmap.js';
 
-import type { OsmReaderOptions } from '.';
-import type { FeatureIterator, OSMMetadata, OSMProperties, Properties } from '../..';
+import type { OsmReaderOptions } from './index.js';
+import type { FeatureIterator, OSMMetadata, OSMProperties, Properties } from '../../index.js';
 
 /**
  * # OSM MMap Reader

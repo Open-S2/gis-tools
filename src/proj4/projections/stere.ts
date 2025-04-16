@@ -1,9 +1,9 @@
-import { ProjectionBase } from '.';
-import { EPSLN, HALF_PI } from '../constants';
-import { adjustLon, msfnz, phi2z, sign, tsfnz } from '../common';
+import { ProjectionBase } from './index.js';
+import { EPSLN, HALF_PI } from '../constants/index.js';
+import { adjustLon, msfnz, phi2z, sign, tsfnz } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Stereographic

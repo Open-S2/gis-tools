@@ -1,4 +1,4 @@
-import { cleanString } from '.';
+import { cleanString } from './index.js';
 
 import type {
   FeatureIterator,
@@ -11,7 +11,7 @@ import type {
   VectorMultiPolygon,
   VectorPoint,
   VectorPointGeometry,
-} from '../..';
+} from '../../index.js';
 
 /** WKT Value can be a point or an array of points */
 export type WKTAValue = VectorPoint | WKTAValue[];

@@ -1,5 +1,5 @@
-import { parseCSVAsRecord } from '../../';
-import { parseGtfsDate } from '../utils';
+import { parseCSVAsRecord } from '../../index.js';
+import { parseGtfsDate } from '../utils.js';
 
 /**
  * Enumeration to represent day availability in the calendar.

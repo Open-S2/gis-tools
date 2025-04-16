@@ -1,4 +1,4 @@
-import { BufferReader } from '../..';
+import { BufferReader } from '../../index.js';
 import {
   ArithmeticDecoder,
   ArithmeticModel,
@@ -22,11 +22,11 @@ import {
   StreamingMedian5,
   number_return_level_8ctx,
   number_return_map_6ctx,
-} from '.';
-import { U64I64F64, i16Quantize, i8Clamp, u32ZeroBit0, u8Clamp, u8Fold } from '../util';
+} from './index.js';
+import { U64I64F64, i16Quantize, i8Clamp, u32ZeroBit0, u8Clamp, u8Fold } from '../util.js';
 
-import type { Reader } from '../..';
-import { ItemReader, LASrgba, LAZContext } from '.';
+import type { Reader } from '../../index.js';
+import { ItemReader, LASrgba, LAZContext } from './index.js';
 
 const LASZIP_GPSTIME_MULTI = 500;
 const LASZIP_GPSTIME_MULTI_MINUS = -10;

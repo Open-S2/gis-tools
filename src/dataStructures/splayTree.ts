@@ -1,4 +1,4 @@
-import type { PriorityCompare } from './priorityQueue';
+import type { PriorityCompare } from './priorityQueue.js';
 
 /** A basic node for a splay tree */
 export class SplayTreeNode<T> {

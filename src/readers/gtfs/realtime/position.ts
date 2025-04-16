@@ -1,4 +1,4 @@
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /** A Position is a point on the Earth's surface. */
 export class GTFSRealtimePosition {

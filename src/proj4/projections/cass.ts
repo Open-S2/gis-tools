@@ -1,9 +1,9 @@
-import { ProjectionBase } from './base';
-import { EPSLN, HALF_PI } from '../constants';
-import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../common';
+import { ProjectionBase } from './base.js';
+import { EPSLN, HALF_PI } from '../constants/index.js';
+import { adjustLat, adjustLon, e0fn, e1fn, e2fn, e3fn, gN, imlfn, mlfn } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Cassini (Cassini-Soldner) Projection

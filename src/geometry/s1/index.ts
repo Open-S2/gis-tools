@@ -1,2 +1,2 @@
-export * from './angle';
-export * from './chordAngle';
+export * from './angle.js';
+export * from './chordAngle.js';

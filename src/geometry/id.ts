@@ -11,11 +11,11 @@ import {
   getVNorm,
   lonLatToXYZ,
   xyzToLonLat,
-} from './s2/coords';
-import { pointFromUV, pointInvert, pointNormalize, pointToIJ } from './s2/point';
+} from './s2/coords.js';
+import { pointFromUV, pointInvert, pointNormalize, pointToIJ } from './s2/point.js';
 
-import type { LonLat } from './ll';
-import type { BBox, Face, MValue, Properties, VectorPoint } from '.';
+import type { LonLat } from './ll/index.js';
+import type { BBox, Face, MValue, Properties, VectorPoint } from './index.js';
 
 /**
  * An S2CellId is a 64-bit unsigned integer that uniquely identifies a

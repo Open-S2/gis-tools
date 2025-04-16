@@ -21,9 +21,14 @@ import {
   LAZwavepacket13v1Reader,
   LAZwavepacket14v3Reader,
   modifyPoint14RawInput,
-} from './laz';
-import { LAZCompressor, LAZHeaderItemType } from './types';
-import { Transformer, buildParamsFromGeoKeys, parseGeotiffRawGeoKeys, toReader } from '../..';
+} from './laz/index.js';
+import { LAZCompressor, LAZHeaderItemType } from './types.js';
+import {
+  Transformer,
+  buildParamsFromGeoKeys,
+  parseGeotiffRawGeoKeys,
+  toReader,
+} from '../../index.js';
 import {
   getPointFormat0,
   getPointFormat1,
@@ -36,7 +41,7 @@ import {
   getPointFormat7,
   getPointFormat8,
   getPointFormat9,
-} from './getPoint';
+} from './getPoint.js';
 
 import type {
   FeatureIterator,
@@ -48,8 +53,8 @@ import type {
   ReaderInputs,
   VectorFeature,
   VectorPointM,
-} from '../..';
-import type { ItemReader, LAZContext } from './laz';
+} from '../../index.js';
+import type { ItemReader, LAZContext } from './laz/index.js';
 import type {
   LASExtendedVariableLengthRecord,
   LASFormat,
@@ -57,10 +62,10 @@ import type {
   LASVariableLengthRecord,
   LAZHeader,
   LAZHeaderItem,
-} from './types';
+} from './types.js';
 
-export * from './getPoint';
-export * from './types';
+export * from './getPoint.js';
+export * from './types.js';
 
 const U32_MAX = 4294967295;
 

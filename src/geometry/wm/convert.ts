@@ -1,7 +1,7 @@
-import { clipLine } from '../tools/clip';
-import { radToDeg } from '../';
-import { extendBBox, fromPoint, mergeBBoxes } from '../bbox';
-import { pointFromLonLat as fromLonLat, pointToST as toST } from '../s2/point';
+import { clipLine } from '../tools/clip.js';
+import { radToDeg } from '../index.js';
+import { extendBBox, fromPoint, mergeBBoxes } from '../bbox.js';
+import { pointFromLonLat as fromLonLat, pointToST as toST } from '../s2/point.js';
 
 import type {
   BBOX,
@@ -26,7 +26,7 @@ import type {
   VectorPointGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '..';
+} from '../index.js';
 
 /**
  * Convet a GeoJSON Feature to an S2Feature

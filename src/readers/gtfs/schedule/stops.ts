@@ -1,6 +1,6 @@
-import { parseCSVAsRecord } from '../../';
+import { parseCSVAsRecord } from '../../index.js';
 
-import type { Properties } from '../../..';
+import type { Properties } from '../../../index.js';
 
 /**
  * Properties object from GTFS stops

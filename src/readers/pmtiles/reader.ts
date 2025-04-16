@@ -1,13 +1,13 @@
-import { Cache as DirCache } from '../../dataStructures/cache';
-import { Compression, compressionToFormat, decompressStream } from '../../util';
-import { FetchReader, toReader } from '..';
-import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles';
-import { bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles';
+import { Cache as DirCache } from '../../dataStructures/cache.js';
+import { Compression, compressionToFormat, decompressStream } from '../../util/index.js';
+import { FetchReader, toReader } from '../index.js';
+import { S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, s2BytesToHeader } from './s2pmtiles.js';
+import { bytesToHeader, deserializeDir, findTile, zxyToTileID } from './pmtiles.js';
 
-import type { Entry, Header } from './pmtiles';
+import type { Entry, Header } from './pmtiles.js';
 import type { Face, Metadata } from 's2-tilejson';
-import type { Reader, ReaderInputs } from '..';
-import type { S2Entries, S2Header } from './s2pmtiles';
+import type { Reader, ReaderInputs } from '../index.js';
+import type { S2Entries, S2Header } from './s2pmtiles.js';
 
 /** A description of where a tile can be found in the archive. Both offset and length are in bytes */
 export interface S2PMTilesTileEntry {

@@ -1,6 +1,6 @@
-import { U32I32F32 } from '../util';
+import { U32I32F32 } from '../util.js';
 
-import type { Reader } from '../..';
+import type { Reader } from '../../index.js';
 
 /* this header byte needs to change in case incompatible change happen */
 export const AC_HEADER_BYTE = 2;

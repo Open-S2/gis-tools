@@ -3,9 +3,9 @@ import {
   GTFSRealtimeTripDescriptor,
   GTFSRealtimeTripProperties,
   GTFSRealtimeVehicleDescriptor,
-} from '../../..';
+} from '../../../index.js';
 
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /**
  * Realtime update of the progress of a vehicle along a trip.

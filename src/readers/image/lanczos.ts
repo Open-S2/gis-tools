@@ -1,4 +1,4 @@
-import { copyImage, createImage, resizeImage } from '..';
+import { copyImage, createImage, resizeImage } from '../index.js';
 
 /**
  * # Lanczos Resampling

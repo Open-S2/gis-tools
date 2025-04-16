@@ -10,11 +10,11 @@ import {
   Transformer,
   US_FT_TO_M,
   US_MOD_FT_TO_M,
-} from '../../proj4';
+} from '../../proj4/index.js';
 
-import type { DatumParams } from '..';
-import type { GeoKeyDirectory, GridReader } from '.';
-import type { ProjectionParams, ProjectionTransformDefinition } from '../../proj4';
+import type { DatumParams } from '../index.js';
+import type { GeoKeyDirectory, GridReader } from './index.js';
+import type { ProjectionParams, ProjectionTransformDefinition } from '../../proj4/index.js';
 
 /**
  * Builds the projection transformer for a GeoTIFF image

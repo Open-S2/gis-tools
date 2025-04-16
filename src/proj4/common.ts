@@ -1,5 +1,5 @@
 /* eslint-disable no-loss-of-precision */
-import { EPSLN, HALF_PI, SPI, TWO_PI } from './constants';
+import { EPSLN, HALF_PI, SPI, TWO_PI } from './constants/index.js';
 
 /**
  * Returns the arc hyperbolic cosine of x.

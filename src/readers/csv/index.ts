@@ -1,7 +1,7 @@
-import { toReader } from '..';
+import { toReader } from '../index.js';
 
-import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { MValue, Properties, VectorFeature, VectorPoint } from '../../geometry';
+import type { FeatureIterator, Reader, ReaderInputs } from '../index.js';
+import type { MValue, Properties, VectorFeature, VectorPoint } from '../../geometry/index.js';
 
 /** User defined options on how to parse the CSV file */
 export interface CSVReaderOptions {

@@ -1,11 +1,11 @@
 // Heavily based on this etmerc projection implementation
 // https://github.com/mbloch/mapshaper-proj/blob/master/src/projections/etmerc.js
 
-import { TransverseMercator } from './tmerc';
-import { adjustLon, asinhy, clens, clensCmplx, gatg, hypot, sinh } from '../common';
+import { TransverseMercator } from './tmerc.js';
+import { adjustLon, asinhy, clens, clensCmplx, gatg, hypot, sinh } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Extended Transverse Mercator

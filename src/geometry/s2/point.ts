@@ -1,4 +1,4 @@
-import { EARTH_RADIUS_EQUATORIAL, EARTH_RADIUS_POLAR } from '../../space/planets/earth';
+import { EARTH_RADIUS_EQUATORIAL, EARTH_RADIUS_POLAR } from '../../space/planets/index.js';
 import {
   IJtoST,
   STtoIJ,
@@ -11,11 +11,11 @@ import {
   lonLatToXYZ,
   lonLatToXYZGL,
   xyzToLonLat,
-} from './coords';
-import { idFromS2Point, idToUV } from '../id';
+} from './coords.js';
+import { idFromS2Point, idToUV } from '../id.js';
 
-import type { S1Angle } from '../s1/angle';
-import type { Face, MValue, Properties, S2CellId, VectorPoint } from '../';
+import type { S1Angle } from '../s1/angle.js';
+import type { Face, MValue, Properties, S2CellId, VectorPoint } from '../index.js';
 
 /**
  * Convert a lon-lat coord to an XYZ Point using the left-hand-rule

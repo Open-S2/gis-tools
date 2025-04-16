@@ -1,11 +1,11 @@
-import './util/polyfills/local';
+import './util/polyfills/local.js';
 
-export * from './dataStore/externalSort/index';
-export * from './dataStore/file';
-export * from './dataStore/kv/file';
-export * from './dataStore/multimap/file';
-export * from './dataStore/vector/file';
-export * from './readers/shapefile/file';
-export * from './readers/file';
-export * from './writers/file';
-export * from './writers/tile';
+export * from './dataStore/externalSort/index.js';
+export * from './dataStore/file.js';
+export * from './dataStore/kv/file.js';
+export * from './dataStore/multimap/file.js';
+export * from './dataStore/vector/file.js';
+export * from './readers/shapefile/file.js';
+export * from './readers/file.js';
+export * from './writers/file.js';
+export * from './writers/tile.js';

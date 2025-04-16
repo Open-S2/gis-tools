@@ -1,12 +1,12 @@
-import { toReader } from '.';
+import { toReader } from './index.js';
 
-import type { FeatureIterator, Reader, ReaderInputs } from '.';
+import type { FeatureIterator, Reader, ReaderInputs } from './index.js';
 import type {
   VectorFeature,
   VectorFeatureCollection,
   VectorMultiPoint,
   VectorPoint,
-} from '../geometry';
+} from '../geometry/index.js';
 
 /** Seconds to degrees (S / 3_600) */
 const SEC2DEG = 0.00000484813681109536;

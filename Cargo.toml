@@ -52,10 +52,10 @@ std = ["memmap2", "flate2", "brotli", "ruzstd", "image"]
 [dependencies]
 pbf = "1.21"
 s2json = "1.34"
-s2-tilejson = "1.7"
-open-vector-tile = "1.7"
+s2-tilejson = "1.8"
+open-vector-tile = "1.8"
 libm = "0.2"
-earclip = "1.4"
+earclip = "1.5"
 regex = { version = "1", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }

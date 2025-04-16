@@ -1,3 +1,3 @@
-export * from './compression';
-export * from './image';
-export * from './navigator';
+export * from './compression.js';
+export * from './image.js';
+export * from './navigator.js';

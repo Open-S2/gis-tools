@@ -1,4 +1,4 @@
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
 /** End Section Return Type */
 export type Grib2EndSection = ReturnType<typeof parseGrib2Section8>;

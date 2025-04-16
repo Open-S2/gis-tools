@@ -1,4 +1,4 @@
-import type { VarintBufPos } from '../../readers/pmtiles';
+import type { VarintBufPos } from '../../readers/pmtiles/index.js';
 
 /**
  * Write a varint. Can be max 64-bits. Numbers are coerced to an unsigned

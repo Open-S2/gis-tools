@@ -1,5 +1,5 @@
-import { toWM } from '../s2';
-import { toS2, toUnitScale, toVector } from '../wm';
+import { toWM } from '../s2/index.js';
+import { toS2, toUnitScale, toVector } from '../wm/index.js';
 
 import type {
   Feature,
@@ -11,7 +11,7 @@ import type {
   VectorFeature,
   VectorFeatures,
   VectorGeometry,
-} from '..';
+} from '../index.js';
 
 /**
  * Convert a GeoJSON Feature to a GeoJSON Vector Feature in either a WebMercator or S2 projection

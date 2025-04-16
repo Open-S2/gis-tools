@@ -1,4 +1,4 @@
-import { deg2rad, twoPi } from './constants';
+import { deg2rad, twoPi } from './constants.js';
 
 /** Time object to track month-day-hour-minute-second */
 export interface TimeStamp {

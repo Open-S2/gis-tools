@@ -1,4 +1,4 @@
-import { parseCSVAsRecord } from '../../';
+import { parseCSVAsRecord } from '../../index.js';
 
 /**
  * Indicates the direction of travel for a trip. This field should not be used in routing; it provides a way to separate trips by direction when publishing time tables. Valid options are:

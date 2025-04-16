@@ -1,10 +1,7 @@
-import { Info, InfoBlock } from './info';
-import { fromMultiLineString, fromMultiPolygon } from '../../geometry';
+import { Info, InfoBlock } from './info.js';
+import { fromMultiLineString, fromMultiPolygon } from '../../geometry/index.js';
 
 import type { PbfReader } from 'pbf-ts';
-import type { OSMMetadata, PrimitiveBlock } from './primitive';
-import type { OSMProperties, OSMReader } from '.';
-
 import type {
   BBOX,
   Properties,
@@ -15,7 +12,9 @@ import type {
   VectorMultiPolygon,
   VectorPoint,
   VectorPolygon,
-} from '../../geometry';
+} from '../../geometry/index.js';
+import type { OSMMetadata, PrimitiveBlock } from './primitive.js';
+import type { OSMProperties, OSMReader } from './index.js';
 
 /** An intermediate vector feature where the ways and nodes haven't been resolved yet. */
 export interface IntermediateRelation {

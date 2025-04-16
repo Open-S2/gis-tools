@@ -1,4 +1,4 @@
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /**
  * An internationalized message containing per-language versions of a snippet of

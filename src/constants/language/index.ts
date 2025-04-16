@@ -1,1 +1,1 @@
-export * from './iso';
+export * from './iso.js';

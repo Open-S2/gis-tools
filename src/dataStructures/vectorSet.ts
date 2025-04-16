@@ -1,4 +1,4 @@
-import type { PriorityCompare } from './priorityQueue';
+import type { PriorityCompare } from './priorityQueue.js';
 
 /**
  * # Splay Tree Set

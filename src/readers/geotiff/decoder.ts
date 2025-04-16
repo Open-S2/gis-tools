@@ -1,5 +1,5 @@
-import { decompressStream, lzwDecoder } from '../../util';
-import { imageDecoderBuffer, jpegDecoder } from '../image';
+import { decompressStream, lzwDecoder } from '../../util/index.js';
+import { imageDecoderBuffer, jpegDecoder } from '../image/index.js';
 
 /** What to expect from the decoder */
 export type Decoder =

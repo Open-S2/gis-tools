@@ -1,6 +1,6 @@
-import { BufferReader } from '../../..';
+import { BufferReader } from '../../../index.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
 /** The output of `parseGrib2Section2` */
 export type Grib2LocalUseSection = ReturnType<typeof parseGrib2Section2>;

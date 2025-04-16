@@ -27,11 +27,11 @@
  * Modified for proj4js by Andreas Hocevar by Andreas Hocevar March 2024
  */
 
-import { ProjectionBase } from '.';
-import { adjustLon } from '../common';
+import { ProjectionBase } from './index.js';
+import { adjustLon } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Equal Earth

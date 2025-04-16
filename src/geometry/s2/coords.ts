@@ -1,7 +1,7 @@
-import { degToRad, radToDeg } from '../util';
+import { degToRad, radToDeg } from '../util.js';
 
-import type { LonLat } from '../ll';
-import type { BBox, Face, MValue, Point, Properties, VectorPoint } from '../';
+import type { LonLat } from '../ll/index.js';
+import type { BBox, Face, MValue, Point, Properties, VectorPoint } from '../index.js';
 
 export const K_LIMIT_IJ = 1073741824; // 1 << 30;
 

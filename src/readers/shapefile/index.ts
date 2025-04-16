@@ -1,13 +1,13 @@
-import { BufferReader } from '..';
-import { DataBaseFile } from './dbf';
-import { ShapeFileReader } from './shp';
-import { Transformer } from '../../proj4';
-import { iterZipFolder } from '../../util';
+import { BufferReader } from '../index.js';
+import { DataBaseFile } from './dbf.js';
+import { ShapeFileReader } from './shp.js';
+import { Transformer } from '../../proj4/index.js';
+import { iterZipFolder } from '../../util/index.js';
 
-import type { ProjectionTransformDefinition } from '../../proj4';
+import type { ProjectionTransformDefinition } from '../../proj4/index.js';
 
-export * from './dbf';
-export * from './shp';
+export * from './dbf.js';
+export * from './shp.js';
 
 /**
  * # Read a Shapefile from a Gzip folder.

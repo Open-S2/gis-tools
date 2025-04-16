@@ -1,4 +1,4 @@
-import { toVector } from '../../..';
+import { toVector } from '../../../index.js';
 import {
   GBFSFreeBikeStatusV2,
   GBFSGeofencingZonesV2,
@@ -14,7 +14,7 @@ import {
   GBFSV2,
   GBFSVehicleTypesV2,
   GBFSVersionsV2,
-} from '.';
+} from './index.js';
 
 import type {
   FeatureIterator,
@@ -22,21 +22,21 @@ import type {
   VectorFeature,
   VectorMultiPolygonGeometry,
   VectorPointGeometry,
-} from '../../..';
+} from '../../../index.js';
 
-export * from './freeBikeStatus';
-export * from './gbfs';
-export * from './gbfsVersions';
-export * from './geofencingZones';
-export * from './stationInformation';
-export * from './stationStatus';
-export * from './systemAlerts';
-export * from './systemCalendar';
-export * from './systemHours';
-export * from './systemInformation';
-export * from './systemPricingPlans';
-export * from './systemRegions';
-export * from './vehicleTypes';
+export * from './freeBikeStatus.js';
+export * from './gbfs.js';
+export * from './gbfsVersions.js';
+export * from './geofencingZones.js';
+export * from './stationInformation.js';
+export * from './stationStatus.js';
+export * from './systemAlerts.js';
+export * from './systemCalendar.js';
+export * from './systemHours.js';
+export * from './systemInformation.js';
+export * from './systemPricingPlans.js';
+export * from './systemRegions.js';
+export * from './vehicleTypes.js';
 
 /** Geofencing Feature */
 export type GBFSGeofencingFeatureV2 = VectorFeature<

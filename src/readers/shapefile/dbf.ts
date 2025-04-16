@@ -1,7 +1,7 @@
-import { toReader } from '..';
+import { toReader } from '../index.js';
 
-import type { Properties } from '../../geometry';
-import type { Reader, ReaderInputs } from '..';
+import type { Properties } from '../../geometry/index.js';
+import type { Reader, ReaderInputs } from '../index.js';
 
 /** The Header data explaining the contents of the DBF file */
 export interface DBFHeader {

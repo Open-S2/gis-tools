@@ -1,24 +1,24 @@
-import type { MValue, Properties, VectorFeatures, VectorGeometry } from '../geometry';
+import type { MValue, Properties, VectorFeatures, VectorGeometry } from '../geometry/index.js';
 
-export * from './csv';
-export * from './gbfs';
-export * from './geotiff';
-export * from './gpx';
-export * from './grib2';
-export * from './gtfs';
-export * from './image';
-export * from './json';
-export * from './las';
-export * from './netcdf';
-export * from './osm';
-export * from './pmtiles';
+export * from './csv/index.js';
+export * from './gbfs/index.js';
+export * from './geotiff/index.js';
+export * from './gpx/index.js';
+export * from './grib2/index.js';
+export * from './gtfs/index.js';
+export * from './image/index.js';
+export * from './json/index.js';
+export * from './las/index.js';
+export * from './netcdf/index.js';
+export * from './osm/index.js';
+export * from './pmtiles/index.js';
 export * from 'pbf-ts';
-export * from './shapefile';
-export * from './wkt';
-export * from './xml';
-export * from './fetch';
-export * from './nadgrid';
-export * from './tile';
+export * from './shapefile/index.js';
+export * from './wkt/index.js';
+export * from './xml/index.js';
+export * from './fetch.js';
+export * from './nadgrid.js';
+export * from './tile/index.js';
 
 /** Reader interface. Implemented to read data from either a buffer or a filesystem */
 export interface Reader {

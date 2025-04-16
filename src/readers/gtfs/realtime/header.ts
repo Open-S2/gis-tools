@@ -1,4 +1,4 @@
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /**
  * Determines whether the current fetch is incremental. Currently,

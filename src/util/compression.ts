@@ -1,6 +1,6 @@
-import { concatUint8Arrays } from '.';
+import { concatUint8Arrays } from './index.js';
 
-import type { Format } from '..';
+import type { Format } from '../index.js';
 
 /**
  * A Browser compatible Gzip compression function

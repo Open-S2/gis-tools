@@ -1,14 +1,14 @@
-import { encodingToCompression } from '../..';
-import { xyzToBBOX } from '../../geometry/wm/coords';
+import { encodingToCompression } from '../../index.js';
+import { xyzToBBOX } from '../../geometry/wm/coords.js';
 import { DrawType, MetadataBuilder } from 's2-tilejson';
-import TileWorker, { getMaxzoom, getMinzoom } from './worker/tileWorker';
+import TileWorker, { getMaxzoom, getMinzoom } from './worker/tileWorker.js';
 
-import type { BuildGuide, LayerGuide, StringifiedLayerGuide } from './types';
+import type { BuildGuide, LayerGuide, StringifiedLayerGuide } from './types.js';
 import type { Extensions, LayerMetaData, SourceType } from 's2-tilejson';
-import type { FeatureIterator, VectorFeatures } from '../..';
-import type { FeatureMessage, InitMessage } from './worker/tileWorker';
+import type { FeatureIterator, VectorFeatures } from '../../index.js';
+import type { FeatureMessage, InitMessage } from './worker/tileWorker.js';
 
-export * from './types';
+export * from './types.js';
 
 /**
  * Build vector tiles give a guide on what sources to parse data from and how to store it

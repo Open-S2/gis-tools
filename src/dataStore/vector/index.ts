@@ -1,6 +1,6 @@
-import { compareIDs } from '../..';
+import { compareIDs } from '../../index.js';
 
-import type { S2CellId } from '../..';
+import type { S2CellId } from '../../index.js';
 
 // TODO: has isn't correct because it doesn't search
 // TODO: switch to get and getIndex

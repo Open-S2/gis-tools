@@ -1,4 +1,4 @@
-import type { Properties, VectorPoint } from '..';
+import type { Properties, VectorPoint } from '../index.js';
 
 /** A Country with its names, alpha2 and alpha3 codes */
 export interface Country extends Properties {

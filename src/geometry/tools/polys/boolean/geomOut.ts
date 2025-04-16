@@ -1,9 +1,9 @@
-import { compareSweepEvents } from './sweepEvent';
+import { compareSweepEvents } from './sweepEvent.js';
 
-import type { Operation } from './operation';
-import type { Segment } from './segment';
-import type { SweepEvent } from './sweepEvent';
-import type { LineString, MultiPolygon, Polygon } from '../../..';
+import type { Operation } from './operation.js';
+import type { Segment } from './segment.js';
+import type { SweepEvent } from './sweepEvent.js';
+import type { LineString, MultiPolygon, Polygon } from '../../../index.js';
 
 /** Represents a polygon ring via an array of segments. */
 export class RingOut {

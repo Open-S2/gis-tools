@@ -1,6 +1,6 @@
-import { TIMEZONE_IDENTIFIER_LIST } from '../../..';
+import { TIMEZONE_IDENTIFIER_LIST } from '../../../index.js';
 
-import type { TimeZone } from '../../..';
+import type { TimeZone } from '../../../index.js';
 
 /**
  * # GBFS System Information Schema V2.3, V2.2, V2.1, OR V2.0

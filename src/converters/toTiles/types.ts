@@ -16,7 +16,7 @@ import type {
   TileWriter,
   VectorFeatures,
   VectorPoint,
-} from '../..';
+} from '../../index.js';
 
 /**
  * Before tiling the data, you can mutate it here. It can also act as a filter if you return undefined

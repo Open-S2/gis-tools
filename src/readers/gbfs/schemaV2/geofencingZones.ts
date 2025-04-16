@@ -1,4 +1,4 @@
-import type { FeatureCollection, MValue, Properties, ValueArrayObject } from '../../..';
+import type { FeatureCollection, MValue, Properties, ValueArrayObject } from '../../../index.js';
 
 /**
  * # GBFS Geofencing Zones Schema V2.3, V2.2, V2.1, OR V2.0

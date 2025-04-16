@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 
 import type { Metadata } from 's2-tilejson';
-import type { TemporalTileWriter } from '.';
+import type { TemporalTileWriter } from './index.js';
 
 /**
  * # Tile File Writer

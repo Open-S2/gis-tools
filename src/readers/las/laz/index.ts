@@ -1,13 +1,13 @@
-import type { Reader } from '../..';
+import type { Reader } from '../../index.js';
 
-export * from './arithmeticDecoder';
-export * from './constants';
-export * from './integerCompressor';
-export * from './items';
-export * from './v1';
-export * from './v2';
-export * from './v3';
-// export * from './v4';
+export * from './arithmeticDecoder.js';
+export * from './constants.js';
+export * from './integerCompressor.js';
+export * from './items.js';
+export * from './v1.js';
+export * from './v2.js';
+export * from './v3.js';
+// export * from './v4.js';
 
 /** A context of decompression */
 export interface LAZContext {

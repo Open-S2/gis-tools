@@ -1,9 +1,9 @@
-import { pointDistance as distance } from '../../geometry/s2/point';
-import { averageInterpolation, defaultGetInterpolateCurrentValue } from '.';
-import { lRGBToGamma, sRGBToLinear } from '../..';
+import { pointDistance as distance } from '../../geometry/s2/point.js';
+import { averageInterpolation, defaultGetInterpolateCurrentValue } from './index.js';
+import { lRGBToGamma, sRGBToLinear } from '../../index.js';
 
-import type { GetInterpolateValue } from '.';
-import type { MValue, Properties, RGBA, VectorPoint } from '../..';
+import type { GetInterpolateValue } from './index.js';
+import type { MValue, Properties, RGBA, VectorPoint } from '../../index.js';
 
 /**
  * # Lanczos Interpolation

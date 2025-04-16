@@ -1,10 +1,10 @@
 import { promisify } from 'util';
 import { closeSync, openSync, read, readSync, statSync } from 'fs';
 
-import type { Reader } from '.';
+import type { Reader } from './index.js';
 
-export * from './tile/file';
-export * from './osm/file';
+export * from './tile/file.js';
+export * from './osm/file.js';
 
 const readAsync = promisify(read);
 

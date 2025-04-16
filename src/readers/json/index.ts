@@ -1,8 +1,14 @@
-import { toReader } from '..';
-import { toVector } from '../..';
+import { toReader } from '../index.js';
+import { toVector } from '../../index.js';
 
-import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Features, JSONCollection, MValue, Properties, VectorFeatures } from '../../geometry';
+import type { FeatureIterator, Reader, ReaderInputs } from '../index.js';
+import type {
+  Features,
+  JSONCollection,
+  MValue,
+  Properties,
+  VectorFeatures,
+} from '../../geometry/index.js';
 
 /**
  * # JSON Buffer Reader

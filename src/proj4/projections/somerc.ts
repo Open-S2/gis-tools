@@ -1,7 +1,7 @@
-import { ProjectionBase } from '.';
+import { ProjectionBase } from './index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Swiss Oblique Mercator

@@ -1,8 +1,8 @@
-import { compareIDs } from '../..';
+import { compareIDs } from '../../index.js';
 import { open } from 'fs/promises';
 
-import type { S2CellId } from '../..';
-import type { SortChunk } from '.';
+import type { S2CellId } from '../../index.js';
+import type { SortChunk } from './index.js';
 
 /**
  * @param chunk - chunk information needed to start sorting

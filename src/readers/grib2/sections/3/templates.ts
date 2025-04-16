@@ -4,11 +4,11 @@ import {
   grib2LookupTable33,
   grib2LookupTable34,
   grib2LookupTable35,
-} from './tables';
+} from './tables.js';
 
-import type { Reader } from '../../..';
-import type { Transformer } from '../../../../proj4';
-import type { VectorPoint } from '../../../../geometry';
+import type { Reader } from '../../../index.js';
+import type { Transformer } from '../../../../proj4/index.js';
+import type { VectorPoint } from '../../../../geometry/index.js';
 
 /**
  * Returns a template generator for the given template number

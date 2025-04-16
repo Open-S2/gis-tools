@@ -1,5 +1,5 @@
-import type { LASFormat0_5, LASFormat6_10, LASHeader } from './types';
-import type { Reader, VectorPointM } from '../..';
+import type { LASFormat0_5, LASFormat6_10, LASHeader } from './types.js';
+import type { Reader, VectorPointM } from '../../index.js';
 
 /**
  * Reads a point using the Point Data Record Format 0

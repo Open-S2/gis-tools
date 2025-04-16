@@ -1,7 +1,7 @@
-import { S2MMapStore } from '../mmap';
+import { S2MMapStore } from '../mmap.js';
 
-import type { S2CellId } from '../..';
-import type { VectorKey, VectorStore } from '.';
+import type { S2CellId } from '../../index.js';
+import type { VectorKey, VectorStore } from './index.js';
 
 /**
  * # Vector MMap Store

@@ -1,8 +1,8 @@
-import { degToRad } from '../../geometry';
-import { parseWKTObject } from '.';
+import { degToRad } from '../../geometry/index.js';
+import { parseWKTObject } from './index.js';
 
-import type { ProjectionParams } from '../../proj4';
-import type { WKTObject, WKTValue } from '.';
+import type { ProjectionParams } from '../../proj4/index.js';
+import type { WKTObject, WKTValue } from './index.js';
 
 /** Authority - EPSG code. */
 export interface Authority {

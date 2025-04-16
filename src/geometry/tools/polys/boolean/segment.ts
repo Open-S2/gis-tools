@@ -1,11 +1,11 @@
-import { BoolVec, vectorIntersection } from './vector';
-import { SweepEvent, comparePoints } from './sweepEvent';
-import { bboxOverlap, pointOverlap } from '../../..';
+import { BoolVec, vectorIntersection } from './vector.js';
+import { SweepEvent, comparePoints } from './sweepEvent.js';
+import { bboxOverlap, pointOverlap } from '../../../index.js';
 
-import type { Operation } from './operation';
-import type { RingOut } from './geomOut';
-import type { BBOX, VectorPoint } from '../../..';
-import type { MultiPolyIn, RingIn } from './geomIn';
+import type { Operation } from './operation.js';
+import type { RingOut } from './geomOut.js';
+import type { BBOX, VectorPoint } from '../../../index.js';
+import type { MultiPolyIn, RingIn } from './geomIn.js';
 
 /** A segment state */
 export interface State {

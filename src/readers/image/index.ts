@@ -1,10 +1,10 @@
-import type { ValueArrayObject } from '../..';
+import type { ValueArrayObject } from '../../index.js';
 
-export * from './decoder';
-export * from './jpeg';
-export * from './jpeg2000';
-export * from './lanczos';
-export * from './util';
+export * from './decoder.js';
+export * from './jpeg.js';
+export * from './jpeg2000.js';
+export * from './lanczos.js';
+export * from './util.js';
 
 /** An RGBA color */
 export interface RGBA extends ValueArrayObject {

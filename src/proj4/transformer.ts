@@ -1,14 +1,14 @@
-import { NadGridStore } from '../readers/nadgrid';
-import { parseProj } from './parseCode';
-import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, EPSG_CODES, WGS84 } from './projections';
-import { checkNotWGS, datumTransform } from './datum';
+import { NadGridStore } from '../readers/nadgrid.js';
+import { parseProj } from './parseCode.js';
+import { ALL_DEFINITIONS, DEFAULT_DEFINITIONS, EPSG_CODES, WGS84 } from './projections/index.js';
+import { checkNotWGS, datumTransform } from './datum.js';
 
-import type { GridReader, MValue, VectorPoint, VectorPointM } from '..';
+import type { GridReader, MValue, VectorPoint, VectorPointM } from '../index.js';
 import type {
   ProjectionParams,
   ProjectionTransform,
   ProjectionTransformDefinition,
-} from './projections';
+} from './projections/index.js';
 
 /**
  * # PROJ4 Transformer

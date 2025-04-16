@@ -1,16 +1,16 @@
-import { GTFSRealtimeEntity } from './entity';
-import { GTFSRealtimeHeader } from './header';
+import { GTFSRealtimeEntity } from './entity.js';
+import { GTFSRealtimeHeader } from './header.js';
 import { PbfReader } from 'pbf-ts';
 
-export * from './stop';
-export * from './trip';
-export * from './alert';
-export * from './entity';
-export * from './header';
-export * from './position';
-export * from './shape';
-export * from './util';
-export * from './vehiclePosition';
+export * from './stop/index.js';
+export * from './trip/index.js';
+export * from './alert.js';
+export * from './entity.js';
+export * from './header.js';
+export * from './position.js';
+export * from './shape.js';
+export * from './util.js';
+export * from './vehiclePosition.js';
 
 /**
  * # GTFS Realtime message.

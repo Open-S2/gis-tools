@@ -1,6 +1,6 @@
-import { GTFSRealtimeEntitySelector, GTFSRealtimeTranslatedString } from '.';
+import { GTFSRealtimeEntitySelector, GTFSRealtimeTranslatedString } from './index.js';
 
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /** Severity of this alert. */
 export const enum GTFSRealtimeSeverityLevel {

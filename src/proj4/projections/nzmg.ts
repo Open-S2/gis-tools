@@ -1,8 +1,8 @@
-import { ProjectionBase } from '.';
-import { SEC_TO_RAD } from '../constants';
+import { ProjectionBase } from './index.js';
+import { SEC_TO_RAD } from '../constants/index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # New Zealand Map Grid (EPSG:27200)

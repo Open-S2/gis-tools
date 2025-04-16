@@ -1,4 +1,4 @@
-import type { Reader } from '.';
+import type { Reader } from './index.js';
 
 /**
  * # Fetch Reader

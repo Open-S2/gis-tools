@@ -1,8 +1,8 @@
-export * from './geometry';
-export * from './object';
-export * from './projection';
+export * from './geometry.js';
+export * from './object.js';
+export * from './projection.js';
 
-export type * from './projection';
+export type * from './projection.js';
 
 /**
  * Clean a string to remove whitespace, single and double quotes, and replace multiple spaces with a single space

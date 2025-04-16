@@ -1,6 +1,6 @@
-import { parseGtfsDate } from '../../utils';
+import { parseGtfsDate } from '../../utils.js';
 
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /**
  * The relation between this trip and the static schedule. If a trip is done

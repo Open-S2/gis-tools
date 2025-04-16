@@ -1,13 +1,13 @@
-import { splitSectionChunks } from './sections';
-import { BufferReader, toReader } from '..';
+import { splitSectionChunks } from './sections/index.js';
+import { BufferReader, toReader } from '../index.js';
 
-import type { FeatureIterator, Reader, ReaderInputs } from '..';
-import type { Grib2ProductDefinition, Grib2Sections } from './sections';
-import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
+import type { FeatureIterator, Reader, ReaderInputs } from '../index.js';
+import type { Grib2ProductDefinition, Grib2Sections } from './sections/index.js';
+import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry/index.js';
 
-export * from './sections';
+export * from './sections/index.js';
 
-export type { Grib2ProductDefinition, getGrib2Template4 } from './sections';
+export type { Grib2ProductDefinition, getGrib2Template4 } from './sections/index.js';
 
 /** GFS sources available for download */
 export type Grib2GFSSource = 'aws' | 'ftpprd' | 'nomads' | 'google' | 'azure' | string;

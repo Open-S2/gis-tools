@@ -1,7 +1,7 @@
-import type { Compression } from '..';
+import type { Compression } from '../index.js';
 import type { Face, Metadata } from 's2-tilejson';
 
-export * from './pmtiles';
+export * from './pmtiles/index.js';
 
 /** The defacto interface for all writers. */
 export interface Writer {

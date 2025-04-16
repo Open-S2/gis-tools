@@ -1,2 +1,2 @@
-export * from './toJSON';
-export * from './toTiles';
+export * from './toJSON/index.js';
+export * from './toTiles/index.js';

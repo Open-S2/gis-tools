@@ -1,5 +1,5 @@
-import { K_AVG_ANGLE_SPAN, convert, idLevel, idRange } from '../geometry';
-import { PointIndex, PointShape, Tile } from '..';
+import { K_AVG_ANGLE_SPAN, convert, idLevel, idRange } from '../geometry/index.js';
+import { PointIndex, PointShape, Tile } from '../index.js';
 import {
   pointAddMut as addMut,
   pointDivMutScalar as divMutScalar,
@@ -7,10 +7,10 @@ import {
   pointMulScalar as mulScalar,
   pointNormalize as normalize,
   pointToST as toST,
-} from '../geometry/s2/point';
+} from '../geometry/s2/point.js';
 
-import type { FeatureIterator } from '..';
-import type { S1ChordAngle } from '../geometry/s1/chordAngle';
+import type { FeatureIterator } from '../index.js';
+import type { S1ChordAngle } from '../geometry/s1/chordAngle.js';
 import type {
   Face,
   JSONCollection,
@@ -20,9 +20,9 @@ import type {
   S2CellId,
   VectorPoint,
   VectorPointM,
-} from '../geometry';
+} from '../geometry/index.js';
 
-import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector';
+import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector/index.js';
 
 /** The kind of input required to store a point for proper indexing */
 export type ClusterStore<M extends MValue = Properties> = VectorStoreConstructor<

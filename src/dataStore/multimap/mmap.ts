@@ -1,10 +1,10 @@
-import { S2MMapStore } from '../mmap';
-import { compareIDs } from '../..';
+import { S2MMapStore } from '../mmap.js';
+import { compareIDs } from '../../index.js';
 
-import type { MMapEntry } from '../mmap';
-import type { S2CellId } from '../..';
-import type { MMEntry, MultiMapStore } from '.';
-import type { Properties, Value } from '../..';
+import type { MMapEntry } from '../mmap.js';
+import type { S2CellId } from '../../index.js';
+import type { MMEntry, MultiMapStore } from './index.js';
+import type { Properties, Value } from '../../index.js';
 
 /**
  * # MultiMap MMap Store

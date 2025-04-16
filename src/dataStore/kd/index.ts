@@ -1,4 +1,4 @@
-import type { Properties, VectorPoint } from '../..';
+import type { Properties, VectorPoint } from '../../index.js';
 
 // TODO: range, within (range needs to be min, max)
 

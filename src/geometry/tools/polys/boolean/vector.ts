@@ -1,7 +1,7 @@
-import { pointDot, pointLength } from '../../..';
+import { pointDot, pointLength } from '../../../index.js';
 
-import type { SweepEvent } from './sweepEvent';
-import type { VectorPoint } from '../../..';
+import type { SweepEvent } from './sweepEvent.js';
+import type { VectorPoint } from '../../../index.js';
 
 /** A boolean vector type used by the boolean operations */
 // @ts-expect-error - ignore for now

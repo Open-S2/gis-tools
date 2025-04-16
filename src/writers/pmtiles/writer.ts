@@ -1,11 +1,16 @@
-import { s2HeaderToBytes } from './s2pmtiles';
-import { Compression, compressStream, concatUint8Arrays } from '../../util';
-import { ROOT_SIZE, S2_HEADER_SIZE_BYTES, S2_ROOT_SIZE, zxyToTileID } from '../../readers/pmtiles';
-import { headerToBytes, serializeDir } from './pmtiles';
+import { s2HeaderToBytes } from './s2pmtiles.js';
+import { Compression, compressStream, concatUint8Arrays } from '../../util/index.js';
+import {
+  ROOT_SIZE,
+  S2_HEADER_SIZE_BYTES,
+  S2_ROOT_SIZE,
+  zxyToTileID,
+} from '../../readers/pmtiles/index.js';
+import { headerToBytes, serializeDir } from './pmtiles.js';
 
-import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles';
+import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles/index.js';
 import type { Face, Metadata } from 's2-tilejson';
-import type { TileWriter, Writer } from '..';
+import type { TileWriter, Writer } from '../index.js';
 
 /**
  * # S2 PMTiles Writer

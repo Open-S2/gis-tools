@@ -2,7 +2,7 @@ import { createWriteStream } from 'fs';
 import { open } from 'fs/promises';
 
 import type { Writable } from 'stream'; // Needed for type annotation if desired
-import type { Writer } from '.';
+import type { Writer } from './index.js';
 
 /** The File writer is to be used by bun/node/deno on the local filesystem. */
 export class FileWriter implements Writer {

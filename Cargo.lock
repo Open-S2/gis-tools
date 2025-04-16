@@ -387,9 +387,9 @@ dependencies = [
 
 [[package]]
 name = "earclip"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e5f66041fa32bcd43f071e3b3e77693f7ef5fbc5b1b0eefc433e74f606e8b08"
+checksum = "802dd82dfece41a0d12f6989b0770a34de09012a0418ceff484769f3a094f8a4"
 dependencies = [
  "libm",
  "s2json",
@@ -849,9 +849,9 @@ checksum = "b410bbe7e14ab526a0e86877eb47c6996a2bd7746f027ba551028c925390e4e9"
 
 [[package]]
 name = "open-vector-tile"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef7bf99b63ed1e562222654be86dba78e6164ac379718d0620c8cb1b783a01b7"
+checksum = "de15a328d8639fe0226e5e875111489c40e3ca9d641d46ec3c730d36767c2a8a"
 dependencies = [
  "libm",
  "pbf",
@@ -1184,9 +1184,9 @@ checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
 name = "s2-tilejson"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27be3c774160635c921a63085c431de5d4e231f693fb5f638634dbb8a5bf7615"
+checksum = "4f5e690433142b637a8daef96fbfbd5cf857b19ba0acdbb151a8af3ca66bd0e8"
 dependencies = [
  "s2json",
  "serde",

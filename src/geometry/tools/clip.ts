@@ -1,6 +1,6 @@
-import { Tile } from '../../dataStructures';
-import { idChildrenIJ } from '../id';
-import { clipBBox, extendBBox } from '../bbox';
+import { Tile } from '../../dataStructures/index.js';
+import { idChildrenIJ } from '../id.js';
+import { clipBBox, extendBBox } from '../bbox.js';
 
 import type {
   BBOX,
@@ -20,7 +20,7 @@ import type {
   VectorPointGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '..';
+} from '../index.js';
 
 /** The child of a tile */
 export interface TileChild<

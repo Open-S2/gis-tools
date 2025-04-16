@@ -1,8 +1,8 @@
 /* eslint-disable no-loss-of-precision */
-import { gstime } from '../util/time';
-import { j2, twoPi, x2o3, xke } from '../util/constants';
+import { gstime } from '../util/time.js';
+import { j2, twoPi, x2o3, xke } from '../util/constants.js';
 
-import type { Method, OperationMode } from '../sat';
+import type { Method, OperationMode } from '../sat.js';
 
 /** Options for Initl */
 export interface InitlOptions {

@@ -1,4 +1,4 @@
-import { buildDatum } from './datum';
+import { buildDatum } from './datum.js';
 import {
   D2R,
   FT_TO_M,
@@ -6,12 +6,12 @@ import {
   US_FT_TO_M,
   deriveEccentricity,
   deriveSphere,
-} from './constants';
-import { isWKTProjection, parseWKTProjection } from '../readers/wkt';
+} from './constants/index.js';
+import { isWKTProjection, parseWKTProjection } from '../readers/wkt/index.js';
 
-import type { DatumParams } from '../readers/wkt';
-import type { ProjectionParams } from './projections';
-import type { Transformer } from './transformer';
+import type { DatumParams } from '../readers/wkt/index.js';
+import type { ProjectionParams } from './projections/index.js';
+import type { Transformer } from './transformer.js';
 
 /**
  * Parse a proj4 string or object into a projection object

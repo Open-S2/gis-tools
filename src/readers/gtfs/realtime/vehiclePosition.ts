@@ -1,6 +1,6 @@
-import { GTFSRealtimePosition, GTFSRealtimeTripDescriptor } from './..';
+import { GTFSRealtimePosition, GTFSRealtimeTripDescriptor } from './../index.js';
 
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /** Status of the vehicle relative to the stop */
 export const enum VehicleStopStatus {

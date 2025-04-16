@@ -1,8 +1,8 @@
-import { ProjectionBase } from '.';
-import { EPSLN, HALF_PI, QUART_PI, SPI, TWO_PI } from '../constants';
+import { ProjectionBase } from './index.js';
+import { EPSLN, HALF_PI, QUART_PI, SPI, TWO_PI } from '../constants/index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /** Face enum */
 enum FACE_ENUM {

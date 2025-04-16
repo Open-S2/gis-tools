@@ -1,8 +1,8 @@
-import { GaussKruger } from './gauss';
-import { adjustLon, hypot } from '../common';
+import { GaussKruger } from './gauss.js';
+import { adjustLon, hypot } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Oblique Stereographic Alternative

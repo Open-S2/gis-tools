@@ -4,8 +4,8 @@ import { mmap } from 'bun';
 import { tmpdir } from 'os';
 import { closeSync, fstatSync, openSync, unlinkSync, writeSync } from 'fs';
 
-import type { KDStore } from '.';
-import type { Properties, VectorPoint } from '../..';
+import type { KDStore } from './index.js';
+import type { Properties, VectorPoint } from '../../index.js';
 
 /** Options to create a S2FileStore */
 export interface MMapOptions {

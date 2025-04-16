@@ -1,4 +1,4 @@
-import { K_MAX_EDGE } from './metrics';
+import { K_MAX_EDGE } from './metrics.js';
 import {
   K_MAX_LENGTH_2,
   chordAngFromAngle,
@@ -9,7 +9,7 @@ import {
   chordAngSin2,
   chordAngStraightAngle,
   chordAngToAngle,
-} from '../s1/chordAngle';
+} from '../s1/chordAngle.js';
 import {
   idChildren,
   idContainsS2Point,
@@ -17,13 +17,13 @@ import {
   idGetEdgesRaw,
   idGetVertices,
   idLevel,
-} from '../id';
-import { pointCross, pointDot, pointInvert, pointNorm2 } from '../s2/point';
+} from '../id.js';
+import { pointCross, pointDot, pointInvert, pointNorm2 } from '../s2/point.js';
 
-import type { LengthMetric } from './metrics';
-import type { S1Angle } from '../s1/angle';
-import type { S1ChordAngle } from '../s1/chordAngle';
-import type { Face, S2CellId, VectorPoint, Vertices } from '../';
+import type { LengthMetric } from './metrics.js';
+import type { S1Angle } from '../s1/angle.js';
+import type { S1ChordAngle } from '../s1/chordAngle.js';
+import type { Face, S2CellId, VectorPoint, Vertices } from '../index.js';
 
 let kMaxEdge: LengthMetric | undefined;
 

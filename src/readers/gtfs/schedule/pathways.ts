@@ -1,4 +1,4 @@
-import { parseCSVAsRecord } from '../../';
+import { parseCSVAsRecord } from '../../index.js';
 
 /**
  * Describes the type of pathway between two stops or station nodes.

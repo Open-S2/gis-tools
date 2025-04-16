@@ -1,4 +1,4 @@
-import { K_MAX_LEVEL } from '../id';
+import { K_MAX_LEVEL } from '../id.js';
 
 /**
  * Returns mantissa * 2^exponent

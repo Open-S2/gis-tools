@@ -1,7 +1,7 @@
-import { S2FileStore } from '../file';
+import { S2FileStore } from '../file.js';
 
-import type { S2CellId } from '../..';
-import type { VectorKey, VectorStore } from '.';
+import type { S2CellId } from '../../index.js';
+import type { VectorKey, VectorStore } from './index.js';
 
 /**
  * # Vector File Store

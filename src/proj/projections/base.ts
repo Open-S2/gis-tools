@@ -1,9 +1,9 @@
-import { CoordOperation } from '.';
-import { D2R, GridDescription, PJD_UNKNOWN, PJ_TYPE, R2D, pjIoUnits } from '../constants';
+import { CoordOperation } from './index.js';
+import { D2R, GridDescription, PJD_UNKNOWN, PJ_TYPE, R2D, pjIoUnits } from '../constants/index.js';
 
-import type { DatumParams } from '../../readers/wkt';
-import type { ProjectionTransform } from '.';
-import type { VectorPoint } from '../../geometry';
+import type { DatumParams } from '../../readers/wkt/index.js';
+import type { ProjectionTransform } from './index.js';
+import type { VectorPoint } from '../../geometry/index.js';
 
 /** Define the projection with all it's variable components */
 export interface ProjectionParams {

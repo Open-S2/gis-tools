@@ -1,9 +1,9 @@
-import { ProjectionBase } from '.';
-import { hypot } from '../common';
-import { D2R, EPSLN, HALF_PI } from '../constants';
+import { ProjectionBase } from './index.js';
+import { hypot } from '../common.js';
+import { D2R, EPSLN, HALF_PI } from '../constants/index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * The 4 possible modes of the TiltedPerspective projection

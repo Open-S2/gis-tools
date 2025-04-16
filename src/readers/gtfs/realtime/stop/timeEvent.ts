@@ -1,4 +1,4 @@
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /**
  * Timing information for a single predicted event (either arrival or

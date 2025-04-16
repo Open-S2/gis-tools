@@ -1,9 +1,9 @@
-import { getGrib2Template5 } from './templates';
-import { grib2LookupTable50 } from './tables';
+import { getGrib2Template5 } from './templates.js';
+import { grib2LookupTable50 } from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
-export * from './templates';
+export * from './templates.js';
 
 /** The output of `parseGrib2Section5` */
 export type Grib2DataRepresentationSection = ReturnType<typeof parseGrib2Section5>;

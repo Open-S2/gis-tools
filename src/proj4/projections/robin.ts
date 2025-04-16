@@ -1,9 +1,9 @@
-import { ProjectionBase } from '.';
-import { adjustLon } from '../common';
-import { D2R, EPSLN, HALF_PI, R2D } from '../constants';
+import { ProjectionBase } from './index.js';
+import { adjustLon } from '../common.js';
+import { D2R, EPSLN, HALF_PI, R2D } from '../constants/index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 const COEFS_X = [
   [1.0, 2.2199e-17, -7.15515e-5, 3.1103e-6],

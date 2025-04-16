@@ -1,10 +1,10 @@
-import { EARTH_RADIUS } from '../../space/planets';
-import { llGetDistance } from '../ll';
-import { pointAngle } from '../s2/point';
-import { degToRad, radToDeg } from '..';
+import { EARTH_RADIUS } from '../../space/planets/index.js';
+import { llGetDistance } from '../ll/index.js';
+import { pointAngle } from '../s2/point.js';
+import { degToRad, radToDeg } from '../index.js';
 
-import type { LonLat } from '../ll';
-import type { VectorPoint } from '../';
+import type { LonLat } from '../ll/index.js';
+import type { VectorPoint } from '../index.js';
 
 /**
  * This class represents a one-dimensional angle (as opposed to a

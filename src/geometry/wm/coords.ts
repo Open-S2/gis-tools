@@ -1,7 +1,7 @@
-import { EARTH_CIRCUMFERENCE } from '../..';
-import { degToRad, radToDeg } from '../util';
+import { EARTH_CIRCUMFERENCE } from '../../index.js';
+import { degToRad, radToDeg } from '../util.js';
 
-import type { BBox, VectorPoint } from '../';
+import type { BBox, VectorPoint } from '../index.js';
 
 /** 900913 (Web Mercator) constant */
 export const A = 6_378_137.0;

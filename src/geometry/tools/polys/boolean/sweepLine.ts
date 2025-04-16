@@ -1,10 +1,10 @@
-import { SplayTreeSet } from '../../../..';
-import { comparePoints } from './sweepEvent';
-import { compareSegments } from './segment';
+import { SplayTreeSet } from '../../../../index.js';
+import { comparePoints } from './sweepEvent.js';
+import { compareSegments } from './segment.js';
 
-import type { BoolVec } from './vector';
-import type { Segment } from './segment';
-import type { SweepEvent } from './sweepEvent';
+import type { BoolVec } from './vector.js';
+import type { Segment } from './segment.js';
+import type { SweepEvent } from './sweepEvent.js';
 
 /**
  * Sweep line data structure

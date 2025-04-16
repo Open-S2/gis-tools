@@ -1,4 +1,4 @@
-import type { BBox } from '../../geometry';
+import type { BBox } from '../../geometry/index.js';
 import type { PbfReader } from 'pbf-ts';
 
 /** OSM Header Block */

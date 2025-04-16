@@ -1,6 +1,6 @@
-import { bytesToHeader, getUint64 } from './pmtiles';
+import { bytesToHeader, getUint64 } from './pmtiles.js';
 
-import type { Entry, Header } from './pmtiles';
+import type { Entry, Header } from './pmtiles.js';
 
 /** Store entries for each Face */
 export interface S2Entries {

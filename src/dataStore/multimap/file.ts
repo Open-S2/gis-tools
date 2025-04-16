@@ -1,10 +1,10 @@
-import { S2FileStore } from '../file';
-import { compareIDs } from '../..';
+import { S2FileStore } from '../file.js';
+import { compareIDs } from '../../index.js';
 
-import type { FileEntry } from '../file';
-import type { S2CellId } from '../..';
-import type { MMEntry, MultiMapStore } from '.';
-import type { Properties, Value } from '../..';
+import type { FileEntry } from '../file.js';
+import type { S2CellId } from '../../index.js';
+import type { MMEntry, MultiMapStore } from './index.js';
+import type { Properties, Value } from '../../index.js';
 
 /**
  * # MultiMap File Store

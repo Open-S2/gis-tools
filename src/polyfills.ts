@@ -1,2 +1,2 @@
-import './util/polyfills/dataview';
-import './util/polyfills/decompression';
+import './util/polyfills/dataview.js';
+import './util/polyfills/decompression.js';

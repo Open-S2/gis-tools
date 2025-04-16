@@ -7,9 +7,9 @@ import {
   xmlFindTagByName,
   xmlFindTagsByName,
   xmlGetAttribute,
-} from '../..';
+} from '../../index.js';
 
-import type { FeatureIterator, XMLTag } from '..';
+import type { FeatureIterator, XMLTag } from '../index.js';
 import type {
   GPXBounds,
   GPXCopyright,
@@ -22,9 +22,9 @@ import type {
   GPXTrack,
   GPXTrackSegment,
   GPXWaypoint,
-} from './types';
+} from './types.js';
 
-export * from './types';
+export * from './types.js';
 
 /** Represents a waypoint, point of interest, or named feature on a map. */
 export interface GPXWaypointProperties extends Properties {

@@ -1,7 +1,7 @@
-import { compareIDs } from '../..';
+import { compareIDs } from '../../index.js';
 
-import type { S2CellId } from '../..';
-import type { Properties, Value } from '../..';
+import type { S2CellId } from '../../index.js';
+import type { Properties, Value } from '../../index.js';
 
 /** A key-value entry in the multimap */
 export interface MMEntry<V> {

@@ -1,19 +1,17 @@
-import { intermediateRelationToVectorFeature } from './relation';
-import { mergeBBoxes } from '../../geometry';
-import { DenseInfo, Info } from './info';
+import { intermediateRelationToVectorFeature } from './relation.js';
+import { mergeBBoxes } from '../../geometry/index.js';
+import { DenseInfo, Info } from './info.js';
 
 import type { PbfReader } from 'pbf-ts';
-import type { PrimitiveBlock } from './primitive';
-import type { OSMProperties, OSMReader } from '.';
-
-import type { OSMMetadata } from './primitive';
 import type {
   BBox,
   Properties,
   VectorFeature,
   VectorPoint,
   VectorPointGeometry,
-} from '../../geometry';
+} from '../../geometry/index.js';
+import type { OSMMetadata, PrimitiveBlock } from './primitive.js';
+import type { OSMProperties, OSMReader } from './index.js';
 
 /**
  * Merge an associated relation if it exists

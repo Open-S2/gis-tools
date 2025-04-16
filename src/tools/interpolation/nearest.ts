@@ -1,9 +1,9 @@
-import { defaultGetInterpolateCurrentValue } from '.';
-import { pointDistance as distance } from '../../geometry/s2/point';
-import { lRGBToGamma, sRGBToLinear } from '../..';
+import { defaultGetInterpolateCurrentValue } from './index.js';
+import { pointDistance as distance } from '../../geometry/s2/point.js';
+import { lRGBToGamma, sRGBToLinear } from '../../index.js';
 
-import type { GetInterpolateValue } from '.';
-import type { MValue, Properties, RGBA, VectorPoint } from '../..';
+import type { GetInterpolateValue } from './index.js';
+import type { MValue, Properties, RGBA, VectorPoint } from '../../index.js';
 
 /**
  * # Nearest Neighbor Interpolation

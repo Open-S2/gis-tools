@@ -1,13 +1,13 @@
 // Heavily based on this tmerc projection implementation
 // https://github.com/mbloch/mapshaper-proj/blob/master/src/projections/tmerc.js
 
-import { ProjectionBase } from '.';
-import { EPSLN, HALF_PI } from '../constants';
-import { adjustLon, pjEnfn, pjInvMlfn, pjMlfn, sign } from '../common';
+import { ProjectionBase } from './index.js';
+import { EPSLN, HALF_PI } from '../constants/index.js';
+import { adjustLon, pjEnfn, pjInvMlfn, pjMlfn, sign } from '../common.js';
 
-import type { En } from '../common';
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { En } from '../common.js';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Transverse Mercator

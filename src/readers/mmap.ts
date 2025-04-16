@@ -1,8 +1,8 @@
 import { mmap } from 'bun';
 
-import type { Reader } from '.';
+import type { Reader } from './index.js';
 
-export * from './osm/mmap';
+export * from './osm/mmap.js';
 
 /**
  * # MMap Reader

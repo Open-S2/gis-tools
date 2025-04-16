@@ -1,5 +1,5 @@
-import { parseCSVAsRecord } from '../../';
-import { parseGtfsDate } from '../utils';
+import { parseCSVAsRecord } from '../../index.js';
+import { parseGtfsDate } from '../utils.js';
 
 /**
  * Describes whether service is added or removed on a specific date.

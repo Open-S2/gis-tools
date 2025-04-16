@@ -4,7 +4,7 @@ import type {
   VectorFeature,
   VectorLineString,
   VectorLineStringGeometry,
-} from '../../..';
+} from '../../../index.js';
 
 /**
  * Find the area of a linestring. No projection is assumed

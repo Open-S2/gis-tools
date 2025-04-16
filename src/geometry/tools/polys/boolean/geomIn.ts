@@ -1,10 +1,10 @@
-import { segmentFromRing } from './segment';
-import { extendBBox, mergeBBoxes } from '../../..';
+import { segmentFromRing } from './segment.js';
+import { extendBBox, mergeBBoxes } from '../../../index.js';
 
-import type { Operation } from './operation';
-import type { Segment } from './segment';
-import type { SweepEvent } from './sweepEvent';
-import type { BBOX, LineString, MultiPolygon, Polygon, VectorPoint } from '../../..';
+import type { Operation } from './operation.js';
+import type { Segment } from './segment.js';
+import type { SweepEvent } from './sweepEvent.js';
+import type { BBOX, LineString, MultiPolygon, Polygon, VectorPoint } from '../../../index.js';
 
 /** Represents a polygon ring via an array of segments. */
 export class RingIn {

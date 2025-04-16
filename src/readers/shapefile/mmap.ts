@@ -1,12 +1,12 @@
-import { DataBaseFile } from './dbf';
-import { MMapReader } from '../mmap';
-import { ShapeFileReader } from './shp';
-import { Transformer } from '../../proj4';
-import { shapefileFromGzip } from '.';
+import { DataBaseFile } from './dbf.js';
+import { MMapReader } from '../mmap.js';
+import { ShapeFileReader } from './shp.js';
+import { Transformer } from '../../proj4/index.js';
+import { shapefileFromGzip } from './index.js';
 import { exists, readFile } from 'fs/promises';
 
-export * from './dbf';
-export * from './shp';
+export * from './dbf.js';
+export * from './shp.js';
 
 /** A description of what relevant files exist and where */
 export interface Definition {

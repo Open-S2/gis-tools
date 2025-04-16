@@ -1,7 +1,7 @@
-import { HEADER_SIZE_BYTES } from '../../readers/pmtiles';
-import { writeVarint } from './varint';
+import { HEADER_SIZE_BYTES } from '../../readers/pmtiles/index.js';
+import { writeVarint } from './varint.js';
 
-import type { Entry, Header } from '../../readers/pmtiles';
+import type { Entry, Header } from '../../readers/pmtiles/index.js';
 
 /**
  * Create raw header bytes from a Header object.

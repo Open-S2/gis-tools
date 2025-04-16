@@ -6,9 +6,9 @@ import {
   GTFSRealtimeTripModifications,
   GTFSRealtimeTripUpdate,
   GTFSRealtimeVehiclePosition,
-} from '.';
+} from './index.js';
 
-import type { PbfReader } from '../..';
+import type { PbfReader } from '../../index.js';
 
 /** The type of the message. */
 export type GTFSRealtimeMessageType =

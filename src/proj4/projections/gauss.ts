@@ -1,9 +1,9 @@
-import { ProjectionBase } from '.';
-import { srat } from '../common';
-import { HALF_PI, QUART_PI } from '../constants';
+import { ProjectionBase } from './index.js';
+import { srat } from '../common.js';
+import { HALF_PI, QUART_PI } from '../constants/index.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * Gauss Kruger (deprecated form of Transverse Mercator)

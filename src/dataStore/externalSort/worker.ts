@@ -1,8 +1,8 @@
 declare const self: DedicatedWorkerGlobalScope;
 
-import { sortChunk } from './sortChunk';
+import { sortChunk } from './sortChunk.js';
 
-import type { SortChunk } from '.';
+import type { SortChunk } from './index.js';
 
 /**
  * A worker that sorts a chunk of a file and sends it to an output directory

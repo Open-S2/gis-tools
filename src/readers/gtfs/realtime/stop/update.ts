@@ -1,6 +1,6 @@
-import { GTFSRealtimeOccupancyStatus, GTFSRealtimeStopTimeEvent } from '..';
+import { GTFSRealtimeOccupancyStatus, GTFSRealtimeStopTimeEvent } from '../index.js';
 
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /** The relation between the StopTimeEvents and the static schedule. */
 export const enum GTFSRealtimeScheduleRelationshipUpdate {

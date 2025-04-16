@@ -1,7 +1,7 @@
-import { BufferReader } from '../../..';
-import { grib2LookupTable60 } from './tables';
+import { BufferReader } from '../../../index.js';
+import { grib2LookupTable60 } from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
 /** The output of `parseGrib2Section6` */
 export type Grib2BitMapSection = ReturnType<typeof parseGrib2Section6>;

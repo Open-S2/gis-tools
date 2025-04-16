@@ -2,7 +2,7 @@ import type {
   ComplexSpectralPackingTemplate,
   Grib2DataRepresentationSection,
   Reader,
-} from '../../..';
+} from '../../../index.js';
 
 /**
  * Unpack a data field that was packed using a simple packing algorithm, using info from the GRIB2

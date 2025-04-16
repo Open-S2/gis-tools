@@ -1,8 +1,8 @@
 // https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff
-import { ARRAY_FIELDS, FIELD_TAG_NAMES, FIELD_TYPES, GEO_KEY_NAMES } from './constants';
+import { ARRAY_FIELDS, FIELD_TAG_NAMES, FIELD_TYPES, GEO_KEY_NAMES } from './constants.js';
 
-import type { Reader } from '..';
-import type { GeoKeyDirectory, TagNames } from './constants';
+import type { Reader } from '../index.js';
+import type { GeoKeyDirectory, TagNames } from './constants.js';
 
 /**
  * Container to store the parsed file directory, geo key directory and

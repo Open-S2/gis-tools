@@ -1,4 +1,4 @@
-import { grib2LookupTableA } from '../other/tables';
+import { grib2LookupTableA } from '../other/tables.js';
 import {
   grib2LookupTable41,
   grib2LookupTable42,
@@ -7,10 +7,10 @@ import {
   grib2LookupTable45,
   grib2LookupTable46,
   grib2LookupTable47,
-} from './tables';
+} from './tables.js';
 
-import type { Grib2Sections } from '..';
-import type { Reader } from '../../..';
+import type { Grib2Sections } from '../index.js';
+import type { Reader } from '../../../index.js';
 
 /** The output of `getGrib2Template4` */
 export type Grib2ProductDefinition = ReturnType<typeof getGrib2Template4>;

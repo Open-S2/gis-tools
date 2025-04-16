@@ -1,6 +1,6 @@
-import { decompressSync } from './fflate';
+import { decompressSync } from './fflate.js';
 
-import type { Format } from '..';
+import type { Format } from '../index.js';
 
 declare global {
   /** Expose a decompressionPolyfill */

@@ -1,10 +1,10 @@
-import { Vector } from '../dataStore';
-import { chordAngFromS2Points } from '../geometry/s1/chordAngle';
-import { pointFromST } from '../geometry/s2/point';
-import { capFromS1ChordAngle, capGetIntersectingCells } from '../geometry/s2/cap';
-import { compareIDs, convert, idFromS2Point, idRange } from '../geometry';
+import { Vector } from '../dataStore/index.js';
+import { chordAngFromS2Points } from '../geometry/s1/chordAngle.js';
+import { pointFromST } from '../geometry/s2/point.js';
+import { capFromS1ChordAngle, capGetIntersectingCells } from '../geometry/s2/cap.js';
+import { compareIDs, convert, idFromS2Point, idRange } from '../geometry/index.js';
 
-import type { S1ChordAngle } from '../geometry/s1/chordAngle';
+import type { S1ChordAngle } from '../geometry/s1/chordAngle.js';
 import type {
   Face,
   FeatureIterator,
@@ -16,8 +16,8 @@ import type {
   S2CellId,
   VectorPoint,
   VectorPointM,
-} from '..';
-import type { VectorStore, VectorStoreConstructor } from '../dataStore';
+} from '../index.js';
+import type { VectorStore, VectorStoreConstructor } from '../dataStore/index.js';
 
 /** The kind of input required to store a point for proper indexing */
 export interface PointShape<M extends MValue = Properties> {

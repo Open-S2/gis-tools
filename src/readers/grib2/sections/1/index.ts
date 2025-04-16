@@ -1,16 +1,16 @@
-import { grib2LookupTable0 } from '../0';
-import { grib2LookupTableC } from '../other/tables';
+import { grib2LookupTable0 } from '../0/index.js';
+import { grib2LookupTableC } from '../other/tables.js';
 import {
   grib2LookupTable10,
   grib2LookupTable11,
   grib2LookupTable12,
   grib2LookupTable13,
   grib2LookupTable14,
-} from '.';
+} from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
-export * from './tables';
+export * from './index.js';
 
 /** The output of `parseGrib2Section1` */
 export type Grib2IdentificationSection = ReturnType<typeof parseGrib2Section1>;

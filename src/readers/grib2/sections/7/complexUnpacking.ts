@@ -1,6 +1,6 @@
-import type { Grib2Sections } from '..';
-import type { Reader } from '../../..';
-import type { ComplexPackingTemplate, ComplexSpatialPackingTemplate } from '../5';
+import type { Grib2Sections } from '../index.js';
+import type { Reader } from '../../../index.js';
+import type { ComplexPackingTemplate, ComplexSpatialPackingTemplate } from '../5/index.js';
 
 /**
  * # Data Template 7.2 - Grid Point Data - Complex Packing

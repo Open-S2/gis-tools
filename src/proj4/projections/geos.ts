@@ -1,8 +1,8 @@
-import { ProjectionBase } from '.';
-import { hypot } from '../common';
+import { ProjectionBase } from './index.js';
+import { hypot } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Geostationary Satellite View (geos)

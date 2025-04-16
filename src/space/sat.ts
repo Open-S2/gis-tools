@@ -1,8 +1,8 @@
-import { days2mdhms, jday } from './util/time';
-import { deg2rad, minutesPerDay, pi } from './util/constants';
-import { sgp4, sgp4init } from './propagation';
+import { days2mdhms, jday } from './util/time.js';
+import { deg2rad, minutesPerDay, pi } from './util/constants.js';
+import { sgp4, sgp4init } from './propagation/index.js';
 
-import type { SGP4ErrorOutput, SGP4Output } from './propagation';
+import type { SGP4ErrorOutput, SGP4Output } from './propagation/index.js';
 
 /**
  * Classification of TLE

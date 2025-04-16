@@ -1,8 +1,8 @@
-import { grib2LookupTable00 } from './tables';
+import { grib2LookupTable00 } from './tables.js';
 
-import type { Reader } from '../../..';
+import type { Reader } from '../../../index.js';
 
-export * from './tables';
+export * from './tables.js';
 
 /** The output of `parseGrib2Section0` */
 export type Grib2IndicatorSection = ReturnType<typeof parseGrib2Section0>;

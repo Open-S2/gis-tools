@@ -1,9 +1,9 @@
-import { EPSLN } from '../constants';
-import { ProjectionBase } from '.';
-import { adjustLon, asinz } from '../common';
+import { EPSLN } from '../constants/index.js';
+import { ProjectionBase } from './index.js';
+import { adjustLon, asinz } from '../common.js';
 
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Gnomonic (gnom)

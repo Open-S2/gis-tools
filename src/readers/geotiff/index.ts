@@ -1,21 +1,21 @@
 // https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff
-import { GeoTIFFHeaderReader } from './header';
-import { GeoTIFFImage } from './image';
-import { toReader } from '..';
+import { GeoTIFFHeaderReader } from './header.js';
+import { GeoTIFFImage } from './image.js';
+import { toReader } from '../index.js';
 
-import type { GeoTIFFMetadata } from './image';
-import type { ProjectionTransformDefinition } from '../../proj4';
-import type { FeatureIterator, RGBA, Reader, ReaderInputs } from '..';
-import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry';
+import type { GeoTIFFMetadata } from './image.js';
+import type { ProjectionTransformDefinition } from '../../proj4/index.js';
+import type { FeatureIterator, RGBA, Reader, ReaderInputs } from '../index.js';
+import type { Properties, VectorFeature, VectorMultiPointGeometry } from '../../geometry/index.js';
 
-export * from './color';
-export * from './constants';
-export * from './decoder';
-export * from './header';
-export * from './image';
-export * from './imageUtil';
-export * from './predictor';
-export * from './proj';
+export * from './color.js';
+export * from './constants.js';
+export * from './decoder.js';
+export * from './header.js';
+export * from './image.js';
+export * from './imageUtil.js';
+export * from './predictor.js';
+export * from './proj.js';
 
 /** A grid reader object */
 export interface GridReader {

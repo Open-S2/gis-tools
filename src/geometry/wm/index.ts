@@ -1,2 +1,2 @@
-export * from './convert';
-export * from './coords';
+export * from './convert.js';
+export * from './coords.js';

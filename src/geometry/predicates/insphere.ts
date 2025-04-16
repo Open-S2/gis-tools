@@ -7,7 +7,7 @@ import {
   scale,
   splitter,
   vec,
-} from './util';
+} from './util.js';
 
 const isperrboundA = 1.7763568394002532e-15; // (16 + 224 * epsilon) * epsilon;
 const isperrboundB = 5.551115123125792e-16; // (5 + 72 * epsilon) * epsilon;

@@ -1,4 +1,4 @@
-import { EARTH_RADIUS } from '../../../space/planets';
+import { EARTH_RADIUS } from '../../../space/planets/index.js';
 
 import type {
   MValue,
@@ -9,7 +9,7 @@ import type {
   VectorMultiPolygonGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '../../..';
+} from '../../../index.js';
 
 // TODO: polygon(s)AreaS2(...)
 

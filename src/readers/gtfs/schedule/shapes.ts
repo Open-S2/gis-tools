@@ -1,11 +1,11 @@
-import { parseCSVAsRecord } from '../../';
+import { parseCSVAsRecord } from '../../index.js';
 
 import type {
   MValue,
   Properties,
   VectorFeature,
   VectorLineStringGeometry,
-} from '../../../geometry';
+} from '../../../geometry/index.js';
 
 /** Internal type for shape data for future use */
 interface GTFSShape {

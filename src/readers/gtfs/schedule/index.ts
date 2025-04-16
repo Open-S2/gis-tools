@@ -1,38 +1,38 @@
 // https://gtfs.org/documentation/schedule/reference/#agencytxt
-import { BufferJSONReader, iterZipFolder } from '../../..';
+import { BufferJSONReader, iterZipFolder } from '../../../index.js';
 
-import { type GTFSAgency, parseGTFSAgencies } from './agency';
-import { type GTFSArea, parseGTFSAreas } from './areas';
-import { type GTFSAttribution, parseGTFSAttributions } from './attributions';
-import { type GTFSBookingRule, parseGTFSBookingRules } from './bookingRules';
-import { type GTFSCalendar, parseGTFSCalendars } from './calendar';
-import { type GTFSCalendarDate, parseGTFSCalendarDates } from './calendarDates';
-import { type GTFSFareAttribute, parseGTFSFareAttributes } from './fareAttributes';
-import { type GTFSFareLegJoinRule, parseGTFSFareLegJoinRules } from './fareLegJoinRules';
-import { type GTFSFareLegRule, parseGTFSFareLegRules } from './fareLegRules';
-import { type GTFSFareMedia, parseGTFSFareMedias } from './fareMedia';
-import { type GTFSFareProduct, parseGTFSFareProducts } from './fareProducts';
-import { type GTFSFareRule, parseGTFSFareRules } from './fareRules';
-import { type GTFSFareTransferRule, parseGTFSFareTransferRules } from './fareTransferRules';
-import { type GTFSFeedInfo, parseGTFSFeedInfos } from './feedInfo';
-import { type GTFSFrequency, parseGTFSFrequencies } from './frequencies';
-import { type GTFSLevel, parseGTFSLevels } from './levels';
-import { type GTFSLocationGroup, parseGTFSLocationGroups } from './locationGroups';
-import { type GTFSLocationGroupStop, parseGTFSLocationGroupStops } from './locationGroupStops';
-import { type GTFSNetwork, parseGTFSNetworks } from './networks';
-import { type GTFSPathway, parseGTFSPathways } from './pathways';
-import { type GTFSRoute, parseGTFSRoutes } from './routes';
-import { type GTFSRouteNetwork, parseGTFSRouteNetworks } from './routeNetworks';
-import { GTFSShapeProperties, parseGTFSShapes } from './shapes';
-import { type GTFSStop, type GTFSStopProperties, parseGTFSStops } from './stops';
-import { type GTFSStopArea, parseGTFSStopAreas } from './stopAreas';
-import { type GTFSStopTime, parseGTFSStopTimes } from './stopTimes';
-import { type GTFSTimeframe, parseGTFSTimeframes } from './timeframes';
-import { type GTFSTransfer, parseGTFSTransfers } from './transfers';
-import { type GTFSTranslation, parseGTFSTranslations } from './translations';
-import { type GTFSTrip, parseGTFSTrips } from './trips';
+import { type GTFSAgency, parseGTFSAgencies } from './agency.js';
+import { type GTFSArea, parseGTFSAreas } from './areas.js';
+import { type GTFSAttribution, parseGTFSAttributions } from './attributions.js';
+import { type GTFSBookingRule, parseGTFSBookingRules } from './bookingRules.js';
+import { type GTFSCalendar, parseGTFSCalendars } from './calendar.js';
+import { type GTFSCalendarDate, parseGTFSCalendarDates } from './calendarDates.js';
+import { type GTFSFareAttribute, parseGTFSFareAttributes } from './fareAttributes.js';
+import { type GTFSFareLegJoinRule, parseGTFSFareLegJoinRules } from './fareLegJoinRules.js';
+import { type GTFSFareLegRule, parseGTFSFareLegRules } from './fareLegRules.js';
+import { type GTFSFareMedia, parseGTFSFareMedias } from './fareMedia.js';
+import { type GTFSFareProduct, parseGTFSFareProducts } from './fareProducts.js';
+import { type GTFSFareRule, parseGTFSFareRules } from './fareRules.js';
+import { type GTFSFareTransferRule, parseGTFSFareTransferRules } from './fareTransferRules.js';
+import { type GTFSFeedInfo, parseGTFSFeedInfos } from './feedInfo.js';
+import { type GTFSFrequency, parseGTFSFrequencies } from './frequencies.js';
+import { type GTFSLevel, parseGTFSLevels } from './levels.js';
+import { type GTFSLocationGroup, parseGTFSLocationGroups } from './locationGroups.js';
+import { type GTFSLocationGroupStop, parseGTFSLocationGroupStops } from './locationGroupStops.js';
+import { type GTFSNetwork, parseGTFSNetworks } from './networks.js';
+import { type GTFSPathway, parseGTFSPathways } from './pathways.js';
+import { type GTFSRoute, parseGTFSRoutes } from './routes.js';
+import { type GTFSRouteNetwork, parseGTFSRouteNetworks } from './routeNetworks.js';
+import { GTFSShapeProperties, parseGTFSShapes } from './shapes.js';
+import { type GTFSStop, type GTFSStopProperties, parseGTFSStops } from './stops.js';
+import { type GTFSStopArea, parseGTFSStopAreas } from './stopAreas.js';
+import { type GTFSStopTime, parseGTFSStopTimes } from './stopTimes.js';
+import { type GTFSTimeframe, parseGTFSTimeframes } from './timeframes.js';
+import { type GTFSTransfer, parseGTFSTransfers } from './transfers.js';
+import { type GTFSTranslation, parseGTFSTranslations } from './translations.js';
+import { type GTFSTrip, parseGTFSTrips } from './trips.js';
 
-import type { FeatureIterator } from '../..';
+import type { FeatureIterator } from '../../index.js';
 import type {
   MValue,
   Properties,
@@ -41,38 +41,38 @@ import type {
   VectorMultiPolygonGeometry,
   VectorPointGeometry,
   VectorPolygonGeometry,
-} from '../../../geometry';
+} from '../../../geometry/index.js';
 
-export * from './agency';
-export * from './areas';
-export * from './attributions';
-export * from './bookingRules';
-export * from './calendar';
-export * from './calendarDates';
-export * from './fareAttributes';
-export * from './fareLegJoinRules';
-export * from './fareLegRules';
-export * from './fareMedia';
-export * from './fareProducts';
-export * from './fareRules';
-export * from './fareTransferRules';
-export * from './feedInfo';
-export * from './frequencies';
-export * from './levels';
-export * from './locationGroups';
-export * from './locationGroupStops';
-export * from './networks';
-export * from './pathways';
-export * from './routeNetworks';
-export * from './routes';
-export * from './shapes';
-export * from './stopAreas';
-export * from './stops';
-export * from './stopTimes';
-export * from './timeframes';
-export * from './transfers';
-export * from './translations';
-export * from './trips';
+export * from './agency.js';
+export * from './areas.js';
+export * from './attributions.js';
+export * from './bookingRules.js';
+export * from './calendar.js';
+export * from './calendarDates.js';
+export * from './fareAttributes.js';
+export * from './fareLegJoinRules.js';
+export * from './fareLegRules.js';
+export * from './fareMedia.js';
+export * from './fareProducts.js';
+export * from './fareRules.js';
+export * from './fareTransferRules.js';
+export * from './feedInfo.js';
+export * from './frequencies.js';
+export * from './levels.js';
+export * from './locationGroups.js';
+export * from './locationGroupStops.js';
+export * from './networks.js';
+export * from './pathways.js';
+export * from './routeNetworks.js';
+export * from './routes.js';
+export * from './shapes.js';
+export * from './stopAreas.js';
+export * from './stops.js';
+export * from './stopTimes.js';
+export * from './timeframes.js';
+export * from './transfers.js';
+export * from './translations.js';
+export * from './trips.js';
 
 // TODO: postprocess all interactions like `Trips -> shape_id [Link]` & `StopTime -> On-demand Service Routing Behavior [Link]`
 

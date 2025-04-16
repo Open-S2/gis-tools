@@ -1,5 +1,5 @@
-import { Satellite } from '../sat';
-import { pi, twoPi } from '../util/constants';
+import { Satellite } from '../sat.js';
+import { pi, twoPi } from '../util/constants.js';
 
 /** Options for Dpper */
 export interface DpperOptions {

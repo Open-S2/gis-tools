@@ -1,4 +1,4 @@
-import type { Properties, RGBA } from '../..';
+import type { Properties, RGBA } from '../../index.js';
 
 /**
  * VARIABLE LENGTH RECORDS:

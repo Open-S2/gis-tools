@@ -1,4 +1,4 @@
-import type { MultiPolygonGeometry } from '../../..';
+import type { MultiPolygonGeometry } from '../../../index.js';
 
 /**
  * # GBFS Station Information Schema V2.3, V2.2, V2.1, OR V2.0

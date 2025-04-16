@@ -1,6 +1,6 @@
-import { booleanOp } from './operation';
+import { booleanOp } from './operation.js';
 
-import type { MultiPolygon, Polygon } from '../../..';
+import type { MultiPolygon, Polygon } from '../../../index.js';
 
 /**
  * Union of multiple geometries

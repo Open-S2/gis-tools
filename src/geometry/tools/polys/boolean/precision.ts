@@ -1,6 +1,6 @@
-import { SplayTreeSet, orient2d } from '../../../..';
+import { SplayTreeSet, orient2d } from '../../../../index.js';
 
-import type { BoolVec } from './vector';
+import type { BoolVec } from './vector.js';
 
 /**
  * # Precision Tree

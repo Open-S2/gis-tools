@@ -1,9 +1,9 @@
-import { D2R, PJD_NODATUM, R2D } from '../constants';
+import { D2R, PJD_NODATUM, R2D } from '../constants/index.js';
 
-import type { DatumParams } from '../../readers/wkt';
-import type { NadGridDefinition } from '../../readers/nadgrid';
-import type { ProjectionTransform } from '.';
-import type { VectorPoint } from '../../geometry';
+import type { DatumParams } from '../../readers/wkt/index.js';
+import type { NadGridDefinition } from '../../readers/nadgrid.js';
+import type { ProjectionTransform } from './index.js';
+import type { VectorPoint } from '../../geometry/index.js';
 
 /** Define the projection with all it's variable components */
 export interface ProjectionParams {

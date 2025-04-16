@@ -1,4 +1,4 @@
-import { pointFromST } from '../geometry/s2/point';
+import { pointFromST } from '../geometry/s2/point.js';
 import {
   KV,
   PointIndex,
@@ -6,8 +6,15 @@ import {
   defaultGetInterpolateCurrentValue,
   getInterpolation,
   getRGBAInterpolation,
-} from '..';
-import { idBoundsST, idChildrenIJ, idFace, idFromST, idParent, idToFaceIJ } from '../geometry';
+} from '../index.js';
+import {
+  idBoundsST,
+  idChildrenIJ,
+  idFace,
+  idFromST,
+  idParent,
+  idToFaceIJ,
+} from '../geometry/index.js';
 
 import type {
   Face,
@@ -18,7 +25,7 @@ import type {
   S2CellId,
   VectorPoint,
   VectorPointM,
-} from '../geometry';
+} from '../geometry/index.js';
 import type {
   FeatureIterator,
   GetInterpolateValue,
@@ -26,9 +33,9 @@ import type {
   InterpolationMethod,
   RGBA,
   RGBAInterpolationFunction,
-} from '..';
+} from '../index.js';
 
-import type { KVStore, KVStoreConstructor, VectorStoreConstructor } from '../dataStore';
+import type { KVStore, KVStoreConstructor, VectorStoreConstructor } from '../dataStore/index.js';
 
 /** Options for grid clustering */
 export interface BaseGridOptions<M extends MValue = Properties | RGBA> {

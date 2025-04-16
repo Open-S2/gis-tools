@@ -1,8 +1,8 @@
-import { compareSegments } from './segment';
-import { cosineOfAngle, sineOfAngle } from './vector';
+import { compareSegments } from './segment.js';
+import { cosineOfAngle, sineOfAngle } from './vector.js';
 
-import type { BoolVec } from './vector';
-import type { Segment } from './segment';
+import type { BoolVec } from './vector.js';
+import type { Segment } from './segment.js';
 
 /** A sweep event */
 export class SweepEvent {

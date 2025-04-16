@@ -1,4 +1,4 @@
-import { estimate, predSum, resulterrbound, splitter, vec } from './util';
+import { estimate, predSum, resulterrbound, splitter, vec } from './util.js';
 
 import type { VectorPoint } from 's2json-spec';
 

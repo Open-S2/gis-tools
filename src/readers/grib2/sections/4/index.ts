@@ -1,15 +1,15 @@
-import { getGrib2Template4 } from './templates';
-import { grib2LookupTable40 } from './tables';
+import { getGrib2Template4 } from './templates.js';
+import { grib2LookupTable40 } from './tables.js';
 
-import type { Grib2Sections } from '../';
-import type { Reader } from '../../..';
+import type { Grib2Sections } from '../index.js';
+import type { Reader } from '../../../index.js';
 
-export { getGrib2Template4 } from './templates';
+export { getGrib2Template4 } from './templates.js';
 
 /** The output of `parseGrib2Section4` */
 export type Grib2ProductDefinitionSection = ReturnType<typeof parseGrib2Section4>;
 
-export type { Grib2ProductDefinition } from './templates';
+export type { Grib2ProductDefinition } from './templates.js';
 
 /**
  *  Product Definition Section

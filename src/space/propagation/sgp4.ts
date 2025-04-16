@@ -1,8 +1,8 @@
-import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants';
+import { earthRadius, j2, j3oj2, pi, twoPi, vkmpersec, x2o3, xke } from '../util/constants.js';
 
-import { Satellite } from '../sat';
-import { dpper } from './dpper';
-import { dspace } from './dspace';
+import { Satellite } from '../sat.js';
+import { dpper } from './dpper.js';
+import { dspace } from './dspace.js';
 
 /** An error output from an sgp4 computation */
 export interface SGP4ErrorOutput {

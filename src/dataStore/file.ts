@@ -1,10 +1,10 @@
-import { compareIDs } from '..';
-import { externalSort } from './externalSort';
+import { compareIDs } from '../index.js';
+import { externalSort } from './externalSort/index.js';
 import { tmpdir } from 'os';
 import { closeSync, existsSync, fstatSync, openSync, readSync, unlinkSync, writeSync } from 'fs';
 
-import type { S2CellId } from '..';
-import type { Properties, Value, VectorKey } from '..';
+import type { S2CellId } from '../index.js';
+import type { Properties, Value, VectorKey } from '../index.js';
 
 /** Options to create a S2FileStore */
 export interface FileOptions {

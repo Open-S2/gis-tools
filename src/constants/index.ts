@@ -1,3 +1,3 @@
-export * from './language';
-export * from './licenses';
-export * from './timezones';
+export * from './language/index.js';
+export * from './licenses.js';
+export * from './timezones.js';

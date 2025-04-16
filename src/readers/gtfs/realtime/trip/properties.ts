@@ -1,6 +1,6 @@
-import { parseGtfsDate } from '../../utils';
+import { parseGtfsDate } from '../../utils.js';
 
-import type { PbfReader } from '../../..';
+import type { PbfReader } from '../../../index.js';
 
 /**
  * Defines updated properties of the trip, such as a new shape_id when there is a detour. Or defines the

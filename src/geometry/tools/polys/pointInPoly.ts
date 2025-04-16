@@ -1,5 +1,5 @@
-import { orient2d } from '../../predicates';
-import { pointOverlap } from '../../bbox';
+import { orient2d } from '../../predicates/index.js';
+import { pointOverlap } from '../../bbox.js';
 
 import type {
   MValue,
@@ -11,7 +11,7 @@ import type {
   VectorPoint,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '../../..';
+} from '../../../index.js';
 
 /**
  * A robust method to see if a point is in a collection of polygons or not.

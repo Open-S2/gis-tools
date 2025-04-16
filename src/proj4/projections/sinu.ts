@@ -1,10 +1,10 @@
-import { ProjectionBase } from '.';
-import { EPSLN, HALF_PI } from '../constants';
-import { adjustLat, adjustLon, asinz, pjEnfn, pjInvMlfn, pjMlfn } from '../common';
+import { ProjectionBase } from './index.js';
+import { EPSLN, HALF_PI } from '../constants/index.js';
+import { adjustLat, adjustLon, asinz, pjEnfn, pjInvMlfn, pjMlfn } from '../common.js';
 
-import type { En } from '../common';
-import type { VectorPoint } from '../../geometry';
-import type { ProjectionParams, ProjectionTransform } from '.';
+import type { En } from '../common.js';
+import type { VectorPoint } from '../../geometry/index.js';
+import type { ProjectionParams, ProjectionTransform } from './index.js';
 
 /**
  * # Sinusoidal (Sanson-Flamsteed)
