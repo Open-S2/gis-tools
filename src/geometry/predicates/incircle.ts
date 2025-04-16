@@ -4,9 +4,7 @@ const iccerrboundA = 1.1102230246251577e-15; // (10 + 96 * epsilon) * epsilon;
 const iccerrboundB = 4.440892098500632e-16; // (4 + 48 * epsilon) * epsilon;
 const iccerrboundC = 5.423418723394464e-31; // (44 + 576 * epsilon) * epsilon * epsilon;
 
-/**
- * Constants for incircle
- */
+/** Constants for incircle */
 export interface InCircleConstants {
   bc: Float64Array;
   ca: Float64Array;

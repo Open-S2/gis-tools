@@ -13,51 +13,122 @@ const isperrboundA = 1.7763568394002532e-15; // (16 + 224 * epsilon) * epsilon;
 const isperrboundB = 5.551115123125792e-16; // (5 + 72 * epsilon) * epsilon;
 const isperrboundC = 8.751425667295619e-31; // (71 + 1408 * epsilon) * epsilon * epsilon;
 
-const ab = vec(4);
-const bc = vec(4);
-const cd = vec(4);
-const de = vec(4);
-const ea = vec(4);
-const ac = vec(4);
-const bd = vec(4);
-const ce = vec(4);
-const da = vec(4);
-const eb = vec(4);
+/** Constants for insphere */
+export interface InSphereConstants {
+  ab: Float64Array;
+  bc: Float64Array;
+  cd: Float64Array;
+  de: Float64Array;
+  ea: Float64Array;
+  ac: Float64Array;
+  bd: Float64Array;
+  ce: Float64Array;
+  da: Float64Array;
+  eb: Float64Array;
 
-const abc = vec(24);
-const bcd = vec(24);
-const cde = vec(24);
-const dea = vec(24);
-const eab = vec(24);
-const abd = vec(24);
-const bce = vec(24);
-const cda = vec(24);
-const deb = vec(24);
-const eac = vec(24);
+  abc: Float64Array;
+  bcd: Float64Array;
+  cde: Float64Array;
+  dea: Float64Array;
+  eab: Float64Array;
+  abd: Float64Array;
+  bce: Float64Array;
+  cda: Float64Array;
+  deb: Float64Array;
+  eac: Float64Array;
 
-const adet = vec(1152);
-const bdet = vec(1152);
-const cdet = vec(1152);
-const ddet = vec(1152);
-const edet = vec(1152);
-const abdet = vec(2304);
-const cddet = vec(2304);
-const cdedet = vec(3456);
-const deter = vec(5760);
+  adet: Float64Array;
+  bdet: Float64Array;
+  cdet: Float64Array;
+  ddet: Float64Array;
+  edet: Float64Array;
+  abdet: Float64Array;
+  cddet: Float64Array;
+  cdedet: Float64Array;
+  deter: Float64Array;
 
-const _8 = vec(8);
-const _8b = vec(8);
-const _8c = vec(8);
-const _16 = vec(16);
-const _24 = vec(24);
-const _48 = vec(48);
-const _48b = vec(48);
-const _96 = vec(96);
-const _192 = vec(192);
-const _384x = vec(384);
-const _384y = vec(384);
-const _384z = vec(384);
-const _768 = vec(768);
+  _8: Float64Array;
+  _8b: Float64Array;
+  _8c: Float64Array;
+  _16: Float64Array;
+  _24: Float64Array;
+  _48: Float64Array;
+  _48b: Float64Array;
+  _96: Float64Array;
+  _192: Float64Array;
+  _384x: Float64Array;
+  _384y: Float64Array;
+  _384z: Float64Array;
+  _768: Float64Array;
+
+  xdet: Float64Array;
+  ydet: Float64Array;
+  zdet: Float64Array;
+  fin: Float64Array;
+}
+
+let constants: undefined | InSphereConstants;
+
+/**
+ * build constants for future reuse
+ * @returns - the constants
+ */
+function getConstants(): InSphereConstants {
+  if (constants !== undefined) return constants;
+  constants = {
+    ab: vec(4),
+    bc: vec(4),
+    cd: vec(4),
+    de: vec(4),
+    ea: vec(4),
+    ac: vec(4),
+    bd: vec(4),
+    ce: vec(4),
+    da: vec(4),
+    eb: vec(4),
+
+    abc: vec(24),
+    bcd: vec(24),
+    cde: vec(24),
+    dea: vec(24),
+    eab: vec(24),
+    abd: vec(24),
+    bce: vec(24),
+    cda: vec(24),
+    deb: vec(24),
+    eac: vec(24),
+
+    adet: vec(1152),
+    bdet: vec(1152),
+    cdet: vec(1152),
+    ddet: vec(1152),
+    edet: vec(1152),
+    abdet: vec(2304),
+    cddet: vec(2304),
+    cdedet: vec(3456),
+    deter: vec(5760),
+
+    _8: vec(8),
+    _8b: vec(8),
+    _8c: vec(8),
+    _16: vec(16),
+    _24: vec(24),
+    _48: vec(48),
+    _48b: vec(48),
+    _96: vec(96),
+    _192: vec(192),
+    _384x: vec(384),
+    _384y: vec(384),
+    _384z: vec(384),
+    _768: vec(768),
+
+    xdet: vec(96),
+    ydet: vec(96),
+    zdet: vec(96),
+    fin: vec(1152),
+  };
+  return constants;
+}
 
 /**
  * Build the sum of three scaled vectors
@@ -79,6 +150,7 @@ function predSumThreeScale(
   cz: number,
   out: number[] | Float64Array,
 ): number {
+  const { _8, _8b, _8c, _16 } = getConstants();
   return predSumThree(
     scale(4, a, az, _8),
     _8,
@@ -121,6 +193,7 @@ function liftexact(
   z: number,
   out: number[] | Float64Array,
 ): number {
+  const { _48, _48b, _96, _192, _384x, _384y, _384z, _768 } = getConstants();
   const len = predSum(
     predSum(alen, a, blen, b, _48),
     _48,
@@ -177,6 +250,37 @@ function insphereExact(
   ey: number,
   ez: number,
 ): number {
+  const {
+    ab,
+    bc,
+    cd,
+    de,
+    ea,
+    ac,
+    bd,
+    ce,
+    da,
+    eb,
+    abc,
+    bcd,
+    cde,
+    dea,
+    eab,
+    abd,
+    bce,
+    cda,
+    deb,
+    eac,
+    adet,
+    bdet,
+    cdet,
+    ddet,
+    edet,
+    cddet,
+    abdet,
+    cdedet,
+    deter,
+  } = getConstants();
   let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0, u3;
 
   s1 = ax * by;
@@ -504,11 +608,6 @@ function insphereExact(
   return deter[deterlen - 1];
 }
 
-const xdet = vec(96);
-const ydet = vec(96);
-const zdet = vec(96);
-const fin = vec(1152);
-
 /**
  * @param a - a vector data
  * @param b - b vector data
@@ -534,6 +633,7 @@ function liftadapt(
   z: number,
   out: number[] | Float64Array,
 ) {
+  const { _24, _48, _192, xdet, ydet, zdet } = getConstants();
   const len = predSumThreeScale(a, b, c, az, bz, cz, _24);
   return predSumThree(
     scale(scale(len, _24, x, _48), _48, x, xdet),
@@ -585,6 +685,7 @@ function insphereAdapt(
   ez: number,
   permanent: number,
 ): number {
+  const { ab, bc, cd, ac, bd, da, adet, bdet, cdet, abdet, cddet, ddet, fin } = getConstants();
   let bvirt, c, ahi, alo, bhi, blo, _i, _j, _0, s1, s0, t1, t0;
 
   const aex = ax - ex;
