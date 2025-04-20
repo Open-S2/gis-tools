@@ -70,7 +70,7 @@ image = { version = "0.25", optional = true }
 [dev-dependencies]
 tempfile = "3"
 criterion = { version = "0.5", features = ["html_reports"] }
-rand = "0.8"
+rand = "0.9"
 
 [[bench]]
 name = "s2_cells"

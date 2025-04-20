@@ -55,6 +55,8 @@ function findCapitalizedKeywords(wktArray: WKTObject, keywordCounts: Map<string,
     } else if (Array.isArray(item)) {
       findCapitalizedKeywords(item, keywordCounts);
     }
+
+    // if (item === 'PARAMETERFILE') console.info(wktArray);
   }
 }
 

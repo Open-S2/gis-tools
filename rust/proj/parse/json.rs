@@ -10,6 +10,44 @@ use serde::{Deserialize, Serialize};
 
 // NOTE: Because the 0.7 spec is not being followed correctly by generators, serde(default) is applied to everything
 
+/// Helper functions that default to do nothing
+pub trait ToProjJSON {
+    /// Set a Unit
+    fn set_unit(&mut self, _unit: Unit) {}
+    /// Set an Id
+    fn set_id(&mut self, _id: Id) {}
+    /// Set an Axis
+    fn set_axis(&mut self, _axis: Axis) {}
+    /// Set a CoordinateSystem
+    fn set_coordinate_system(&mut self, _cs: CoordinateSystem) {}
+    /// Get a CoordinateSystem if it exists
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        None
+    }
+    /// Set a Method
+    fn set_method(&mut self, _method: Method) {}
+    /// Set a DatumEnsemble
+    fn set_ensemble(&mut self, _ensemble: DatumEnsemble) {}
+    /// Set a Member
+    fn set_member(&mut self, _member: DatumEnsembleMember) {}
+    /// Set an Ellipsoid
+    fn set_ellipsoid(&mut self, _ellipsoid: Ellipsoid) {}
+    /// Set Accuracy
+    fn set_accuracy(&mut self, _accuracy: String) {}
+    /// Set Epoch
+    fn set_epoch(&mut self, _epoch: f64) {}
+    /// Set a frame epoch
+    fn set_frame_epoch(&mut self, _epoch: f64) {}
+    /// Set a datum
+    fn set_datum(&mut self, _datum: Datum) {}
+    /// Set a Parameter
+    fn set_parameter(&mut self, _parameter: ParameterValue) {}
+    /// Set a Meridian
+    fn set_meridian(&mut self, _meridian: Meridian) {}
+    /// Set a PrimeMeridian
+    fn set_prime_meridian(&mut self, _prime_meridian: PrimeMeridian) {}
+}
+
 /// # Schema for PROJJSON (v0.7)
 /// @see https://proj.org/schemas/v0.7/projjson.schema.json
 /// @see https://docs.ogc.org/is/18-010r7/18-010r7.html#1
@@ -36,6 +74,17 @@ pub enum ProjJSON {
 impl Default for ProjJSON {
     fn default() -> Self {
         ProjJSON::CRS(Box::default())
+    }
+}
+impl ToProjJSON for ProjJSON {
+    fn set_datum(&mut self, datum: Datum) {
+        *self = ProjJSON::Datum(Box::new(datum));
+    }
+    fn set_ensemble(&mut self, ensemble: DatumEnsemble) {
+        *self = ProjJSON::DatumEnsemble(Box::new(ensemble));
+    }
+    fn set_prime_meridian(&mut self, prime_meridian: PrimeMeridian) {
+        *self = ProjJSON::PrimeMeridian(Box::new(prime_meridian));
     }
 }
 
@@ -99,6 +148,11 @@ pub enum Datum {
     ParametricDatum(ParametricDatum),
     /// Represents the datum associated with an engineering CRS.
     EngineeringDatum(EngineeringDatum),
+}
+impl Default for Datum {
+    fn default() -> Self {
+        Datum::GeodeticReferenceFrame(GeodeticReferenceFrame::default())
+    }
 }
 
 /// # Geographic Bounding Box
@@ -218,7 +272,7 @@ impl ProjValue {
             ProjValue::Bool(b) => *b,
             ProjValue::F64(f) => *f != 0.0,
             ProjValue::I64(i) => *i != 0,
-            ProjValue::String(_) => self.i64() != 0,
+            ProjValue::String(s) => s.to_lowercase() == "true" || self.i64() != 0,
         }
     }
     /// Get the float representation
@@ -361,7 +415,28 @@ impl Default for Extent {
     }
 }
 
-/// Parameter Value
+/// # Parameter
+///
+/// ## Description
+/// Parameter name is for human readability. For interoperability it is the method formula and its parameters that are critical in determining the equivalence of methods. See Annex F. Identifiers for commonly encountered map projection methods are given in F.2; their parameters are listed in F.3.
+///
+/// The map projection parameters required are specific to the map projection method and will be listed sequentially. The order within the sequence is not significant but should be logical.
+///
+/// <map projection parameter unit> is an optional attribute, for reasons of backward compatibility. Best practice is that it is included explicitly in WKT strings.
+///
+/// ## Requirements
+/// If <map projection parameter unit> is omitted from <map projection parameter> then:
+/// - Map parameter values that are lengths shall be given in metres.
+/// - Map projection parameter values that are angles shall be given in decimal degrees.
+/// - Map projection parameters that are unitless (for example scale factor) shall be given as a number which is close to or is unity (1.0).
+///
+/// ## Examples
+/// - `PARAMETER["semi_major",6378137.0]` - Defines a parameter named "semi_major" with a numeric value.
+/// - `PARAMETER["towgs84","8,-183,-105,0,0,0,0"]` - Defines a parameter named "towgs84" with a string value.
+/// - `PARAMETER["central_meridian",0.0,UNIT["degree",0.0174532925199433]]` - Defines a parameter with a name, numeric value, and a unit.
+/// - `PARAMETER["standard_parallel_1",30.0,ID["EPSG",8831]]` - Defines a parameter with a name, numeric value, and an identifier.
+/// - `PARAMETER["latitude_of_origin",0.0,UNIT["degree",0.0174532925199433],ID["EPSG",8821]]` - Defines a parameter with a name, numeric value, unit, and identifier.
+/// - `PARAMETER["is_sphere",TRUE]` - Defines a boolean parameter.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct ParameterValue {
@@ -370,7 +445,7 @@ pub struct ParameterValue {
     pub schema: Option<String>,
     /// Type identifier - always 'ParameterValue'
     #[serde(rename = "type")]
-    pub r#type: String, // 'ParameterValue';
+    pub r#type: Option<String>, // 'ParameterValue';
     /// Name of the parameter
     pub name: String,
     /// Parameter value, which can be a string or number
@@ -382,8 +457,19 @@ pub struct ParameterValue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// Alternative identifiers
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
+}
+impl ToProjJSON for ParameterValue {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+    fn set_unit(&mut self, unit: Unit) {
+        self.unit = Some(unit);
+    }
 }
 
 /// # Parametric CRS
@@ -394,19 +480,27 @@ pub struct ParameterValue {
 pub struct ParametricCRS {
     /// Type identifier - always 'ParametricCRS'
     #[serde(rename = "type")]
-    pub r#type: String, // 'ParametricCRS';
+    pub r#type: Option<String>, // 'ParametricCRS';
     /// Name of the CRS
     pub name: String,
     /// Parametric datum
     pub datum: ParametricDatum,
     /// Coordinate system
-    pub coordinate_system: CoordinateSystem,
+    pub coordinate_system: Option<CoordinateSystem>,
     /// Schema reference
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for ParametricCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = Some(cs);
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        self.coordinate_system.as_mut()
+    }
 }
 
 /// # Parametric Datum
@@ -417,7 +511,7 @@ pub struct ParametricCRS {
 pub struct ParametricDatum {
     /// Type identifier - always 'ParametricDatum'
     #[serde(rename = "type")]
-    pub r#type: String, // 'ParametricDatum';
+    pub r#type: Option<String>, // 'ParametricDatum';
     /// Name of the datum
     pub name: String,
     /// Anchor point
@@ -435,7 +529,7 @@ pub struct ParametricDatum {
 pub struct PointMotionOperation {
     /// Type identifier
     #[serde(rename = "type")]
-    pub r#type: String, // 'PointMotionOperation';
+    pub r#type: Option<String>, // 'PointMotionOperation';
     /// Name of the operation
     pub name: String,
     /// Source coordinate reference system
@@ -443,6 +537,7 @@ pub struct PointMotionOperation {
     /// Method used for point motion
     pub method: Method,
     /// Parameters used in the operation
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
     /// Accuracy of the operation
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -450,6 +545,17 @@ pub struct PointMotionOperation {
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for PointMotionOperation {
+    fn set_accuracy(&mut self, accuracy: String) {
+        self.accuracy = Some(accuracy);
+    }
+    fn set_method(&mut self, method: Method) {
+        self.method = method;
+    }
+    fn set_parameter(&mut self, parameter: ParameterValue) {
+        self.parameters.push(parameter);
+    }
 }
 
 /// # Method Object
@@ -463,15 +569,15 @@ pub struct Method {
     pub schema: Option<String>,
     /// Type identifier - always 'OperationMethod'
     #[serde(rename = "type")]
-    pub r#type: String, // 'OperationMethod';
+    pub r#type: Option<String>, // 'OperationMethod';
     /// Name of the method
     pub name: String,
     /// Identifier
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// Alternative identifiers
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 
 /// Base Unit - common units as string input
@@ -507,6 +613,18 @@ pub enum UnitType {
     #[default]
     Unit,
 }
+impl From<&str> for UnitType {
+    fn from(s: &str) -> Self {
+        match s {
+            "LENGTHUNIT" => UnitType::LinearUnit,
+            "ANGLEUNIT" => UnitType::AngularUnit,
+            "SCALEUNIT" => UnitType::ScaleUnit,
+            "TIMEUNIT" => UnitType::TimeUnit,
+            "PARAMETRICUNIT" => UnitType::ParametricUnit,
+            _ => UnitType::Unit,
+        }
+    }
+}
 
 /// Unit Object
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -524,8 +642,8 @@ pub struct UnitObject {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// Alternative identifiers
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 impl UnitObject {
     /// Set the unit type
@@ -582,6 +700,11 @@ impl Unit {
         };
     }
 }
+impl ToProjJSON for Unit {
+    fn set_unit(&mut self, unit: Unit) {
+        *self = unit
+    }
+}
 
 /// # BoundCRS Interface
 ///
@@ -590,8 +713,8 @@ impl Unit {
 #[serde(default)]
 pub struct BoundCRS {
     /// Indicates the type of object. Always "BoundCRS" for this interface.
-    #[serde(rename = "type", default = "BoundCRS::default_type")]
-    pub r#type: String,
+    #[serde(rename = "type")]
+    pub r#type: Option<String>,
     /// The name of the bound CRS.
     pub name: String,
     /// The source coordinate reference system.
@@ -604,11 +727,6 @@ pub struct BoundCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
-impl BoundCRS {
-    fn default_type() -> String {
-        "BoundCRS".to_string()
-    }
-}
 
 /// # ConcatenatedOperation Interface
 ///
@@ -618,7 +736,7 @@ impl BoundCRS {
 pub struct ConcatenatedOperation {
     /// Indicates the type of object. Always "ConcatenatedOperation" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'ConcatenatedOperation';
+    pub r#type: Option<String>, // 'ConcatenatedOperation';
     /// The name of the concatenated operation.
     pub name: String,
     /// The source coordinate reference system.
@@ -626,6 +744,7 @@ pub struct ConcatenatedOperation {
     /// The target coordinate reference system.
     pub target_crs: CRS,
     /// An array of individual steps in the concatenated operation.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub steps: Vec<SingleOperation>,
     /// The accuracy of the concatenated operation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -633,6 +752,11 @@ pub struct ConcatenatedOperation {
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for ConcatenatedOperation {
+    fn set_accuracy(&mut self, accuracy: String) {
+        self.accuracy = Some(accuracy);
+    }
 }
 
 /// # AbridgedTransformation Interface
@@ -643,7 +767,7 @@ pub struct ConcatenatedOperation {
 pub struct AbridgedTransformation {
     /// Indicates the type of object. Always "AbridgedTransformation" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'AbridgedTransformation';
+    pub r#type: Option<String>, // 'AbridgedTransformation';
     /// The name of the transformation.
     pub name: String,
     /// The source coordinate reference system, only present if it differs from the source CRS of the bound CRS.
@@ -652,10 +776,19 @@ pub struct AbridgedTransformation {
     /// The method used for the transformation.
     pub method: Method,
     /// The parameters used in the transformation.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for AbridgedTransformation {
+    fn set_method(&mut self, method: Method) {
+        self.method = method;
+    }
+    fn set_parameter(&mut self, parameter: ParameterValue) {
+        self.parameters.push(parameter);
+    }
 }
 
 /// # CompoundCRS Interface
@@ -666,10 +799,11 @@ pub struct AbridgedTransformation {
 pub struct CompoundCRS {
     /// Indicates the type of object. Always "CompoundCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'CompoundCRS';
+    pub r#type: Option<String>, // 'CompoundCRS';
     /// The name of the compound CRS.
     pub name: String,
     /// An array of coordinate reference systems that make up the compound CRS.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub components: Vec<CRS>,
     /// Base Properties
     #[serde(flatten)]
@@ -684,7 +818,7 @@ pub struct CompoundCRS {
 pub struct EngineeringCRS {
     /// Indicates the type of CRS. Always "EngineeringCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'EngineeringCRS';
+    pub r#type: Option<String>, // 'EngineeringCRS';
     /// The name of the engineering CRS.
     pub name: String,
     /// The engineering datum associated with this CRS.
@@ -695,6 +829,14 @@ pub struct EngineeringCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for EngineeringCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = Some(cs);
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        self.coordinate_system.as_mut()
+    }
+}
 
 /// # EngineeringDatum Interface
 ///
@@ -704,7 +846,7 @@ pub struct EngineeringCRS {
 pub struct EngineeringDatum {
     /// Indicates the type of datum. Always "EngineeringDatum" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'EngineeringDatum';
+    pub r#type: Option<String>, // 'EngineeringDatum';
     /// The name of the datum.
     pub name: String,
     /// Anchor point of the datum.
@@ -826,7 +968,7 @@ pub enum AxisRangeMeaning {
 pub struct Axis {
     /// Indicates the type of axis. Always "Axis" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'Axis';
+    pub r#type: Option<String>, // 'Axis';
     /// The name of the axis.
     pub name: String,
     /// Abbreviation for the axis name.
@@ -854,8 +996,22 @@ pub struct Axis {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the axis.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
+}
+impl ToProjJSON for Axis {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+    fn set_unit(&mut self, unit: Unit) {
+        self.unit = Some(unit);
+    }
+    fn set_meridian(&mut self, meridian: Meridian) {
+        self.meridian = Some(meridian);
+    }
 }
 
 /// # Meridian Interface
@@ -864,20 +1020,20 @@ pub struct Axis {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Meridian {
-    /// Indicates the type of meridian. Always "Meridian" for this interface.
-    #[serde(rename = "type")]
-    pub r#type: String, // 'Meridian';
-    /// The longitude of the meridian.
-    longitude: ValueInDegreeOrValueAndUnit,
     /// The schema URL or identifier.
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
+    /// Indicates the type of meridian. Always "Meridian" for this interface.
+    #[serde(rename = "type")]
+    pub r#type: Option<String>, // 'Meridian';
+    /// The longitude of the meridian.
+    pub longitude: ValueInDegreeOrValueAndUnit,
     /// An identifier for the meridian.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the meridian.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 
 /// # ValueAndUnit Interface
@@ -900,6 +1056,12 @@ pub enum ValueInDegreeOrValueAndUnit {
     F64(f64),
     /// Value and Unit Object
     ValueAndUnit(ValueAndUnit),
+}
+impl ValueInDegreeOrValueAndUnit {
+    /// Create a new `ValueInDegreeOrValueAndUnit` from a unit and value
+    pub fn from_unit(unit: Unit, value: f64) -> Self {
+        ValueInDegreeOrValueAndUnit::ValueAndUnit(ValueAndUnit { value, unit })
+    }
 }
 impl Default for ValueInDegreeOrValueAndUnit {
     fn default() -> Self {
@@ -959,8 +1121,8 @@ pub struct DatumMember {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the datum member.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 
 /// # DeformationModel Interface
@@ -984,7 +1146,7 @@ pub struct DeformationModel {
 pub struct DerivedEngineeringCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedEngineeringCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedEngineeringCRS';
+    pub r#type: Option<String>, // 'DerivedEngineeringCRS';
     /// The name of the derived engineering CRS.
     pub name: String,
     /// The base CRS from which this derived CRS is created.
@@ -997,6 +1159,14 @@ pub struct DerivedEngineeringCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedEngineeringCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # DerivedGeodeticCRS Interface
 ///
@@ -1006,7 +1176,7 @@ pub struct DerivedEngineeringCRS {
 pub struct DerivedGeodeticCRS {
     /// Indicates the type of coordinate reference system. Can be either "DerivedGeodeticCRS" or "DerivedGeographicCRS".
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedGeodeticCRS' | 'DerivedGeographicCRS';
+    pub r#type: Option<String>, // 'DerivedGeodeticCRS' | 'DerivedGeographicCRS';
     /// The name of the derived geodetic CRS.
     pub name: String,
     /// The base CRS from which this derived CRS is created.
@@ -1019,6 +1189,14 @@ pub struct DerivedGeodeticCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedGeodeticCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # GeodeticCRS Interface
 ///
@@ -1028,7 +1206,7 @@ pub struct DerivedGeodeticCRS {
 pub struct GeodeticCRS {
     /// Indicates the type of CRS. Can be "GeodeticCRS" or "GeographicCRS".
     #[serde(rename = "type")]
-    pub r#type: String, // 'GeodeticCRS' | 'GeographicCRS';
+    pub r#type: Option<String>, // 'GeodeticCRS' | 'GeographicCRS';
     /// The name of the geodetic CRS.
     pub name: String,
     /// The datum associated with the geodetic CRS.
@@ -1049,16 +1227,30 @@ pub struct GeodeticCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for GeodeticCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = Some(cs);
+    }
+    fn set_datum(&mut self, datum: Datum) {
+        self.datum = Some(datum);
+    }
+    fn set_ensemble(&mut self, ensemble: DatumEnsemble) {
+        self.datum_ensemble = Some(ensemble);
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        self.coordinate_system.as_mut()
+    }
+}
 
-/// # GeodeticReferenceFrame Interface
+/// # Geodetic reference frame (geodetic datum)
 ///
-/// Represents the geodetic reference frame associated with a geodetic CRS.
+/// Represented with the `DATUM` keyword
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct GeodeticReferenceFrame {
     /// Indicates the type of reference frame. Always "GeodeticReferenceFrame" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'GeodeticReferenceFrame';
+    pub r#type: Option<String>, // 'GeodeticReferenceFrame';
     /// The name of the reference frame.
     pub name: String,
     /// The anchor point of the reference frame.
@@ -1072,9 +1264,32 @@ pub struct GeodeticReferenceFrame {
     /// The prime meridian associated with the reference frame.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prime_meridian: Option<PrimeMeridian>,
+    /// An identifier for the datum member.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the datum member.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for GeodeticReferenceFrame {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+    fn set_ellipsoid(&mut self, ellipsoid: Ellipsoid) {
+        self.ellipsoid = ellipsoid;
+    }
+    fn set_epoch(&mut self, epoch: f64) {
+        self.anchor_epoch = Some(epoch);
+    }
+    fn set_prime_meridian(&mut self, prime_meridian: PrimeMeridian) {
+        self.prime_meridian = Some(prime_meridian);
+    }
 }
 
 /// # DerivedParametricCRS Interface
@@ -1085,7 +1300,7 @@ pub struct GeodeticReferenceFrame {
 pub struct DerivedParametricCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedParametricCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedParametricCRS';
+    pub r#type: Option<String>, // 'DerivedParametricCRS';
     /// The name of the derived parametric CRS.
     pub name: String,
     /// The base parametric CRS from which this CRS is derived.
@@ -1098,6 +1313,14 @@ pub struct DerivedParametricCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedParametricCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # DerivedProjectedCRS Interface
 ///
@@ -1107,7 +1330,7 @@ pub struct DerivedParametricCRS {
 pub struct DerivedProjectedCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedProjectedCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedProjectedCRS';
+    pub r#type: Option<String>, // 'DerivedProjectedCRS';
     /// The name of the derived projected CRS.
     pub name: String,
     /// The base projected CRS from which this CRS is derived.
@@ -1120,6 +1343,14 @@ pub struct DerivedProjectedCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedProjectedCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # DerivedTemporalCRS Interface
 ///
@@ -1129,7 +1360,7 @@ pub struct DerivedProjectedCRS {
 pub struct DerivedTemporalCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedTemporalCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedTemporalCRS';
+    pub r#type: Option<String>, // 'DerivedTemporalCRS';
     /// The name of the derived temporal CRS.
     pub name: String,
     /// The base temporal CRS from which this CRS is derived.
@@ -1142,6 +1373,14 @@ pub struct DerivedTemporalCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedTemporalCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # DerivedVerticalCRS Interface
 ///
@@ -1151,7 +1390,7 @@ pub struct DerivedTemporalCRS {
 pub struct DerivedVerticalCRS {
     /// Indicates the type of coordinate reference system. Always "DerivedVerticalCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DerivedVerticalCRS';
+    pub r#type: Option<String>, // 'DerivedVerticalCRS';
     /// The name of the derived vertical CRS.
     pub name: String,
     /// The base vertical CRS from which this CRS is derived.
@@ -1164,6 +1403,14 @@ pub struct DerivedVerticalCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DerivedVerticalCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
+}
 
 /// # DynamicGeodeticReferenceFrame Interface
 ///
@@ -1173,7 +1420,7 @@ pub struct DerivedVerticalCRS {
 pub struct DynamicGeodeticReferenceFrame {
     /// Indicates the type of reference frame. Always "DynamicGeodeticReferenceFrame" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DynamicGeodeticReferenceFrame';
+    pub r#type: Option<String>, // 'DynamicGeodeticReferenceFrame';
     /// The name of the reference frame.
     pub name: String,
     /// The anchor point of the reference frame.
@@ -1192,6 +1439,20 @@ pub struct DynamicGeodeticReferenceFrame {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for DynamicGeodeticReferenceFrame {
+    fn set_epoch(&mut self, epoch: f64) {
+        self.anchor_epoch = Some(epoch);
+    }
+    fn set_frame_epoch(&mut self, epoch: f64) {
+        self.frame_reference_epoch = epoch;
+    }
+    fn set_ellipsoid(&mut self, ellipsoid: Ellipsoid) {
+        self.ellipsoid = ellipsoid;
+    }
+    fn set_prime_meridian(&mut self, prime_meridian: PrimeMeridian) {
+        self.prime_meridian = Some(prime_meridian);
+    }
+}
 
 /// members in the datum ensemble
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -1203,22 +1464,27 @@ pub struct DatumEnsembleMember {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the datum.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 
 /// # DatumEnsemble Interface
 ///
 /// Represents a datum ensemble, which is a collection of datums.
+/// Geodetic and vertical CRSs are associated with either a reference frame (datum) or a datum ensemble. The members of a datum ensemble are given as a list of reference frames. The list may contain reference frame name and/or identifier. All members of a datum ensemble are realizations of one shared terrestrial or vertical reference system.
+/// For an ensemble of geodetic reference frames (datums), the WKT string includes the description of the ellipsoid used by the members. This information is available from any and all of the definitions of each member. It is included in the ensemble WKT to facilitate direct access to the information. The WKT string for a datum ensemble may also include the description of the prime meridian applying to all members of the ensemble.
+/// For both geodetic and vertical datum ensembles, the ensemble description includes its 'accuracy', an indication of the difference in coordinate values of a point between different members of the datum ensemble. It may be regarded as a measure of the inaccuracy introduced through the assumption that ensemble members are approximately equivalent.
+/// Use of the datum ensemble concept comes with a health warning. If data is associated with a CRS having a datum ensemble, it will not be possible to identify which of the datum ensemble members the data might more accurately be referenced to. In high accuracy applications, datum ensembles should not be used; individual reference frames should be identified.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct DatumEnsemble {
     /// Indicates the type of datum ensemble. Always "DatumEnsemble" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DatumEnsemble';
+    pub r#type: Option<String>, // 'DatumEnsemble';
     /// The name of the datum ensemble.
     pub name: String,
     /// An array of members in the datum ensemble.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub members: Vec<DatumEnsembleMember>,
     /// The ellipsoid associated with the datum ensemble.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1229,8 +1495,25 @@ pub struct DatumEnsemble {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
     /// An array of identifiers for the datum ensemble.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ids: Option<Ids>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
+}
+impl ToProjJSON for DatumEnsemble {
+    fn set_accuracy(&mut self, accuracy: String) {
+        self.accuracy = accuracy;
+    }
+    fn set_ellipsoid(&mut self, ellipsoid: Ellipsoid) {
+        self.ellipsoid = Some(ellipsoid);
+    }
+    fn set_member(&mut self, member: DatumEnsembleMember) {
+        self.members.push(member);
+    }
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
 }
 
 /// # Ellipsoid
@@ -1275,7 +1558,7 @@ pub struct DatumEnsemble {
 pub struct Ellipsoid {
     /// Indicates the type of ellipsoid. Always "Ellipsoid" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'Ellipsoid';
+    pub r#type: Option<String>, // 'Ellipsoid';
     /// The name of the ellipsoid.
     pub name: String,
     /// The semi-major axis of the ellipsoid.
@@ -1291,20 +1574,37 @@ pub struct Ellipsoid {
     /// The radius of the ellipsoid, used for spherical representations.
     /// Required when neither `semi_minor_axis` nor `inverse_flattening` are provided.
     pub radius: Option<ValueInMetreOrValueAndUnit>,
-    /// Base Properties
-    #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    /// An identifier for the datum ensemble.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the datum ensemble.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
+}
+impl ToProjJSON for Ellipsoid {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
 }
 
-/// # PrimeMeridian Interface
+/// # Prime meridian
+/// The WKT for prime meridian is defined in 8.2.2.
+/// In this document the following definition from both ISO 19125-1:2004 and OGC 01-009 has been deprecated but is included here for the purposes of documenting backward compatibility:
+/// - <irm longitude> is the longitude of the prime meridian measured from the international reference meridian, positive eastward.
+/// - <angle unit> is an optional attribute, optional for reasons of backward compatibility, but best practice is that it is included in WKT strings. If it is omitted then the value for <irm longitude> shall be given in the CRS's <cs unit> where this is angular, else in decimal degrees. If the subtype of the geodetic CRS to which the prime meridian is an attribute is geographic, the prime meridian's <irm longitude> value shall be given in the same angular units as those for the horizontal axes of the geographic CRS; if the geodetic CRS subtype is geocentric the prime meridian's <irm longitude> value shall be given in degrees. Its <conversion factor> shall be to radians and is the number of radians per unit. <angle unit> is described in 7.4.
 ///
-/// Represents a prime meridian, which defines the origin of longitude in a geographic coordinate system.
+/// Examples of WKT describing a prime meridian:
+/// - `PRIMEM["Paris",2.5969213,ANGLEUNIT["grad",0.015707963267949]]`
+/// - `PRIMEM["Greenwich",0.0]`
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct PrimeMeridian {
     /// Indicates the type of prime meridian. Always "PrimeMeridian" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'PrimeMeridian';
+    pub r#type: Option<String>, // 'PrimeMeridian';
     /// The name of the prime meridian.
     pub name: String,
     /// The longitude of the prime meridian.
@@ -1324,7 +1624,7 @@ pub struct PrimeMeridian {
 pub struct ProjectedCRS {
     /// Indicates the type of CRS. Always "ProjectedCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'ProjectedCRS';
+    pub r#type: Option<String>, // 'ProjectedCRS';
     /// The name of the projected CRS.
     pub name: String,
     /// The base CRS upon which the projection is defined.
@@ -1333,11 +1633,18 @@ pub struct ProjectedCRS {
     /// The conversion defining the map projection.
     pub conversion: Conversion,
     /// The coordinate system used in the projected CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coordinate_system: Option<CoordinateSystem>,
+    pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for ProjectedCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = cs;
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        Some(&mut self.coordinate_system)
+    }
 }
 
 /// # Conversion Interface
@@ -1348,17 +1655,25 @@ pub struct ProjectedCRS {
 pub struct Conversion {
     /// Indicates the type of conversion. Always "Conversion" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'Conversion';
+    pub r#type: Option<String>, // 'Conversion';
     /// The name of the conversion (map projection or transformation).
     pub name: String,
     /// The method used for the conversion.
     pub method: Method,
     /// An array of parameter values defining the conversion.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parameters: Option<Vec<ParameterValue>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub parameters: Vec<ParameterValue>,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for Conversion {
+    fn set_method(&mut self, method: Method) {
+        self.method = method;
+    }
+    fn set_parameter(&mut self, parameter: ParameterValue) {
+        self.parameters.push(parameter);
+    }
 }
 
 /// # CoordinateMetadata Interface
@@ -1372,15 +1687,28 @@ pub struct CoordinateMetadata {
     pub schema: Option<String>,
     /// Indicates the type of object. Always "CoordinateMetadata" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'CoordinateMetadata';
+    pub r#type: Option<String>, // 'CoordinateMetadata';
     /// The coordinate reference system associated with the coordinate.
     pub crs: CRS,
     /// The epoch of the coordinate.
     #[serde(rename = "coordinateEpoch", skip_serializing_if = "Option::is_none")]
     pub coordinate_epoch: Option<f64>,
 }
+impl ToProjJSON for CoordinateMetadata {
+    fn set_epoch(&mut self, epoch: f64) {
+        self.coordinate_epoch = Some(epoch);
+    }
+}
 
-/// The subtype of the coordinate system.
+/// # Coordinate system type
+///
+/// For various types of CRS the type of coordinate system that may be used is constrained, as is
+/// the permissible number of axes. Additionally the data type for coordinates in an ordinal
+/// coordinate system and in a temporal coordinate system is constrained.
+///
+/// ## Examples of WKT describing an CoordinateSystem with the specified subtype as the first element:
+/// - `CS[ordinal,2],AXIS["inline (I)",southeast,ORDER[1]],AXIS["crossline (J)",northeast,ORDER[2]]`
+/// - `CS[Cartesian,3],AXIS["(X)",geocentricX],AXIS["(Y)",geocentricY],AXIS["(Z)",geocentricZ],LENGTHUNIT["metre",1.0]`
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub enum CoordinateSystemSubtype {
     /// Cartesian
@@ -1416,9 +1744,17 @@ pub enum CoordinateSystemSubtype {
     TemporalMeasure,
 }
 
-/// # CoordinateSystem Interface
+/// # Coordinate System
 ///
 /// Represents a coordinate system, including its subtype and axes.
+///
+/// Most coordinate system attributes are common to all subtypes of spatial and temporal coordinate systems. Exceptions are associated with the coordinate system axis unit attribute and its qualifier, the conversion factor to an SI base unit:
+/// - When the coordinate system type is 'temporalCount' or 'temporalMeasure', the inclusion of the axis unit conversion factor in WKT is conditional, see 7.4.3.
+/// - When the coordinate system type is 'ordinal' or 'temporalDateTime', the axis unit attribute and its conversion factor are not required in WKT, see 7.5.6 and 13.3.
+///
+/// ## Examples of WKT describing an CoordinateSystem:
+/// - `CS[ordinal,2],AXIS["inline (I)",southeast,ORDER[1]],AXIS["crossline (J)",northeast,ORDER[2]]`
+/// - `CS[Cartesian,3],AXIS["(X)",geocentricX],AXIS["(Y)",geocentricY],AXIS["(Z)",geocentricZ],LENGTHUNIT["metre",1.0]`
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct CoordinateSystem {
@@ -1427,17 +1763,27 @@ pub struct CoordinateSystem {
     pub schema: Option<String>,
     /// Indicates the type of object. Always "CoordinateSystem" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'CoordinateSystem';
+    pub r#type: Option<String>, // 'CoordinateSystem';
     /// The name of the coordinate system.
-    /// NOTE: Should be String but its often missing
-    pub name: String,
+    pub name: Option<String>,
     /// The subtype of the coordinate system.
     pub subtype: CoordinateSystemSubtype,
     /// The axes of the coordinate system.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub axis: Vec<Axis>,
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for CoordinateSystem {
+    fn set_axis(&mut self, axis: Axis) {
+        self.axis.push(axis);
+    }
+    fn set_unit(&mut self, unit: Unit) {
+        for axis in self.axis.iter_mut() {
+            axis.unit = Some(unit.clone());
+        }
+    }
 }
 
 /// # Transformation Interface
@@ -1448,7 +1794,7 @@ pub struct CoordinateSystem {
 pub struct Transformation {
     /// Type identifier
     #[serde(rename = "type")]
-    pub r#type: String, // 'Transformation';
+    pub r#type: Option<String>, // 'Transformation';
     /// Name of the transformation
     pub name: String,
     /// Source CRS
@@ -1461,6 +1807,7 @@ pub struct Transformation {
     /// Transformation method
     pub method: Method,
     /// Transformation parameters
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
     /// Transformation accuracy
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1468,6 +1815,17 @@ pub struct Transformation {
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for Transformation {
+    fn set_accuracy(&mut self, accuracy: String) {
+        self.accuracy = Some(accuracy);
+    }
+    fn set_parameter(&mut self, parameter: ParameterValue) {
+        self.parameters.push(parameter);
+    }
+    fn set_method(&mut self, method: Method) {
+        self.method = method;
+    }
 }
 
 /// # TemporalCRS Interface
@@ -1478,7 +1836,7 @@ pub struct Transformation {
 pub struct TemporalCRS {
     /// Indicates the type of CRS. Always "TemporalCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'TemporalCRS';
+    pub r#type: Option<String>, // 'TemporalCRS';
     /// The name of the temporal CRS.
     pub name: String,
     /// The temporal datum associated with the CRS.
@@ -1490,6 +1848,14 @@ pub struct TemporalCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for TemporalCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = Some(cs);
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        self.coordinate_system.as_mut()
+    }
+}
 
 /// # TemporalDatum Interface
 ///
@@ -1499,7 +1865,7 @@ pub struct TemporalCRS {
 pub struct TemporalDatum {
     /// Indicates the type of datum. Always "TemporalDatum" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'TemporalDatum';
+    pub r#type: Option<String>, // 'TemporalDatum';
     /// The name of the temporal datum.
     pub name: String,
     /// The calendar system used for the datum.
@@ -1519,9 +1885,9 @@ pub struct TemporalDatum {
 pub struct VerticalCRS {
     /// Indicates the type of CRS. Always "VerticalCRS" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'VerticalCRS';
+    pub r#type: Option<String>, // 'VerticalCRS';
     /// The name of the vertical CRS.
-    pub name: String,
+    pub name: Option<String>,
     /// The vertical datum associated with the CRS.
     /// One and only one of `datum` or `datum_ensemble` must be provided.
     /// Can only be a `VerticalReferenceFrame` or a `DynamicVerticalReferenceFrame`.
@@ -1546,6 +1912,20 @@ pub struct VerticalCRS {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for VerticalCRS {
+    fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
+        self.coordinate_system = Some(cs);
+    }
+    fn set_datum(&mut self, datum: Datum) {
+        self.datum = Some(datum);
+    }
+    fn set_ensemble(&mut self, ensemble: DatumEnsemble) {
+        self.datum_ensemble = Some(ensemble);
+    }
+    fn get_coordinate_system(&mut self) -> Option<&mut CoordinateSystem> {
+        self.coordinate_system.as_mut()
+    }
+}
 
 /// # VerticalReferenceFrame Interface
 ///
@@ -1555,7 +1935,7 @@ pub struct VerticalCRS {
 pub struct VerticalReferenceFrame {
     /// Indicates the type of reference frame. Always "VerticalReferenceFrame" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'VerticalReferenceFrame';
+    pub r#type: Option<String>, // 'VerticalReferenceFrame';
     /// The name of the vertical reference frame.
     pub name: String,
     /// The anchor point of the reference frame.
@@ -1568,6 +1948,11 @@ pub struct VerticalReferenceFrame {
     #[serde(flatten)]
     pub base_properties: BaseProperties,
 }
+impl ToProjJSON for VerticalReferenceFrame {
+    fn set_epoch(&mut self, epoch: f64) {
+        self.anchor_epoch = Some(epoch);
+    }
+}
 
 /// # DynamicVerticalReferenceFrame Interface
 ///
@@ -1577,7 +1962,7 @@ pub struct VerticalReferenceFrame {
 pub struct DynamicVerticalReferenceFrame {
     /// Indicates the type of reference frame. Always "DynamicVerticalReferenceFrame" for this interface.
     #[serde(rename = "type")]
-    pub r#type: String, // 'DynamicVerticalReferenceFrame';
+    pub r#type: Option<String>, // 'DynamicVerticalReferenceFrame';
     /// The name of the reference frame.
     pub name: String,
     /// The anchor point of the reference frame.
@@ -1591,6 +1976,14 @@ pub struct DynamicVerticalReferenceFrame {
     /// Base Properties
     #[serde(flatten)]
     pub base_properties: BaseProperties,
+}
+impl ToProjJSON for DynamicVerticalReferenceFrame {
+    fn set_epoch(&mut self, epoch: f64) {
+        self.anchor_epoch = Some(epoch);
+    }
+    fn set_frame_epoch(&mut self, epoch: f64) {
+        self.frame_reference_epoch = epoch;
+    }
 }
 
 /// # GeoidModel Interface
@@ -1771,7 +2164,7 @@ mod tests {
             }"#;
 
         let proj_json: GeodeticCRS = serde_json::from_str(json).unwrap();
-        assert_eq!(proj_json.r#type, "GeographicCRS");
+        assert_eq!(proj_json.r#type, Some("GeographicCRS".into()));
     }
 
     #[test]

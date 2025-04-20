@@ -142,10 +142,12 @@ impl GetRasterTileValue for MapboxElevation {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
     use super::*;
     use crate::readers::{FeatureReader, RGBA};
     use alloc::{vec, vec::Vec};
-    use s2json::{VectorGeometry, VectorPoint};
+    use s2json::{BBox, VectorGeometry, VectorPoint};
 
     #[test]
     fn test_convert_terrarium_elevation_data() {
@@ -187,7 +189,8 @@ mod tests {
                 maxzoom: 3,
                 r#type: "raster".into(),
                 extension: "webp".into(),
-                faces: vec![0.into()],
+                faces: vec![],
+                bounds: BBox::new(-180.0, -85.0, 180.0, 85.0),
                 ..Default::default()
             }
         );
@@ -260,12 +263,27 @@ mod tests {
             &Metadata {
                 name: "Modis Raster Dataset".into(),
                 description: "NASA Modis Dataset Reprojected by S2 MAPS INC.".into(),
+                // tilestats: TileStatsMetadata { total: 8190, total_0: 1365, total_1: 1365, total_2: 1365, total_3: 1365, total_4: 1365, total_5: 1365 }
+                attributions: BTreeMap::from([(
+                    "MODIS".into(),
+                    "https://modis.gsfc.nasa.gov".into()
+                )]),
+                tilestats: s2_tilejson::TileStatsMetadata {
+                    total: 8190,
+                    total_0: 1365,
+                    total_1: 1365,
+                    total_2: 1365,
+                    total_3: 1365,
+                    total_4: 1365,
+                    total_5: 1365
+                },
+                faces: vec![0.into(), 1.into(), 2.into(), 3.into(), 4.into(), 5.into()],
                 scheme: Scheme::Fzxy,
                 minzoom: 0,
                 maxzoom: 1,
                 r#type: "raster".into(),
                 extension: "webp".into(),
-                faces: vec![0.into()],
+                bounds: BBox::new(-180.0, -90.0, 180.0, 90.0),
                 ..Default::default()
             }
         );

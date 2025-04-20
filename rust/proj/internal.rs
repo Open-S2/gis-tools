@@ -1,4 +1,4 @@
-use super::{geodesic::GeodGeodesic, DatumParams, DatumType};
+use super::{DatumParams, DatumType, geodesic::GeodGeodesic};
 use alloc::string::String;
 
 /// A generic 4-dimensional point/vector

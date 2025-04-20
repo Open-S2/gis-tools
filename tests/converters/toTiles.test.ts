@@ -163,19 +163,20 @@ testFunc(
 
     const meta = await tileWriter.metadata;
     expect(meta).toEqual({
-      attribution: {
+      attributions: {
         'Satellite Data': 'https://example.com',
       },
-      bounds: {
+      wmbounds: {
         '0': [0, 0, 0, 0],
         '1': [0, 0, 1, 1],
       },
-      center: { lat: 0, lon: 0, zoom: 0 },
+      bounds: [-180, -85.05112877980659, 180, 85.05112877980659],
+      centerpoint: { lat: 0, lon: 0, zoom: 0 },
       description: 'Built by GIS-Tools',
       encoding: 'none',
       extension: 'raw',
       faces: [0],
-      facesbounds: { '0': {}, '1': {}, '2': {}, '3': {}, '4': {}, '5': {} },
+      s2bounds: { '0': {}, '1': {}, '2': {}, '3': {}, '4': {}, '5': {} },
       layers: {
         sat: {
           drawTypes: [DrawType.Raster],
@@ -262,14 +263,15 @@ testFunc(
 
     const meta = await tileWriter.metadata;
     expect(meta).toEqual({
-      attribution: {},
-      bounds: {},
-      center: { lat: 0, lon: 0, zoom: 0 },
+      attributions: {},
+      wmbounds: {},
+      centerpoint: { lat: 0, lon: 0, zoom: 0 },
       description: 'Built by GIS-Tools',
       encoding: 'gz',
       extension: 'pbf',
       faces: [5, 4, 3, 2, 1, 0],
-      facesbounds: {
+      bounds: [0, 0, 0, 0],
+      s2bounds: {
         '0': {
           '0': [0, 0, 0, 0],
         },

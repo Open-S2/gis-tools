@@ -7,7 +7,7 @@ pub mod geodesic;
 /// Projection internal tooling
 pub mod internal;
 /// Projection Parsing tools
-pub mod parser;
+pub mod parse;
 /// Projection tools
 pub mod project;
 /// Transformation tools
@@ -16,7 +16,7 @@ pub mod transform;
 pub use common::*;
 pub use convert::*;
 pub use internal::*;
-pub use parser::*;
+pub use parse::*;
 // pub use pipelines::*;
 pub use project::*;
 pub use transform::*;

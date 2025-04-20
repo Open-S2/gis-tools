@@ -23,7 +23,7 @@ test('LineString', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   };
 
-  buildSqDists(lineString, 3, SIMPLIFY_MAXZOOM);
+  buildSqDists(lineString, 3 / 4_096, SIMPLIFY_MAXZOOM);
 
   expect(lineString).toEqual({
     type: 'LineString',
@@ -37,7 +37,7 @@ test('LineString', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   });
 
-  simplify(lineString, 3, 0, SIMPLIFY_MAXZOOM);
+  simplify(lineString, 3 / 4_096, 0, SIMPLIFY_MAXZOOM);
   expect(lineString).toEqual({
     type: 'LineString',
     is3D: false,
@@ -73,7 +73,7 @@ test('MultiLineString', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   };
 
-  buildSqDists(multiLineString, 3, SIMPLIFY_MAXZOOM);
+  buildSqDists(multiLineString, 3 / 4_096, SIMPLIFY_MAXZOOM);
 
   expect(multiLineString).toEqual({
     type: 'MultiLineString',
@@ -96,7 +96,7 @@ test('MultiLineString', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   });
 
-  simplify(multiLineString, 3, 0, SIMPLIFY_MAXZOOM);
+  simplify(multiLineString, 3 / 4_096, 0, SIMPLIFY_MAXZOOM);
   expect(multiLineString).toEqual({
     type: 'MultiLineString',
     is3D: false,
@@ -141,7 +141,7 @@ test('Polygon', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   };
 
-  buildSqDists(polygon, 3, SIMPLIFY_MAXZOOM);
+  buildSqDists(polygon, 3 / 4_096, SIMPLIFY_MAXZOOM);
 
   expect(polygon).toEqual({
     type: 'Polygon',
@@ -164,7 +164,7 @@ test('Polygon', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   });
 
-  simplify(polygon, 3, 0, SIMPLIFY_MAXZOOM);
+  simplify(polygon, 3 / 4_096, 0, SIMPLIFY_MAXZOOM);
   expect(polygon).toEqual({
     type: 'Polygon',
     is3D: false,
@@ -177,9 +177,9 @@ test('Polygon', () => {
       ],
       [
         { t: 1, x: 0.5, y: 0.5 },
-        { t: 0.03125, x: 0.5, y: 0.25 },
-        { t: 0.125, x: 0.75, y: 0.25 },
         { t: 0.03125, x: 0.75, y: 0.5 },
+        { t: 0.125, x: 0.75, y: 0.25 },
+        { t: 0.03125, x: 0.5, y: 0.25 },
         { t: 1, x: 0.5, y: 0.5 },
       ],
     ],
@@ -211,7 +211,7 @@ test('MultiPolygon', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   };
 
-  buildSqDists(multiPolygon, 3, SIMPLIFY_MAXZOOM);
+  buildSqDists(multiPolygon, 3 / 4_096, SIMPLIFY_MAXZOOM);
 
   expect(multiPolygon).toEqual({
     type: 'MultiPolygon',
@@ -236,7 +236,7 @@ test('MultiPolygon', () => {
     vecBBox: [0.25, 0.25, 0.75, 0.75],
   });
 
-  simplify(multiPolygon, 3, 0, SIMPLIFY_MAXZOOM);
+  simplify(multiPolygon, 3 / 4_096, 0, SIMPLIFY_MAXZOOM);
   expect(multiPolygon).toEqual({
     type: 'MultiPolygon',
     is3D: false,
@@ -250,9 +250,9 @@ test('MultiPolygon', () => {
         ],
         [
           { t: 1, x: 0.5, y: 0.5 },
-          { t: 0.03125, x: 0.5, y: 0.25 },
-          { t: 0.125, x: 0.75, y: 0.25 },
           { t: 0.03125, x: 0.75, y: 0.5 },
+          { t: 0.125, x: 0.75, y: 0.25 },
+          { t: 0.03125, x: 0.5, y: 0.25 },
           { t: 1, x: 0.5, y: 0.5 },
         ],
       ],
