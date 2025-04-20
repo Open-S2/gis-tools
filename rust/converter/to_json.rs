@@ -130,7 +130,7 @@ pub fn to_jsonld<
 mod tests {
     use super::*;
     use crate::{
-        readers::{json::JSONReader, FileReader},
+        readers::{FileReader, json::JSONReader},
         writers::BufferWriter,
     };
     use alloc::{string::String, vec};
