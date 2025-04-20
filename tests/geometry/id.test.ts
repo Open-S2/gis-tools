@@ -43,6 +43,7 @@ import {
   idToST,
   idToUV,
   idVertexNeighbors,
+  isOutOfBoundsWM,
 } from '../../src/geometry/id';
 
 import { describe, expect, it } from 'bun:test';
@@ -510,4 +511,9 @@ describe('idGetVertices', () => {
     { x: 0.593547171020095, y: -0.576635840528651, z: -0.5614203979121691 },
     { x: 0.5930235640377648, y: -0.5776556489032209, z: -0.5609251320685729 },
   ]);
+});
+
+describe('isOutOfBoundsWM', () => {
+  expect(isOutOfBoundsWM(idFromFace(0))).toEqual(false);
+  expect(isOutOfBoundsWM(idFromFace(1))).toEqual(true);
 });
