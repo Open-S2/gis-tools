@@ -456,7 +456,9 @@ test('TileStore - polys', () => {
 
   const faceID = idFromFace(4);
   const faceTile = store.getTile(faceID);
-
+  const defaultLayer = faceTile?.layers.default;
+  expect(defaultLayer).toBeDefined();
+  expect(defaultLayer?.length).toBe(1);
   const feature = faceTile?.layers.default.features[0] as VectorFeature;
   const coords = feature.geometry.coordinates as VectorLineString;
   const expected: VectorPolygon = [

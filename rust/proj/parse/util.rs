@@ -197,4 +197,111 @@ mod tests {
         assert_eq!(angular_unit_to_degrees(" RAD "), 180.0 / core::f64::consts::PI); // Test with whitespace
         assert_eq!(angular_unit_to_degrees("dEgReE"), 1.0); // Test with mixed case
     }
+
+    #[test]
+    fn test_get_prime_meridian_greenwich() {
+        assert_eq!(get_prime_meridian("Greenwich"), 0.0);
+        assert_eq!(get_prime_meridian("greenwich"), 0.0);
+        assert_eq!(get_prime_meridian("GREENWICH"), 0.0);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_lisbon() {
+        assert_eq!(get_prime_meridian("Lisbon"), -9.131906111111);
+        assert_eq!(get_prime_meridian("lisbon"), -9.131906111111);
+        assert_eq!(get_prime_meridian("LISBON"), -9.131906111111);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_paris() {
+        assert_eq!(get_prime_meridian("Paris"), 2.337229166667);
+        assert_eq!(get_prime_meridian("paris"), 2.337229166667);
+        assert_eq!(get_prime_meridian("PARIS"), 2.337229166667);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_bogota() {
+        assert_eq!(get_prime_meridian("Bogota"), -74.080916666667);
+        assert_eq!(get_prime_meridian("bogota"), -74.080916666667);
+        assert_eq!(get_prime_meridian("BOGOTA"), -74.080916666667);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_madrid() {
+        assert_eq!(get_prime_meridian("Madrid"), -3.687938888889);
+        assert_eq!(get_prime_meridian("madrid"), -3.687938888889);
+        assert_eq!(get_prime_meridian("MADRID"), -3.687938888889);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_rome() {
+        assert_eq!(get_prime_meridian("Rome"), 12.452333333333);
+        assert_eq!(get_prime_meridian("rome"), 12.452333333333);
+        assert_eq!(get_prime_meridian("ROME"), 12.452333333333);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_bern() {
+        assert_eq!(get_prime_meridian("Bern"), 7.439583333333);
+        assert_eq!(get_prime_meridian("bern"), 7.439583333333);
+        assert_eq!(get_prime_meridian("BERN"), 7.439583333333);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_jakarta() {
+        assert_eq!(get_prime_meridian("Jakarta"), 106.807719444444);
+        assert_eq!(get_prime_meridian("jakarta"), 106.807719444444);
+        assert_eq!(get_prime_meridian("JAKARTA"), 106.807719444444);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_ferro() {
+        assert_eq!(get_prime_meridian("Ferro"), -17.666666666667);
+        assert_eq!(get_prime_meridian("ferro"), -17.666666666667);
+        assert_eq!(get_prime_meridian("FERRO"), -17.666666666667);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_brussels() {
+        assert_eq!(get_prime_meridian("Brussels"), 4.367975);
+        assert_eq!(get_prime_meridian("brussels"), 4.367975);
+        assert_eq!(get_prime_meridian("BRUSSELS"), 4.367975);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_stockholm() {
+        assert_eq!(get_prime_meridian("Stockholm"), 18.058277777778);
+        assert_eq!(get_prime_meridian("stockholm"), 18.058277777778);
+        assert_eq!(get_prime_meridian("STOCKHOLM"), 18.058277777778);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_athens() {
+        assert_eq!(get_prime_meridian("Athens"), 23.7163375);
+        assert_eq!(get_prime_meridian("athens"), 23.7163375);
+        assert_eq!(get_prime_meridian("ATHENS"), 23.7163375);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_budapest() {
+        assert_eq!(get_prime_meridian("Budapest"), 19.040236111111);
+        assert_eq!(get_prime_meridian("budapest"), 19.040236111111);
+        assert_eq!(get_prime_meridian("BUDAPEST"), 19.040236111111);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_oslo() {
+        assert_eq!(get_prime_meridian("Oslo"), 10.722916666667);
+        assert_eq!(get_prime_meridian("oslo"), 10.722916666667);
+        assert_eq!(get_prime_meridian("OSLO"), 10.722916666667);
+    }
+
+    #[test]
+    fn test_get_prime_meridian_default() {
+        assert_eq!(get_prime_meridian("London"), 0.0); // A name not in the list
+        assert_eq!(get_prime_meridian("New York"), 0.0);
+        assert_eq!(get_prime_meridian("tokyo"), 0.0);
+        assert_eq!(get_prime_meridian(""), 0.0); // Empty string
+        assert_eq!(get_prime_meridian("Some Random City"), 0.0);
+    }
 }
