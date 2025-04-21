@@ -206,15 +206,15 @@ test('high precision float 256', () => {
     return Number(parseFloat(String(val)).toFixed(6));
   }
 
-  expect(round(withInt[0])).toEqual(round(withFloat[0]));
-  expect(round(withInt[1])).toEqual(round(withFloat[1]));
+  expect(round(withInt.x)).toEqual(round(withFloat.x));
+  expect(round(withInt.y)).toEqual(round(withFloat.y));
 
   // utilize cache
   withInt = pxToLL({ x: 200, y: 200 }, 4, 256);
   withFloat = pxToLL({ x: 200, y: 200 }, 4.0000000001, 256);
 
-  expect(round(withInt[0])).toEqual(round(withFloat[0]));
-  expect(round(withInt[1])).toEqual(round(withFloat[1]));
+  expect(round(withInt.x)).toEqual(round(withFloat.x));
+  expect(round(withInt.y)).toEqual(round(withFloat.y));
 });
 
 test('high precision float 512', () => {
@@ -229,15 +229,15 @@ test('high precision float 512', () => {
     return Number(parseFloat(String(val)).toFixed(6));
   }
 
-  expect(round(withInt[0])).toEqual(round(withFloat[0]));
-  expect(round(withInt[1])).toEqual(round(withFloat[1]));
+  expect(round(withInt.x)).toEqual(round(withFloat.x));
+  expect(round(withInt.y)).toEqual(round(withFloat.y));
 
   // utilize cache
   withInt = pxToLL({ x: 200, y: 200 }, 4, 512);
   withFloat = pxToLL({ x: 200, y: 200 }, 4.0000000001, 512);
 
-  expect(round(withInt[0])).toEqual(round(withFloat[0]));
-  expect(round(withInt[1])).toEqual(round(withFloat[1]));
+  expect(round(withInt.x)).toEqual(round(withFloat.x));
+  expect(round(withInt.y)).toEqual(round(withFloat.y));
 });
 
 describe('llToTile', () => {

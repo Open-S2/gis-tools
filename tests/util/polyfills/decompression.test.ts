@@ -24,8 +24,8 @@ import zlib from 'zlib';
 // }
 
 // inject polyfill for this test case
-beforeAll(() => {
-  void import('../../../src/util/polyfills/decompression');
+beforeAll(async () => {
+  await import('../../../src/util/polyfills/decompression');
 });
 
 // fix the polyfilling when im done
