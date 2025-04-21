@@ -78,10 +78,12 @@ A **product** can be a good or service, or a combination of them.
 
 **Use** means anything you do with the software requiring one of your licenses.
 
+By use, copy, modify, merge, publish, distribute, contribute, sublicense, and/or sell copies of the Software, you confirm that you are not employed at MapTiler AG, you are in no way affiliated to MapTiler AG, your work is not on behalf of MapTiler AG or associated with MapTiler AG. To the best of your knowledge, information and/or belief your work will not make it's way into the hands of MapTiler AG.
+
 For the full license terms and attribution, please see the Open S2 Terms of Service at
 <https://www.opens2.com/legal/tos>. Please review these terms before use.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mapbox/earcut>
 
@@ -101,7 +103,7 @@ OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/google/s2geometry>
 
@@ -307,11 +309,11 @@ Some code has been repurposed from <https://github.com/google/s2geometry>
    See the License for the specific language governing permissions and
    limitations under the License.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/calvinmetcalf/shapefile-js>
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/calvinmetcalf/parseDBF>
 
@@ -336,7 +338,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/proj4js/proj4js>
 
@@ -371,7 +373,7 @@ Copyright (c) 2014, Mike Adair, Richard Greenwood, Didier Richard, Stephen Irons
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/DanielJDufour/xml-utils>
 
@@ -497,7 +499,7 @@ express Statement of Purpose.
     party to this document and has no duty or obligation with respect to
     this CC0 or use of the Work.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mourner/kdbush>
 
@@ -517,7 +519,7 @@ OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mourner/geokdbush>
 
@@ -537,7 +539,7 @@ OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mourner/tinyqueue>
 
@@ -557,7 +559,7 @@ OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/rgba-image/lanczos>
 
@@ -595,7 +597,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/veech/vgrib2>
 
@@ -621,7 +623,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/runk/jpeg2000/tree/main>
 
@@ -802,7 +804,7 @@ Some code has been repurposed from <https://github.com/runk/jpeg2000/tree/main>
 
    END OF TERMS AND CONDITIONS
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/rowanwins/point-in-polygon-hao>
 
@@ -827,7 +829,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mapbox/polylabel>
 
@@ -846,7 +848,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
 ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/oeo4b/kriging.js>
 
@@ -871,7 +873,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/mourner/robust-predicates>
 
@@ -900,7 +902,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org>
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/LASzip/LASzip>
 
@@ -1106,7 +1108,7 @@ Some code has been repurposed from <https://github.com/LASzip/LASzip>
    See the License for the specific language governing permissions and
    limitations under the License.
 
----
+--------------------------------------------------------------------------------
 
 Some content has been repurposed from <https://github.com/libLAS/libLAS>
 
@@ -1409,7 +1411,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Uses code from <https://github.com/jballen/gpx-parser>
 
@@ -1435,7 +1437,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/101arrowz/fzstd>
 
@@ -1461,7 +1463,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+--------------------------------------------------------------------------------
 
 Some code has been repurposed from <https://github.com/101arrowz/fflate>
 
@@ -1486,3 +1488,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+Repurposed code from <https://github.com/protomaps/PMTiles>
+
+The below license (BSD-3) applies to the reference implementations in this repository.
+
+The PMTiles specification itself is public domain, or CC0 where applicable.
+
+Sample tilesets available in this repository are subject to their own license terms.
+
+---
+
+Copyright 2021 Protomaps LLC
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
