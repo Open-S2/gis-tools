@@ -154,7 +154,6 @@ test('toJSON - WM & bbox & onFeature - flat', async () => {
         geometry: {
           bbox: [144.9584, -37.8173, 144.9584, -37.8173],
           coordinates: [144.9584, -37.8173],
-          is3D: false,
           type: 'Point',
         },
         properties: {
@@ -166,7 +165,6 @@ test('toJSON - WM & bbox & onFeature - flat', async () => {
         geometry: {
           bbox: [151.2144, -33.8766, 151.2144, -33.8766],
           coordinates: [151.2144, -33.8766],
-          is3D: false,
           type: 'Point',
         },
         properties: {
