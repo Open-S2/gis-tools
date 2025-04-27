@@ -1,13 +1,15 @@
-mod convert_to_vector;
-mod convert_wm_to_s2;
+mod flat;
+mod s2;
+mod vector;
 
-use crate::geometry::build_sq_dists;
+use crate::geometry::ConvertVectorFeatureS2;
 use alloc::{vec, vec::Vec};
-use convert_to_vector::convert_geometry_to_vector;
-use convert_wm_to_s2::{ConvertedGeometry, convert_geometry_wm_to_s2};
+use flat::convert_vector_to_geometry;
+use s2::{ConvertedGeometry, convert_geometry_wm_to_s2};
 use s2json::{
     BBox3D, Feature, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
 };
+use vector::convert_geometry_to_vector;
 
 /// Underlying conversion mechanic to move GeoJSON Feature to GeoJSON Vector Feature
 pub trait ConvertFeature<
@@ -40,18 +42,20 @@ pub trait ConvertVectorFeatureWM<
 >
 {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
-    fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>);
+    fn to_unit_scale(&mut self);
     /// Convert a 0->1 coordinate system to lon-lat
     fn to_ll(&mut self);
     /// Convert a GeoJSON Vector Feature to an S2 Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M, P, D>>;
+    fn to_s2(&self) -> Vec<VectorFeature<M, P, D>>;
+    /// Convert a GeoJSON VectorFeature to a "flat" GeoJSON Feature
+    fn to_feature(&self, build_bbox: bool) -> Feature<M, P, D>;
 }
 
 impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureWM<M, P, D>
     for VectorFeature<M, P, D>
 {
     /// Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
-    fn to_unit_scale(&mut self, tolerance: Option<f64>, maxzoom: Option<u8>) {
+    fn to_unit_scale(&mut self) {
         let mut bbox = BBox3D::default();
         match &mut self.geometry {
             VectorGeometry::Point(geo) => {
@@ -74,10 +78,6 @@ impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureWM<M,
                 });
                 geo.vec_bbox = Some(bbox);
             }
-        }
-
-        if let Some(tolerance) = tolerance {
-            build_sq_dists(&mut self.geometry, tolerance, maxzoom);
         }
     }
 
@@ -102,14 +102,14 @@ impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureWM<M,
     }
 
     /// Convet a GeoJSON Feature to an S2Feature
-    fn to_s2(&self, tolerance: Option<f64>, maxzoom: Option<u8>) -> Vec<VectorFeature<M, P, D>> {
+    fn to_s2(&self) -> Vec<VectorFeature<M, P, D>> {
         let VectorFeature { _type, id, properties, metadata, geometry, .. } = self;
         let mut res: Vec<VectorFeature<M, P, D>> = vec![];
 
         if *_type == VectorFeatureType::S2Feature {
             res.push(self.clone());
         } else {
-            let vector_geo = convert_geometry_wm_to_s2(geometry, tolerance, maxzoom);
+            let vector_geo = convert_geometry_wm_to_s2(geometry);
             for ConvertedGeometry { geometry, face } in vector_geo {
                 res.push(VectorFeature::<M, P, D>::new_s2(
                     *id,
@@ -123,18 +123,30 @@ impl<M: Clone, P: Clone + Default, D: Clone + Default> ConvertVectorFeatureWM<M,
 
         res
     }
+
+    /// Convert a GeoJSON VectorFeature to a "flat" GeoJSON Feature
+    fn to_feature(&self, build_bbox: bool) -> Feature<M, P, D> {
+        if self._type == VectorFeatureType::S2Feature {
+            let VectorFeature { id, properties, metadata, geometry, .. } = &self.to_wm();
+            let geo = convert_vector_to_geometry(geometry, build_bbox);
+            Feature::new(*id, properties.clone(), geo, metadata.clone())
+        } else {
+            let VectorFeature { id, properties, metadata, geometry, .. } = self;
+            let geo = convert_vector_to_geometry(geometry, build_bbox);
+            Feature::new(*id, properties.clone(), geo, metadata.clone())
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::geometry::convert;
-
     use super::*;
-
+    use crate::geometry::convert;
     use s2json::{
-        BBox, Geometry, JSONCollection, Point, PointGeometry, Projection, VectorLineStringGeometry,
-        VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygonGeometry,
-        VectorPoint, VectorPointGeometry, VectorPolygonGeometry,
+        BBox, Geometry, GeometryType, JSONCollection, Point, PointGeometry, Projection,
+        VectorGeometryType, VectorLineStringGeometry, VectorMultiLineStringGeometry,
+        VectorMultiPointGeometry, VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
+        VectorPolygonGeometry,
     };
 
     #[test]
@@ -144,7 +156,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -184,7 +196,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -232,7 +244,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -287,7 +299,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -356,7 +368,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -425,7 +437,7 @@ mod test {
             ..Default::default()
         };
         // TO UNIT SCALE 0->1
-        s2_feature.to_unit_scale(None, None);
+        s2_feature.to_unit_scale();
         // expect vbox and coords to update:
         assert_eq!(
             s2_feature.geometry,
@@ -491,8 +503,9 @@ mod test {
         let wm_feature = convert(
             Projection::WG,
             &JSONCollection::Feature(feature.clone()),
-            Some(3.),
-            Some(12),
+            // Some(3.),
+            // Some(12),
+            Some(true),
             Some(true),
         );
 
@@ -524,6 +537,78 @@ mod test {
                 }),
                 ..Default::default()
             }]
+        );
+    }
+
+    #[test]
+    fn vector_to_flat() {
+        let vector_feature = VectorFeature::<MValue> {
+            _type: VectorFeatureType::VectorFeature,
+            id: Some(1_337),
+            geometry: VectorGeometry::Point(VectorPointGeometry {
+                _type: VectorGeometryType::Point,
+                coordinates: VectorPoint::new(
+                    1.0,
+                    2.0,
+                    None,
+                    Some(MValue::from([("a".into(), (1_u64).into())])),
+                ),
+                is_3d: false,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let points = vector_feature.to_feature(true);
+
+        assert_eq!(
+            points,
+            Feature {
+                _type: "Feature".into(),
+                id: Some(1_337),
+                geometry: Geometry::Point(PointGeometry {
+                    _type: GeometryType::Point,
+                    coordinates: Point(1.0, 2.0),
+                    m_values: Some(MValue::from([("a".into(), (1_u64).into())])),
+                    bbox: Some(BBox::new(1.0, 2.0, 1.0, 2.0)),
+                }),
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn s2_to_flat() {
+        let vector_feature = VectorFeature::<MValue> {
+            _type: VectorFeatureType::S2Feature,
+            id: Some(1_337),
+            geometry: VectorGeometry::Point(VectorPointGeometry {
+                _type: VectorGeometryType::Point,
+                coordinates: VectorPoint::new(
+                    1.0,
+                    2.0,
+                    None,
+                    Some(MValue::from([("a".into(), (1_u64).into())])),
+                ),
+                is_3d: false,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let points = vector_feature.to_feature(true);
+
+        assert_eq!(
+            points,
+            Feature {
+                _type: "Feature".into(),
+                id: Some(1_337),
+                geometry: Geometry::Point(PointGeometry {
+                    _type: GeometryType::Point,
+                    coordinates: Point(45.0, 74.20683095173604),
+                    m_values: Some(MValue::from([("a".into(), (1_u64).into())])),
+                    bbox: Some(BBox::new(45.0, 74.20683095173604, 45.0, 74.20683095173604)),
+                }),
+                ..Default::default()
+            }
         );
     }
 }

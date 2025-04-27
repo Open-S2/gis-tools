@@ -11,9 +11,9 @@ import type {
 } from '../index.js';
 
 /**
- * Convert an S2Feature to a GeoJSON Feature
+ * Convert an S2Feature to a GeoJSON Vector Feature
  * @param data - S2Feature
- * @returns - GeoJSON Feature
+ * @returns - GeoJSON Vector Feature
  */
 export function toWM<
   M = Record<string, unknown>,
@@ -22,7 +22,7 @@ export function toWM<
   G extends VectorGeometry<D> = VectorGeometry<D>,
 >(data: S2Feature<M, D, P, G>): VectorFeature<M, D, P, G> {
   const { id, face, properties, metadata, geometry } = data;
-  convertGeometry<D>(face, geometry);
+  s2ToVector<D>(face, geometry);
   return {
     id,
     type: 'VectorFeature',
@@ -37,7 +37,7 @@ export function toWM<
  * @param face - Face
  * @param geometry - S2 Geometry
  */
-function convertGeometry<M extends MValue = Properties>(
+export function s2ToVector<M extends MValue = Properties>(
   face: Face,
   geometry: VectorGeometry<M>,
 ): void {

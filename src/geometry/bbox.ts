@@ -133,8 +133,8 @@ export function mergeBBoxes(b1: BBOX | undefined, b2: BBOX): BBOX {
   b1[2] = max(b1[2] ?? b2[2], b2[2]);
   b1[3] = max(b1[3] ?? b2[3], b2[3]);
   if (b1.length > 4 || b2.length > 4) {
-    b1[4] = min(b1[4] ?? 0, b2[4] ?? 0);
-    b1[5] = max(b1[5] ?? 0, b2[5] ?? 0);
+    b1[4] = min(b1[4] ?? b2[4] ?? 0, b2[4] ?? 0);
+    b1[5] = max(b1[5] ?? b2[5] ?? 0, b2[5] ?? 0);
   }
 
   return b1;

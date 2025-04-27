@@ -8,14 +8,14 @@ use alloc::{vec, vec::Vec};
 pub fn convert<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &JSONCollection<M, P, D>,
-    tolerance: Option<f64>,
-    maxzoom: Option<u8>,
     build_bbox: Option<bool>,
+    to_unit_scale: Option<bool>,
 ) -> Vec<VectorFeature<M, P, D>>
 where
     VectorFeature<M, P, D>: ConvertVectorFeatureWM<M, P, D> + ConvertVectorFeatureS2<M, P, D>,
     Feature<M, P, D>: ConvertFeature<M, P, D>,
 {
+    let to_unit_scale = to_unit_scale.unwrap_or(false);
     let mut res: Vec<VectorFeature<M, P, D>> = vec![];
 
     match data {
@@ -23,26 +23,24 @@ where
             for feature in &feature_collection.features {
                 match &feature {
                     Features::Feature(feature) => {
-                        res.extend(convert_feature(
-                            projection, feature, tolerance, maxzoom, build_bbox,
-                        ));
+                        res.extend(convert_feature(projection, feature, to_unit_scale, build_bbox));
                     }
                     Features::VectorFeature(feature) => {
-                        res.extend(convert_vector_feature(projection, feature, tolerance, maxzoom))
+                        res.extend(convert_vector_feature(projection, feature, to_unit_scale))
                     }
                 }
             }
         }
         JSONCollection::S2FeatureCollection(feature_collection) => {
             for feature in &feature_collection.features {
-                res.extend(convert_vector_feature(projection, feature, tolerance, maxzoom));
+                res.extend(convert_vector_feature(projection, feature, to_unit_scale));
             }
         }
         JSONCollection::Feature(feature) => {
-            res.extend(convert_feature(projection, feature, tolerance, maxzoom, build_bbox));
+            res.extend(convert_feature(projection, feature, to_unit_scale, build_bbox));
         }
         JSONCollection::VectorFeature(feature) => {
-            res.extend(convert_vector_feature(projection, feature, tolerance, maxzoom));
+            res.extend(convert_vector_feature(projection, feature, to_unit_scale));
         }
     }
 
@@ -53,8 +51,7 @@ where
 fn convert_feature<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &Feature<M, P, D>,
-    tolerance: Option<f64>,
-    maxzoom: Option<u8>,
+    to_unit_scale: bool,
     build_bbox: Option<bool>,
 ) -> Vec<VectorFeature<M, P, D>>
 where
@@ -63,9 +60,11 @@ where
 {
     let mut vf: VectorFeature<M, P, D> = Feature::to_vector(data, build_bbox);
     match projection {
-        Projection::S2 => vf.to_s2(tolerance, maxzoom),
+        Projection::S2 => vf.to_s2(),
         Projection::WG => {
-            vf.to_unit_scale(tolerance, maxzoom);
+            if to_unit_scale {
+                vf.to_unit_scale();
+            }
             vec![vf]
         }
     }
@@ -75,17 +74,18 @@ where
 fn convert_vector_feature<M: Clone, P: Clone + Default, D: Clone + Default>(
     projection: Projection,
     data: &VectorFeature<M, P, D>,
-    tolerance: Option<f64>,
-    maxzoom: Option<u8>,
+    to_unit_scale: bool,
 ) -> Vec<VectorFeature<M, P, D>>
 where
     VectorFeature<M, P, D>: ConvertVectorFeatureWM<M, P, D>,
 {
     match projection {
-        Projection::S2 => data.to_s2(tolerance, maxzoom),
+        Projection::S2 => data.to_s2(),
         Projection::WG => {
             let mut vf = data.to_wm();
-            vf.to_unit_scale(tolerance, maxzoom);
+            if to_unit_scale {
+                vf.to_unit_scale();
+            }
             vec![vf]
         }
     }

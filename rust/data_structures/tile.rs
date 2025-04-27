@@ -2,7 +2,7 @@ use crate::{
     geometry::{
         CellId, ConvertFeature, ConvertVectorFeatureS2, ConvertVectorFeatureWM, Face,
         JSONCollection, Projection, SimplifyVectorGeometry, TileChildren, VectorFeature,
-        VectorGeometry, VectorPoint, convert,
+        VectorGeometry, VectorPoint, build_sq_dists, convert,
     },
     readers::FeatureReader,
 };
@@ -199,13 +199,8 @@ where
             "maxzoom should be in the 0-20 range"
         );
         // convert features
-        let features: Vec<VectorFeature<M, P, D>> = convert(
-            tile_store.projection,
-            &data,
-            Some(tile_store.tolerance),
-            Some(tile_store.maxzoom),
-            None,
-        );
+        let features: Vec<VectorFeature<M, P, D>> =
+            convert(tile_store.projection, &data, Some(true), Some(true));
         features.into_iter().for_each(|feature| tile_store.add_feature(feature));
         for i in 0..6 {
             tile_store.split_tile(CellId::from_face(i), None, None);
@@ -215,12 +210,14 @@ where
     }
 
     /// Add a feature to the tile store
-    fn add_feature(&mut self, feature: VectorFeature<M, P, D>) {
+    fn add_feature(&mut self, mut feature: VectorFeature<M, P, D>) {
         let face: u8 = feature.face.into();
         let tile = self.tiles.entry(CellId::from_face(face)).or_insert_with(|| {
             self.faces.insert(feature.face);
             Tile::new(CellId::from_face(face))
         });
+        // Prep Douglas-Peucker simplification by setting t-values.
+        build_sq_dists(&mut feature.geometry, self.tolerance, Some(self.maxzoom));
 
         tile.add_feature(feature, None);
     }
@@ -508,7 +505,14 @@ mod tests {
                         is_3d: false,
                         coordinates: VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: None },
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: 0.0,
+                            bottom: 0.0,
+                            right: 0.0,
+                            top: 0.0,
+                            near: 1.7976931348623157e308,
+                            far: -1.7976931348623157e308
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.5,
                             bottom: 0.5,
@@ -538,7 +542,14 @@ mod tests {
                             t: None
                         },
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: 45.0,
+                            bottom: 45.0,
+                            right: 45.0,
+                            top: 45.0,
+                            near: 1.0,
+                            far: 1.0
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.625,
                             bottom: 0.35972503691520497,
@@ -577,7 +588,14 @@ mod tests {
                             }
                         ],
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: -45.0,
+                            bottom: -45.0,
+                            right: -45.0,
+                            top: 45.0,
+                            near: 1.7976931348623157e308,
+                            far: -1.7976931348623157e308
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.375,
                             bottom: 0.35972503691520497,
@@ -616,7 +634,14 @@ mod tests {
                             }
                         ],
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: -180.0,
+                            bottom: -45.0,
+                            right: 45.0,
+                            top: 20.0,
+                            near: 1.0,
+                            far: 2.0
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.0,
                             bottom: 0.4432805993614054,
@@ -702,7 +727,14 @@ mod tests {
                     is_3d: false,
                     coordinates: VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: None },
                     offset: None,
-                    bbox: None,
+                    bbox: Some(BBox3D {
+                        left: 0.0,
+                        bottom: 0.0,
+                        right: 0.0,
+                        top: 0.0,
+                        near: 1.7976931348623157e308,
+                        far: -1.7976931348623157e308
+                    }),
                     vec_bbox: Some(BBox3D {
                         left: 0.5,
                         bottom: 0.5,
@@ -814,7 +846,14 @@ mod tests {
                             }
                         ],
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: -13.292352825505162,
+                            bottom: 16.040052775278994,
+                            right: 76.38149901912357,
+                            top: 59.56941785818924,
+                            near: 1.7976931348623157e308,
+                            far: -1.7976931348623157e308
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.4630767977069301,
                             bottom: 0.29277635129241236,
@@ -899,7 +938,14 @@ mod tests {
                             ]
                         ],
                         offset: None,
-                        bbox: None,
+                        bbox: Some(BBox3D {
+                            left: 128.5373078367444,
+                            bottom: -69.38636090051318,
+                            right: 166.1775933788045,
+                            top: 53.37525605304839,
+                            near: -1.0,
+                            far: 8.0
+                        }),
                         vec_bbox: Some(BBox3D {
                             left: 0.8570480773242899,
                             bottom: 0.3240121995384903,

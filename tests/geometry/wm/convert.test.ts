@@ -1,4 +1,10 @@
-import { toLL, toS2, toUnitScale, toVector } from '../../../src/geometry/wm/convert';
+import {
+  toFlatGeometry,
+  toLL,
+  toS2,
+  toUnitScale,
+  toVector,
+} from '../../../src/geometry/wm/convert';
 
 import { expect, test } from 'bun:test';
 
@@ -1165,7 +1171,7 @@ test('toS2 - MultiPolygon', () => {
   ]);
 });
 
-test('toS2 - Error', () => {
+test('toS2, toLL, & toFlatGeometry - Error', () => {
   const err: VectorFeature = {
     id: 1337,
     type: 'VectorFeature',
@@ -1183,4 +1189,494 @@ test('toS2 - Error', () => {
   expect(() => toLL(err)).toThrowError(
     'Either the conversion is not yet supported or Invalid S2Geometry type.',
   );
+
+  expect(() => toFlatGeometry(err)).toThrowError('Invalid Geometry type');
+});
+
+test('toFlatGeometry - Point', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'Point',
+      is3D: false,
+      coordinates: { x: 0, y: 0, m: { b: 2 } },
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'Point',
+      mValues: { b: 2 },
+      coordinates: [0, 0],
+    },
+  });
+});
+
+test('toFlatGeometry - Point3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'Point',
+      is3D: true,
+      coordinates: { x: 0.5, y: 0.5, z: 1, m: { b: 2 } },
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'Point3D',
+      bbox: [0.5, 0.5, 0.5, 0.5, 1, 1],
+      mValues: { b: 2 },
+      coordinates: [0.5, 0.5, 1],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiPoint', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPoint',
+      is3D: false,
+      coordinates: [
+        { x: 0, y: 0, m: { b: 2 } },
+        { x: 2, y: 3, m: { b: 3 } },
+        { x: -2, y: -3, m: { b: 4 } },
+      ],
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPoint',
+      mValues: [{ b: 2 }, { b: 3 }, { b: 4 }],
+      coordinates: [
+        [0, 0],
+        [2, 3],
+        [-2, -3],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiPoint3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPoint',
+      is3D: true,
+      coordinates: [
+        { x: 0, y: 0, z: 0, m: { b: 2 } },
+        { x: 2, y: 3, z: 15, m: { b: 3 } },
+        { x: -2, y: -3, z: -15, m: { b: 4 } },
+      ],
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPoint3D',
+      bbox: [-2, -3, 2, 3, -15, 15],
+      mValues: [{ b: 2 }, { b: 3 }, { b: 4 }],
+      coordinates: [
+        [0, 0, 0],
+        [2, 3, 15],
+        [-2, -3, -15],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - LineString', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'LineString',
+      is3D: false,
+      coordinates: [
+        { x: 0, y: 0, m: { b: 2 } },
+        { x: 2, y: 3, m: { b: 3 } },
+        { x: -2, y: -3, m: { b: 4 } },
+      ],
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'LineString',
+      mValues: [{ b: 2 }, { b: 3 }, { b: 4 }],
+      coordinates: [
+        [0, 0],
+        [2, 3],
+        [-2, -3],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - LineString3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'LineString',
+      is3D: true,
+      coordinates: [
+        { x: 0, y: 0, z: 0, m: { b: 2 } },
+        { x: 2, y: 3, z: 15, m: { b: 3 } },
+        { x: -2, y: -3, z: -15, m: { b: 4 } },
+      ],
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'LineString3D',
+      bbox: [-2, -3, 2, 3, -15, 15],
+      mValues: [{ b: 2 }, { b: 3 }, { b: 4 }],
+      coordinates: [
+        [0, 0, 0],
+        [2, 3, 15],
+        [-2, -3, -15],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiLineString', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiLineString',
+      is3D: false,
+      coordinates: [
+        [
+          { x: 0, y: 0, m: { b: 2 } },
+          { x: 2, y: 3, m: { b: 3 } },
+          { x: -2, y: -3, m: { b: 4 } },
+        ],
+        [
+          { x: 12, y: 13, m: { b: 5 } },
+          { x: 14, y: 15, m: { b: 6 } },
+          { x: -12, y: -13, m: { b: 7 } },
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiLineString',
+      mValues: [
+        [{ b: 2 }, { b: 3 }, { b: 4 }],
+        [{ b: 5 }, { b: 6 }, { b: 7 }],
+      ],
+      coordinates: [
+        [
+          [0, 0],
+          [2, 3],
+          [-2, -3],
+        ],
+        [
+          [12, 13],
+          [14, 15],
+          [-12, -13],
+        ],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiLineString3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiLineString',
+      is3D: true,
+      coordinates: [
+        [
+          { x: 0, y: 0, z: 0, m: { b: 2 } },
+          { x: 2, y: 3, z: 15, m: { b: 3 } },
+          { x: -2, y: -3, z: -15, m: { b: 4 } },
+        ],
+        [
+          { x: 12, y: 13, z: 0, m: { b: 5 } },
+          { x: 14, y: 15, z: 1111, m: { b: 6 } },
+          { x: -12, y: -13, z: -222, m: { b: 7 } },
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiLineString3D',
+      bbox: [-12, -13, 14, 15, -222, 1111],
+      mValues: [
+        [{ b: 2 }, { b: 3 }, { b: 4 }],
+        [{ b: 5 }, { b: 6 }, { b: 7 }],
+      ],
+      coordinates: [
+        [
+          [0, 0, 0],
+          [2, 3, 15],
+          [-2, -3, -15],
+        ],
+        [
+          [12, 13, 0],
+          [14, 15, 1111],
+          [-12, -13, -222],
+        ],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - Polygon', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'Polygon',
+      is3D: false,
+      coordinates: [
+        [
+          { x: 0, y: 0, m: { b: 2 } },
+          { x: 2, y: 3, m: { b: 3 } },
+          { x: -2, y: -3, m: { b: 4 } },
+        ],
+        [
+          { x: 12, y: 13, m: { b: 5 } },
+          { x: 14, y: 15, m: { b: 6 } },
+          { x: -12, y: -13, m: { b: 7 } },
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'Polygon',
+      mValues: [
+        [{ b: 2 }, { b: 3 }, { b: 4 }],
+        [{ b: 5 }, { b: 6 }, { b: 7 }],
+      ],
+      coordinates: [
+        [
+          [0, 0],
+          [2, 3],
+          [-2, -3],
+        ],
+        [
+          [12, 13],
+          [14, 15],
+          [-12, -13],
+        ],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - Polygon3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'Polygon',
+      is3D: true,
+      coordinates: [
+        [
+          { x: 0, y: 0, z: 0, m: { b: 2 } },
+          { x: 2, y: 3, z: 15, m: { b: 3 } },
+          { x: -2, y: -3, z: -15, m: { b: 4 } },
+        ],
+        [
+          { x: 12, y: 13, z: 0, m: { b: 5 } },
+          { x: 14, y: 15, z: 1111, m: { b: 6 } },
+          { x: -12, y: -13, z: -222, m: { b: 7 } },
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'Polygon3D',
+      bbox: [-12, -13, 14, 15, -222, 1111],
+      mValues: [
+        [{ b: 2 }, { b: 3 }, { b: 4 }],
+        [{ b: 5 }, { b: 6 }, { b: 7 }],
+      ],
+      coordinates: [
+        [
+          [0, 0, 0],
+          [2, 3, 15],
+          [-2, -3, -15],
+        ],
+        [
+          [12, 13, 0],
+          [14, 15, 1111],
+          [-12, -13, -222],
+        ],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiPolygon', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPolygon',
+      is3D: false,
+      coordinates: [
+        [
+          [
+            { x: 0, y: 0, m: { b: 2 } },
+            { x: 2, y: 3, m: { b: 3 } },
+            { x: -2, y: -3, m: { b: 4 } },
+          ],
+          [
+            { x: 12, y: 13, m: { b: 5 } },
+            { x: 14, y: 15, m: { b: 6 } },
+            { x: -12, y: -13, m: { b: 7 } },
+          ],
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPolygon',
+      mValues: [
+        [
+          [{ b: 2 }, { b: 3 }, { b: 4 }],
+          [{ b: 5 }, { b: 6 }, { b: 7 }],
+        ],
+      ],
+      coordinates: [
+        [
+          [
+            [0, 0],
+            [2, 3],
+            [-2, -3],
+          ],
+          [
+            [12, 13],
+            [14, 15],
+            [-12, -13],
+          ],
+        ],
+      ],
+    },
+  });
+});
+
+test('toFlatGeometry - MultiPolygon3D', () => {
+  const point: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPolygon',
+      is3D: true,
+      coordinates: [
+        [
+          [
+            { x: 0, y: 0, z: 0, m: { b: 2 } },
+            { x: 2, y: 3, z: 15, m: { b: 3 } },
+            { x: -2, y: -3, z: -15, m: { b: 4 } },
+          ],
+          [
+            { x: 12, y: 13, z: 0, m: { b: 5 } },
+            { x: 14, y: 15, z: 1111, m: { b: 6 } },
+            { x: -12, y: -13, z: -222, m: { b: 7 } },
+          ],
+        ],
+      ],
+    },
+  };
+  expect(toFlatGeometry(point, true)).toEqual({
+    id: 1337,
+    type: 'Feature',
+    metadata: { meta: 'true' },
+    properties: { a: 1 },
+    geometry: {
+      type: 'MultiPolygon3D',
+      bbox: [-12, -13, 14, 15, -222, 1111],
+      mValues: [
+        [
+          [{ b: 2 }, { b: 3 }, { b: 4 }],
+          [{ b: 5 }, { b: 6 }, { b: 7 }],
+        ],
+      ],
+      coordinates: [
+        [
+          [
+            [0, 0, 0],
+            [2, 3, 15],
+            [-2, -3, -15],
+          ],
+          [
+            [12, 13, 0],
+            [14, 15, 1111],
+            [-12, -13, -222],
+          ],
+        ],
+      ],
+    },
+  });
 });

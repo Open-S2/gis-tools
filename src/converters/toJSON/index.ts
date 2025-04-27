@@ -1,5 +1,5 @@
 import { convert } from '../../geometry/tools/convert.js';
-import { mergeBBoxes } from '../../geometry/index.js';
+import { mergeBBoxes, toFlatGeometry } from '../../geometry/index.js';
 
 import type { FeatureIterator } from '../../readers/index.js';
 import type { Writer } from '../../writers/index.js';
@@ -7,8 +7,13 @@ import type { BBOX, Projection, VectorFeatures } from '../../geometry/index.js';
 
 /** User defined options on how to store the features */
 export interface ToJSONOptions {
+  /** S2 or WG */
   projection?: Projection;
+  /** add a bounding box */
   buildBBox?: boolean;
+  /** to store as a FeatureCollection / Feature where the m-value is dropped and [x, y, z] instead of { x, y, z } for each Point */
+  geojson?: boolean;
+  /** handle each feature */
   onFeature?: (feature: VectorFeatures) => VectorFeatures | undefined;
 }
 
@@ -60,7 +65,8 @@ export async function toJSON(
           bbox = mergeBBoxes(bbox, userFeature.geometry.bbox);
         if (!first) await writer.appendString(',\n');
         else first = false;
-        await writer.appendString(`\t\t${JSON.stringify(userFeature)}`);
+        const storedFeature = opts?.geojson === true ? toFlatGeometry(userFeature) : userFeature;
+        await writer.appendString(`\t\t${JSON.stringify(storedFeature)}`);
       }
     }
   }
@@ -111,7 +117,8 @@ export async function toJSONLD(
       for (const convertedFeature of convertedFeatures) {
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;
-        await writer.appendString(JSON.stringify(userFeature) + '\n');
+        const storedFeature = opts?.geojson === true ? toFlatGeometry(userFeature) : userFeature;
+        await writer.appendString(JSON.stringify(storedFeature) + '\n');
       }
     }
   }

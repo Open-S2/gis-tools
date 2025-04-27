@@ -138,7 +138,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
     /// Add a vector feature. It will try to use the M-value first, but if it doesn't exist
     /// it will use the feature properties data
     pub fn insert_feature<T: Clone>(&mut self, data: JSONCollection<T, M, M>) {
-        let features = convert(self.projection, &data, None, None, Some(true));
+        let features = convert(self.projection, &data, Some(true), Some(true));
         for feature in features {
             match feature.geometry {
                 VectorGeometry::Point(geometry) => {

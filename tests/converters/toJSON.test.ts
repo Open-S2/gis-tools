@@ -123,6 +123,62 @@ test('toJSON - WM & bbox & onFeature', async () => {
   });
 });
 
+test('toJSON - WM & bbox & onFeature - flat', async () => {
+  const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
+  const jsonReader = new JSONReader(fileReader);
+  const bufWriter = new BufferWriter();
+  /**
+   * @param feature - the feature to modify
+   * @returns the modified feature
+   */
+  const onFeature = (feature: VectorFeatures): VectorFeatures | undefined => {
+    if (feature.properties.name === 'Canberra') return;
+    feature.properties.name = 'Redacted';
+    return feature;
+  };
+  await toJSON(bufWriter, [jsonReader], {
+    projection: 'WG',
+    buildBBox: true,
+    onFeature,
+    geojson: true,
+  });
+  const string = new TextDecoder().decode(bufWriter.commit());
+  expect(string).toEqual(
+    '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[144.9584,-37.8173],"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766],"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [0],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
+  );
+  expect(JSON.parse(string)).toEqual({
+    bbox: [144.9584, -37.8173, 151.2144, -33.8766],
+    faces: [0],
+    features: [
+      {
+        geometry: {
+          bbox: [144.9584, -37.8173, 144.9584, -37.8173],
+          coordinates: [144.9584, -37.8173],
+          is3D: false,
+          type: 'Point',
+        },
+        properties: {
+          name: 'Redacted',
+        },
+        type: 'Feature',
+      },
+      {
+        geometry: {
+          bbox: [151.2144, -33.8766, 151.2144, -33.8766],
+          coordinates: [151.2144, -33.8766],
+          is3D: false,
+          type: 'Point',
+        },
+        properties: {
+          name: 'Redacted',
+        },
+        type: 'Feature',
+      },
+    ],
+    type: 'FeatureCollection',
+  });
+});
+
 test('toJSONLD', async () => {
   const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
   const jsonReader = new JSONReader(fileReader);

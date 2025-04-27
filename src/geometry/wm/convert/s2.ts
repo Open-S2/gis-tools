@@ -1,7 +1,8 @@
-import { clipLine } from '../tools/clip.js';
-import { radToDeg } from '../index.js';
-import { extendBBox, fromPoint, mergeBBoxes } from '../bbox.js';
-import { pointFromLonLat as fromLonLat, pointToST as toST } from '../s2/point.js';
+import { clipLine } from '../../tools/clip.js';
+import { pointFromLonLat as fromLonLat, pointToST as toST } from '../../s2/point.js';
+import { fromPoint, mergeBBoxes } from '../../bbox.js';
+
+import { geoToVector } from './vector.js';
 
 import type {
   BBOX,
@@ -9,12 +10,9 @@ import type {
   Feature,
   Geometry,
   MValue,
-  Point,
-  Point3D,
   Properties,
   S2Feature,
   STPoint,
-  VectorCoordinates,
   VectorFeature,
   VectorGeometry,
   VectorLineString,
@@ -26,7 +24,7 @@ import type {
   VectorPointGeometry,
   VectorPolygon,
   VectorPolygonGeometry,
-} from '../index.js';
+} from '../../index.js';
 
 /**
  * Convet a GeoJSON Feature to an S2Feature
@@ -45,8 +43,8 @@ export function toS2<
   const { id, properties, metadata } = data;
   const res: S2Feature<M, D, P>[] = [];
   const vectorGeo =
-    data.type === 'VectorFeature' ? data.geometry : convertGeometry<D>(data.geometry, buildBBox);
-  for (const { geometry, face } of convertVectorGeometry<D>(vectorGeo)) {
+    data.type === 'VectorFeature' ? data.geometry : geoToVector<D>(data.geometry, buildBBox);
+  for (const { geometry, face } of vectorGeoToS2<D>(vectorGeo)) {
     res.push({
       id,
       type: 'S2Feature',
@@ -58,87 +56,6 @@ export function toS2<
   }
 
   return res;
-}
-
-/**
- * Convert a GeoJSON Feature to a GeoJSON Vector Feature
- * @param data - GeoJSON Feature
- * @param buildBBox - optional - build a bbox for the feature if desired
- * @returns - GeoJson Vector Feature
- */
-export function toVector<
-  M = Record<string, unknown>,
-  D extends MValue = Properties,
-  P extends Properties = Properties,
-  G extends Geometry<D> = Geometry<D>,
->(data: Feature<M, D, P, G>, buildBBox?: boolean): VectorFeature<M, D, P, VectorGeometry<D>> {
-  const { id, properties, metadata } = data;
-  const vectorGeo = convertGeometry<D>(data.geometry, buildBBox);
-  return {
-    id,
-    type: 'VectorFeature',
-    properties,
-    metadata,
-    geometry: vectorGeo,
-  };
-}
-
-/**
- * Mutate a GeoJSON Point to a GeoJson Vector Point
- * @param point - GeoJSON flat Point
- * @param m - optional m-value
- * @param bbox - if bbox is provided, we will extend the bbox
- * @returns - GeoJson Vector Point
- */
-function convertPoint(point: Point | Point3D, m?: MValue, bbox?: BBOX): VectorPoint {
-  const newPoint: VectorPoint = { x: point[0], y: point[1], z: point[2], m };
-  if (bbox !== undefined) {
-    const newBBox = extendBBox(bbox, newPoint);
-    for (let i = 0; i < newBBox.length; i++) bbox[i] = newBBox[i];
-  }
-  return newPoint;
-}
-
-/**
- * Convert a GeoJSON Geometry to an Vector Geometry
- * @param geometry - GeoJSON Geometry
- * @param buildBBox - optional - build a bbox for the feature if desired
- * @returns - GeoJson Vector Geometry
- */
-function convertGeometry<M extends MValue = Properties>(
-  geometry: Geometry<M>,
-  buildBBox?: boolean,
-): VectorGeometry<M> {
-  const { type, coordinates: coords, mValues, bbox } = geometry;
-  const newBBox: BBOX | undefined =
-    buildBBox !== false && bbox === undefined ? ([] as unknown as BBOX) : undefined;
-
-  let coordinates: VectorCoordinates;
-  if (type === 'Point' || type === 'Point3D') coordinates = convertPoint(coords, mValues, newBBox);
-  else if (type === 'MultiPoint' || type === 'MultiPoint3D')
-    coordinates = coords.map((point, i) => convertPoint(point, mValues?.[i], newBBox));
-  else if (type === 'LineString' || type === 'LineString3D')
-    coordinates = coords.map((point, i) => convertPoint(point, mValues?.[i], newBBox));
-  else if (type === 'MultiLineString' || type === 'MultiLineString3D')
-    coordinates = coords.map((line, i) =>
-      line.map((point, j) => convertPoint(point, mValues?.[i]?.[j], newBBox)),
-    );
-  else if (type === 'Polygon' || type === 'Polygon3D')
-    coordinates = coords.map((line, i) =>
-      line.map((point, j) => convertPoint(point, mValues?.[i]?.[j], newBBox)),
-    );
-  else if (type === 'MultiPolygon' || type === 'MultiPolygon3D')
-    coordinates = coords.map((polygon, i) =>
-      polygon.map((line, j) =>
-        line.map((point, k) => convertPoint(point, mValues?.[i]?.[j]?.[k], newBBox)),
-      ),
-    );
-  else {
-    throw new Error('Invalid GeoJSON type');
-  }
-  const is3D = type.slice(-2) === '3D';
-  // @ts-expect-error - coordinates complains, but the way this is all written is simpler
-  return { type: type.replace('3D', ''), is3D, coordinates, bbox: newBBox ?? bbox };
 }
 
 /** The resultant geometry after conversion */
@@ -156,7 +73,7 @@ export type ConvertedGeometryList<M extends MValue = Properties> = ConvertedGeom
  * @param geometry - GeoJSON Geometry
  * @returns - S2Geometry
  */
-function convertVectorGeometry<M extends MValue = Properties>(
+export function vectorGeoToS2<M extends MValue = Properties>(
   geometry: VectorGeometry<M>,
 ): ConvertedGeometryList<M> {
   const { type } = geometry;
@@ -328,105 +245,6 @@ function convertLineString<M extends MValue = Properties>(
   }
 
   return res;
-}
-
-/**
- * Reproject GeoJSON geometry coordinates from lon-lat to a 0->1 coordinate system in place
- * @param feature - input GeoJSON
- */
-export function toUnitScale<
-  M = Record<string, unknown>,
-  D extends MValue = Properties,
-  P extends Properties = Properties,
->(feature: VectorFeature<M, D, P>): void {
-  const { geometry } = feature;
-  const { type, coordinates } = geometry;
-  if (type === 'Point') projectPoint(coordinates, geometry);
-  else if (type === 'MultiPoint') coordinates.map((p) => projectPoint(p, geometry));
-  else if (type === 'LineString') coordinates.map((p) => projectPoint(p, geometry));
-  else if (type === 'MultiLineString')
-    coordinates.map((l) => l.map((p) => projectPoint(p, geometry)));
-  else if (type === 'Polygon') coordinates.map((l) => l.map((p) => projectPoint(p, geometry)));
-  else if (type === 'MultiPolygon')
-    coordinates.map((p) => p.map((l) => l.map((p) => projectPoint(p, geometry))));
-  else {
-    throw new Error('Either the conversion is not yet supported or Invalid S2Geometry type.');
-  }
-}
-
-/**
- * Reproject GeoJSON geometry coordinates from 0->1 coordinate system to lon-lat in place
- * @param feature - input GeoJSON
- */
-export function toLL<
-  M = Record<string, unknown>,
-  D extends MValue = Properties,
-  P extends Properties = Properties,
->(feature: VectorFeature<M, D, P>): void {
-  const { type, coordinates } = feature.geometry;
-  if (type === 'Point') unprojectPoint(coordinates);
-  else if (type === 'MultiPoint') coordinates.map((p) => unprojectPoint(p));
-  else if (type === 'LineString') coordinates.map((p) => unprojectPoint(p));
-  else if (type === 'MultiLineString') coordinates.map((l) => l.map((p) => unprojectPoint(p)));
-  else if (type === 'Polygon') coordinates.map((l) => l.map((p) => unprojectPoint(p)));
-  else if (type === 'MultiPolygon')
-    coordinates.map((p) => p.map((l) => l.map((p) => unprojectPoint(p))));
-  else {
-    throw new Error('Either the conversion is not yet supported or Invalid S2Geometry type.');
-  }
-}
-
-/**
- * Convert a longitude to a 0->1 coordinate
- * @param x - longitude
- * @returns a 0->1 coordinate
- */
-export function projectX(x: number): number {
-  return x / 360 + 0.5;
-}
-
-/**
- * Convert a latitude to a 0->1 coordinate
- * @param y - latitude
- * @returns a 0->1 coordinate
- */
-export function projectY(y: number): number {
-  const sin = Math.sin((y * Math.PI) / 180);
-  const y2 = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
-  return y2 < 0 ? 0 : y2 > 1 ? 1 : y2;
-}
-
-/**
- * Project a point from lon-lat to a 0->1 coordinate system in place
- * @param input - input point
- * @param geo - input geometry (used to update the bbox)
- */
-function projectPoint<M extends MValue = Properties>(
-  input: VectorPoint<M>,
-  geo: VectorGeometry<M>,
-): void {
-  const { x, y } = input;
-  input.x = projectX(x);
-  input.y = projectY(y);
-  // update bbox
-  geo.vecBBox = extendBBox(geo.vecBBox, input);
-}
-
-/**
- * Project a point from 0->1 coordinate space to lon-lat in place
- * @param input - input vector to mutate
- */
-function unprojectPoint<M extends MValue = Properties>(input: VectorPoint<M>): void {
-  const { x, y } = input;
-
-  // Revert the x coordinate
-  const lon = (x - 0.5) * 360;
-  // Revert the y coordinate
-  const y2 = 0.5 - y;
-  const lat = radToDeg(Math.atan(Math.sinh(Math.PI * (y2 * 2))));
-
-  input.x = lon;
-  input.y = lat;
 }
 
 /**

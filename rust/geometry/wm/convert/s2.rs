@@ -2,7 +2,7 @@ use crate::geometry::{
     BBox3D, ClipLineResultWithBBox, Face, LonLat, MValue, S2Point, STPoint, VectorGeometry,
     VectorGeometryType, VectorLineString, VectorLineStringGeometry, VectorMultiLineStringGeometry,
     VectorMultiPointGeometry, VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
-    VectorPolygon, VectorPolygonGeometry, build_sq_dists, clip_line,
+    VectorPolygon, VectorPolygonGeometry, clip_line,
 };
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 
@@ -22,8 +22,6 @@ pub type ConvertedGeometryList<M> = Vec<ConvertedGeometry<M>>;
 /// Underlying conversion mechanic to move GeoJSON Geometry to S2Geometry
 pub fn convert_geometry_wm_to_s2<M: Clone + Default>(
     geometry: &VectorGeometry<M>,
-    tolerance: Option<f64>,
-    maxzoom: Option<u8>,
 ) -> ConvertedGeometryList<M> {
     let mut res: ConvertedGeometryList<M> = vec![];
 
@@ -45,12 +43,6 @@ pub fn convert_geometry_wm_to_s2<M: Clone + Default>(
         }
         VectorGeometry::MultiPolygon(geo) => {
             res.extend(convert_geometry_multipolygon(geo));
-        }
-    }
-
-    if let Some(tolerance) = tolerance {
-        for c_geo in &mut res {
-            build_sq_dists(&mut c_geo.geometry, tolerance, maxzoom);
         }
     }
 
@@ -396,7 +388,7 @@ mod tests {
             geometry: VectorGeometry::new_point(coords, bbox),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(Some(3.), Some(12));
+        let s2_feature = feature.to_s2();
 
         assert_eq!(
             s2_feature,
@@ -431,8 +423,7 @@ mod tests {
         let s2_feature = convert(
             Projection::WG,
             &JSONCollection::VectorFeature(feature),
-            Some(3.),
-            Some(12),
+            Some(true),
             Some(true),
         );
 
@@ -471,13 +462,8 @@ mod tests {
             features: vec![Features::VectorFeature(feature.clone())],
             ..Default::default()
         };
-        let s2_feature = convert(
-            Projection::S2,
-            &JSONCollection::FeatureCollection(fc),
-            Some(3.),
-            Some(12),
-            Some(true),
-        );
+        let s2_feature =
+            convert(Projection::S2, &JSONCollection::FeatureCollection(fc), Some(true), None);
 
         assert_eq!(
             s2_feature,
@@ -521,13 +507,8 @@ mod tests {
             features: vec![s2f.clone()],
             ..Default::default()
         };
-        let s2_feature = convert(
-            Projection::S2,
-            &JSONCollection::S2FeatureCollection(s2fc),
-            Some(3.),
-            Some(12),
-            Some(true),
-        );
+        let s2_feature =
+            convert(Projection::S2, &JSONCollection::S2FeatureCollection(s2fc), Some(true), None);
 
         assert_eq!(s2_feature, vec![s2f]);
     }
@@ -543,7 +524,7 @@ mod tests {
             geometry: VectorGeometry::new_point(coords, bbox),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
 
         assert_eq!(
             s2_feature,
@@ -580,7 +561,7 @@ mod tests {
             properties: properties.clone(),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
 
         assert_eq!(
             s2_feature,
@@ -666,7 +647,7 @@ mod tests {
             properties: properties.clone(),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
         assert_eq!(s2_feature.len(), 2);
 
         assert_eq!(
@@ -807,7 +788,7 @@ mod tests {
             properties: properties.clone(),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
         assert_eq!(s2_feature.len(), 4);
 
         assert_eq!(
@@ -1065,7 +1046,7 @@ mod tests {
             properties: properties.clone(),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
         assert_eq!(s2_feature.len(), 2);
 
         assert_eq!(
@@ -1327,7 +1308,7 @@ mod tests {
             properties: properties.clone(),
             ..Default::default()
         };
-        let s2_feature = feature.to_s2(None, None);
+        let s2_feature = feature.to_s2();
         assert_eq!(s2_feature.len(), 2);
 
         assert_eq!(

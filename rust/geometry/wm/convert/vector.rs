@@ -163,9 +163,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use core::f64;
-
     use s2json::{
         LineString3DGeometry, LineStringGeometry, MValue, MultiLineString3DGeometry,
         MultiLineStringGeometry, MultiPoint3DGeometry, MultiPointGeometry, MultiPolygon3DGeometry,
