@@ -29,7 +29,7 @@ export function toUnitScale<
   else if (type === 'MultiPolygon')
     coordinates.map((p) => p.map((l) => l.map((p) => projectPoint(p, geometry))));
   else {
-    throw new Error('Either the conversion is not yet supported or Invalid S2Geometry type.');
+    throw new Error('Either the conversion is not yet supported or Invalid VectorGeometry type.');
   }
 }
 

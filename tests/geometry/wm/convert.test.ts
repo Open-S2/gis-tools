@@ -1171,28 +1171,6 @@ test('toS2 - MultiPolygon', () => {
   ]);
 });
 
-test('toS2, toLL, & toFlatGeometry - Error', () => {
-  const err: VectorFeature = {
-    id: 1337,
-    type: 'VectorFeature',
-    properties: { a: 1 },
-    geometry: {
-      // @ts-expect-error Either the conversion is not yet supported or Invalid S2Geometry type.
-      type: 'error',
-      coordinates: { x: 0, y: 0 },
-    },
-  };
-  expect(() => toS2(err)).toThrowError(
-    'Either the conversion is not yet supported or Invalid S2Geometry type.',
-  );
-
-  expect(() => toLL(err)).toThrowError(
-    'Either the conversion is not yet supported or Invalid S2Geometry type.',
-  );
-
-  expect(() => toFlatGeometry(err)).toThrowError('Invalid Geometry type');
-});
-
 test('toFlatGeometry - Point', () => {
   const point: VectorFeature = {
     id: 1337,
@@ -1679,4 +1657,30 @@ test('toFlatGeometry - MultiPolygon3D', () => {
       ],
     },
   });
+});
+
+test('toS2, toLL, toUnitScale & toFlatGeometry - Error', () => {
+  const err: VectorFeature = {
+    id: 1337,
+    type: 'VectorFeature',
+    properties: { a: 1 },
+    geometry: {
+      // @ts-expect-error Either the conversion is not yet supported or Invalid S2Geometry type.
+      type: 'error',
+      coordinates: { x: 0, y: 0 },
+    },
+  };
+  expect(() => toS2(err)).toThrowError(
+    'Either the conversion is not yet supported or Invalid S2Geometry type.',
+  );
+
+  expect(() => toLL(err)).toThrowError(
+    'Either the conversion is not yet supported or Invalid S2Geometry type.',
+  );
+
+  expect(() => toUnitScale(err)).toThrowError(
+    'Either the conversion is not yet supported or Invalid VectorGeometry type.',
+  );
+
+  expect(() => toFlatGeometry(err)).toThrowError('Invalid Geometry type');
 });
