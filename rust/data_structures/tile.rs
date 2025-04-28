@@ -410,7 +410,7 @@ mod tests {
             tile_store,
             TileStore {
                 minzoom: 0,
-                maxzoom: 16,
+                maxzoom: 14,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
                 tolerance: 0.000732421875,
@@ -425,7 +425,7 @@ mod tests {
             tile_store,
             TileStore {
                 minzoom: 0,
-                maxzoom: 16,
+                maxzoom: 14,
                 faces: BTreeSet::<Face>::new(),
                 index_maxzoom: 4,
                 tolerance: 0.000732421875,
