@@ -133,10 +133,11 @@ impl TileWorker {
     pub fn store_vector_feature(&mut self, feature: MVectorFeature, layer: VectorLayerGuide) {
         let BuildGuide { projection, .. } = &self.build_guide;
         // skip features who are not using the layer guide's
-        if layer.draw_types.contains(&to_draw_type(&feature)) {
+        if !layer.draw_types.contains(&to_draw_type(&feature)) {
             return;
         }
         let minzoom = layer.vector_guide.minzoom.unwrap_or(0);
+        let maxzoom = layer.vector_guide.maxzoom.unwrap_or(self.maxzoom);
         // Setup a tile_cache and dive down. Store the 4 children if data is found while storing data as we go
         let mut tile_store = TileStore::new(
             JSONCollection::VectorFeature(feature),
@@ -153,9 +154,12 @@ impl TileWorker {
             ]);
         }
         while let Some(id) = tile_cache.pop() {
-            let (_, zoom, _, _) = id.to_face_ij();
+            let zoom = id.level();
+            if zoom > maxzoom {
+                continue;
+            }
             let tile = tile_store.get_tile(id);
-            if minzoom > zoom {
+            if zoom < minzoom {
                 // if we haven't reached the data yet, we store children
                 tile_cache.extend(id.children(None));
             } else if let Some(tile) = tile
@@ -174,7 +178,7 @@ impl TileWorker {
     }
 
     /// Get vector/cluster features for a tile
-    fn get_vector_vile(&mut self, id: S2CellId) -> Option<BaseVectorTile> {
+    fn get_vector_tile(&mut self, id: S2CellId) -> Option<BaseVectorTile> {
         let BuildGuide { layer_guides, format, build_indices, .. } = &self.build_guide;
         if *format == FormatOutput::Raster {
             return None;
@@ -247,11 +251,14 @@ impl Iterator for TileWorkerTileBuilder<'_> {
         while let Some(id) = self.tile_stack.pop() {
             // if the current id is less than our target zoom, we add children to the stack and continue
             let (face, zoom, x, y) = id.to_face_ij();
-            if zoom < self.worker.maxzoom {
+            if zoom > self.worker.maxzoom {
+                continue;
+            }
+            if zoom < self.worker.minzoom {
                 self.tile_stack.extend(id.children(None));
                 continue;
             }
-            let mut vector_tile = self.worker.get_vector_vile(id);
+            let mut vector_tile = self.worker.get_vector_tile(id);
             // otherwise, we build the tile
             if format != FormatOutput::Raster {
                 let mut data = if format == FormatOutput::OpenS2 {
@@ -268,6 +275,7 @@ impl Iterator for TileWorkerTileBuilder<'_> {
                     continue;
                 } else {
                     data = compress_data(data, encoding).unwrap();
+                    self.tile_stack.extend(id.children(None));
                     return Some(BuiltTile { face: face.into(), zoom, x, y, data });
                 }
             }
@@ -293,7 +301,7 @@ impl Iterator for TileWorkerTileBuilder<'_> {
 //       const tile = new Tile(id);
 //       const { face, zoom, i: x, j: y } = tile;
 
-//       const vectorTile = await this.#get_vector_vile(id, tile);
+//       const vectorTile = await this.#get_vector_tile(id, tile);
 //       const rasterData = await this.#getRasterTile(id);
 //       const gridData = await this.#getGridTile(id);
 //       if (format === 'raster') {

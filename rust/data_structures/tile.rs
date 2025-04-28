@@ -484,7 +484,11 @@ mod tests {
         let data: JSONCollection = serde_json::from_str(json_string).unwrap();
         let mut tile_store: TileStore = TileStore::<_, _, _>::new(
             data,
-            TileStoreOptions { projection: Some(Projection::WG), ..Default::default() },
+            TileStoreOptions {
+                projection: Some(Projection::WG),
+                maxzoom: Some(4),
+                ..Default::default()
+            },
         );
 
         let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
@@ -657,6 +661,24 @@ mod tests {
                 }
             ]
         );
+
+        let children = face_0_tile.id.children(None);
+
+        let zero_child = children[0];
+        let zero_child_tile = tile_store.get_tile(zero_child).unwrap();
+        assert_eq!(zero_child_tile.len(), 1);
+
+        let first_child = children[1];
+        let first_child_tile = tile_store.get_tile(first_child).unwrap();
+        assert_eq!(first_child_tile.len(), 1);
+
+        let second_child = children[2];
+        let second_child_tile = tile_store.get_tile(second_child).unwrap();
+        assert_eq!(second_child_tile.len(), 1);
+
+        let third_child = children[3];
+        let third_child_tile = tile_store.get_tile(third_child).unwrap();
+        assert_eq!(third_child_tile.len(), 1);
     }
 
     #[test]

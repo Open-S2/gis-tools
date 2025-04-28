@@ -216,16 +216,12 @@ impl S2CellId {
     }
 
     /// convert an id to the appropriate face-zoom-i-j of the cell ID
+    ///
+    /// NOTE: This is an adjusted IJ to the zoom level
     pub fn to_face_ij(&self) -> (u8, u8, u32, u32) {
         let level = self.level();
         let (face, i, j, _or) = self.to_face_ij_orientation(Some(level));
         (face, level, i, j)
-    }
-
-    /// convert an id to a zoom-i-j after setting it to a new parent zoom
-    pub fn to_zoom_ij(&self, level: Option<u8>) -> (u8, u32, u32) {
-        let (face, i, j, _or) = self.to_face_ij_orientation(level);
-        (face, i, j)
     }
 
     /// Return the (face, i, j) coordinates for the leaf cell corresponding to
@@ -1156,16 +1152,6 @@ mod tests {
     #[test]
     fn from_face_uv() {
         assert_eq!(S2CellId::from_face_uv(0, 0., 0.), S2CellId::new(1152921504606846977));
-    }
-
-    #[test]
-    fn to_zoom_ij() {
-        assert_eq!(S2CellId::from(0_u64).to_zoom_ij(None), (0, 0, 0));
-        assert_eq!(S2CellId::from_face(0).to_zoom_ij(None), (0, 536870912, 536870912));
-        assert_eq!(S2CellId::from_face(1).to_zoom_ij(None), (1, 536870912, 536870912));
-        assert_eq!(S2CellId::from_face(2).to_zoom_ij(None), (2, 536870912, 536870912));
-        assert_eq!(S2CellId::from_face(3).to_zoom_ij(None), (3, 536870912, 536870912));
-        assert_eq!(S2CellId::from_face(3).to_zoom_ij(Some(0)), (3, 0, 0));
     }
 
     #[test]

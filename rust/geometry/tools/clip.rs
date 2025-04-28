@@ -41,8 +41,7 @@ pub fn split_tile<M: HasLayer + Clone, P: Clone + Default, D: Clone + Default>(
     buffer: Option<f64>,
 ) -> TileChildren<M, P, D> {
     let buffer = buffer.unwrap_or(0.0625);
-    let face = tile.id.face();
-    let (zoom, i, j) = tile.id.to_zoom_ij(None);
+    let (face, zoom, i, j) = tile.id.to_face_ij();
     let [bl_id, br_id, tl_id, tr_id] = S2CellId::children_ij(face, zoom, i, j);
     let mut children = TileChildren {
         bottom_left: Tile::new(bl_id),
