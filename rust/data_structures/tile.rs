@@ -164,7 +164,7 @@ impl<M: HasLayer + Clone, P: Clone + Default, D: Clone + Default> Default for Ti
     fn default() -> Self {
         Self {
             minzoom: 0,
-            maxzoom: 16,
+            maxzoom: 14,
             faces: BTreeSet::<Face>::new(),
             index_maxzoom: 4,
             tolerance: 3. / 4_096.,
@@ -183,7 +183,7 @@ where
     pub fn new(data: JSONCollection<M, P, D>, options: TileStoreOptions) -> Self {
         let mut tile_store = Self {
             minzoom: options.minzoom.unwrap_or(0),
-            maxzoom: options.maxzoom.unwrap_or(16),
+            maxzoom: options.maxzoom.unwrap_or(14),
             faces: BTreeSet::<Face>::new(),
             index_maxzoom: options.index_maxzoom.unwrap_or(4),
             tolerance: options.tolerance.unwrap_or(3.) / 4_096.,

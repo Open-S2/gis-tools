@@ -44,6 +44,11 @@ impl<W: TileWriter> TileBuilder<W> {
         Self { tile_writer, build_guide, worker, meta_builder }
     }
 
+    /// Get the tile writer
+    pub fn tile_writer(&self) -> &W {
+        &self.tile_writer
+    }
+
     /// Add a vector source to tile-ize
     pub fn add_vector_source<
         M: Clone + HasLayer,
@@ -52,8 +57,8 @@ impl<W: TileWriter> TileBuilder<W> {
         T: FeatureReader<M, P, D>,
     >(
         &mut self,
-        reader: T,
         source_name: String,
+        reader: T,
         on_source_feature: Option<&OnFeature<M, P, D>>,
         on_layer_feature: Option<&Vec<LayerHandler<M, P, D>>>,
     ) {
@@ -144,4 +149,55 @@ fn setup_builder(build_guide: &BuildGuide) -> MetadataBuilder {
     }
 
     meta_builder
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        data_structures::TileStoreOptions,
+        readers::{FileReader, json::JSONReader},
+    };
+    use open_vector_tile::Extent;
+    use s2_tilejson::DrawType;
+    use serde::{Deserialize, Serialize};
+    use std::{path::PathBuf, vec};
+
+    #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+    #[serde(default)]
+    struct Props {
+        name: String,
+    }
+
+    #[test]
+    fn test_setup_builder() {
+        let local_tile_writer = LocalTileWriter::new();
+        let mut build_guide = BuildGuide::default();
+        build_guide.layer_guides.push(LayerGuide::Vector(VectorLayerGuide {
+            extent: Extent::Extent4096,
+            draw_types: vec![DrawType::Points],
+            base: BaseLayer {
+                description: Some("Test Vector Layer".into()),
+                source_name: "test".into(),
+                layer_name: "points".into(),
+            },
+            vector_guide: TileStoreOptions { maxzoom: Some(4), ..Default::default() },
+            ..Default::default()
+        }));
+        let mut tile_builder = TileBuilder::new(local_tile_writer, build_guide);
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path = path.join("tests/readers/json/fixtures/multipoint.geojson");
+
+        let reader: JSONReader<FileReader, (), Props, Props> =
+            JSONReader::new(FileReader::from(path), None);
+
+        tile_builder.add_vector_source("test".into(), reader, None, None);
+        tile_builder.build_tiles();
+
+        let meta = tile_builder.tile_writer().metadata().unwrap();
+        assert_eq!(meta.name, "auto generated");
+        assert_eq!(meta.extension, "pbf");
+        assert_eq!(meta.description, "generated via OpenS2 gis-tools");
+    }
 }

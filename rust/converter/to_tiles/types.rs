@@ -132,7 +132,7 @@ pub struct VectorLayerGuide {
     pub m_shape: Option<Shape>,
     /// Draw Types (points, lines, polygons, 3D points, 3D lines, 3D polygons).
     /// This is a filter mechanic. The source data may have multiple feature/draw types,
-    /// but if the layer you're building only wants to use the points, you can filter that here
+    /// but if the layer you"re building only wants to use the points, you can filter that here
     pub draw_types: Vec<DrawType>,
     /// Common layer properties across all layer types
     #[serde(flatten)]
@@ -183,7 +183,7 @@ impl LayerGuide {
         }
     }
 
-    /// Check the source name matches the layer's source
+    /// Check the source name matches the layer"s source
     pub fn has_source(&self, source_name: &str) -> bool {
         match self {
             LayerGuide::Raster(r) => r.base.source_name == source_name,
@@ -228,13 +228,13 @@ impl From<&LayerGuide> for LayerMetaData {
 }
 
 /// The vector format if applicable helps define how the vector data is stored.
-/// - The more modern vector format is the 'open-s2' which supports things like m-values
+/// - The more modern vector format is the "open-s2" which supports things like m-values
 ///   and 3D geometries.
-/// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
+/// - The new vector format is the "open-s2" which only supports 2D & 3D geometries, supports M-Values,
 ///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
-/// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
+/// - The basic vector format is the "flat-open-s2" which only supports 2D geometries and works on
 ///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
-/// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
+/// - The older vector format is the "mapbox" which is the legacy format used by Mapbox and slow to parse.
 /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
 ///
 /// Defaults to `"open-s2"`
@@ -278,7 +278,7 @@ impl From<&FormatOutput> for SourceType {
 pub struct Source {
     /// The name of the source
     pub source_name: String,
-    /// The type of source data. E.g. 'csv', 'json', 'pmtiles', 'shapefile', etc.
+    /// The type of source data. E.g. "csv", "json", "pmtiles", "shapefile", etc.
     #[serde(rename = "inputType")]
     pub input_type: ReaderType,
 }
@@ -305,24 +305,24 @@ pub struct JSONBuildGuide {
     pub description: String,
     /// User defined versioning for their data
     pub version: String,
-    /// Specify the image type. e.g. 'pbf', 'png', 'jpg', 'webp', etc.
-    /// [Default: 'pbf']
+    /// Specify the image type. e.g. "pbf", "png", "jpg", "webp", etc.
+    /// [Default: "pbf"]
     pub extension: String,
     /// What kind of output format should be used. Used for describing either S2 or WM
-    /// projections. [Default: 'fzxy']
+    /// projections. [Default: "fzxy"]
     pub projection: Projection,
-    /// The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none']
+    /// The encoding format. Can be either "gz", "br", "zstd" or "none". [Default: "none"]
     pub encoding: Encoding,
-    /// The attribution of the data. Store as `{ 'presentation name': 'href' }`.
+    /// The attribution of the data. Store as `{ "presentation name": "href" }`.
     pub attribution: Attributions,
     /// The vector format if applicable helps define how the vector data is stored.
-    /// - The more modern vector format is the 'open-s2' which supports things like m-values
+    /// - The more modern vector format is the "open-s2" which supports things like m-values
     ///   and 3D geometries.
-    /// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
+    /// - The new vector format is the "open-s2" which only supports 2D & 3D geometries, supports M-Values,
     ///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
-    /// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
+    /// - The basic vector format is the "flat-open-s2" which only supports 2D geometries and works on
     ///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
-    /// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
+    /// - The older vector format is the "mapbox" which is the legacy format used by Mapbox and slow to parse.
     /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
     ///
     /// Defaults to `"open-s2"`
@@ -382,34 +382,33 @@ pub struct BuildGuide {
     pub description: String,
     /// User defined versioning for their data
     pub version: String,
-    /// Specify the image type. e.g. 'pbf', 'png', 'jpg', 'webp', etc.
-    /// [Default: 'pbf']
+    /// Specify the image type. e.g. "pbf", "png", "jpg", "webp", etc.
+    /// [Default: `"pbf"`]
     pub extension: String,
     /// What kind of output format should be used. Used for describing either S2 or WM
-    /// projections. [Default: 'fzxy']
+    /// projections. [Default: `"fzxy"`]
     pub projection: Projection,
-    /// The encoding format. Can be either 'gz', 'br', 'zstd' or 'none'. [Default: 'none']
+    /// The encoding format. Can be either "gz", "br", "zstd" or "none". [Default: `"none"`]
     pub encoding: Encoding,
-    /// The attribution of the data. Store as `{ 'presentation name': 'href' }`.
+    /// The attribution of the data. Store as `{ "presentation name": "href" }`.
     pub attributions: Attributions,
     /// The vector format if applicable helps define how the vector data is stored.
-    /// - The more modern vector format is the 'open-s2' which supports things like m-values
+    /// - The more modern vector format is the "open-s2" which supports things like m-values
     ///   and 3D geometries.
-    /// - The new vector format is the 'open-s2' which only supports 2D & 3D geometries, supports M-Values,
+    /// - The new vector format is the "open-s2" which only supports 2D & 3D geometries, supports M-Values,
     ///   properties and M-Values can have nested properties and/or arrays, and is decently fast to parse.
-    /// - The basic vector format is the 'flat-open-s2' which only supports 2D geometries and works on
+    /// - The basic vector format is the "flat-open-s2" which only supports 2D geometries and works on
     ///   older map engines like Mapbox-gl-js, is faster to parse and often lighter in size.
-    /// - The older vector format is the 'mapbox' which is the legacy format used by Mapbox and slow to parse.
+    /// - The older vector format is the "mapbox" which is the legacy format used by Mapbox and slow to parse.
     /// - The `raster` format is used speciially for raster ONLY data. Ensures the data is stored as a raster
     ///
-    /// Defaults to `"open-s2"`
+    /// [Default: `"open-s2"`]
     pub format: FormatOutput,
-    /// Should the indices be built for polygon data for faster rendering (file cost increases). [Default: true]
+    /// Should the indices be built for polygon data for faster rendering (file cost increases). [Default: `true`]
     pub build_indices: bool,
     /// The guides on how to build the various data
-    /// See: {@link LayerGuide}
     pub layer_guides: Vec<LayerGuide>,
-    /// Set the number of threads to use. [Default: 1]
+    /// Set the number of threads to use. [Default: `1`]
     pub threads: usize,
 }
 impl Default for BuildGuide {

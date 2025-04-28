@@ -114,6 +114,23 @@ impl LocalTileWriter {
     pub fn new() -> LocalTileWriter {
         LocalTileWriter { metadata: None, tiles: BTreeMap::new() }
     }
+
+    /// Grab the metadata
+    pub fn metadata(&self) -> Option<Metadata> {
+        self.metadata.clone()
+    }
+
+    /// Grab a WM tile
+    pub fn get_tile_wm(&self, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
+        let key = WMTileKey { zoom, x, y };
+        self.tiles.get(&TileKey::WM(key)).cloned()
+    }
+
+    /// Grab an S2 tile
+    pub fn get_tile_s2(&self, face: Face, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
+        let key = S2TileKey { face, zoom, x, y };
+        self.tiles.get(&TileKey::S2(key)).cloned()
+    }
 }
 impl TileWriter for LocalTileWriter {
     fn write_tile_wm(&mut self, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
