@@ -315,6 +315,7 @@ impl S2PMHeader {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use crate::readers::PMEntry;
 

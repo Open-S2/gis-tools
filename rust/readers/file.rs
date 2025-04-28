@@ -196,6 +196,7 @@ impl From<&str> for FileReader {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

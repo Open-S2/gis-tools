@@ -220,6 +220,7 @@ fn to_polygons<M: Clone + Default>(
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

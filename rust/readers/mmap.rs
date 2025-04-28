@@ -179,6 +179,7 @@ impl From<&str> for MMapReader {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

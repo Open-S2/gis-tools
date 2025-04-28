@@ -77,6 +77,7 @@ impl TemporalTileWriter for FileTileWriter {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::env;
 

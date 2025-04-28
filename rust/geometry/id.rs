@@ -826,6 +826,7 @@ pub fn ij_level_to_bound_uv(i: u32, j: u32, level: u8) -> BBox {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use crate::geometry::ll;
     use alloc::{string::ToString, vec};

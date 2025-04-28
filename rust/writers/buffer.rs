@@ -34,6 +34,7 @@ impl Writer for BufferWriter {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

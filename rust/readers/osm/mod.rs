@@ -365,6 +365,7 @@ impl<
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use info::InfoBlock;
     use relation::{IntermediateNodeMember, MemberType};

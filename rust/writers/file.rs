@@ -53,6 +53,7 @@ impl Writer for FileWriter {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

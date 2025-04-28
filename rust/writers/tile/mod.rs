@@ -165,6 +165,7 @@ impl TemporalTileWriter for LocalTileWriter {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

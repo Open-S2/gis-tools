@@ -356,6 +356,7 @@ impl<W: Writer> PMTilesWriter<W> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::format;
 

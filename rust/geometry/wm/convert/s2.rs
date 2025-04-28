@@ -363,6 +363,7 @@ pub const FACE_RULE_SET: [[(Rotation, i8, i8); 6]; 6] = [
 ];
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::{
         FeatureCollection, Features, JSONCollection, Projection, S2FeatureCollection, VectorFeature,

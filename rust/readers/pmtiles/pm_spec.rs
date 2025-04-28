@@ -499,6 +499,7 @@ pub fn find_tile(entries: &[PMEntry], tile_id: u64) -> Option<PMEntry> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use alloc::string::ToString;
 

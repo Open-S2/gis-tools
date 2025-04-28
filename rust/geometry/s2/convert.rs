@@ -61,6 +61,7 @@ fn convert_geometry_point<M: Clone + Default>(face: Face, point: &mut VectorPoin
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

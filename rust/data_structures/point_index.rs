@@ -399,6 +399,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::readers::{FileReader, json::JSONReader};

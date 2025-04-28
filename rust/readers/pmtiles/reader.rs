@@ -185,6 +185,7 @@ impl<R: Reader> PMTilesReader<R> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::path::PathBuf;
 

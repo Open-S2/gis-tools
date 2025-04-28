@@ -345,6 +345,7 @@ impl PartialOrd for S2Point {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

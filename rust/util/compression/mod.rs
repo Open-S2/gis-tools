@@ -308,6 +308,7 @@ fn find_end_central_directory(raw: &[u8]) -> Result<usize, CompressError> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

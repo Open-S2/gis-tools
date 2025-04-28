@@ -284,6 +284,7 @@ pub fn mercator_lat_scale(lat: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

@@ -41,6 +41,7 @@ pub fn idw_interpolation<
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::{

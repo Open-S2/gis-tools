@@ -104,6 +104,7 @@ impl FeatureReader<(), GPXProperties, GPXWaypoint> for GPXReader {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

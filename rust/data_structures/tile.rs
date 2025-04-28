@@ -328,6 +328,7 @@ impl<M: Clone + Default> TransformVectorGeometry<M> for VectorPoint<M> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::geometry::S2CellId;

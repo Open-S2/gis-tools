@@ -263,6 +263,7 @@ fn get_seg_dist_sq<M: Clone>(px: f64, py: f64, a: &VectorPoint<M>, b: &VectorPoi
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

@@ -393,6 +393,7 @@ impl PartialEq<f64> for S1ChordAngle {
 impl Eq for S1ChordAngle {}
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

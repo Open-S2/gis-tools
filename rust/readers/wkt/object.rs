@@ -107,6 +107,7 @@ fn _parse_wkt_object(wkt_str: String, res: &mut WKTObject) -> String {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

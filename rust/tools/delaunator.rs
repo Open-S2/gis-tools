@@ -665,6 +665,7 @@ fn quicksort(ids: &mut [usize], dists: &mut [f64], left: usize, right: usize) {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::{fs, path::PathBuf};
 

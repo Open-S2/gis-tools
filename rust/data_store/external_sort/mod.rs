@@ -196,6 +196,7 @@ fn tmpdir() -> String {
 }
 
 // #[cfg(test)]
+// #[coverage(off)]
 // mod tests {
 //     use super::*;
 

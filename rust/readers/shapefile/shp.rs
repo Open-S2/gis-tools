@@ -342,6 +342,7 @@ impl<T: Reader, P: MValueCompatible> FeatureReader<(), P, ()> for ShapeFileReade
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::readers::FileReader;

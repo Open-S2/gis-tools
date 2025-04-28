@@ -140,26 +140,6 @@ export interface ParametricCRS extends ObjectUsage {
   datum: ParametricDatum;
   /** Coordinate system */
   coordinate_system: CoordinateSystem;
-  /** Schema reference */
-  $schema?: string;
-  /** Scope of the CRS */
-  scope?: string;
-  /** Defined area */
-  area?: string;
-  /** Bounding box */
-  bbox?: BBox;
-  /** Vertical extent */
-  vertical_extent?: VerticalExtent;
-  /** Temporal extent */
-  temporal_extent?: TemporalExtent;
-  /** Usages */
-  usages?: Usage[];
-  /** Additional remarks */
-  remarks?: string;
-  /** Identifier */
-  id?: Id;
-  /** Alternative identifiers */
-  ids?: Ids;
 }
 
 /**
@@ -236,7 +216,7 @@ export interface BoundCRS extends ObjectUsage {
   /** Indicates the type of object. Always "BoundCRS" for this interface. */
   type: 'BoundCRS';
   /** The name of the bound CRS. */
-  name: string;
+  name?: string;
   /** The source coordinate reference system. */
   source_crs: CRS;
   /** The target coordinate reference system. */
@@ -453,20 +433,6 @@ export type ValueInMetreOrValueAndUnit = number | ValueAndUnit;
 export type SingleOperation = Conversion | Transformation | PointMotionOperation;
 
 /**
- * DatumMember Interface
- *
- * Represents a member of a datum ensemble.
- */
-export interface DatumMember {
-  /** The name of the datum member. */
-  name: string;
-  /** An identifier for the datum member. */
-  id?: Id;
-  /** An array of identifiers for the datum member. */
-  ids?: Ids;
-}
-
-/**
  * DeformationModel Interface
  *
  * Represents a deformation model associated with a point motion operation.
@@ -547,12 +513,12 @@ export interface GeodeticReferenceFrame extends ObjectUsage {
   type: 'GeodeticReferenceFrame';
   /** The name of the reference frame. */
   name: string;
+  /** The ellipsoid used in the reference frame. */
+  ellipsoid: Ellipsoid;
   /** The anchor point of the reference frame. */
   anchor?: string;
   /** The epoch of the anchor point. */
   anchor_epoch?: number;
-  /** The ellipsoid used in the reference frame. */
-  ellipsoid: Ellipsoid;
   /** The prime meridian associated with the reference frame. */
   prime_meridian?: PrimeMeridian;
 }
@@ -639,16 +605,16 @@ export interface DynamicGeodeticReferenceFrame extends ObjectUsage {
   type: 'DynamicGeodeticReferenceFrame';
   /** The name of the reference frame. */
   name: string;
+  /** The ellipsoid used in the reference frame. */
+  ellipsoid: Ellipsoid;
+  /** The frame reference epoch. */
+  frame_reference_epoch: number;
   /** The anchor point of the reference frame. */
   anchor?: string;
   /** The epoch of the anchor point. */
   anchor_epoch?: number;
-  /** The ellipsoid used in the reference frame. */
-  ellipsoid: Ellipsoid;
   /** The prime meridian associated with the reference frame. */
   prime_meridian?: PrimeMeridian;
-  /** The frame reference epoch. */
-  frame_reference_epoch: number;
 }
 
 /**
@@ -730,7 +696,7 @@ export interface PrimeMeridian {
    * The longitude of the prime meridian.
    * Represented as a number or a value with a unit.
    */
-  longitude: ValueInDegreeOrValueAndUnit;
+  longitude?: ValueInDegreeOrValueAndUnit;
   /** The schema URL or identifier. */
   $schema?: string;
   /** An identifier for the prime meridian. */
@@ -758,7 +724,7 @@ export interface ProjectedCRS extends ObjectUsage {
   /** The conversion defining the map projection. */
   conversion: Conversion;
   /** The coordinate system used in the projected CRS. */
-  coordinate_system?: CoordinateSystem;
+  coordinate_system: CoordinateSystem;
 }
 
 /**
@@ -767,6 +733,8 @@ export interface ProjectedCRS extends ObjectUsage {
  * Represents the map projection or transformation used in a projected CRS.
  */
 export interface Conversion {
+  /** The schema URL or identifier. */
+  $schema?: string;
   /** Indicates the type of conversion. Always "Conversion" for this interface. */
   type: 'Conversion';
   /** The name of the conversion (map projection or transformation). */
@@ -775,8 +743,6 @@ export interface Conversion {
   method: Method;
   /** An array of parameter values defining the conversion. */
   parameters?: ParameterValue[];
-  /** The schema URL or identifier. */
-  $schema?: string;
   /** An identifier for the conversion. */
   id?: Id;
   /** An array of identifiers for the conversion. */
@@ -845,12 +811,12 @@ export interface Transformation extends ObjectUsage {
   source_crs: CRS;
   /** Target CRS */
   target_crs: CRS;
-  /** Interpolation CRS */
-  interpolation_crs?: CRS;
   /** Transformation method */
   method: Method;
   /** Transformation parameters */
   parameters: ParameterValue[];
+  /** Interpolation CRS */
+  interpolation_crs?: CRS;
   /** Transformation accuracy */
   accuracy?: string;
 }
@@ -884,7 +850,7 @@ export interface TemporalDatum extends ObjectUsage {
   /** The calendar system used for the datum. */
   calendar: string;
   /** The time origin of the temporal datum, typically an ISO 8601 date/time string. */
-  time_origin: string;
+  time_origin?: string;
 }
 
 /**
@@ -980,8 +946,6 @@ export interface ObjectUsage {
   vertical_extent?: VerticalExtent;
   /** The temporal extent of the CRS. */
   temporal_extent?: TemporalExtent;
-  /** An array of usages for the CRS. */
-  usages?: Usage[];
   /** Remarks or additional information about the CRS. */
   remarks?: string;
   /** An identifier for the CRS. */

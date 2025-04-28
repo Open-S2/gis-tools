@@ -59,6 +59,7 @@ pub fn lanczos_kernel(x: f64, a: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::{

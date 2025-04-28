@@ -141,6 +141,7 @@ impl GetRasterTileValue for MapboxElevation {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::collections::BTreeMap;
 

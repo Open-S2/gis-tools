@@ -169,6 +169,7 @@ impl From<Vec<u8>> for BufferReader {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec::Vec;

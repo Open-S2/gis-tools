@@ -739,6 +739,7 @@ impl From<&ValueType> for GPXFixType {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::readers::xml::XMLTag;

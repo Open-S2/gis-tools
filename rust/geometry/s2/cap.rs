@@ -290,6 +290,7 @@ where
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

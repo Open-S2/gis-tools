@@ -240,6 +240,7 @@ impl PartialOrd for LonLat {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

@@ -86,6 +86,7 @@ pub fn angular_unit_to_degrees(unit: &str) -> f64 {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

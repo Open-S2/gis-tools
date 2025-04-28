@@ -152,6 +152,7 @@ fn setup_builder(build_guide: &BuildGuide) -> MetadataBuilder {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::{

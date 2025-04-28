@@ -109,6 +109,7 @@ pub fn get_distance<A: GetXY + GetZ, B: GetXY + GetZ>(a: &A, b: &B) -> f64 {
 pub type VectorPointRGBA = VectorPoint<RGBA>;
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use std::{vec, vec::Vec};

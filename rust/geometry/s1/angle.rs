@@ -283,6 +283,7 @@ impl PartialEq<f64> for S1Angle {
 impl Eq for S1Angle {}
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::MValue;
 

@@ -255,6 +255,7 @@ impl From<RGBA> for MValue {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

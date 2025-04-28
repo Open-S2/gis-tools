@@ -220,6 +220,7 @@ pub fn rewind<M: Clone + Default>(ring: &mut VectorLineString<M>, clockwise: boo
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::{
         MValue, VectorLineStringGeometry, VectorMultiLineStringGeometry,

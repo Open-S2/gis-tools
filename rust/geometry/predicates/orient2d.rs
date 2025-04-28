@@ -210,6 +210,7 @@ pub fn orient2dfast(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::{fs, path::PathBuf, vec::Vec};
 

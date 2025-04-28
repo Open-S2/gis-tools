@@ -290,6 +290,7 @@ fn parse_csv_line(line: &str, delimiter: char) -> Vec<String> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::{VectorBaseGeometry, VectorFeatureType, VectorGeometryType};
     use serde::{Deserialize, Serialize};

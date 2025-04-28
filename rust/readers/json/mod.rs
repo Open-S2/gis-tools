@@ -268,6 +268,7 @@ impl<
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::string::String;

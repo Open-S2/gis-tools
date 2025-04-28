@@ -154,6 +154,7 @@ impl<'a, K: U64, V: Serialize + DeserializeOwned + Clone> Iterator
 // }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::{vec, vec::Vec};

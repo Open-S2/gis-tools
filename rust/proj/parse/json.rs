@@ -459,6 +459,8 @@ pub struct ParameterValue {
     /// Alternative identifiers
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
+    /// NOT PART OF SPEC
+    pub is_file: bool,
 }
 impl ToProjJSON for ParameterValue {
     fn set_id(&mut self, id: Id) {
@@ -487,14 +489,14 @@ pub struct ParametricCRS {
     pub datum: ParametricDatum,
     /// Coordinate system
     pub coordinate_system: Option<CoordinateSystem>,
-    /// Schema reference
-    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
-    pub schema: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for ParametricCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = Some(cs);
     }
@@ -518,7 +520,12 @@ pub struct ParametricDatum {
     pub anchor: String,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
+}
+impl ToProjJSON for ParametricDatum {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
 }
 
 /// # Point Motion Operation
@@ -544,9 +551,12 @@ pub struct PointMotionOperation {
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for PointMotionOperation {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_accuracy(&mut self, accuracy: String) {
         self.accuracy = Some(accuracy);
     }
@@ -578,6 +588,14 @@ pub struct Method {
     /// Alternative identifiers
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
+}
+impl ToProjJSON for Method {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
 }
 
 /// Base Unit - common units as string input
@@ -621,7 +639,7 @@ impl From<&str> for UnitType {
             "SCALEUNIT" => UnitType::ScaleUnit,
             "TIMEUNIT" => UnitType::TimeUnit,
             "PARAMETRICUNIT" => UnitType::ParametricUnit,
-            _ => UnitType::Unit,
+            _ => UnitType::Unit, // UNIT
         }
     }
 }
@@ -649,6 +667,14 @@ impl UnitObject {
     /// Set the unit type
     pub fn set_unit_type(&mut self, unit_type: UnitType) {
         self.r#type = unit_type;
+    }
+}
+impl ToProjJSON for UnitObject {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
     }
 }
 
@@ -716,7 +742,7 @@ pub struct BoundCRS {
     #[serde(rename = "type")]
     pub r#type: Option<String>,
     /// The name of the bound CRS.
-    pub name: String,
+    pub name: Option<String>,
     /// The source coordinate reference system.
     pub source_crs: Box<CRS>,
     /// The target coordinate reference system.
@@ -725,7 +751,12 @@ pub struct BoundCRS {
     pub transformation: AbridgedTransformation,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
+}
+impl ToProjJSON for BoundCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
 }
 
 /// # ConcatenatedOperation Interface
@@ -751,9 +782,12 @@ pub struct ConcatenatedOperation {
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for ConcatenatedOperation {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_accuracy(&mut self, accuracy: String) {
         self.accuracy = Some(accuracy);
     }
@@ -765,6 +799,9 @@ impl ToProjJSON for ConcatenatedOperation {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct AbridgedTransformation {
+    /// The schema URL or identifier.
+    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
+    pub schema: Option<String>,
     /// Indicates the type of object. Always "AbridgedTransformation" for this interface.
     #[serde(rename = "type")]
     pub r#type: Option<String>, // 'AbridgedTransformation';
@@ -778,9 +815,12 @@ pub struct AbridgedTransformation {
     /// The parameters used in the transformation.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
-    /// Base Properties
-    #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    /// An identifier for the axis.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the axis.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 impl ToProjJSON for AbridgedTransformation {
     fn set_method(&mut self, method: Method) {
@@ -788,6 +828,12 @@ impl ToProjJSON for AbridgedTransformation {
     }
     fn set_parameter(&mut self, parameter: ParameterValue) {
         self.parameters.push(parameter);
+    }
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
     }
 }
 
@@ -807,7 +853,12 @@ pub struct CompoundCRS {
     pub components: Vec<CRS>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
+}
+impl ToProjJSON for CompoundCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
 }
 
 /// # EngineeringCRS Interface
@@ -827,9 +878,12 @@ pub struct EngineeringCRS {
     pub coordinate_system: Option<CoordinateSystem>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for EngineeringCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = Some(cs);
     }
@@ -854,7 +908,12 @@ pub struct EngineeringDatum {
     pub anchor: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
+}
+impl ToProjJSON for EngineeringDatum {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
 }
 
 /// Axis Direction defines an axis direction
@@ -1035,6 +1094,14 @@ pub struct Meridian {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
 }
+impl ToProjJSON for Meridian {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+}
 
 /// # ValueAndUnit Interface
 ///
@@ -1109,22 +1176,6 @@ pub enum SingleOperation {
     PointMotionOperation(Box<PointMotionOperation>),
 }
 
-/// # DatumMember Interface
-///
-/// Represents a member of a datum ensemble.
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(default)]
-pub struct DatumMember {
-    /// The name of the datum member.
-    pub name: String,
-    /// An identifier for the datum member.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// An array of identifiers for the datum member.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub ids: Ids,
-}
-
 /// # DeformationModel Interface
 ///
 /// Represents a deformation model associated with a point motion operation.
@@ -1157,9 +1208,12 @@ pub struct DerivedEngineeringCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedEngineeringCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1187,9 +1241,12 @@ pub struct DerivedGeodeticCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedGeodeticCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1225,9 +1282,12 @@ pub struct GeodeticCRS {
     pub deformation_models: Option<Vec<DeformationModel>>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for GeodeticCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = Some(cs);
     }
@@ -1253,33 +1313,24 @@ pub struct GeodeticReferenceFrame {
     pub r#type: Option<String>, // 'GeodeticReferenceFrame';
     /// The name of the reference frame.
     pub name: String,
+    /// The ellipsoid used in the reference frame.
+    pub ellipsoid: Ellipsoid,
     /// The anchor point of the reference frame.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub anchor: Option<String>,
     /// The epoch of the anchor point.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub anchor_epoch: Option<f64>,
-    /// The ellipsoid used in the reference frame.
-    pub ellipsoid: Ellipsoid,
     /// The prime meridian associated with the reference frame.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prime_meridian: Option<PrimeMeridian>,
-    /// An identifier for the datum member.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Id>,
-    /// An array of identifiers for the datum member.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub ids: Ids,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for GeodeticReferenceFrame {
     fn set_id(&mut self, id: Id) {
-        if self.id.is_none() {
-            self.id = Some(id.clone());
-        }
-        self.ids.push(id);
+        self.object_usage.set_id(id);
     }
     fn set_ellipsoid(&mut self, ellipsoid: Ellipsoid) {
         self.ellipsoid = ellipsoid;
@@ -1311,9 +1362,12 @@ pub struct DerivedParametricCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedParametricCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1341,9 +1395,12 @@ pub struct DerivedProjectedCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedProjectedCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1371,9 +1428,12 @@ pub struct DerivedTemporalCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedTemporalCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1401,9 +1461,12 @@ pub struct DerivedVerticalCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DerivedVerticalCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1423,23 +1486,26 @@ pub struct DynamicGeodeticReferenceFrame {
     pub r#type: Option<String>, // 'DynamicGeodeticReferenceFrame';
     /// The name of the reference frame.
     pub name: String,
+    /// The ellipsoid used in the reference frame.
+    pub ellipsoid: Ellipsoid,
+    /// The frame reference epoch.
+    pub frame_reference_epoch: f64,
     /// The anchor point of the reference frame.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub anchor: Option<String>,
     /// The epoch of the anchor point.
     pub anchor_epoch: Option<f64>,
-    /// The ellipsoid used in the reference frame.
-    pub ellipsoid: Ellipsoid,
     /// The prime meridian associated with the reference frame.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prime_meridian: Option<PrimeMeridian>,
-    /// The frame reference epoch.
-    pub frame_reference_epoch: f64,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DynamicGeodeticReferenceFrame {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_epoch(&mut self, epoch: f64) {
         self.anchor_epoch = Some(epoch);
     }
@@ -1467,6 +1533,14 @@ pub struct DatumEnsembleMember {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
 }
+impl ToProjJSON for DatumEnsembleMember {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+}
 
 /// # DatumEnsemble Interface
 ///
@@ -1486,11 +1560,11 @@ pub struct DatumEnsemble {
     /// An array of members in the datum ensemble.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub members: Vec<DatumEnsembleMember>,
+    /// The accuracy of the datum ensemble.
+    pub accuracy: String,
     /// The ellipsoid associated with the datum ensemble.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ellipsoid: Option<Ellipsoid>,
-    /// The accuracy of the datum ensemble.
-    pub accuracy: String,
     /// An identifier for the datum ensemble.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Id>,
@@ -1610,9 +1684,20 @@ pub struct PrimeMeridian {
     /// The longitude of the prime meridian.
     /// Represented as a number or a value with a unit.
     pub longitude: ValueInDegreeOrValueAndUnit,
-    /// Base Properties
-    #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    /// An identifier for the datum ensemble.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the datum ensemble.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
+}
+impl ToProjJSON for PrimeMeridian {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
 }
 
 /// # ProjectedCRS Interface
@@ -1636,9 +1721,12 @@ pub struct ProjectedCRS {
     pub coordinate_system: CoordinateSystem,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for ProjectedCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = cs;
     }
@@ -1653,6 +1741,9 @@ impl ToProjJSON for ProjectedCRS {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct Conversion {
+    /// The schema URL or identifier.
+    #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
+    pub schema: Option<String>,
     /// Indicates the type of conversion. Always "Conversion" for this interface.
     #[serde(rename = "type")]
     pub r#type: Option<String>, // 'Conversion';
@@ -1663,11 +1754,20 @@ pub struct Conversion {
     /// An array of parameter values defining the conversion.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
-    /// Base Properties
-    #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    /// An identifier for the datum ensemble.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the datum ensemble.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 impl ToProjJSON for Conversion {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
     fn set_method(&mut self, method: Method) {
         self.method = method;
     }
@@ -1771,11 +1871,20 @@ pub struct CoordinateSystem {
     /// The axes of the coordinate system.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub axis: Vec<Axis>,
-    /// Base Properties
-    #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    /// An identifier for the datum ensemble.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Id>,
+    /// An array of identifiers for the datum ensemble.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ids: Ids,
 }
 impl ToProjJSON for CoordinateSystem {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
     fn set_axis(&mut self, axis: Axis) {
         self.axis.push(axis);
     }
@@ -1801,22 +1910,25 @@ pub struct Transformation {
     pub source_crs: CRS,
     /// Target CRS
     pub target_crs: CRS,
-    /// Interpolation CRS
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub interpolation_crs: Option<CRS>,
     /// Transformation method
     pub method: Method,
     /// Transformation parameters
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterValue>,
+    /// Interpolation CRS
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interpolation_crs: Option<CRS>,
     /// Transformation accuracy
     #[serde(skip_serializing_if = "Option::is_none")]
     pub accuracy: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for Transformation {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_accuracy(&mut self, accuracy: String) {
         self.accuracy = Some(accuracy);
     }
@@ -1846,9 +1958,12 @@ pub struct TemporalCRS {
     pub coordinate_system: Option<CoordinateSystem>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for TemporalCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = Some(cs);
     }
@@ -1871,10 +1986,15 @@ pub struct TemporalDatum {
     /// The calendar system used for the datum.
     pub calendar: String,
     /// The time origin of the temporal datum, typically an ISO 8601 date/time string.
-    pub time_origin: String,
+    pub time_origin: Option<String>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
+}
+impl ToProjJSON for TemporalDatum {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
 }
 
 /// # VerticalCRS Interface
@@ -1887,7 +2007,7 @@ pub struct VerticalCRS {
     #[serde(rename = "type")]
     pub r#type: Option<String>, // 'VerticalCRS';
     /// The name of the vertical CRS.
-    pub name: Option<String>,
+    pub name: String,
     /// The vertical datum associated with the CRS.
     /// One and only one of `datum` or `datum_ensemble` must be provided.
     /// Can only be a `VerticalReferenceFrame` or a `DynamicVerticalReferenceFrame`.
@@ -1910,9 +2030,12 @@ pub struct VerticalCRS {
     pub deformation_models: Option<Vec<DeformationModel>>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for VerticalCRS {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
         self.coordinate_system = Some(cs);
     }
@@ -1946,9 +2069,12 @@ pub struct VerticalReferenceFrame {
     pub anchor_epoch: Option<f64>,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for VerticalReferenceFrame {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_epoch(&mut self, epoch: f64) {
         self.anchor_epoch = Some(epoch);
     }
@@ -1975,9 +2101,12 @@ pub struct DynamicVerticalReferenceFrame {
     pub frame_reference_epoch: f64,
     /// Base Properties
     #[serde(flatten)]
-    pub base_properties: BaseProperties,
+    pub object_usage: ObjectUsage,
 }
 impl ToProjJSON for DynamicVerticalReferenceFrame {
+    fn set_id(&mut self, id: Id) {
+        self.object_usage.set_id(id);
+    }
     fn set_epoch(&mut self, epoch: f64) {
         self.anchor_epoch = Some(epoch);
     }
@@ -2005,7 +2134,7 @@ pub struct GeoidModel {
 /// Represents common variables across all coordinate reference systems.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-pub struct BaseProperties {
+pub struct ObjectUsage {
     /// The schema URL or identifier.
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
@@ -2015,9 +2144,6 @@ pub struct BaseProperties {
     /// The extent if applicable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extent: Option<Extent>,
-    /// An array of usages for the CRS.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub usages: Option<Vec<Usage>>,
     /// Remarks or additional information about the CRS.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remarks: Option<String>,
@@ -2028,8 +2154,17 @@ pub struct BaseProperties {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
 }
+impl ToProjJSON for ObjectUsage {
+    fn set_id(&mut self, id: Id) {
+        if self.id.is_none() {
+            self.id = Some(id.clone());
+        }
+        self.ids.push(id);
+    }
+}
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     // TODO: https://proj.org/en/stable/specifications/projjson.html#schema <- more examples to play with
@@ -2348,12 +2483,12 @@ mod tests {
         }"#;
 
         let proj: ProjectedCRS = serde_json::from_str(json).unwrap();
-        assert_eq!(proj.base_properties.id.unwrap().code.i64(), 3857);
+        assert_eq!(proj.object_usage.id.unwrap().code.i64(), 3857);
 
         let full: ProjJSON = serde_json::from_str(json).unwrap();
         if let ProjJSON::CRS(crs) = full {
             if let CRS::ProjectedCRS(proj) = *crs {
-                assert_eq!(proj.base_properties.id.unwrap().code.i64(), 3857);
+                assert_eq!(proj.object_usage.id.unwrap().code.i64(), 3857);
             }
         } else {
             panic!("Expected ProjectedCRS");

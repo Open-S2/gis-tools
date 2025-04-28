@@ -111,6 +111,7 @@ impl<K: U64, V: Serialize + DeserializeOwned + Clone> VectorStore<K, V> for Vect
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use serde::Deserialize;

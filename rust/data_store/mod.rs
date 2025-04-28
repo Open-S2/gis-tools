@@ -31,6 +31,7 @@ impl From<S2CellId> for u64 {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

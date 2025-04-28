@@ -375,8 +375,10 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     res.set_method(Method::from_wkt(&arr[i + 1]));
                     i += 1;
                 }
-                "PARAMETER" => {
-                    res.set_parameter(ParameterValue::from_wkt(&arr[i + 1]));
+                "PARAMETER" | "PARAMETERFILE" => {
+                    let mut param = ParameterValue::from_wkt(&arr[i + 1]);
+                    param.is_file = key == "PARAMETERFILE";
+                    res.set_parameter(param);
                     i += 1;
                 }
                 "PRIMEM" | "PRIMEMERIDIAN" => {
@@ -387,7 +389,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     res.set_meridian(Meridian::from_wkt(&arr[i + 1]));
                     i += 1;
                 }
-                // TODO: ANCHOR
+                // TODO: ANCHOR, EXTENT ([Time|Temporal|Vertical]Extent, bbox, area)
                 _ => {}
             }
         }
@@ -401,6 +403,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use std::string::ToString;
 
@@ -979,6 +982,7 @@ mod tests {
 // OPERATIONACCURACY: 2953
 // ENSEMBLE: 2191
 // ENSEMBLEACCURACY: 2191
+// PARAMETERFILE: 1427 <----- PARAMETERFILE["Latitude difference file","alaska.las"],
 // ANCHOREPOCH: 1155
 // FRAMEEPOCH: 1024
 // PRIMEM: 150 (PRIMEM | PRIMEMERIDIAN)
@@ -1002,7 +1006,6 @@ mod tests {
 
 // GEOIDMODEL: 1820
 // VERTCRS: 1713
-// PARAMETERFILE: 1427 <----- PARAMETERFILE["Latitude difference file","alaska.las"],
 // DYNAMIC: 1024
 
 // GEODCRS: 749

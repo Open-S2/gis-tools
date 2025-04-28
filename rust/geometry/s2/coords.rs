@@ -427,6 +427,7 @@ pub fn get_uvw_axis(face: u8, axis: usize) -> S2Point {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

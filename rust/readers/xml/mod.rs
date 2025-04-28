@@ -349,6 +349,7 @@ pub fn xml_remove_tags_by_name(xml: &str, tag_name: &str, options: Option<XMLOpt
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
 

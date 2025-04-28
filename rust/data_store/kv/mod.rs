@@ -81,6 +81,7 @@ impl<K: U64, V: Serialize + DeserializeOwned + Clone> KVStore<K, V> for KV<K, V>
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::{vec, vec::Vec};

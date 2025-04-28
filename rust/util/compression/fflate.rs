@@ -525,6 +525,7 @@ fn zls(d: &[u8], dict: Option<&[u8]>) -> Result<usize, FFlateError> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use std::{fs, path::PathBuf};

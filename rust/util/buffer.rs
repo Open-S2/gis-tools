@@ -312,6 +312,7 @@ impl Buffer {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use alloc::vec;

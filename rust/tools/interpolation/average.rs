@@ -25,6 +25,7 @@ pub fn average_interpolation<M: Clone, P: GetXY + GetZ, R: GetM<M>, V: Interpola
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::{

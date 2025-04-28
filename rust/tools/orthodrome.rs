@@ -108,6 +108,7 @@ impl Orthodrome {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::MValue;
 

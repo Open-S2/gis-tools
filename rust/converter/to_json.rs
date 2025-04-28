@@ -141,6 +141,7 @@ pub fn to_jsonld<
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use super::*;
     use crate::{

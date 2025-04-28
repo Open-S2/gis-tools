@@ -159,6 +159,7 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
 }
 
 #[cfg(test)]
+#[coverage(off)]
 mod tests {
     use s2json::MValue;
 
