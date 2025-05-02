@@ -1,4 +1,10 @@
-import {
+import type {
+  FeatureIterator,
+  Properties,
+  VectorFeature,
+  VectorPointGeometry,
+} from '../../../index.js';
+import type {
   GBFSFreeBikeStatusV1,
   GBFSStationInformationV1,
   GBFSStationStatusV1,
@@ -11,13 +17,6 @@ import {
   GBFSV1,
   GBFSVersionsV1,
 } from './index.js';
-
-import type {
-  FeatureIterator,
-  Properties,
-  VectorFeature,
-  VectorPointGeometry,
-} from '../../../index.js';
 
 export * from './freeBikeStatus.js';
 export * from './gbfs.js';

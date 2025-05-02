@@ -1,7 +1,7 @@
 import { parseCSVAsRecord } from '../index.js';
-import { GBFSReaderV1, GBFSV1, buildGBFSReaderV1 } from './schemaV1/index.js';
-import { GBFSReaderV2, GBFSV2, buildGBFSReaderV2 } from './schemaV2/index.js';
-import { GBFSReaderV3, GBFSV3, buildGBFSReaderV3 } from './schemaV3/index.js';
+import { GBFSReaderV1, type GBFSV1, buildGBFSReaderV1 } from './schemaV1/index.js';
+import { GBFSReaderV2, type GBFSV2, buildGBFSReaderV2 } from './schemaV2/index.js';
+import { GBFSReaderV3, type GBFSV3, buildGBFSReaderV3 } from './schemaV3/index.js';
 
 export * from './schemaV1/index.js';
 export * from './schemaV2/index.js';

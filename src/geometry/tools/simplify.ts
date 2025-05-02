@@ -1,12 +1,11 @@
-import {
+import type { MValue, Properties } from '../../index.js';
+import type {
   VectorGeometry,
   VectorLineString,
   VectorMultiLineString,
   VectorMultiPolygon,
   VectorPolygon,
 } from '../index.js';
-
-import type { MValue, Properties } from '../../index.js';
 
 /**
  * Builds squared distances for the vector geometry using the Douglas-Peucker algorithm.

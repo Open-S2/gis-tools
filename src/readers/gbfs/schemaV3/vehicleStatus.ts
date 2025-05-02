@@ -1,4 +1,4 @@
-import { Properties } from '../../../index.js';
+import type { Properties } from '../../../index.js';
 
 /**
  * # GBFS Vehicle Status Schema V3.1-RC & V3.0

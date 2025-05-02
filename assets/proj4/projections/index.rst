@@ -17,6 +17,7 @@ Projections map the spherical 3D space to a flat 2D space.
    adams_ws2
    aea
    aeqd
+   airocean
    airy
    aitoff
    alsk
@@ -134,6 +135,7 @@ Projections map the spherical 3D space to a flat 2D space.
    sinu
    som
    somerc
+   spilhaus
    stere
    sterea
    gstmerc
@@ -166,3 +168,4 @@ Projections map the spherical 3D space to a flat 2D space.
    wink1
    wink2
    wintri
+   all_images

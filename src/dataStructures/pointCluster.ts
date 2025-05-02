@@ -1,5 +1,5 @@
 import { K_AVG_ANGLE_SPAN, convert, idLevel, idRange } from '../geometry/index.js';
-import { PointIndex, PointShape, Tile } from '../index.js';
+import { PointIndex, Tile } from '../index.js';
 import {
   pointAddMut as addMut,
   pointDivMutScalar as divMutScalar,
@@ -9,7 +9,6 @@ import {
   pointToST as toST,
 } from '../geometry/s2/point.js';
 
-import type { FeatureIterator } from '../index.js';
 import type { S1ChordAngle } from '../geometry/s1/chordAngle.js';
 import type {
   Face,
@@ -21,6 +20,7 @@ import type {
   VectorPoint,
   VectorPointM,
 } from '../geometry/index.js';
+import type { FeatureIterator, PointShape } from '../index.js';
 
 import type { VectorStore, VectorStoreConstructor } from '../dataStore/vector/index.js';
 

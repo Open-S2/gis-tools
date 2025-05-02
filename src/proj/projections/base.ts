@@ -1,7 +1,8 @@
 import { CoordOperation } from './index.js';
-import { D2R, GridDescription, PJD_UNKNOWN, PJ_TYPE, R2D, pjIoUnits } from '../constants/index.js';
+import { D2R, PJD_UNKNOWN, PJ_TYPE, R2D, pjIoUnits } from '../constants/index.js';
 
 import type { DatumParams } from '../../readers/wkt/index.js';
+import type { GridDescription } from '../constants/types.js';
 import type { ProjectionTransform } from './index.js';
 import type { VectorPoint } from '../../geometry/index.js';
 

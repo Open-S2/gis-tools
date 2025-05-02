@@ -48,13 +48,11 @@ import type { ProjectionTransform } from '../projections/index.js';
 //     Syntactically, the pipeline system introduces the "+step" keyword (which
 //     indicates the start of each transformation step), and reintroduces the +inv
 //     keyword (indicating that a given transformation step should run in reverse,
-// i.e. forward, when the pipeline is executed in inverse direction, and vice
-// versa).
+// i.e. forward, when the pipeline is executed in inverse direction, and vice versa).
 //
 //     Hence, the first transformation example above, can be implemented as:
 //
-//     +proj=pipeline +step proj=cart +step proj=helmert <ARGS> +step proj=cart
-// +inv
+//     +proj=pipeline +step proj=cart +step proj=helmert <ARGS> +step proj=cart +inv
 //
 //     Where <ARGS> indicate the Helmert arguments: 3 translations (+x=..., +y=...,
 //     +z=...), 3 rotations (+rx=..., +ry=..., +rz=...) and a scale factor

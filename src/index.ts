@@ -1,5 +1,4 @@
 export * from './constants/index.js';
-export * from './converters/index.js';
 export * from './dataStore/index.js';
 export * from './dataStructures/index.js';
 export * from './geometry/index.js';

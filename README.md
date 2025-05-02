@@ -73,21 +73,26 @@ deno install gis-tools-ts
 cargo add gis-tools
 ```
 
+### CLI Install
+
+You can read the docs on the [CLI here](/docs-ts/cli.md).
+
+```bash
+# NPM
+npm install -g gis-tools-ts
+# PNPM
+pnpm add -g gis-tools-ts
+# Yarn
+yarn global add gis-tools-ts
+# Bun
+bun add -g gis-tools-ts
+# Deno
+deno install -g gis-tools-ts
+```
+
 ## Components
 
 > 💡 **NOTE:** The sizes are estimates and can change based on how you use them. Click the module link for documentation and more precise guides on file cost.
-
-### Converters
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
-| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
-
-[toJSON]: /docs-ts/converters/toJSON.md
-[toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
-[toTiles]: /docs-ts/converters/toTiles.md
-[toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
 
 ### Data Stores
 
@@ -289,11 +294,17 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
 | [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
 | [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
+| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
+| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
 
 [pmtilesWriter]: /docs-ts/writers/pmtiles.md
 [pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
 [tileWriter]: /docs-ts/writers/tile.md
 [twBadge]: /assets/badges/tileWriter-gzip-cover.svg
+[toJSON]: /docs-ts/writers/toJSON.md
+[toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
+[toTiles]: /docs-ts/writers/toTiles.md
+[toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
 
 ### Utils
 

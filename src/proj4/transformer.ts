@@ -300,7 +300,7 @@ export class Transformer extends NadGridStore {
     // STEP 2: MID-POINT. Convert datums if needed, and if possible.
     datumTransform(res, src, dest);
 
-    // STEP 3: WGS84 -> DEST
+    // STEP 3: WGS84 in Radians -> DEST
     // Adjust for the prime meridian if necessary
     res.x -= dest.fromGreenwich;
     // transform forward

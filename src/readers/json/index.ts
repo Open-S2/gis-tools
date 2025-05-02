@@ -208,7 +208,7 @@ const STRING = 0x22;
  * import { JSONReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
  *
- * const reader = new JSONReader(new FileReader('./data.geojsonld'));
+ * const reader = new JSONReader(new FileReader('./data.geojson'));
  *
  * // read the features
  * for await (const feature of reader) {

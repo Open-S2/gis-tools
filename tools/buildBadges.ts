@@ -14,9 +14,6 @@ await build({
   entryPoints: [
     // CONSTANTS
     `${__dirname}/builds/constants/index.ts`,
-    // CONVERTERS
-    `${__dirname}/builds/converters/toJSON.ts`,
-    `${__dirname}/builds/converters/toTiles.ts`,
     // DATA STORES
     `${__dirname}/builds/dataStore/externalSort.ts`,
     `${__dirname}/builds/dataStore/kd.ts`,
@@ -87,6 +84,8 @@ await build({
     // WRITERS
     `${__dirname}/builds/writers/pmtilesWriter.ts`,
     `${__dirname}/builds/writers/tileWriter.ts`,
+    `${__dirname}/builds/writers/toJSON.ts`,
+    `${__dirname}/builds/writers/toTiles.ts`,
   ],
   // splitting: true,
   outdir: `${__dirname}/../build_bundle_tmp`,

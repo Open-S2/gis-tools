@@ -94,20 +94,6 @@ export interface Id {
 /** Identifiers list */
 export type Ids = Id[];
 
-/** Usage Object */
-export interface Usage {
-  /** Scope of the usage */
-  scope?: string;
-  /** Defined area */
-  area?: string;
-  /** Bounding box */
-  bbox?: BBox;
-  /** Vertical extent */
-  vertical_extent?: VerticalExtent;
-  /** Temporal extent */
-  temporal_extent?: TemporalExtent;
-}
-
 /** Parameter Value */
 export interface ParameterValue {
   /** Schema reference */
@@ -131,7 +117,7 @@ export interface ParameterValue {
  *
  * Represents a parametric coordinate reference system.
  */
-export interface ParametricCRS extends ObjectUsage {
+export interface ParametricCRS extends Usage {
   /** Type identifier */
   type: 'ParametricCRS';
   /** Name of the CRS */
@@ -140,6 +126,8 @@ export interface ParametricCRS extends ObjectUsage {
   datum: ParametricDatum;
   /** Coordinate system */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -147,13 +135,15 @@ export interface ParametricCRS extends ObjectUsage {
  *
  * Represents the parametric datum associated with a parametric CRS.
  */
-export interface ParametricDatum extends ObjectUsage {
+export interface ParametricDatum extends Usage {
   /** Type identifier */
   type: 'ParametricDatum';
   /** Name of the datum */
   name: string;
   /** Anchor point */
   anchor: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -161,7 +151,7 @@ export interface ParametricDatum extends ObjectUsage {
  *
  * Represents a point motion operation
  */
-export interface PointMotionOperation extends ObjectUsage {
+export interface PointMotionOperation extends Usage {
   /** Type identifier */
   type: 'PointMotionOperation';
   /** Name of the operation */
@@ -174,6 +164,8 @@ export interface PointMotionOperation extends ObjectUsage {
   parameters: ParameterValue[];
   /** Accuracy of the operation */
   accuracy?: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -212,7 +204,7 @@ export type Unit =
  *
  * Represents a coordinate reference system that is bounded by a source and target CRS with a transformation.
  */
-export interface BoundCRS extends ObjectUsage {
+export interface BoundCRS extends Usage {
   /** Indicates the type of object. Always "BoundCRS" for this interface. */
   type: 'BoundCRS';
   /** The name of the bound CRS. */
@@ -223,6 +215,8 @@ export interface BoundCRS extends ObjectUsage {
   target_crs: CRS;
   /** The transformation applied to convert between the source and target CRS. */
   transformation: AbridgedTransformation;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -230,7 +224,7 @@ export interface BoundCRS extends ObjectUsage {
  *
  * Represents an operation that is composed of multiple steps, transforming one CRS to another.
  */
-export interface ConcatenatedOperation extends ObjectUsage {
+export interface ConcatenatedOperation extends Usage {
   /** Indicates the type of object. Always "ConcatenatedOperation" for this interface. */
   type: 'ConcatenatedOperation';
   /** The name of the concatenated operation. */
@@ -243,6 +237,8 @@ export interface ConcatenatedOperation extends ObjectUsage {
   steps: SingleOperation[];
   /** The accuracy of the concatenated operation. */
   accuracy?: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -274,13 +270,15 @@ export interface AbridgedTransformation {
  *
  * Represents a compound coordinate reference system, consisting of multiple components.
  */
-export interface CompoundCRS extends ObjectUsage {
+export interface CompoundCRS extends Usage {
   /** Indicates the type of object. Always "CompoundCRS" for this interface. */
   type: 'CompoundCRS';
   /** The name of the compound CRS. */
   name: string;
   /** An array of coordinate reference systems that make up the compound CRS. */
   components: CRS[];
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -288,7 +286,7 @@ export interface CompoundCRS extends ObjectUsage {
  *
  * Represents an engineering coordinate reference system.
  */
-export interface EngineeringCRS extends ObjectUsage {
+export interface EngineeringCRS extends Usage {
   /** Indicates the type of CRS. Always "EngineeringCRS" for this interface. */
   type: 'EngineeringCRS';
   /** The name of the engineering CRS. */
@@ -297,6 +295,8 @@ export interface EngineeringCRS extends ObjectUsage {
   datum: EngineeringDatum;
   /** The coordinate system used in this CRS. */
   coordinate_system?: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -304,13 +304,15 @@ export interface EngineeringCRS extends ObjectUsage {
  *
  * Represents the datum associated with an engineering CRS.
  */
-export interface EngineeringDatum extends ObjectUsage {
+export interface EngineeringDatum extends Usage {
   /** Indicates the type of datum. Always "EngineeringDatum" for this interface. */
   type: 'EngineeringDatum';
   /** The name of the datum. */
   name: string;
   /** Anchor point of the datum. */
   anchor?: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -449,7 +451,7 @@ export interface DeformationModel {
  *
  * Represents a derived engineering coordinate reference system.
  */
-export interface DerivedEngineeringCRS extends ObjectUsage {
+export interface DerivedEngineeringCRS extends Usage {
   /** Indicates the type of coordinate reference system. Always "DerivedEngineeringCRS" for this interface. */
   type: 'DerivedEngineeringCRS';
   /** The name of the derived engineering CRS. */
@@ -460,6 +462,8 @@ export interface DerivedEngineeringCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -467,7 +471,7 @@ export interface DerivedEngineeringCRS extends ObjectUsage {
  *
  * Represents a derived geodetic or geographic coordinate reference system.
  */
-export interface DerivedGeodeticCRS extends ObjectUsage {
+export interface DerivedGeodeticCRS extends Usage {
   /** Indicates the type of coordinate reference system. Can be either "DerivedGeodeticCRS" or "DerivedGeographicCRS". */
   type: 'DerivedGeodeticCRS' | 'DerivedGeographicCRS';
   /** The name of the derived geodetic CRS. */
@@ -478,6 +482,8 @@ export interface DerivedGeodeticCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -485,7 +491,7 @@ export interface DerivedGeodeticCRS extends ObjectUsage {
  *
  * Represents a geodetic or geographic coordinate reference system.
  */
-export interface GeodeticCRS extends ObjectUsage {
+export interface GeodeticCRS extends Usage {
   /** Indicates the type of CRS. Can be "GeodeticCRS" or "GeographicCRS". */
   type: 'GeodeticCRS' | 'GeographicCRS';
   /** The name of the geodetic CRS. */
@@ -501,6 +507,8 @@ export interface GeodeticCRS extends ObjectUsage {
   coordinate_system?: CoordinateSystem;
   /** An array of deformation models associated with the geodetic CRS. */
   deformation_models?: DeformationModel[];
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -508,7 +516,7 @@ export interface GeodeticCRS extends ObjectUsage {
  *
  * Represents the geodetic reference frame associated with a geodetic CRS.
  */
-export interface GeodeticReferenceFrame extends ObjectUsage {
+export interface GeodeticReferenceFrame extends Usage {
   /** Indicates the type of reference frame. Always "GeodeticReferenceFrame" for this interface. */
   type: 'GeodeticReferenceFrame';
   /** The name of the reference frame. */
@@ -521,6 +529,8 @@ export interface GeodeticReferenceFrame extends ObjectUsage {
   anchor_epoch?: number;
   /** The prime meridian associated with the reference frame. */
   prime_meridian?: PrimeMeridian;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -528,7 +538,7 @@ export interface GeodeticReferenceFrame extends ObjectUsage {
  *
  * Represents a derived parametric coordinate reference system.
  */
-export interface DerivedParametricCRS extends ObjectUsage {
+export interface DerivedParametricCRS extends Usage {
   /** Indicates the type of coordinate reference system. Always "DerivedParametricCRS" for this interface. */
   type: 'DerivedParametricCRS';
   /** The name of the derived parametric CRS. */
@@ -539,6 +549,8 @@ export interface DerivedParametricCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -546,7 +558,7 @@ export interface DerivedParametricCRS extends ObjectUsage {
  *
  * Represents a derived projected coordinate reference system.
  */
-export interface DerivedProjectedCRS extends ObjectUsage {
+export interface DerivedProjectedCRS extends Usage {
   /** Indicates the type of coordinate reference system. Always "DerivedProjectedCRS" for this interface. */
   type: 'DerivedProjectedCRS';
   /** The name of the derived projected CRS. */
@@ -557,6 +569,8 @@ export interface DerivedProjectedCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -564,7 +578,7 @@ export interface DerivedProjectedCRS extends ObjectUsage {
  *
  * Represents a derived temporal coordinate reference system.
  */
-export interface DerivedTemporalCRS extends ObjectUsage {
+export interface DerivedTemporalCRS extends Usage {
   /** Indicates the type of coordinate reference system. Always "DerivedTemporalCRS" for this interface. */
   type: 'DerivedTemporalCRS';
   /** The name of the derived temporal CRS. */
@@ -575,6 +589,8 @@ export interface DerivedTemporalCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -582,7 +598,7 @@ export interface DerivedTemporalCRS extends ObjectUsage {
  *
  * Represents a derived vertical coordinate reference system.
  */
-export interface DerivedVerticalCRS extends ObjectUsage {
+export interface DerivedVerticalCRS extends Usage {
   /** Indicates the type of coordinate reference system. Always "DerivedVerticalCRS" for this interface. */
   type: 'DerivedVerticalCRS';
   /** The name of the derived vertical CRS. */
@@ -593,6 +609,8 @@ export interface DerivedVerticalCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -600,7 +618,7 @@ export interface DerivedVerticalCRS extends ObjectUsage {
  *
  * Represents a dynamic geodetic reference frame.
  */
-export interface DynamicGeodeticReferenceFrame extends ObjectUsage {
+export interface DynamicGeodeticReferenceFrame extends Usage {
   /** Indicates the type of reference frame. Always "DynamicGeodeticReferenceFrame" for this interface. */
   type: 'DynamicGeodeticReferenceFrame';
   /** The name of the reference frame. */
@@ -615,6 +633,8 @@ export interface DynamicGeodeticReferenceFrame extends ObjectUsage {
   anchor_epoch?: number;
   /** The prime meridian associated with the reference frame. */
   prime_meridian?: PrimeMeridian;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -711,7 +731,7 @@ export interface PrimeMeridian {
  * Represents a projected coordinate reference system, which transforms geodetic or geographic coordinates
  * into a flat, two-dimensional plane using a map projection.
  */
-export interface ProjectedCRS extends ObjectUsage {
+export interface ProjectedCRS extends Usage {
   /** Indicates the type of CRS. Always "ProjectedCRS" for this interface. */
   type: 'ProjectedCRS';
   /** The name of the projected CRS. */
@@ -725,6 +745,8 @@ export interface ProjectedCRS extends ObjectUsage {
   conversion: Conversion;
   /** The coordinate system used in the projected CRS. */
   coordinate_system: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -802,7 +824,7 @@ export interface CoordinateSystem {
  *
  * Represents a transformation between two coordinate reference systems.
  */
-export interface Transformation extends ObjectUsage {
+export interface Transformation extends Usage {
   /** Type identifier */
   type: 'Transformation';
   /** Name of the transformation */
@@ -819,6 +841,8 @@ export interface Transformation extends ObjectUsage {
   interpolation_crs?: CRS;
   /** Transformation accuracy */
   accuracy?: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -826,7 +850,7 @@ export interface Transformation extends ObjectUsage {
  *
  * Represents a temporal coordinate reference system, which defines time-based coordinates.
  */
-export interface TemporalCRS extends ObjectUsage {
+export interface TemporalCRS extends Usage {
   /** Indicates the type of CRS. Always "TemporalCRS" for this interface. */
   type: 'TemporalCRS';
   /** The name of the temporal CRS. */
@@ -835,6 +859,8 @@ export interface TemporalCRS extends ObjectUsage {
   datum: TemporalDatum;
   /** The coordinate system used in the temporal CRS. */
   coordinate_system?: CoordinateSystem;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -842,7 +868,7 @@ export interface TemporalCRS extends ObjectUsage {
  *
  * Represents the temporal datum associated with a temporal CRS.
  */
-export interface TemporalDatum extends ObjectUsage {
+export interface TemporalDatum extends Usage {
   /** Indicates the type of datum. Always "TemporalDatum" for this interface. */
   type: 'TemporalDatum';
   /** The name of the temporal datum. */
@@ -851,6 +877,8 @@ export interface TemporalDatum extends ObjectUsage {
   calendar: string;
   /** The time origin of the temporal datum, typically an ISO 8601 date/time string. */
   time_origin?: string;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -858,7 +886,7 @@ export interface TemporalDatum extends ObjectUsage {
  *
  * Represents a vertical coordinate reference system, which is used for height or depth measurements.
  */
-export interface VerticalCRS extends ObjectUsage {
+export interface VerticalCRS extends Usage {
   /** Indicates the type of CRS. Always "VerticalCRS" for this interface. */
   type: 'VerticalCRS';
   /** The name of the vertical CRS. */
@@ -878,6 +906,8 @@ export interface VerticalCRS extends ObjectUsage {
   geoid_models?: GeoidModel[];
   /** An array of deformation models associated with the vertical CRS. */
   deformation_models?: DeformationModel[];
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -885,7 +915,7 @@ export interface VerticalCRS extends ObjectUsage {
  *
  * Represents the vertical reference frame associated with a vertical CRS.
  */
-export interface VerticalReferenceFrame extends ObjectUsage {
+export interface VerticalReferenceFrame extends Usage {
   /** Indicates the type of reference frame. Always "VerticalReferenceFrame" for this interface. */
   type: 'VerticalReferenceFrame';
   /** The name of the vertical reference frame. */
@@ -894,6 +924,8 @@ export interface VerticalReferenceFrame extends ObjectUsage {
   anchor?: string;
   /** The epoch of the anchor point. */
   anchor_epoch?: number;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -901,7 +933,7 @@ export interface VerticalReferenceFrame extends ObjectUsage {
  *
  * Represents a dynamic vertical reference frame.
  */
-export interface DynamicVerticalReferenceFrame extends ObjectUsage {
+export interface DynamicVerticalReferenceFrame extends Usage {
   /** Indicates the type of reference frame. Always "DynamicVerticalReferenceFrame" for this interface. */
   type: 'DynamicVerticalReferenceFrame';
   /** The name of the reference frame. */
@@ -912,6 +944,8 @@ export interface DynamicVerticalReferenceFrame extends ObjectUsage {
   anchor_epoch?: number;
   /** The frame reference epoch for the dynamic reference frame. */
   frame_reference_epoch: number;
+  /** Collection of Usages */
+  usages?: Usage[];
 }
 
 /**
@@ -933,7 +967,7 @@ export interface GeoidModel {
  *
  * Represents common variables across all coordinate reference systems.
  */
-export interface ObjectUsage {
+export interface Usage {
   /** The schema URL or identifier. */
   $schema?: string;
   /** The scope of the CRS. */

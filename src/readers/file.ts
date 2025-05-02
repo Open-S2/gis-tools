@@ -1,7 +1,24 @@
+import { OSMFileReader } from './osm/file.js';
 import { promisify } from 'util';
+import { shapefileFromPath } from 'gis-tools/file.js';
+import {
+  CSVReader,
+  GPXReader,
+  GRIB2Reader,
+  GeoTIFFReader,
+  JSONReader,
+  LASReader,
+  LASZipReader,
+  NetCDFReader,
+  NewLineDelimitedJSONReader,
+  RasterTilesReader,
+  SequenceJSONReader,
+  WKTGeometryReader,
+  buildGTFSSchedule,
+} from './index.js';
 import { closeSync, openSync, read, readSync, statSync } from 'fs';
 
-import type { Reader } from './index.js';
+import type { FeatureIterator, Reader } from './index.js';
 
 export * from './tile/file.js';
 export * from './osm/file.js';
@@ -235,5 +252,70 @@ export class FileReader implements Reader {
   /** Closes the file */
   close() {
     closeSync(this.#fileHandle);
+  }
+}
+
+/**
+ * Given a file and a file type, return a reader
+ * @param filePath - The path to the file
+ * @param type - The file type if specified, otherwise it will be inferred
+ * @returns - The reader with {@link FeatureIterator} implemented
+ */
+export async function fileTypeToReader(filePath: string, type?: string): Promise<FeatureIterator> {
+  // TODO: Create transformer that has all EPSG and projection definitions
+  const file = new FileReader(filePath);
+  const fileType = type?.toLowerCase() ?? (filePath.split('.').pop() ?? '').toLowerCase();
+  switch (fileType) {
+    case 'csv':
+      return new CSVReader(file);
+    case 'tif':
+    case 'tiff':
+    case 'geotif':
+    case 'geotiff':
+      return new GeoTIFFReader(file) as FeatureIterator;
+    case 'gpx':
+      return new GPXReader(file.parseString()) as FeatureIterator;
+    case 'grib':
+    case 'grib2':
+      return new GRIB2Reader(file) as FeatureIterator;
+    case 'gtfs':
+      return await buildGTFSSchedule((await file.getRange(0, file.byteLength)).buffer);
+    case 'json':
+    case 'geojson':
+    case 's2json':
+      return new JSONReader(file);
+    case 'jsonld':
+    case 'geojsonld':
+    case 's2jsonld':
+    case 'json-ld':
+    case 'geojson-ld':
+    case 's2json-ld':
+      return new NewLineDelimitedJSONReader(file);
+    case 'jsonsq':
+    case 'geojsonsq':
+    case 's2jsonsq':
+    case 'json-sq':
+    case 'geojson-sq':
+    case 's2json-sq':
+      return new SequenceJSONReader(file);
+    case 'las':
+      return new LASReader(file);
+    case 'laz':
+      return new LASZipReader(file);
+    case 'nc4':
+    case 'cdf':
+    case 'nc':
+    case 'netcdf':
+      return new NetCDFReader(file);
+    case 'osm':
+      return new OSMFileReader(filePath) as FeatureIterator;
+    case 'raster':
+      return new RasterTilesReader(filePath) as FeatureIterator;
+    case 'shapefile':
+      return await shapefileFromPath(filePath);
+    case 'wkt':
+      return new WKTGeometryReader(file.parseString());
+    default:
+      throw new Error(`Unsupported file type: ${fileType}`);
   }
 }

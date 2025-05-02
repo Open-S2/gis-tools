@@ -1,0 +1,58 @@
+[package]
+name = "gis-tools"
+publish = true
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
+
+[lib]
+name = "gistools"
+path = "lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+parsers = { path = "../parsers" }
+data_store = { path = "../data_store" }
+data_structures = { path = "../data_structures" }
+geometry = { path = "../geometry" }
+proj = { path = "../proj" }
+readers = { path = "../readers" }
+space = { path = "../space" }
+tools = { path = "../tools" }
+util = { path = "../util" }
+writers = { path = "../writers" }
+
+[features]
+default = ["std", "quadratic"] # Default feature
+quadratic = []                 # Feature for quadratic projection
+tan = []                       # Feature for tangential projection
+linear = []                    # Feature for linear projection
+# Conditional std feature enabling quadratic or other projection features
+std = []
+
+# [[bench]]
+# name = "s2_cells"
+# harness = false
+
+# [[bench]]
+# name = "delaunator"
+# harness = false
+
+# [profile.bench]
+# inherits = "release"
+# opt-level = 3
+
+# [profile.dev.package]
+# image.opt-level = 3

@@ -2,7 +2,6 @@ import { pointFromST } from '../geometry/s2/point.js';
 import {
   KV,
   PointIndex,
-  PointShape,
   defaultGetInterpolateCurrentValue,
   getInterpolation,
   getRGBAInterpolation,
@@ -31,6 +30,7 @@ import type {
   GetInterpolateValue,
   InterpolationFunction,
   InterpolationMethod,
+  PointShape,
   RGBA,
   RGBAInterpolationFunction,
 } from '../index.js';

@@ -1,13 +1,4 @@
-import {
-  Properties,
-  VectorFeature,
-  VectorLineStringGeometry,
-  VectorMultiLineStringGeometry,
-  VectorPointGeometry,
-  xmlFindTagByName,
-  xmlFindTagsByName,
-  xmlGetAttribute,
-} from '../../index.js';
+import { xmlFindTagByName, xmlFindTagsByName, xmlGetAttribute } from '../../index.js';
 
 import type { FeatureIterator, XMLTag } from '../index.js';
 import type {
@@ -23,6 +14,13 @@ import type {
   GPXTrackSegment,
   GPXWaypoint,
 } from './types.js';
+import type {
+  Properties,
+  VectorFeature,
+  VectorLineStringGeometry,
+  VectorMultiLineStringGeometry,
+  VectorPointGeometry,
+} from '../../index.js';
 
 export * from './types.js';
 

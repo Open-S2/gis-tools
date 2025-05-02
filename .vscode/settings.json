@@ -1,4 +1,12 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
-    "eslint.useFlatConfig": true
+    "eslint.useFlatConfig": true,
+    "rust-analyzer.files.exclude": [
+        "rust/proj/generated",
+        "rust/proj/epsg.rs"
+    ],
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "rust/proj/generated/**": true
+    }
 }

@@ -1,5 +1,11 @@
 import { PriorityQueue } from '../dataStructures/priorityQueue.js';
-import { Properties, VectorMultiPolygon, VectorPoint, VectorPolygon } from '../geometry/index.js';
+
+import type {
+  Properties,
+  VectorMultiPolygon,
+  VectorPoint,
+  VectorPolygon,
+} from '../geometry/index.js';
 
 /** The metadata inserted into the Vector Feature */
 export interface PolyLabelMetadata extends Properties {

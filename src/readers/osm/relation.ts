@@ -1,6 +1,7 @@
-import { Info, InfoBlock } from './info.js';
+import { Info } from './info.js';
 import { fromMultiLineString, fromMultiPolygon } from '../../geometry/index.js';
 
+import type { InfoBlock } from './info.js';
 import type { PbfReader } from 'pbf-ts';
 import type {
   BBOX,

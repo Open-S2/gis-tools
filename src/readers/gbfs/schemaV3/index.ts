@@ -1,5 +1,13 @@
 import { toVector } from '../../../index.js';
-import {
+
+import type {
+  FeatureIterator,
+  Properties,
+  VectorFeature,
+  VectorMultiPolygonGeometry,
+  VectorPointGeometry,
+} from '../../../index.js';
+import type {
   GBFSGeofencingZonesV3,
   GBFSGeofencingZonesV3Properties,
   GBFSManifestV3,
@@ -15,14 +23,6 @@ import {
   GBFSVehicleV3,
   GBFSVersionsV3,
 } from './index.js';
-
-import type {
-  FeatureIterator,
-  Properties,
-  VectorFeature,
-  VectorMultiPolygonGeometry,
-  VectorPointGeometry,
-} from '../../../index.js';
 
 export * from './gbfs.js';
 export * from './gbfsVersions.js';

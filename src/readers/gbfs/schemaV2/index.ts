@@ -1,5 +1,13 @@
 import { toVector } from '../../../index.js';
-import {
+
+import type {
+  FeatureIterator,
+  Properties,
+  VectorFeature,
+  VectorMultiPolygonGeometry,
+  VectorPointGeometry,
+} from '../../../index.js';
+import type {
   GBFSFreeBikeStatusV2,
   GBFSGeofencingZonesV2,
   GBFSGeofencingZonesV2Properties,
@@ -15,14 +23,6 @@ import {
   GBFSVehicleTypesV2,
   GBFSVersionsV2,
 } from './index.js';
-
-import type {
-  FeatureIterator,
-  Properties,
-  VectorFeature,
-  VectorMultiPolygonGeometry,
-  VectorPointGeometry,
-} from '../../../index.js';
 
 export * from './freeBikeStatus.js';
 export * from './gbfs.js';

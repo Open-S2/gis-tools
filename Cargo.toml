@@ -1,5 +1,21 @@
-[package]
-name = "gis-tools"
+[workspace]
+members = [
+  "rust/data_store",
+  "rust/data_structures",
+  "rust/geometry",
+  "rust/lib",
+  "rust/parsers",
+  "rust/proj",
+  "rust/readers",
+  "rust/space",
+  "rust/tools",
+  "rust/util",
+  "rust/writers"
+]
+default-members = ["rust/lib"]
+resolver = "2"
+
+[workspace.package]
 version = "1.0.0"
 edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
@@ -10,82 +26,27 @@ repository = "https://github.com/OpenS2/gis-tools"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
 keywords = ["tools", "s2", "gis", "low-cost-code"]
-license = "MIT"
-# Include only specific files and directories
-# include = ["/ovtile", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE"]
-exclude = [
-    "/assets",
-    "/benchmarks",
-    "/docs",
-    "/tests",
-    "/tools",
-    "/src",
-    "/coverage",
-    "/dist",
-    "/experiments",
-    "/node_modules",
-    "/build_bundle_tmp",
-    ".github",
-    "/config",
-    "/docs-ts",
-    "/docs-rs",
-    "build.*",
-    ".helix"
-]
+license = "SEE LICENSE"
 
-[lib]
-name = "gistools"
-path = "rust/lib.rs"
-bench = true
-
-[features]
-default = ["std", "quadratic"] # Default feature
-quadratic = []                 # Feature for quadratic projection
-tan = []                       # Feature for tangential projection
-linear = []                    # Feature for linear projection
-
-# Conditional std feature enabling quadratic or other projection features
-std = ["memmap2", "flate2", "brotli", "ruzstd", "image"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace.dependencies]
+# Open S2 dependencies
+earclip = "1.5"
+open-vector-tile = "1.8"
 pbf = "1.21"
 s2json = "1.34"
 s2-tilejson = "1.8"
-open-vector-tile = "1.8"
+# External shared dependencies
 libm = "0.2"
-earclip = "1.5"
 regex = { version = "1", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
-
-# STD dependencies
-memmap2 = { version = "0.9", optional = true }
-flate2 = { version = "1", optional = true }
-brotli = { version = "7", optional = true }
-ruzstd = { version = "0.8", optional = true }
-image = { version = "0.25", optional = true }
-
-[dev-dependencies]
+# Optional std dependencies
+memmap2 = { version = "0.9" }
+flate2 = { version = "1" }
+brotli = { version = "8" }
+ruzstd = { version = "0.8" }
+image = { version = "0.25" }
+# TMP dependencies (workspace dev doesn't work)
 tempfile = "3"
 criterion = { version = "0.5", features = ["html_reports"] }
 rand = "0.9"
-
-[[bench]]
-name = "s2_cells"
-harness = false
-
-[[bench]]
-name = "delaunator"
-harness = false
-
-[profile.bench]
-inherits = "release"
-opt-level = 3
-
-[profile.dev.package]
-image.opt-level = 3
-
-[package.metadata.docs.rs]
-rustdoc-args = [ "--html-in-header", "katex-header.html" ]

@@ -1,7 +1,8 @@
-import { BoolVec, vectorIntersection } from './vector.js';
+import { vectorIntersection } from './vector.js';
 import { SweepEvent, comparePoints } from './sweepEvent.js';
 import { bboxOverlap, pointOverlap } from '../../../index.js';
 
+import type { BoolVec } from './vector.js';
 import type { Operation } from './operation.js';
 import type { RingOut } from './geomOut.js';
 import type { BBOX, VectorPoint } from '../../../index.js';

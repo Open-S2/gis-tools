@@ -1,0 +1,33 @@
+[package]
+name = "util"
+publish = false
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+# LOCAL dependencies
+parsers = { path = "../parsers" }
+# OpenS2 dependencies
+pbf = { workspace = true }
+s2json = { workspace = true }
+s2-tilejson = { workspace = true }
+# External dependencies
+libm = { workspace = true }
+serde = { workspace = true }
+# STD dependencies
+flate2 = { workspace = true, optional = true }
+ruzstd = { workspace = true, optional = true }
+brotli = { workspace = true, optional = true }
+
+[features]
+default = ["std"]
+std = ["flate2", "brotli", "ruzstd"]

@@ -33,7 +33,7 @@ jobs:
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: nightly-2025-02-14
+        toolchain: nightly-2025-02-20
         override: true
         components: rustfmt, clippy
     
@@ -55,6 +55,6 @@ jobs:
 
     # Run tarpaulin to calculate and enforce coverage
     - name: Run Coverage and Enforce Threshold
-      run: cargo tarpaulin # no threshold for now until complete
+      run: cargo tarpaulin --workspace # no threshold for now until complete
       # run: cargo tarpaulin --fail-under 95
       shell: bash

@@ -23,7 +23,7 @@ import { type GTFSNetwork, parseGTFSNetworks } from './networks.js';
 import { type GTFSPathway, parseGTFSPathways } from './pathways.js';
 import { type GTFSRoute, parseGTFSRoutes } from './routes.js';
 import { type GTFSRouteNetwork, parseGTFSRouteNetworks } from './routeNetworks.js';
-import { GTFSShapeProperties, parseGTFSShapes } from './shapes.js';
+import { type GTFSShapeProperties, parseGTFSShapes } from './shapes.js';
 import { type GTFSStop, type GTFSStopProperties, parseGTFSStops } from './stops.js';
 import { type GTFSStopArea, parseGTFSStopAreas } from './stopAreas.js';
 import { type GTFSStopTime, parseGTFSStopTimes } from './stopTimes.js';

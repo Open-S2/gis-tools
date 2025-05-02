@@ -1,0 +1,29 @@
+[package]
+name = "geometry"
+publish = false
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+# LOCAL dependencies
+space = { path = "../space" }
+# OpenS2 dependencies
+serde = { workspace = true }
+s2json = { workspace = true }
+# External dependencies
+libm = { workspace = true }
+
+[features]
+default = ["quadratic"] # Default feature
+quadratic = []                 # Feature for quadratic projection
+tan = []                       # Feature for tangential projection
+linear = []                    # Feature for linear projection

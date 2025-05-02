@@ -18,6 +18,7 @@ import {
   LASZIP_DECOMPRESS_SELECTIVE_WAVEPACKET,
   LASZIP_DECOMPRESS_SELECTIVE_Z,
   LASpoint14,
+  LASrgba,
   LASrgbaNir,
   StreamingMedian5,
   number_return_level_8ctx,
@@ -26,7 +27,7 @@ import {
 import { U64I64F64, i16Quantize, i8Clamp, u32ZeroBit0, u8Clamp, u8Fold } from '../util.js';
 
 import type { Reader } from '../../index.js';
-import { ItemReader, LASrgba, LAZContext } from './index.js';
+import type { ItemReader, LAZContext } from './index.js';
 
 const LASZIP_GPSTIME_MULTI = 500;
 const LASZIP_GPSTIME_MULTI_MINUS = -10;
