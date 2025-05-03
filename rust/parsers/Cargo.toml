@@ -20,6 +20,7 @@ s2json = { workspace = true }
 pbf = { workspace = true }
 # External dependencies
 libm = { workspace = true }
+half = { workspace = true }
 serde = { workspace = true }
 regex = { workspace = true }
 # STD dependencies

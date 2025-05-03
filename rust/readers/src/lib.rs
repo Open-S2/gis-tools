@@ -1,8 +1,6 @@
 #![no_std]
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![feature(f16)]
-#![feature(coverage_attribute)]
 //! # GIS Tools - Readers
 //! TODO
 

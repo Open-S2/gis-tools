@@ -1,8 +1,9 @@
 mod merge_sorted_chunks;
 mod sort_chunk;
 
-use self::{merge_sorted_chunks::*, sort_chunk::*};
 use super::file::KEY_STORE_LENGTH;
+use merge_sorted_chunks::*;
+use sort_chunk::*;
 use std::{
     env, format,
     fs::{self, File},

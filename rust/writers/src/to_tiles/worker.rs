@@ -159,17 +159,17 @@ impl TileWorker {
             if zoom < minzoom {
                 // if we haven't reached the data yet, we store children
                 tile_cache.extend(id.children(None));
-            } else if let Some(tile) = tile
-                && !tile.is_empty()
-            {
-                // store feature with the associated layername
-                for layer in tile.layers.values() {
-                    for feature in &layer.features {
-                        self.vector_store.set(id, feature.clone());
+            } else if let Some(tile) = tile {
+                if !tile.is_empty() {
+                    // store feature with the associated layername
+                    for layer in tile.layers.values() {
+                        for feature in &layer.features {
+                            self.vector_store.set(id, feature.clone());
+                        }
                     }
+                    // store 4 children tiles to ask for
+                    tile_cache.extend(id.children(None));
                 }
-                // store 4 children tiles to ask for
-                tile_cache.extend(id.children(None));
             }
         }
     }

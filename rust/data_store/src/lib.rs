@@ -1,5 +1,6 @@
 #![no_std]
 #![deny(missing_docs)]
+#![warn(clippy::collapsible_if)]
 //! # GIS Tools - Data Store
 //! TODO
 

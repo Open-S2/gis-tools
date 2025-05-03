@@ -29,6 +29,7 @@ s2-tilejson = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 libm = { workspace = true }
+half = { workspace = true }
 # STD dependencies
 memmap2 = { workspace = true, optional = true }
 image = { workspace = true, optional = true }

@@ -1,7 +1,7 @@
 #![no_std]
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![feature(coverage_attribute)]
+#![warn(clippy::collapsible_if)]
 //! # GIS Tools - Data Structures
 //! TODO
 

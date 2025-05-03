@@ -1,8 +1,7 @@
 #![no_std]
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![feature(coverage_attribute)]
-#![feature(more_float_constants)]
+#![warn(clippy::collapsible_if)]
 //! # GIS Tools - Geometry
 //! TODO
 

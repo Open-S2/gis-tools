@@ -3,4 +3,5 @@ mod convert;
 /// Convert Geometry
 mod coords;
 
-pub use self::{convert::*, coords::*};
+pub use convert::*;
+pub use coords::*;

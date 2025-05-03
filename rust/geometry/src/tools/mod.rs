@@ -2,4 +2,6 @@ mod clip;
 mod convert;
 mod simplify;
 
-pub use self::{clip::*, convert::*, simplify::*};
+pub use clip::*;
+pub use convert::*;
+pub use simplify::*;

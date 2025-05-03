@@ -1,7 +1,6 @@
 #![no_std]
 #![deny(missing_docs)]
-#![feature(coverage_attribute)]
-#![feature(f16)]
+#![warn(clippy::collapsible_if)]
 //! # GIS Tools - Core
 //! Components that are shared between modules
 //! TODO

@@ -11,4 +11,9 @@ mod metrics;
 /// S2 Point
 mod point;
 
-pub use self::{cap::*, convert::*, coords::*, coords_internal::*, metrics::*, point::*};
+pub use cap::*;
+pub use convert::*;
+pub use coords::*;
+pub use coords_internal::*;
+pub use metrics::*;
+pub use point::*;

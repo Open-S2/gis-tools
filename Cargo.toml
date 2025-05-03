@@ -37,6 +37,7 @@ s2json = "1.34"
 s2-tilejson = "1.8"
 # External shared dependencies
 libm = "0.2"
+half = "2.6"
 regex = { version = "1", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }

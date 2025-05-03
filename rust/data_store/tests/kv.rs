@@ -1,7 +1,5 @@
-#![feature(coverage_attribute)]
-
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     extern crate alloc;
 

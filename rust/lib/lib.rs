@@ -1,6 +1,7 @@
 #![no_std]
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![warn(clippy::collapsible_if)]
 //! # GIS Tools
 //! TODO
 
