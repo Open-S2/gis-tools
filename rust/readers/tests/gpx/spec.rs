@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use std::str::FromStr;
 

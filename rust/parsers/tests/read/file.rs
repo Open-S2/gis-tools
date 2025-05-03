@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use parsers::{FileReader, Reader};
     use std::path::PathBuf;

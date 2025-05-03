@@ -1,7 +1,7 @@
 mod spec;
 
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     extern crate alloc;
 

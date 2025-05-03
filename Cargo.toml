@@ -30,11 +30,11 @@ license = "SEE LICENSE"
 
 [workspace.dependencies]
 # Open S2 dependencies
-earclip = "1.5"
-open-vector-tile = "1.8"
-pbf = "1.21"
-s2json = "1.34"
-s2-tilejson = "1.8"
+earclip = "1.6"
+open-vector-tile = "1.9"
+pbf = "1.22"
+s2json = "1.35"
+s2-tilejson = "1.9"
 # External shared dependencies
 libm = "0.2"
 half = "2.6"

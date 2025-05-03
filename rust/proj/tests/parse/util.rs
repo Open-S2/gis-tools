@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use proj::{angular_unit_to_degrees, get_prime_meridian, linear_unit_to_meters, to_camel_case};
 

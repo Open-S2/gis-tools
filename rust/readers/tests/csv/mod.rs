@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use parsers::FileReader;
     use readers::{CSVReader, CSVReaderOptions, parse_csv_as_record, parse_csv_line};

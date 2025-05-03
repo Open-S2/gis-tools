@@ -2,7 +2,7 @@ mod large_json;
 mod line_delimited;
 
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     extern crate alloc;
 

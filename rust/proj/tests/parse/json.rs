@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use proj::{AxisDirection, CRS, GeodeticCRS, Id, ProjJSON, ProjectedCRS};
 

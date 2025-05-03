@@ -3,7 +3,7 @@ mod s2;
 mod vector;
 
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod test {
     use geometry::{ConvertVectorFeatureWM, convert};
     use s2json::{

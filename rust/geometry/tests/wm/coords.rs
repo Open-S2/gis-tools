@@ -1,5 +1,5 @@
 #[cfg(test)]
-#[coverage(off)]
+// #[coverage(off)]
 mod tests {
     use geometry::{
         Source, altitude_from_mercator_z, altitude_to_mercator_z, bbox_to_xyz_bounds, convert_bbox,
