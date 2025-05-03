@@ -1,3 +1,16 @@
+import { CSVReader } from './csv/index.js';
+import { GPXReader } from './gpx/index.js';
+import { GRIB2Reader } from './grib2/index.js';
+import { GeoTIFFReader } from './geotiff/index.js';
+import { NetCDFReader } from './netcdf/index.js';
+import { OSMReader } from './osm/index.js';
+import { WKTGeometryReader } from './wkt/geometry.js';
+import { buildGTFSSchedule } from './gtfs/index.js';
+import { shapefileFromGzip } from './shapefile/index.js';
+import { ALL_DEFINITIONS, EPSG_CODES } from 'gis-tools/proj4/index.js';
+import { JSONReader, NewLineDelimitedJSONReader, SequenceJSONReader } from './json/index.js';
+import { LASReader, LASZipReader } from './las/index.js';
+
 import type { MValue, Properties, VectorFeatures, VectorGeometry } from '../geometry/index.js';
 
 export * from './csv/index.js';
@@ -274,5 +287,68 @@ export class BufferReader extends DataView<ArrayBufferLike> implements Reader {
    */
   async getRange(offset: number, length: number): Promise<Uint8Array> {
     return await new Uint8Array(this.buffer).slice(offset, offset + length);
+  }
+}
+
+/**
+ * Given a file and a file type, return a reader
+ * @param urlPath - The URL path to the file
+ * @param type - The file type if specified, otherwise it will be inferred
+ * @returns - The reader with {@link FeatureIterator} implemented
+ */
+export async function fileTypeToReader(urlPath: string, type?: string): Promise<FeatureIterator> {
+  const data = await fetch(urlPath).then(async (res) => await res.arrayBuffer());
+  const buffer = new BufferReader(data);
+  const fileType = (type ?? urlPath.split('.').pop() ?? '').toLowerCase();
+  switch (fileType) {
+    case 'csv':
+      return new CSVReader(buffer);
+    case 'tif':
+    case 'tiff':
+    case 'geotif':
+    case 'geotiff':
+      return new GeoTIFFReader(buffer, ALL_DEFINITIONS, EPSG_CODES) as FeatureIterator;
+    case 'gpx':
+      return new GPXReader(buffer.parseString()) as FeatureIterator;
+    case 'grib':
+    case 'grib2':
+      return new GRIB2Reader(buffer) as FeatureIterator;
+    case 'gtfs':
+      return await buildGTFSSchedule(data);
+    case 'json':
+    case 'geojson':
+    case 's2json':
+      return new JSONReader(buffer);
+    case 'jsonld':
+    case 'geojsonld':
+    case 's2jsonld':
+    case 'json-ld':
+    case 'geojson-ld':
+    case 's2json-ld':
+      return new NewLineDelimitedJSONReader(buffer);
+    case 'jsonsq':
+    case 'geojsonsq':
+    case 's2jsonsq':
+    case 'json-sq':
+    case 'geojson-sq':
+    case 's2json-sq':
+      return new SequenceJSONReader(buffer);
+    case 'las':
+      return new LASReader(buffer, ALL_DEFINITIONS, EPSG_CODES);
+    case 'laz':
+      return new LASZipReader(buffer, ALL_DEFINITIONS, EPSG_CODES);
+    case 'nc4':
+    case 'cdf':
+    case 'nc':
+    case 'netcdf':
+      return new NetCDFReader(buffer);
+    case 'osm':
+      return new OSMReader(buffer) as FeatureIterator;
+    case 'shapefile':
+      return await shapefileFromGzip(data, ALL_DEFINITIONS, EPSG_CODES);
+    case 'wkt':
+      return new WKTGeometryReader(buffer.parseString());
+    default:
+      throw new Error(`Unsupported file type: ${fileType}`);
   }
 }

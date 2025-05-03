@@ -276,7 +276,7 @@ export class TileStore<
    * @param data - input data may be WM or S2 as a Feature or a Collection of Features
    * @param options - options to define how to store the data
    */
-  constructor(data: JSONCollection<M, D, P>, options?: TileStoreOptions) {
+  constructor(data?: JSONCollection<M, D, P>, options?: TileStoreOptions) {
     // set options should they exist
     this.minzoom = options?.minzoom ?? 0;
     this.maxzoom = options?.maxzoom ?? 16;
@@ -284,16 +284,37 @@ export class TileStore<
     this.tolerance = (options?.tolerance ?? 3) / 4_096;
     this.buffer = options?.buffer ?? 0.0625;
     this.buildBBox = options?.buildBBox ?? false;
-    // update projection
-    if (options?.projection !== undefined) this.projection = options.projection;
-    else if (data.type === 'Feature' || data.type === 'FeatureCollection') this.projection = 'WG';
-    else this.projection = 'S2';
+    this.projection = options?.projection ?? 'S2';
     // sanity check
     if (this.maxzoom < 0 || this.maxzoom > 20)
       throw new Error('maxzoom should be in the 0-20 range');
+    // handle data should it exist
+    if (data !== undefined) this.buildData(data);
+  }
+
+  /**
+   * Builds the tile store with the input data
+   * @param data - the input data
+   */
+  buildData(data: JSONCollection<M, D, P>) {
     // convert features
     const features = convert(this.projection, data, this.buildBBox, true);
     for (const feature of features) this.#addFeature(feature);
+    for (let face = 0; face < 6; face++) {
+      const id = idFromFace(face as Face);
+      this.#splitTile(id);
+    }
+  }
+
+  /**
+   * Builds the tile store with the input reader
+   * @param reader - the input reader
+   */
+  async buildReader(reader: FeatureIterator<M, D, P>) {
+    for await (const feature of reader) {
+      const features = convert(this.projection, feature, this.buildBBox, true);
+      for (const convFeature of features) this.#addFeature(convFeature);
+    }
     for (let face = 0; face < 6; face++) {
       const id = idFromFace(face as Face);
       this.#splitTile(id);

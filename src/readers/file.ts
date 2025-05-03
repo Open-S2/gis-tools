@@ -1,6 +1,7 @@
 import { OSMFileReader } from './osm/file.js';
 import { promisify } from 'util';
 import { shapefileFromPath } from 'gis-tools/file.js';
+import { ALL_DEFINITIONS, EPSG_CODES } from 'gis-tools/proj4/index.js';
 import {
   CSVReader,
   GPXReader,
@@ -262,9 +263,8 @@ export class FileReader implements Reader {
  * @returns - The reader with {@link FeatureIterator} implemented
  */
 export async function fileTypeToReader(filePath: string, type?: string): Promise<FeatureIterator> {
-  // TODO: Create transformer that has all EPSG and projection definitions
   const file = new FileReader(filePath);
-  const fileType = type?.toLowerCase() ?? (filePath.split('.').pop() ?? '').toLowerCase();
+  const fileType = (type ?? filePath.split('.').pop() ?? '').toLowerCase();
   switch (fileType) {
     case 'csv':
       return new CSVReader(file);
@@ -272,7 +272,7 @@ export async function fileTypeToReader(filePath: string, type?: string): Promise
     case 'tiff':
     case 'geotif':
     case 'geotiff':
-      return new GeoTIFFReader(file) as FeatureIterator;
+      return new GeoTIFFReader(file, ALL_DEFINITIONS, EPSG_CODES) as FeatureIterator;
     case 'gpx':
       return new GPXReader(file.parseString()) as FeatureIterator;
     case 'grib':
@@ -299,9 +299,9 @@ export async function fileTypeToReader(filePath: string, type?: string): Promise
     case 's2json-sq':
       return new SequenceJSONReader(file);
     case 'las':
-      return new LASReader(file);
+      return new LASReader(file, ALL_DEFINITIONS, EPSG_CODES);
     case 'laz':
-      return new LASZipReader(file);
+      return new LASZipReader(file, ALL_DEFINITIONS, EPSG_CODES);
     case 'nc4':
     case 'cdf':
     case 'nc':
@@ -312,7 +312,7 @@ export async function fileTypeToReader(filePath: string, type?: string): Promise
     case 'raster':
       return new RasterTilesReader(filePath) as FeatureIterator;
     case 'shapefile':
-      return await shapefileFromPath(filePath);
+      return await shapefileFromPath(filePath, ALL_DEFINITIONS, EPSG_CODES);
     case 'wkt':
       return new WKTGeometryReader(file.parseString());
     default:
