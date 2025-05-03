@@ -11,7 +11,7 @@ import { appendFileSync, existsSync, readdirSync, unlinkSync } from 'fs';
 
 const folder = 'EPSG-v12_007-WKT';
 const outTS = `${__dirname}/../src/proj/projections/epsg.ts`;
-const outRS = `${__dirname}/../rust/proj/src/generated/epsg.rs`;
+const outRS = `${__dirname}/../rust/proj/generated/epsg.rs`;
 
 // get list of files in ./EPSG-v12_007-WKT
 let files = readdirSync(`${__dirname}/${folder}`);
