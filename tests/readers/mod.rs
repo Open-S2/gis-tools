@@ -1,6 +1,9 @@
 mod csv;
 mod gpx;
 mod json;
+mod las;
+mod nadgrid;
+mod netcdf;
 mod osm;
 mod pmtiles;
 mod shapefile;

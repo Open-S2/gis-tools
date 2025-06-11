@@ -9,17 +9,10 @@ pub mod mmap;
 /// Shape File Reader
 pub mod shp;
 
-use core::panic;
-
-use crate::{
-    parsers::BufferReader,
-    proj::{ProjectionTransformDefinition, Transformer},
-    util::iter_zip_folder,
-};
+use crate::{parsers::BufferReader, proj::Transformer, util::iter_zip_folder};
 use alloc::{
     collections::BTreeMap,
     string::{String, ToString},
-    vec::Vec,
 };
 pub use dbf::*;
 use s2json::MValueCompatible;
@@ -47,8 +40,7 @@ pub struct Definition {
 /// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
 pub fn shapefile_from_gzip<P: MValueCompatible>(
     input: &[u8],
-    _defs: Option<Vec<ProjectionTransformDefinition>>,
-    _epsg_codes: BTreeMap<String, String>,
+    epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<BufferReader, P> {
     let mut encoding = None;
     let mut transform = None;
@@ -67,13 +59,12 @@ pub fn shapefile_from_gzip<P: MValueCompatible>(
                 shp_data = Some(data);
             }
         } else if item.filename.ends_with("prj") {
-            if let Ok(_data) = (item.read)() {
-                let transformer = Transformer::new();
-                // TODO:
-                // if (defs != undefined) for (const def of defs) transform.insertDefinition(def);
-                // if (epsgCodes != undefined)
-                // for (const [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
-                // transform.setSource(new TextDecoder("utf8").decode(data));
+            if let Ok(data) = (item.read)() {
+                let mut transformer = Transformer::new();
+                for (code, value) in epsg_codes.iter() {
+                    transformer.insert_epsg_code(code.clone(), value.clone());
+                }
+                transformer.set_source(String::from_utf8_lossy(&data).to_string());
                 transform = Some(transformer);
             }
         }

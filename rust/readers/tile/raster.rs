@@ -97,6 +97,11 @@ impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, (), D>
         let threshold = self.threshold.unwrap_or(*maxzoom);
         RasterIterator { container: self, stack, minzoom: *minzoom, threshold }
     }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.iter()
+    }
 }
 
 /// Iterator for the S2 Raster Tile Fetcher

@@ -7,7 +7,7 @@ pub mod lanczos;
 /// Nearest Interpolation tools
 pub mod nearest;
 
-use crate::util::RGBA;
+use crate::parsers::RGBA;
 pub use average::*;
 use core::ops::{AddAssign, DivAssign, MulAssign};
 pub use idw::*;

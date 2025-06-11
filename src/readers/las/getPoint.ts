@@ -255,7 +255,7 @@ export function getPointFormat9(
   littleEndian = true,
 ): VectorPointM<LASFormat6_10> {
   const point = getPointFormat6(reader, header, offset, littleEndian);
-  point.m.wavePacketDescriptorIndex = reader.getInt16(offset + 30, littleEndian);
+  point.m.wavePacketDescriptorIndex = reader.getUint8(offset + 30);
   point.m.wavePacketOffset = Number(reader.getBigUint64(offset + 31, littleEndian));
   point.m.wavePacketLength = reader.getUint32(offset + 39, littleEndian);
   point.m.waveformLocationReturnPoint = reader.getFloat32(offset + 43, littleEndian);

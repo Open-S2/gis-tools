@@ -7,7 +7,9 @@ use s2json::Properties;
 use serde::{Serialize, de::DeserializeOwned};
 
 /// Represents a key-value store
-pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
+pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties>:
+    Clone
+{
     /// New key-value store
     fn new(name: Option<&str>) -> Self;
     /// The length of the store
@@ -37,7 +39,7 @@ pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Proper
 }
 
 /// A local key-value store
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct KV<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
     store: BTreeMap<K, V>,
 }

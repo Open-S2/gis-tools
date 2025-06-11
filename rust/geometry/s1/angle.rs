@@ -4,7 +4,7 @@ use crate::{
 };
 use core::{
     cmp::Ordering,
-    f64::consts::PI,
+    f64::consts::TAU,
     ops::{Add, Deref, Div, Mul, Neg, Rem, RemAssign, Sub},
 };
 use libm::{fabs, fmod};
@@ -167,7 +167,7 @@ impl S1Angle {
 
     /// Normalize this angle to the range (-180, 180] degrees.
     pub fn normalize(&self) -> Self {
-        *self % (2.0 * PI)
+        *self % TAU
     }
 
     /// Returns the remainder when dividing by `modulus`

@@ -47,6 +47,7 @@ export function modifyPoint14RawInput(input: DataView): DataView {
   res.numberOfReturns = tmp.numberOfReturns;
   res.scanAngle = tmp.scanAngle;
   res.gpsTime = input.getFloat64(22, true);
+
   return res.data;
 }
 
@@ -687,24 +688,24 @@ export class LASpoint14 extends CopyDataView {
     this.data.setUint8(17, value);
   }
 
-  /** @returns the U16 at point source ID position */
-  get pointSourceID(): number {
-    return this.data.getUint16(18, true);
+  /** @returns the I16 at scan angle position */
+  get scanAngle(): number {
+    return this.data.getInt16(18, true);
   }
-  /** set an U16 at point source ID position */
-  set pointSourceID(value: number) {
-    this.data.setUint16(18, value, true);
+  /** set an I16 at scan angle position */
+  set scanAngle(value: number) {
+    this.data.setInt16(18, value, true);
   }
 
   /// LAS 1.4 only
 
-  /** @returns the I16 at scan angle position */
-  get scanAngle(): number {
-    return this.data.getInt16(20, true);
+  /** @returns the U16 at point source ID position */
+  get pointSourceID(): number {
+    return this.data.getUint16(20, true);
   }
-  /** set an I16 at scan angle position */
-  set scanAngle(value: number) {
-    this.data.setInt16(20, value, true);
+  /** set an U16 at point source ID position */
+  set pointSourceID(value: number) {
+    this.data.setUint16(20, value, true);
   }
 
   /** @returns the U8 at third flags position */

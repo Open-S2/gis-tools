@@ -11,7 +11,7 @@ use s2json::Properties;
 use serde::{Serialize, de::DeserializeOwned};
 
 /// File based reader that implements the KVStore trait
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FileKV<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
     store: RefCell<S2FileStore<K, V>>,
     tmp_val: RefCell<Option<V>>,

@@ -180,6 +180,7 @@ export class LAZPoint10v2Reader implements ItemReader {
     let median, diff;
     // decompress which other values have changed
     const changedValues = this.dec.decodeSymbol(this.mChangedValues);
+    // console.log('changedValues', changedValues);
     if (changedValues !== 0) {
       // decompress the edge_of_flight_line, scanDirectionFlag, ... if it has changed
       if ((changedValues & 32) !== 0) {
@@ -295,12 +296,10 @@ export class LAZgpstime11v2Reader implements ItemReader {
     this.next = 0;
     this.lastGpstimeDiff = [0, 0, 0, 0];
     this.multiExtremeCounter = [0, 0, 0, 0];
-
     /* init models and integer compressors */
     this.mGpstimeMulti.init();
     this.mGpstime0diff.init();
     this.icGpstime.initDecompressor();
-
     /* init last item */
     this.lastGpstime[0].u64 = item.getBigUint64(0, true);
     this.lastGpstime[1].u64 = 0;

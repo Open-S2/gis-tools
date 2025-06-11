@@ -1,32 +1,60 @@
-use super::{DatumParams, DatumType, geodesic::GeodGeodesic};
-use alloc::string::String;
+use crate::proj::{ProjValue, name_to_param_id};
+
+use super::{DatumParams, DatumType, ParameterValue};
+use alloc::{collections::BTreeMap, string::String};
 
 /// A generic 4-dimensional point/vector
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Coords(pub f64, pub f64, pub f64, pub f64);
 
+/// A complex number container
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct Complex {
+    /// Real part
+    pub r: f64,
+    /// Imaginary part
+    pub i: f64,
+}
+
+/// Projection datum methods
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub enum ProjMethod {
+    /// Ellipsoidal
+    #[default]
+    Ellipsoidal = 0,
+    /// Spheroidal
+    Spheroidal = 1,
+}
+
+/// Airy projection modes
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub enum ProjMode {
+    /// North Pole
+    #[default]
+    NPole = 0,
+    /// South Pole
+    SPole = 1,
+    /// Equatorial
+    Equit = 2,
+    /// Oblique
+    Obliq = 3,
+}
+
 /// Generic Projection Container
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(non_snake_case)]
 pub struct Proj {
-    // GENERAL PARAMETER
-    /// Short name of the current projection
-    pub short_name: String,
-    /// Projection description
-    pub descr: String,
-    /// Full textual definition (usually 0 - set by proj_pj_info)
-    pub def_full: String,
-
-    /// For geodesic computations
-    pub geod: Option<GeodGeodesic>,
-    // void *opaque = nullptr; /* Projection specific parameters, Defined in PJ_*.c */
-    /// Tell high level API functions to swap inv/fwd
-    pub inverted: i32, // 0, /* Tell high level API functions to swap inv/fwd */
+    // PARAMETERS
+    /// Projection conversion params
+    pub params: BTreeMap<i64, ProjValue>,
 
     // ELLIPSOID PARAMETERS
 
     // The linear parameters
+    /// The name of the ellipsoid
+    pub ellps: String,
     /// semimajor axis (radius if eccentricity==0)
     pub a: f64,
     /// semiminor axis
@@ -35,6 +63,8 @@ pub struct Proj {
     pub ra: f64,
     /// 1 / b
     pub rb: f64,
+    /// If the ellipsoid is a sphere
+    pub sphere: bool,
     // The eccentricities
     /// angular eccentricity
     pub alpha: f64,
@@ -80,39 +110,10 @@ pub struct Proj {
     pub over: bool,
     /// Geocentric latitude flag
     pub geoc: bool,
-    /// proj=latlong, ... not really a projection at all
-    pub is_ll: bool,
-    /// proj=geocent ... not really a projection at all
-    pub is_geocent: bool,
-    /// 0 for operations that are purely cartesian
-    pub need_ellps: bool,
-    /// flag to indicate we skip fwd prepare
-    pub skip_fwd_prepare: bool,
-    /// flag to indicate we skip fwd finalize
-    pub skip_fwd_finalize: bool,
-    /// flag to indicate we skip inv prepare
-    pub skip_inv_prepare: bool,
-    /// flag to indicate we skip inv finalize
-    pub skip_inv_finalize: bool,
-
-    /// Left flag for input/output coordinate types
-    pub left: IoUnits,
-    /// Right flag for input/output coordinate types
-    pub right: IoUnits,
-
-    // These Projs are used for implementing cs2cs style coordinate handling in the 4D API
-    // /// axisswap step
-    // pub axisswap: Option<Rc<RefCell<Proj>>>,
-    // /// cartesian step
-    // pub cart: Option<Rc<RefCell<Proj>>>,
-    // /// cartesian wgs84 step
-    // pub cart_wgs84: Option<Rc<RefCell<Proj>>>,
-    // /// helmert step
-    // pub helmert: Option<Rc<RefCell<Proj>>>,
-    // /// horizontal grid shift
-    // pub hgridshift: Option<Rc<RefCell<Proj>>>,
-    // /// vertical grid shift
-    // pub vgridshift: Option<Rc<RefCell<Proj>>>,
+    // /// Left flag for input/output coordinate types
+    // pub left: IoUnits,
+    // /// Right flag for input/output coordinate types
+    // pub right: IoUnits,
 
     // CARTOGRAPHIC OFFSETS
     /// central meridian
@@ -133,12 +134,12 @@ pub struct Proj {
     pub k0: f64,
     /// Plane coordinate scaling TO meter
     pub to_meter: f64,
-    /// Plane coordinate scaling FROM meter
-    pub fr_meter: f64,
-    /// Vertical scaling TO meter
-    pub vto_meter: f64,
-    /// Vertical scaling FROM meter
-    pub vfr_meter: f64,
+    // /// Plane coordinate scaling FROM meter
+    // pub fr_meter: f64,
+    // /// Vertical scaling TO meter
+    // pub vto_meter: f64,
+    // /// Vertical scaling FROM meter
+    // pub vfr_meter: f64,
 
     // DATUMS AND HEIGHT SYSTEMS
     /// Datum type (None, Param3, Param7, GridShift, WGS84)
@@ -148,18 +149,74 @@ pub struct Proj {
 
     /// prime meridian offset (in radians)
     pub from_greenwich: f64,
-    /// 0.0 for -180 to 180, actually in radians
-    pub long_wrap_center: f64,
-    /// 0.0 for -180 to 180
-    pub is_long_wrap_set: bool,
     /// Axis order, pj_transform / pj_adjust_axis
     pub axis: [char; 4],
-
-    // ISO-19111 interface
-    /// If the operation is a coordinate operation
-    pub is_coordinate_operation: bool,
-    /// Coordinate epoch
-    pub coordinate_epoch: Option<f64>,
+}
+impl Default for Proj {
+    fn default() -> Self {
+        Self {
+            params: BTreeMap::new(),
+            ellps: "".into(),
+            a: 0.,
+            b: 0.,
+            ra: 0.,
+            rb: 0.,
+            sphere: false,
+            alpha: 0.,
+            e: 0.,
+            es: 0.,
+            e2: 0.,
+            e2s: 0.,
+            e3: 0.,
+            e3s: 0.,
+            one_es: 0.,
+            rone_es: 0.,
+            f: 0.,
+            f2: 0.,
+            n: 0.,
+            rf: 0.,
+            rf2: 0.,
+            rn: 0.,
+            J: 0.,
+            es_orig: 0.,
+            a_orig: 0.,
+            over: false,
+            geoc: false,
+            // left: IoUnits::RADIANS,
+            // right: IoUnits::CLASSIC,
+            lam0: 0.,
+            phi0: 0.,
+            x0: 0.,
+            y0: 0.,
+            z0: 0.,
+            t0: 0.,
+            k0: 1.,
+            to_meter: 1.,
+            // fr_meter: 0.,
+            // vto_meter: 0.,
+            // vfr_meter: 0.,
+            datum_type: DatumType::NoDatum,
+            datum_params: DatumParams::default(),
+            from_greenwich: 0.,
+            axis: ['x', 'y', 'z', 't'],
+        }
+    }
+}
+impl Proj {
+    /// Add a parameter to the proj object
+    pub fn add_param(&mut self, param: &ParameterValue) {
+        if let Some(id) = &param.id {
+            self.params.insert(id.code.i64(), param.into());
+        }
+        for id in &param.ids {
+            self.params.insert(id.code.i64(), param.into());
+        }
+    }
+    /// Set a variable from user input (usually used by the API / TUI)
+    pub fn set_var(&mut self, name: &str, value: &str) {
+        let name_id = name_to_param_id(name);
+        self.params.insert(name_id, value.into());
+    }
 }
 
 /// Apply transformation to observation - in forward or inverse direction
@@ -175,7 +232,7 @@ pub enum Direction {
 }
 
 /// IO Units Type
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub enum IoUnits {
     /// Doesn't matter (or depends on pipeline neighbours)
     #[default]

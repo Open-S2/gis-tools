@@ -4,6 +4,8 @@ pub mod common;
 pub mod convert;
 /// Geodesic tools
 pub mod geodesic;
+// /// Generated EPSG codes
+// pub mod generated;
 /// Projection internal tooling
 pub mod internal;
 /// Projection Parsing tools
@@ -15,23 +17,16 @@ pub mod transform;
 
 pub use common::*;
 pub use convert::*;
+// pub use generated::*;
+pub use geodesic::*;
 pub use internal::*;
 pub use parse::*;
-// pub use pipelines::*;
 pub use project::*;
 pub use transform::*;
 
-/// A Projection Transform Definition
-/// Temporary placeholder
-#[derive(Debug)]
-pub struct ProjectionTransformDefinition {}
-
-/// Conversion trait for modifying a Point
-pub trait CoordinateStep {
-    /// Create a new Converter
-    fn new(proj: &mut Proj) -> Self;
-    /// forward conversion
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, point: &mut P);
-    /// inverse conversion
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, point: &mut P);
-}
+// TODO:
+// - [ ] Convert ProjJSON to Steps
+// - [ ] test basic cases
+// - [ ] Migrate away from early converting to radians? Maybe instead always be degrees then when
+//       pulling the ProjValue we also .to_radians(). The problem is user input is always degrees
+// - [ ] Reassess each projection that I am pulling the correct variables from proj.params

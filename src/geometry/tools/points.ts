@@ -2,6 +2,7 @@ import type {
   MValue,
   Properties,
   VectorFeature,
+  VectorGeometry,
   VectorMultiPointGeometry,
   VectorPoint,
 } from '../../index.js';
@@ -30,7 +31,7 @@ export function averageOfPoints<
     | VectorPoint<D>[]
     | VectorMultiPointGeometry<D>
     | VectorFeature<M, D, P, VectorMultiPointGeometry<D>>,
-): VectorPoint {
+): VectorPoint<D> {
   const coords =
     'geometry' in vectorPoints
       ? vectorPoints.geometry.coordinates
@@ -71,7 +72,7 @@ export function centerOfPoints<
     | VectorPoint<D>[]
     | VectorMultiPointGeometry<D>
     | VectorFeature<M, D, P, VectorMultiPointGeometry<D>>,
-): VectorPoint {
+): VectorPoint<D> {
   const { min, max } = Math;
   const coords =
     'geometry' in vectorPoints
@@ -99,4 +100,39 @@ export function centerOfPoints<
   const y = (minY + maxY) / 2;
   if (minZ !== Infinity && maxZ !== -Infinity) return { x, y, z: (minZ + maxZ) / 2 };
   return { x, y };
+}
+
+/**
+ * Given an input vector feature, create a collection of points
+ * @param data - vector feature with various geometry types
+ * @returns - all features as a collection of points
+ */
+export function toPoints<
+  M = Record<string, unknown>,
+  D extends MValue = Properties,
+  P extends Properties = Properties,
+>(data: VectorFeature<M, D, P, VectorGeometry<D>>): VectorMultiPointGeometry<D> {
+  const { type, is3D, coordinates } = data.geometry;
+
+  const res: VectorPoint<D>[] = [];
+
+  if (type === 'Point') {
+    res.push(coordinates);
+  } else if (type === 'MultiPoint') {
+    res.push(...coordinates);
+  } else if (type === 'LineString') {
+    res.push(...coordinates);
+  } else if (type === 'MultiLineString') {
+    res.push(...coordinates.flat());
+  } else if (type === 'Polygon') {
+    res.push(...coordinates.flat());
+  } else if (type === 'MultiPolygon') {
+    res.push(...coordinates.flat(2));
+  }
+
+  return {
+    type: 'MultiPoint',
+    is3D,
+    coordinates: res,
+  };
 }

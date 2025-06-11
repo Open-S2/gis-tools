@@ -257,18 +257,19 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
     if (header.headerSize > 227)
       header.waveformDataPacketOffset = Number(reader.getBigUint64(227, true));
     if (header.headerSize > 235)
-      header.extendedVariableLengthRecordOffset = reader.getUint32(235, true);
-    if (header.headerSize > 239)
-      header.extendedVariableLengthSize = Number(reader.getBigUint64(239, true));
+      header.extendedVariableLengthRecordOffset = Number(reader.getBigUint64(235, true));
+    if (header.headerSize > 243) header.extendedVariableLengthSize = reader.getUint32(243, true);
     // re-adjust numPoints and numPointsByReturn if header includes modern numPoints variable
     if (header.headerSize > 247) header.numPoints = reader.getUint32(247, true);
     // set new numPointsByReturn if header includes
+    // TODO: Set them to UInt64 not UInt32
     if (header.headerSize > 251) {
       let curOffset = 251;
       header.numPointsByReturn = [];
       for (let i = 0; i < 15; i++) {
-        header.numPointsByReturn.push(Number(reader.getBigUint64(curOffset, true)));
-        curOffset += 8;
+        // header.numPointsByReturn.push(Number(reader.getBigUint64(curOffset, true)));
+        header.numPointsByReturn.push(reader.getUint32(curOffset, true));
+        curOffset += 4;
       }
     }
 
@@ -704,8 +705,8 @@ export class LASZipReader
     const { items } = this.lazHeader;
     for (let i = 0; i < items.length; i++) {
       const { type, size } = items[i];
-      let rawData: DataView = new DataView(new ArrayBuffer(size));
-      if (type === LAZHeaderItemType.POINT14) rawData = modifyPoint14RawInput(rawData);
+      let rawData = new DataView(new ArrayBuffer(size));
+      if (type === LAZHeaderItemType.POINT14) rawData = new DataView(new ArrayBuffer(45));
       this.#readers[i].read(rawData, context);
       pointData.push({ type, rawData });
     }

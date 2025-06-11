@@ -6,8 +6,8 @@ edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2."
 documentation = "https://docs.rs/gis-tools"
-homepage = "https://github.com/OpenS2/gis-tools"
-repository = "https://github.com/OpenS2/gis-tools"
+homepage = "https://github.com/Open-S2/gis-tools"
+repository = "https://github.com/Open-S2/gis-tools"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
 keywords = ["tools", "s2", "gis", "low-cost-code"]
@@ -36,6 +36,7 @@ regex = { version = "1", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 # Optional std dependencies
+# rayon = { version = "1", optional = true }
 memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
 brotli = { version = "8", optional = true }

@@ -1,4 +1,5 @@
 use super::util::to_camel_case;
+use crate::proj::{ProjectionTransform, Step, derive_eccentricity, derive_sphere};
 use alloc::{
     boxed::Box,
     format,
@@ -9,7 +10,7 @@ use alloc::{
 use libm::fabs;
 use serde::{Deserialize, Serialize};
 
-// NOTE: Because the 0.7 spec is not being followed correctly by generators, serde(default) is applied to everything
+// NOTE: Because the 0.7 spec is not always being followed correctly by generators, serde(default) is applied to everything
 
 /// Helper functions that default to do nothing
 pub trait ToProjJSON {
@@ -120,6 +121,18 @@ impl ToProjJSON for ProjJSON {
         *self = ProjJSON::CRS(Box::new(CRS::ProjectedCRS(Box::new(projected_crs))));
     }
 }
+impl ProjJSON {
+    /// Convert a Proj JSON to a ProjectionTransform (Proj constants with steps)
+    pub fn to_projection_transform(&self) -> ProjectionTransform {
+        let mut proj_transform = ProjectionTransform::default();
+        match self {
+            ProjJSON::CRS(crs) => crs.to_projection_transform(&mut proj_transform),
+            _ => panic!("Unsupported operation"),
+        }
+
+        proj_transform
+    }
+}
 
 /// Coordinate Reference System
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -184,6 +197,16 @@ impl ToProjJSON for CRS {
     }
     fn set_projected_crs(&mut self, projected_crs: ProjectedCRS) {
         *self = CRS::ProjectedCRS(projected_crs.into());
+    }
+}
+impl CRS {
+    /// Convert a Proj JSON to a ProjectionTransform (Proj constants with steps)
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        match self {
+            CRS::GeodeticCRS(crs) => crs.to_projection_transform(proj_transform),
+            CRS::ProjectedCRS(crs) => crs.to_projection_transform(proj_transform),
+            _ => panic!("Unsupported operation"),
+        };
     }
 }
 
@@ -334,7 +357,7 @@ pub enum ProjValue {
 }
 impl Default for ProjValue {
     fn default() -> Self {
-        ProjValue::String(String::default())
+        ProjValue::Bool(false)
     }
 }
 impl PartialEq for ProjValue {
@@ -496,6 +519,19 @@ pub struct ParameterValue {
     pub ids: Ids,
     /// NOT PART OF SPEC
     pub is_file: bool,
+}
+impl ParameterValue {
+    /// Get the radians of the value
+    pub fn rad(&self) -> f64 {
+        let unit = self.unit.as_ref().unwrap_or(&Unit::BaseUnit(BaseUnit::Degree));
+        self.value.f64() * unit.rad()
+    }
+}
+impl From<&ParameterValue> for ProjValue {
+    fn from(value: &ParameterValue) -> Self {
+        let double = value.rad();
+        ProjValue::F64(double)
+    }
 }
 impl ToProjJSON for ParameterValue {
     fn set_id(&mut self, id: Id) {
@@ -783,6 +819,20 @@ impl UnitObject {
     pub fn set_unit_type(&mut self, unit_type: UnitType) {
         self.r#type = unit_type;
     }
+    /// Convert to Radian
+    pub fn rad(&self) -> f64 {
+        match self.r#type {
+            UnitType::AngularUnit => self.conversion_factor.unwrap_or(1.0),
+            _ => 1.0,
+        }
+    }
+    /// Convert to Meters
+    pub fn meters(&self) -> f64 {
+        match self.r#type {
+            UnitType::LinearUnit => self.conversion_factor.unwrap_or(1.0),
+            _ => 1.0,
+        }
+    }
 }
 impl ToProjJSON for UnitObject {
     fn set_id(&mut self, id: Id) {
@@ -844,6 +894,28 @@ impl Unit {
             Unit::BaseUnit(_) => {}
             Unit::UnitObject(unit) => unit.set_unit_type(unit_type),
         };
+    }
+    /// Get the multiplier for the unit to convert to radians
+    pub fn rad(&self) -> f64 {
+        match self {
+            Unit::BaseUnit(unit) => match unit {
+                BaseUnit::Metre => 1.0,
+                BaseUnit::Degree => std::f64::consts::PI / 180.0,
+                BaseUnit::Unity => 1.0,
+            },
+            Unit::UnitObject(unit) => unit.rad(),
+        }
+    }
+    /// Get the multiplier for the unit to convert to meters
+    pub fn meters(&self) -> f64 {
+        match self {
+            Unit::BaseUnit(unit) => match unit {
+                BaseUnit::Metre => 1.0,
+                BaseUnit::Degree => std::f64::consts::PI / 180.0,
+                BaseUnit::Unity => 1.0,
+            },
+            Unit::UnitObject(unit) => unit.meters(),
+        }
     }
 }
 impl ToProjJSON for Unit {
@@ -1357,6 +1429,12 @@ pub struct ValueAndUnit {
     /// The unit of measurement.
     pub unit: Unit,
 }
+impl ValueAndUnit {
+    /// Get the radians of the value
+    pub fn rad(&self) -> f64 {
+        self.value * self.unit.rad()
+    }
+}
 
 /// Value in Degrees or Value and Unit
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -1371,6 +1449,13 @@ impl ValueInDegreeOrValueAndUnit {
     /// Create a new `ValueInDegreeOrValueAndUnit` from a unit and value
     pub fn from_unit(unit: Unit, value: f64) -> Self {
         ValueInDegreeOrValueAndUnit::ValueAndUnit(ValueAndUnit { value, unit })
+    }
+    /// Get the radians of the value
+    pub fn rad(&self) -> f64 {
+        match self {
+            ValueInDegreeOrValueAndUnit::F64(value) => (*value).to_radians(),
+            ValueInDegreeOrValueAndUnit::ValueAndUnit(value) => value.rad(),
+        }
     }
 }
 impl Default for ValueInDegreeOrValueAndUnit {
@@ -1392,6 +1477,13 @@ impl ValueInMetreOrValueAndUnit {
     /// Create a new `ValueInMetreOrValueAndUnit` from a unit and value
     pub fn from_unit(unit: Unit, value: f64) -> Self {
         ValueInMetreOrValueAndUnit::ValueAndUnit(ValueAndUnit { value, unit })
+    }
+    /// Get the meters of the value
+    pub fn meters(&self) -> f64 {
+        match self {
+            ValueInMetreOrValueAndUnit::F64(value) => *value,
+            ValueInMetreOrValueAndUnit::ValueAndUnit(value) => value.unit.meters() * value.value,
+        }
     }
 }
 impl Default for ValueInMetreOrValueAndUnit {
@@ -1648,6 +1740,16 @@ impl ToProjJSON for GeodeticCRS {
             for axis in cs.axis.iter_mut() {
                 axis.unit = Some(unit.clone());
             }
+        }
+    }
+}
+impl GeodeticCRS {
+    /// Convert a GeodeticCRS to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // TODO: Datum, CoordinateSystem, DeformationModel
+        // TODO: Datum -> build_datum
+        if let Some(datum_ensemble) = &self.datum_ensemble {
+            datum_ensemble.to_projection_transform(proj_transform);
         }
     }
 }
@@ -2108,6 +2210,14 @@ impl ToProjJSON for DatumEnsemble {
         }
     }
 }
+impl DatumEnsemble {
+    /// Convert a DatumEnsemble to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        if let Some(ellipsoid) = &self.ellipsoid {
+            ellipsoid.to_projection_transform(proj_transform);
+        }
+    }
+}
 
 /// # Ellipsoid
 ///
@@ -2185,6 +2295,29 @@ impl ToProjJSON for Ellipsoid {
         } else {
             self.id = Some(id);
         }
+    }
+}
+impl Ellipsoid {
+    /// Convert a Ellipsoid to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        let proj = &mut proj_transform.proj.borrow_mut();
+        proj.ellps = self.name.clone();
+        if let Some(semi_major_axis) = &self.semi_major_axis {
+            proj.a = semi_major_axis.meters();
+        }
+        if let Some(semi_minor_axis) = &self.semi_minor_axis {
+            proj.b = semi_minor_axis.meters();
+        }
+        if let Some(inverse_flattening) = &self.inverse_flattening {
+            proj.rf = inverse_flattening.meters();
+        }
+        if let Some(radius) = &self.radius {
+            proj.a = radius.meters();
+            proj.b = radius.meters();
+            proj.rf = 0.0;
+        }
+        derive_sphere(proj);
+        derive_eccentricity(proj);
     }
 }
 
@@ -2294,6 +2427,17 @@ impl ToProjJSON for ProjectedCRS {
         }
     }
 }
+impl ProjectedCRS {
+    /// Convert a ProjectedCRS to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // First update the conversion type with "coordinate_system" (set axis step at least)
+        self.coordinate_system.to_projection_transform(proj_transform);
+        // set base_crs as first step
+        self.base_crs.to_projection_transform(proj_transform);
+        // set conversion
+        self.conversion.to_projection_transform(proj_transform);
+    }
+}
 
 /// # Conversion Interface
 ///
@@ -2338,6 +2482,19 @@ impl ToProjJSON for Conversion {
     }
     fn set_parameter(&mut self, parameter: ParameterValue) {
         self.parameters.push(parameter);
+    }
+}
+impl Conversion {
+    /// Convert a ProjectedCRS to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // add Params
+        for param in self.parameters.iter() {
+            proj_transform.proj.borrow_mut().add_param(param);
+        }
+        // add projection from method
+        proj_transform
+            .steps
+            .push(Step::from_method(&self.method, proj_transform.proj.clone()).unwrap());
     }
 }
 
@@ -2462,6 +2619,12 @@ impl ToProjJSON for CoordinateSystem {
         for axis in self.axis.iter_mut() {
             axis.unit = Some(unit.clone());
         }
+    }
+}
+impl CoordinateSystem {
+    /// Convert a CoordinateSystem to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // TODO: subtype, axis
     }
 }
 

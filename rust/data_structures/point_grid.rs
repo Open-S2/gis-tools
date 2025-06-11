@@ -2,8 +2,9 @@ use crate::{
     data_store::{KV, KVStore, Vector, VectorStore},
     geometry::{LonLat, S2CellId, S2Point},
     parsers::FeatureReader,
+    parsers::RGBA,
     util::{
-        GetInterpolateValue, Interpolatable, InterpolationFunction, InterpolationMethod, RGBA,
+        GetInterpolateValue, Interpolatable, InterpolationFunction, InterpolationMethod,
         get_interpolation,
     },
 };

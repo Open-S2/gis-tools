@@ -5,9 +5,12 @@ mod tests {
     extern crate std;
 
     use alloc::vec;
-    use gistools::util::{
-        RGBA, VectorPointRGBA, default_get_interpolate_current_value, lanczos_interpolation,
-        lanczos_kernel,
+    use gistools::{
+        parsers::RGBA,
+        util::{
+            VectorPointRGBA, default_get_interpolate_current_value, lanczos_interpolation,
+            lanczos_kernel,
+        },
     };
     use s2json::{MValue, VectorPoint};
     use std::vec::Vec;

@@ -52,7 +52,6 @@ import type { ProjectionParams, ProjectionTransform } from './index.js';
  * ### Inverse projection:
  * $$\lambda = x$$
  * $$\phi = 2.5 * ( \arctan \left[ e^{0.8 * y} \right] - \frac{\pi}{4} )$$
- * ```
  *
  * ## Further reading
  * - [Wikipedia on Miller Cylindrical](https://en.wikipedia.org/wiki/Miller_cylindrical_projection)

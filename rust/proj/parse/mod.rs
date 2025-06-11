@@ -15,5 +15,6 @@ pub mod wkt;
 
 pub use constants::*;
 pub use datum::*;
+pub use ellipsoid::*;
 pub use json::*;
 pub use util::*;

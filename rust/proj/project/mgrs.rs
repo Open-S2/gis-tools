@@ -50,8 +50,8 @@ const Z_U32: u32 = 90;
 pub fn mgrs_forward<P: TransformCoordinates>(ll: &P, accuracy: Option<u8>) -> String {
     let accuracy = accuracy.unwrap_or(5); // default accuracy 1m
 
-    let x = ll.get_x();
-    let y = ll.get_y();
+    let x = ll.x();
+    let y = ll.y();
     if !(-180. ..=180.).contains(&x) {
         panic!("forward received an invalid longitude of {x:}");
     }
@@ -99,8 +99,8 @@ pub fn mgrs_to_point<P: TransformCoordinates>(mgrs: &str) -> Option<P> {
 ///     northing, zone_number and zone_letter properties, and an optional
 ///     accuracy property in digits. Returns null if the conversion failed.
 fn ll_to_utm<P: TransformCoordinates>(ll: &P) -> Utm {
-    let lon = ll.get_x();
-    let lat = ll.get_y();
+    let lon = ll.x();
+    let lat = ll.y();
     let a = SEMI_MAJOR_AXIS;
     let lat_rad = lat.to_radians();
     let long_rad = lon.to_radians();

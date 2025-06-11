@@ -45,8 +45,7 @@ files = files.sort((a, b) => {
 for (const file of files) {
   const code = file.split('.')[0].split('-').pop();
   let text = await Bun.file(`${__dirname}/${folder}/${file}`).text();
-  let rustText = text.replaceAll("'", '\\"');
-  rustText = rustText.replaceAll('"', '\\"');
+  const rustText = text.replaceAll('"', '\\"');
   text = text.replaceAll("'", "\\'");
   const wkt = parseWKTProjection(text);
   const { name, type, DATUM } = wkt;

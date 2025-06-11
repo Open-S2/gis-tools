@@ -4,8 +4,9 @@ mod tests {
     extern crate alloc;
 
     use alloc::{vec, vec::Vec};
-    use gistools::util::{
-        RGBA, VectorPointRGBA, average_interpolation, default_get_interpolate_current_value,
+    use gistools::{
+        parsers::RGBA,
+        util::{VectorPointRGBA, average_interpolation, default_get_interpolate_current_value},
     };
     use s2json::{GetM, MValue, VectorPoint};
 

@@ -68,7 +68,7 @@ type FilterMap = BTreeMap<String, Option<String>>;
 /// // add a filter that effects all types
 /// filter.add_filter(OSMTagFilterType::All, "foo".into(), Some("bar".into()));
 /// ```
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct OSMTagFilter {
     all_filters: FilterMap,
     node_filters: FilterMap,

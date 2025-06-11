@@ -113,7 +113,6 @@ export class IntegerCompressor {
     let c: number; // I32
 
     // decode within which interval the corrector is falling
-
     this.#k = this.dec.decodeSymbol(mBits);
 
     // decode the exact location of the corrector within the interval

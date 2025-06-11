@@ -14,6 +14,7 @@ use std::{
 /// A file reader for reading data from a file
 #[derive(Debug)]
 pub struct FileReader {
+    path: PathBuf,
     file: RefCell<File>,
     size: u64,
     cursor: RefCell<u64>,
@@ -22,9 +23,10 @@ pub struct FileReader {
 impl FileReader {
     /// Creates a new file reader from a file path
     pub fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path_buf = path.as_ref().to_path_buf();
         let file = File::open(path)?;
         let size = file.metadata().map(|metadata| metadata.len()).unwrap_or(0);
-        Ok(Self { file: file.into(), size, cursor: 0.into() })
+        Ok(Self { path: path_buf, file: file.into(), size, cursor: 0.into() })
     }
 
     fn seek_to(&self, offset: u64) {
@@ -48,9 +50,15 @@ impl FileReader {
 }
 impl StdReader for FileReader {
     fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let path_buf = path.as_ref().to_path_buf();
         let file = File::open(path)?;
         let size = file.metadata().map(|metadata| metadata.len()).unwrap_or(0);
-        Ok(Self { file: file.into(), size, cursor: 0.into() })
+        Ok(Self { path: path_buf, file: file.into(), size, cursor: 0.into() })
+    }
+}
+impl Clone for FileReader {
+    fn clone(&self) -> Self {
+        FileReader::new(&self.path).unwrap()
     }
 }
 impl Reader for FileReader {
@@ -60,16 +68,29 @@ impl Reader for FileReader {
 
     // GETTERS
 
+    fn uint64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u64 {
+        if little_endian.unwrap_or(false) {
+            self.uint64_le(byte_offset)
+        } else {
+            self.uint64_be(byte_offset)
+        }
+    }
     fn uint64_be(&self, byte_offset: Option<u64>) -> u64 {
         let bytes = self.get_bytes(byte_offset, 8);
         u64::from_be_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
-
     fn uint64_le(&self, byte_offset: Option<u64>) -> u64 {
         let bytes = self.get_bytes(byte_offset, 8);
         u64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
 
+    fn int64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i64 {
+        if little_endian.unwrap_or(false) {
+            self.int64_le(byte_offset)
+        } else {
+            self.int64_be(byte_offset)
+        }
+    }
     fn int64_be(&self, byte_offset: Option<u64>) -> i64 {
         let bytes = self.get_bytes(byte_offset, 8);
         i64::from_be_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
@@ -77,6 +98,14 @@ impl Reader for FileReader {
     fn int64_le(&self, byte_offset: Option<u64>) -> i64 {
         let bytes = self.get_bytes(byte_offset, 8);
         i64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
+    }
+
+    fn f64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f64 {
+        if little_endian.unwrap_or(false) {
+            self.f64_le(byte_offset)
+        } else {
+            self.f64_be(byte_offset)
+        }
     }
     fn f64_be(&self, byte_offset: Option<u64>) -> f64 {
         let bytes = self.get_bytes(byte_offset, 8);
@@ -86,6 +115,14 @@ impl Reader for FileReader {
         let bytes = self.get_bytes(byte_offset, 8);
         f64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
+
+    fn uint32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u32 {
+        if little_endian.unwrap_or(false) {
+            self.uint32_le(byte_offset)
+        } else {
+            self.uint32_be(byte_offset)
+        }
+    }
     fn uint32_be(&self, byte_offset: Option<u64>) -> u32 {
         let bytes = self.get_bytes(byte_offset, 4);
         u32::from_be_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
@@ -93,6 +130,14 @@ impl Reader for FileReader {
     fn uint32_le(&self, byte_offset: Option<u64>) -> u32 {
         let bytes = self.get_bytes(byte_offset, 4);
         u32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
+    }
+
+    fn int32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i32 {
+        if little_endian.unwrap_or(false) {
+            self.int32_le(byte_offset)
+        } else {
+            self.int32_be(byte_offset)
+        }
     }
     fn int32_be(&self, byte_offset: Option<u64>) -> i32 {
         let bytes = self.get_bytes(byte_offset, 4);
@@ -102,6 +147,14 @@ impl Reader for FileReader {
         let bytes = self.get_bytes(byte_offset, 4);
         i32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
     }
+
+    fn f32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f32 {
+        if little_endian.unwrap_or(false) {
+            self.f32_le(byte_offset)
+        } else {
+            self.f32_be(byte_offset)
+        }
+    }
     fn f32_be(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 4);
         f32::from_be_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
@@ -109,6 +162,14 @@ impl Reader for FileReader {
     fn f32_le(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 4);
         f32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
+    }
+
+    fn uint16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u16 {
+        if little_endian.unwrap_or(false) {
+            self.uint16_le(byte_offset)
+        } else {
+            self.uint16_be(byte_offset)
+        }
     }
     fn uint16_be(&self, byte_offset: Option<u64>) -> u16 {
         let bytes = self.get_bytes(byte_offset, 2);
@@ -118,6 +179,14 @@ impl Reader for FileReader {
         let bytes = self.get_bytes(byte_offset, 2);
         u16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
     }
+
+    fn int16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i16 {
+        if little_endian.unwrap_or(false) {
+            self.int16_le(byte_offset)
+        } else {
+            self.int16_be(byte_offset)
+        }
+    }
     fn int16_be(&self, byte_offset: Option<u64>) -> i16 {
         let bytes = self.get_bytes(byte_offset, 2);
         i16::from_be_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
@@ -125,6 +194,14 @@ impl Reader for FileReader {
     fn int16_le(&self, byte_offset: Option<u64>) -> i16 {
         let bytes = self.get_bytes(byte_offset, 2);
         i16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
+    }
+
+    fn f16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f32 {
+        if little_endian.unwrap_or(false) {
+            self.f16_le(byte_offset)
+        } else {
+            self.f16_be(byte_offset)
+        }
     }
     fn f16_be(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 2);
@@ -136,6 +213,7 @@ impl Reader for FileReader {
         let f = f16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"));
         f32::from_bits(f.to_bits().into())
     }
+
     fn uint8(&self, byte_offset: Option<u64>) -> u8 {
         let bytes = self.get_bytes(byte_offset, 1);
         bytes[0]

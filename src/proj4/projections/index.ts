@@ -17,7 +17,6 @@ import { HotineObliqueMercator } from './omerc.js';
 import { Krovak } from './krovak.js';
 import { LambertAzimuthalEqualArea } from './laea.js';
 import { LambertConformalConic } from './lcc.js';
-import { Mercator } from './merc.js';
 import { MillerCylindrical } from './mill.js';
 import { Mollweide } from './moll.js';
 import { NewZealandMapGrid } from './nzmg.js';
@@ -33,6 +32,7 @@ import { TiltedPerspective } from './tpers.js';
 import { TransverseMercator } from './tmerc.js';
 import { UniversalTransverseMercator } from './utm.js';
 import { VanDerGrinten } from './vandg.js';
+import { Mercator, WebMercator } from './merc.js';
 
 import { ProjectionBase } from './base.js';
 
@@ -136,6 +136,7 @@ export const ALL_DEFINITIONS: ProjectionTransformDefinition[] = [
   TiltedPerspective,
   TransverseMercator,
   UniversalTransverseMercator,
+  WebMercator,
   VanDerGrinten,
 ];
 

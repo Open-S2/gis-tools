@@ -7,7 +7,9 @@ use s2json::Properties;
 use serde::{Serialize, de::DeserializeOwned};
 
 /// Represents a Vector store
-pub trait VectorStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
+pub trait VectorStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties>:
+    Clone
+{
     /// Create a new Vector store
     fn new(name: Option<&str>) -> Self;
     /// The length of the store
@@ -43,7 +45,7 @@ pub trait VectorStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Pr
 }
 
 /// A local Vector store
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Vector<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties> {
     store: Vec<(K, V)>,
     sorted: bool,

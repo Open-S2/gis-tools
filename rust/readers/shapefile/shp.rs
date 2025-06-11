@@ -12,7 +12,7 @@ use s2json::{
 };
 
 /// A Shapefile Header describing the internal data
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SHPHeader {
     /// The length of the file
     pub length: u64,
@@ -38,7 +38,7 @@ pub struct SHPRow {
 ///
 /// ## Description
 /// Reads data from a shapefile implementing the {@link FeatureIterator} interface
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ShapeFileReader<T: Reader, P: MValueCompatible = Properties> {
     /// The input reader
     reader: T,
@@ -48,7 +48,6 @@ pub struct ShapeFileReader<T: Reader, P: MValueCompatible = Properties> {
     row_offsets: Vec<u64>,
     _phantom: PhantomData<VectorFeature<(), P, ()>>,
 }
-
 impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
     /// Create a new Shapefile Reader
     pub fn new(
@@ -319,13 +318,17 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
 pub struct ShapefileIterator<'a, T: Reader, P: MValueCompatible> {
     reader: &'a ShapeFileReader<T, P>,
     index: usize,
+    stride: usize,
 }
 impl<T: Reader, P: MValueCompatible> Iterator for ShapefileIterator<'_, T, P> {
     type Item = VectorFeature<(), P, ()>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.index += 1;
-        self.reader.parse_row(self.index - 1)
+        if let Some(feature) = self.reader.parse_row(self.index) {
+            self.index += self.stride;
+            return Some(feature);
+        }
+        None
     }
 }
 /// A feature reader trait with a callback-based approach
@@ -337,6 +340,10 @@ impl<T: Reader, P: MValueCompatible> FeatureReader<(), P, ()> for ShapeFileReade
         P: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        ShapefileIterator { reader: self, index: 0 }
+        ShapefileIterator { reader: self, index: 0, stride: 1 }
+    }
+    // The assumption here is that the reader has been cloned already
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        ShapefileIterator { reader: self, index: thread_id, stride: pool_size }
     }
 }

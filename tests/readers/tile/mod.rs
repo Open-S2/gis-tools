@@ -6,11 +6,11 @@ mod tests {
     use alloc::{vec, vec::Vec};
     use gistools::{
         parsers::FeatureReader,
+        parsers::RGBA,
         readers::{
             RasterTileFetcher, S2TileMetadata, TileFetcher, TileMetadata, TileReader,
             WMTileMetadata, convert_mapbox_elevation_data, convert_terrarium_elevation_data,
         },
-        util::RGBA,
     };
     use s2_tilejson::{Metadata, Scheme};
     use s2json::{BBox, VectorGeometry, VectorPoint};

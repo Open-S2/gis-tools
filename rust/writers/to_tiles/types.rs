@@ -1,7 +1,7 @@
 use crate::{
     data_structures::{ClusterOptions, GridOptions, HasLayer, TileStoreOptions},
+    parsers::RGBA,
     readers::ReaderType,
-    util::RGBA,
     writers::OnFeature,
 };
 use alloc::{collections::BTreeMap, string::String, vec, vec::Vec};

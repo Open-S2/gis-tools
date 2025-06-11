@@ -34,6 +34,8 @@ export interface Raster {
   height: number;
   data: ArrayTypes;
   alpha: boolean;
+  min: number;
+  max: number;
 }
 
 /** A tiepoint structured for decoding images */
@@ -393,7 +395,7 @@ export class GeoTIFFImage {
       const value = reader.call(dataView, pixelOffset + srcSampleOffsets[si], this.#littleEndian);
       const windowCoordinate =
         (y + firstLine) * width * samples.length + (x + firstCol) * samples.length + si;
-      res[windowCoordinate % samples.length] = value;
+      res[Math.floor(windowCoordinate) % samples.length] = value;
     }
 
     return res;
@@ -415,6 +417,8 @@ export class GeoTIFFImage {
     );
 
     const res: number[] = new Array(width * height * samplesPerPixel);
+    let min = Infinity;
+    let max = -Infinity;
     const maxXTile = Math.ceil(width / tileWidth);
     const maxYTile = Math.ceil(height / tileHeight);
     for (let yTile = 0; yTile < maxYTile; ++yTile) {
@@ -450,6 +454,10 @@ export class GeoTIFFImage {
                 pixelOffset + srcSampleOffsets[si],
                 this.#littleEndian,
               );
+              if (!isNaN(value)) {
+                min = Math.min(min, value);
+                max = Math.max(max, value);
+              }
               const windowCoordinate =
                 (y + firstLine) * width * samples.length + (x + firstCol) * samples.length + si;
               res[windowCoordinate] = value;
@@ -459,7 +467,7 @@ export class GeoTIFFImage {
       }
     }
 
-    return { data: this.rasterToArrayType(res), width, height, alpha: false };
+    return { data: this.rasterToArrayType(res), width, height, alpha: false, min, max };
   }
 
   /**
@@ -597,6 +605,9 @@ export class GeoTIFFImage {
     const byteCount = this.#isTiled
       ? (TileByteCounts ?? [])[index]
       : (StripByteCounts ?? [])[index];
+    if (offset === undefined || byteCount === undefined) {
+      throw new Error('Invalid offset or byte count');
+    }
     const slice = this.#reader.slice(offset, offset + byteCount).buffer;
     let data = await this.#decodeFn(slice, this.#imageDirectory.JPEGTables);
     data = this.maybeApplyPredictor(data);

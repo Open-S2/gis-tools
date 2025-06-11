@@ -10,7 +10,7 @@ export * from './sections/index.js';
 export type { Grib2ProductDefinition, getGrib2Template4 } from './sections/index.js';
 
 /** GFS sources available for download */
-export type Grib2GFSSource = 'aws' | 'ftpprd' | 'nomads' | 'google' | 'azure' | string;
+export type Grib2GFSSource = 'aws' | 'ftpprd' | 'nomads' | 'google' | 'azure' | (string & {});
 
 /** GFS domains available for download */
 export type Grib2GFSDomain = 'atmos' | 'wave';
@@ -36,7 +36,8 @@ export type Grib2AtmosGFSProduct =
   | 'pgrb2b.1p00'
   | 'pgrb2full.0p50'
   | 'sfluxgrb'
-  | 'goesimpgrb2.0p25';
+  | 'goesimpgrb2.0p25'
+  | (string & {});
 
 /**
  * GFS WAVE products available for download
@@ -55,7 +56,8 @@ export type Grib2WaveGFSProduct =
   | 'global.0p16'
   | 'global.0p25'
   | 'gsouth.0p25'
-  | 'wcoast.0p16';
+  | 'wcoast.0p16'
+  | (string & {});
 
 /**
  * Fetch ATMOS GFS data.

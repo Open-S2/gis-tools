@@ -101,4 +101,9 @@ impl FeatureReader<(), GPXProperties, GPXWaypoint> for GPXReader {
             trk_count: self.gpx.trk.as_ref().map(|t| t.len()).unwrap_or_default(),
         }
     }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.iter()
+    }
 }

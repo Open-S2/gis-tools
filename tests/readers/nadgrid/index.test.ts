@@ -32,4 +32,9 @@ test('NadGridReader', async () => {
 
   const coordinates = geometry.coordinates as VectorPoint[];
   expect(coordinates.length).toBe(5208);
+
+  expect(coordinates[0]).toEqual({
+    x: 0.0000347407399194824,
+    y: -0.000013331145212039613,
+  });
 });

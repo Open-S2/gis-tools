@@ -8,9 +8,9 @@ mod tests {
     use gistools::{
         parsers::{WKTParser, WKTValue, parse_wkt_object},
         proj::{
-            Axis, AxisDirection, Conversion, CoordinateSystem, CoordinateSystemSubtype, Ellipsoid,
-            Id, ObjectUsage, ParameterValue, ProjJSON, TemporalExtent, Unit, UnitObject, UnitType,
-            ValueAndUnit, ValueInMetreOrValueAndUnit, VerticalExtent,
+            Axis, AxisDirection, CRS, Conversion, CoordinateSystem, CoordinateSystemSubtype,
+            Ellipsoid, Id, Method, ObjectUsage, ParameterValue, ProjJSON, TemporalExtent, Unit,
+            UnitObject, UnitType, ValueAndUnit, ValueInMetreOrValueAndUnit, VerticalExtent,
         },
     };
     use std::println;
@@ -566,6 +566,21 @@ mod tests {
     }
 
     #[test]
+    fn test_method() {
+        let wkt_str = r#"METHOD["Transverse Mercator",ID["EPSG",9807]]"#;
+
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let method = Method::from_wkt(&arr[1]);
+            assert_eq!(method.name, "Transverse Mercator");
+            assert_eq!(
+                method.id,
+                Some(Id { authority: "EPSG".into(), code: "9807".into(), ..Default::default() })
+            );
+        }
+    }
+
+    #[test]
     fn test_proj() {
         let wkt_string = r#"PROJCRS["WGS 84 / Pseudo-Mercator",
             BASEGEOGCRS["WGS 84",
@@ -597,6 +612,26 @@ mod tests {
 
         let proj_obj = ProjJSON::parse_wkt(wkt_string);
         println!("proj_obj: {:#?}", proj_obj);
+        if let ProjJSON::CRS(crs) = proj_obj {
+            if let CRS::ProjectedCRS(proj_crs) = crs.as_ref() {
+                assert_eq!(
+                    proj_crs.conversion.method.name,
+                    "Popular Visualisation Pseudo Mercator"
+                );
+                assert_eq!(
+                    proj_crs.conversion.method.id,
+                    Some(Id {
+                        authority: "EPSG".into(),
+                        code: "1024".into(),
+                        ..Default::default()
+                    })
+                )
+            } else {
+                panic!("Not a projected CRS");
+            }
+        } else {
+            panic!("Not a CRS");
+        }
         // assert_eq!(proj_obj.name, "WGS 84 / Pseudo-Mercator");
     }
 }

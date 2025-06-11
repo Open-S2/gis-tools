@@ -28,7 +28,7 @@ pub struct FileOptions {
 }
 
 /// The state of the store
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FileState<R: StdReader> {
     /// The store is read-only
     Read(R),
@@ -51,7 +51,7 @@ pub type S2MMapStore<K, V> = S2BaseStore<MMapReader, K, V>;
 /// - write-only. The initial state is write-only. Write all you need to before reading
 /// - read-only. Once you have written everything, the first read will lock the file to be static
 ///   and read-only.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct S2BaseStore<
     R: StdReader = FileReader,
     K: U64 = u64,

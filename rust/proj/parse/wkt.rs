@@ -209,9 +209,7 @@ impl WKTParser for DatumEnsembleMember {
             if let Some(name) = arr.first() {
                 datum_ensemble_member.name = name.to_string();
             }
-            for id in arr.iter().skip(1) {
-                datum_ensemble_member.ids.push(Id::from_wkt(id));
-            }
+            handle_common_fields(&mut datum_ensemble_member, arr, 1);
         }
         datum_ensemble_member
     }
@@ -224,9 +222,7 @@ impl WKTParser for Method {
             if let Some(name) = arr.first() {
                 method.name = name.to_string();
             }
-            for id in arr.iter().skip(1) {
-                method.ids.push(Id::from_wkt(id));
-            }
+            handle_common_fields(&mut method, arr, 1);
         }
         method
     }
@@ -615,13 +611,13 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
 
 //? Used by EPSG project v12 [TODO]:
 
-// NON OPERATIONS 1:
+// NON OPERATIONS 1::
 // GEOIDMODEL: 1820
 // VERTCRS: 1713
 // DYNAMIC: 1024 <------ DYNAMIC[FRAMEEPOCH[2010.0],MODEL["NAD83(CSRS)v6 velocity grid"]]
 // COMPOUNDCRS: 703
 
-// NON OPERATIONS 2:
+// NON OPERATIONS 2::
 // DEFININGTRANSFORMATION: 313
 // DERIVINGCONVERSION: 176
 // BASEVERTCRS: 172

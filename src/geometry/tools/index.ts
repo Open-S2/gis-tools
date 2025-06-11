@@ -3,3 +3,4 @@ export * from './convert.js';
 export * from './points.js';
 export * from './polys/index.js';
 export * from './simplify.js';
+export * from './lines/index.js';

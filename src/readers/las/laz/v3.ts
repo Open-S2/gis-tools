@@ -204,21 +204,16 @@ export class LAZPoint14v3Reader implements ItemReader {
     /* mark the four scanner channel contexts as uninitialized */
     for (const context of this.contexts) context.mChangedValues[0] = undefined;
 
-    this.requestedZ = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_Z) !== 0 ? true : false;
+    this.requestedZ = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_Z) !== 0;
     this.requestedClassification =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_CLASSIFICATION) !== 0 ? true : false;
-    this.requestedFlags =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_FLAGS) !== 0 ? true : false;
-    this.requestedIntensity =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_INTENSITY) !== 0 ? true : false;
-    this.requestedScanAngle =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_SCAN_ANGLE) !== 0 ? true : false;
-    this.requestedUserData =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_USER_DATA) !== 0 ? true : false;
+      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_CLASSIFICATION) !== 0;
+    this.requestedFlags = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_FLAGS) !== 0;
+    this.requestedIntensity = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_INTENSITY) !== 0;
+    this.requestedScanAngle = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_SCAN_ANGLE) !== 0;
+    this.requestedUserData = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_USER_DATA) !== 0;
     this.requestedPointSource =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_POINT_SOURCE) !== 0 ? true : false;
-    this.requestedGpsTime =
-      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_GPS_TIME) !== 0 ? true : false;
+      (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_POINT_SOURCE) !== 0;
+    this.requestedGpsTime = (decompressSelective & LASZIP_DECOMPRESS_SELECTIVE_GPS_TIME) !== 0;
   }
 
   /**
@@ -1593,7 +1588,7 @@ export class LAZbyte14v3Reader implements ItemReader {
    * @param reader - the data block to read from
    */
   chunkSizes(reader: Reader): void {
-    for (let i = 0; i < this.number; i++) this.numBytesBytes[i] = reader.getUint32();
+    for (let i = 0; i < this.number; i++) this.numBytesBytes[i] = reader.getUint32(undefined, true);
   }
 
   /**

@@ -74,9 +74,7 @@ export type GBFSFeaturesV1 = GBFSStationPointFeatureV1;
 /** All potential feature property types in a GBFS V1 specification */
 export type GBFSFeaturePropertiesV1 = GBFSStationV1FeaturesV1Properties;
 
-/**
- * GBFS Version 1 Reader
- */
+/** GBFS Version 1 Reader */
 export class GBFSReaderV1
   implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV1>
 {

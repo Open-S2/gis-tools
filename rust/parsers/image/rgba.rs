@@ -1,7 +1,9 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub};
 use libm::pow;
-use s2json::{GetM, MValue, MValueCompatible};
+use s2json::{GetM, MValue, MValueCompatible, ValuePrimitive, ValueType};
 use serde::{Deserialize, Serialize};
+
+use crate::parsers::Reader;
 
 /// Gamma correction
 const GAMMA: f64 = 2.2;
@@ -19,7 +21,7 @@ pub fn linear_to_gamma(n: f64) -> f64 {
 /// RGBA data in 0->1 range floats
 /// These values remove gamma-corrected values so that you can apply maths on them
 /// This means the RGBA values are in linear space
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, ValuePrimitive)]
 pub struct RGBA {
     /// Gamma corrected Red between 0 and 1
     pub r: f64,
@@ -72,6 +74,15 @@ impl RGBA {
             (b * max_u8).round() as u8,
             (a * max_u8).round() as u8,
         )
+    }
+
+    /// Create a new RGBA value from 4 u16 values
+    pub fn from_reader<R: Reader>(reader: &R, offset: Option<u64>) -> Self {
+        let offset = offset.unwrap_or(reader.tell());
+        let r = reader.uint16_le(Some(offset));
+        let g = reader.uint16_le(Some(offset + 2));
+        let b = reader.uint16_le(Some(offset + 4));
+        RGBA::from_u16s(r, g, b, u16::MAX)
     }
 
     /// Create a new RGBA value from 4 u16 values
@@ -245,5 +256,28 @@ impl From<RGBA> for MValue {
             ("b".into(), (b as u64).into()),
             ("a".into(), (a as u64).into()),
         ])
+    }
+}
+impl From<RGBA> for ValueType {
+    fn from(value: RGBA) -> Self {
+        let (r, g, b, a) = value.to_u8s();
+        ValueType::Nested(MValue::from([
+            ("r".into(), (r as u64).into()),
+            ("g".into(), (g as u64).into()),
+            ("b".into(), (b as u64).into()),
+            ("a".into(), (a as u64).into()),
+        ]))
+    }
+}
+impl From<&ValueType> for RGBA {
+    fn from(value: &ValueType) -> Self {
+        let ValueType::Nested(mvalue) = value else {
+            panic!("Expected nested value type");
+        };
+        let r = mvalue.get("r").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let g = mvalue.get("g").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let b = mvalue.get("b").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        let a = mvalue.get("a").unwrap().to_prim().unwrap().to_u64().unwrap() as u8;
+        RGBA::from_u8s(r, g, b, a)
     }
 }

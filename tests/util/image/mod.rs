@@ -1,7 +1,7 @@
 #[cfg(test)]
 // #[coverage(off)]
 mod tests {
-    use gistools::util::RGBA;
+    use gistools::parsers::RGBA;
 
     #[test]
     fn test_default() {

@@ -6,7 +6,8 @@ use crate::{
     data_store::{MultiMap, MultiMapStore},
     data_structures::{HasLayer, PointCluster, PointGrid, TileStore, TileStoreOptions},
     geometry::S2CellId,
-    util::{CompressionFormat, RGBA, compress_data},
+    parsers::RGBA,
+    util::{CompressionFormat, compress_data},
 };
 use alloc::{collections::BTreeMap, string::String, vec, vec::Vec};
 use core::mem::take;

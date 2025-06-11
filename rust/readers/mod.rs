@@ -1,9 +1,17 @@
 /// CSV Reader
 pub mod csv;
+/// GeoTIFF Reader
+pub mod geotiff;
 /// GPX Reader
 pub mod gpx;
 /// JSON Reader
 pub mod json;
+/// LAS/LAZ Reader
+pub mod las;
+/// NAD Grid Reader
+pub mod nadgrid;
+/// NetCDF Reader
+pub mod netcdf;
 /// OSM (Open Street Map) PBF Reader
 pub mod osm;
 /// (S2)PMTiles Reader
@@ -14,8 +22,12 @@ pub mod shapefile;
 pub mod tile;
 
 pub use csv::*;
+pub use geotiff::*;
 pub use gpx::*;
 pub use image::*;
+pub use las::*;
+pub use nadgrid::*;
+pub use netcdf::*;
 pub use osm::*;
 pub use pmtiles::*;
 use serde::{Deserialize, Serialize};

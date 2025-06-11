@@ -1,17 +1,17 @@
 use crate::proj::{
-    _msfn, CoordinateStep, MERCATOR, Proj, ProjectCoordinates, TransformCoordinates, WEB_MERCATOR,
+    _msfn, CoordinateStep, LATITUDE_OF_FIRST_STANDARD_PARALLEL, MERCATOR, MERCATOR_VARIANT_A,
+    MERCATOR_VARIANT_B, Proj, ProjMethod, ProjectCoordinates, TransformCoordinates, WEB_MERCATOR,
     sinhpsi2tanphi,
 };
-use libm::{asinh, atan, atanh, cos, sin, sinh, tan};
+use core::cell::RefCell;
+use libm::{asinh, atan, atanh, cos, fabs, sin, sinh, tan};
 
-/// Mercator type (spherical or ellipsoidal)
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum MercatorType {
-    /// Ellipsoidal, mercator
-    Ellipsoidal,
-    /// Spherical, mercator
-    Spherical,
-}
+/// Mercator projection
+pub type MercatorProjection = MercatorBaseProjection<MERCATOR>;
+/// Mercator (variant A) projection
+pub type MercatorVariantAProjection = MercatorBaseProjection<MERCATOR_VARIANT_A>;
+/// Mercator (variant B) projection
+pub type MercatorVariantBProjection = MercatorBaseProjection<MERCATOR_VARIANT_B>;
 
 /// # Mercator Projection
 ///
@@ -72,7 +72,7 @@ pub enum MercatorType {
 ///
 /// ## Mathematical Definition
 ///
-/// **Spherical Form**
+/// **Spheroidal Form**
 /// - **Forward Projection**:
 ///   $$x = k_0 \cdot R \cdot \lambda$$
 ///   $$y = k_0 \cdot R \cdot \psi$$
@@ -101,13 +101,14 @@ pub enum MercatorType {
 /// - [Wolfram Mathworld: Mercator Projection](http://mathworld.wolfram.com/MercatorProjection.html)
 ///
 /// ![Mercator Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
-#[derive(Debug)]
-pub struct MercatorProjection {
-    conv_case: MercatorType,
+#[derive(Debug, Clone, PartialEq)]
+pub struct MercatorBaseProjection<const C: i64> {
+    proj: RefCell<Proj>,
+    conv_case: ProjMethod,
 }
-impl ProjectCoordinates for MercatorProjection {
-    fn code(&self) -> u32 {
-        MERCATOR
+impl<const C: i64> ProjectCoordinates for MercatorBaseProjection<C> {
+    fn code(&self) -> i64 {
+        C
     }
     fn name(&self) -> &'static str {
         "Mercator"
@@ -117,52 +118,57 @@ impl ProjectCoordinates for MercatorProjection {
             "Mercator",
             "Popular Visualisation Pseudo Mercator",
             "Mercator_1SP",
+            "Mercator_2SP",
+            "Mercator (variant A)",
+            "Mercator (variant B)",
             "Mercator_Auxiliary_Sphere",
             "merc",
         ]
     }
 }
-impl CoordinateStep for MercatorProjection {
-    fn new(proj: &mut Proj) -> Self {
-        let phits = 0.0;
-        let is_phits: bool = false;
-        let conv_case: MercatorType;
-
-        // TODO:
-        // if ((is_phits = pj_param(proj.ctx, proj.params, "tlat_ts").i)) {
-        //     phits = fabs(pj_param(proj.ctx, proj.params, "rlat_ts").f);
-        // }
-        if phits >= core::f64::consts::FRAC_PI_2 {
-            panic!("Invalid value for lat_ts: |lat_ts| should be <= 90°");
-        }
-
-        if proj.es != 0.0 {
-            // ellipsoid case
-            conv_case = MercatorType::Ellipsoidal;
-            if is_phits {
-                proj.k0 = _msfn(sin(phits), cos(phits), proj.es);
+impl<const C: i64> CoordinateStep for MercatorBaseProjection<C> {
+    fn new(proj: RefCell<Proj>) -> Self {
+        let mut phits = 0.0;
+        let mut is_phits: bool = false;
+        let conv_case: ProjMethod;
+        {
+            let proj = &mut proj.borrow_mut();
+            if let Some(lat_ts) = proj.params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL) {
+                phits = fabs(lat_ts.f64());
+                is_phits = true;
             }
-        } else {
-            // sphere case
-            conv_case = MercatorType::Spherical;
-            if is_phits {
-                proj.k0 = cos(phits);
+            if phits >= core::f64::consts::FRAC_PI_2 {
+                panic!("Invalid value for lat_ts: |lat_ts| should be <= 90°");
+            }
+
+            if proj.es != 0.0 {
+                // ellipsoid case
+                conv_case = ProjMethod::Ellipsoidal;
+                if is_phits {
+                    proj.k0 = _msfn(sin(phits), cos(phits), proj.es);
+                }
+            } else {
+                // sphere case
+                conv_case = ProjMethod::Spheroidal;
+                if is_phits {
+                    proj.k0 = cos(phits);
+                }
             }
         }
-        MercatorProjection { conv_case }
+        MercatorBaseProjection { proj, conv_case }
     }
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        if self.conv_case == MercatorType::Spherical {
-            merc_s_forward(proj, p);
+    fn forward<P: TransformCoordinates>(&self, p: &mut P) {
+        if self.conv_case == ProjMethod::Spheroidal {
+            merc_s_forward(&self.proj.borrow(), p);
         } else {
-            merc_e_forward(proj, p);
+            merc_e_forward(&self.proj.borrow(), p);
         }
     }
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        if self.conv_case == MercatorType::Spherical {
-            merc_s_inverse(proj, p);
+    fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
+        if self.conv_case == ProjMethod::Spheroidal {
+            merc_s_inverse(&self.proj.borrow(), p);
         } else {
-            merc_e_inverse(proj, p);
+            merc_e_inverse(&self.proj.borrow(), p);
         }
     }
 }
@@ -176,7 +182,7 @@ impl CoordinateStep for MercatorProjection {
 /// From [Wikipedia](https://en.wikipedia.org/wiki/Web_Mercator):
 ///
 /// > This projection is widely used by the Web Mercator, Google Web Mercator,
-/// > Spherical Mercator, WGS 84 Web Mercator[1] or WGS 84/Pseudo-Mercator is a
+/// > Spheroidal Mercator, WGS 84 Web Mercator[1] or WGS 84/Pseudo-Mercator is a
 /// > variant of the Mercator projection and is the de facto standard for Web
 /// > mapping applications. [...]
 /// > It is used by virtually all major online map providers [...]
@@ -236,10 +242,12 @@ impl CoordinateStep for MercatorProjection {
 /// - [Wikipedia: Web Mercator](https://en.wikipedia.org/wiki/Web_Mercator)
 ///
 /// ![Web Mercator Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
-#[derive(Debug)]
-pub struct WebMercatorProjection {}
+#[derive(Debug, Clone, PartialEq)]
+pub struct WebMercatorProjection {
+    proj: RefCell<Proj>,
+}
 impl ProjectCoordinates for WebMercatorProjection {
-    fn code(&self) -> u32 {
+    fn code(&self) -> i64 {
         WEB_MERCATOR
     }
     fn name(&self) -> &'static str {
@@ -250,41 +258,41 @@ impl ProjectCoordinates for WebMercatorProjection {
     }
 }
 impl CoordinateStep for WebMercatorProjection {
-    fn new(_proj: &mut Proj) -> Self {
-        WebMercatorProjection {}
+    fn new(proj: RefCell<Proj>) -> Self {
+        WebMercatorProjection { proj }
     }
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        merc_s_forward(proj, p);
+    fn forward<P: TransformCoordinates>(&self, p: &mut P) {
+        merc_s_forward(&self.proj.borrow(), p);
     }
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        merc_s_inverse(proj, p);
+    fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
+        merc_s_inverse(&self.proj.borrow(), p);
     }
 }
 
 /// Ellipsoidal, mercator forward projection
 pub fn merc_e_forward<P: TransformCoordinates>(proj: &Proj, p: &mut P) {
-    p.set_x(proj.k0 * p.get_lam());
+    p.set_x(proj.k0 * p.lam());
     // Instead of calling tan and sin, call sin and cos which the compiler
     // optimizes to a single call to sincos.
-    let phi = p.get_phi();
+    let phi = p.phi();
     let sphi = phi.sin();
     let cphi = phi.cos();
     p.set_y(proj.k0 * (asinh(sphi / cphi) - proj.e * atanh(proj.e * sphi)));
 }
 
-/// Spherical, mercator forward
+/// Spheroidal, mercator forward
 pub fn merc_s_forward<P: TransformCoordinates>(proj: &Proj, p: &mut P) {
-    p.set_x(proj.k0 * p.get_lam());
-    p.set_y(proj.k0 * asinh(tan(p.get_phi())));
+    p.set_x(proj.k0 * p.lam());
+    p.set_y(proj.k0 * asinh(tan(p.phi())));
 }
 
 /// Ellipsoidal, mercator inverse
 pub fn merc_e_inverse<P: TransformCoordinates>(proj: &Proj, p: &mut P) {
-    p.set_phi(atan(sinhpsi2tanphi(sinh(p.get_y() / proj.k0), proj.e)));
+    p.set_phi(atan(sinhpsi2tanphi(sinh(p.y() / proj.k0), proj.e)));
 }
 
-/// Spherical, mercator inverse
+/// Spheroidal, mercator inverse
 pub fn merc_s_inverse<P: TransformCoordinates>(proj: &Proj, p: &mut P) {
-    p.set_phi(atan(sinh(p.get_y() / proj.k0)));
-    p.set_lam(p.get_x() / proj.k0);
+    p.set_phi(atan(sinh(p.y() / proj.k0)));
+    p.set_lam(p.x() / proj.k0);
 }

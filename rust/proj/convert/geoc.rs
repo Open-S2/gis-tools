@@ -1,6 +1,10 @@
-use crate::proj::{CoordinateStep, Direction, IoUnits, Proj, TransformCoordinates};
+use core::cell::RefCell;
+
+use crate::proj::{CoordinateStep, Direction, Proj, TransformCoordinates};
 use libm::{atan, tan};
 
+/// # Conversion from geographic to geocentric latitude and back.
+///
 /// Convert geographical latitude to geocentric (or the other way round if
 /// direction = PJ_INV)
 ///
@@ -14,22 +18,24 @@ use libm::{atan, tan};
 ///
 /// For the spherical case, the geographical latitude equals the geocentric,
 /// and consequently, the input is copied directly to the output.
-#[derive(Debug)]
-pub struct GeocentricConverter {}
+#[derive(Debug, Clone, PartialEq)]
+pub struct GeocentricConverter {
+    proj: RefCell<Proj>,
+}
 impl CoordinateStep for GeocentricConverter {
-    fn new(proj: &mut Proj) -> Self {
-        proj.left = IoUnits::RADIANS;
-        proj.right = IoUnits::RADIANS;
-        proj.is_ll = true;
-        GeocentricConverter {}
+    fn new(proj: RefCell<Proj>) -> Self {
+        // proj.borrow_mut().left = IoUnits::RADIANS;
+        // proj.borrow_mut().right = IoUnits::RADIANS;
+        // proj.is_ll = true;
+        GeocentricConverter { proj }
     }
     /// Geographical to geocentric
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, coords: &mut P) {
-        geocentric_latitude(proj, Direction::FWD, coords);
+    fn forward<P: TransformCoordinates>(&self, coords: &mut P) {
+        geocentric_latitude(&self.proj.borrow(), Direction::FWD, coords);
     }
     /// Geocentric to geographical
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, coords: &mut P) {
-        geocentric_latitude(proj, Direction::INV, coords);
+    fn inverse<P: TransformCoordinates>(&self, coords: &mut P) {
+        geocentric_latitude(&self.proj.borrow(), Direction::INV, coords);
     }
 }
 
@@ -40,7 +46,7 @@ pub fn geocentric_latitude<P: TransformCoordinates>(
     coords: &mut P,
 ) {
     let limit = core::f64::consts::FRAC_PI_2 - 1e-9;
-    let phi = coords.get_phi();
+    let phi = coords.phi();
     if (phi > limit) || (phi < -limit) || (proj.es == 0.) {
         return;
     }

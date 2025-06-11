@@ -1,7 +1,7 @@
 /// Raster based tools
 pub mod raster;
 
-use crate::{data_structures::HasLayer, util::RGBA};
+use crate::{data_structures::HasLayer, parsers::RGBA};
 use alloc::string::String;
 pub use raster::*;
 use s2_tilejson::{Metadata, Scheme};

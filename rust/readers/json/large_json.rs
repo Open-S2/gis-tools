@@ -264,4 +264,9 @@ impl<
     fn iter(&self) -> Self::FeatureIterator<'_> {
         JSONIterator { reader: self }
     }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.iter()
+    }
 }

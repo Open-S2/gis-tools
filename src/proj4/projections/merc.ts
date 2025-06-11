@@ -104,8 +104,6 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
     'Mercator_Auxiliary_Sphere',
     'merc',
   ];
-  // Mercator specific variables
-
   /**
    * Preps an Mercator projection
    * @param params - projection specific parameters
@@ -184,5 +182,19 @@ export class Mercator extends ProjectionBase implements ProjectionTransform {
 
     p.x = lon;
     p.y = lat;
+  }
+}
+
+/** WebMercator Projection */
+export class WebMercator extends Mercator implements ProjectionTransform {
+  name = 'WebMercator';
+  static names = ['WebMercator', 'WGS 84 / Pseudo-Mercator', 'webmerc'];
+  /**
+   * Preps a WebMercator projection
+   * @param params - projection specific parameters
+   */
+  constructor(params?: ProjectionParams) {
+    super(params);
+    this.sphere = true;
   }
 }

@@ -5,8 +5,9 @@ mod tests {
     extern crate std;
 
     use alloc::vec;
-    use gistools::util::{
-        RGBA, VectorPointRGBA, default_get_interpolate_current_value, nearest_interpolation,
+    use gistools::{
+        parsers::RGBA,
+        util::{VectorPointRGBA, default_get_interpolate_current_value, nearest_interpolation},
     };
     use s2json::{MValue, VectorPoint};
     use std::vec::Vec;

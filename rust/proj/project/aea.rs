@@ -1,18 +1,18 @@
 use super::{ProjectCoordinates, TransformCoordinates};
 use crate::proj::{
-    _msfn, ALBERS_EQUAL_AREA, CoordinateStep, Proj, authalic_lat_compute_coeffs,
+    _msfn, ALBERS_EQUAL_AREA, CoordinateStep, EPS10, LATITUDE_OF_FIRST_STANDARD_PARALLEL,
+    LATITUDE_OF_SECOND_STANDARD_PARALLEL, Proj, ProjValue, SOUTH, authalic_lat_compute_coeffs,
     authalic_lat_inverse, authalic_lat_q,
 };
 use alloc::vec::Vec;
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{asin, atan2, cos, fabs, hypot, log, sin, sqrt};
 
-const EPS10: f64 = 1.0e-10;
 const TOL7: f64 = 1.0e-7;
 
 /// Albers Equal Area variables. Shared by aea and leac
 #[derive(Debug, Default, Clone, PartialEq)]
-pub struct Aea {
+pub struct AeaData {
     ec: f64,
     n: f64,
     c: f64,
@@ -26,9 +26,10 @@ pub struct Aea {
     apa: Vec<f64>,
     qp: f64,
 }
-impl Aea {
-    fn new(proj: &mut Proj) -> Self {
-        let mut store = Aea::default();
+impl AeaData {
+    fn new(proj: RefCell<Proj>) -> Self {
+        let proj = &proj.borrow();
+        let mut store = AeaData::default();
 
         if fabs(store.phi1) > FRAC_PI_2 {
             panic!("Invalid value for lat_1: |lat_1| should be <= 90°");
@@ -119,34 +120,38 @@ impl Aea {
 /// - https://en.wikipedia.org/wiki/Albers_projection
 ///
 /// ![Albers Conic Equal Area Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aea.png?raw=true)
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AlbersConicEqualAreaProjection {
-    store: RefCell<Aea>,
+    proj: RefCell<Proj>,
+    store: RefCell<AeaData>,
 }
 impl ProjectCoordinates for AlbersConicEqualAreaProjection {
-    fn code(&self) -> u32 {
+    fn code(&self) -> i64 {
         ALBERS_EQUAL_AREA
     }
     fn name(&self) -> &'static str {
         "Albers Conic Equal Area"
     }
     fn names() -> &'static [&'static str] {
-        &["Albers Conic Equal Area", "Albers", "aea"]
+        &["Albers Conic Equal Area", "Albers", "aea", "9822"]
     }
 }
 impl CoordinateStep for AlbersConicEqualAreaProjection {
-    fn new(proj: &mut Proj) -> Self {
-        let store = Aea::new(proj);
-        // TODO:
-        // store.phi1 = pj_param(proj.ctx, proj.params, "rlat_1").f;
-        // store.phi2 = pj_param(proj.ctx, proj.params, "rlat_2").f;
-        AlbersConicEqualAreaProjection { store: store.into() }
+    fn new(proj: RefCell<Proj>) -> Self {
+        let mut store = AeaData::new(proj.clone());
+        if let Some(lat_1) = proj.borrow().params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL) {
+            store.phi1 = lat_1.f64();
+        }
+        if let Some(lat_2) = proj.borrow().params.get(&LATITUDE_OF_SECOND_STANDARD_PARALLEL) {
+            store.phi2 = lat_2.f64();
+        }
+        AlbersConicEqualAreaProjection { proj, store: store.into() }
     }
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        aea_e_forward(&mut self.store.borrow_mut(), proj, p);
+    fn forward<P: TransformCoordinates>(&self, p: &mut P) {
+        aea_e_forward(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
     }
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        aea_e_inverse(&mut self.store.borrow_mut(), proj, p);
+    fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
+        aea_e_inverse(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
     }
 }
 
@@ -190,13 +195,14 @@ impl CoordinateStep for AlbersConicEqualAreaProjection {
 /// - https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection (Note: While the name is similar, this link describes the conformal variant. A specific link for the equal-area conic might be needed)
 ///
 /// ![Lambert Equal Area Conic Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/leac.png?raw=true)
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LambertEqualAreaConicProjection {
-    store: RefCell<Aea>,
+    proj: RefCell<Proj>,
+    store: RefCell<AeaData>,
 }
 impl ProjectCoordinates for LambertEqualAreaConicProjection {
-    fn code(&self) -> u32 {
-        0
+    fn code(&self) -> i64 {
+        -1
     }
     fn name(&self) -> &'static str {
         "Lambert Equal Area Conic"
@@ -206,25 +212,28 @@ impl ProjectCoordinates for LambertEqualAreaConicProjection {
     }
 }
 impl CoordinateStep for LambertEqualAreaConicProjection {
-    fn new(proj: &mut Proj) -> Self {
-        let store = Aea::new(proj);
-        // TODO:
-        // store.phi2 = pj_param(proj.ctx, proj.params, "rlat_1").f;
-        // store.phi1 = if pj_param(proj.ctx, proj.params, "bsouth").i { -FRAC_PI_2 } else { FRAC_PI_2 };
-        LambertEqualAreaConicProjection { store: store.into() }
+    fn new(proj: RefCell<Proj>) -> Self {
+        let mut store = AeaData::new(proj.clone());
+        store.phi2 = proj.borrow().params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL).unwrap().f64();
+        store.phi1 = if proj.borrow().params.get(&SOUTH).unwrap_or(&ProjValue::default()).bool() {
+            -FRAC_PI_2
+        } else {
+            FRAC_PI_2
+        };
+        LambertEqualAreaConicProjection { proj, store: store.into() }
     }
-    fn forward<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        aea_e_forward(&mut self.store.borrow_mut(), proj, p);
+    fn forward<P: TransformCoordinates>(&self, p: &mut P) {
+        aea_e_forward(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
     }
-    fn inverse<P: TransformCoordinates>(&self, proj: &Proj, p: &mut P) {
-        aea_e_inverse(&mut self.store.borrow_mut(), proj, p);
+    fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
+        aea_e_inverse(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
     }
 }
 
 /// Ellipsoid/spheroid, forward
-pub fn aea_e_forward<P: TransformCoordinates>(aea: &mut Aea, proj: &Proj, p: &mut P) {
-    let phi = p.get_phi();
-    let mut lam = p.get_lam();
+pub fn aea_e_forward<P: TransformCoordinates>(aea: &mut AeaData, proj: &Proj, p: &mut P) {
+    let phi = p.phi();
+    let mut lam = p.lam();
     aea.rho =
         aea.c - if aea.ellips { aea.n * authalic_lat_q(sin(phi), proj) } else { aea.n2 * sin(phi) };
 
@@ -239,9 +248,9 @@ pub fn aea_e_forward<P: TransformCoordinates>(aea: &mut Aea, proj: &Proj, p: &mu
 }
 
 /// Ellipsoid/spheroid, inverse
-pub fn aea_e_inverse<P: TransformCoordinates>(aea: &mut Aea, proj: &Proj, p: &mut P) {
-    let mut x = p.get_x();
-    let mut y = p.get_y();
+pub fn aea_e_inverse<P: TransformCoordinates>(aea: &mut AeaData, proj: &Proj, p: &mut P) {
+    let mut x = p.x();
+    let mut y = p.y();
     y = aea.rho0 - y;
     aea.rho = hypot(x, y);
     if aea.rho != 0.0 {
@@ -252,14 +261,14 @@ pub fn aea_e_inverse<P: TransformCoordinates>(aea: &mut Aea, proj: &Proj, p: &mu
         }
         p.set_phi(aea.rho / aea.dd);
         if aea.ellips {
-            let qs = (aea.c - p.get_phi() * p.get_phi()) / aea.n;
+            let qs = (aea.c - p.phi() * p.phi()) / aea.n;
             if fabs(aea.ec - fabs(qs)) > TOL7 {
                 if fabs(qs) > 2. {
                     // ERROR: PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
                     return;
                 }
                 p.set_phi(authalic_lat_inverse(asin(qs / aea.qp), &aea.apa, proj, aea.qp));
-                if p.get_phi() == f64::INFINITY {
+                if p.phi() == f64::INFINITY {
                     // ERROR: PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
                     return;
                 }
@@ -267,7 +276,7 @@ pub fn aea_e_inverse<P: TransformCoordinates>(aea: &mut Aea, proj: &Proj, p: &mu
                 p.set_phi(if qs < 0. { -FRAC_PI_2 } else { FRAC_PI_2 });
             }
         } else {
-            let qs_div_2 = (aea.c - p.get_phi() * p.get_phi()) / aea.n2;
+            let qs_div_2 = (aea.c - p.phi() * p.phi()) / aea.n2;
             if fabs(qs_div_2) <= 1. {
                 p.set_phi(asin(qs_div_2));
             } else {

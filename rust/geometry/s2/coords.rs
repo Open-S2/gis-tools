@@ -176,7 +176,7 @@ pub fn st_to_uvquadratic(s: f64) -> f64 {
 /// make the cell sizes more uniform.
 pub fn st_to_uvtan(s_: f64) -> f64 {
     use core::f64::consts::PI;
-    // Unfortunately, tan(M_PI_4) is slightly less than 1.0.  This isn't due to
+    // Unfortunately, tan(FRAC_PI_4) is slightly less than 1.0.  This isn't due to
     // a flaw in the implementation of tan(), it's because the derivative of
     // tan(x) at x=pi/4 is 2, and it happens that the two adjacent floating
     // point numbers on either side of the infinite-precision value of pi/4 have

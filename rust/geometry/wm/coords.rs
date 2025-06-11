@@ -1,5 +1,5 @@
 use crate::space::EARTH_CIRCUMFERENCE;
-use core::f64::consts::PI;
+use core::f64::consts::{PI, TAU};
 use libm::{atan, cos, exp, floor, fmax, fmin, log, pow, sin, tan};
 
 /// 900913 (Web Mercator) constant
@@ -21,7 +21,7 @@ pub enum Source {
 /// Given a zoom and tilesize, build mercator positional attributes
 fn get_zoom_size(zoom: u8, tile_size: f64) -> (f64, f64, f64, f64) {
     let size = tile_size * pow(2., zoom as f64);
-    (size / 360., size / (2. * PI), size / 2., size)
+    (size / 360., size / TAU, size / 2., size)
 }
 
 /// Convert Longitude and Latitude to a mercator pixel coordinate

@@ -34,7 +34,7 @@ const BIT_SHIFT: [u64; 10] = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63];
 /// // DO STUFF
 /// let res = buf.take();
 /// ```
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Buffer {
     buf: Vec<u8>,
     pos: usize,
@@ -51,7 +51,7 @@ impl Buffer {
     }
 
     /// See the contents of the buffer
-    pub fn buf(&self) -> &Vec<u8> {
+    pub fn buf(&self) -> &[u8] {
         &self.buf
     }
 
@@ -100,6 +100,25 @@ impl Buffer {
             self.buf.resize(pos + 1, 0);
         }
         self.buf[pos] = value;
+    }
+
+    /// return the current i8 at position
+    pub fn get_i8_at(&mut self, pos: usize) -> i8 {
+        self.buf[pos] as i8
+    }
+
+    /// set the current u8 under the buffer
+    pub fn set_i8(&mut self, value: i8) {
+        self.set_i8_at(self.pos, value);
+        self.pos += 1;
+    }
+
+    /// set the current i8 at position
+    pub fn set_i8_at(&mut self, pos: usize, value: i8) {
+        if pos >= self.buf.len() {
+            self.buf.resize(pos + 1, 0);
+        }
+        self.buf[pos] = value as u8;
     }
 
     /// return the current i32 under the buffer
@@ -170,6 +189,40 @@ impl Buffer {
         bytes.copy_from_slice(&value.to_le_bytes());
     }
 
+    /// return the current i16 under the buffer
+    pub fn get_i16(&mut self) -> i16 {
+        let value = self.get_i16_at(self.pos);
+        // Update the position
+        self.pos += 2;
+
+        value
+    }
+
+    /// return the current i16 at position
+    pub fn get_i16_at(&mut self, pos: usize) -> i16 {
+        // Borrow the buffer and slice the next 2 bytes
+        let bytes = &self.buf[pos..pos + 2];
+
+        i16::from_le_bytes(bytes.try_into().expect("slice with incorrect length"))
+    }
+
+    /// set the current i16 under the buffer
+    pub fn set_i16(&mut self, value: i16) {
+        self.set_i16_at(self.pos, value);
+        self.pos += 2;
+    }
+
+    /// set the current i16 at position
+    pub fn set_i16_at(&mut self, pos: usize, value: i16) {
+        // Borrow the buffer and slice the next 2 bytes
+        if pos >= self.buf.len() {
+            self.buf.resize(pos + 2, 0);
+        }
+        let bytes = &mut self.buf[pos..pos + 2];
+
+        bytes.copy_from_slice(&value.to_le_bytes());
+    }
+
     /// return the current u32 under the buffer
     pub fn get_u32(&mut self) -> u32 {
         let value = self.get_u32_at(self.pos);
@@ -202,6 +255,29 @@ impl Buffer {
         let bytes = &mut self.buf[pos..pos + 4];
 
         bytes.copy_from_slice(&value.to_le_bytes());
+    }
+
+    /// Return the current f32 at position
+    pub fn get_f32(&mut self) -> f32 {
+        let value = self.get_u32_at(self.pos);
+        self.pos += 4;
+        f32::from_bits(value)
+    }
+
+    /// Return the current f32 at position
+    pub fn get_f32_at(&mut self, pos: usize) -> f32 {
+        let value = self.get_u32_at(pos);
+        f32::from_bits(value)
+    }
+
+    /// Set the current f32 at position
+    pub fn set_f32(&mut self, pos: usize, value: f32) {
+        self.set_u32_at(pos, value.to_bits());
+    }
+
+    /// Set the current f32 at position
+    pub fn set_f32_at(&mut self, pos: usize, value: f32) {
+        self.set_u32_at(pos, value.to_bits());
     }
 
     /// return the current i32 under the buffer
@@ -272,6 +348,37 @@ impl Buffer {
         bytes.copy_from_slice(&value.to_le_bytes());
     }
 
+    /// Return the current f64 at position
+    pub fn get_f64(&mut self) -> f64 {
+        let value = self.get_u64_at(self.pos);
+        self.pos += 8;
+        f64::from_bits(value)
+    }
+
+    /// Return the current f64 at position
+    pub fn get_f64_at(&mut self, pos: usize) -> f64 {
+        // Borrow the buffer and slice the next 8 bytes
+        let bytes = &self.buf[pos..pos + 8];
+
+        f64::from_le_bytes(bytes.try_into().expect("slice with incorrect length"))
+    }
+
+    /// Set the current f64 at position
+    pub fn set_f64(&mut self, pos: usize, value: f64) {
+        self.set_f64_at(pos, value);
+    }
+
+    /// Set the current f64 at position
+    pub fn set_f64_at(&mut self, pos: usize, value: f64) {
+        // Borrow the buffer and slice the next 8 bytes
+        if pos >= self.buf.len() {
+            self.buf.resize(pos + 8, 0);
+        }
+        let bytes = &mut self.buf[pos..pos + 8];
+
+        bytes.copy_from_slice(&value.to_le_bytes());
+    }
+
     /// Decode a varint from the buffer at the current position.
     pub fn decode_varint(&mut self) -> u64 {
         if self.pos >= self.buf.len() {
@@ -325,10 +432,15 @@ impl Buffer {
     pub fn take(&mut self) -> Vec<u8> {
         core::mem::take(&mut self.buf)
     }
+
+    /// Copy a slice into the buffer
+    pub fn copy_from_slice(&mut self, offset: usize, slice: &[u8]) {
+        self.buf[offset..offset + slice.len()].copy_from_slice(slice);
+    }
 }
 
 /// A basic buffer reader for reading data from a buffer
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct BufferReader {
     /// The buffer
     pub buffer: Vec<u8>, // This struct contains some data
@@ -357,16 +469,29 @@ impl Reader for BufferReader {
 
     // GETTERS
 
+    fn uint64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u64 {
+        if little_endian.unwrap_or(false) {
+            self.uint64_le(byte_offset)
+        } else {
+            self.uint64_be(byte_offset)
+        }
+    }
     fn uint64_be(&self, byte_offset: Option<u64>) -> u64 {
         let bytes = self.get_bytes(byte_offset, 8);
         u64::from_be_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
-
     fn uint64_le(&self, byte_offset: Option<u64>) -> u64 {
         let bytes = self.get_bytes(byte_offset, 8);
         u64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
 
+    fn int64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i64 {
+        if little_endian.unwrap_or(false) {
+            self.int64_le(byte_offset)
+        } else {
+            self.int64_be(byte_offset)
+        }
+    }
     fn int64_be(&self, byte_offset: Option<u64>) -> i64 {
         let bytes = self.get_bytes(byte_offset, 8);
         i64::from_be_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
@@ -374,6 +499,14 @@ impl Reader for BufferReader {
     fn int64_le(&self, byte_offset: Option<u64>) -> i64 {
         let bytes = self.get_bytes(byte_offset, 8);
         i64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
+    }
+
+    fn f64(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f64 {
+        if little_endian.unwrap_or(false) {
+            self.f64_le(byte_offset)
+        } else {
+            self.f64_be(byte_offset)
+        }
     }
     fn f64_be(&self, byte_offset: Option<u64>) -> f64 {
         let bytes = self.get_bytes(byte_offset, 8);
@@ -383,6 +516,14 @@ impl Reader for BufferReader {
         let bytes = self.get_bytes(byte_offset, 8);
         f64::from_le_bytes(bytes.try_into().expect("Failed to read 8 bytes"))
     }
+
+    fn uint32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u32 {
+        if little_endian.unwrap_or(false) {
+            self.uint32_le(byte_offset)
+        } else {
+            self.uint32_be(byte_offset)
+        }
+    }
     fn uint32_be(&self, byte_offset: Option<u64>) -> u32 {
         let bytes = self.get_bytes(byte_offset, 4);
         u32::from_be_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
@@ -390,6 +531,14 @@ impl Reader for BufferReader {
     fn uint32_le(&self, byte_offset: Option<u64>) -> u32 {
         let bytes = self.get_bytes(byte_offset, 4);
         u32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
+    }
+
+    fn int32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i32 {
+        if little_endian.unwrap_or(false) {
+            self.int32_le(byte_offset)
+        } else {
+            self.int32_be(byte_offset)
+        }
     }
     fn int32_be(&self, byte_offset: Option<u64>) -> i32 {
         let bytes = self.get_bytes(byte_offset, 4);
@@ -399,6 +548,14 @@ impl Reader for BufferReader {
         let bytes = self.get_bytes(byte_offset, 4);
         i32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
     }
+
+    fn f32(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f32 {
+        if little_endian.unwrap_or(false) {
+            self.f32_le(byte_offset)
+        } else {
+            self.f32_be(byte_offset)
+        }
+    }
     fn f32_be(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 4);
         f32::from_be_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
@@ -406,6 +563,14 @@ impl Reader for BufferReader {
     fn f32_le(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 4);
         f32::from_le_bytes(bytes.try_into().expect("Failed to read 4 bytes"))
+    }
+
+    fn uint16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> u16 {
+        if little_endian.unwrap_or(false) {
+            self.uint16_le(byte_offset)
+        } else {
+            self.uint16_be(byte_offset)
+        }
     }
     fn uint16_be(&self, byte_offset: Option<u64>) -> u16 {
         let bytes = self.get_bytes(byte_offset, 2);
@@ -415,6 +580,14 @@ impl Reader for BufferReader {
         let bytes = self.get_bytes(byte_offset, 2);
         u16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
     }
+
+    fn int16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> i16 {
+        if little_endian.unwrap_or(false) {
+            self.int16_le(byte_offset)
+        } else {
+            self.int16_be(byte_offset)
+        }
+    }
     fn int16_be(&self, byte_offset: Option<u64>) -> i16 {
         let bytes = self.get_bytes(byte_offset, 2);
         i16::from_be_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
@@ -422,6 +595,14 @@ impl Reader for BufferReader {
     fn int16_le(&self, byte_offset: Option<u64>) -> i16 {
         let bytes = self.get_bytes(byte_offset, 2);
         i16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"))
+    }
+
+    fn f16(&self, byte_offset: Option<u64>, little_endian: Option<bool>) -> f32 {
+        if little_endian.unwrap_or(false) {
+            self.f16_le(byte_offset)
+        } else {
+            self.f16_be(byte_offset)
+        }
     }
     fn f16_be(&self, byte_offset: Option<u64>) -> f32 {
         let bytes = self.get_bytes(byte_offset, 2);
@@ -433,6 +614,7 @@ impl Reader for BufferReader {
         let f = f16::from_le_bytes(bytes.try_into().expect("Failed to read 2 bytes"));
         f32::from_bits(f.to_bits().into())
     }
+
     fn uint8(&self, byte_offset: Option<u64>) -> u8 {
         let bytes = self.get_bytes(byte_offset, 1);
         bytes[0]

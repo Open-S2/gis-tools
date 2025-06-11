@@ -16,7 +16,7 @@ pub mod relation;
 pub mod way;
 
 use crate::{
-    data_store::{KV, KVStore},
+    data_store::{KV, KVStore, kv::file::FileKV},
     parsers::{FeatureReader, Reader},
 };
 use alloc::{boxed::Box, vec::Vec};
@@ -33,7 +33,7 @@ use way::{IntermediateWay, WayNodes};
 // TODO: Add threads for reading the blocks
 
 /// OSM Reader options
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OSMReaderOptions {
     /// if true, remove nodes that have no tags [Default = true]
     pub remove_empty_nodes: bool,
@@ -66,6 +66,16 @@ impl Default for OSMReaderOptions {
     }
 }
 
+/// OSM File Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
+pub type OSMFileReader<T> = OSMReader<
+    T,
+    FileKV<u64, VectorPoint<()>>,
+    FileKV<u64, IntermediateNode>,
+    FileKV<u64, WayNodes>,
+    FileKV<u64, IntermediateWay>,
+    FileKV<u64, IntermediateRelation>,
+>;
+
 /// OSM Buffer Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
 pub type OSMLocalReader<T> = OSMReader<
     T,
@@ -80,7 +90,7 @@ pub type OSMLocalReader<T> = OSMReader<
 ///
 /// ## Description
 /// Parses OSM PBF files
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OSMReader<
     T: Reader,
     _N: KVStore<u64, VectorPoint<()>> = KV<u64, VectorPoint<()>>,
@@ -176,9 +186,7 @@ impl<
         header_block.to_header()
     }
 
-    /// Read the next blob
-    /// @returns - the next blob if it exists
-    fn next(&mut self) -> Option<Vec<u8>> {
+    fn next_blob(&mut self) -> Option<BlobHeader> {
         // if we've already read all the data, return null
         if self._offset >= self.reader.len() {
             return None;
@@ -193,11 +201,28 @@ impl<
         let mut pbf: Protobuf = blob_header_data.into();
         let mut blob_header = BlobHeader::default();
         pbf.read_fields(&mut blob_header, None);
-        // STEP 2: Get blob data
-        let compressed_blob_data =
-            self.reader.slice(Some(self._offset), Some(self._offset + blob_header.datasize));
-        self._offset += blob_header.datasize;
-        Some(compressed_blob_data)
+        Some(blob_header)
+    }
+
+    /// Read the next blob
+    /// @returns - the next blob if it exists
+    fn next(&mut self) -> Option<Vec<u8>> {
+        if let Some(blob_header) = self.next_blob() {
+            // STEP 2: Get blob data
+            let compressed_blob_data =
+                self.reader.slice(Some(self._offset), Some(self._offset + blob_header.datasize));
+            self._offset += blob_header.datasize;
+            Some(compressed_blob_data)
+        } else {
+            None
+        }
+    }
+
+    /// Skip a block of data
+    fn skip(&mut self) {
+        if let Some(blob_header) = self.next_blob() {
+            self._offset += blob_header.datasize;
+        }
     }
 
     /// Parse all blocks, storing all nodes, ways, and relations into local stores for future consumption
@@ -207,7 +232,7 @@ impl<
         }
         self._offset = 0;
         // skip the header
-        self.next();
+        self.skip();
         while let Some(b) = self.next() {
             self.parse_block(OSMReader::<T, _N, N, _W, W, R>::next_block(b));
         }
@@ -261,14 +286,41 @@ impl<
         }
     }
 
-    /// If you are only interested in the nodes, run this function instead
+    /// Parse only nodes using threads. Assumed this reader has already been cloned and passed
+    /// to a thread.
+    pub fn par_parse_node_blocks(
+        &mut self,
+        pool_size: usize,
+        thread_id: usize,
+        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, ()>),
+    ) {
+        if pool_size == 0 || thread_id > pool_size {
+            panic!("pool_size must be > 0 and thread_id must be <= pool_size");
+        }
+        // ensure an offset reset, skip header, then skip to offset of thread_id
+        self._offset = 0;
+        self.skip();
+        for _ in 0..thread_id {
+            self.skip();
+        }
+        // loop through the whole list of parse_node_blocks, but with a stride of pool_size
+        while let Some(b) = self.next() {
+            self.parse_node_block(OSMReader::<T, _N, N, _W, W, R>::next_block(b), cb);
+            for _ in 0..pool_size {
+                self.skip();
+            }
+        }
+    }
+
+    /// If you are only interested in the nodes, run this function instead as it doesn't need
+    /// Prep data in memory
     pub fn parse_node_blocks(
         &mut self,
         cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, ()>),
     ) {
         self._offset = 0;
         // skip the header
-        self.next();
+        self.skip();
         while let Some(b) = self.next() {
             self.parse_node_block(OSMReader::<T, _N, N, _W, W, R>::next_block(b), cb);
         }
@@ -300,7 +352,6 @@ impl<
 }
 
 /// OSM Reader iterator
-#[allow(missing_debug_implementations)]
 pub struct OsmReaderIter<
     'a,
     T: Reader,
@@ -362,6 +413,10 @@ impl<
         R: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
+        self.iter()
+    }
+
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
         self.iter()
     }
 }

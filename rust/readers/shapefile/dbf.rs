@@ -4,7 +4,7 @@ use core::marker::PhantomData;
 use s2json::{MValue, MValueCompatible, PrimitiveValue, Properties, ValueType};
 
 /// The Header data explaining the contents of the DBF file
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DBFHeader {
     /// The last updated date
     #[allow(dead_code)]
@@ -32,7 +32,7 @@ pub struct DBFRow {
 }
 
 /// A DBF data class to parse the data from a DBF
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DataBaseFile<T: Reader, M: MValueCompatible = MValue> {
     /// The input reader
     reader: T,

@@ -3,24 +3,29 @@ use alloc::vec::Vec;
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Seek, SeekFrom, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 /// A writer that operates on the filesystem
 #[derive(Debug)]
 pub struct FileWriter {
+    path: PathBuf,
     file: File,
 }
-
 impl FileWriter {
     /// Create a new FileWriter, truncating the file if it exists
     pub fn new<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
+        let path_buf = path.as_ref().to_path_buf();
         let file =
             OpenOptions::new().read(true).write(true).create(true).truncate(true).open(path)?;
-        Ok(Self { file })
+        Ok(Self { path: path_buf, file })
     }
 }
-
+impl Clone for FileWriter {
+    fn clone(&self) -> Self {
+        FileWriter::new(&self.path).unwrap()
+    }
+}
 impl Writer for FileWriter {
     fn offset(&mut self) -> u64 {
         self.file.stream_position().expect("Seek failed")

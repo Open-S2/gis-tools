@@ -1,5 +1,5 @@
 use super::{DataBaseFile, Definition, ShapeFileReader};
-use crate::{parsers::MMapReader, proj::ProjectionTransformDefinition};
+use crate::{parsers::MMapReader, proj::ProjectionTransform};
 use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
@@ -16,7 +16,7 @@ use std::{
 /// Given a path to where all the shapefile relevant files exist, build a Shapefile
 pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
     input: I,
-    defs: Option<Vec<ProjectionTransformDefinition>>,
+    defs: Option<Vec<ProjectionTransform>>,
     epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<MMapReader, P> {
     let path = input.to_string().replace(".shp", "");
@@ -42,7 +42,7 @@ pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
 /// Given a collection of files, build a Shapefile
 pub fn shapefile_from_definition<P: MValueCompatible>(
     def: Definition,
-    _defs: Option<Vec<ProjectionTransformDefinition>>,
+    _defs: Option<Vec<ProjectionTransform>>,
     _epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<MMapReader, P> {
     let Definition { shp, dbf, prj, cpg } = def;
