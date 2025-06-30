@@ -151,7 +151,7 @@ mod tests {
         for zoom in 0..8 {
             for x in 0..(1 << zoom) {
                 for y in 0..(1 << zoom) {
-                    let tmp_str = format!("{}-{}-{}", zoom, x, y);
+                    let tmp_str = format!("{zoom}-{x}-{y}");
                     pmtiles_writer.write_tile_xyz(zoom, x, y, tmp_str.as_bytes());
                 }
             }
@@ -168,7 +168,7 @@ mod tests {
         let y = 30;
 
         let tile = reader.get_tile_zxy(zoom, x, y).unwrap();
-        let tmp_str = format!("{}-{}-{}", zoom, x, y);
+        let tmp_str = format!("{zoom}-{x}-{y}");
         assert_eq!(tile, tmp_str.as_bytes());
     }
 }

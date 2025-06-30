@@ -15,7 +15,7 @@ mod tests {
     fn test_cache() {
         fn on_delete(key: &String, value: &String) {
             #![allow(clippy::print_stdout)]
-            println!("Deleted key {} with value {}", key, value);
+            println!("Deleted key {key} with value {value}");
         }
 
         let mut cache = Cache::new(5, Some(on_delete));
@@ -37,7 +37,7 @@ mod tests {
     fn test_cache_overflow() {
         fn on_delete(key: &i32, value: &i32) {
             #![allow(clippy::print_stdout)]
-            println!("Deleted key {} with value {}", key, value);
+            println!("Deleted key {key} with value {value}");
         }
 
         let mut cache = Cache::<i32, i32>::new(5, Some(on_delete)); // Cache::new(5, None);

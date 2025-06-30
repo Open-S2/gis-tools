@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates, aasin};
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI, TAU},
@@ -34,7 +35,7 @@ fn setup(proj: &mut Proj, p: f64) -> MollData {
 /// Mollweide Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct MollweideProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<MollData>,
 }
 impl ProjectCoordinates for MollweideProjection {
@@ -49,7 +50,7 @@ impl ProjectCoordinates for MollweideProjection {
     }
 }
 impl CoordinateStep for MollweideProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let store = setup(&mut proj.borrow_mut(), FRAC_PI_2);
         MollweideProjection { proj, store: store.into() }
     }
@@ -64,7 +65,7 @@ impl CoordinateStep for MollweideProjection {
 /// Wagner IV Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct WagnerIVProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<MollData>,
 }
 impl ProjectCoordinates for WagnerIVProjection {
@@ -79,7 +80,7 @@ impl ProjectCoordinates for WagnerIVProjection {
     }
 }
 impl CoordinateStep for WagnerIVProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let store = setup(&mut proj.borrow_mut(), PI / 3.);
         WagnerIVProjection { proj, store: store.into() }
     }
@@ -94,7 +95,7 @@ impl CoordinateStep for WagnerIVProjection {
 /// Wagner V Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct WagnerVProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<MollData>,
 }
 impl ProjectCoordinates for WagnerVProjection {
@@ -109,7 +110,7 @@ impl ProjectCoordinates for WagnerVProjection {
     }
 }
 impl CoordinateStep for WagnerVProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.0;
         let store = MollData { c_x: 0.90977, c_y: 1.65014, c_p: 3.00896 };
         WagnerVProjection { proj, store: store.into() }

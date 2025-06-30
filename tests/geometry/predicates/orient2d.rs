@@ -27,7 +27,7 @@ mod tests {
                 let y = r + (w * (j as f64)) / 128.;
 
                 let o = orient2d(x, y, q, q, p, p);
-                assert!(!o.is_nan(), "{},{}", x, y);
+                assert!(!o.is_nan(), "{x},{y}");
             }
         }
     }

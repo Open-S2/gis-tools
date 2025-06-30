@@ -1,7 +1,7 @@
 use crate::proj::{
     CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates, enfn, inv_mlfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use libm::{atan2, cos, fabs, sin, sqrt, tan};
 
@@ -69,7 +69,7 @@ pub struct LccaData {
 /// Lambert Conformal Conic Alternative Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertConformalConicAlternativeProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<LccaData>,
 }
 impl ProjectCoordinates for LambertConformalConicAlternativeProjection {
@@ -84,7 +84,7 @@ impl ProjectCoordinates for LambertConformalConicAlternativeProjection {
     }
 }
 impl CoordinateStep for LambertConformalConicAlternativeProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = LccaData::default();
         {
             let proj = &mut proj.borrow_mut();

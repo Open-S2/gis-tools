@@ -3,7 +3,7 @@ use crate::proj::{
     Proj, ProjMethod, ProjMode, ProjectCoordinates, TransformCoordinates, authalic_lat,
     authalic_lat_compute_coeffs, authalic_lat_inverse, authalic_lat_q,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -35,7 +35,7 @@ pub type LambertAzimuthalEqualAreaSphericalProjection =
 /// Lambert Azimuthal Equal Area Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertAzimuthalEqualAreaBase<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<LaeaData>,
     method: ProjMethod,
 }
@@ -51,7 +51,7 @@ impl<const C: i64> ProjectCoordinates for LambertAzimuthalEqualAreaBase<C> {
     }
 }
 impl<const C: i64> CoordinateStep for LambertAzimuthalEqualAreaBase<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = LaeaData::default();
         let method: ProjMethod;
         {

@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, TransformCoordinates};
+use alloc::rc::Rc;
 use core::cell::RefCell;
 
 /// An axis swapping guide
@@ -15,7 +16,8 @@ pub struct AxisSwap {
 //     (x > 0) as i32 - (x < 0) as i32
 // }
 
-fn swap_xy_4d<P: TransformCoordinates>(coo: &mut P) {
+/// Swap x and y
+pub fn swap_xy_4d<P: TransformCoordinates>(coo: &mut P) {
     let tmp = coo.x();
     coo.set_x(coo.y());
     coo.set_y(tmp);
@@ -39,21 +41,21 @@ fn swap_xy_4d<P: TransformCoordinates>(coo: &mut P) {
 /// An axis swapping converter
 #[derive(Debug, Clone, PartialEq)]
 pub struct AxisSwapConverter {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl CoordinateStep for AxisSwapConverter {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         // proj.borrow_mut().left = IoUnits::RADIANS;
         // proj.borrow_mut().right = IoUnits::RADIANS;
         // proj.is_ll = true;
         AxisSwapConverter { proj }
     }
     /// Handle the axis swap
-    fn forward<P: TransformCoordinates>(&self, coords: &mut P) {
+    fn forward<P: TransformCoordinates>(&self, _coords: &mut P) {
         unimplemented!()
     }
     /// Handle the axis swap
-    fn inverse<P: TransformCoordinates>(&self, coords: &mut P) {
+    fn inverse<P: TransformCoordinates>(&self, _coords: &mut P) {
         unimplemented!()
     }
 }

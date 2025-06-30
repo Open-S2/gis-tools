@@ -4,6 +4,7 @@ use crate::proj::{
     LATITUDE_OF_SECOND_STANDARD_PARALLEL, Proj, ProjValue, ProjectCoordinates,
     TransformCoordinates, phi2, tsfn,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -30,7 +31,7 @@ pub type LambertConformalConic2SPProjection =
 /// Lambert Conformal Conic projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertConformalConicProjection<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<LccData>,
 }
 impl<const C: i64> ProjectCoordinates for LambertConformalConicProjection<C> {
@@ -43,7 +44,9 @@ impl<const C: i64> ProjectCoordinates for LambertConformalConicProjection<C> {
     fn names() -> &'static [&'static str] {
         &[
             "Lambert Conic Conformal (1SP)",
+            "Lambert_Conformal_Conic_1SP",
             "Lambert Conic Conformal (2SP)",
+            "Lambert_Conformal_Conic_2SP",
             "Lambert Conic Conformal (LCC)",
             "Lambert Conformal Conic",
             "LambertConformalConic",
@@ -52,7 +55,7 @@ impl<const C: i64> ProjectCoordinates for LambertConformalConicProjection<C> {
     }
 }
 impl<const C: i64> CoordinateStep for LambertConformalConicProjection<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = LccData::default();
         {
             let proj = &mut proj.borrow_mut();

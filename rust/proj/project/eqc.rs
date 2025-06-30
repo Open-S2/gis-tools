@@ -2,6 +2,7 @@ use crate::proj::{
     CoordinateStep, EQUIDISTANT_CYLINDRICAL, LATITUDE_STD_PARALLEL, Proj, ProjValue,
     ProjectCoordinates, TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::cos;
 
@@ -14,7 +15,7 @@ pub struct Eqc {
 /// Equidistant Cylindrical Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct EquidistantCylindricalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<Eqc>,
 }
 impl ProjectCoordinates for EquidistantCylindricalProjection {
@@ -34,7 +35,7 @@ impl ProjectCoordinates for EquidistantCylindricalProjection {
     }
 }
 impl CoordinateStep for EquidistantCylindricalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = Eqc::default();
         {
             let proj = &mut proj.borrow_mut();

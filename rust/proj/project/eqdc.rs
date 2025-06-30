@@ -3,7 +3,7 @@ use crate::proj::{
     LATITUDE_OF_SECOND_STANDARD_PARALLEL, Proj, ProjValue, ProjectCoordinates,
     TransformCoordinates, enfn, inv_mlfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{atan2, cos, fabs, hypot, sin};
 
@@ -23,7 +23,7 @@ pub struct EqdcData {
 /// Equidistant Conic Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct EquidistantConicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<EqdcData>,
 }
 impl ProjectCoordinates for EquidistantConicProjection {
@@ -38,7 +38,7 @@ impl ProjectCoordinates for EquidistantConicProjection {
     }
 }
 impl CoordinateStep for EquidistantConicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = EqdcData::default();
 
         {

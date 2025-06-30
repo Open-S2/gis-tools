@@ -91,7 +91,7 @@ pub fn to_json<
 
     writer.append_string("\n\t],");
     let faces_vec: Vec<&u8> = faces.iter().collect();
-    writer.append_string(&format!("\n\t\"faces\": {:?}", faces_vec));
+    writer.append_string(&format!("\n\t\"faces\": {faces_vec:?}"));
     if build_bbox {
         writer
             .append_string(&format!(",\n\t\"bbox\": {:?}", &serde_json::to_string(&bbox).unwrap()));

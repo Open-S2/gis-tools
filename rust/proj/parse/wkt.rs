@@ -567,6 +567,10 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     res.set_usage(ObjectUsage::from_wkt(&arr[i + 1]));
                     i += 1;
                 }
+                "PROJECTION" => {
+                    res.set_projection(arr[i + 1].to_string());
+                    i += 1;
+                }
                 // TODO: MODEL -> DYNAMIC[FRAMEEPOCH[2010.0],MODEL["NAD83(CSRS)v6 velocity grid"]] -> Stored as DeformationModel
                 _ => {}
             }
@@ -716,7 +720,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
 
 // COMMON:
 // ✅ PARAMETER
-// - PROJECTION
+// ✅ PROJECTION
 // ✅ DATUM
 // ✅ - VDATUM  |  VRF  |  VERTICALDATUM
 // ✅ - TDATUM | TIMEDATUM

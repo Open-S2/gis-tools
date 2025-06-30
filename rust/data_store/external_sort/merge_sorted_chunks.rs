@@ -70,7 +70,7 @@ pub fn merge_sorted_chunks(inputs: &[String], output: &str, max_heap: usize) {
     for input in inputs {
         input_files.push(SortedFile::new(input));
     }
-    let mut output = OpenOptions::new().write(true).open(format!("{}.keys", output)).unwrap();
+    let mut output = OpenOptions::new().write(true).open(format!("{output}.keys")).unwrap();
 
     // loop through all the input files and grab the next key in order
     let mut key_writes: Vec<Key> = vec![];

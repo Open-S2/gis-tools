@@ -3,7 +3,7 @@ use crate::proj::{
     ProjectCoordinates, TransformCoordinates, aasin, enfn, geod_direct, geod_init, geod_inverse,
     inv_mlfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI},
@@ -53,10 +53,13 @@ pub struct AeqdData {
 
 const TOL: f64 = 1e-14;
 
+// TODO: https://epsg.org/coord-operation-method_9831/Guam-Projection.html?sessionkey=hb58otav5z
+// Guam is an EPSG code, so we should add the code and also set the guam flag in the constructor or JSON parsing?
+
 /// Azimuthal Equidistant Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct AzimuthalEquidistantProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<AeqdData>,
     method: ProjMethod,
     guam: bool,
@@ -73,7 +76,7 @@ impl ProjectCoordinates for AzimuthalEquidistantProjection {
     }
 }
 impl CoordinateStep for AzimuthalEquidistantProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = AeqdData::default();
         let mut method = ProjMethod::Spheroidal;
         let mut guam = false;

@@ -93,12 +93,12 @@ pub fn xml_find_tag_by_name(
             let mut closings = 0;
             while {
                 relative_end =
-                    xml_index_of_match_end(after_start, &format!("[ /]{}>", tag_name), start_index);
+                    xml_index_of_match_end(after_start, &format!("[ /]{tag_name}>"), start_index);
                 relative_end != NO_INDEX
             } {
                 let clip = &after_start[start_index..relative_end + 1];
-                openings += xml_count_substring(clip, &format!("<{}[ \n\t>]", tag_name));
-                closings += xml_count_substring(clip, &format!("</{}>", tag_name));
+                openings += xml_count_substring(clip, &format!("<{tag_name}[ \n\t>]"));
+                closings += xml_count_substring(clip, &format!("</{tag_name}>"));
                 // we can't have more openings than closings
                 if closings >= openings {
                     break;
@@ -106,7 +106,7 @@ pub fn xml_find_tag_by_name(
                 start_index = relative_end;
             }
         } else {
-            relative_end = xml_index_of_match_end(after_start, &format!("[ /]{}>", tag_name), 0);
+            relative_end = xml_index_of_match_end(after_start, &format!("[ /]{tag_name}>"), 0);
         }
     }
 
@@ -265,7 +265,7 @@ pub fn xml_get_attribute(tag: &XMLTagItem, attribute_name: &str) -> Option<Strin
 
         let quote_chars = ['"', '\''];
         for &quote in &quote_chars {
-            let pattern = format!(r#"{}={}([^{}]*){}"#, attribute_name, quote, quote, quote);
+            let pattern = format!(r#"{attribute_name}={quote}([^{quote}]*){quote}"#);
             let re = Regex::new(&pattern).ok()?;
             if let Some(captures) = re.captures(opening) {
                 return captures.get(1).map(|m| m.as_str().into());

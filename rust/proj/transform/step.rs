@@ -2,57 +2,37 @@ use super::TransformCoordinates;
 use crate::proj::{
     ALBERS_EQUAL_AREA, AZIMUTHAL_EQUIDISTANT, AiryProjection, AlbersConicEqualAreaProjection,
     AxisSwapConverter, AzimuthalEquidistantProjection, BONNE, BaseProjection, BonneProjection,
-    CASSINI, CartesianConverter, CassiniProjection, EqualAreaCylindricalProjection,
-    EquidistantCylindricalProjection, GeocentricConverter, LambertEqualAreaConicProjection,
-    MERCATOR, MercatorProjection, Method, Proj, ProjectCoordinates, VanDerGrintenIProjection,
-    WEB_MERCATOR, WebMercatorProjection,
+    CASSINI, CartesianConverter, CassiniProjection, EQUAL_EARTH, EQUIDISTANT_CONIC,
+    EQUIDISTANT_CYLINDRICAL, EckertVIProjection, EqualAreaCylindricalProjection,
+    EqualEarthProjection, EquidistantConicProjection, EquidistantCylindricalProjection,
+    ExtendedTransverseMercatorProjection, GaussSchreiberTransverseMercatorProjection,
+    GeneralSinusoidalSeriesProjection, GeocentricConverter, GnomonicProjection,
+    GoodeHomolosineProjection, HOTINE_OBLIQUE_MERCATOR_VARIANT_A,
+    HOTINE_OBLIQUE_MERCATOR_VARIANT_B, HotineObliqueMercatorVariantAProjection,
+    HotineObliqueMercatorVariantBProjection, KROVAK, KROVAK_MODIFIED,
+    KROVAK_MODIFIED_NORTH_ORIENTED, KROVAK_NORTH_ORIENTED, KrovakModifiedNorthOrientedProjection,
+    KrovakModifiedProjection, KrovakNorthOrientedProjection, KrovakProjection,
+    LAMBERT_AZIMUTHAL_EQUAL_AREA, LAMBERT_AZIMUTHAL_EQUAL_AREA_SPHERICAL,
+    LAMBERT_CONFORMAL_CONIC_1SP, LAMBERT_CONFORMAL_CONIC_2SP, LambertAzimuthalEqualAreaProjection,
+    LambertAzimuthalEqualAreaSphericalProjection, LambertConformalConic1SPProjection,
+    LambertConformalConic2SPProjection, LambertConformalConicAlternativeProjection,
+    LambertEqualAreaConicProjection, MERCATOR, McBrydeThomasFlatPolarSinusoidalProjection,
+    MercatorProjection, Method, MillerCylindricalProjection, MollweideProjection,
+    NewZealandMapGridProjection, OBLIQUE_STEREOGRAPHIC, ORTHOGRAPHIC, OblatedEqualAreaProjection,
+    ObliqueCylindricalEqualAreaProjection, ObliqueStereographicAlternativeProjection,
+    OrthographicProjection, POLAR_STEREOGRAPHIC_VARIANT_A, POLAR_STEREOGRAPHIC_VARIANT_B,
+    POLAR_STEREOGRAPHIC_VARIANT_C, POLYCONIC, PolarStereographicVariantAProjection,
+    PolarStereographicVariantBProjection, PolarStereographicVariantCProjection,
+    PolyconicProjection, Proj, ProjectCoordinates, RobinsonProjection, SOMERC,
+    SinusoidalProjection, StereographicProjection, SwissOblMercatorProjection, TRANSVERSE_MERCATOR,
+    TRANSVERSE_MERCATOR_SOUTH_ORIENTATED, TransverseCentralCylindricalProjection,
+    TransverseCylindricalEqualArealProjection, TransverseMercatorProjection,
+    TransverseMercatorSouthOrientedProjection, UniversalTransverseMercatorProjection,
+    VanDerGrintenIProjection, WEB_MERCATOR, WagnerIVProjection, WagnerVProjection,
+    WebMercatorProjection,
 };
+use alloc::{boxed::Box, rc::Rc};
 use core::cell::RefCell;
-
-// TODO:
-// EquidistantCylindricalProjection
-// EquidistantConicProjection
-// EqualEarthProjection
-// GnomonicProjection
-// GoodeHomolosineProjection
-// GaussSchreiberTransverseMercatorProjection
-// KrovakProjection
-// KrovakNorthOrientedProjection
-// KrovakModifiedProjection
-// KrovakModifiedNorthOrientedProjection
-// LambertAzimuthalEqualAreaProjection
-// LambertAzimuthalEqualAreaSphericalProjection
-// LambertConformalConic1SPProjection
-// LambertConformalConic2SPProjection
-// LambertConformalConicAlternativeProjection
-// MillerCylindricalProjection
-// MollweideProjection
-// WagnerIVProjection
-// WagnerVProjection
-// NewZealandMapGridProjection
-// ObliqueCylindricalEqualAreaProjection
-// OblatedEqualAreaProjection
-// HotineObliqueMercatorVariantAProjection
-// HotineObliqueMercatorVariantBProjection
-// OrthographicProjection
-// PolyconicProjection
-// RobinsonProjection
-// SinusoidalProjection
-// EckertVIProjection
-// McBrydeThomasFlatPolarSinusoidalProjection
-// GeneralSinusoidalSeriesProjection
-// SwissOblMercatorProjection
-// StereographicProjection
-// PolarStereographicVariantAProjection
-// PolarStereographicVariantBProjection
-// PolarStereographicVariantCProjection
-// ObliqueStereographicAlternativeProjection
-// TransverseCentralCylindricalProjection
-// TransverseCylindricalEqualArealProjection
-// TransverseMercatorProjection
-// TransverseMercatorSouthOrientedProjection
-// ExtendedTransverseMercatorProjection
-// UniversalTransverseMercatorProjection
 
 macro_rules! dispatch_step {
     ($self:ident, $point:ident, $method:ident, [ $($variant:ident),* ]) => {
@@ -69,10 +49,23 @@ macro_rules! match_projections {
     ]) => {{
         $(
             if <$projection>::names().contains(&$name) {
-                return Some(Step::$variant(<$projection>::new($proj)));
+                return Some(Step::$variant(Box::new(<$projection>::new($proj))));
             }
         )*
         None
+    }};
+}
+
+macro_rules! match_ids {
+    ($id:expr, $proj:expr, [
+        $( ($const_id:ident, $variant:ident, $projection:ty) ),* $(,)?
+    ]) => {{
+        match $id {
+            $(
+                $const_id => Some(Step::$variant(Box::new(<$projection>::new($proj)))),
+            )*
+            _ => None,
+        }
     }};
 }
 
@@ -81,37 +74,121 @@ macro_rules! match_projections {
 pub enum Step {
     // CONVERTERS
     /// Axis Swapping
-    AxisSwap(AxisSwapConverter),
+    AxisSwap(Box<AxisSwapConverter>),
     /// Cartesian
-    Cartesian(CartesianConverter),
+    Cartesian(Box<CartesianConverter>),
     /// Geocentric
-    Geocentric(GeocentricConverter),
+    Geocentric(Box<GeocentricConverter>),
 
     // PROJECTIONS
     /// Albers Conic Equal Area Projection
-    Aea(AlbersConicEqualAreaProjection),
+    Aea(Box<AlbersConicEqualAreaProjection>),
     /// Azimuthal Equidistant Projection
-    Aeqd(AzimuthalEquidistantProjection),
+    Aeqd(Box<AzimuthalEquidistantProjection>),
     /// Airy Projection
-    Airy(AiryProjection),
+    Airy(Box<AiryProjection>),
     /// Base Projection
-    Base(BaseProjection),
+    Base(Box<BaseProjection>),
     /// BonneProjection
-    Bonne(BonneProjection),
+    Bonne(Box<BonneProjection>),
     /// Cassini Projection
-    Cass(CassiniProjection),
+    Cass(Box<CassiniProjection>),
     /// Equal Area Cylindrical Projection
-    Cea(EqualAreaCylindricalProjection),
+    Cea(Box<EqualAreaCylindricalProjection>),
+    /// Eckert VI Projection
+    Eck6(Box<EckertVIProjection>),
     /// Equidistant Cylindrica Projection
-    Eqc(EquidistantCylindricalProjection),
+    Eqc(Box<EquidistantCylindricalProjection>),
+    /// Equidistant Conic rojection
+    Eqdc(Box<EquidistantConicProjection>),
+    /// Equal Earth Projection
+    Eqearth(Box<EqualEarthProjection>),
+    /// Extended Transverse Mercator Projection
+    Etmerc(Box<ExtendedTransverseMercatorProjection>),
+    /// General Sinusoidal Series Projection
+    GnSinu(Box<GeneralSinusoidalSeriesProjection>),
+    /// Gnomonic Projection
+    Gnom(Box<GnomonicProjection>),
+    /// Goode Homolosine Projection
+    Goode(Box<GoodeHomolosineProjection>),
+    /// Gauss Schreiber Transverse Mercator Projection
+    Gstmerc(Box<GaussSchreiberTransverseMercatorProjection>),
+    /// Hotine Oblique Mercator Variant A Projection
+    HotineA(Box<HotineObliqueMercatorVariantAProjection>),
+    /// Hotine Oblique Mercator Variant B Projection
+    HotineB(Box<HotineObliqueMercatorVariantBProjection>),
+    /// Krovak Projection
+    Krovak(Box<KrovakProjection>),
+    /// Krovak North Oriented Projection
+    KrovakNO(Box<KrovakNorthOrientedProjection>),
+    /// Krovak Modified Projection
+    KrovakM(Box<KrovakModifiedProjection>),
+    /// Krovak Modified North Oriented Projection
+    KrovakMNO(Box<KrovakModifiedNorthOrientedProjection>),
+    /// Lambert Azimuthal Equal Area Projection
+    Laea(Box<LambertAzimuthalEqualAreaProjection>),
+    /// Lambert Azimuthal Equal Area Spherical Projection
+    LaeaS(Box<LambertAzimuthalEqualAreaSphericalProjection>),
     /// Lambert Equal Area Conic Projection
-    Leac(LambertEqualAreaConicProjection),
-    /// MercatorProjection
-    Merc(MercatorProjection),
+    Leac(Box<LambertEqualAreaConicProjection>),
+    /// Lambert Conformal Conic 1SP Projection
+    Lcc1SP(Box<LambertConformalConic1SPProjection>),
+    /// Lambert Conformal Conic 2SP Projection
+    Lcc2SP(Box<LambertConformalConic2SPProjection>),
+    /// Lambert Conformal Conic Alternative Projection
+    LccA(Box<LambertConformalConicAlternativeProjection>),
+    /// McBryde Thomas Flat Polar Sinusoidal Projection
+    MBTfps(Box<McBrydeThomasFlatPolarSinusoidalProjection>),
+    /// Mercator Projection
+    Merc(Box<MercatorProjection>),
+    /// Miller Cylindrical Projection
+    Mill(Box<MillerCylindricalProjection>),
+    /// Mollweide Projection
+    Moll(Box<MollweideProjection>),
+    /// New Zealand Map Grid Projection
+    Nzmg(Box<NewZealandMapGridProjection>),
+    /// Oblique Cylindrical Equal Area Projection
+    Ocea(Box<ObliqueCylindricalEqualAreaProjection>),
+    /// Oblated Equal Area Projection
+    Oea(Box<OblatedEqualAreaProjection>),
+    /// Orthographic Projection
+    Ortho(Box<OrthographicProjection>),
+    /// Polar Stereographic Variant A Projection
+    PSterA(Box<PolarStereographicVariantAProjection>),
+    /// Polar Stereographic Variant B Projection
+    PSterB(Box<PolarStereographicVariantBProjection>),
+    /// Polar Stereographic Variant C Projection
+    PSterC(Box<PolarStereographicVariantCProjection>),
+    /// Polyconic Projection
+    Poly(Box<PolyconicProjection>),
+    /// Robinson Projection
+    Robin(Box<RobinsonProjection>),
+    /// Sinusoidal Projection
+    Sinu(Box<SinusoidalProjection>),
+    /// Swiss OblMercator Projection
+    Somerc(Box<SwissOblMercatorProjection>),
+    /// Stereographic Projection
+    Stere(Box<StereographicProjection>),
+    /// Oblique Stereographic Alternative Projection
+    Sterea(Box<ObliqueStereographicAlternativeProjection>),
+    /// Transverse CentralCylindrical Projection
+    Tcc(Box<TransverseCentralCylindricalProjection>),
+    /// Transverse Cylindrical Equal Areal Projection
+    Tcea(Box<TransverseCylindricalEqualArealProjection>),
+    /// Transverse Mercator Projection
+    Tmerc(Box<TransverseMercatorProjection>),
+    /// Transverse Mercator South Oriented Projection
+    TmercSO(Box<TransverseMercatorSouthOrientedProjection>),
+    /// Universal Transverse Mercator Projection
+    Utm(Box<UniversalTransverseMercatorProjection>),
     /// Van Der Grinten (I) Projection
-    Vandg(VanDerGrintenIProjection),
+    Vandg(Box<VanDerGrintenIProjection>),
+    /// Wagner IV Projection
+    WagIV(Box<WagnerIVProjection>),
+    /// Wagner V Projection
+    WagV(Box<WagnerVProjection>),
     /// WebMercatorProjection
-    WebMerc(WebMercatorProjection),
+    WebMerc(Box<WebMercatorProjection>),
 }
 impl Step {
     /// forward conversion
@@ -121,8 +198,12 @@ impl Step {
             point,
             forward,
             [
-                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eqc,
-                Leac, Merc, WebMerc, Vandg
+                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eck6,
+                Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB, Krovak,
+                KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA, MBTfps,
+                Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly, Robin,
+                Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV, WagV,
+                WebMerc
             ]
         );
     }
@@ -133,13 +214,17 @@ impl Step {
             point,
             inverse,
             [
-                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eqc,
-                Leac, Merc, WebMerc, Vandg
+                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eck6,
+                Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB, Krovak,
+                KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA, MBTfps,
+                Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly, Robin,
+                Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV, WagV,
+                WebMerc
             ]
         );
     }
     /// Create a Step from JSON Method
-    pub fn from_method(method: &Method, proj: RefCell<Proj>) -> Option<Step> {
+    pub fn from_method(method: &Method, proj: Rc<RefCell<Proj>>) -> Option<Step> {
         // first try ID
         if let Some(id) = method.id.as_ref() {
             if let Some(step) = Step::from_id(id.code.i64(), proj.clone()) {
@@ -156,20 +241,63 @@ impl Step {
         Step::from_name(&method.name, proj)
     }
     /// Create a Step from ID
-    pub fn from_id(id: i64, proj: RefCell<Proj>) -> Option<Step> {
-        match id {
-            0 => Some(Step::Base(BaseProjection::new(proj))),
-            ALBERS_EQUAL_AREA => Some(Step::Aea(AlbersConicEqualAreaProjection::new(proj))),
-            AZIMUTHAL_EQUIDISTANT => Some(Step::Aeqd(AzimuthalEquidistantProjection::new(proj))),
-            BONNE => Some(Step::Bonne(BonneProjection::new(proj))),
-            CASSINI => Some(Step::Cass(CassiniProjection::new(proj))),
-            MERCATOR => Some(Step::Merc(MercatorProjection::new(proj))),
-            WEB_MERCATOR => Some(Step::WebMerc(WebMercatorProjection::new(proj))),
-            _ => None,
+    pub fn from_id(id: i64, proj: Rc<RefCell<Proj>>) -> Option<Step> {
+        if id == 0 {
+            return Some(Step::Base(BaseProjection::new(proj).into()));
         }
+        match_ids!(
+            id,
+            proj,
+            [
+                (ALBERS_EQUAL_AREA, Aea, AlbersConicEqualAreaProjection),
+                (AZIMUTHAL_EQUIDISTANT, Aeqd, AzimuthalEquidistantProjection),
+                (BONNE, Bonne, BonneProjection),
+                (CASSINI, Cass, CassiniProjection),
+                (EQUIDISTANT_CYLINDRICAL, Eqc, EquidistantCylindricalProjection),
+                (EQUIDISTANT_CONIC, Eqdc, EquidistantConicProjection),
+                (EQUAL_EARTH, Eqearth, EqualEarthProjection),
+                (
+                    HOTINE_OBLIQUE_MERCATOR_VARIANT_A,
+                    HotineA,
+                    HotineObliqueMercatorVariantAProjection
+                ),
+                (
+                    HOTINE_OBLIQUE_MERCATOR_VARIANT_B,
+                    HotineB,
+                    HotineObliqueMercatorVariantBProjection
+                ),
+                (KROVAK, Krovak, KrovakProjection),
+                (KROVAK_NORTH_ORIENTED, KrovakNO, KrovakNorthOrientedProjection),
+                (KROVAK_MODIFIED, KrovakM, KrovakModifiedProjection),
+                (KROVAK_MODIFIED_NORTH_ORIENTED, KrovakMNO, KrovakModifiedNorthOrientedProjection),
+                (LAMBERT_AZIMUTHAL_EQUAL_AREA, Laea, LambertAzimuthalEqualAreaProjection),
+                (
+                    LAMBERT_AZIMUTHAL_EQUAL_AREA_SPHERICAL,
+                    LaeaS,
+                    LambertAzimuthalEqualAreaSphericalProjection
+                ),
+                (LAMBERT_CONFORMAL_CONIC_1SP, Lcc1SP, LambertConformalConic1SPProjection),
+                (LAMBERT_CONFORMAL_CONIC_2SP, Lcc2SP, LambertConformalConic2SPProjection),
+                (MERCATOR, Merc, MercatorProjection),
+                (OBLIQUE_STEREOGRAPHIC, Sterea, ObliqueStereographicAlternativeProjection),
+                (ORTHOGRAPHIC, Ortho, OrthographicProjection),
+                (POLAR_STEREOGRAPHIC_VARIANT_A, PSterA, PolarStereographicVariantAProjection),
+                (POLAR_STEREOGRAPHIC_VARIANT_B, PSterB, PolarStereographicVariantBProjection),
+                (POLAR_STEREOGRAPHIC_VARIANT_C, PSterC, PolarStereographicVariantCProjection),
+                (POLYCONIC, Poly, PolyconicProjection),
+                (SOMERC, Somerc, SwissOblMercatorProjection),
+                (TRANSVERSE_MERCATOR, Tmerc, TransverseMercatorProjection),
+                (
+                    TRANSVERSE_MERCATOR_SOUTH_ORIENTATED,
+                    TmercSO,
+                    TransverseMercatorSouthOrientedProjection
+                ),
+                (WEB_MERCATOR, WebMerc, WebMercatorProjection)
+            ]
+        )
     }
     /// Create a Step from Projection name
-    pub fn from_name(name: &str, proj: RefCell<Proj>) -> Option<Step> {
+    pub fn from_name(name: &str, proj: Rc<RefCell<Proj>>) -> Option<Step> {
         match_projections!(
             name,
             proj,
@@ -181,10 +309,52 @@ impl Step {
                 (Bonne, BonneProjection),
                 (Cass, CassiniProjection),
                 (Cea, EqualAreaCylindricalProjection),
+                (Eck6, EckertVIProjection),
                 (Eqc, EquidistantCylindricalProjection),
+                (Eqdc, EquidistantConicProjection),
+                (Eqearth, EqualEarthProjection),
+                (Etmerc, ExtendedTransverseMercatorProjection),
+                (Gnom, GnomonicProjection),
+                (GnSinu, GeneralSinusoidalSeriesProjection),
+                (Goode, GoodeHomolosineProjection),
+                (Gstmerc, GaussSchreiberTransverseMercatorProjection),
+                (HotineA, HotineObliqueMercatorVariantAProjection),
+                (HotineB, HotineObliqueMercatorVariantBProjection),
+                (Krovak, KrovakProjection),
+                (KrovakNO, KrovakNorthOrientedProjection),
+                (KrovakM, KrovakModifiedProjection),
+                (KrovakMNO, KrovakModifiedNorthOrientedProjection),
+                (Laea, LambertAzimuthalEqualAreaProjection),
+                (LaeaS, LambertAzimuthalEqualAreaSphericalProjection),
                 (Leac, LambertEqualAreaConicProjection),
+                (Lcc1SP, LambertConformalConic1SPProjection),
+                (Lcc2SP, LambertConformalConic2SPProjection),
+                (LccA, LambertConformalConicAlternativeProjection),
+                (MBTfps, McBrydeThomasFlatPolarSinusoidalProjection),
                 (Merc, MercatorProjection),
+                (Mill, MillerCylindricalProjection),
+                (Moll, MollweideProjection),
+                (Nzmg, NewZealandMapGridProjection),
+                (Ocea, ObliqueCylindricalEqualAreaProjection),
+                (Oea, OblatedEqualAreaProjection),
+                (Ortho, OrthographicProjection),
+                (PSterA, PolarStereographicVariantAProjection),
+                (PSterB, PolarStereographicVariantBProjection),
+                (PSterC, PolarStereographicVariantCProjection),
+                (Poly, PolyconicProjection),
+                (Robin, RobinsonProjection),
+                (Sinu, SinusoidalProjection),
+                (Somerc, SwissOblMercatorProjection),
+                (Stere, StereographicProjection),
+                (Sterea, ObliqueStereographicAlternativeProjection),
+                (Tcc, TransverseCentralCylindricalProjection),
+                (Tcea, TransverseCylindricalEqualArealProjection),
+                (Tmerc, TransverseMercatorProjection),
+                (TmercSO, TransverseMercatorSouthOrientedProjection),
+                (Utm, UniversalTransverseMercatorProjection),
                 (Vandg, VanDerGrintenIProjection),
+                (WagIV, WagnerIVProjection),
+                (WagV, WagnerVProjection),
                 (WebMerc, WebMercatorProjection),
             ]
         )
@@ -194,7 +364,7 @@ impl Step {
 /// Conversion trait for modifying a Point
 pub trait CoordinateStep {
     /// Create a new Converter
-    fn new(proj: RefCell<Proj>) -> Self;
+    fn new(proj: Rc<RefCell<Proj>>) -> Self;
     /// forward conversion
     fn forward<P: TransformCoordinates>(&self, point: &mut P);
     /// inverse conversion

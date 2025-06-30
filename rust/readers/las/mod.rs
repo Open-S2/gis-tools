@@ -1,7 +1,7 @@
 /// LAZ Reader
 pub mod laz;
 /// LAS Reader
-pub mod reader;
+mod reader;
 /// Types for LAS Readers
 pub mod types;
 /// LAS Utilities

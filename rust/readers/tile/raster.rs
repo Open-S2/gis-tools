@@ -57,7 +57,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<(), D, RasterTileReade
 
     fn has_tile_wm(&self, zoom: u8, x: u32, y: u32) -> bool {
         let Metadata { extension, .. } = self.get_metadata();
-        let tile_path = self.path.join(format!("{}/{}/{}.{}", zoom, x, y, extension));
+        let tile_path = self.path.join(format!("{zoom}/{x}/{y}.{extension}"));
 
         tile_path.exists()
     }
@@ -172,7 +172,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileReader<(), D> for RasterTileRe
         let tile_path = if is_s2 {
             path.join(format!("{}/{}/{}/{}.{}", u8::from(face), zoom, x, y, extension))
         } else {
-            path.join(format!("{}/{}/{}.{}", zoom, x, y, extension))
+            path.join(format!("{zoom}/{x}/{y}.{extension}"))
         };
         let image = image::open(&tile_path).unwrap().to_rgba8();
         let metadata = if is_s2 {

@@ -2,6 +2,7 @@ use crate::proj::{
     AZIMUTH_PROJECTION_CENTRE, CoordinateStep, Coords, EPS10, ORTHOGRAPHIC, Proj, ProjMethod,
     ProjMode, ProjValue, ProjectCoordinates, TransformCoordinates, adjlon,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI},
@@ -24,7 +25,7 @@ pub struct OrthoData {
 /// Orthographic Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct OrthographicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<OrthoData>,
     method: ProjMethod,
 }
@@ -40,7 +41,7 @@ impl ProjectCoordinates for OrthographicProjection {
     }
 }
 impl CoordinateStep for OrthographicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = OrthoData::default();
         let method: ProjMethod;
         {

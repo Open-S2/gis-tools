@@ -3,6 +3,7 @@ use crate::proj::{
     LONGITUDE_OF_FIRST_POINT, LONGITUDE_OF_PROJECTION_CENTRE, LONGITUDE_OF_SECOND_POINT, Proj,
     ProjValue, ProjectCoordinates, TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI},
@@ -21,7 +22,7 @@ pub struct OceaData {
 /// Oblique Cylindrical Equal Area Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObliqueCylindricalEqualAreaProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<OceaData>,
 }
 impl ProjectCoordinates for ObliqueCylindricalEqualAreaProjection {
@@ -36,7 +37,7 @@ impl ProjectCoordinates for ObliqueCylindricalEqualAreaProjection {
     }
 }
 impl CoordinateStep for ObliqueCylindricalEqualAreaProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = OceaData::default();
         {
             let proj = &mut proj.borrow_mut();

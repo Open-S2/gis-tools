@@ -1,11 +1,11 @@
 /// Arithmetic Decoder tools
 pub mod arithmetic_decoder;
 /// LAZ Constants
-pub mod constants;
+mod constants;
 /// Integer Compressor
 pub mod integer_compressor;
 /// LAZ Reader
-pub mod reader;
+mod reader;
 /// LAZ Version 1 Reader
 pub mod v1;
 /// LAZ Version 2 Reader

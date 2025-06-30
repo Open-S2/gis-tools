@@ -1,5 +1,7 @@
 /// Flate decompression (gzip, inflate, inflate-raw)
 pub mod fflate;
+/// LZW decompression
+pub mod lzw;
 
 use crate::parsers::{BufferReader, Reader};
 use alloc::{
@@ -15,6 +17,7 @@ use flate2::{
     read::{DeflateDecoder, GzDecoder, ZlibDecoder},
     write::{DeflateEncoder, GzEncoder, ZlibEncoder},
 };
+pub use lzw::*;
 #[cfg(feature = "std")]
 use ruzstd::io::Read;
 use s2_tilejson::Encoding;

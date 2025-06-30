@@ -3,6 +3,7 @@ use crate::proj::{
     MERCATOR_VARIANT_B, Proj, ProjMethod, ProjectCoordinates, TransformCoordinates, WEB_MERCATOR,
     sinhpsi2tanphi,
 };
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{asinh, atan, atanh, cos, fabs, sin, sinh, tan};
 
@@ -103,7 +104,7 @@ pub type MercatorVariantBProjection = MercatorBaseProjection<MERCATOR_VARIANT_B>
 /// ![Mercator Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct MercatorBaseProjection<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     conv_case: ProjMethod,
 }
 impl<const C: i64> ProjectCoordinates for MercatorBaseProjection<C> {
@@ -127,7 +128,7 @@ impl<const C: i64> ProjectCoordinates for MercatorBaseProjection<C> {
     }
 }
 impl<const C: i64> CoordinateStep for MercatorBaseProjection<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut phits = 0.0;
         let mut is_phits: bool = false;
         let conv_case: ProjMethod;
@@ -244,7 +245,7 @@ impl<const C: i64> CoordinateStep for MercatorBaseProjection<C> {
 /// ![Web Mercator Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/merc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct WebMercatorProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for WebMercatorProjection {
     fn code(&self) -> i64 {
@@ -258,7 +259,7 @@ impl ProjectCoordinates for WebMercatorProjection {
     }
 }
 impl CoordinateStep for WebMercatorProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         WebMercatorProjection { proj }
     }
     fn forward<P: TransformCoordinates>(&self, p: &mut P) {

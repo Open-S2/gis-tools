@@ -1,6 +1,7 @@
 use crate::proj::{
     Complex, CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates, zpoly1, zpolyd1,
 };
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::fabs;
 
@@ -49,7 +50,7 @@ const BF: [Complex; 6] = [
 /// New Zealand Map Grid Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewZealandMapGridProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for NewZealandMapGridProjection {
     fn code(&self) -> i64 {
@@ -63,7 +64,7 @@ impl ProjectCoordinates for NewZealandMapGridProjection {
     }
 }
 impl CoordinateStep for NewZealandMapGridProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         {
             let proj = &mut proj.borrow_mut();
             // force to International major axis

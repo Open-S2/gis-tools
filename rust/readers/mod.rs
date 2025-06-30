@@ -18,7 +18,7 @@ pub mod osm;
 pub mod pmtiles;
 /// Shapefile Reader
 pub mod shapefile;
-/// Tile based readers
+/// Tile-based Readers
 pub mod tile;
 
 pub use csv::*;

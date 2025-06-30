@@ -85,6 +85,12 @@
 
 // // console.log('laz', laz)
 
+
+
+
+
+
+
 // import { LASZipReader, idFromLonLat, LambertConformalConic } from './src';
 // import { FileReader } from './src/file';
 
@@ -125,38 +131,79 @@
 
 // console.log(nums.slice(0, 10))
 
-import { Transformer, WebMercator } from './src';
 
-const transformer = new Transformer();
-transformer.insertDefinition(WebMercator);
-transformer.setDestination(`PROJCRS["WGS 84 / Pseudo-Mercator",
-            BASEGEOGCRS["WGS 84",
-                ENSEMBLE["World Geodetic System 1984 ensemble",
-                    MEMBER["World Geodetic System 1984 (Transit)", ID["EPSG",1166]],
-                    MEMBER["World Geodetic System 1984 (G730)", ID["EPSG",1152]],
-                    MEMBER["World Geodetic System 1984 (G873)", ID["EPSG",1153]],
-                    MEMBER["World Geodetic System 1984 (G1150)", ID["EPSG",1154]],
-                    MEMBER["World Geodetic System 1984 (G1674)", ID["EPSG",1155]],
-                    MEMBER["World Geodetic System 1984 (G1762)", ID["EPSG",1156]],
-                    MEMBER["World Geodetic System 1984 (G2139)", ID["EPSG",1309]],
-                    MEMBER["World Geodetic System 1984 (G2296)", ID["EPSG",1383]],
-                    ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",7030]],
-                    ENSEMBLEACCURACY[2],
-                    ID["EPSG",6326]],
-                ID["EPSG",4326]],
-            CONVERSION["Popular Visualisation Pseudo-Mercator",
-                METHOD["Popular Visualisation Pseudo Mercator",ID["EPSG",1024]],
-                PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",8801]],
-                PARAMETER["Longitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",8802]],
-                PARAMETER["False easting",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8806]],
-                PARAMETER["False northing",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8807]],
-                ID["EPSG",3856]],
-            CS[Cartesian,2,ID["EPSG",4499]],
-            AXIS["Easting (X)",east],
-            AXIS["Northing (Y)",north],
-            LENGTHUNIT["metre",1,ID["EPSG",9001]],
-            ID["EPSG",3857]]`);
 
-console.log('transformer', transformer)
-let fwd = transformer.forward({ x: 1, y: 1 });
-console.log('fwd', fwd)
+
+// import { Transformer, WebMercator } from './src';
+
+// const transformer = new Transformer();
+// transformer.insertDefinition(WebMercator);
+// transformer.setDestination(`PROJCRS["WGS 84 / Pseudo-Mercator",
+//             BASEGEOGCRS["WGS 84",
+//                 ENSEMBLE["World Geodetic System 1984 ensemble",
+//                     MEMBER["World Geodetic System 1984 (Transit)", ID["EPSG",1166]],
+//                     MEMBER["World Geodetic System 1984 (G730)", ID["EPSG",1152]],
+//                     MEMBER["World Geodetic System 1984 (G873)", ID["EPSG",1153]],
+//                     MEMBER["World Geodetic System 1984 (G1150)", ID["EPSG",1154]],
+//                     MEMBER["World Geodetic System 1984 (G1674)", ID["EPSG",1155]],
+//                     MEMBER["World Geodetic System 1984 (G1762)", ID["EPSG",1156]],
+//                     MEMBER["World Geodetic System 1984 (G2139)", ID["EPSG",1309]],
+//                     MEMBER["World Geodetic System 1984 (G2296)", ID["EPSG",1383]],
+//                     ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",7030]],
+//                     ENSEMBLEACCURACY[2],
+//                     ID["EPSG",6326]],
+//                 ID["EPSG",4326]],
+//             CONVERSION["Popular Visualisation Pseudo-Mercator",
+//                 METHOD["Popular Visualisation Pseudo Mercator",ID["EPSG",1024]],
+//                 PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",8801]],
+//                 PARAMETER["Longitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433,ID["EPSG",9102]],ID["EPSG",8802]],
+//                 PARAMETER["False easting",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8806]],
+//                 PARAMETER["False northing",0,LENGTHUNIT["metre",1,ID["EPSG",9001]],ID["EPSG",8807]],
+//                 ID["EPSG",3856]],
+//             CS[Cartesian,2,ID["EPSG",4499]],
+//             AXIS["Easting (X)",east],
+//             AXIS["Northing (Y)",north],
+//             LENGTHUNIT["metre",1,ID["EPSG",9001]],
+//             ID["EPSG",3857]]`);
+
+// console.log('transformer', transformer)
+// let fwd = transformer.forward({ x: 1, y: 1 });
+// console.log('fwd', fwd)
+
+
+
+
+
+
+
+// import { decodeJpegData } from './src';
+
+// /**
+//  * @param name - the name of the fixture
+//  * @returns the contents of the fixture as an array buffer
+//  */
+// async function fixture(name: string): Promise<ArrayBufferLike> {
+//   return await Bun.file(`tests/readers/image/jpeg/fixtures/${name}`).arrayBuffer();
+// }
+
+// const jpegData = await fixture('grumpycat.jpg');
+// const _rawImageData = decodeJpegData(jpegData);
+// console.log(_rawImageData.data.slice(0, 20))
+
+
+
+
+
+
+
+
+
+import { GeoTIFFReader } from './src';
+import { FileReader } from './src/file';
+
+const geotiffReader = new GeoTIFFReader(new FileReader('./tests/readers/geotiff/fixtures/initial.tiff'));
+const image = geotiffReader.getImage();
+const _raster = await image.rasterData();
+const _rgb = await image.getRGBA();
+// const value_2_0 = await image.getValue(2, 0);
+// console.log(value_2_0[0])

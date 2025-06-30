@@ -2,6 +2,7 @@ use crate::proj::{
     CoordinateStep, M_VAL, N_VAL, Proj, ProjValue, ProjectCoordinates, THETA, TransformCoordinates,
     aacos, aasin, aatan2,
 };
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{cos, hypot, sin};
 
@@ -24,7 +25,7 @@ pub struct OeaData {
 /// Oblated Equal Area Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct OblatedEqualAreaProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<OeaData>,
 }
 impl ProjectCoordinates for OblatedEqualAreaProjection {
@@ -39,7 +40,7 @@ impl ProjectCoordinates for OblatedEqualAreaProjection {
     }
 }
 impl CoordinateStep for OblatedEqualAreaProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = OeaData::default();
         {
             let proj = &mut proj.borrow_mut();

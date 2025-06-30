@@ -28,7 +28,7 @@ impl FileTileWriter {
 }
 impl TileWriter for FileTileWriter {
     fn write_tile_wm(&mut self, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
-        let dir_path = self.path.join(format!("{}/{}", zoom, x));
+        let dir_path = self.path.join(format!("{zoom}/{x}"));
         fs::create_dir_all(&dir_path).expect("Failed to create directories");
         let tile_path = dir_path.join(format!("{}.{}", y, self.extension));
         fs::write(tile_path, data).expect("Failed to write tile data");

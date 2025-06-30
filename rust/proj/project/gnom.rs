@@ -3,6 +3,7 @@ use crate::proj::{
     ProjectCoordinates, TransformCoordinates, geod_geninverse, geod_genposition, geod_init,
     geod_lineinit,
 };
+use alloc::rc::Rc;
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{asin, atan, atan2, cos, fabs, hypot, sin, sqrt};
 
@@ -18,7 +19,7 @@ pub struct GnomData {
 /// Gnomonic Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct GnomonicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<GnomData>,
     method: ProjMethod,
 }
@@ -34,7 +35,7 @@ impl ProjectCoordinates for GnomonicProjection {
     }
 }
 impl CoordinateStep for GnomonicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = GnomData::default();
         let method: ProjMethod;
         {

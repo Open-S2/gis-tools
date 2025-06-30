@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates, phi2, tsfn};
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{asin, atan, cos, cosh, exp, log, pow, sin, sinh, sqrt};
 
@@ -17,7 +18,7 @@ pub struct GstmercData {
 /// Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion) Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct GaussSchreiberTransverseMercatorProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<GstmercData>,
 }
 impl ProjectCoordinates for GaussSchreiberTransverseMercatorProjection {
@@ -36,7 +37,7 @@ impl ProjectCoordinates for GaussSchreiberTransverseMercatorProjection {
     }
 }
 impl CoordinateStep for GaussSchreiberTransverseMercatorProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = GstmercData::default();
         {
             let proj = proj.borrow();

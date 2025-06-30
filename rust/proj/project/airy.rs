@@ -2,6 +2,7 @@ use crate::proj::{
     CoordinateStep, LAT_B, NO_CUT, Proj, ProjMode, ProjValue, ProjectCoordinates,
     TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{cos, fabs, log, sin, tan};
 
@@ -22,7 +23,7 @@ const EPS: f64 = 1e-10;
 /// Airy Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct AiryProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<Airy>,
 }
 impl ProjectCoordinates for AiryProjection {
@@ -37,7 +38,7 @@ impl ProjectCoordinates for AiryProjection {
     }
 }
 impl CoordinateStep for AiryProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = Airy {
             no_cut: proj.borrow().params.get(&NO_CUT).unwrap_or(&ProjValue::default()).bool(),
             ..Default::default()

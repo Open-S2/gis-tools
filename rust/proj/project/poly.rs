@@ -2,7 +2,7 @@ use crate::proj::{
     _msfn, CoordinateStep, POLYCONIC, Proj, ProjMethod, ProjectCoordinates, TransformCoordinates,
     enfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use libm::{asin, cos, fabs, sin, sqrt, tan};
 
@@ -22,7 +22,7 @@ const ITOL: f64 = 1e-12;
 /// Polyconic (American) Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct PolyconicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<PolyData>,
     method: ProjMethod,
 }
@@ -38,7 +38,7 @@ impl ProjectCoordinates for PolyconicProjection {
     }
 }
 impl CoordinateStep for PolyconicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = PolyData::default();
         let method: ProjMethod;
         {

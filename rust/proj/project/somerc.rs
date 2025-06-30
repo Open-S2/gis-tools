@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, SOMERC, TransformCoordinates, aasin};
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -22,7 +23,7 @@ const NITER: usize = 6;
 /// Swiss Oblique Cylindrical Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct SwissOblMercatorProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<SomercData>,
 }
 impl ProjectCoordinates for SwissOblMercatorProjection {
@@ -37,7 +38,7 @@ impl ProjectCoordinates for SwissOblMercatorProjection {
     }
 }
 impl CoordinateStep for SwissOblMercatorProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = SomercData::default();
         {
             let proj = &mut proj.borrow_mut();

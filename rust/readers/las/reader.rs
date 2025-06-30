@@ -1,6 +1,10 @@
 use super::{LASExtendedVariableLengthRecord, LASHeader, LASPoint};
-use crate::parsers::{FeatureReader, Reader};
-use alloc::collections::BTreeMap;
+use crate::{
+    parsers::{FeatureReader, Reader},
+    proj::Transformer,
+    readers::{FieldTagNames, GeoStore, build_transform_from_geo_keys, parse_geotiff_raw_geokeys},
+};
+use alloc::{collections::BTreeMap, string::String, vec::Vec};
 use s2json::{Properties, VectorFeature, VectorGeometry, VectorPoint};
 
 /// Options for the LAS Reader
@@ -50,9 +54,11 @@ pub struct LASReader<T: Reader> {
     pub header: LASHeader,
     /// Extended VARIABLE LENGTH RECORDS
     pub variable_length_records: BTreeMap<u32, LASExtendedVariableLengthRecord>,
-    //   pub wkt?: string;
-    //   pub GeoKeyDirectory?: GeoKeyDirectory;
-    //   pub transformer = new Transformer();
+    /// WKT projection string
+    pub wkt: Option<String>,
+    /// GeoKeyDirectory
+    pub geo_key_directory: GeoStore,
+    transformer: Transformer,
     dont_transform: bool,
 }
 impl<T: Reader> LASReader<T> {
@@ -61,7 +67,18 @@ impl<T: Reader> LASReader<T> {
         let options = options.unwrap_or_default();
         let header = LASHeader::from_reader(&reader);
         let variable_length_records = las_parse_variable_length_records(&header, &reader);
-        Self { reader, header, variable_length_records, dont_transform: options.dont_transform }
+        let mut transformer = Transformer::new();
+        let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
+        let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
+        Self {
+            reader,
+            header,
+            variable_length_records,
+            wkt,
+            geo_key_directory,
+            transformer,
+            dont_transform: options.dont_transform,
+        }
     }
 
     /// Get the number of points stored
@@ -128,11 +145,10 @@ impl<T: Reader> LASReader<T> {
         } else {
             panic!("Unknown Point Data Format ID: {}", format);
         };
-        let vp = point.to_vector_point(header);
+        let mut vp = point.to_vector_point(header);
 
         if *dont_transform {
-            // TODO
-            // point = this.transformer.forward(point) as VectorPointM<LASFormat>;
+            self.transformer.forward_mut(&mut vp);
         }
 
         Some(vp)
@@ -175,107 +191,6 @@ impl<T: Reader> FeatureReader<(), Properties, LASPoint> for LASReader<T> {
     }
 }
 
-//   /**
-//    * @param input - The LAS input data from a reader/buffer
-//    * @param definitions - an array of projection definitions for the transformer if needed
-//    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
-//    * @param gridStores - an array of grid readers if needed
-//    * @param dontTransform - if you set to true, the source projection is kept
-//    */
-//   constructor(
-//     input: ReaderInputs,
-//     definitions: ProjectionTransform[] = [],
-//     epsgCodes: Record<string, string> = {},
-//     gridStores: GridReader[] = [],
-//     readonly dontTransform = false,
-//   ) {
-//     this.reader = toReader(input);
-//     this.header = this.#parseHeader();
-//     this.#las_parse_variable_length_records();
-//     // set definitions, espgCodes, and gridStores
-//     for (const proj of definitions) this.transformer.insertDefinition(proj);
-//     for (const [key, value] of Object.entries(epsgCodes))
-//       this.transformer.insertEPSGCode(key, value);
-//     for (const { key, reader } of gridStores) this.transformer.addGridFromReader(key, reader);
-//     // try WTK
-//     this.wkt = this.#buildWKT();
-//     // they try GeoTiff
-//     this.GeoKeyDirectory = this.#buildGeoKeyDirectory();
-//   }
-
-//   /**
-//    * WKT Parsing
-//    *
-//    * For definition of WKT, we refer to Open Geospatial Consortium (OGC) specification “OpenGIS
-//    * coordinate transformation service implementation specification” revision 1.00 released 12
-//    * January 2001, section 7 (coordinate transformation services spec). This specification may be
-//    * found at www.opengeospatial.org/standards/ct. As there are a few dialects of WKT, please note
-//    * that LAS is not using the “ESRI WKT” dialect, which does not include TOWGS84 and authority
-//    * nodes.
-//    * - OGC MATH TRANSFORM WKT RECORD (2111)
-//    * - OGC COORDINATE SYSTEM WKT (2112)
-//    *
-//    * NOTE: It is required to use WKT if the point type is 6-10
-//    * @returns - the WKT string if it exists
-//    */
-//   #buildWKT(): string | undefined {
-//     const { header, variableLengthRecords } = this;
-//     // 4th bit of global encoding must be set
-//     if ((header.encoding & (1 << 3)) !== 0) return;
-//     // OGC MATH TRANSFORM WKT RECORD:
-//     const wktMathOGC = variableLengthRecords[2111]?.data;
-//     // OGC COORDINATE SYSTEM WKT:
-//     const wktCoordSystemData = variableLengthRecords[2112]?.data;
-//     if (wktMathOGC === undefined && wktCoordSystemData === undefined) return;
-//     const wktCoordSystem = this.#decoder.decode(wktMathOGC ?? wktCoordSystemData);
-//     this.transformer.setSource(wktCoordSystem);
-
-//     return wktCoordSystem;
-//   }
-
-//   /**
-//    * userID of "LASF_Projection" will contain at least 3 records:
-//    * - GeoKeyDirectoryTag (34735)
-//    * - GeoDoubleParamsTag (34736)
-//    * - GeoASCIIParamsTag (34737)
-//    *
-//    * Only the `GeoKeyDirectoryTag` record is required. This parses the `GeoKeyDirectoryTag`.
-//    * This record contains the key values that define the coordinate system. A complete description
-//    * can be found in the GeoTIFF format specification. Here is a summary from a programmatic point
-//    * of view for someone interested in implementation.
-//    *
-//    * The `GeoKeyDirectoryTag` is defined as just an array of unsigned short values. But,
-//    * programmatically, the data can be seen as something like this:
-//    * @returns - The parsed GeoKeyDirectory
-//    */
-//   #buildGeoKeyDirectory(): GeoKeyDirectory | undefined {
-//     const { variableLengthRecords } = this;
-//     // GeoKeyDirectoryTag
-//     const geokeyRecord = variableLengthRecords[34735]?.data;
-//     if (geokeyRecord === undefined) return;
-//     const rawGeoKeys = new Uint16Array(geokeyRecord.buffer, geokeyRecord.byteOffset);
-//     // GeoDoubleParamsTag
-//     const doubleRecord = variableLengthRecords[34736]?.data;
-//     const GeoDoubleParams =
-//       doubleRecord !== undefined
-//         ? [...new Float64Array(doubleRecord.buffer, doubleRecord.byteOffset)]
-//         : undefined;
-//     // GeoAsciiParamsTag
-//     const asciiRecord = variableLengthRecords[34737]?.data;
-//     const GeoAsciiParams =
-//       asciiRecord !== undefined ? this.#decoder.decode(asciiRecord) : undefined;
-//     const gkd = parseGeotiffRawGeoKeys(rawGeoKeys, {
-//       GeoKeyDirectory: this.GeoKeyDirectory,
-//       GeoDoubleParams,
-//       GeoAsciiParams,
-//     });
-//     const gkdParams = buildParamsFromGeoKeys(gkd);
-//     if (gkdParams !== undefined) this.transformer.setSource(gkdParams);
-
-//     return gkd;
-//   }
-// }
-
 /// The Public Header Block is followed by one or more Variable Length Records (There is one
 /// mandatory Variable Length Record, GeoKeyDirectoryTag). The number of Variable Length
 /// Records is specified in the "Number of Variable Length Records" field in the Public Header Block.
@@ -306,4 +221,92 @@ pub fn las_parse_variable_length_records<T: Reader>(
     }
 
     res
+}
+
+/// WKT Parsing
+///
+/// For definition of WKT, we refer to Open Geospatial Consortium (OGC) specification “OpenGIS
+/// coordinate transformation service implementation specification” revision 1.00 released 12
+/// January 2001, section 7 (coordinate transformation services spec). This specification may be
+/// found at www.opengeospatial.org/standards/ct. As there are a few dialects of WKT, please note
+/// that LAS is not using the “ESRI WKT” dialect, which does not include TOWGS84 and authority
+/// nodes.
+/// - OGC MATH TRANSFORM WKT RECORD (2111)
+/// - OGC COORDINATE SYSTEM WKT (2112)
+///
+/// NOTE: It is required to use WKT if the point type is 6-10
+///
+/// @returns - the WKT string if it exists
+pub fn build_wkt(
+    header: &LASHeader,
+    variable_length_records: &BTreeMap<u32, LASExtendedVariableLengthRecord>,
+    transformer: &mut Transformer,
+) -> Option<String> {
+    // 4th bit of global encoding must be set
+    if (header.encoding & (1 << 3)) != 0 {
+        return None;
+    }
+    // OGC MATH TRANSFORM WKT RECORD:
+    let wkt_math_ogc = variable_length_records.get(&2111).and_then(|v| v.data.clone());
+    // OGC COORDINATE SYSTEM WKT:
+    let wkt_coord_system_data = variable_length_records.get(&2112).and_then(|v| v.data.clone());
+    if wkt_math_ogc.is_none() && wkt_coord_system_data.is_none() {
+        return None;
+    }
+    let wkt_coord_system = wkt_math_ogc.or(wkt_coord_system_data).unwrap();
+    let wkt_str: String = String::from_utf8_lossy(&wkt_coord_system).into();
+    transformer.set_source(wkt_str.clone());
+
+    Some(wkt_str)
+}
+
+/// userID of "LASF_Projection" will contain at least 3 records:
+/// - GeoKeyDirectoryTag (34735)
+/// - GeoDoubleParamsTag (34736)
+/// - GeoASCIIParamsTag (34737)
+///
+/// Only the `GeoKeyDirectoryTag` record is required. This parses the `GeoKeyDirectoryTag`.
+/// This record contains the key values that define the coordinate system. A complete description
+/// can be found in the GeoTIFF format specification. Here is a summary from a programmatic point
+/// of view for someone interested in implementation.
+///
+/// The `GeoKeyDirectoryTag` is defined as just an array of unsigned short values. But,
+/// programmatically, the data can be seen as something like this:
+///
+/// @returns - The parsed GeoKeyDirectory
+pub fn build_geo_key_directory(
+    variable_length_records: &BTreeMap<u32, LASExtendedVariableLengthRecord>,
+    transformer: &mut Transformer,
+) -> GeoStore {
+    let mut file_dir = GeoStore::default();
+    // GeoKeyDirectoryTag (34735)
+    let geokey_record = variable_length_records
+        .get(&(FieldTagNames::GeoKeyDirectory as u32))
+        .and_then(|v| v.data.clone());
+    if geokey_record.is_none() {
+        return GeoStore::default();
+    }
+    let raw_geo_keys: Vec<u16> = geokey_record
+        .unwrap()
+        .chunks_exact(2)
+        .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
+        .collect();
+    // GeoDoubleParamsTag (34736)
+    let double_record = variable_length_records
+        .get(&(FieldTagNames::GeoDoubleParams as u32))
+        .and_then(|v| v.data.clone());
+    if let Some(double_record) = double_record {
+        file_dir.set(FieldTagNames::GeoDoubleParams as u16, double_record.to_vec());
+    }
+    // GeoAsciiParamsTag (34737)
+    let ascii_record = variable_length_records
+        .get(&(FieldTagNames::GeoAsciiParams as u32))
+        .and_then(|v| v.data.clone());
+    if let Some(ascii_record) = ascii_record {
+        file_dir.set(FieldTagNames::GeoAsciiParams as u16, ascii_record.to_vec());
+    }
+    let gkd = parse_geotiff_raw_geokeys(&raw_geo_keys, &file_dir);
+    build_transform_from_geo_keys(transformer, &gkd);
+
+    gkd
 }

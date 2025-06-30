@@ -1,6 +1,7 @@
 use crate::proj::{
     CoordinateStep, OBLIQUE_STEREOGRAPHIC, Proj, ProjectCoordinates, TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -32,7 +33,7 @@ const DEL_TOL: f64 = 1e-14;
 /// Oblique Stereographic Alternative Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObliqueStereographicAlternativeProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<StereaData>,
 }
 impl ProjectCoordinates for ObliqueStereographicAlternativeProjection {
@@ -47,7 +48,7 @@ impl ProjectCoordinates for ObliqueStereographicAlternativeProjection {
     }
 }
 impl CoordinateStep for ObliqueStereographicAlternativeProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = StereaData::default();
         {
             let proj = &mut proj.borrow_mut();

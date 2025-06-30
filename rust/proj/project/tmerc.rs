@@ -3,7 +3,7 @@ use crate::proj::{
     TRANSVERSE_MERCATOR, TRANSVERSE_MERCATOR_SOUTH_ORIENTATED, TransformCoordinates, ZONE, adjlon,
     auxlat_coeffs, auxlat_convert, auxlat_convert_mid, enfn, inv_mlfn, mlfn, rectifying_radius,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI},
@@ -602,7 +602,7 @@ pub type TransverseMercatorSouthOrientedProjection =
 /// use approximate version if +a sphere is requested
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransverseMercatorBaseProjection<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     mode: TMercMode,
     store: RefCell<TmercData>,
     algo: RefCell<TMercAlgo>,
@@ -615,11 +615,16 @@ impl<const C: i64> ProjectCoordinates for TransverseMercatorBaseProjection<C> {
         "Transverse Mercator"
     }
     fn names() -> &'static [&'static str] {
-        &["Transverse Mercator", "Transverse Mercator (South Oriented)", "tmerc"]
+        &[
+            "Transverse Mercator",
+            "Transverse_Mercator",
+            "Transverse Mercator (South Oriented)",
+            "tmerc",
+        ]
     }
 }
 impl<const C: i64> CoordinateStep for TransverseMercatorBaseProjection<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut algo = TMercAlgo::default();
         get_algo_from_params(&proj.borrow(), &mut algo);
         let (store, mode) = setup(&mut proj.borrow_mut(), &mut algo);
@@ -658,7 +663,7 @@ impl<const C: i64> CoordinateStep for TransverseMercatorBaseProjection<C> {
 /// Extended Transverse Mercator
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtendedTransverseMercatorProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     mode: TMercMode,
     store: RefCell<TmercData>,
     algo: RefCell<TMercAlgo>,
@@ -675,7 +680,7 @@ impl ProjectCoordinates for ExtendedTransverseMercatorProjection {
     }
 }
 impl CoordinateStep for ExtendedTransverseMercatorProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         if proj.borrow().es == 0.0 {
             panic!("Invalid value for eccentricity: it should not be zero");
         }
@@ -719,7 +724,7 @@ impl CoordinateStep for ExtendedTransverseMercatorProjection {
 /// UNLESS +approx is set in which case the Evenden/Snyder implementation is used.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UniversalTransverseMercatorProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     mode: TMercMode,
     store: RefCell<TmercData>,
     algo: RefCell<TMercAlgo>,
@@ -736,7 +741,7 @@ impl ProjectCoordinates for UniversalTransverseMercatorProjection {
     }
 }
 impl CoordinateStep for UniversalTransverseMercatorProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         {
             let proj = &mut proj.borrow_mut();
             if proj.es == 0.0 {

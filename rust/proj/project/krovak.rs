@@ -3,6 +3,7 @@ use crate::proj::{
     KROVAK_NORTH_ORIENTED, LATITUDE_OF_PROJECTION_CENTRE, LONGITUDE_OF_ORIGIN, Proj, ProjValue,
     ProjectCoordinates, SCALE_FACTOR_AT_NATURAL_ORIGIN, TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -184,7 +185,7 @@ pub type KrovakModifiedNorthOrientedProjection =
 /// Krovak Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct KrovakBaseProjection<const C: i64, const E: bool> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<KrovakData>,
 }
 impl<const C: i64, const E: bool> ProjectCoordinates for KrovakBaseProjection<C, E> {
@@ -199,7 +200,7 @@ impl<const C: i64, const E: bool> ProjectCoordinates for KrovakBaseProjection<C,
     }
 }
 impl<const C: i64, const E: bool> CoordinateStep for KrovakBaseProjection<C, E> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let store = krovak_setup(&mut proj.borrow_mut(), E);
         KrovakBaseProjection { proj, store: store.into() }
     }

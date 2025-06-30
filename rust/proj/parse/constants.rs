@@ -55,8 +55,16 @@ pub const US_MOD_FT_TO_M: f64 = 0.304_812_252_984_506; // 1200 / 3937
 pub const CLARKE_FT_TO_M: f64 = 0.3047972654; // Linear_Foot_Clarke
 /// Linear foot Indian to meters
 pub const INDIAN_FT_TO_M: f64 = 0.3047995; // Linear_Foot_Indian
+/// Linear Yard Indian to meters
+pub const INDIAN_YD_TO_M: f64 = 0.91439523;
 /// Linear foot Link to meters
 pub const LINK_FT_TO_M: f64 = 0.201168; // Linear_Foot_Link
+/// International Fathom to meters
+pub const INTERNATIONAL_FATHOM_TO_M: f64 = 1.8288; // Linear_Fathom
+/// Linear Mile International Nautical
+pub const INTERNATIONAL_NAUTICAL_MILE_TO_M: f64 = 1852.0; // Linear_Mile_International_Nautical
+// /// Linear Mile International Statute
+// pub const INTERNATIONAL_STATUTE_MILE: f64 = 1609.34; // Linear_Mile_International_Statute
 
 // PROJ Specific Constants
 

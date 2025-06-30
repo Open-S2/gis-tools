@@ -1,6 +1,6 @@
-use core::cell::RefCell;
-
 use crate::proj::{CoordinateStep, Direction, Proj, TransformCoordinates};
+use alloc::rc::Rc;
+use core::cell::RefCell;
 use libm::{atan, tan};
 
 /// # Conversion from geographic to geocentric latitude and back.
@@ -20,10 +20,10 @@ use libm::{atan, tan};
 /// and consequently, the input is copied directly to the output.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GeocentricConverter {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl CoordinateStep for GeocentricConverter {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         // proj.borrow_mut().left = IoUnits::RADIANS;
         // proj.borrow_mut().right = IoUnits::RADIANS;
         // proj.is_ll = true;

@@ -392,7 +392,7 @@ fn build_tmp_file_name(tmp_dir: String) -> String {
         SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos() // Unique identifier
     );
 
-    let file_name = format!("{}/{}", tmp_dir, random_name);
+    let file_name = format!("{tmp_dir}/{random_name}");
 
     // if file_name already exists let's delete it
     if Path::new(&file_name).exists() {

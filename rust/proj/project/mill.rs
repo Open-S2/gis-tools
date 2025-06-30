@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates};
+use alloc::rc::Rc;
 use core::{cell::RefCell, f64::consts::FRAC_PI_4};
 use libm::{atan, exp, log, tan};
 
@@ -59,7 +60,7 @@ use libm::{atan, exp, log, tan};
  */
 #[derive(Debug, Clone, PartialEq)]
 pub struct MillerCylindricalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for MillerCylindricalProjection {
     fn code(&self) -> i64 {
@@ -73,7 +74,7 @@ impl ProjectCoordinates for MillerCylindricalProjection {
     }
 }
 impl CoordinateStep for MillerCylindricalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.;
         MillerCylindricalProjection { proj }
     }

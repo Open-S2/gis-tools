@@ -1,11 +1,10 @@
 use alloc::vec::Vec;
 use std::ops::AddAssign;
 
-/**
- * Decode a block using the specified predictor
- * @param row - the row to decode
- * @param stride - the number of bytes per row
- */
+/// Decode a block using the specified predictor
+///
+/// @param row - the row to decode
+/// @param stride - the number of bytes per row
 fn decode_row_acc<T>(row: &mut [T], stride: usize)
 where
     T: AddAssign + Copy,
@@ -29,6 +28,7 @@ where
 
 /**
  * Decode a floating point block using the specified predictor
+ *
  * @param row - the row to decode
  * @param stride - the number of bytes per row
  * @param bytes_per_sample - the number of bytes per sample
@@ -59,84 +59,83 @@ where
     }
 }
 
-/**
- * Apply the specified predictor to a block
- * @param block - the block to modify
- * @param predictor - the predictor
- * @param width - the block width
- * @param height - the block height
- * @param bits_per_sample - the number of bits per sample
- * @param planar_configuration - the planar configuration
- * @returns - the modified block
- */
-pub fn apply_predictor<T: AddAssign + Copy>(
-    block: &[u8],
-    predictor: usize,
+/// Apply the specified predictor to a block
+///
+/// @param block - the block to modify
+/// @param predictor - the predictor
+/// @param width - the block width
+/// @param height - the block height
+/// @param bits_per_sample - the number of bits per sample
+/// @param planar_configuration - the planar configuration
+/// @returns - the modified block
+pub fn apply_predictor(
+    mut block: Vec<u8>,
+    predictor: i16,
     width: usize,
     height: usize,
-    bits_per_sample: Vec<usize>,
-    planar_configuration: usize,
-) -> T {
-    unimplemented!();
-    //   if (predictor === 0 || predictor === 1) {
-    //     return block;
-    //   }
+    bits_per_sample: Vec<u16>,
+    planar_configuration: i16,
+) -> Vec<u8> {
+    if predictor == 0 || predictor == 1 {
+        return block;
+    }
 
-    //   for (let i = 0; i < bits_per_sample.length; ++i) {
-    //     if (bits_per_sample[i] % 8 !== 0) {
-    //       throw new Error('When decoding with predictor, only multiple of 8 bits are supported.');
-    //     }
-    //     if (bits_per_sample[i] !== bits_per_sample[0]) {
-    //       throw new Error('When decoding with predictor, all samples must have the same size.');
-    //     }
-    //   }
+    for i in 0..bits_per_sample.len() {
+        if bits_per_sample[i] % 8 != 0 {
+            panic!("When decoding with predictor, only multiple of 8 bits are supported.");
+        }
+        if bits_per_sample[i] != bits_per_sample[0] {
+            panic!("When decoding with predictor, all samples must have the same size.");
+        }
+    }
 
-    //   const bytes_per_sample = bits_per_sample[0] / 8;
-    //   const stride = planar_configuration === 2 ? 1 : bits_per_sample.length;
+    let bytes_per_sample = (bits_per_sample[0] / 8) as usize;
+    let stride = if planar_configuration == 2 { 1 } else { bits_per_sample.len() };
 
-    //   for (let i = 0; i < height; ++i) {
-    //     // Last strip will be truncated if height % stripHeight != 0
-    //     if (i * stride * width * bytes_per_sample >= block.byteLength) {
-    //       break;
-    //     }
-    //     let row;
-    //     if (predictor === 2) {
-    //       // horizontal prediction
-    //       switch (bits_per_sample[0]) {
-    //         case 8:
-    //           row = new Uint8Array(
-    //             block,
-    //             i * stride * width * bytes_per_sample,
-    //             stride * width * bytes_per_sample,
-    //           );
-    //           break;
-    //         case 16:
-    //           row = new Uint16Array(
-    //             block,
-    //             i * stride * width * bytes_per_sample,
-    //             (stride * width * bytes_per_sample) / 2,
-    //           );
-    //           break;
-    //         case 32:
-    //           row = new Uint32Array(
-    //             block,
-    //             i * stride * width * bytes_per_sample,
-    //             (stride * width * bytes_per_sample) / 4,
-    //           );
-    //           break;
-    //         default:
-    //           throw new Error(`Predictor 2 not allowed with ${bits_per_sample[0]} bits per sample.`);
-    //       }
-    //       decode_row_acc(row, stride);
-    //     } else if (predictor === 3) {
-    //       // horizontal floating point
-    //       row = new Uint8Array(
-    //         block,
-    //         i * stride * width * bytes_per_sample,
-    //         stride * width * bytes_per_sample,
-    //       );
-    //       decode_row_floating_point(row, stride, bytes_per_sample);
-    //     }
-    //   }
-    //   return block;
+    for i in 0..height {
+        // Last strip will be truncated if height % stripHeight != 0
+        if i * stride * width * bytes_per_sample >= block.len() {
+            break;
+        }
+        if predictor == 2 {
+            // horizontal prediction
+            let row = &mut block[i * stride * width * bytes_per_sample
+                ..(i + 1) * stride * width * bytes_per_sample];
+            match bits_per_sample[0] {
+                8 => {
+                    decode_row_acc(row, stride);
+                }
+                16 => {
+                    decode_row_acc(as_u16_slice_mut(row), stride);
+                }
+                32 => {
+                    decode_row_acc(as_u32_slice_mut(row), stride);
+                }
+                _ => panic!("Predictor 2 not allowed with {} bits per sample.", bits_per_sample[0]),
+            }
+        } else if predictor == 3 {
+            // horizontal floating point
+            let row = &mut block[i * stride * width * bytes_per_sample
+                ..(i + 1) * stride * width * bytes_per_sample];
+            decode_row_floating_point(row, stride, bytes_per_sample);
+        }
+    }
+
+    block
+}
+
+fn as_u16_slice_mut(data: &mut [u8]) -> &mut [u16] {
+    assert_eq!(data.len() % 2, 0);
+    let ptr = data.as_mut_ptr() as *mut u16;
+    let len = data.len() / 2;
+    assert_eq!(ptr.align_offset(core::mem::align_of::<u16>()), 0);
+    unsafe { core::slice::from_raw_parts_mut(ptr, len) }
+}
+
+fn as_u32_slice_mut(data: &mut [u8]) -> &mut [u32] {
+    assert_eq!(data.len() % 4, 0);
+    let ptr = data.as_mut_ptr() as *mut u32;
+    let len = data.len() / 4;
+    assert_eq!(ptr.align_offset(core::mem::align_of::<u32>()), 0);
+    unsafe { core::slice::from_raw_parts_mut(ptr, len) }
 }

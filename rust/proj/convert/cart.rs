@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, TransformCoordinates};
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{atan, atan2, cos, fabs, sin, sqrt};
 use std::f64::consts::FRAC_PI_2;
@@ -100,10 +101,10 @@ use std::f64::consts::FRAC_PI_2;
 /// es, the squared eccentricity, to 1), will cause havoc.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CartesianConverter {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl CoordinateStep for CartesianConverter {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         // proj.borrow_mut().left = IoUnits::RADIANS;
         // proj.borrow_mut().right = IoUnits::CARTESIAN;
         // proj.is_ll = true;

@@ -73,6 +73,7 @@ use super::{CoordinateStep, DatumType, Proj, Step, TransformCoordinates};
 pub use aea::*;
 pub use aeqd::*;
 pub use airy::*;
+use alloc::rc::Rc;
 use alloc::{vec, vec::Vec};
 pub use bonne::*;
 pub use cass::*;
@@ -148,7 +149,7 @@ impl ProjectCoordinates for BaseProjection {
     }
 }
 impl CoordinateStep for BaseProjection {
-    fn new(_proj: RefCell<Proj>) -> Self {
+    fn new(_proj: Rc<RefCell<Proj>>) -> Self {
         BaseProjection {}
     }
     /// Forward projection from x-y to lon-lat. In this case, radians to degrees.
@@ -166,6 +167,6 @@ impl CoordinateStep for BaseProjection {
 }
 impl From<BaseProjection> for Step {
     fn from(p: BaseProjection) -> Step {
-        Step::Base(p)
+        Step::Base(p.into())
     }
 }

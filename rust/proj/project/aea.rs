@@ -4,7 +4,7 @@ use crate::proj::{
     LATITUDE_OF_SECOND_STANDARD_PARALLEL, Proj, ProjValue, SOUTH, authalic_lat_compute_coeffs,
     authalic_lat_inverse, authalic_lat_q,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{asin, atan2, cos, fabs, hypot, log, sin, sqrt};
 
@@ -27,7 +27,7 @@ pub struct AeaData {
     qp: f64,
 }
 impl AeaData {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let proj = &proj.borrow();
         let mut store = AeaData::default();
 
@@ -122,7 +122,7 @@ impl AeaData {
 /// ![Albers Conic Equal Area Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aea.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlbersConicEqualAreaProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<AeaData>,
 }
 impl ProjectCoordinates for AlbersConicEqualAreaProjection {
@@ -137,7 +137,7 @@ impl ProjectCoordinates for AlbersConicEqualAreaProjection {
     }
 }
 impl CoordinateStep for AlbersConicEqualAreaProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = AeaData::new(proj.clone());
         if let Some(lat_1) = proj.borrow().params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL) {
             store.phi1 = lat_1.f64();
@@ -197,7 +197,7 @@ impl CoordinateStep for AlbersConicEqualAreaProjection {
 /// ![Lambert Equal Area Conic Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/leac.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertEqualAreaConicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<AeaData>,
 }
 impl ProjectCoordinates for LambertEqualAreaConicProjection {
@@ -212,7 +212,7 @@ impl ProjectCoordinates for LambertEqualAreaConicProjection {
     }
 }
 impl CoordinateStep for LambertEqualAreaConicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = AeaData::new(proj.clone());
         store.phi2 = proj.borrow().params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL).unwrap().f64();
         store.phi1 = if proj.borrow().params.get(&SOUTH).unwrap_or(&ProjValue::default()).bool() {

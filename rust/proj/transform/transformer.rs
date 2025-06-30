@@ -21,7 +21,7 @@ use alloc::{collections::BTreeMap, string::String};
 /// ```ts
 /// // TODO
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Transformer {
     epsgs: BTreeMap<String, String>,
     src: ProjectionTransform,
@@ -69,15 +69,27 @@ impl Transformer {
     }
 
     /// Set the source projection
-    /// @param code - can be a name or a coded definition
+    /// @param code - can be a name or a json/wkt coded definition
     pub fn set_source(&mut self, code: String) {
         self.src = self.build_transformer(code);
+    }
+
+    /// Set the source projection
+    /// @param def - transform definition
+    pub fn set_source_def(&mut self, def: ProjectionTransform) {
+        self.src = def;
     }
 
     /// Set the destination projection
     /// @param code - can be a name or a coded definition
     pub fn set_destination(&mut self, code: String) {
         self.dest = self.build_transformer(code);
+    }
+
+    /// Set the source projection
+    /// @param def - transform definition
+    pub fn set_destination_def(&mut self, def: ProjectionTransform) {
+        self.dest = def;
     }
 
     /// Build a ProjectionTransform
@@ -94,6 +106,11 @@ impl Transformer {
         // TRY WKT
         ProjJSON::parse_wkt(&code).to_projection_transform()
     }
+
+    /// Get access to an epsg code
+    pub fn get_epsg_code(&self, code: String) -> Option<String> {
+        self.epsgs.get(&code).cloned()
+    }
 }
 
 /// Transforms a point from one projection to another
@@ -106,7 +123,7 @@ pub fn transform_point<P: TransformCoordinates + Debug>(
     point: &mut P,
 ) {
     // Check if there are any steps
-    if (src.is_empty() && dest.is_empty()) || src == dest {
+    if (src.is_empty() && dest.is_empty()) || src == dest || (src.is_wgs84 && dest.is_wgs84) {
         return;
     }
     let has_z = point.has_z();

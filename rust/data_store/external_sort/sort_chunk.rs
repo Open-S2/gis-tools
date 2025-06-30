@@ -18,7 +18,7 @@ pub struct Key {
 /// output file created
 pub fn sort_chunk(chunk: SortChunk) -> String {
     let SortChunk { name, input, out_dir, start, end, value_offset } = chunk;
-    let out_file = format!("{}/es_{}_{}_{}.tmp", out_dir, name, start, end);
+    let out_file = format!("{out_dir}/es_{name}_{start}_{end}.tmp");
     _sort_chunk(&input, &out_file, start, end, value_offset);
     out_file
 }

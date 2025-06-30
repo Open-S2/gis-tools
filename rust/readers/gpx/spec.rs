@@ -688,7 +688,7 @@ impl fmt::Display for GPXFixType {
             GPXFixType::Dgps => "dgps",
             GPXFixType::Pps => "pps",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 impl From<&str> for GPXFixType {

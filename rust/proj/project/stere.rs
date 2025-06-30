@@ -3,6 +3,7 @@ use crate::proj::{
     POLAR_STEREOGRAPHIC_VARIANT_B, POLAR_STEREOGRAPHIC_VARIANT_C, Proj, ProjMethod, ProjMode,
     ProjectCoordinates, SOUTH, TransformCoordinates, tsfn,
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
@@ -87,7 +88,7 @@ fn stere_setup(proj: &mut Proj, store: &mut StereData) -> ProjMethod {
 /// Stereographic Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct StereographicProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<StereData>,
     method: ProjMethod,
 }
@@ -103,7 +104,7 @@ impl ProjectCoordinates for StereographicProjection {
     }
 }
 impl CoordinateStep for StereographicProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = StereData::default();
         let method: ProjMethod;
         {
@@ -147,7 +148,7 @@ pub type PolarStereographicVariantCProjection =
 /// Stereographic Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct UniversalPolarStereographicProjection<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<StereData>,
     method: ProjMethod,
 }
@@ -169,7 +170,7 @@ impl<const C: i64> ProjectCoordinates for UniversalPolarStereographicProjection<
     }
 }
 impl<const C: i64> CoordinateStep for UniversalPolarStereographicProjection<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = StereData::default();
         let method: ProjMethod;
         {

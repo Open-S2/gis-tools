@@ -1,4 +1,5 @@
 mod csv;
+mod geotiff;
 mod gpx;
 mod json;
 mod las;

@@ -1,12 +1,15 @@
 {
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "eslint.useFlatConfig": true,
-    "rust-analyzer.files.exclude": [
-        "rust/proj/generated",
-        "rust/proj/generated/epsg.rs"
-    ],
-    "files.watcherExclude": {
-        "**/node_modules/**": true,
-        "rust/proj/generated/**": true
-    }
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.useFlatConfig": true,
+  // "files.exclude": {
+  //     "rust/proj/generated": true,
+  //     "rust/proj/generated/epsg.rs": true
+  // },
+  "rust-analyzer.files.exclude": ["rust/proj/generated/", "rust/proj/generated/epsg.rs"],
+  "rust-analyzer.exclude": ["rust/proj/generated/", "rust/proj/generated/epsg.rs"],
+  "rust-analyzer.excludeGlobs": ["rust/proj/generated/**"],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "rust/proj/generated/**": true
+  }
 }

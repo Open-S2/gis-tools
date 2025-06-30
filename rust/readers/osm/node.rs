@@ -226,7 +226,7 @@ fn get_elevation(props: &Properties) -> Option<f64> {
             let val = parse_altitude(&elevation.to_prim().unwrap().to_string().unwrap());
             if let Some(val) = val {
                 if s == "depth" {
-                    return Some(val * -1.0);
+                    return Some(-val);
                 }
                 return Some(val);
             }

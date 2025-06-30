@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates};
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI, TAU},
@@ -17,7 +18,7 @@ const HPISQ: f64 = 4.934_802_200_544_679; // pi^2/2
 /// Van der Grinten (I) Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct VanDerGrintenIProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for VanDerGrintenIProjection {
     fn code(&self) -> i64 {
@@ -31,7 +32,7 @@ impl ProjectCoordinates for VanDerGrintenIProjection {
     }
 }
 impl CoordinateStep for VanDerGrintenIProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         {
             let proj = &mut proj.borrow_mut();
             proj.es = 0.;

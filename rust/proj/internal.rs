@@ -1,6 +1,5 @@
-use crate::proj::{ProjValue, name_to_param_id};
-
 use super::{DatumParams, DatumType, ParameterValue};
+use crate::proj::{ProjValue, name_to_param_id};
 use alloc::{collections::BTreeMap, string::String};
 
 /// A generic 4-dimensional point/vector
@@ -47,6 +46,8 @@ pub enum ProjMode {
 #[allow(non_snake_case)]
 pub struct Proj {
     // PARAMETERS
+    /// The name of the projection
+    pub name: String,
     /// Projection conversion params
     pub params: BTreeMap<i64, ProjValue>,
 
@@ -155,6 +156,7 @@ pub struct Proj {
 impl Default for Proj {
     fn default() -> Self {
         Self {
+            name: "".into(),
             params: BTreeMap::new(),
             ellps: "".into(),
             a: 0.,
@@ -211,6 +213,10 @@ impl Proj {
         for id in &param.ids {
             self.params.insert(id.code.i64(), param.into());
         }
+    }
+    /// Set an f64 parameter
+    pub fn set_f64(&mut self, id: i64, value: f64) {
+        self.params.insert(id, value.into());
     }
     /// Set a variable from user input (usually used by the API / TUI)
     pub fn set_var(&mut self, name: &str, value: &str) {

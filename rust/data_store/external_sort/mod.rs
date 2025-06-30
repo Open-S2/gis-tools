@@ -71,8 +71,8 @@ fn get_sizes(inputs: &[&str]) -> Vec<FileSize> {
     let mut value_offset = 0;
 
     for input in inputs {
-        let key_size = file_size(&format!("{}.keys", input));
-        let value_size = file_size(&format!("{}.values", input));
+        let key_size = file_size(&format!("{input}.keys"));
+        let value_size = file_size(&format!("{input}.values"));
         let name = Path::new(input)
             .file_name() // Get file name as OsStr
             .and_then(|name| name.to_str()) // Convert OsStr to &str
@@ -115,7 +115,7 @@ fn build_chunks(file_sizes: &[FileSize], out_dir: &str, max_heap: u64) -> Vec<So
             let end = (start + max_heap * KEY_STORE_LENGTH).min(*key_size);
             chunks.push(SortChunk {
                 name: name.clone(),
-                input: format!("{}.keys", input),
+                input: format!("{input}.keys"),
                 out_dir: out_dir.to_string(),
                 start,
                 end,
@@ -177,11 +177,11 @@ fn merge_values(output: &str, sizes: Vec<FileSize>) {
         return;
     }
 
-    let output = File::create(format!("{}.values", output)).unwrap();
+    let output = File::create(format!("{output}.values")).unwrap();
     let mut writer = BufWriter::new(output);
 
     for value in values {
-        let input = File::open(format!("{}.values", value)).unwrap();
+        let input = File::open(format!("{value}.values")).unwrap();
         let mut reader = BufReader::new(input);
 
         // write into output

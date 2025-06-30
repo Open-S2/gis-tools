@@ -1,20 +1,19 @@
-// import { applyPredictor } from './predictor.js';
-// import { buildTransformFromGeoKeys } from './proj.js';
-// import { getDecoder } from './decoder.js';
-// import { buildSamples, convertColorSpace } from './color.js';
-// import { needsNormalization, normalizeArray, sampleSum, toArrayType } from './imageUtil.js';
-
-// import type { ArrayTypes, Decoder, GridReader, ImageFileDirectory } from './index.js';
-// import type { ProjectionTransform, Transformer } from '../../proj4/index.js';
-// import type { RGBA, Reader } from '../index.js';
-// import type {
-//   VectorMultiPoint,
-//   VectorMultiPointGeometry,
-//   VectorPoint,
-// } from '../../geometry/index.js';
-
-use crate::parsers::{Buffer, RGBA};
-use s2json::VectorMultiPointGeometry;
+use super::decoder::Decoder;
+use crate::{
+    parsers::{RGBA, Reader},
+    proj::Transformer,
+    readers::{
+        FieldTagNames, GTiffDataType, GeoKeyDirectoryKeys, GeoTIFFVectorFeature, GeoTiePoint,
+        ImageDirectory, PhotometricInterpretations, apply_predictor, build_samples,
+        build_transform_from_geo_keys, convert_color_space, geotiff::decoder::get_decoder,
+        get_reader_for_sample, needs_normalization, normalize_array, sample_sum,
+    },
+};
+use alloc::{rc::Rc, vec, vec::Vec};
+use core::cell::RefCell;
+use half::f16;
+use libm::{fmax, fmin, pow, sqrt};
+use s2json::{BBox, Properties, VectorGeometry, VectorMultiPoint, VectorPoint};
 
 /// Metadata for a GeoTIFF image
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -27,52 +26,17 @@ pub struct GeoTIFFMetadata {
     pub alpha: bool,
 }
 
-/// Result of getMultiPointVector
-#[derive(Debug, Clone, Default, PartialEq)]
-pub struct VectorMultiPointResult {
-    /// The vector feature
-    pub geometry: VectorMultiPointGeometry<RGBA>,
-    /// The width of the image
-    pub width: usize,
-    /// The height of the image
-    pub height: usize,
-    /// True if the image has an alpha channel
-    pub alpha: bool,
-}
-
-/// An array type
-#[derive(Debug, Clone, Default, PartialEq)]
-pub enum ArrayType {
-    /// Unsigned 8-bit
-    #[default]
-    U8,
-    /// Unsigned 16-bit
-    U16,
-    /// Unsigned 32-bit
-    U32,
-    /// Signed 8-bit
-    I8,
-    /// Signed 16-bit
-    I16,
-    /// Signed 32-bit
-    I32,
-    /// 32-bit float
-    F32,
-    /// 64-bit float
-    F64,
-}
-
-/** Raster data */
+/// Raster data
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Raster {
     /// The width of the image
     pub width: usize,
     /// The height of the image
     pub height: usize,
-    /// The array type
-    pub r#type: ArrayType,
-    /// The raw data
-    pub data: Buffer,
+    /// Type
+    pub r#type: GTiffDataType,
+    /// The type data
+    pub data: Vec<f64>,
     /// True if the image has an alpha channel
     pub alpha: bool,
     /// The min value found
@@ -80,655 +44,716 @@ pub struct Raster {
     /// The max value found
     pub max: f64,
 }
-
-/// A tiepoint structured for decoding images
-#[derive(Debug, Clone, Default, PartialEq)]
-pub struct TiePoint {
-    /// The i index
-    pub i: f64,
-    /// The j index
-    pub j: f64,
-    /// The k index
-    pub k: f64,
-    /// The x coordinate
-    pub x: f64,
-    /// The y coordinate
-    pub y: f64,
-    /// The z coordinate
-    pub z: f64,
+impl Raster {
+    /// Convert the data to u8s
+    pub fn to_u8s(&self) -> Vec<u8> {
+        self.data.iter().map(|x| fmax(0., fmin(255., *x)) as u8).collect()
+    }
+    /// Convert the data to u16s
+    pub fn to_u16s(&self) -> Vec<u16> {
+        self.data.iter().map(|x| fmax(0., fmin(65535., *x)) as u16).collect()
+    }
+    /// Convert the data to u32s
+    pub fn to_u32s(&self) -> Vec<u32> {
+        self.data.iter().map(|x| fmax(0., fmin(4294967295., *x)) as u32).collect()
+    }
+    /// Convert the data to i8s
+    pub fn to_i8s(&self) -> Vec<i8> {
+        self.data.iter().map(|x| fmax(-128., fmin(127., *x)) as i8).collect()
+    }
+    /// Convert the data to i16s
+    pub fn to_i16s(&self) -> Vec<i16> {
+        self.data.iter().map(|x| fmax(-32768., fmin(32767., *x)) as i16).collect()
+    }
+    /// Convert the data to i32s
+    pub fn to_i32s(&self) -> Vec<i32> {
+        self.data.iter().map(|x| fmax(-2147483648., fmin(2147483647., *x)) as i32).collect()
+    }
+    /// Convert the data to f16s
+    pub fn to_f16s(&self) -> Vec<f16> {
+        self.data.iter().map(|x| f16::from_f64(*x)).collect()
+    }
+    /// Convert the data to f32s
+    pub fn to_f32s(&self) -> Vec<f32> {
+        self.data.iter().map(|x| *x as f32).collect()
+    }
 }
 
-// /** Internal interface for sample reader */
-// type SampleReader = (offset: number, littleEndian: boolean) => number;
+/// Internal interface for sample reader
+pub type SampleReader = fn(buffer: &[u8], offset: usize, little_endian: bool) -> f64;
 
-// /** Internal interface for sample format */
-// interface SampleFormat {
-//   srcSampleOffsets: number[];
-//   sampleReaders: SampleReader[];
-// }
+/// Internal interface for sample format
+pub struct SampleFormat {
+    /// The source sample offset collection
+    pub src_sample_offsets: Vec<u32>,
+    /// The sample readers
+    pub sample_readers: Vec<SampleReader>,
+}
 
-// /** A Container for a GeoTIFF image */
-// export class GeoTIFFImage {
-//   #reader: Reader;
-//   #imageDirectory: ImageFileDirectory;
-//   #littleEndian: bool,
-//   #isTiled = false;
-//   #planarConfiguration = 1;
-//   #transformer: Transformer;
-//   #decodeFn: Decoder;
-//   #srcSampleOffsets?: number[];
-//   #sampleReaders?: SampleReader[];
-//   /**
-//    * @param reader - the reader containing the input data
-//    * @param imageDirectory - the image directory
-//    * @param littleEndian - true if little endian false if big endian
-//    * @param definitions - an array of projection definitions for the transformer if needed
-//    * @param epsgCodes - a record of EPSG codes to use for the transformer if needed
-//    * @param gridStore - the grid readers to utilize if needed
-//    */
-//   constructor(
-//     reader: Reader,
-//     imageDirectory: ImageFileDirectory,
-//     littleEndian: boolean,
-//     definitions: ProjectionTransform[] = [],
-//     epsgCodes: Record<string, string> = {},
-//     gridStore: GridReader[],
-//   ) {
-//     this.#reader = reader;
-//     this.#imageDirectory = imageDirectory;
-//     this.#littleEndian = littleEndian;
-//     if (imageDirectory.StripOffsets === undefined) this.#isTiled = true;
-//     if (imageDirectory.PlanarConfiguration !== undefined)
-//       this.#planarConfiguration = imageDirectory.PlanarConfiguration;
-//     this.#transformer = buildTransformFromGeoKeys(
-//       this.#imageDirectory.GeoKeyDirectory,
-//       definitions,
-//       epsgCodes,
-//       gridStore,
-//     );
-//     this.#decodeFn = getDecoder(this.#imageDirectory.Compression);
-//   }
+/// A Container for a GeoTIFF image
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct GeoTIFFImage<T: Reader> {
+    reader: Rc<RefCell<T>>,
+    image_directory: ImageDirectory,
+    little_endian: bool,
+    is_tiled: bool,
+    transformer: Rc<RefCell<Transformer>>,
+    decode_fn: Option<Decoder>,
+    src_sample_offsets: Vec<u32>,
+    sample_readers: Vec<SampleReader>,
+    planar_configuration: i16,
+}
+impl<T: Reader> GeoTIFFImage<T> {
+    /// Create a new GeoTIFFImage
+    pub fn new(
+        reader: Rc<RefCell<T>>,
+        image_directory: ImageDirectory,
+        transformer: Rc<RefCell<Transformer>>,
+        little_endian: bool,
+    ) -> Self {
+        build_transform_from_geo_keys(
+            &mut transformer.borrow_mut(),
+            &image_directory.geo_key_directory,
+        );
+        let compression = image_directory.variables.get_short(FieldTagNames::Compression as u16);
+        let planar_configuration = image_directory
+            .variables
+            .get_short(FieldTagNames::PlanarConfiguration as u16)
+            .unwrap_or(1);
+        let is_tiled = !image_directory.variables.has(FieldTagNames::StripOffsets as u16);
+        Self {
+            reader,
+            image_directory,
+            little_endian,
+            is_tiled,
+            transformer,
+            decode_fn: get_decoder(compression.map(|v| v as u16)),
+            src_sample_offsets: Vec::new(),
+            sample_readers: Vec::new(),
+            planar_configuration,
+        }
+    }
 
-//   /**
-//    * Get the image width
-//    * @returns - the image width
-//    */
-//   get width(): number {
-//     return this.#imageDirectory.ImageWidth ?? 0;
-//   }
+    /// Get the image width
+    pub fn width(&self) -> usize {
+        self.image_directory.variables.get_short(FieldTagNames::ImageWidth as u16).unwrap_or(0)
+            as usize
+    }
 
-//   /**
-//    * Get the image height
-//    * @returns - the image height
-//    */
-//   get height(): number {
-//     return this.#imageDirectory.ImageLength ?? 0;
-//   }
+    /// Get the image height
+    pub fn height(&self) -> usize {
+        self.image_directory.variables.get_short(FieldTagNames::ImageLength as u16).unwrap_or(0)
+            as usize
+    }
 
-//   /**
-//    * Get the tile width
-//    * @returns - the tile width
-//    */
-//   get tileWidth(): number {
-//     return this.#isTiled ? (this.#imageDirectory.TileWidth ?? 0) : this.width;
-//   }
+    /// Get the tile width
+    pub fn tile_width(&self) -> usize {
+        if self.is_tiled {
+            self.image_directory.variables.get_short(FieldTagNames::TileWidth as u16).unwrap_or(0)
+                as usize
+        } else {
+            self.width()
+        }
+    }
 
-//   /**
-//    * Get the tile height
-//    * @returns - the tile height
-//    */
-//   get tileHeight(): number {
-//     const { TileLength, RowsPerStrip } = this.#imageDirectory;
-//     return this.#isTiled ? (TileLength ?? 0) : Math.min(this.height, RowsPerStrip ?? Infinity);
-//   }
+    /// Get the tile height
+    pub fn tile_height(&self) -> usize {
+        if self.is_tiled {
+            self.image_directory.variables.get_short(FieldTagNames::TileLength as u16).unwrap_or(0)
+                as usize
+        } else {
+            let rows_per_strip = self
+                .image_directory
+                .variables
+                .get_short(FieldTagNames::RowsPerStrip as u16)
+                .unwrap_or(0) as usize;
+            self.height().min(rows_per_strip)
+        }
+    }
 
-//   /**
-//    * Get the block width
-//    * @returns - the block width
-//    */
-//   get blockWidth(): number {
-//     return this.tileWidth;
-//   }
+    /// Get the block width
+    pub fn block_width(&self) -> usize {
+        self.tile_width()
+    }
 
-//   /**
-//    * Get the block height
-//    * @param y - the y coordinate of the block
-//    * @returns - the block height
-//    */
-//   getBlockHeight(y: number): number {
-//     if (this.#isTiled || (y + 1) * this.tileHeight <= this.height) {
-//       return this.tileHeight;
-//     } else {
-//       return this.height - y * this.tileHeight;
-//     }
-//   }
+    /// Get the block height
+    pub fn block_height(&self, y: usize) -> usize {
+        let tile_height = self.tile_height();
+        let height = self.height();
+        if self.is_tiled || (y + 1) * tile_height <= height {
+            tile_height
+        } else {
+            height - y * tile_height
+        }
+    }
 
-//   /**
-//    * Calculates the number of bytes for each pixel across all samples. Only full
-//    * bytes are supported, an exception is thrown when this is not the case.
-//    * @returns the bytes per pixel
-//    */
-//   get bytesPerPixel(): number {
-//     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [];
-//     let bytes = 0;
-//     for (let i = 0; i < bitsPerSample.length; ++i) {
-//       bytes += Math.ceil(bitsPerSample[i] / 8);
-//     }
-//     return bytes;
-//   }
+    /// Calculates the number of bytes for each pixel across all samples. Only full
+    /// bytes are supported, an exception is thrown when this is not the case.
+    ///
+    /// @returns the bytes per pixel
+    pub fn bytes_per_pixel(&self) -> usize {
+        let bits_per_sample = self
+            .image_directory
+            .variables
+            .get_u16s(FieldTagNames::BitsPerSample as u16)
+            .unwrap_or_default();
+        let mut bytes = 0;
+        for bit in &bits_per_sample {
+            bytes += (*bit).div_ceil(8) as usize;
+        }
+        bytes
+    }
 
-//   /**
-//    * Returns the number of samples per pixel.
-//    * @returns the number of samples per pixel
-//    */
-//   get samplesPerPixel() {
-//     const { SamplesPerPixel } = this.#imageDirectory;
-//     return SamplesPerPixel !== undefined ? SamplesPerPixel : 1;
-//   }
+    /// Returns the number of samples per pixel.
+    ///
+    /// @returns the number of samples per pixel
+    pub fn samples_per_pixel(&self) -> usize {
+        self.image_directory.variables.get_short(FieldTagNames::SamplesPerPixel as u16).unwrap_or(1)
+            as usize
+    }
 
-//   /**
-//    * Returns the sample format
-//    * @param sampleIndex - the sample index to start at
-//    * @returns the sample format code
-//    */
-//   getSampleFormat(sampleIndex = 0): number {
-//     const { SampleFormat } = this.#imageDirectory;
-//     return Array.isArray(SampleFormat) ? SampleFormat[sampleIndex] : 1;
-//   }
+    /// Returns the sample format
+    ///
+    /// @param sample_index - the sample index to start at
+    /// @returns the sample format code
+    pub fn get_sample_format(&self, sample_index: Option<usize>) -> u16 {
+        let sample_index = sample_index.unwrap_or(0);
+        *self
+            .image_directory
+            .variables
+            .get_u16s(FieldTagNames::SampleFormat as u16)
+            .unwrap_or_default()
+            .get(sample_index)
+            .unwrap_or(&1)
+    }
 
-//   /**
-//    * Returns the number of bits per sample
-//    * @param sampleIndex - the sample index to start at
-//    * @returns the number of bits per sample at the sample index
-//    */
-//   getBitsPerSample(sampleIndex = 0): number {
-//     const { BitsPerSample } = this.#imageDirectory;
-//     return (BitsPerSample ?? [])[sampleIndex];
-//   }
+    /// Returns the number of bits per sample
+    ///
+    /// @param sample_index - the sample index to start at
+    /// @returns the number of bits per sample at the sample index
+    pub fn get_bits_per_sample(&self, sample_index: Option<usize>) -> u16 {
+        let sample_index = sample_index.unwrap_or(0);
+        *self
+            .image_directory
+            .variables
+            .get_u16s(FieldTagNames::BitsPerSample as u16)
+            .unwrap_or_default()
+            .get(sample_index)
+            .unwrap_or(&0)
+    }
 
-//   /**
-//    * Convert the data format and bits per sample to the appropriate array type
-//    * @param raster - the data
-//    * @returns - the array
-//    */
-//   rasterToArrayType(raster: number[]): ArrayTypes {
-//     const format = this.getSampleFormat();
-//     const bitsPerSample = this.getBitsPerSample();
-//     return toArrayType(raster, format, bitsPerSample);
-//   }
+    /// Convert the data format and bits per sample to the appropriate array type
+    ///
+    /// @param raster - the data
+    /// @returns - the array
+    pub fn raster_array_type(&self) -> GTiffDataType {
+        let format = self.get_sample_format(None);
+        let bits_per_sample = self.get_bits_per_sample(None);
+        GTiffDataType::to_type(format, bits_per_sample)
+    }
 
-//   /**
-//    * Returns an array of tiepoints.
-//    * @returns - An array of tiepoints
-//    */
-//   get tiePoints(): TiePoint[] {
-//     const tiepoint = this.#imageDirectory.tiepoint ?? [];
-//     const tiePoints = [];
-//     for (let i = 0; i < tiepoint.length; i += 6) {
-//       tiePoints.push({
-//         i: tiepoint[i],
-//         j: tiepoint[i + 1],
-//         k: tiepoint[i + 2],
-//         x: tiepoint[i + 3],
-//         y: tiepoint[i + 4],
-//         z: tiepoint[i + 5],
-//       });
-//     }
-//     return tiePoints;
-//   }
+    /// Returns an array of tiepoints.
+    pub fn get_tie_point(&self) -> GeoTiePoint {
+        self.image_directory.tie_point
+    }
 
-//   /**
-//    * Returns the image origin as a XYZ-vector. When the image has no affine
-//    * transformation, then an exception is thrown.
-//    * @returns The origin as a vector
-//    */
-//   get origin(): VectorPoint {
-//     const { tiepoint, ModelTransformation: transform } = this.#imageDirectory;
-//     if (Array.isArray(tiepoint) && tiepoint.length === 6) {
-//       return { x: tiepoint[3], y: tiepoint[4], z: tiepoint[5] };
-//     } else if (transform !== undefined) {
-//       return { x: transform[3], y: transform[7], z: transform[11] };
-//     }
-//     throw new Error('The image does not have an affine transformation.');
-//   }
+    /// Returns the image origin as a XYZ-vector. When the image has no affine
+    /// transformation, then an exception is thrown.
+    ///
+    /// @returns The origin as a vector
+    pub fn origin(&self) -> VectorPoint<()> {
+        // const { tiepoint, ModelTransformation: transform } = self.#imageDirectory;
+        // if (Array.isArray(tiepoint) && tiepoint.length === 6) {
+        //   return { x: tiepoint[3], y: tiepoint[4], z: tiepoint[5] };
+        // } else if (transform !== undefined) {
+        //   return { x: transform[3], y: transform[7], z: transform[11] };
+        // }
+        // throw new Error('The image does not have an affine transformation.');
+        // TODO: Is a modeltranasformation needed here?
+        let tiepoint = self.get_tie_point();
+        VectorPoint::new_xyz(tiepoint.x, tiepoint.y, tiepoint.z, None)
+    }
 
-//   /**
-//    * Returns the image origin as a XYZ-vector in lon-lat space. When the image has no affine
-//    * transformation, then an exception is thrown.
-//    * @returns The origin as a lon-lat vector
-//    */
-//   get originLL(): VectorPoint {
-//     const { origin } = this;
-//     return this.#transformer.forward(origin);
-//   }
+    /// Returns the image origin as a XYZ-vector in lon-lat space. When the image has no affine
+    /// transformation, then an exception is thrown.
+    ///
+    /// @returns The origin as a lon-lat vector
+    pub fn origin_ll(&self) -> VectorPoint<()> {
+        let mut origin = self.origin();
+        self.transformer.borrow_mut().forward_mut(&mut origin);
+        origin
+    }
 
-//   /**
-//    * Returns the image resolution as a XYZ-vector. When the image has no affine
-//    * transformation, then an exception is thrown. in cases when the current image does
-//    * not have the required tags on its own.
-//    * @returns The resolution as a vector
-//    */
-//   get resolution(): VectorPoint {
-//     const { sqrt } = Math;
-//     const { pixelScale, ModelTransformation: transform } = this.#imageDirectory;
+    /// Returns the image resolution as a XYZ-vector. When the image has no affine
+    /// transformation, then an exception is thrown. in cases when the current image does
+    /// not have the required tags on its own.
+    ///
+    /// @returns The resolution as a vector
+    pub fn resolution(&self) -> VectorPoint<()> {
+        let pixel_scale = self.image_directory.pixel_scale;
+        let transform = self
+            .image_directory
+            .variables
+            .getf64s(FieldTagNames::ModelTransformation as u16)
+            .unwrap_or_else(|| panic!("The image does not have an affine transformation."));
 
-//     if (Array.isArray(pixelScale)) {
-//       return { x: pixelScale[0], y: -pixelScale[1], z: pixelScale[2] };
-//     }
-//     if (transform !== undefined) {
-//       if (transform[1] === 0 && transform[4] === 0) {
-//         return { x: transform[0], y: -transform[5], z: transform[10] };
-//       }
-//       return {
-//         x: sqrt(transform[0] * transform[0] + transform[4] * transform[4]),
-//         y: -sqrt(transform[1] * transform[1] + transform[5] * transform[5]),
-//         z: transform[10],
-//       };
-//     }
+        if pixel_scale.x != 0. || pixel_scale.y != 0. || pixel_scale.z != 0. {
+            VectorPoint::new_xyz(pixel_scale.x, -pixel_scale.y, pixel_scale.z, None)
+        } else if transform[1] == 0. && transform[4] == 0. {
+            VectorPoint::new_xyz(transform[0], -transform[5], transform[10], None)
+        } else {
+            let x = sqrt(transform[0] * transform[0] + transform[4] * transform[4]);
+            let y = -sqrt(transform[1] * transform[1] + transform[5] * transform[5]);
+            let z = transform[10];
+            VectorPoint::new_xyz(x, y, z, None)
+        }
+    }
 
-//     throw new Error('The image does not have an affine transformation.');
-//   }
+    /// Returns the image resolution as a XYZ-vector in lon-lat space. When the image has no affine
+    /// transformation, then an exception is thrown. in cases when the current image does not
+    /// have the required tags on its own.
+    ///
+    /// @returns The resolution as a lon-lat vector
+    pub fn resolution_ll(&self) -> VectorPoint<()> {
+        let mut resolution = self.resolution();
+        self.transformer.borrow_mut().forward_mut(&mut resolution);
+        resolution
+    }
 
-//   /**
-//    * Returns the image resolution as a XYZ-vector in lon-lat space. When the image has no affine
-//    * transformation, then an exception is thrown. in cases when the current image does not
-//    * have the required tags on its own.
-//    * @returns The resolution as a lon-lat vector
-//    */
-//   get resolutionLL(): VectorPoint {
-//     const { resolution } = this;
-//     return this.#transformer.forward(resolution);
-//   }
+    /// Returns whether or not the pixels of the image depict an area (or point).
+    ///
+    /// @returns Whether the pixels are a point
+    pub fn pixel_is_area(&self) -> bool {
+        self.image_directory
+            .geo_key_directory
+            .get_short(GeoKeyDirectoryKeys::GTRasterTypeGeoKey as u16)
+            .unwrap_or(0)
+            == 1
+    }
 
-//   /**
-//    * Returns whether or not the pixels of the image depict an area (or point).
-//    * @returns Whether the pixels are a point
-//    */
-//   get pixelIsArea(): boolean {
-//     return this.#imageDirectory.GeoKeyDirectory?.GTRasterTypeGeoKey === 1;
-//   }
+    /// Returns the image bounding box as an array of 4 values: min-x, min-y,
+    /// max-x and max-y. When the image has no affine transformation, then an
+    /// exception is thrown.
+    ///
+    /// @param transform - apply affine transformation or proj4 transformation
+    /// @returns The bounding box
+    pub fn get_bbox(&mut self, transform: Option<bool>) -> BBox {
+        let transform = transform.unwrap_or(true);
+        let height = self.height() as f64;
+        let width = self.width() as f64;
+        let model_transformation =
+            self.image_directory.variables.getf64s(FieldTagNames::ModelTransformation as u16);
 
-//   /**
-//    * Returns the image bounding box as an array of 4 values: min-x, min-y,
-//    * max-x and max-y. When the image has no affine transformation, then an
-//    * exception is thrown.
-//    * @param transform - apply affine transformation or proj4 transformation
-//    * @returns The bounding box
-//    */
-//   getBoundingBox(transform = true): [minX: number, minY: number, maxX: number, maxY: number] {
-//     const { height, width } = this;
-//     const { ModelTransformation } = this.#imageDirectory;
+        if transform && model_transformation.is_some() {
+            let model_transformation = model_transformation.unwrap();
+            let [a, b, _c, d, e, f, _g, h] = model_transformation[..8].try_into().unwrap();
+            let corners = [[0., 0.], [0., height], [width, 0.], [width, height]];
+            let projected = corners.map(|[_i, _j]| [d + a * _i + b * _j, h + e * _i + f * _j]);
+            let xs = projected.map(|pt| pt[0]);
+            let ys = projected.map(|pt| pt[1]);
 
-//     if (ModelTransformation !== undefined && transform) {
-//       const [a, b, _c, d, e, f, _g, h] = ModelTransformation;
+            BBox::new(
+                xs.iter().copied().fold(f64::INFINITY, fmin),
+                ys.iter().copied().fold(f64::INFINITY, fmin),
+                xs.iter().copied().fold(f64::NEG_INFINITY, fmax),
+                ys.iter().copied().fold(f64::NEG_INFINITY, fmax),
+            )
+        } else {
+            let VectorPoint { x: x1, y: y1, .. } = self.origin();
+            let VectorPoint { x: r1, y: r2, .. } = self.resolution();
+            let x2 = x1 + r1 * width;
+            let y2 = y1 + r2 * height;
+            let min_x = fmin(x1, x2);
+            let min_y = fmin(y1, y2);
+            let max_x = fmax(x1, x2);
+            let max_y = fmax(y1, y2);
 
-//       const corners = [
-//         [0, 0],
-//         [0, height],
-//         [width, 0],
-//         [width, height],
-//       ];
+            if transform {
+                let min_vec: VectorPoint<()> = VectorPoint::new_xy(min_x, min_y, None);
+                let VectorPoint { x: tmin_x, y: tmin_y, .. } =
+                    self.transformer.borrow().forward(&min_vec);
+                let max_vec: VectorPoint<()> = VectorPoint::new_xy(max_x, max_y, None);
+                let VectorPoint { x: tmax_x, y: tmax_y, .. } =
+                    self.transformer.borrow().forward(&max_vec);
+                BBox::new(tmin_x, tmin_y, tmax_x, tmax_y)
+            } else {
+                BBox::new(min_x, min_y, max_x, max_y)
+            }
+        }
+    }
 
-//       const projected = corners.map(([I, J]) => [d + a * I + b * J, h + e * I + f * J]);
+    /// Returns the raster data of the image.
+    ///
+    /// @param samples - Samples to read from the image
+    /// @returns - The raster data
+    pub fn raster_data(&mut self, samples: Option<Vec<u16>>) -> Raster {
+        let samples =
+            samples.unwrap_or_else(|| (0..self.samples_per_pixel()).map(|v| v as u16).collect());
+        // setup
+        let tile_width = self.tile_width();
+        let tile_height = self.tile_height();
+        let width = self.width();
+        let height = self.height();
+        let sample_per_pixel = self.samples_per_pixel();
+        let bits_per_sample = self
+            .image_directory
+            .variables
+            .get_u16s(FieldTagNames::BitsPerSample as u16)
+            .unwrap_or_default();
+        let mut bytes_per_pixel = self.bytes_per_pixel();
+        let SampleFormat { src_sample_offsets, sample_readers } =
+            self.get_sample_offsets_and_readers(&bits_per_sample, &samples);
 
-//       const xs = projected.map((pt) => pt[0]);
-//       const ys = projected.map((pt) => pt[1]);
+        let mut res: Vec<f64> = vec![0.0; width * height * sample_per_pixel];
+        let mut min = f64::INFINITY;
+        let mut max = f64::NEG_INFINITY;
+        let max_x_tile = width.div_ceil(tile_width);
+        let max_y_tile = height.div_ceil(tile_height);
+        for y_tile in 0..max_y_tile {
+            for x_tile in 0..max_x_tile {
+                let mut data: Option<Vec<u8>> = None;
+                if self.planar_configuration == 1 {
+                    data = Some(self.get_tile_or_strip(x_tile, y_tile, 0));
+                }
+                for sample_index in 0..samples.len() {
+                    let si = sample_index;
+                    let sample = samples[sample_index] as usize;
+                    if self.planar_configuration == 2 {
+                        bytes_per_pixel = bits_per_sample[sample].div_ceil(8) as usize;
+                        data = Some(self.get_tile_or_strip(x_tile, y_tile, sample));
+                    }
+                    let data = data.as_ref().expect("data failed to load");
+                    let block_height = self.block_height(y_tile);
+                    let first_line = y_tile * tile_height;
+                    let first_col = x_tile * tile_width;
+                    let last_line = first_line + block_height;
+                    let last_col = (x_tile + 1) * tile_width;
+                    let reader = sample_readers[si];
 
-//       return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
-//     } else {
-//       const { x: x1, y: y1 } = this.origin;
-//       const { x: r1, y: r2 } = this.resolution;
-//       const x2 = x1 + r1 * width;
-//       const y2 = y1 + r2 * height;
-//       const minX = Math.min(x1, x2);
-//       const minY = Math.min(y1, y2);
-//       const maxX = Math.max(x1, x2);
-//       const maxY = Math.max(y1, y2);
+                    let ymax = block_height
+                        .min(
+                            (block_height as isize - (last_line as isize - height as isize))
+                                as usize,
+                        )
+                        .min(height - first_line);
+                    let xmax = tile_width
+                        .min((tile_width as isize - (last_col as isize - width as isize)) as usize)
+                        .min(width - first_col);
 
-//       if (transform) {
-//         const { x: tminX, y: tminY } = this.#transformer.forward({ x: minX, y: minY });
-//         const { x: tmaxX, y: tmaxY } = this.#transformer.forward({ x: maxX, y: maxY });
-//         return [tminX, tminY, tmaxX, tmaxY];
-//       } else {
-//         return [minX, minY, maxX, maxY];
-//       }
-//     }
-//   }
+                    for y in 0..ymax {
+                        for x in 0..xmax {
+                            let pixel_offset = (y * tile_width + x) * bytes_per_pixel;
+                            let value = reader(
+                                data,
+                                pixel_offset + src_sample_offsets[si] as usize,
+                                self.little_endian,
+                            );
+                            if !value.is_nan() {
+                                min = min.min(value);
+                                max = max.max(value);
+                            }
+                            let window_coordinate = (y + first_line) * width * samples.len()
+                                + (x + first_col) * samples.len()
+                                + si;
+                            res[window_coordinate] = value;
+                        }
+                    }
+                }
+            }
+        }
 
-//   /**
-//    * Get a value in the image
-//    * @param x - the x coordinate
-//    * @param y - the y coordinate
-//    * @param invY - if true, the y coordinate is inverted
-//    * @param samples - Samples to read from the image
-//    * @returns - the sample
-//    */
-//   async getValue(
+        Raster {
+            r#type: self.raster_array_type(),
+            data: res,
+            width,
+            height,
+            alpha: false,
+            min,
+            max,
+        }
+    }
+
+    /// Returns the RGBA raster data of the image.
+    ///
+    /// @returns - The RGBA raster data
+    pub fn get_rgba(&mut self) -> Raster {
+        let bits_per_sample =
+            self.image_directory.variables.get_u16s(FieldTagNames::BitsPerSample as u16);
+        let extra_samples = self
+            .image_directory
+            .variables
+            .get_u16s(FieldTagNames::ExtraSamples as u16)
+            .unwrap_or_else(|| vec![0])[0];
+        let pi: PhotometricInterpretations = self
+            .image_directory
+            .variables
+            .get_short(FieldTagNames::PhotometricInterpretation as u16)
+            .unwrap_or(0)
+            .into();
+        let samples = build_samples(pi, bits_per_sample, Some(extra_samples.into()));
+
+        let mut raster_data = self.raster_data(Some(samples));
+        let max = pow(2., self.get_bits_per_sample(None) as f64);
+        convert_color_space(
+            pi,
+            &mut raster_data,
+            max,
+            self.image_directory.variables.get_u16s(FieldTagNames::ColorMap as u16),
+        );
+        raster_data.alpha = extra_samples != 0;
+
+        raster_data
+    }
+
+    /// Build a vector feature from the image
+    /// @returns - The vector feature with rgba values incoded into the points
+    pub fn get_multi_point_vector(&mut self) -> GeoTIFFVectorFeature {
+        let Raster { width, height, alpha, data, .. } = self.get_rgba();
+        let bbox = self.get_bbox(Some(false));
+        let BBox { left: min_x, bottom: min_y, right: max_x, top: max_y } = bbox;
+        let mut coordinates: VectorMultiPoint<RGBA> = vec![];
+        let rgba_stride = if alpha { 4 } else { 3 };
+        let bound_x = if min_x == max_x { 1. } else { max_x - min_x };
+        let bound_y = if min_y == max_y { 1. } else { max_y - min_y };
+        let area_x_stride =
+            if self.pixel_is_area() { (0.5 / (width as f64)) * bound_x } else { 0. };
+        let area_y_stride =
+            if self.pixel_is_area() { (0.5 / (height as f64)) * bound_y } else { 0. };
+        let pixel_x_stride = if width == 1 { 1 } else { width - 1 };
+        let pixel_y_stride = if height == 1 { 1 } else { height - 1 };
+
+        for y in 0..height {
+            for x in 0..width {
+                // Adjust x_pos and y_pos relative to the bounding box
+                let x_pos =
+                    min_x + ((x as f64) / (pixel_x_stride as f64)) * bound_x + area_x_stride;
+                let y_pos =
+                    min_y + ((y as f64) / (pixel_y_stride as f64)) * bound_y + area_y_stride;
+                // Extract RGBA values
+                let r = data[y * width * rgba_stride + x * rgba_stride];
+                let g = data[y * width * rgba_stride + x * rgba_stride + 1];
+                let b = data[y * width * rgba_stride + x * rgba_stride + 2];
+                let a =
+                    if alpha { data[y * width * rgba_stride + x * rgba_stride + 3] } else { 255. };
+                // find the lon-lat coordinates of the point
+                let mut point: VectorPoint<RGBA> = VectorPoint::new_xy(
+                    x_pos,
+                    y_pos,
+                    Some(RGBA { r: r / 255., g: g / 255., b: b / 255., a: a / 255. }),
+                );
+                self.transformer.borrow_mut().forward_mut(&mut point);
+                // Add point to coordinates array
+                coordinates.push(point);
+            }
+        }
+
+        GeoTIFFVectorFeature::new_wm(
+            None,
+            Properties::default(),
+            VectorGeometry::new_multipoint(coordinates, Some(bbox.into())),
+            Some(GeoTIFFMetadata { width, height, alpha }),
+        )
+    }
+
+    /// Get the data for a tile or strip
+    ///
+    /// @param x - the tile or strip x coordinate
+    /// @param y - the tile or strip y coordinate
+    /// @param sample - the sample
+    /// @returns - the data as a buffer
+    fn get_tile_or_strip(&mut self, x: usize, y: usize, sample: usize) -> Vec<u8> {
+        let num_tiles_per_row = self.width().div_ceil(self.tile_width());
+        let num_tiles_per_col = self.height().div_ceil(self.tile_height());
+        let index = if self.planar_configuration == 1 {
+            y * num_tiles_per_row + x
+        } else if self.planar_configuration == 2 {
+            sample * num_tiles_per_row * num_tiles_per_col + y * num_tiles_per_row + x
+        } else {
+            0
+        };
+
+        let tile_offsets = self
+            .image_directory
+            .variables
+            .get_u32s(FieldTagNames::TileOffsets as u16)
+            .unwrap_or_default();
+        let tile_byte_counts = self
+            .image_directory
+            .variables
+            .get_u32s(FieldTagNames::TileByteCounts as u16)
+            .unwrap_or_default();
+        let strip_offsets = self
+            .image_directory
+            .variables
+            .get_u32s(FieldTagNames::StripOffsets as u16)
+            .unwrap_or_default();
+        let strip_byte_counts = self
+            .image_directory
+            .variables
+            .get_u32s(FieldTagNames::StripByteCounts as u16)
+            .unwrap_or_default();
+
+        let offset = if self.is_tiled { tile_offsets.get(index) } else { strip_offsets.get(index) };
+        let byte_count =
+            if self.is_tiled { tile_byte_counts.get(index) } else { strip_byte_counts.get(index) };
+        if offset.is_none() || byte_count.is_none() {
+            panic!("Invalid offset or byte count");
+        }
+        let offset = *offset.unwrap() as u64;
+        let byte_count = *byte_count.unwrap() as u64;
+        let slice = self.reader.borrow_mut().slice(Some(offset), Some(offset + byte_count));
+        let mut data = if let Some(decode_fn) = &mut self.decode_fn {
+            decode_fn(
+                &slice,
+                self.image_directory.variables.get(FieldTagNames::JPEGTables as u16).as_deref(),
+            )
+        } else {
+            slice
+        };
+        data = self.maybe_apply_predictor(data);
+        let sample_format = self.get_sample_format(None) as usize;
+        let bits_per_sample = self.get_bits_per_sample(None) as usize;
+
+        if needs_normalization(sample_format, bits_per_sample) {
+            normalize_array(
+                data,
+                sample_format,
+                self.planar_configuration as usize,
+                self.samples_per_pixel(),
+                bits_per_sample,
+                self.tile_width(),
+                self.block_height(y),
+            )
+        } else {
+            // convert data into f64
+            data
+        }
+    }
+
+    /// Apply the predictor if necessary
+    ///
+    /// @param data - the raw data
+    /// @returns - the data with the predictor applied
+    fn maybe_apply_predictor(&mut self, data: Vec<u8>) -> Vec<u8> {
+        let predictor =
+            self.image_directory.variables.get_short(FieldTagNames::Predictor as u16).unwrap_or(1);
+        if predictor == 1 {
+            data
+        } else {
+            let tile_width = if self.is_tiled { self.tile_width() } else { self.width() };
+            let tile_height = if self.is_tiled {
+                self.tile_height()
+            } else {
+                let val = self
+                    .image_directory
+                    .variables
+                    .get_short(FieldTagNames::RowsPerStrip as u16)
+                    .unwrap_or_else(|| self.height() as i16);
+                val as usize
+            };
+            let bits_per_sample = self
+                .image_directory
+                .variables
+                .get_u16s(FieldTagNames::BitsPerSample as u16)
+                .unwrap_or_default();
+            apply_predictor(
+                data,
+                predictor,
+                tile_width,
+                tile_height,
+                bits_per_sample,
+                self.planar_configuration,
+            )
+        }
+    }
+
+    /// Get the sample format. If first time than build it
+    /// @param bits_per_sample - the bits per sample
+    /// @param samples - the samples
+    /// @returns - the sample format
+    fn get_sample_offsets_and_readers(
+        &mut self,
+        bits_per_sample: &[u16],
+        samples: &[u16],
+    ) -> SampleFormat {
+        if self.src_sample_offsets.is_empty()
+            && self.sample_readers.is_empty()
+            && samples.len() == self.sample_readers.len()
+        {
+            return SampleFormat {
+                src_sample_offsets: self.src_sample_offsets.clone(),
+                sample_readers: self.sample_readers.clone(),
+            };
+        }
+        let mut src_sample_offsets: Vec<u32> = vec![];
+        let mut sample_readers = vec![];
+        for sample in samples.iter() {
+            if self.planar_configuration == 1 {
+                src_sample_offsets
+                    .push((sample_sum(bits_per_sample, 0, *sample as usize) / 8) as u32);
+            } else {
+                src_sample_offsets.push(0);
+            }
+            let format = self.get_sample_format(Some(*sample as usize));
+            sample_readers.push(get_reader_for_sample(*sample, format));
+        }
+        self.src_sample_offsets = src_sample_offsets.clone();
+        self.sample_readers = sample_readers.clone();
+
+        SampleFormat { src_sample_offsets, sample_readers }
+    }
+}
+
+//   /// Get a value in the image
+//   /// @param x - the x coordinate
+//   /// @param y - the y coordinate
+//   /// @param inv_y - if true, the y coordinate is inverted
+//   /// @param samples - Samples to read from the image
+//   /// @returns - the sample
+//   pub fn get_value(
 //     x: number,
 //     y: number,
-//     invY = false,
-//     samples: number[] = [...Array(this.samplesPerPixel).keys()],
+//     inv_y = false,
+//     samples: number[] = [...Array(self.samples_per_pixel()).keys()],
 //   ): Promise<number[]> {
 //     // setup
-//     const { tileWidth, tileHeight, width } = this;
-//     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [];
-//     let bytesPerPixel = this.bytesPerPixel;
-//     const { srcSampleOffsets, sampleReaders } = this.#getSampleOffsetsAndReaders(
-//       bitsPerSample,
+//     let { tile_width, tile_height, width } = this;
+//     let bits_per_sample = self.#imageDirectory.BitsPerSample ?? [];
+//     let bytesPerPixel = self.bytesPerPixel;
+//     let { src_sample_offsets, sample_readers } = self.get_sample_offsets_and_readers(
+//       bits_per_sample,
 //       samples,
 //     );
-//     const res: number[] = new Array(samples.length);
+//     let res: number[] = new Array(samples.length);
 //     // invert Y if needed
-//     if (invY) y = this.height - 1 - y;
+//     if (inv_y) y = self.height - 1 - y;
 
 //     // search the right tile
-//     const xTile = Math.floor(x / tileWidth);
-//     const yTile = Math.floor(y / tileHeight);
+//     let x_tile = floor(x / tile_width);
+//     let y_tile = floor(y / tile_height);
 //     let data: ArrayBufferLike | undefined;
-//     if (this.#planarConfiguration === 1) {
-//       data = await this.getTileOrStrip(xTile, yTile, 0);
+//     if (self.planar_configuration === 1) {
+//       data = await self.get_tile_or_strip(x_tile, y_tile, 0);
 //     }
-//     for (let sampleIndex = 0; sampleIndex < samples.length; ++sampleIndex) {
-//       const si = sampleIndex;
-//       const sample = samples[sampleIndex];
-//       if (this.#planarConfiguration === 2) {
-//         bytesPerPixel = Math.ceil(bitsPerSample[sample] / 8);
-//         data = await this.getTileOrStrip(xTile, yTile, sample);
+//     for (let sample_index = 0; sample_index < samples.len(); ++sample_index) {
+//       let si = sample_index;
+//       let sample = samples[sample_index];
+//       if (self.planar_configuration === 2) {
+//         bytesPerPixel = Math.ceil(bits_per_sample[sample] / 8);
+//         data = await self.get_tile_or_strip(x_tile, y_tile, sample);
 //       }
 //       if (data === undefined) throw new Error('data failed to load');
-//       const dataView = new DataView(data);
-//       const firstLine = yTile * tileHeight;
-//       const firstCol = xTile * tileWidth;
-//       const reader = sampleReaders[si];
+//       let data_view = new DataView(data);
+//       let first_line = y_tile * tile_height;
+//       let first_col = x_tile * tile_width;
+//       let reader = sample_readers[si];
 
-//       const pixelOffset = (y * tileWidth + x) * bytesPerPixel;
-//       const value = reader.call(dataView, pixelOffset + srcSampleOffsets[si], this.#littleEndian);
-//       const windowCoordinate =
-//         (y + firstLine) * width * samples.length + (x + firstCol) * samples.length + si;
-//       res[Math.floor(windowCoordinate) % samples.length] = value;
+//       let pixel_offset = (y * tile_width + x) * bytesPerPixel;
+//       let value = reader.call(data_view, pixel_offset + src_sample_offsets[si], self.#little_endian);
+//       let window_coordinate =
+//         (y + first_line) * width * samples.len() + (x + first_col) * samples.len() + si;
+//       res[floor(window_coordinate) % samples.len()] = value;
 //     }
 
 //     return res;
 //   }
-
-//   /**
-//    * Returns the raster data of the image.
-//    * @param samples - Samples to read from the image
-//    * @returns - The raster data
-//    */
-//   async rasterData(samples: number[] = [...Array(this.samplesPerPixel).keys()]): Promise<Raster> {
-//     // setup
-//     const { tileWidth, tileHeight, width, height, samplesPerPixel } = this;
-//     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [];
-//     let bytesPerPixel = this.bytesPerPixel;
-//     const { srcSampleOffsets, sampleReaders } = this.#getSampleOffsetsAndReaders(
-//       bitsPerSample,
-//       samples,
-//     );
-
-//     const res: number[] = new Array(width * height * samplesPerPixel);
-//     let min = Infinity;
-//     let max = -Infinity;
-//     const maxXTile = Math.ceil(width / tileWidth);
-//     const maxYTile = Math.ceil(height / tileHeight);
-//     for (let yTile = 0; yTile < maxYTile; ++yTile) {
-//       for (let xTile = 0; xTile < maxXTile; ++xTile) {
-//         let data: ArrayBufferLike | undefined;
-//         if (this.#planarConfiguration === 1) {
-//           data = await this.getTileOrStrip(xTile, yTile, 0);
-//         }
-//         for (let sampleIndex = 0; sampleIndex < samples.length; ++sampleIndex) {
-//           const si = sampleIndex;
-//           const sample = samples[sampleIndex];
-//           if (this.#planarConfiguration === 2) {
-//             bytesPerPixel = Math.ceil(bitsPerSample[sample] / 8);
-//             data = await this.getTileOrStrip(xTile, yTile, sample);
-//           }
-//           if (data === undefined) throw new Error('data failed to load');
-//           const dataView = new DataView(data);
-//           const blockHeight = this.getBlockHeight(yTile);
-//           const firstLine = yTile * tileHeight;
-//           const firstCol = xTile * tileWidth;
-//           const lastLine = firstLine + blockHeight;
-//           const lastCol = (xTile + 1) * tileWidth;
-//           const reader = sampleReaders[si];
-
-//           const ymax = Math.min(blockHeight, blockHeight - (lastLine - height), height - firstLine);
-//           const xmax = Math.min(tileWidth, tileWidth - (lastCol - width), width - firstCol);
-
-//           for (let y = 0; y < ymax; ++y) {
-//             for (let x = 0; x < xmax; ++x) {
-//               const pixelOffset = (y * tileWidth + x) * bytesPerPixel;
-//               const value = reader.call(
-//                 dataView,
-//                 pixelOffset + srcSampleOffsets[si],
-//                 this.#littleEndian,
-//               );
-//               if (!isNaN(value)) {
-//                 min = Math.min(min, value);
-//                 max = Math.max(max, value);
-//               }
-//               const windowCoordinate =
-//                 (y + firstLine) * width * samples.length + (x + firstCol) * samples.length + si;
-//               res[windowCoordinate] = value;
-//             }
-//           }
-//         }
-//       }
-//     }
-
-//     return { data: this.rasterToArrayType(res), width, height, alpha: false, min, max };
-//   }
-
-//   /**
-//    * Returns the RGBA raster data of the image.
-//    * @returns - The RGBA raster data
-//    */
-//   async getRGBA(): Promise<Raster> {
-//     const bitsPerSample = this.#imageDirectory.BitsPerSample ?? [0];
-//     const extraSamples = (this.#imageDirectory.ExtraSamples ?? [0])[0];
-//     const pi = this.#imageDirectory.PhotometricInterpretation;
-//     const samples = buildSamples(pi, bitsPerSample, extraSamples);
-
-//     const rasterData = await this.rasterData(samples);
-//     const max = 2 ** this.getBitsPerSample();
-//     convertColorSpace(pi, rasterData, max, this.#imageDirectory.ColorMap);
-//     rasterData.alpha = extraSamples !== 0;
-
-//     return rasterData;
-//   }
-
-//   /**
-//    * Build a vector feature from the image
-//    * @returns - The vector feature with rgba values incoded into the points
-//    */
-//   async getMultiPointVector(): Promise<VectorMultiPointResult> {
-//     const { width, height, alpha, data } = await this.getRGBA();
-//     const [minX, minY, maxX, maxY] = this.getBoundingBox(false);
-//     const coordinates: VectorMultiPoint<RGBA> = [];
-//     const rgbaStride = alpha ? 4 : 3;
-//     const boundX = minX === maxX ? 1 : maxX - minX;
-//     const boundY = minY === maxY ? 1 : maxY - minY;
-//     const areaXStride = this.pixelIsArea ? (0.5 / width) * boundX : 0;
-//     const areaYStride = this.pixelIsArea ? (0.5 / height) * boundY : 0;
-//     const pixelXStride = width === 1 ? 1 : width - 1;
-//     const pixelYStride = height === 1 ? 1 : height - 1;
-
-//     for (let y = 0; y < height; y++) {
-//       for (let x = 0; x < width; x++) {
-//         // Adjust xPos and yPos relative to the bounding box
-//         const xPos = minX + (x / pixelXStride) * boundX + areaXStride;
-//         const yPos = minY + (y / pixelYStride) * boundY + areaYStride;
-//         // Extract RGBA values
-//         const r = data[y * width * rgbaStride + x * rgbaStride];
-//         const g = data[y * width * rgbaStride + x * rgbaStride + 1];
-//         const b = data[y * width * rgbaStride + x * rgbaStride + 2];
-//         const a = alpha ? data[y * width * rgbaStride + x * rgbaStride + 3] : 255;
-//         // find the lon-lat coordinates of the point
-//         const { x: lon, y: lat } = this.#transformer.forward({ x: xPos, y: yPos });
-//         // Add point to coordinates array
-//         coordinates.push({
-//           x: lon,
-//           y: lat,
-//           m: { r, g, b, a },
-//         });
-//       }
-//     }
-
-//     return {
-//       geometry: {
-//         type: 'MultiPoint',
-//         is3D: false,
-//         coordinates,
-//       },
-//       width,
-//       height,
-//       alpha,
-//     };
-//   }
-
-//   /**
-//    * Returns the reader for a sample
-//    * @param sampleIndex - the index of the sample
-//    * @returns - a function to read each sample value
-//    */
-//   getReaderForSample(sampleIndex: number): (offset: number, littleEndian: boolean) => number {
-//     const bitsPerSample = (this.#imageDirectory.BitsPerSample ?? [])[sampleIndex];
-//     const format =
-//       this.#imageDirectory.SampleFormat !== undefined
-//         ? this.#imageDirectory.SampleFormat[sampleIndex]
-//         : 1;
-//     switch (format) {
-//       case 1: // unsigned integer data
-//         if (bitsPerSample <= 8) {
-//           return DataView.prototype.getUint8;
-//         } else if (bitsPerSample <= 16) {
-//           return DataView.prototype.getUint16;
-//         } else if (bitsPerSample <= 32) {
-//           return DataView.prototype.getUint32;
-//         }
-//         break;
-//       case 2: // twos complement signed integer data
-//         if (bitsPerSample <= 8) {
-//           return DataView.prototype.getInt8;
-//         } else if (bitsPerSample <= 16) {
-//           return DataView.prototype.getInt16;
-//         } else if (bitsPerSample <= 32) {
-//           return DataView.prototype.getInt32;
-//         }
-//         break;
-//       case 3:
-//         switch (bitsPerSample) {
-//           case 16:
-//             return DataView.prototype.getFloat16;
-//           case 32:
-//             return DataView.prototype.getFloat32;
-//           case 64:
-//             return DataView.prototype.getFloat64;
-//           default:
-//             break;
-//         }
-//         break;
-//     }
-//     throw Error('Unsupported data format/bitsPerSample');
-//   }
-
-//   /**
-//    * Get the data for a tile or strip
-//    * @param x - the tile or strip x coordinate
-//    * @param y - the tile or strip y coordinate
-//    * @param sample - the sample
-//    * @returns - the data as a buffer
-//    */
-//   async getTileOrStrip(x: number, y: number, sample: number): Promise<ArrayBufferLike> {
-//     const { TileOffsets, TileByteCounts, StripOffsets, StripByteCounts } = this.#imageDirectory;
-//     const numTilesPerRow = Math.ceil(this.width / this.tileWidth);
-//     const numTilesPerCol = Math.ceil(this.height / this.tileHeight);
-//     const index =
-//       this.#planarConfiguration === 1
-//         ? y * numTilesPerRow + x
-//         : this.#planarConfiguration === 2
-//           ? sample * numTilesPerRow * numTilesPerCol + y * numTilesPerRow + x
-//           : 0;
-
-//     const offset = this.#isTiled ? (TileOffsets ?? [])[index] : (StripOffsets ?? [])[index];
-//     const byteCount = this.#isTiled
-//       ? (TileByteCounts ?? [])[index]
-//       : (StripByteCounts ?? [])[index];
-//     if (offset === undefined || byteCount === undefined) {
-//       throw new Error('Invalid offset or byte count');
-//     }
-//     const slice = this.#reader.slice(offset, offset + byteCount).buffer;
-//     let data = await this.#decodeFn(slice, this.#imageDirectory.JPEGTables);
-//     data = this.maybeApplyPredictor(data);
-//     const sampleFormat = this.getSampleFormat();
-//     const bitsPerSample = this.getBitsPerSample();
-//     if (needsNormalization(sampleFormat, bitsPerSample)) {
-//       data = normalizeArray(
-//         data,
-//         sampleFormat,
-//         this.#planarConfiguration,
-//         this.samplesPerPixel,
-//         bitsPerSample,
-//         this.tileWidth,
-//         this.getBlockHeight(y),
-//       );
-//     }
-//     return data;
-//   }
-
-//   /**
-//    * Apply the predictor if necessary
-//    * @param data - the raw data
-//    * @returns - the data with the predictor applied
-//    */
-//   maybeApplyPredictor(data: ArrayBufferLike): ArrayBufferLike {
-//     const predictor = this.#imageDirectory.Predictor ?? 1;
-//     if (predictor === 1) {
-//       return data;
-//     } else {
-//       const tileWidth = this.#isTiled ? this.tileWidth : this.width;
-//       const tileHeight = this.#isTiled
-//         ? this.tileHeight
-//         : (this.#imageDirectory.RowsPerStrip ?? this.height);
-//       return applyPredictor(
-//         data,
-//         predictor,
-//         tileWidth,
-//         tileHeight,
-//         this.#imageDirectory.BitsPerSample ?? [],
-//         this.#planarConfiguration,
-//       );
-//     }
-//   }
-
-//   /**
-//    * Get the sample format. If first time than build it
-//    * @param bitsPerSample - the bits per sample
-//    * @param samples - the samples
-//    * @returns - the sample format
-//    */
-//   #getSampleOffsetsAndReaders(bitsPerSample: number[], samples: number[]): SampleFormat {
-//     if (
-//       this.#srcSampleOffsets !== undefined &&
-//       this.#sampleReaders !== undefined &&
-//       samples.length === this.#sampleReaders.length
-//     ) {
-//       return { srcSampleOffsets: this.#srcSampleOffsets, sampleReaders: this.#sampleReaders };
-//     }
-//     const srcSampleOffsets: number[] = [];
-//     const sampleReaders: ((offset: number, littleEndian: boolean) => number)[] = [];
-//     for (let i = 0; i < samples.length; ++i) {
-//       if (this.#planarConfiguration === 1) {
-//         srcSampleOffsets.push(sampleSum(bitsPerSample, 0, samples[i]) / 8);
-//       } else {
-//         srcSampleOffsets.push(0);
-//       }
-//       sampleReaders.push(this.getReaderForSample(samples[i]));
-//     }
-//     this.#srcSampleOffsets = srcSampleOffsets;
-//     this.#sampleReaders = sampleReaders;
-
-//     return { srcSampleOffsets, sampleReaders };
-//   }
-// }

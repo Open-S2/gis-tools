@@ -1,11 +1,12 @@
 use crate::proj::{CoordinateStep, EPS10, Proj, ProjectCoordinates, TransformCoordinates};
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{atan2, cos, sin, sqrt, tan};
 
 /// Transverse Central Cylindrical Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransverseCentralCylindricalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for TransverseCentralCylindricalProjection {
     fn code(&self) -> i64 {
@@ -19,7 +20,7 @@ impl ProjectCoordinates for TransverseCentralCylindricalProjection {
     }
 }
 impl CoordinateStep for TransverseCentralCylindricalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.;
         TransverseCentralCylindricalProjection { proj }
     }

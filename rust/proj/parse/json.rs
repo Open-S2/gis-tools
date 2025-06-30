@@ -62,6 +62,8 @@ pub trait ToProjJSON {
     fn set_geodetic_crs(&mut self, _geodetic_crs: GeodeticCRS) {}
     /// Set a ProjectedCRS
     fn set_projected_crs(&mut self, _projected_crs: ProjectedCRS) {}
+    /// Set the name
+    fn set_projection(&mut self, _name: String) {}
 }
 
 /// # Schema for PROJJSON (v0.7)
@@ -230,6 +232,22 @@ pub enum Datum {
     ParametricDatum(ParametricDatum),
     /// Represents the datum associated with an engineering CRS.
     EngineeringDatum(EngineeringDatum),
+}
+impl Datum {
+    /// Convert a GeodeticCRS to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // TODO: Implement for all
+        match self {
+            Datum::GeodeticReferenceFrame(d) => d.to_projection_transform(proj_transform),
+            _ => todo!(),
+            // Datum::VerticalReferenceFrame(d) => d.to_projection_transform(proj_transform),
+            // Datum::DynamicGeodeticReferenceFrame(d) => d.to_projection_transform(proj_transform),
+            // Datum::DynamicVerticalReferenceFrame(d) => d.to_projection_transform(proj_transform),
+            // Datum::TemporalDatum(d) => d.to_projection_transform(proj_transform),
+            // Datum::ParametricDatum(d) => d.to_projection_transform(proj_transform),
+            // Datum::EngineeringDatum(d) => d.to_projection_transform(proj_transform),
+        };
+    }
 }
 impl Default for Datum {
     fn default() -> Self {
@@ -437,6 +455,11 @@ impl From<ProjValue> for String {
             ProjValue::String(s) => s,
             _ => "".into(),
         }
+    }
+}
+impl From<f64> for ProjValue {
+    fn from(v: f64) -> ProjValue {
+        ProjValue::F64(v)
     }
 }
 
@@ -706,6 +729,9 @@ impl ToProjJSON for PointMotionOperation {
     fn set_accuracy(&mut self, accuracy: String) {
         self.accuracy = Some(accuracy);
     }
+    fn set_projection(&mut self, name: String) {
+        self.method = Method { name, ..Default::default() };
+    }
     fn set_method(&mut self, method: Method) {
         self.method = method;
     }
@@ -734,6 +760,13 @@ pub struct Method {
     /// Alternative identifiers
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
+}
+impl Method {
+    /// Convert a Method to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        // add projection from method
+        proj_transform.steps.push(Step::from_method(self, proj_transform.proj.clone()).unwrap());
+    }
 }
 impl ToProjJSON for Method {
     fn set_id(&mut self, id: Id) {
@@ -1053,6 +1086,9 @@ pub struct AbridgedTransformation {
     pub ids: Ids,
 }
 impl ToProjJSON for AbridgedTransformation {
+    fn set_projection(&mut self, name: String) {
+        self.method = Method { name, ..Default::default() };
+    }
     fn set_method(&mut self, method: Method) {
         self.method = method;
     }
@@ -1746,10 +1782,14 @@ impl ToProjJSON for GeodeticCRS {
 impl GeodeticCRS {
     /// Convert a GeodeticCRS to a ProjectionTransform
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        proj_transform.proj.borrow_mut().name = self.name.clone();
         // TODO: Datum, CoordinateSystem, DeformationModel
         // TODO: Datum -> build_datum
         if let Some(datum_ensemble) = &self.datum_ensemble {
             datum_ensemble.to_projection_transform(proj_transform);
+        }
+        if let Some(datum) = &self.datum {
+            datum.to_projection_transform(proj_transform);
         }
     }
 }
@@ -1782,6 +1822,15 @@ pub struct GeodeticReferenceFrame {
     /// Usages
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub usages: Vec<ObjectUsage>,
+}
+impl GeodeticReferenceFrame {
+    /// Convert a GeodeticReferenceFrame to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        self.ellipsoid.to_projection_transform(proj_transform);
+        if let Some(pm) = &self.prime_meridian {
+            pm.to_projection_transform(proj_transform);
+        }
+    }
 }
 impl ToProjJSON for GeodeticReferenceFrame {
     fn set_id(&mut self, id: Id) {
@@ -2348,6 +2397,13 @@ pub struct PrimeMeridian {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
 }
+impl PrimeMeridian {
+    /// Convert a PrimeMeridian to a ProjectionTransform
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        let greenwhich = self.longitude.rad();
+        proj_transform.proj.borrow_mut().from_greenwich = greenwhich;
+    }
+}
 impl ToProjJSON for PrimeMeridian {
     fn set_id(&mut self, id: Id) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
@@ -2477,6 +2533,9 @@ impl ToProjJSON for Conversion {
             self.id = Some(id);
         }
     }
+    fn set_projection(&mut self, name: String) {
+        self.method = Method { name, ..Default::default() };
+    }
     fn set_method(&mut self, method: Method) {
         self.method = method;
     }
@@ -2491,10 +2550,7 @@ impl Conversion {
         for param in self.parameters.iter() {
             proj_transform.proj.borrow_mut().add_param(param);
         }
-        // add projection from method
-        proj_transform
-            .steps
-            .push(Step::from_method(&self.method, proj_transform.proj.clone()).unwrap());
+        self.method.to_projection_transform(proj_transform);
     }
 }
 
@@ -2623,7 +2679,7 @@ impl ToProjJSON for CoordinateSystem {
 }
 impl CoordinateSystem {
     /// Convert a CoordinateSystem to a ProjectionTransform
-    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+    pub fn to_projection_transform(&self, _proj_transform: &mut ProjectionTransform) {
         // TODO: subtype, axis
     }
 }
@@ -2686,6 +2742,9 @@ impl ToProjJSON for Transformation {
     }
     fn set_parameter(&mut self, parameter: ParameterValue) {
         self.parameters.push(parameter);
+    }
+    fn set_projection(&mut self, name: String) {
+        self.method = Method { name, ..Default::default() };
     }
     fn set_method(&mut self, method: Method) {
         self.method = method;

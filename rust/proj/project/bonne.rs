@@ -2,7 +2,7 @@ use crate::proj::{
     BONNE, CoordinateStep, EPS10, LATITUDE_OF_FIRST_STANDARD_PARALLEL, Proj, ProjMethod,
     ProjectCoordinates, TransformCoordinates, enfn, inv_mlfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{atan2, copysign, cos, fabs, hypot, sin, sqrt, tan};
 
@@ -50,7 +50,7 @@ pub struct BonneData {
 /// ![Bonne (Werner lat_1=90) Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/bonne.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct BonneProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<BonneData>,
     method: ProjMethod,
 }
@@ -66,7 +66,7 @@ impl ProjectCoordinates for BonneProjection {
     }
 }
 impl CoordinateStep for BonneProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = BonneData::default();
         let method: ProjMethod;
         {

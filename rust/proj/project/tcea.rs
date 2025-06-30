@@ -1,11 +1,12 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates};
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{asin, atan2, cos, sin, sqrt, tan};
 
 /// Transverse Cylindrical Equal Area Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransverseCylindricalEqualArealProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for TransverseCylindricalEqualArealProjection {
     fn code(&self) -> i64 {
@@ -19,7 +20,7 @@ impl ProjectCoordinates for TransverseCylindricalEqualArealProjection {
     }
 }
 impl CoordinateStep for TransverseCylindricalEqualArealProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.;
         TransverseCylindricalEqualArealProjection { proj }
     }

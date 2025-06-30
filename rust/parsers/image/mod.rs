@@ -1,14 +1,17 @@
 /// Image decoding
 pub mod decoder;
+/// JPEG data
+pub mod jpeg;
 /// RGBA data
 pub mod rgba;
-/// Image utility functions
-pub mod util;
+// /// Image utility functions
+// pub mod util;
 
 use super::Buffer;
 pub use decoder::*;
+pub use jpeg::*;
 pub use rgba::*;
-pub use util::*;
+// pub use util::*;
 
 /// Image Data structure
 pub struct ImageData {

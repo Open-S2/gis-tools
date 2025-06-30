@@ -494,9 +494,8 @@ export class JpegStreamReader {
             }
             i += 17 + codeLengthSum;
 
-            (huffmanTableSpec >> 4 === 0 ? this.huffmanTablesDC : this.huffmanTablesAC)[
-              huffmanTableSpec & 15
-            ] = buildHuffmanTable(codeLengths, huffmanValues);
+            const table = huffmanTableSpec >> 4 === 0 ? this.huffmanTablesDC : this.huffmanTablesAC;
+            table[huffmanTableSpec & 15] = buildHuffmanTable(codeLengths, huffmanValues);
           }
           break;
         }
@@ -1374,7 +1373,7 @@ function buildComponentData(component: JPEGComponent, reader: JpegStreamReader):
         p[6 * 8 + col] === 0 &&
         p[7 * 8 + col] === 0
       ) {
-        t = (dctSqrt2 * dataIn[i + 0] + 8192) >> 14;
+        t = (dctSqrt2 * p[i + 0] + 8192) >> 14;
         p[0 * 8 + col] = t;
         p[1 * 8 + col] = t;
         p[2 * 8 + col] = t;

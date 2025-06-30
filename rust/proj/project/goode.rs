@@ -2,6 +2,7 @@ use crate::proj::{
     CoordinateStep, MollweideProjection, Proj, ProjectCoordinates, SinusoidalProjection,
     TransformCoordinates,
 };
+use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::fabs;
 
@@ -18,7 +19,7 @@ pub struct GoodeData {
 /// Goode Homolosine Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct GoodeHomolosineProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<GoodeData>,
 }
 impl ProjectCoordinates for GoodeHomolosineProjection {
@@ -33,7 +34,7 @@ impl ProjectCoordinates for GoodeHomolosineProjection {
     }
 }
 impl CoordinateStep for GoodeHomolosineProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.;
         let sinu = SinusoidalProjection::new(proj.clone());
         let moll = MollweideProjection::new(proj.clone());

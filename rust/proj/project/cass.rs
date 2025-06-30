@@ -1,11 +1,10 @@
-use alloc::vec::Vec;
-use core::cell::RefCell;
-use libm::{asin, atan2, cos, sin, sqrt, tan};
-
 use crate::proj::{
     CASSINI, CoordinateStep, HYPERBOLIC, Proj, ProjMethod, ProjectCoordinates,
     TransformCoordinates, enfn, generic_inverse_2d, inv_mlfn, mlfn,
 };
+use alloc::{rc::Rc, vec::Vec};
+use core::cell::RefCell;
+use libm::{asin, atan2, cos, sin, sqrt, tan};
 
 const C1: f64 = 0.166_666_666_666_666_66;
 const C2: f64 = 0.008_333_333_333_333_333;
@@ -24,7 +23,7 @@ pub struct CassData {
 /// Cassini Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct CassiniProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<CassData>,
     method: ProjMethod,
 }
@@ -40,7 +39,7 @@ impl ProjectCoordinates for CassiniProjection {
     }
 }
 impl CoordinateStep for CassiniProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = CassData::default();
         let method: ProjMethod;
         {

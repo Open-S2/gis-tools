@@ -2,7 +2,7 @@ use crate::proj::{
     CoordinateStep, LATITUDE_STD_PARALLEL, Proj, ProjMethod, ProjectCoordinates,
     TransformCoordinates, authalic_lat_compute_coeffs, authalic_lat_inverse, authalic_lat_q,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{asin, cos, fabs, sin, sqrt};
 
@@ -18,7 +18,7 @@ const EPS: f64 = 1e-10;
 /// Equal Area Cylindrical Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct EqualAreaCylindricalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<CeaData>,
     method: ProjMethod,
 }
@@ -34,7 +34,7 @@ impl ProjectCoordinates for EqualAreaCylindricalProjection {
     }
 }
 impl CoordinateStep for EqualAreaCylindricalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = CeaData::default();
         let method: ProjMethod;
         {

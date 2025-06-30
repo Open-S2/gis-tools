@@ -4,7 +4,7 @@ pub mod step;
 pub mod transformer;
 
 use super::{BaseProjection, Coords, Proj};
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use s2json::VectorPoint;
 pub use step::*;
@@ -15,9 +15,11 @@ pub use transformer::*;
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ProjectionTransform {
     /// Projection guide
-    pub proj: RefCell<Proj>,
+    pub proj: Rc<RefCell<Proj>>,
     /// Projection steps
     pub steps: Vec<Step>,
+    /// boolean to indicate if this transform is wgs84
+    pub is_wgs84: bool,
 }
 impl ProjectionTransform {
     /// is_empty
@@ -27,7 +29,11 @@ impl ProjectionTransform {
 
     /// Create the WGS 84 definition
     pub fn wgs84() -> Self {
-        Self { proj: Proj::default().into(), steps: BaseProjection::to_steps() }
+        Self {
+            proj: Rc::new(RefCell::new(Proj::default())),
+            steps: BaseProjection::to_steps(),
+            is_wgs84: true,
+        }
     }
 }
 

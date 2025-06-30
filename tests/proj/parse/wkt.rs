@@ -611,7 +611,7 @@ mod tests {
             ID["EPSG",3857]]"#;
 
         let proj_obj = ProjJSON::parse_wkt(wkt_string);
-        println!("proj_obj: {:#?}", proj_obj);
+        println!("proj_obj: {proj_obj:#?}");
         if let ProjJSON::CRS(crs) = proj_obj {
             if let CRS::ProjectedCRS(proj_crs) = crs.as_ref() {
                 assert_eq!(

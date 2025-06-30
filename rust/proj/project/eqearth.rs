@@ -2,7 +2,7 @@ use crate::proj::{
     CoordinateStep, EQUAL_EARTH, Proj, ProjectCoordinates, TransformCoordinates,
     authalic_lat_compute_coeffs, authalic_lat_inverse, authalic_lat_q,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use libm::{asin, cos, fabs, sin, sqrt};
 
@@ -41,7 +41,7 @@ pub struct EqEarth {
 /// Equal Earth Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct EqualEarthProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<EqEarth>,
 }
 impl ProjectCoordinates for EqualEarthProjection {
@@ -56,7 +56,7 @@ impl ProjectCoordinates for EqualEarthProjection {
     }
 }
 impl CoordinateStep for EqualEarthProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = EqEarth { rqda: 1.0, ..Default::default() };
         {
             let proj = &mut proj.borrow_mut();

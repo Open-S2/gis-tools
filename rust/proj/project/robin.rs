@@ -1,4 +1,5 @@
 use crate::proj::{CoordinateStep, Proj, ProjectCoordinates, TransformCoordinates};
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, PI},
@@ -90,7 +91,7 @@ const MAX_ITER: usize = 100;
 /// Robinson Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct RobinsonProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
 }
 impl ProjectCoordinates for RobinsonProjection {
     fn code(&self) -> i64 {
@@ -104,7 +105,7 @@ impl ProjectCoordinates for RobinsonProjection {
     }
 }
 impl CoordinateStep for RobinsonProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         proj.borrow_mut().es = 0.;
         RobinsonProjection { proj }
     }

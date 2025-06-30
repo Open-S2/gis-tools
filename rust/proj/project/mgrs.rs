@@ -459,7 +459,7 @@ fn get_letter_100k_id(mut col: u32, mut row: u32, parm: usize) -> String {
     let col_char = char::from_u32(col).unwrap();
     let row_char = char::from_u32(row).unwrap();
 
-    format!("{}{}", col_char, row_char)
+    format!("{col_char}{row_char}")
 }
 
 /// Decode the UTM parameters from a MGRS string.

@@ -5,6 +5,7 @@ use crate::proj::{
     LATITUDE_OF_SECOND_POINT, LONGITUDE_OF_FIRST_POINT, LONGITUDE_OF_PROJECTION_CENTRE,
     LONGITUDE_OF_SECOND_POINT, NO_OFF, NO_ROTATION, NO_UOFF
 };
+use alloc::rc::Rc;
 use core::{
     cell::RefCell,
     f64::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU},
@@ -42,7 +43,7 @@ pub type HotineObliqueMercatorVariantBProjection = ObliqueMercatorProjection<HOT
 /// Oblique Mercator Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObliqueMercatorProjection<const C: i64> {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<OmercData>,
 }
 impl<const C: i64> ProjectCoordinates for ObliqueMercatorProjection<C> {
@@ -71,7 +72,7 @@ impl<const C: i64> ProjectCoordinates for ObliqueMercatorProjection<C> {
     }
 }
 impl<const C: i64> CoordinateStep for ObliqueMercatorProjection<C> {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = OmercData::default();
         {
             let proj = &mut proj.borrow_mut();

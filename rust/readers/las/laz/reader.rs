@@ -4,10 +4,11 @@ use super::{
 };
 use crate::{
     parsers::{BufferReader, FeatureReader, Reader},
+    proj::Transformer,
     readers::{
-        LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReaderOptions, LASVectorFeature,
-        LAZCompressor, LAZHeader, LAZHeaderItem, LAZHeaderItemType,
-        las_parse_variable_length_records,
+        GeoStore, LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReaderOptions,
+        LASVectorFeature, LAZCompressor, LAZHeader, LAZHeaderItem, LAZHeaderItemType,
+        build_geo_key_directory, build_wkt, las_parse_variable_length_records,
         laz::{v1::LAZPoint10v1Reader, v2::LAZPoint10v2Reader},
         v1::{LAZGpsTime11v1Reader, LAZbyte10v1Reader, LAZrgb12v1Reader, LAZwavepacket13v1Reader},
         v2::{LAZGpsTime11v2Reader, LAZbyte10v2Reader, LAZrgb12v2Reader},
@@ -17,7 +18,7 @@ use crate::{
         },
     },
 };
-use alloc::{collections::BTreeMap, rc::Rc, vec, vec::Vec};
+use alloc::{collections::BTreeMap, rc::Rc, string::String, vec, vec::Vec};
 use core::{cell::RefCell, fmt::Debug};
 use s2json::{Properties, VectorFeature, VectorGeometry, VectorPoint};
 
@@ -101,10 +102,15 @@ pub struct LAZReader<T: Reader + Debug> {
     pub laz_header: LAZHeader,
     /// Extended VARIABLE LENGTH RECORDS
     pub variable_length_records: BTreeMap<u32, LASExtendedVariableLengthRecord>,
+    /// WKT projection string
+    pub wkt: Option<String>,
+    /// GeoKeyDirectory
+    pub geo_key_directory: GeoStore,
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     // decompress_selective: u32, // all
     // Is true if self file uses layered compression for LAS 1.4.
     layered_las14_compression: bool,
+    transformer: Transformer,
     dont_transform: bool,
     state: RefCell<LAZState<T>>,
 }
@@ -114,12 +120,18 @@ impl<T: Reader + Debug> LAZReader<T> {
         let options = options.unwrap_or_default();
         let header = LASHeader::from_reader(&reader);
         let variable_length_records = las_parse_variable_length_records(&header, &reader);
+        let mut transformer = Transformer::new();
+        let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
+        let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
         let reader = Rc::new(RefCell::new(reader));
         let mut laz_reader = Self {
             reader: reader.clone(),
             header,
             variable_length_records,
             laz_header: LAZHeader::default(),
+            wkt,
+            geo_key_directory,
+            transformer,
             dec: Rc::new(RefCell::new(ArithmeticDecoder::new(reader))),
             // decompress_selective: 0xffffffff,
             layered_las14_compression: false,
@@ -198,10 +210,10 @@ impl<T: Reader + Debug> LAZReader<T> {
         } else {
             self.pointwise_compress_read(&mut point, &mut context);
         }
-        let vp = point.to_vector_point(&self.header);
-        // TODO: transform
+        let mut vp = point.to_vector_point(&self.header);
+        // transform if needed
         if !self.dont_transform {
-            // self.transformer.forward(vp);
+            self.transformer.forward_mut(&mut vp);
         }
 
         Some(vp)

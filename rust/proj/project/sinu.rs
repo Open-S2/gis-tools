@@ -2,7 +2,7 @@ use crate::proj::{
     CoordinateStep, EPS10, M_VAL, N_VAL, Proj, ProjMethod, ProjectCoordinates,
     TransformCoordinates, aasin, enfn, inv_mlfn, mlfn,
 };
-use alloc::vec::Vec;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{cos, fabs, sin, sqrt};
 
@@ -29,7 +29,7 @@ fn sinu_setup(proj: &mut Proj, sinu: &mut SinuData) {
 /// Sinusoidal Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct SinusoidalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<SinuData>,
     method: ProjMethod,
 }
@@ -45,7 +45,7 @@ impl ProjectCoordinates for SinusoidalProjection {
     }
 }
 impl CoordinateStep for SinusoidalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = SinuData::default();
         let method: ProjMethod;
         {
@@ -83,7 +83,7 @@ impl CoordinateStep for SinusoidalProjection {
 /// Eckert VI Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct EckertVIProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<SinuData>,
 }
 impl ProjectCoordinates for EckertVIProjection {
@@ -98,7 +98,7 @@ impl ProjectCoordinates for EckertVIProjection {
     }
 }
 impl CoordinateStep for EckertVIProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = SinuData::default();
         {
             let proj = &mut proj.borrow_mut();
@@ -120,7 +120,7 @@ impl CoordinateStep for EckertVIProjection {
 /// McBryde-Thomas Flat-Polar Sinusoidal Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct McBrydeThomasFlatPolarSinusoidalProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<SinuData>,
 }
 impl ProjectCoordinates for McBrydeThomasFlatPolarSinusoidalProjection {
@@ -135,7 +135,7 @@ impl ProjectCoordinates for McBrydeThomasFlatPolarSinusoidalProjection {
     }
 }
 impl CoordinateStep for McBrydeThomasFlatPolarSinusoidalProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = SinuData::default();
         {
             let proj = &mut proj.borrow_mut();
@@ -157,7 +157,7 @@ impl CoordinateStep for McBrydeThomasFlatPolarSinusoidalProjection {
 /// General Sinusoidal Series Projection
 #[derive(Debug, Clone, PartialEq)]
 pub struct GeneralSinusoidalSeriesProjection {
-    proj: RefCell<Proj>,
+    proj: Rc<RefCell<Proj>>,
     store: RefCell<SinuData>,
 }
 impl ProjectCoordinates for GeneralSinusoidalSeriesProjection {
@@ -172,7 +172,7 @@ impl ProjectCoordinates for GeneralSinusoidalSeriesProjection {
     }
 }
 impl CoordinateStep for GeneralSinusoidalSeriesProjection {
-    fn new(proj: RefCell<Proj>) -> Self {
+    fn new(proj: Rc<RefCell<Proj>>) -> Self {
         let mut store = SinuData::default();
         {
             let proj = &mut proj.borrow_mut();
