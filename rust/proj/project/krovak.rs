@@ -1,7 +1,8 @@
 use crate::proj::{
     CZECH, CoordinateStep, KROVAK, KROVAK_MODIFIED, KROVAK_MODIFIED_NORTH_ORIENTED,
-    KROVAK_NORTH_ORIENTED, LATITUDE_OF_PROJECTION_CENTRE, LONGITUDE_OF_ORIGIN, Proj, ProjValue,
-    ProjectCoordinates, SCALE_FACTOR_AT_NATURAL_ORIGIN, TransformCoordinates,
+    KROVAK_NORTH_ORIENTED, LATITUDE_OF_PROJECTION_CENTRE, LONGITUDE_OF_ORIGIN,
+    LONGITUDE_OF_PROJECTION_CENTRE, Proj, ProjValue, ProjectCoordinates,
+    SCALE_FACTOR_AT_NATURAL_ORIGIN, TransformCoordinates,
 };
 use alloc::rc::Rc;
 use core::{
@@ -138,7 +139,12 @@ fn krovak_setup(proj: &mut Proj, modified: bool) -> KrovakData {
     // if center long is not set use 42d30'E of Ferro - 17d40' for Ferro
     // that will correspond to using longitudes relative to greenwich
     // as input and output, instead of lat/long relative to Ferro
-    let lon_0 = proj.params.get(&LONGITUDE_OF_ORIGIN).unwrap_or(&ProjValue::default()).f64();
+    let lon_0 = proj
+        .params
+        .get(&LONGITUDE_OF_ORIGIN)
+        .or_else(|| proj.params.get(&LONGITUDE_OF_PROJECTION_CENTRE))
+        .unwrap_or(&ProjValue::default())
+        .f64();
     proj.lam0 = if lon_0 == 0. { 0.7417649320975901 - 0.308341501185665 } else { lon_0 };
 
     // if scale not set default to 0.9999

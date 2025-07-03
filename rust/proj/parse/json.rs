@@ -1,12 +1,16 @@
-use super::util::to_camel_case;
-use crate::proj::{ProjectionTransform, Step, derive_eccentricity, derive_sphere};
+use crate::proj::{
+    AxisSwapConverter, CoordinateStep, Proj, ProjectionTransform, Step, derive_eccentricity,
+    derive_sphere, name_to_unit, to_camel_case,
+};
 use alloc::{
     boxed::Box,
     format,
+    rc::Rc,
     string::{String, ToString},
     vec,
     vec::Vec,
 };
+use core::cell::RefCell;
 use libm::fabs;
 use serde::{Deserialize, Serialize};
 
@@ -375,7 +379,7 @@ pub enum ProjValue {
 }
 impl Default for ProjValue {
     fn default() -> Self {
-        ProjValue::Bool(false)
+        ProjValue::String("".into())
     }
 }
 impl PartialEq for ProjValue {
@@ -546,14 +550,14 @@ pub struct ParameterValue {
 impl ParameterValue {
     /// Get the radians of the value
     pub fn rad(&self) -> f64 {
-        let unit = self.unit.as_ref().unwrap_or(&Unit::BaseUnit(BaseUnit::Degree));
+        // If no unit, build from name_to_unit, if angle, it's degree, otherwise metre
+        let unit = self.unit.clone().unwrap_or_else(|| name_to_unit(&self.name));
         self.value.f64() * unit.rad()
     }
 }
 impl From<&ParameterValue> for ProjValue {
-    fn from(value: &ParameterValue) -> Self {
-        let double = value.rad();
-        ProjValue::F64(double)
+    fn from(p_value: &ParameterValue) -> Self {
+        ProjValue::F64(p_value.rad())
     }
 }
 impl ToProjJSON for ParameterValue {
@@ -765,7 +769,7 @@ impl Method {
     /// Convert a Method to a ProjectionTransform
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
         // add projection from method
-        proj_transform.steps.push(Step::from_method(self, proj_transform.proj.clone()).unwrap());
+        proj_transform.method = Step::from_method(self, proj_transform.proj.clone()).unwrap();
     }
 }
 impl ToProjJSON for Method {
@@ -921,6 +925,10 @@ impl Default for Unit {
     }
 }
 impl Unit {
+    /// Create a degree unit
+    pub fn new_deg() -> Self {
+        Unit::BaseUnit(BaseUnit::Degree)
+    }
     /// Set the unit type assuming the unit is a UnitObject
     pub fn set_unit_type(&mut self, unit_type: UnitType) {
         match self {
@@ -1258,7 +1266,7 @@ impl ToProjJSON for EngineeringDatum {
 }
 
 /// Axis Direction defines an axis direction
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum AxisDirection {
     /// North
@@ -1345,7 +1353,22 @@ pub enum AxisDirection {
 }
 impl From<String> for AxisDirection {
     fn from(s: String) -> Self {
-        serde_json::from_str(&format!("\"{}\"", to_camel_case(&s))).unwrap_or_default()
+        serde_json::from_str(&format!("\"{}\"", &s))
+            .or_else(|_| serde_json::from_str(&format!("\"{}\"", to_camel_case(&s))))
+            .unwrap_or_else(|_| {
+                // try a few cases otherwise default
+                match s.to_lowercase().as_str() {
+                    "n" => AxisDirection::North,
+                    "ne" | "northeast" => AxisDirection::NorthEast,
+                    "e" => AxisDirection::East,
+                    "se" | "southeast" => AxisDirection::SouthEast,
+                    "s" => AxisDirection::South,
+                    "sw" | "southwest" => AxisDirection::SouthWest,
+                    "w" => AxisDirection::West,
+                    "nw" | "northwest" => AxisDirection::NorthWest,
+                    _ => AxisDirection::Unspecified,
+                }
+            })
     }
 }
 
@@ -1497,6 +1520,17 @@ impl ValueInDegreeOrValueAndUnit {
 impl Default for ValueInDegreeOrValueAndUnit {
     fn default() -> Self {
         ValueInDegreeOrValueAndUnit::F64(0.0)
+    }
+}
+impl ToProjJSON for ValueInDegreeOrValueAndUnit {
+    fn set_unit(&mut self, unit: Unit) {
+        match self {
+            ValueInDegreeOrValueAndUnit::F64(val) => {
+                *self =
+                    ValueInDegreeOrValueAndUnit::ValueAndUnit(ValueAndUnit { value: *val, unit });
+            }
+            ValueInDegreeOrValueAndUnit::ValueAndUnit(value) => value.unit = unit,
+        }
     }
 }
 
@@ -1783,13 +1817,16 @@ impl GeodeticCRS {
     /// Convert a GeodeticCRS to a ProjectionTransform
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
         proj_transform.proj.borrow_mut().name = self.name.clone();
-        // TODO: Datum, CoordinateSystem, DeformationModel
+        // TODO: DeformationModel
         // TODO: Datum -> build_datum
         if let Some(datum_ensemble) = &self.datum_ensemble {
             datum_ensemble.to_projection_transform(proj_transform);
         }
         if let Some(datum) = &self.datum {
             datum.to_projection_transform(proj_transform);
+        }
+        if let Some(coordinate_system) = &self.coordinate_system {
+            coordinate_system.to_projection_transform(proj_transform);
         }
     }
 }
@@ -2400,8 +2437,7 @@ pub struct PrimeMeridian {
 impl PrimeMeridian {
     /// Convert a PrimeMeridian to a ProjectionTransform
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
-        let greenwhich = self.longitude.rad();
-        proj_transform.proj.borrow_mut().from_greenwich = greenwhich;
+        proj_transform.proj.borrow_mut().from_greenwich = self.longitude.rad();
     }
 }
 impl ToProjJSON for PrimeMeridian {
@@ -2415,6 +2451,9 @@ impl ToProjJSON for PrimeMeridian {
         } else {
             self.id = Some(id);
         }
+    }
+    fn set_unit(&mut self, unit: Unit) {
+        self.longitude.set_unit(unit);
     }
 }
 
@@ -2475,12 +2514,20 @@ impl ToProjJSON for ProjectedCRS {
     }
     // Pass down to the coordinate system
     fn set_axis(&mut self, axis: Axis) {
-        self.coordinate_system.axis.push(axis);
+        self.coordinate_system.set_axis(axis);
     }
     fn set_unit(&mut self, unit: Unit) {
-        for axis in self.coordinate_system.axis.iter_mut() {
-            axis.unit = Some(unit.clone());
-        }
+        self.coordinate_system.set_unit(unit);
+    }
+    // NOTE: Conversion also needs variables passed down
+    fn set_projection(&mut self, name: String) {
+        self.conversion.set_projection(name);
+    }
+    fn set_method(&mut self, method: Method) {
+        self.conversion.set_method(method);
+    }
+    fn set_parameter(&mut self, parameter: ParameterValue) {
+        self.conversion.set_parameter(parameter);
     }
 }
 impl ProjectedCRS {
@@ -2621,6 +2668,27 @@ pub enum CoordinateSystemSubtype {
     #[serde(rename = "TemporalMeasure")]
     TemporalMeasure,
 }
+impl CoordinateSystemSubtype {
+    /// Convert a CoordinateSystem to a ProjectionTransform
+    pub fn to_projection_transform(&self, _proj_transform: &mut ProjectionTransform) {
+        // TODO: ALL of them. I don't know the best way to add cart, but it needs to be a step
+        match self {
+            CoordinateSystemSubtype::Cartesian => {
+                // let cart = CartesianConverter::new(Rc::new(RefCell::new(Proj::default())));
+                // proj_transform.cart = Some(Box::new(cart.into()));
+            }
+            CoordinateSystemSubtype::Spherical => {}
+            CoordinateSystemSubtype::Ellipsoidal => {}
+            CoordinateSystemSubtype::Vertical => {}
+            CoordinateSystemSubtype::Ordinal => {}
+            CoordinateSystemSubtype::Parametric => {}
+            CoordinateSystemSubtype::Affine => {}
+            CoordinateSystemSubtype::TemporalDateTime => {}
+            CoordinateSystemSubtype::TemporalCount => {}
+            CoordinateSystemSubtype::TemporalMeasure => {}
+        }
+    }
+}
 
 /// # Coordinate System
 ///
@@ -2679,8 +2747,14 @@ impl ToProjJSON for CoordinateSystem {
 }
 impl CoordinateSystem {
     /// Convert a CoordinateSystem to a ProjectionTransform
-    pub fn to_projection_transform(&self, _proj_transform: &mut ProjectionTransform) {
-        // TODO: subtype, axis
+    pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
+        self.subtype.to_projection_transform(proj_transform);
+        if self.axis.len() > 0 {
+            let axis: Vec<AxisDirection> = self.axis.iter().map(|a| a.direction).collect();
+            let mut axis_converter = AxisSwapConverter::new(Rc::new(RefCell::new(Proj::default())));
+            axis_converter.swap = axis.into();
+            proj_transform.axisswap = Some(Box::new(axis_converter.into()));
+        }
     }
 }
 

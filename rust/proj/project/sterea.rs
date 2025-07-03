@@ -44,7 +44,7 @@ impl ProjectCoordinates for ObliqueStereographicAlternativeProjection {
         "Oblique Stereographic Alternative"
     }
     fn names() -> &'static [&'static str] {
-        &["Oblique Stereographic Alternative", "sterea"]
+        &["Oblique Stereographic Alternative", "Stereographic_North_Pole", "sterea"]
     }
 }
 impl CoordinateStep for ObliqueStereographicAlternativeProjection {

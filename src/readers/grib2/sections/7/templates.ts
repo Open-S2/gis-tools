@@ -53,17 +53,31 @@ export function getGrib2Template7(reader: Reader, sections: Grib2Sections): numb
 export function simpleUnpacking(reader: Reader, drs: Grib2DataRepresentationSection): number[] {
   const { numberOfBits, decimalScaleFactor, referenceValue, binaryScaleFactor } =
     drs.dataRepresentation;
+
   const DD = Math.pow(10, decimalScaleFactor);
   const EE = Math.pow(2, binaryScaleFactor);
   const data = new Uint8Array(reader.slice().buffer);
 
-  const bufferString = data.reduce((acc, value) => acc + value.toString(2).padStart(8, '0'), '');
-  const chunks = bufferString
-    .match(new RegExp(`.{${numberOfBits}}`, 'g'))
-    ?.map((c) => parseInt(c, 2));
-  if (chunks === undefined) throw new Error('Failed to parse data');
+  const totalBits = data.length * 8;
+  const count = Math.floor(totalBits / numberOfBits);
+  const values: number[] = [];
 
-  const values = chunks.map((chunk) => (referenceValue + chunk * EE) / DD);
+  let bitPos = 0;
+
+  for (let i = 0; i < count; i++) {
+    let acc = 0;
+
+    for (let b = 0; b < numberOfBits; b++) {
+      const byteIndex = Math.floor(bitPos / 8);
+      const bitOffset = 7 - (bitPos % 8);
+      const bit = (data[byteIndex] >> bitOffset) & 1;
+
+      acc = (acc << 1) | bit;
+      bitPos++;
+    }
+
+    values.push((referenceValue + acc * EE) / DD);
+  }
 
   return values;
 }

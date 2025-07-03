@@ -19,7 +19,7 @@ use crate::{
     parsers::{FeatureReader, RGBA, Reader},
     proj::Transformer,
 };
-use alloc::rc::Rc;
+use alloc::{collections::BTreeMap, rc::Rc};
 pub use color::*;
 pub use constants::*;
 use core::cell::RefCell;
@@ -29,9 +29,17 @@ pub use image_util::*;
 pub use predictor::*;
 pub use proj_params::*;
 use s2json::{Properties, VectorFeature};
+use std::string::String;
 
 /// An GeoTIFF Shaped Vector Feature
 pub type GeoTIFFVectorFeature = VectorFeature<GeoTIFFMetadata, Properties, RGBA>;
+
+/// Options for the GeoTIFF Reader
+#[derive(Debug, Default, Clone)]
+pub struct GeoTIFFOptions {
+    /// List of EPSG codes to utilize e.g. `{ "4326": "WKT_STRING" }``
+    pub epsg_codes: BTreeMap<String, String>,
+}
 
 /// # GeoTIFF Reader
 ///
@@ -57,12 +65,17 @@ pub struct GeoTIFFReader<T: Reader> {
 }
 impl<T: Reader> GeoTIFFReader<T> {
     /// Create a new GeoTIFFReader
-    pub fn new(reader: T, transform: Option<Transformer>) -> GeoTIFFReader<T> {
+    pub fn new(reader: T, options: Option<GeoTIFFOptions>) -> GeoTIFFReader<T> {
         let header = GeoTIFFHeaderReader::new(&reader);
+        let options = options.unwrap_or_default();
+        let mut transform = Transformer::new();
+        for (epsg_code, wkt) in options.epsg_codes.iter() {
+            transform.insert_epsg_code(epsg_code.clone(), wkt.clone());
+        }
         GeoTIFFReader {
             reader: Rc::new(RefCell::new(reader)),
             header,
-            transform: Rc::new(RefCell::new(transform.unwrap_or_default())),
+            transform: Rc::new(RefCell::new(transform)),
         }
     }
 

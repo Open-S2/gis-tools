@@ -28,7 +28,7 @@ impl ProjectCoordinates for VanDerGrintenIProjection {
         "van der Grinten (I)"
     }
     fn names() -> &'static [&'static str] {
-        &["van der Grinten", "van der Grinten (I)", "vandg"]
+        &["van der Grinten", "VanDerGrinten", "Van_der_Grinten_I", "van der Grinten (I)", "vandg"]
     }
 }
 impl CoordinateStep for VanDerGrintenIProjection {

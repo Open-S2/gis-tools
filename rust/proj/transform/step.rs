@@ -6,8 +6,8 @@ use crate::proj::{
     EQUIDISTANT_CYLINDRICAL, EckertVIProjection, EqualAreaCylindricalProjection,
     EqualEarthProjection, EquidistantConicProjection, EquidistantCylindricalProjection,
     ExtendedTransverseMercatorProjection, GaussSchreiberTransverseMercatorProjection,
-    GeneralSinusoidalSeriesProjection, GeocentricConverter, GnomonicProjection,
-    GoodeHomolosineProjection, HOTINE_OBLIQUE_MERCATOR_VARIANT_A,
+    GeneralSinusoidalSeriesProjection, GeocentricConverter, GeocentricLatitudeConverter,
+    GnomonicProjection, GoodeHomolosineProjection, HOTINE_OBLIQUE_MERCATOR_VARIANT_A,
     HOTINE_OBLIQUE_MERCATOR_VARIANT_B, HotineObliqueMercatorVariantAProjection,
     HotineObliqueMercatorVariantBProjection, KROVAK, KROVAK_MODIFIED,
     KROVAK_MODIFIED_NORTH_ORIENTED, KROVAK_NORTH_ORIENTED, KrovakModifiedNorthOrientedProjection,
@@ -77,6 +77,8 @@ pub enum Step {
     AxisSwap(Box<AxisSwapConverter>),
     /// Cartesian
     Cartesian(Box<CartesianConverter>),
+    /// Geocentric Latitude
+    GeoLat(Box<GeocentricLatitudeConverter>),
     /// Geocentric
     Geocentric(Box<GeocentricConverter>),
 
@@ -198,12 +200,12 @@ impl Step {
             point,
             forward,
             [
-                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eck6,
-                Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB, Krovak,
-                KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA, MBTfps,
-                Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly, Robin,
-                Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV, WagV,
-                WebMerc
+                AxisSwap, Cartesian, GeoLat, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea,
+                Eck6, Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB,
+                Krovak, KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA,
+                MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly,
+                Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV,
+                WagV, WebMerc
             ]
         );
     }
@@ -214,12 +216,12 @@ impl Step {
             point,
             inverse,
             [
-                AxisSwap, Cartesian, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea, Eck6,
-                Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB, Krovak,
-                KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA, MBTfps,
-                Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly, Robin,
-                Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV, WagV,
-                WebMerc
+                AxisSwap, Cartesian, GeoLat, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea,
+                Eck6, Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB,
+                Krovak, KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA,
+                MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly,
+                Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV,
+                WagV, WebMerc
             ]
         );
     }

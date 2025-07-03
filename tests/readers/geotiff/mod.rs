@@ -6,11 +6,12 @@ mod tests {
     use gistools::{
         parsers::BufferReader,
         readers::{
-            FieldTagNames, GTiffDataType, GeoKeyDirectoryKeys, GeoPixelScale, GeoTIFFReader,
-            GeoTiePoint,
+            FieldTagNames, GTiffDataType, GeoKeyDirectoryKeys, GeoPixelScale, GeoTIFFOptions,
+            GeoTIFFReader, GeoTiePoint,
         },
     };
-    use std::path::PathBuf;
+    use s2json::BBox;
+    use std::{collections::BTreeMap, path::PathBuf};
 
     #[test]
     fn test_initial_geotiff() {
@@ -260,4 +261,47 @@ mod tests {
     //         println!("Dimensions: {width}x{height}");
     //         assert!(width > 0 && height > 0);
     //     }
+
+    #[test]
+    fn test_initial_epsg_27563_only_pcs_code() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/projections/epsg_27563_only_pcs_code.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(
+            BufferReader::from(bytes),
+            Some(GeoTIFFOptions {
+                epsg_codes: BTreeMap::from([(
+                    "27563".into(),
+                    "PROJCRS[\"NTF (Paris) / Lambert Sud France\",BASEGEOGCRS[\"NTF (Paris)\",DATUM[\"Nouvelle Triangulation Francaise (Paris)\",ELLIPSOID[\"Clarke 1880 (IGN)\",6378249.2,293.466021293627,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7011]],ID[\"EPSG\",6807]],PRIMEM[\"Paris\",0.040792344,ANGLEUNIT[\"radian\",1,ID[\"EPSG\",9101]],ID[\"EPSG\",8903]],ID[\"EPSG\",4807]],CONVERSION[\"Lambert Sud France\",METHOD[\"Lambert Conic Conformal (1SP)\",ID[\"EPSG\",9801]],PARAMETER[\"Latitude of natural origin\",49,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",0,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.999877499,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",600000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",200000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",18093]],CS[Cartesian,2,ID[\"EPSG\",4499]],AXIS[\"Easting (X)\",east],AXIS[\"Northing (Y)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",27563]]".into(),
+                )]),
+            }),
+        );
+
+        // read header variables
+        let header = &geotiff.header;
+        let image_dir = &header.image_directories[0];
+
+        // The pixel scale
+        assert_eq!(
+            image_dir.pixel_scale,
+            GeoPixelScale { x: 0.5006369999959134, y: 0.5006370000017342, z: 0.0 }
+        );
+        // The tie point
+        assert_eq!(
+            image_dir.tie_point,
+            GeoTiePoint { i: 0., j: 0., k: 0., x: 827294.1414437726, y: 523985.64443166065, z: 0. }
+        );
+
+        let mut first_image = geotiff.get_image(None).unwrap();
+        let bounds = first_image.get_bbox(false);
+        assert_eq!(
+            bounds,
+            BBox::new(827294.1414437726, 523980.63806166063, 827299.1478137725, 523985.64443166065)
+        );
+        let bounds_corrected = first_image.get_bbox(true);
+        assert_eq!(
+            bounds_corrected,
+            BBox::new(5.321526135724707, 46.97709562609581, 5.321594191757158, 46.97713894791725)
+        );
+    }
 }

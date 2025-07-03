@@ -10,7 +10,7 @@ mod tests {
         util::{CompressionFormat, decompress_data},
     };
     use s2_tilejson::{Encoding, Metadata, Scheme, SourceType, VectorLayer};
-    use std::{path::PathBuf, println};
+    use std::path::PathBuf;
 
     #[test]
     fn test_fixture_1() {
@@ -112,7 +112,7 @@ mod tests {
     fn test_fixture_1_local_manager() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests/readers/pmtiles/fixtures/test_fixture_1.pmtiles");
-        println!("{}", path.to_str().unwrap());
+        // println!("{}", path.to_str().unwrap());
         let data = std::fs::read(path).unwrap();
         let buf_reader = BufferReader::new(data);
         let mut reader = PMTilesReader::new(buf_reader, None);

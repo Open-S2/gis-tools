@@ -33,6 +33,52 @@ impl Date {
         Date { year, month, day, hour, minute, second }
     }
 
+    /// Create date given number of milliseconds since 1970-01-01T00:00:00Z (UTC)
+    pub fn from_time(time: i64) -> Date {
+        let mut date = Date::default();
+        date.set_time(time);
+        date
+    }
+
+    /// Set the date fields from milliseconds since 1970-01-01T00:00:00Z
+    pub fn set_time(&mut self, time: i64) {
+        // Break into days and remaining milliseconds
+        let mut days = time / 86_400_000;
+        let mut ms_remaining = time % 86_400_000;
+        if ms_remaining < 0 {
+            ms_remaining += 86_400_000;
+            days -= 1;
+        }
+
+        // Determine year
+        let mut year = 1970;
+        loop {
+            let year_days = if is_leap_year(year) { 366 } else { 365 };
+            if days < year_days {
+                break;
+            }
+            days -= year_days;
+            year += 1;
+        }
+
+        // Determine month
+        let leap = is_leap_year(year) as usize;
+        let mut month = 0;
+        while days >= DAYS_IN_MONTH[leap][month] as i64 {
+            days -= DAYS_IN_MONTH[leap][month] as i64;
+            month += 1;
+        }
+
+        self.year = year;
+        self.month = (month + 1) as u8;
+        self.day = (days + 1) as u8;
+
+        // Convert remaining milliseconds to time of day
+        self.hour = (ms_remaining / 3_600_000) as u8;
+        self.minute = ((ms_remaining % 3_600_000) / 60_000) as u8;
+        self.second = ((ms_remaining % 60_000) / 1_000) as u8;
+    }
+
     /// Returns the number of milliseconds since 1970-01-01T00:00:00Z (UTC)
     pub fn get_time(&self) -> i64 {
         let mut days = 0;

@@ -1,11 +1,26 @@
 use super::{DatumParams, DatumType, ParameterValue};
-use crate::proj::{ProjValue, name_to_param_id};
+use crate::proj::{
+    AZIMUTH_PROJECTION_CENTRE, FALSE_EASTING, FALSE_NORTHING, LATITUDE_OF_FALSE_ORIGIN,
+    LATITUDE_OF_NATURAL_ORIGIN, LATITUDE_OF_PROJECTION_CENTRE, LONGITUDE_OF_FALSE_ORIGIN,
+    LONGITUDE_OF_NATURAL_ORIGIN, LONGITUDE_OF_PROJECTION_CENTRE, ProjValue,
+    SCALE_FACTOR_AT_NATURAL_ORIGIN, name_to_param_id,
+};
 use alloc::{collections::BTreeMap, string::String};
 
 /// A generic 4-dimensional point/vector
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Coords(pub f64, pub f64, pub f64, pub f64);
+impl Coords {
+    /// Create a new Coords
+    pub fn new(x: f64, y: f64, z: f64, t: f64) -> Coords {
+        Coords(x, y, z, t)
+    }
+    /// Create a new Coords from xy
+    pub fn new_xy(x: f64, y: f64) -> Coords {
+        Coords(x, y, 0.0, 0.0)
+    }
+}
 
 /// A complex number container
 #[repr(C)]
@@ -86,13 +101,13 @@ pub struct Proj {
     /// 1 / one_es
     pub rone_es: f64,
     // The flattenings
-    /// first flattening
+    /// first flattening [the flattening of the ellipsoid]
     pub f: f64,
     /// second flattening
     pub f2: f64,
     /// third flattening
     pub n: f64,
-    /// The inverse flattening (1/f)
+    /// The inverse flattening (1/f) [the reverse flattening of the ellipsoid]
     pub rf: f64,
     /// 1/f2
     pub rf2: f64,
@@ -111,10 +126,14 @@ pub struct Proj {
     pub over: bool,
     /// Geocentric latitude flag
     pub geoc: bool,
-    // /// Left flag for input/output coordinate types
-    // pub left: IoUnits,
-    // /// Right flag for input/output coordinate types
-    // pub right: IoUnits,
+    /// proj=latlong ... not really a projection at all
+    pub is_ll: bool,
+    /// proj=geocent ... not really a projection at all
+    pub is_geocent: bool,
+    /// Left flag for input/output coordinate types
+    pub left: IoUnits,
+    /// Right flag for input/output coordinate types
+    pub right: IoUnits,
 
     // CARTOGRAPHIC OFFSETS
     /// central meridian
@@ -135,12 +154,12 @@ pub struct Proj {
     pub k0: f64,
     /// Plane coordinate scaling TO meter
     pub to_meter: f64,
-    // /// Plane coordinate scaling FROM meter
-    // pub fr_meter: f64,
-    // /// Vertical scaling TO meter
-    // pub vto_meter: f64,
-    // /// Vertical scaling FROM meter
-    // pub vfr_meter: f64,
+    /// Plane coordinate scaling FROM meter
+    pub fr_meter: f64,
+    /// Vertical scaling TO meter
+    pub vto_meter: f64,
+    /// Vertical scaling FROM meter
+    pub vfr_meter: f64,
 
     // DATUMS AND HEIGHT SYSTEMS
     /// Datum type (None, Param3, Param7, GridShift, WGS84)
@@ -150,8 +169,6 @@ pub struct Proj {
 
     /// prime meridian offset (in radians)
     pub from_greenwich: f64,
-    /// Axis order, pj_transform / pj_adjust_axis
-    pub axis: [char; 4],
 }
 impl Default for Proj {
     fn default() -> Self {
@@ -184,8 +201,10 @@ impl Default for Proj {
             a_orig: 0.,
             over: false,
             geoc: false,
-            // left: IoUnits::RADIANS,
-            // right: IoUnits::CLASSIC,
+            is_ll: false,
+            is_geocent: false,
+            left: IoUnits::RADIANS,
+            right: IoUnits::CLASSIC,
             lam0: 0.,
             phi0: 0.,
             x0: 0.,
@@ -194,34 +213,59 @@ impl Default for Proj {
             t0: 0.,
             k0: 1.,
             to_meter: 1.,
-            // fr_meter: 0.,
-            // vto_meter: 0.,
-            // vfr_meter: 0.,
+            fr_meter: 1.,
+            vto_meter: 1.,
+            vfr_meter: 1.,
             datum_type: DatumType::NoDatum,
             datum_params: DatumParams::default(),
             from_greenwich: 0.,
-            axis: ['x', 'y', 'z', 't'],
         }
     }
 }
 impl Proj {
     /// Add a parameter to the proj object
     pub fn add_param(&mut self, param: &ParameterValue) {
+        // add via id
         if let Some(id) = &param.id {
-            self.params.insert(id.code.i64(), param.into());
-        }
-        for id in &param.ids {
-            self.params.insert(id.code.i64(), param.into());
+            self.insert_param(id.code.i64(), param.into());
+        } else if !param.ids.is_empty() {
+            for id in &param.ids {
+                self.insert_param(id.code.i64(), param.into());
+            }
+        } else {
+            // add via name
+            self.insert_param(name_to_param_id(&param.name), param.into());
         }
     }
     /// Set an f64 parameter
     pub fn set_f64(&mut self, id: i64, value: f64) {
-        self.params.insert(id, value.into());
+        self.insert_param(id, value.into());
     }
     /// Set a variable from user input (usually used by the API / TUI)
     pub fn set_var(&mut self, name: &str, value: &str) {
         let name_id = name_to_param_id(name);
-        self.params.insert(name_id, value.into());
+        self.insert_param(name_id, value.into());
+    }
+    /// Insert a param given code and value
+    fn insert_param(&mut self, id: i64, value: ProjValue) {
+        self.add_to_params(id, &value);
+        self.params.insert(id, value);
+    }
+    /// Apply directly to easy access params:
+    fn add_to_params(&mut self, id: i64, value: &ProjValue) {
+        match id {
+            LONGITUDE_OF_FALSE_ORIGIN
+            | LONGITUDE_OF_NATURAL_ORIGIN
+            | LONGITUDE_OF_PROJECTION_CENTRE => self.lam0 = value.f64(),
+            LATITUDE_OF_FALSE_ORIGIN
+            | LATITUDE_OF_NATURAL_ORIGIN
+            | LATITUDE_OF_PROJECTION_CENTRE => self.phi0 = value.f64(),
+            SCALE_FACTOR_AT_NATURAL_ORIGIN => self.k0 = value.f64(),
+            AZIMUTH_PROJECTION_CENTRE => self.alpha = value.f64(),
+            FALSE_EASTING => self.x0 = value.f64(),
+            FALSE_NORTHING => self.y0 = value.f64(),
+            _ => {}
+        }
     }
 }
 

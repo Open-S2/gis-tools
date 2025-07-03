@@ -60,7 +60,7 @@ impl ProjectCoordinates for NewZealandMapGridProjection {
         "New Zealand Map Grid"
     }
     fn names() -> &'static [&'static str] {
-        &["New Zealand Map Grid", "nzmg"]
+        &["New Zealand Map Grid", "NewZealandMapGrid", "New_Zealand_Map_Grid", "nzmg"]
     }
 }
 impl CoordinateStep for NewZealandMapGridProjection {

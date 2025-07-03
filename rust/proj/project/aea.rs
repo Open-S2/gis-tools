@@ -31,6 +31,13 @@ impl AeaData {
         let proj = &proj.borrow();
         let mut store = AeaData::default();
 
+        if let Some(lat_1) = proj.params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL) {
+            store.phi1 = lat_1.f64();
+        }
+        if let Some(lat_2) = proj.params.get(&LATITUDE_OF_SECOND_STANDARD_PARALLEL) {
+            store.phi2 = lat_2.f64();
+        }
+
         if fabs(store.phi1) > FRAC_PI_2 {
             panic!("Invalid value for lat_1: |lat_1| should be <= 90°");
         }
@@ -133,18 +140,12 @@ impl ProjectCoordinates for AlbersConicEqualAreaProjection {
         "Albers Conic Equal Area"
     }
     fn names() -> &'static [&'static str] {
-        &["Albers Conic Equal Area", "Albers", "aea", "9822"]
+        &["Albers Conic Equal Area", "Albers_Conic_Equal_Area", "Albers", "aea", "9822"]
     }
 }
 impl CoordinateStep for AlbersConicEqualAreaProjection {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {
-        let mut store = AeaData::new(proj.clone());
-        if let Some(lat_1) = proj.borrow().params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL) {
-            store.phi1 = lat_1.f64();
-        }
-        if let Some(lat_2) = proj.borrow().params.get(&LATITUDE_OF_SECOND_STANDARD_PARALLEL) {
-            store.phi2 = lat_2.f64();
-        }
+        let store = AeaData::new(proj.clone());
         AlbersConicEqualAreaProjection { proj, store: store.into() }
     }
     fn forward<P: TransformCoordinates>(&self, p: &mut P) {

@@ -34,7 +34,7 @@ impl ProjectCoordinates for EquidistantConicProjection {
         "Equidistant Conic"
     }
     fn names() -> &'static [&'static str] {
-        &["Equidistant Conic", "eqdc"]
+        &["Equidistant Conic", "Equidistant_Conic", "eqdc"]
     }
 }
 impl CoordinateStep for EquidistantConicProjection {

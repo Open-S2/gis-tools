@@ -1,8 +1,8 @@
 use crate::proj::{
     _msfn, CoordinateStep, EPS10, LAMBERT_CONFORMAL_CONIC_1SP, LAMBERT_CONFORMAL_CONIC_2SP,
-    LATITUDE_OF_FIRST_STANDARD_PARALLEL, LATITUDE_OF_PROJECTION_CENTRE,
-    LATITUDE_OF_SECOND_STANDARD_PARALLEL, Proj, ProjValue, ProjectCoordinates,
-    TransformCoordinates, phi2, tsfn,
+    LATITUDE_OF_FIRST_STANDARD_PARALLEL, LATITUDE_OF_NATURAL_ORIGIN, LATITUDE_OF_PROJECTION_CENTRE,
+    LATITUDE_OF_SECOND_STANDARD_PARALLEL, LONGITUDE_OF_NATURAL_ORIGIN, Proj, ProjValue,
+    ProjectCoordinates, TransformCoordinates, phi2, tsfn,
 };
 use alloc::rc::Rc;
 use core::{
@@ -48,6 +48,7 @@ impl<const C: i64> ProjectCoordinates for LambertConformalConicProjection<C> {
             "Lambert Conic Conformal (2SP)",
             "Lambert_Conformal_Conic_2SP",
             "Lambert Conic Conformal (LCC)",
+            "Lambert_Conformal_Conic",
             "Lambert Conformal Conic",
             "LambertConformalConic",
             "lcc",
@@ -56,17 +57,20 @@ impl<const C: i64> ProjectCoordinates for LambertConformalConicProjection<C> {
 }
 impl<const C: i64> CoordinateStep for LambertConformalConicProjection<C> {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {
+        // values: 8801, 8802, 8805, 8806, 8807
         let mut store = LccData::default();
         {
             let proj = &mut proj.borrow_mut();
             let lat_1 = proj
                 .params
-                .get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL)
+                .get(&LATITUDE_OF_NATURAL_ORIGIN)
+                .or_else(|| proj.params.get(&LATITUDE_OF_FIRST_STANDARD_PARALLEL))
                 .unwrap_or(&ProjValue::default())
                 .f64();
             let lat_2 = proj
                 .params
-                .get(&LATITUDE_OF_SECOND_STANDARD_PARALLEL)
+                .get(&LONGITUDE_OF_NATURAL_ORIGIN)
+                .or_else(|| proj.params.get(&LATITUDE_OF_SECOND_STANDARD_PARALLEL))
                 .unwrap_or(&ProjValue::default())
                 .f64();
             store.phi1 = lat_1;

@@ -472,7 +472,7 @@ pub fn tmerc_exact_e_inv<P: TransformCoordinates>(tmerc: &mut TmercData, p: &mut
 
 fn setup_exact(tmerc: &mut TmercData, proj: &Proj) {
     let poder_engsager = &mut tmerc.exact;
-    assert!(proj.es == 0., "Eccentricity must be zero");
+    assert!(proj.es > 0., "Eccentricity must be greater than zero");
     assert!(PROJ_ETMERC_ORDER == AuxLat::ORDER as i32, "Inconsistent orders etmerc vs auxorder");
     // third flattening
     let n = proj.n;
@@ -676,7 +676,7 @@ impl ProjectCoordinates for ExtendedTransverseMercatorProjection {
         "Extended Transverse Mercator"
     }
     fn names() -> &'static [&'static str] {
-        &["Extended Transverse Mercator", "etmerc"]
+        &["Extended Transverse Mercator", "Extended_Transverse_Mercator", "etmerc"]
     }
 }
 impl CoordinateStep for ExtendedTransverseMercatorProjection {

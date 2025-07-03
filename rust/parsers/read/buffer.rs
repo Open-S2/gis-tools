@@ -440,7 +440,7 @@ impl Buffer {
 }
 
 /// A basic buffer reader for reading data from a buffer
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct BufferReader {
     /// The buffer
     pub buffer: Vec<u8>, // This struct contains some data

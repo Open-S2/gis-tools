@@ -72,7 +72,7 @@ impl ProjectCoordinates for AzimuthalEquidistantProjection {
         "Azimuthal Equidistant"
     }
     fn names() -> &'static [&'static str] {
-        &["Azimuthal Equidistant", "aeqd", "guam"]
+        &["Azimuthal Equidistant", "Azimuthal_Equidistant", "aeqd", "guam"]
     }
 }
 impl CoordinateStep for AzimuthalEquidistantProjection {

@@ -13,6 +13,7 @@ use core::{
 use libm::{atan, atan2, cos, exp, fabs, log, pow, sin, sqrt, tan};
 
 /// Oblique Mercator Variables
+/// INTERNA
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct OmercData {
     a: f64,
@@ -36,8 +37,10 @@ const TOL: f64 = 1e-7;
 const EPS: f64 = 1e-10;
 
 /// Hotine Oblique Mercator (variant A) Projection
+/// EPSG Codes Used by Hotine Oblique Mercator (variant A): 8811, 8812, 8813, 8814, 8815, 8806, 8807
 pub type HotineObliqueMercatorVariantAProjection = ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_A>;
 /// Hotine Oblique Mercator (variant B) Projection
+/// EPSG Codes Used by Hotine Oblique Mercator (variant B): 8811, 8812, 8813, 8814, 8815, 8816, 8817
 pub type HotineObliqueMercatorVariantBProjection = ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_B>;
 
 /// Oblique Mercator Projection
@@ -186,7 +189,6 @@ impl<const C: i64> CoordinateStep for ObliqueMercatorProjection<C> {
                 } else {
                     gamma0 = gamma;
                     alpha_c = aasin(_d * sin(gamma0));
-                    // if (proj_errno(P) != 0) {
                     if gamma <= 90. - proj.phi0 {
                         // For a sphere, |gamma| must be <= 90 - |lat_0|
                         // On an ellipsoid, this is very slightly above

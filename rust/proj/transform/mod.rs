@@ -4,7 +4,7 @@ pub mod step;
 pub mod transformer;
 
 use super::{BaseProjection, Coords, Proj};
-use alloc::{rc::Rc, vec::Vec};
+use alloc::{boxed::Box, rc::Rc};
 use core::cell::RefCell;
 use s2json::VectorPoint;
 pub use step::*;
@@ -12,27 +12,58 @@ pub use transformer::*;
 
 /// A Projection Transform Definition
 /// Temporary placeholder
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ProjectionTransform {
     /// Projection guide
     pub proj: Rc<RefCell<Proj>>,
-    /// Projection steps
-    pub steps: Vec<Step>,
+    /// mutation method
+    pub method: Step,
     /// boolean to indicate if this transform is wgs84
     pub is_wgs84: bool,
+    // These PJs are used for implementing cs2cs style coordinate handling in the 4D API
+    /// Axis swapping if needed
+    pub axisswap: Option<Box<ProjectionTransform>>,
+    /// Cartesian if needed
+    pub cart: Option<Box<ProjectionTransform>>,
+    /// Cartesian to WGS84 if needed
+    pub cart_wgs84: Option<Box<ProjectionTransform>>,
+    /// Helmert if needed
+    pub helmert: Option<Box<ProjectionTransform>>,
+    /// Horizontal grid shift if needed
+    pub hgridshift: Option<Box<ProjectionTransform>>,
+    /// Vertical grid shift if needed
+    pub vgridshift: Option<Box<ProjectionTransform>>,
+}
+impl Default for ProjectionTransform {
+    fn default() -> Self {
+        let proj = Rc::new(RefCell::new(Proj::default()));
+        let method = BaseProjection::new(proj.clone());
+        Self {
+            proj,
+            method: method.into(),
+            is_wgs84: false,
+            axisswap: None,
+            cart: None,
+            cart_wgs84: None,
+            helmert: None,
+            hgridshift: None,
+            vgridshift: None,
+        }
+    }
 }
 impl ProjectionTransform {
-    /// is_empty
-    pub fn is_empty(&self) -> bool {
-        self.steps.is_empty()
-    }
-
     /// Create the WGS 84 definition
     pub fn wgs84() -> Self {
         Self {
             proj: Rc::new(RefCell::new(Proj::default())),
-            steps: BaseProjection::to_steps(),
+            method: BaseProjection::to_step(),
             is_wgs84: true,
+            axisswap: None,
+            cart: None,
+            cart_wgs84: None,
+            helmert: None,
+            hgridshift: None,
+            vgridshift: None,
         }
     }
 }
@@ -55,6 +86,28 @@ pub trait TransformCoordinates: Clone + Default {
     fn set_z(&mut self, z: f64);
     /// Set the temporal coordinate
     fn set_t(&mut self, t: f64);
+
+    // Top level get and set
+    /// Get a coordinate at index
+    fn get(&self, idx: usize) -> f64 {
+        match idx {
+            0 => self.x(),
+            1 => self.y(),
+            2 => self.z(),
+            3 => self.t(),
+            _ => panic!("Invalid index"),
+        }
+    }
+    /// Set a coordinate at index
+    fn set(&mut self, idx: usize, val: f64) {
+        match idx {
+            0 => self.set_x(val),
+            1 => self.set_y(val),
+            2 => self.set_z(val),
+            3 => self.set_t(val),
+            _ => panic!("Invalid index"),
+        }
+    }
 
     // All X based convenience methods
 

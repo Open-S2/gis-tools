@@ -100,7 +100,15 @@ impl ProjectCoordinates for StereographicProjection {
         "Stereographic"
     }
     fn names() -> &'static [&'static str] {
-        &["Stereographic", "stere"]
+        &[
+            "Stereographic",
+            "Polar_Stereographic",
+            "StereographicSouthPole",
+            "Stereographic_South_Pole",
+            "Stereographic South Pole",
+            "Polar Stereographic (variant B)",
+            "stere",
+        ]
     }
 }
 impl CoordinateStep for StereographicProjection {

@@ -72,7 +72,7 @@ impl<T: Reader + Debug> LAZState<T> {
 /// Implements the {@link FeatureIterator} interface
 ///
 /// Data is stored like so:
-///```
+///```txt
 /// |            PUBLIC HEADER BLOCK           |
 /// |          VARIABLE LENGTH RECORDS         |
 /// |             POINT DATA RECORDS           |
@@ -121,6 +121,9 @@ impl<T: Reader + Debug> LAZReader<T> {
         let header = LASHeader::from_reader(&reader);
         let variable_length_records = las_parse_variable_length_records(&header, &reader);
         let mut transformer = Transformer::new();
+        for (epsg_code, wkt) in options.epsg_codes.iter() {
+            transformer.insert_epsg_code(epsg_code.clone(), wkt.clone());
+        }
         let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
         let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
         let reader = Rc::new(RefCell::new(reader));

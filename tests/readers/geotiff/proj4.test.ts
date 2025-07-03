@@ -300,7 +300,7 @@ test('epsg_27563_only_pcs_code.tif test', async (): Promise<void> => {
   );
   const boundsCorrected = image.getBoundingBox(true);
   // https://github.com/OSGeo/libgeotiff/blob/e00dcd652cd99e1ee81bd24a14b998cadab52c60/libgeotiff/test/testlistgeo_out.dist#L2110C47-L2110C74
-  // TODO: The link claims the longitude is wrong by roughly 2 degrees.
+  // TODO: The link claims the longitude is wrong by roughly 2 degrees. Claims the GeogPrimeMeridianLongGeoKey is set to 2.5969213
   closeToArray(
     boundsCorrected,
     [5.321526154745895, 46.97709562609565, 5.321594210778345, 46.97713894791709],

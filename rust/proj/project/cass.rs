@@ -35,7 +35,7 @@ impl ProjectCoordinates for CassiniProjection {
         "Cassini"
     }
     fn names() -> &'static [&'static str] {
-        &["Cassini", "Cassini-Soldner", "cass"]
+        &["Cassini", "Cassini-Soldner", "Cassini_Soldner", "cass"]
     }
 }
 impl CoordinateStep for CassiniProjection {
@@ -61,7 +61,7 @@ impl CoordinateStep for CassiniProjection {
     }
     fn forward<P: TransformCoordinates>(&self, p: &mut P) {
         if self.method == ProjMethod::Ellipsoidal {
-            cass_e_forward(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
+            cass_e_forward(&self.store.borrow(), &self.proj.borrow(), p);
         } else {
             cass_s_forward(&self.proj.borrow(), p);
         }
@@ -69,7 +69,7 @@ impl CoordinateStep for CassiniProjection {
     fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
         if self.method == ProjMethod::Ellipsoidal {
             let es = self.proj.borrow().es;
-            cass_e_inverse(self, &mut self.store.borrow_mut(), es, p);
+            cass_e_inverse(self, &self.store.borrow(), es, p);
         } else {
             cass_s_inverse(&self.proj.borrow(), p);
         }
@@ -77,7 +77,7 @@ impl CoordinateStep for CassiniProjection {
 }
 
 /// Cassini Ellipsoidal forward project
-pub fn cass_e_forward<P: TransformCoordinates>(cass: &mut CassData, proj: &Proj, p: &mut P) {
+pub fn cass_e_forward<P: TransformCoordinates>(cass: &CassData, proj: &Proj, p: &mut P) {
     let sinphi = sin(p.phi());
     let cosphi = cos(p.phi());
     let m = mlfn(p.phi(), sinphi, cosphi, &cass.en);
@@ -110,7 +110,7 @@ pub fn cass_s_forward<P: TransformCoordinates>(proj: &Proj, p: &mut P) {
 /// Cassini Ellipsoidal inverse project
 pub fn cass_e_inverse<P: TransformCoordinates>(
     cass: &CassiniProjection,
-    cass_data: &mut CassData,
+    cass_data: &CassData,
     es: f64,
     p: &mut P,
 ) {

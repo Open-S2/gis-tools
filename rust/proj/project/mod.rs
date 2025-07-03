@@ -74,7 +74,6 @@ pub use aea::*;
 pub use aeqd::*;
 pub use airy::*;
 use alloc::rc::Rc;
-use alloc::{vec, vec::Vec};
 pub use bonne::*;
 pub use cass::*;
 pub use cea::*;
@@ -132,9 +131,9 @@ pub type LonLatProjection = BaseProjection;
 pub struct BaseProjection {}
 impl BaseProjection {
     /// Create a list of steps for the base projection
-    pub fn to_steps() -> Vec<Step> {
+    pub fn to_step() -> Step {
         let base_proj = BaseProjection {};
-        vec![base_proj.into()]
+        base_proj.into()
     }
 }
 impl ProjectCoordinates for BaseProjection {

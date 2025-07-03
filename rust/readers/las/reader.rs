@@ -12,6 +12,8 @@ use s2json::{Properties, VectorFeature, VectorGeometry, VectorPoint};
 pub struct LASReaderOptions {
     /// Whether to transform the data to WGS84 if it's not already in WGS84
     pub dont_transform: bool,
+    /// List of EPSG codes to utilize e.g. `{ "4326": "WKT_STRING" }``
+    pub epsg_codes: BTreeMap<String, String>,
 }
 
 /// An LAS Shaped Vector Feature
@@ -68,6 +70,9 @@ impl<T: Reader> LASReader<T> {
         let header = LASHeader::from_reader(&reader);
         let variable_length_records = las_parse_variable_length_records(&header, &reader);
         let mut transformer = Transformer::new();
+        for (epsg_code, wkt) in options.epsg_codes.iter() {
+            transformer.insert_epsg_code(epsg_code.clone(), wkt.clone());
+        }
         let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
         let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
         Self {
@@ -113,8 +118,7 @@ impl<T: Reader> LASReader<T> {
             point_data_record_length,
             ..
         } = header;
-        let num_points = *num_points as u64;
-        if index + 1 > num_points {
+        if index + 1 > *num_points as u64 {
             return None;
         }
         let offset_to_points = *offset_to_points as u64;
@@ -147,7 +151,7 @@ impl<T: Reader> LASReader<T> {
         };
         let mut vp = point.to_vector_point(header);
 
-        if *dont_transform {
+        if !*dont_transform {
             self.transformer.forward_mut(&mut vp);
         }
 

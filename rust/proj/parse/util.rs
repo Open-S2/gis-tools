@@ -1,27 +1,43 @@
+use crate::proj::{BaseUnit, Unit};
 use alloc::string::String;
 
 /// Convert a string to camelCase
 pub fn to_camel_case(s: &str) -> String {
-    let trimmed_s = s.trim();
     let mut result = String::new();
     let mut capitalize_next = false;
-    let mut first_word = true;
 
-    for c in trimmed_s.chars() {
+    for (i, c) in s.trim().chars().enumerate() {
         if c == ' ' || c == '_' || c == '-' {
             capitalize_next = true;
-            first_word = false;
+        } else if i == 0 {
+            result.push(c.to_ascii_lowercase());
         } else if capitalize_next {
             result.push(c.to_ascii_uppercase());
             capitalize_next = false;
-            first_word = false;
-        } else if first_word {
+        } else {
             result.push(c.to_ascii_lowercase());
-            first_word = false;
+        }
+    }
+
+    result
+}
+
+/// Convert a string to PascalCase
+pub fn to_pascal_case(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in s.trim().chars() {
+        if c == ' ' || c == '_' || c == '-' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
         } else {
             result.push(c);
         }
     }
+
     result
 }
 
@@ -84,5 +100,25 @@ pub fn angular_unit_to_degrees(unit: &str) -> f64 {
         "grad" | "grade" => 1.0 / 200.0 * 180.0,
         "degree" => 1.0,
         _ => 0.0,
+    }
+}
+
+/// Convert a parameter name to a unit
+pub fn name_to_unit(name: &str) -> Unit {
+    match name.to_lowercase().as_str() {
+        "false_easting" | "false_northing" => Unit::BaseUnit(BaseUnit::Metre),
+        "scale_factor" => Unit::BaseUnit(BaseUnit::Unity),
+        _ => Unit::BaseUnit(BaseUnit::Degree),
+    }
+}
+
+/// Convert common axis names to order number
+pub fn axis_name_to_order(name: &str) -> u8 {
+    match name.to_lowercase().as_str() {
+        "x" | "(x)" | "east" | "east (x)" | "(e)" | "easting" | "easting (x)" => 0,
+        "y" | "(y)" | "north" | "north (y)" | "(n)" | "northing" | "northing (y)" => 1,
+        "z" | "(z)" => 2,
+        "t" | "(t)" => 3,
+        _ => 0,
     }
 }

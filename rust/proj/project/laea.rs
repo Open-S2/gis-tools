@@ -47,7 +47,12 @@ impl<const C: i64> ProjectCoordinates for LambertAzimuthalEqualAreaBase<C> {
         "Lambert Azimuthal Equal Area"
     }
     fn names() -> &'static [&'static str] {
-        &["Lambert Azimuthal Equal Area", "Lambert Azimuthal Equal Area (Spherical)", "laea"]
+        &[
+            "Lambert Azimuthal Equal Area",
+            "Lambert_Azimuthal_Equal_Area",
+            "Lambert Azimuthal Equal Area (Spherical)",
+            "laea",
+        ]
     }
 }
 impl<const C: i64> CoordinateStep for LambertAzimuthalEqualAreaBase<C> {

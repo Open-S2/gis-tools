@@ -1,5 +1,5 @@
 use crate::proj::{Proj, RA4, RA6, SIXTH};
-use libm::sqrt;
+use libm::{asin, cos, sin, sqrt, tan};
 
 /// Derives an ellipsoid's eccentricity for an object
 /// @param el - ellipsoid object to modify
@@ -17,11 +17,48 @@ pub fn derive_eccentricity(proj: &mut Proj) {
     } else {
         e = sqrt(es); // eccentricity
     }
-    let ep2 = (a2 - b2) / b2; // used in geocentric
-
+    proj.a = a;
+    proj.b = b;
     proj.es = es;
     proj.e = e;
-    proj.e2 = ep2;
+
+    // Angular eccentricity
+    let alpha = asin(e);
+    proj.alpha = alpha;
+
+    // Derived eccentricities
+    proj.e2 = tan(alpha);
+    proj.e2s = proj.e2 * proj.e2;
+
+    let sin_alpha = sin(alpha);
+    proj.e3 = if alpha != 0.0 { sin_alpha / sqrt(2.0 - sin_alpha * sin_alpha) } else { 0.0 };
+    proj.e3s = proj.e3 * proj.e3;
+
+    // Flattening and reciprocals
+    let cos_alpha = cos(alpha);
+    proj.f = 1. - cos_alpha;
+    proj.rf = if proj.f != 0.0 { 1. / proj.f } else { f64::INFINITY };
+    proj.f2 = if cos_alpha != 0.0 { 1. / cos_alpha - 1. } else { 0.0 };
+    proj.rf2 = if proj.f2 != 0.0 { 1. / proj.f2 } else { f64::INFINITY };
+
+    // Third flattening
+    proj.n = (a - b) / (a + b);
+    proj.rn = if proj.n != 0.0 { 1. / proj.n } else { f64::INFINITY };
+
+    // Inverse semiaxes
+    proj.ra = 1. / a;
+    proj.rb = 1. / b;
+
+    // One minus es and its reciprocal
+    proj.one_es = 1. - es;
+    if proj.one_es == 0.0 {
+        // caller must handle invalid case
+        return;
+    }
+    proj.rone_es = 1. / proj.one_es;
+
+    // Second eccentricity squared
+    proj.e2 = (a2 - b2) / b2;
 }
 
 /// Builds a sphere with ellipsoid parameters
@@ -39,7 +76,7 @@ pub fn derive_sphere(proj: &mut Proj) {
         }
     }
     if proj.b == 0.0 && proj.rf != 0.0 {
-        proj.b = (1.0 - 1.0 / proj.rf) * proj.a;
+        proj.b = (1. - 1. / proj.rf) * proj.a;
     }
     if proj.b != 0.0 && proj.rf == 0.0 {
         let a = proj.a;

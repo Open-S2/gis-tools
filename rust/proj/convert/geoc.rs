@@ -1,4 +1,4 @@
-use crate::proj::{CoordinateStep, Direction, Proj, TransformCoordinates};
+use crate::proj::{CoordinateStep, Direction, IoUnits, Proj, TransformCoordinates};
 use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{atan, tan};
@@ -19,15 +19,18 @@ use libm::{atan, tan};
 /// For the spherical case, the geographical latitude equals the geocentric,
 /// and consequently, the input is copied directly to the output.
 #[derive(Debug, Clone, PartialEq)]
-pub struct GeocentricConverter {
+pub struct GeocentricLatitudeConverter {
     proj: Rc<RefCell<Proj>>,
 }
-impl CoordinateStep for GeocentricConverter {
+impl CoordinateStep for GeocentricLatitudeConverter {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {
-        // proj.borrow_mut().left = IoUnits::RADIANS;
-        // proj.borrow_mut().right = IoUnits::RADIANS;
-        // proj.is_ll = true;
-        GeocentricConverter { proj }
+        {
+            let proj = &mut proj.borrow_mut();
+            proj.left = IoUnits::RADIANS;
+            proj.right = IoUnits::RADIANS;
+            proj.is_ll = true;
+        }
+        GeocentricLatitudeConverter { proj }
     }
     /// Geographical to geocentric
     fn forward<P: TransformCoordinates>(&self, coords: &mut P) {

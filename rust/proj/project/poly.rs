@@ -137,7 +137,7 @@ pub fn poly_e_inverse<P: TransformCoordinates>(poly: &PolyData, proj: &Proj, p: 
             }
             i -= 1;
         }
-        if i != 0 {
+        if i == 0 {
             panic!("Coordinate outside projection domain");
         }
         let c = sin(phi);

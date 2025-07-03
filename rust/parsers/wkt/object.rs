@@ -36,6 +36,10 @@ impl WKTValue {
             WKTValue::String(_) => None,
         }
     }
+    /// Check if it is an array
+    pub fn is_array(&self) -> bool {
+        matches!(self, WKTValue::Array(_))
+    }
 }
 /// WKT object is a collection of WKT values or even nested WKT objects
 pub type WKTObject = Vec<WKTValue>;

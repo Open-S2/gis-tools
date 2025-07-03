@@ -1,6 +1,7 @@
 mod csv;
 mod geotiff;
 mod gpx;
+mod grib2;
 mod json;
 mod las;
 mod nadgrid;

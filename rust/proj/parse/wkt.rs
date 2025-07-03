@@ -6,7 +6,10 @@ use super::{
     ValueInDegreeOrValueAndUnit, ValueInMetreOrValueAndUnit, VerticalExtent,
     VerticalReferenceFrame,
 };
-use crate::parsers::{WKTParser, WKTValue, parse_wkt_object};
+use crate::{
+    parsers::{WKTParser, WKTValue, parse_wkt_object},
+    proj::AxisDirection,
+};
 use alloc::format;
 
 impl WKTParser for ObjectUsage {
@@ -192,11 +195,11 @@ impl WKTParser for Axis {
         let mut axis = Axis::default();
         if let WKTValue::Array(arr) = val {
             if arr.len() >= 2 {
-                axis.name = arr[0].to_string(); // TODO input is BOTH name and abbr... parse correctly (not really important)
-                axis.direction = serde_json::from_str(&format!("\"{}\"", arr[1].to_string()))
-                    .unwrap_or_default();
+                axis.abbreviation = arr[0].to_string();
+                axis.name = axis.abbreviation.clone();
+                axis.direction = AxisDirection::from(arr[1].to_string());
             }
-            // NOTE: BEARING and ORDER exist, but add no value in modern WKT
+            // NOTE: BEARING, ORDER, and ANGLEUNIT exist, but add no value in modern WKT
         }
         axis
     }
@@ -248,13 +251,11 @@ impl WKTParser for PrimeMeridian {
             if let Some(name) = arr.first() {
                 pm.name = name.to_string();
             }
-            let mut unit = Unit::default();
-            if let Some(unit_xml) = arr.get(2) {
-                unit = Unit::from_wkt(unit_xml);
-            }
             if let Some(lon) = arr.get(1) {
-                pm.longitude = ValueInDegreeOrValueAndUnit::from_unit(unit, lon.to_float());
+                pm.longitude =
+                    ValueInDegreeOrValueAndUnit::from_unit(Unit::new_deg(), lon.to_float());
             }
+            handle_common_fields(&mut pm, arr, 2);
         }
         pm
     }
@@ -568,7 +569,10 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     i += 1;
                 }
                 "PROJECTION" => {
-                    res.set_projection(arr[i + 1].to_string());
+                    let WKTValue::Array(arr) = &arr[i + 1] else {
+                        continue;
+                    };
+                    res.set_projection(arr[0].to_string());
                     i += 1;
                 }
                 // TODO: MODEL -> DYNAMIC[FRAMEEPOCH[2010.0],MODEL["NAD83(CSRS)v6 velocity grid"]] -> Stored as DeformationModel

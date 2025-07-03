@@ -12,10 +12,7 @@ use crate::{
     },
     readers::{GeoKeyDirectoryKeys as GKD, GeoStore},
 };
-use alloc::{
-    string::{String, ToString},
-    vec,
-};
+use alloc::string::{String, ToString};
 
 // UNUSED KEYS:
 // GTRasterTypeGeoKey, // http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.2 (used at a higher level)
@@ -76,12 +73,12 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
         }
 
         // from_greenwich
-        proj.from_greenwich = store
+        if let Some(val) = store
             .get_double(GKD::GeogPrimeMeridianLongGeoKey as u16)
-            .unwrap_or_else(|| {
-                store.get_short(GKD::GeogPrimeMeridianGeoKey as u16).unwrap_or(0) as f64
-            })
-            .to_radians();
+            .or_else(|| store.get_short(GKD::GeogPrimeMeridianGeoKey as u16).map(|v| v as f64))
+        {
+            proj.from_greenwich = val.to_radians();
+        }
         // sphere - NOTE: There might be other cases that cause sphere to be true
         proj.sphere = gtmodel_type_geo_key == 3 || proj_coord_trans_geo_key == 6;
         // TODO: Datum - It's a string map -_-
@@ -90,7 +87,9 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
         //     .unwrap_or_default()
         //     .into();
         // Ellipse
-        proj.ellps = build_ellps(store.get_short(GKD::GeogEllipsoidGeoKey as u16));
+        if let Some(code) = store.get_short(GKD::GeogEllipsoidGeoKey as u16) {
+            proj.ellps = build_ellps(Some(code));
+        }
         if let Some(a) = store.get_double(GKD::GeogSemiMajorAxisGeoKey as u16) {
             proj.a = a;
         }
@@ -106,10 +105,12 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
         let proj_linear_units_geo_key = store.get_short(GKD::ProjLinearUnitsGeoKey as u16);
         let vertical_units_geo_key = store.get_short(GKD::VerticalUnitsGeoKey as u16);
         let geog_linear_units_geo_key = store.get_short(GKD::GeogLinearUnitsGeoKey as u16);
-        let to_meter = geotiff_to_meter(
-            proj_linear_units_geo_key.or(vertical_units_geo_key).or(geog_linear_units_geo_key),
-        );
-        proj.to_meter = to_meter;
+        if proj.to_meter == 1. {
+            let to_meter = geotiff_to_meter(
+                proj_linear_units_geo_key.or(vertical_units_geo_key).or(geog_linear_units_geo_key),
+            );
+            proj.to_meter = to_meter;
+        }
         // alpha
         let alpha_angle = store.get_double(GKD::ProjAzimuthAngleGeoKey as u16);
         let alpha_units = store
@@ -141,7 +142,7 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
             .or(store.get_double(GKD::ProjFalseOriginEastingGeoKey as u16))
             .or(store.get_double(GKD::ProjCenterEastingGeoKey as u16));
         if let Some(x0) = x0 {
-            proj.x0 = x0 * to_meter;
+            proj.x0 = x0 * proj.to_meter;
         }
         // LATITUDE_OF_FALSE_ORIGIN
         if let Some(false_north) = store.get_double(GKD::ProjFalseOriginNorthingGeoKey as u16) {
@@ -158,7 +159,7 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
             .or(store.get_double(GKD::ProjFalseOriginNorthingGeoKey as u16))
             .or(store.get_double(GKD::ProjCenterNorthingGeoKey as u16));
         if let Some(y0) = y0 {
-            proj.y0 = y0 * to_meter;
+            proj.y0 = y0 * proj.to_meter;
         }
         // k0
         let k0 = store
@@ -208,7 +209,7 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
     // lastly handle injecting projection if it exists
     if let Some(proj_name) = &proj_name {
         if let Some(step) = Step::from_name(proj_name, proj_definition.proj.clone()) {
-            proj_definition.steps = vec![step];
+            proj_definition.method = step;
         }
     }
 

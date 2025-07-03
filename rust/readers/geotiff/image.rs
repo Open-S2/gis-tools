@@ -290,16 +290,18 @@ impl<T: Reader> GeoTIFFImage<T> {
     ///
     /// @returns The resolution as a vector
     pub fn resolution(&self) -> VectorPoint<()> {
+        // try pixel scale first
         let pixel_scale = self.image_directory.pixel_scale;
+        if pixel_scale.x != 0. || pixel_scale.y != 0. || pixel_scale.z != 0. {
+            return VectorPoint::new_xyz(pixel_scale.x, -pixel_scale.y, pixel_scale.z, None);
+        }
+        // then try model transformation
         let transform = self
             .image_directory
             .variables
             .getf64s(FieldTagNames::ModelTransformation as u16)
             .unwrap_or_else(|| panic!("The image does not have an affine transformation."));
-
-        if pixel_scale.x != 0. || pixel_scale.y != 0. || pixel_scale.z != 0. {
-            VectorPoint::new_xyz(pixel_scale.x, -pixel_scale.y, pixel_scale.z, None)
-        } else if transform[1] == 0. && transform[4] == 0. {
+        if transform[1] == 0. && transform[4] == 0. {
             VectorPoint::new_xyz(transform[0], -transform[5], transform[10], None)
         } else {
             let x = sqrt(transform[0] * transform[0] + transform[4] * transform[4]);
@@ -337,8 +339,7 @@ impl<T: Reader> GeoTIFFImage<T> {
     ///
     /// @param transform - apply affine transformation or proj4 transformation
     /// @returns The bounding box
-    pub fn get_bbox(&mut self, transform: Option<bool>) -> BBox {
-        let transform = transform.unwrap_or(true);
+    pub fn get_bbox(&mut self, transform: bool) -> BBox {
         let height = self.height() as f64;
         let width = self.width() as f64;
         let model_transformation =
@@ -369,13 +370,11 @@ impl<T: Reader> GeoTIFFImage<T> {
             let max_y = fmax(y1, y2);
 
             if transform {
-                let min_vec: VectorPoint<()> = VectorPoint::new_xy(min_x, min_y, None);
-                let VectorPoint { x: tmin_x, y: tmin_y, .. } =
-                    self.transformer.borrow().forward(&min_vec);
-                let max_vec: VectorPoint<()> = VectorPoint::new_xy(max_x, max_y, None);
-                let VectorPoint { x: tmax_x, y: tmax_y, .. } =
-                    self.transformer.borrow().forward(&max_vec);
-                BBox::new(tmin_x, tmin_y, tmax_x, tmax_y)
+                let mut min_vec: VectorPoint<()> = VectorPoint::new_xy(min_x, min_y, None);
+                self.transformer.borrow_mut().forward_mut(&mut min_vec);
+                let mut max_vec: VectorPoint<()> = VectorPoint::new_xy(max_x, max_y, None);
+                self.transformer.borrow_mut().forward_mut(&mut max_vec);
+                BBox::new(min_vec.x, min_vec.y, max_vec.x, max_vec.y)
             } else {
                 BBox::new(min_x, min_y, max_x, max_y)
             }
@@ -509,7 +508,7 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// @returns - The vector feature with rgba values incoded into the points
     pub fn get_multi_point_vector(&mut self) -> GeoTIFFVectorFeature {
         let Raster { width, height, alpha, data, .. } = self.get_rgba();
-        let bbox = self.get_bbox(Some(false));
+        let bbox = self.get_bbox(false);
         let BBox { left: min_x, bottom: min_y, right: max_x, top: max_y } = bbox;
         let mut coordinates: VectorMultiPoint<RGBA> = vec![];
         let rgba_stride = if alpha { 4 } else { 3 };

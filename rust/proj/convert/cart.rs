@@ -1,4 +1,4 @@
-use crate::proj::{CoordinateStep, Proj, TransformCoordinates};
+use crate::proj::{CoordinateStep, IoUnits, Proj, ProjectionTransform, Step, TransformCoordinates};
 use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{atan, atan2, cos, fabs, sin, sqrt};
@@ -105,9 +105,12 @@ pub struct CartesianConverter {
 }
 impl CoordinateStep for CartesianConverter {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {
-        // proj.borrow_mut().left = IoUnits::RADIANS;
-        // proj.borrow_mut().right = IoUnits::CARTESIAN;
-        // proj.is_ll = true;
+        {
+            let proj = &mut proj.borrow_mut();
+            proj.left = IoUnits::RADIANS;
+            proj.right = IoUnits::CARTESIAN;
+            proj.is_ll = true;
+        }
         CartesianConverter { proj }
     }
     /// Geographical to geocentric
@@ -117,6 +120,14 @@ impl CoordinateStep for CartesianConverter {
     /// Geocentric to geographical
     fn inverse<P: TransformCoordinates>(&self, coords: &mut P) {
         geodetic(&self.proj.borrow(), coords);
+    }
+}
+impl From<CartesianConverter> for ProjectionTransform {
+    fn from(c: CartesianConverter) -> ProjectionTransform {
+        let mut proj_trans = ProjectionTransform::default();
+        proj_trans.proj = c.proj.clone();
+        proj_trans.method = Step::Cartesian(c.into());
+        proj_trans
     }
 }
 

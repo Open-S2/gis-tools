@@ -3,7 +3,19 @@
 mod tests {
     use gistools::proj::{
         angular_unit_to_degrees, get_prime_meridian, linear_unit_to_meters, to_camel_case,
+        to_pascal_case,
     };
+
+    #[test]
+    fn test_to_pascal_case() {
+        assert_eq!(to_pascal_case("north"), "North");
+        assert_eq!(to_pascal_case("North East"), "NorthEast");
+        assert_eq!(to_pascal_case("west_by_south_west"), "WestBySouthWest");
+        assert_eq!(to_pascal_case("Display Left"), "DisplayLeft");
+        assert_eq!(to_pascal_case("Display-Up"), "DisplayUp");
+        assert_eq!(to_pascal_case(""), "");
+        assert_eq!(to_pascal_case("northNorthEast"), "NorthNorthEast");
+    }
 
     #[test]
     fn test_to_camel_case() {
@@ -48,6 +60,7 @@ mod tests {
         assert_eq!(to_camel_case("Past"), "past");
         assert_eq!(to_camel_case("Unspecified"), "unspecified");
         assert_eq!(to_camel_case(" South South West "), "southSouthWest");
+        assert_eq!(to_camel_case("WEST"), "west");
     }
 
     #[test]

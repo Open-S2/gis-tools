@@ -289,7 +289,7 @@ pub fn mlfn(phi: f64, sphi: f64, cphi: f64, en: &[f64]) -> f64 {
 /// inverse meridional distance
 pub fn inv_mlfn(mu: f64, en: &[f64]) -> f64 {
     let l_max = AuxLat::ORDER as usize;
-    auxlat_convert(mu / en[0], en[(1 + l_max)..].as_ref(), 0)
+    auxlat_convert(mu / en[0], &en[(1 + l_max)..], AuxLat::ORDER as i32)
 }
 
 /// Evaluate y = sum(F[k] * sin((2*k+2) * zeta), k, 0, K-1) by Clenshaw
@@ -711,16 +711,16 @@ pub fn tsfn(phi: f64, sinphi: f64, e: f64) -> f64 {
         * (if sinphi > 0. { cosphi / (1. + sinphi) } else { (1. - sinphi) / cosphi })
 }
 
-/** Compute (lam, phi) corresponding to input (xy.x, xy.y) for projection P.
- *
- * Uses Newton-Raphson method, extended to 2D variables, that is using
- * inversion of the Jacobian 2D matrix of partial derivatives. The derivatives
- * are estimated numerically from the proj.fwd method evaluated at close points.
- *
- * Note: thresholds used have been verified to work with adams_ws2 and wink2
- *
- * Starts with initial guess provided by user in lp_initial
- */
+/// Compute (lam, phi) corresponding to input (xy.x, xy.y) for projection P.
+///
+/// Uses Newton-Raphson method, extended to 2D variables, that is using
+/// inversion of the Jacobian 2D matrix of partial derivatives. The derivatives
+/// are estimated numerically from the proj.fwd method evaluated at close points.
+///
+/// Note: thresholds used have been verified to work with adams_ws2 and wink2
+///
+/// Starts with initial guess provided by user in lp_initial
+///
 pub fn generic_inverse_2d<C: CoordinateStep, P: TransformCoordinates>(
     xy: &P,
     step: &C,
@@ -732,8 +732,8 @@ pub fn generic_inverse_2d<C: CoordinateStep, P: TransformCoordinates>(
     let mut deriv_phi_x = 0.;
     let mut deriv_phi_y = 0.;
     for i in 0..15 {
-        step.forward(lp);
-        let xy_approx = lp.clone();
+        let mut xy_approx = lp.clone();
+        step.forward(&mut xy_approx);
         let delta_x = xy_approx.x() - xy.x();
         let delta_y = xy_approx.y() - xy.y();
         if fabs(delta_x) < delta_xy_tolerance && fabs(delta_y) < delta_xy_tolerance {
