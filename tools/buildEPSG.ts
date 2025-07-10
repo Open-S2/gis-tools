@@ -31,6 +31,7 @@ appendFileSync(
   `// AUTO-GENERATED FILE, DO NOT EDIT
 // generated with \`bun build:epsg\`
 #![rustfmt::skip]
+#![rust_analyzer::skip]
 #![allow(dead_code, unused_imports, clippy::all)]
 `,
 );

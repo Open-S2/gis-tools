@@ -25,8 +25,5 @@ pub use project::*;
 pub use transform::*;
 
 // TODO:
-// - [ ] Convert ProjJSON to Steps
-// - [ ] test basic cases
 // - [ ] Migrate away from early converting to radians? Maybe instead always be degrees then when
 //       pulling the ProjValue we also .to_radians(). The problem is user input is always degrees
-// - [ ] Reassess each projection that I am pulling the correct variables from proj.params

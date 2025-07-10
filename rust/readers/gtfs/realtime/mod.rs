@@ -56,9 +56,18 @@ pub use vehicle_position::*;
 #[derive(Debug, Default, Clone)]
 pub struct GTFSRealtimeReader {
     /// The header of the message
-    header: GTFSRealtimeHeader,
+    pub header: GTFSRealtimeHeader,
     /// The entities in the message
-    entities: Vec<GTFSRealtimeEntity>,
+    pub entities: Vec<GTFSRealtimeEntity>,
+}
+impl GTFSRealtimeReader {
+    /// Create a new GTFSRealtimeReader
+    pub fn new(data: Vec<u8>, end: Option<usize>) -> Self {
+        let mut this = Self::default();
+        let mut pbf = Protobuf::from_input(data);
+        pbf.read_fields(&mut this, end);
+        this
+    }
 }
 /// Read in the contents of the GTFSRealtimeReader
 impl ProtoRead for GTFSRealtimeReader {

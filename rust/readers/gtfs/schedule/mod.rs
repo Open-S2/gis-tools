@@ -58,7 +58,7 @@ pub use networks::*;
 pub use pathways::*;
 pub use route_networks::*;
 pub use routes::*;
-use s2json::{MValueCompatible, VectorFeature};
+use s2json::{MValue, MValueCompatible, Properties, VectorFeature};
 use serde::{Deserialize, Serialize};
 pub use shapes::*;
 pub use stop_areas::*;
@@ -259,7 +259,7 @@ impl GTFSScheduleReader {
                 res.push(feature);
             }
         }
-        // add geosjon
+        // add geojson
         if let Some(geojson) = &self.geojson {
             for feature in geojson.iter() {
                 res.push(feature);
@@ -275,51 +275,30 @@ impl GTFSScheduleReader {
     }
 }
 
-//   /**
-//    * TODO: Add proeprties from other files like "color"
-//    * TODO: All features should be parsed as VectorGeometry
-//    * Yields all of the shapes
-//    * @yields an iterator that contains shapes, stops, location data, and routes
-//    */
-//   async *[Symbol.asyncIterator](): AsyncGenerator<
-//     | VectorFeature<Record<string, unknown>, MValue, GTFSShapeProperties, VectorLineStringGeometry>
-//     | VectorFeature<
-//         Record<string, unknown>,
-//         MValue,
-//         GTFSLocationsProperties,
-//         VectorMultiPolygonGeometry | VectorPolygonGeometry
-//       >
-//     | VectorFeature<undefined, MValue, GTFSStopProperties, VectorPointGeometry>
-//   > {
-//     if (this.geojson !== undefined) {
-//       for await (const feature of this.geojson)
-//         yield feature as VectorFeature<
-//           Record<string, unknown>,
-//           MValue,
-//           GTFSLocationsProperties,
-//           VectorMultiPolygonGeometry | VectorPolygonGeometry
-//         >;
-//     }
-//     if (this.shapes !== undefined) {
-//       for (const shape of Object.values(this.shapes)) yield shape;
-//     }
-//     if (this.stops !== undefined) {
-//       for (const stop of Object.values(this.stops)) {
-//         const { lon, lat } = stop;
-//         if (lon !== undefined && lat !== undefined) {
-//           const stopFeature: VectorFeature<
-//             undefined,
-//             MValue,
-//             GTFSStopProperties,
-//             VectorPointGeometry
-//           > = {
-//             type: 'VectorFeature',
-//             properties: stop.properties(),
-//             geometry: { type: 'Point', is3D: false, coordinates: { x: lon, y: lat } },
-//           };
-//           yield stopFeature;
-//         }
-//       }
-//     }
-//   }
-// }
+/// The GTFS Schedule Iterator tool
+#[derive(Debug)]
+pub struct GTFSScheduleIterator {
+    features: Vec<VectorFeature>,
+    index: usize,
+}
+impl Iterator for GTFSScheduleIterator {
+    type Item = VectorFeature;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.index += 1;
+        self.features.get(self.index - 1).cloned()
+    }
+}
+/// A feature reader trait with a callback-based approach
+impl FeatureReader<(), Properties, MValue> for GTFSScheduleReader {
+    type FeatureIterator<'a> = GTFSScheduleIterator;
+
+    fn iter(&self) -> Self::FeatureIterator<'_> {
+        GTFSScheduleIterator { features: self.collect_vector_features(), index: 0 }
+    }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.iter()
+    }
+}

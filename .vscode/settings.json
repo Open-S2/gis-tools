@@ -6,6 +6,7 @@
   //     "rust/proj/generated/epsg.rs": true
   // },
   "rust-analyzer.files.exclude": ["rust/proj/generated/", "rust/proj/generated/epsg.rs"],
+  "rust-analyzer.files.watcherExclude": ["rust/proj/generated/"],
   "rust-analyzer.exclude": ["rust/proj/generated/", "rust/proj/generated/epsg.rs"],
   "rust-analyzer.excludeGlobs": ["rust/proj/generated/**"],
   "files.watcherExclude": {

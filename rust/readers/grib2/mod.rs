@@ -2,7 +2,7 @@
 pub mod sections;
 
 use crate::{
-    parsers::{BufferReader, Reader},
+    parsers::{BufferReader, FeatureReader, Reader},
     util::fetch_url,
 };
 use alloc::{
@@ -11,6 +11,7 @@ use alloc::{
     vec,
     vec::Vec,
 };
+use core::cell::RefCell;
 use s2json::{BBox3D, MValue, Properties, VectorFeature, VectorGeometry, VectorMultiPoint};
 pub use sections::*;
 
@@ -454,7 +455,7 @@ impl<T: Reader> From<Vec<BufferReader>> for GRIB2ReaderInput<T> {
 #[derive(Debug)]
 pub struct GRIB2Reader {
     /// The GRIB2 packets
-    pub packets: Vec<Grib2Sections>,
+    pub packets: RefCell<Vec<Grib2Sections>>,
     /// The list of section locations
     pub idxs: Vec<Grib2SectionLocations>,
 }
@@ -464,13 +465,13 @@ impl GRIB2Reader {
     /// @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file
     /// @param idxs - The list of section locations we will be parsing
     pub fn new<T: Reader>(readers: GRIB2ReaderInput<T>, idxs: Vec<Grib2SectionLocations>) -> Self {
-        let mut this = GRIB2Reader { packets: vec![], idxs };
+        let this = GRIB2Reader { packets: vec![].into(), idxs };
         let grib_chunks = match readers {
             GRIB2ReaderInput::Reader(reader) => split_grib_chunks(&reader),
             GRIB2ReaderInput::SectionChunks(chunks) => chunks,
         };
         for grib_chunk in grib_chunks {
-            this.packets.push(split_section_chunks(grib_chunk));
+            this.packets.borrow_mut().push(split_section_chunks(grib_chunk));
         }
 
         this
@@ -490,16 +491,17 @@ impl GRIB2Reader {
     }
 
     /// Get the Vector Point feature data
-    pub fn get_data(&mut self) -> Option<VectorMultiPoint> {
+    pub fn get_data(&self) -> Option<VectorMultiPoint> {
         // setup geometry
         if let Some(mut geometry) = self
             .packets
+            .borrow_mut()
             .get_mut(0)
             .and_then(|p| Some(p.grid_definition.as_mut()?.values.build_grid()))
         {
             // add M-Values from each packet
-            for i in 0..self.packets.len() {
-                let packet = &self.packets[i];
+            for i in 0..self.packets.borrow().len() {
+                let packet = &self.packets.borrow()[i];
                 let name = self.idxs.get(i).map(|i| i.name.clone()).unwrap_or(i.to_string());
                 if let Some(data) = packet.data.as_ref().map(|d| d.data(packet)) {
                     for (i, geo) in geometry.iter_mut().enumerate().take(data.len()) {
@@ -519,11 +521,12 @@ impl GRIB2Reader {
     }
 
     /// Get the Vector Point feature
-    pub fn get_feature(&mut self) -> Option<GRIB2VectorFeature> {
+    pub fn get_feature(&self) -> Option<GRIB2VectorFeature> {
         if let Some(geometry) = self.get_data() {
             // setup metadata
             let product_metadata: Vec<Grib2ProductDefinition> = self
                 .packets
+                .borrow()
                 .iter()
                 .filter_map(|packet| Some(packet.product_definition.as_ref()?.values.clone()))
                 .collect();
@@ -538,6 +541,37 @@ impl GRIB2Reader {
         } else {
             None
         }
+    }
+}
+
+/// The GRIB2 Iterator tool
+#[derive(Debug)]
+pub struct GRIB2Iterator<'a> {
+    reader: &'a GRIB2Reader,
+    done: bool,
+}
+impl Iterator for GRIB2Iterator<'_> {
+    type Item = GRIB2VectorFeature;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.done {
+            return None;
+        }
+        self.done = true;
+        self.reader.get_feature()
+    }
+}
+/// A feature reader trait with a callback-based approach
+impl FeatureReader<Vec<Grib2ProductDefinition>, Properties, MValue> for GRIB2Reader {
+    type FeatureIterator<'a> = GRIB2Iterator<'a>;
+
+    fn iter(&self) -> Self::FeatureIterator<'_> {
+        GRIB2Iterator { reader: self, done: false }
+    }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.iter()
     }
 }
 
