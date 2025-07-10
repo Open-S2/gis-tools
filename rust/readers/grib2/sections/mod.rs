@@ -69,7 +69,7 @@ pub fn split_section_chunks(grib_chunk: BufferReader) -> Grib2Sections {
         // First section length is always 16 bytes long and is identified by the first 4 bytes being 'GRIB'
         let mut length =
             if section_number == 0 { 16 } else { current_section.uint32_be(Some(0)) } as u64;
-        length = length.min(current_section.len() as u64);
+        length = length.min(current_section.len());
         let section = BufferReader::new(current_section.slice(Some(0), Some(length)));
         current_section = BufferReader::new(current_section.slice(Some(length), None));
 

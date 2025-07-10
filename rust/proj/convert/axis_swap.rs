@@ -87,10 +87,11 @@ pub struct AxisSwapConverter {
 }
 impl From<AxisSwapConverter> for ProjectionTransform {
     fn from(asc: AxisSwapConverter) -> ProjectionTransform {
-        let mut proj_trans = ProjectionTransform::default();
-        proj_trans.proj = asc.proj.clone();
-        proj_trans.method = Step::AxisSwap(asc.into());
-        proj_trans
+        ProjectionTransform {
+            proj: asc.proj.clone(),
+            method: Step::AxisSwap(asc.into()),
+            ..Default::default()
+        }
     }
 }
 impl CoordinateStep for AxisSwapConverter {
@@ -110,14 +111,14 @@ impl CoordinateStep for AxisSwapConverter {
         }
 
         let mut out = [0.0; 4];
-        for i in 0..4 {
+        for (i, out) in out.iter_mut().enumerate() {
             let src_idx = self.swap.axis[i] as usize;
             let sign = self.swap.sign[i] as f64;
-            out[i] = coords.get(src_idx) * sign;
+            *out = coords.get(src_idx) * sign;
         }
 
-        for i in 0..4 {
-            coords.set(i, out[i]);
+        for (i, out) in out.iter_mut().enumerate() {
+            coords.set(i, *out);
         }
     }
     /// Handle the axis swap
@@ -133,8 +134,8 @@ impl CoordinateStep for AxisSwapConverter {
             out[dst_idx] = coords.get(i) * sign;
         }
 
-        for i in 0..4 {
-            coords.set(i, out[i]);
+        for (i, out) in out.iter_mut().enumerate() {
+            coords.set(i, *out);
         }
     }
 }

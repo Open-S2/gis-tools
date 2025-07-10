@@ -19,7 +19,7 @@ use crate::{
     parsers::{FeatureReader, RGBA, Reader},
     proj::Transformer,
 };
-use alloc::{collections::BTreeMap, rc::Rc};
+use alloc::{collections::BTreeMap, rc::Rc, string::String};
 pub use color::*;
 pub use constants::*;
 use core::cell::RefCell;
@@ -29,7 +29,6 @@ pub use image_util::*;
 pub use predictor::*;
 pub use proj_params::*;
 use s2json::{Properties, VectorFeature};
-use std::string::String;
 
 /// An GeoTIFF Shaped Vector Feature
 pub type GeoTIFFVectorFeature = VectorFeature<GeoTIFFMetadata, Properties, RGBA>;

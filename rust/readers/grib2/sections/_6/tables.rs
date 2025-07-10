@@ -45,8 +45,7 @@ impl core::fmt::Display for Grib2Table6_0 {
             Self::BitmapPredeterminedByCenter(v) => {
                 return write!(
                     f,
-                    "A bit map pre-determined by the originating/generating center applies to this product and is not specified in this section. (Value: {})",
-                    v
+                    "A bit map pre-determined by the originating/generating center applies to this product and is not specified in this section. (Value: {v})"
                 );
             }
             Self::BitmapPreviouslyDefined => {

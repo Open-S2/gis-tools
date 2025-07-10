@@ -145,6 +145,33 @@ impl RGBA {
             | ((b * max_u16).round() as u64) << 16
             | ((a * max_u16).round() as u64)
     }
+
+    /// Create an RGBA color from a hex string.
+    /// Accepts formats: "#RRGGBB", "#RRGGBBAA", "RRGGBB", "RRGGBBAA" (case-insensitive).
+    /// Panics on invalid input.
+    pub fn from_hex(hex: &str) -> Self {
+        let hex = hex.trim_start_matches('#');
+        let len = hex.len();
+
+        let parse_byte = |i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap();
+
+        match len {
+            6 => {
+                let r = parse_byte(0);
+                let g = parse_byte(2);
+                let b = parse_byte(4);
+                Self::from_u8s(r, g, b, 255)
+            }
+            8 => {
+                let r = parse_byte(0);
+                let g = parse_byte(2);
+                let b = parse_byte(4);
+                let a = parse_byte(6);
+                Self::from_u8s(r, g, b, a)
+            }
+            _ => panic!("Invalid hex color: expected 6 or 8 hex digits, got {}", len),
+        }
+    }
 }
 impl GetM<RGBA> for RGBA {
     fn m(&self) -> Option<&RGBA> {

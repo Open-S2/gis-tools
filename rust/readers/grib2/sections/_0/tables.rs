@@ -458,7 +458,7 @@ impl From<u8> for Grib2Table0 {
             247 => Self::OperationalProgrammeForTheExchangeOfWeatherRadarInformationOperaEumetnet,
             250 => Self::ConsortiumForSmallScaleModellingCosmo,
             254 => Self::EumetsatOperationsCenter,
-            255 | _ => Self::MissingValue,
+            _ => Self::MissingValue,
         }
     }
 }
@@ -789,7 +789,7 @@ impl core::fmt::Display for Grib2Table0_0 {
             Self::SatelliteRemoteSensing => "Satellite Remote Sensing Products",
             Self::SpaceWeather => "Space Weather Products",
             Self::Oceanographic => "Oceanographic Products",
-            Self::Unknown(v) => return write!(f, "Unknown Discipline ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Discipline ({v})"),
         };
         f.write_str(desc)
     }

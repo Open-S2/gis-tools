@@ -262,7 +262,9 @@ pub struct Grib2SectionLocations {
 /// @param hour - The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
 /// @param forecast - The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
 /// @param filters - The filters to apply by filtering lines in the .idx file
+///
 /// @returns - A GRIB2Reader of the specific sections
+#[allow(clippy::too_many_arguments)]
 pub fn fetch_gfs_data<T: Reader, P: Into<String>>(
     source: Grib2GFSSource,
     product: P,
@@ -281,7 +283,7 @@ pub fn fetch_gfs_data<T: Reader, P: Into<String>>(
     }
     let link = get_gfs_link(source, product, domain, year, month, day, hour, forecast);
     // pull .idx file FIRST
-    let idxs = parsed_idx_from_url(format!("{}.idx", link), filters.unwrap_or_default(), None);
+    let idxs = parsed_idx_from_url(format!("{link}.idx"), filters.unwrap_or_default(), None);
     let source_data = link_to_chunks(link, &idxs);
 
     GRIB2Reader::new::<T>(source_data.into(), idxs)
@@ -292,7 +294,7 @@ fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<BufferRea
     let mut readers: Vec<BufferReader> = vec![];
     for Grib2SectionLocations { start, end, .. } in idxs {
         let end = end.map_or(String::new(), |e| e.to_string());
-        let chunk = fetch_url(&link, &[("Range", &format!("bytes={}-{}", start, end))]).unwrap();
+        let chunk = fetch_url(&link, &[("Range", &format!("bytes={start}-{end}"))]).unwrap();
         readers.push(BufferReader::new(chunk));
     }
 
@@ -310,6 +312,7 @@ fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<BufferRea
 /// @param hour - The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
 /// @param forecast - The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
 /// @returns - A GRIB2Reader of the specific sections
+#[allow(clippy::too_many_arguments)]
 pub fn get_gfs_link<P: Into<String>>(
     source: Grib2GFSSource,
     product: P,
@@ -364,7 +367,7 @@ pub fn parse_idx(
     let mut res = vec![];
     // split lines, parse information, and add to array
     for line in data.split('\n') {
-        if line.len() == 0 {
+        if line.is_empty() {
             continue;
         }
         let offset = line
@@ -384,7 +387,7 @@ pub fn parse_idx(
         res[i].end = Some(res[i + 1].start);
     }
     // lastly add the filters
-    if filters.len() > 0 {
+    if !filters.is_empty() {
         res = res
             .iter()
             .filter(|s_l| filters.iter().any(|f| s_l.line.contains(f)))
@@ -497,13 +500,11 @@ impl GRIB2Reader {
             // add M-Values from each packet
             for i in 0..self.packets.len() {
                 let packet = &self.packets[i];
-                let name =
-                    self.idxs.get(i).and_then(|i| Some(i.name.clone())).unwrap_or(i.to_string());
-                if let Some(data) = packet.data.as_ref().and_then(|d| Some(d.data(packet))) {
-                    for i in 0..data.len() {
+                let name = self.idxs.get(i).map(|i| i.name.clone()).unwrap_or(i.to_string());
+                if let Some(data) = packet.data.as_ref().map(|d| d.data(packet)) {
+                    for (i, geo) in geometry.iter_mut().enumerate().take(data.len()) {
                         if let Some(m_value) = data.get(i) {
-                            let geo = &mut geometry[i];
-                            if geo.m == None {
+                            if geo.m.is_none() {
                                 geo.m = Some(MValue::new());
                             }
                             geo.m.as_mut().unwrap().insert((&name).into(), (*m_value).into());
@@ -512,14 +513,6 @@ impl GRIB2Reader {
                 }
             }
             Some(geometry)
-            // build feature
-            // let bbox = BBox3D::from_linestring(&geometry);
-            // return Some(GRIB2VectorFeature::new_wm(
-            //     None,
-            //     Properties::default(),
-            //     VectorGeometry::new_multipoint(geometry, Some(bbox)),
-            //     Some(product_metadata),
-            // ));
         } else {
             None
         }

@@ -33,7 +33,7 @@ impl From<u8> for Grib2Table3_0 {
         match val {
             0 => Self::SpecifiedInCodeTable3_1,
             1 => Self::PredeterminedGridDefinitionDefinedByOriginatingCenter,
-            255 | _ => Self::AGridDefinitionDoesNotApplyToThisProduct,
+            _ => Self::AGridDefinitionDoesNotApplyToThisProduct,
         }
     }
 }
@@ -167,7 +167,7 @@ impl From<u16> for Grib2Table3_1 {
             1200 => Self::TimeSectionGrid,
             32768 => Self::RotatedLatitudeLongitudeArakawaStaggeredEGrid,
             32769 => Self::RotatedLatitudeLongitudeArakawaNonEStaggeredGrid,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -333,7 +333,7 @@ impl From<u8> for Grib2Table3_2 {
             9 => Self::EarthOsgb1936Datum,
             10 => Self::EarthWgs84CorrectedGeomagnetic,
             11 => Self::SunSphericalRadius695990000,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -468,7 +468,7 @@ impl core::fmt::Display for Grib2Table3_3Bit3 {
         let desc = match self {
             Self::IDirectionIncrementsNotGiven => "i direction increments not given",
             Self::IDirectionIncrementsGiven => "i direction increments given",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -495,7 +495,7 @@ impl core::fmt::Display for Grib2Table3_3Bit4 {
         let desc = match self {
             Self::JDirectionIncrementsNotGiven => "j direction increments not given",
             Self::JDirectionIncrementsGiven => "j direction increments given",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 4 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 4 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -527,7 +527,7 @@ impl core::fmt::Display for Grib2Table3_3Bit5 {
             Self::ResolvedUvComponentsGridIncreasingXy => {
                 "Resolved u and v components of vector quantities relative to the defined grid in the direction of increasing x and y (or i and j) coordinates, respectively."
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 5 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 5 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -559,8 +559,7 @@ impl core::fmt::Display for Grib2Table3_3Bit5 {
 /// - (3).  If bit number 4 is set, the first row scan is defined by previous flags.
 /// - (4).  La1 and Lo1 define the first row, which is an odd row.
 /// - (5).  Di and Dj are assumed to be positive, with the direction of i and j being given by bits 1 and 2.
-/// - (6).  Bits 5 through 8 may be used to generate staggered grids, such as Arakawa grids
-///        (see Attachment, Volume 1.2, Part A, Att. GRIB).
+/// - (6).  Bits 5 through 8 may be used to generate staggered grids, such as Arakawa grids (see Attachment, Volume 1.2, Part A, Att. GRIB).
 /// - (7).  If any of bits 5, 6, 7 or 8 are set, Di and Dj are not optional.
 ///
 /// This table defines individual bit flags. To use them, you will need to extract the
@@ -581,7 +580,7 @@ pub struct Grib2Table3_4 {
 impl From<u8> for Grib2Table3_4 {
     fn from(val: u8) -> Self {
         Grib2Table3_4 {
-            bit1: Grib2Table3_4Bit1::from((val >> 0) & 1),
+            bit1: Grib2Table3_4Bit1::from(val & 1),
             bit2: Grib2Table3_4Bit2::from((val >> 1) & 1),
             bit3: Grib2Table3_4Bit3::from((val >> 2) & 1),
             bit4: Grib2Table3_4Bit4::from((val >> 3) & 1),
@@ -627,7 +626,7 @@ impl core::fmt::Display for Grib2Table3_4Bit1 {
             Self::PointsFirstRowColumnScanMinusIDirection => {
                 "Points in the first row or column scan in the -i (-x) direction"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -658,7 +657,7 @@ impl core::fmt::Display for Grib2Table3_4Bit2 {
             Self::PointsFirstRowColumnScanPlusJDirection => {
                 "Points in the first row or column scan in the +j (+y) direction"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -689,7 +688,7 @@ impl core::fmt::Display for Grib2Table3_4Bit3 {
             Self::AdjacentPointsJDirectionConsecutive => {
                 "Adjacent points in the j (y) direction are consecutive"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -718,7 +717,7 @@ impl core::fmt::Display for Grib2Table3_4Bit4 {
             Self::AdjacentRowsScanOppositeDirection => {
                 "Adjacent rows scan in the opposite direction"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 4 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 4 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -749,7 +748,7 @@ impl core::fmt::Display for Grib2Table3_4Bit5 {
             Self::PointsOddRowsOffsetDi2IDirection => {
                 "Points within odd rows are offset by Di/2 in i(x) direction"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 5 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 5 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -780,7 +779,7 @@ impl core::fmt::Display for Grib2Table3_4Bit6 {
             Self::PointsEvenRowsOffsetDi2IDirection => {
                 "Points within even rows are offset by Di/2 in i(x) direction"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 6 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 6 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -807,7 +806,7 @@ impl core::fmt::Display for Grib2Table3_4Bit7 {
         let desc = match self {
             Self::PointsNotOffsetJDirection => "Points are not offset in j(y) direction",
             Self::PointsOffsetDj2JDirection => "Points are offset by Dj/2 in j(y) direction",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 7 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 7 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -838,7 +837,7 @@ impl core::fmt::Display for Grib2Table3_4Bit8 {
             Self::RowsNiOrNiMinus1ColumnsNjOrNjMinus1GridPoints => {
                 "Rows have Ni grid points if points are not offset in i direction; Rows have Ni-1 grid points if points are offset by Di/2 in i direction. Columns have Nj grid points if points are not offset in j direction; Columns have Nj-1 grid points if points are offset by Dj/2 in j(y) direction."
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 8 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 8 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -887,7 +886,7 @@ impl From<u8> for Grib2Table3_5 {
         let reserved_bits_mask: u8 = 0b1111_1100; // Bits 3, 4, 5, 6, 7, 8
 
         Self {
-            bit1: Grib2Table3_5Bit1::from((val >> 0) & 1),
+            bit1: Grib2Table3_5Bit1::from(val & 1),
             bit2: Grib2Table3_5Bit2::from((val >> 1) & 1),
             reserved_bits_set: val & reserved_bits_mask,
         }
@@ -928,7 +927,7 @@ impl core::fmt::Display for Grib2Table3_5Bit1 {
         let desc = match self {
             Self::NorthPoleOnProjectionPlane => "North Pole is on the projection plane",
             Self::SouthPoleOnProjectionPlane => "South Pole is on the projection plane",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -955,7 +954,7 @@ impl core::fmt::Display for Grib2Table3_5Bit2 {
         let desc = match self {
             Self::OnlyOneProjectionCenterUsed => "Only one projection center is used",
             Self::ProjectionBiPolarAndSymmetric => "Projection is bi-polar and symmetric",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -996,7 +995,7 @@ impl From<u8> for Grib2Table3_6 {
         match val {
             1 => Self::AssociatedLegendreFunctionsFirstKind,
             2 => Self::BiFourierRepresentation,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1049,7 +1048,7 @@ impl From<u8> for Grib2Table3_7 {
     fn from(val: u8) -> Self {
         match val {
             1 => Self::ComplexNumbersFnmStoredAsPairsOfRealNumbers,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1109,7 +1108,7 @@ impl From<u8> for Grib2Table3_8 {
             3 => Self::GridPointsAtShapeVertices,
             4 => Self::GridPointsAtCentreOfShapes,
             5 => Self::GridPointsAtMidpointsOfShapeSides,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1179,7 +1178,7 @@ impl core::fmt::Display for Grib2Table3_9Bit1 {
         let desc = match self {
             Self::ClockwiseOrientation => "Clockwise orientation",
             Self::CounterClockwiseOrientation => "Counter-clockwise orientation",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1230,7 +1229,7 @@ impl From<u8> for Grib2Table3_10 {
         let reserved_bits_mask: u8 = 0b1111_1000; // Bits 4, 5, 6, 7, 8
 
         Self {
-            bit1: Grib2Table3_10Bit1::from((val >> 0) & 1),
+            bit1: Grib2Table3_10Bit1::from(val & 1),
             bit2: Grib2Table3_10Bit2::from((val >> 1) & 1),
             bit3: Grib2Table3_10Bit3::from((val >> 2) & 1),
             reserved_bits_set: val & reserved_bits_mask,
@@ -1276,7 +1275,7 @@ impl core::fmt::Display for Grib2Table3_10Bit1 {
             Self::PointsScanMinusIDirectionEquatorToPole => {
                 "Points scan in the -i direction, i.e. from Equator to pole"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1307,7 +1306,7 @@ impl core::fmt::Display for Grib2Table3_10Bit2 {
             Self::PointsScanMinusJDirectionEastToWest => {
                 "Points scan in the -j direction, i.e. from east to west"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1338,7 +1337,7 @@ impl core::fmt::Display for Grib2Table3_10Bit3 {
             Self::AdjacentPointsJDirectionConsecutive => {
                 "Adjacent points in the j direction are consecutive"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1384,7 +1383,7 @@ impl From<u8> for Grib2Table3_11 {
             1 => Self::FullCoordinateCircles,
             2 => Self::ExtremeCoordinateValues,
             3 => Self::ActualLatitudesForEachRow,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1446,7 +1445,7 @@ impl From<u8> for Grib2Table3_12 {
             0 => Self::Reserved0,
             1 => Self::RingOrdering,
             2 => Self::NestedOrdering,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1507,7 +1506,7 @@ impl From<u8> for Grib2Table3_13 {
         let reserved_bits_mask: u8 = 0b1111_1000; // Bits 4, 5, 6, 7, 8
 
         Self {
-            bit1: Grib2Table3_13Bit1::from((val >> 0) & 1),
+            bit1: Grib2Table3_13Bit1::from(val & 1),
             bit2: Grib2Table3_13Bit2::from((val >> 1) & 1),
             bit3: Grib2Table3_13Bit3::from((val >> 2) & 1),
             reserved_bits_set: val & reserved_bits_mask,
@@ -1549,7 +1548,7 @@ impl core::fmt::Display for Grib2Table3_13Bit1 {
         let desc = match self {
             Self::PointsScanPlusIDirection => "Points scan in the +i (+x) direction",
             Self::PointsScanMinusIDirection => "Points scan in the -i (-x) direction",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 1 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1577,7 +1576,7 @@ impl core::fmt::Display for Grib2Table3_13Bit2 {
         let desc = match self {
             Self::PointsScanMinusJDirection => "Points scan in -j (-y) direction",
             Self::PointsScanPlusJDirection => "Points scan in +j (+y) direction",
-            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 2 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1609,7 +1608,7 @@ impl core::fmt::Display for Grib2Table3_13Bit3 {
             Self::AdjacentPointsJDirectionConsecutive => {
                 "Adjacent points in the j (y) direction are consecutive"
             }
-            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Bit 3 value ({v})"),
         };
         f.write_str(desc)
     }
@@ -1685,7 +1684,7 @@ impl From<u8> for Grib2Table3_15 {
             112 => Self::GeopotentialHeightGpm,
             113 => Self::LogarithmicHybridCoordinate,
             160 => Self::DepthBelowSeaLevelM,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1756,7 +1755,7 @@ impl From<u8> for Grib2Table3_20 {
         match val {
             0 => Self::Rhumb,
             1 => Self::GreatCircle,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1839,7 +1838,7 @@ impl From<u8> for Grib2Table3_21 {
             112 => Self::GeopotentialHeightGpm,
             113 => Self::LogarithmicHybridCoordinate,
             160 => Self::DepthBelowSeaLevelM,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1913,7 +1912,7 @@ impl From<u8> for Grib2Table3_25 {
             77 => Self::Rectangular,
             88 => Self::Elliptic,
             99 => Self::Diamond,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }

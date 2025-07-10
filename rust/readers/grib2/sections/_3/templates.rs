@@ -65,23 +65,23 @@ impl Grib2Template3 {
 /// ## Notes
 ///
 /// - Basic angle of the initial production domain and subdivisions of this basic angle are provided
-/// to manage cases where the recommended unit of 10-6 degrees is not applicable to describe the
-/// extreme longitudes and latitudes, and direction increments. For these last six descriptors, the
-/// unit is equal to the ratio of the basic angle and the subdivisions number. For ordinary cases,
-/// zero and missing values should be coded, equivalent to respective values of 1 and 106  (10-6
-/// degrees unit).
+///   to manage cases where the recommended unit of 10-6 degrees is not applicable to describe the
+///   extreme longitudes and latitudes, and direction increments. For these last six descriptors, the
+///   unit is equal to the ratio of the basic angle and the subdivisions number. For ordinary cases,
+///   zero and missing values should be coded, equivalent to respective values of 1 and 106  (10-6
+///   degrees unit).
 ///
 /// - For data on a quasi-regular grid, in which all the rows or columns do not necessarily have the
-/// same number of grid points either Ni (octets 31-34) of Nj (octets 35-38) and the corresponding Di
-/// (octets 64-67) or Dj (octets 68-71) shall be coded with all bits set to 1 (missing). The actual
-/// number of points along each parallel or meridian shall be coded in the octets immediately following
-/// the grid definition template (octets [xx+1]-nn), as described in the description of the grid
-/// definition section.
+///   same number of grid points either Ni (octets 31-34) of Nj (octets 35-38) and the corresponding Di
+///   (octets 64-67) or Dj (octets 68-71) shall be coded with all bits set to 1 (missing). The actual
+///   number of points along each parallel or meridian shall be coded in the octets immediately following
+///   the grid definition template (octets [xx+1]-nn), as described in the description of the grid
+///   definition section.
 ///
 /// - A quasi-regular grid is only defined for appropriate grid scanning modes. Either rows or columns,
-/// but not both simultaneously, may have variable numbers of points or variable spacing. The first
-/// point in each row (column) shall be positioned at the meridian (parallel) indicted by octets 47-54.
-/// The grid points shall be evenly spaced in latitude (longitude).
+///   but not both simultaneously, may have variable numbers of points or variable spacing. The first
+///   point in each row (column) shall be positioned at the meridian (parallel) indicted by octets 47-54.
+///   The grid points shall be evenly spaced in latitude (longitude).
 ///
 /// A scale value of radius of spherical Earth, or major axis of oblate spheroid Earth is delivered
 /// from applying appropriate scale factor to the value expressed in meters.
@@ -89,8 +89,8 @@ impl Grib2Template3 {
 /// - It is recommended to use unsigned direction increments.
 ///
 /// - In most cases, multiplying Ni (octets 31-34) by Nj (octets 35-38) yields the total number of
-/// points in the grid. However, this may not be true if bit 8 of the scanning mode flags (octet 72)
-/// is set to 1.
+///   points in the grid. However, this may not be true if bit 8 of the scanning mode flags (octet 72)
+///   is set to 1.
 ///
 /// @param section - byte block for template 3.0
 /// @returns - The parsed template
@@ -216,7 +216,9 @@ impl EquatorialTemplate {
  * - Grid lengths Dx and Dy are in meters at the latitude LaD.
  * - Bit 3 of the resolution and component flags should be set to 1 to indicate that Dx and Dy
  *   are given in meters.
+ *
  * @param section - byte block for template 3.20
+ *
  * @returns - The parsed template
  */
 #[derive(Debug, Clone, PartialEq)]

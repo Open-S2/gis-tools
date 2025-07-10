@@ -22,7 +22,9 @@ use tables::{
 ///
 /// ## Links
 /// - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect1.shtml)
+///
 /// @param section - The byte block to pull ideintification information
+///
 /// @returns - The parsed identification section
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grib2IdentificationSection {

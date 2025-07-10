@@ -55,7 +55,7 @@ impl From<u16> for Grib2Table5_0 {
             61 => Self::GridPointDataSimplePackingWithLogarithmPreProcessing,
             200 => Self::RunLengthPackingWithLevelValues,
             40000 => Self::GridPointDataJpeg2000CodeStreamFormatAndSpatialDifferencing,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -132,7 +132,7 @@ impl From<u8> for Grib2Table5_1 {
         match val {
             0 => Self::FloatingPoint,
             1 => Self::Integer,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -174,7 +174,7 @@ impl From<u8> for Grib2Table5_2 {
             0 => Self::ExplicitCoordinateValuesSet,
             1 => Self::LinearCoordinates,
             11 => Self::GeometricCoordinates,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -216,7 +216,7 @@ impl From<u8> for Grib2Table5_3 {
             1 => Self::DirectionDegreesTrue,
             2 => Self::FrequencyS1,
             3 => Self::RadialNumber2piLambdaM1,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -256,7 +256,7 @@ impl From<u8> for Grib2Table5_4 {
         match val {
             0 => Self::RowByRowSplitting,
             1 => Self::GeneralGroupSplitting,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -297,7 +297,7 @@ impl From<u8> for Grib2Table5_5 {
             0 => Self::NoExplicitMissingValues,
             1 => Self::PrimaryMissingValuesIncluded,
             2 => Self::PrimaryAndSecondaryMissingValuesIncluded,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -343,7 +343,7 @@ impl From<u8> for Grib2Table5_6 {
         match val {
             1 => Self::FirstOrderSpatialDifferencing,
             2 => Self::SecondOrderSpatialDifferencing,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -383,7 +383,7 @@ impl From<u8> for Grib2Table5_7 {
             1 => Self::Ieee32Bit,
             2 => Self::Ieee64Bit,
             3 => Self::Ieee128Bit,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -427,7 +427,7 @@ impl From<u8> for Grib2Table5_25 {
             77 => Self::Rectangular,
             88 => Self::Elliptic,
             99 => Self::Diamond,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -466,7 +466,7 @@ impl From<u8> for Grib2Table5_26 {
         match val {
             0 => Self::SpectralCoefficientsForAxesArePacked,
             1 => Self::SpectralCoefficientsForAxesIncludedInUnpackedSubset,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -508,7 +508,7 @@ impl From<u8> for Grib2Table5_40 {
         match val {
             0 => Self::Lossless,
             1 => Self::Lossy,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }

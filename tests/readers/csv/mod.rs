@@ -54,6 +54,24 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_csv_with_options_and_empty_fields() {
+        #[derive(Debug, Default, Clone, PartialEq, MValueCompatible)]
+        struct TestOpt {
+            a: i64,
+            b: Option<i64>,
+            c: Option<i64>,
+        }
+
+        let source = "a,b,c\n1,,3\n4,5,";
+        let res = parse_csv_as_record::<TestOpt>(source, None, None);
+
+        assert_eq!(
+            res,
+            vec![TestOpt { a: 1, b: None, c: Some(3) }, TestOpt { a: 4, b: Some(5), c: None },]
+        );
+    }
+
+    #[test]
     fn test_csv_reader() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/csv/fixtures/basic.csv");

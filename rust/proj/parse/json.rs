@@ -2749,7 +2749,7 @@ impl CoordinateSystem {
     /// Convert a CoordinateSystem to a ProjectionTransform
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
         self.subtype.to_projection_transform(proj_transform);
-        if self.axis.len() > 0 {
+        if !self.axis.is_empty() {
             let axis: Vec<AxisDirection> = self.axis.iter().map(|a| a.direction).collect();
             let mut axis_converter = AxisSwapConverter::new(Rc::new(RefCell::new(Proj::default())));
             axis_converter.swap = axis.into();

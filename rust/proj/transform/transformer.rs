@@ -173,7 +173,7 @@ fn transform_inv_prepare<P: TransformCoordinates + Debug>(
     }
 
     if let Some(axisswap) = &proj_trans.axisswap {
-        (&axisswap).method.inverse(coords);
+        axisswap.method.inverse(coords);
     }
 
     // Handle remaining possible input types
@@ -187,7 +187,7 @@ fn transform_inv_prepare<P: TransformCoordinates + Debug>(
             if proj.is_geocent
                 && let Some(cart) = &proj_trans.cart
             {
-                transform_inv(&cart, coords);
+                transform_inv(cart, coords);
             }
         }
 
@@ -234,25 +234,25 @@ fn transform_inv_finalize<P: TransformCoordinates + Debug>(
 
         if let Some(vgridshift) = &proj_trans.vgridshift {
             // Go geometric from orthometric
-            transform_inv(&vgridshift, coords);
+            transform_inv(vgridshift, coords);
         }
         if let Some(hgridshift) = &proj_trans.hgridshift {
             // Go geometric from orthometric
-            transform_fwd(&hgridshift, coords);
+            transform_fwd(hgridshift, coords);
         } else if (proj_trans.cart_wgs84.is_some() && proj_trans.cart.is_some())
             || proj_trans.helmert.is_some()
         {
             // Go cartesian in local frame
             if let Some(cart) = &proj_trans.cart {
-                transform_fwd(&cart, coords);
+                transform_fwd(cart, coords);
             }
             // Step into WGS84
             if let Some(helmert) = &proj_trans.helmert {
-                transform_fwd(&helmert, coords);
+                transform_fwd(helmert, coords);
             }
             // Go back to angular using WGS84 ellps
             if let Some(cart_wgs84) = &proj_trans.cart_wgs84 {
-                transform_inv(&cart_wgs84, coords);
+                transform_inv(cart_wgs84, coords);
             }
         }
 
@@ -309,26 +309,26 @@ fn transform_fwd_prepare<P: TransformCoordinates + Debug>(
         }
 
         if let Some(hgridshift) = &proj_trans.hgridshift {
-            transform_inv(&hgridshift, coords);
+            transform_inv(hgridshift, coords);
         } else if (proj_trans.cart_wgs84.is_some() && proj_trans.cart.is_some())
             || proj_trans.helmert.is_some()
         {
             // Go cartesian in local frame
             if let Some(cart_wgs84) = &proj_trans.cart_wgs84 {
-                transform_fwd(&cart_wgs84, coords);
+                transform_fwd(cart_wgs84, coords);
             }
             // Step into WGS84
             if let Some(helmert) = &proj_trans.helmert {
-                transform_inv(&helmert, coords);
+                transform_inv(helmert, coords);
             }
             // Go back to angular using WGS84 ellps
             if let Some(cart) = &proj_trans.cart {
-                transform_inv(&cart, coords);
+                transform_inv(cart, coords);
             }
         }
         // Go orthometric from geometric
         if let Some(vgridshift) = &proj_trans.vgridshift {
-            transform_fwd(&vgridshift, coords);
+            transform_fwd(vgridshift, coords);
         }
         // Distance from central meridian, taking system zero meridian into account
         coords.set_lam((coords.lam() - proj.from_greenwich) - proj.lam0);
@@ -345,7 +345,7 @@ fn transform_fwd_prepare<P: TransformCoordinates + Debug>(
     if proj.left == IoUnits::CARTESIAN
         && let Some(helmert) = &proj_trans.helmert
     {
-        transform_inv(&helmert, coords);
+        transform_inv(helmert, coords);
     }
 }
 
@@ -360,7 +360,7 @@ fn transform_fwd_finalize<P: TransformCoordinates + Debug>(
             if proj.is_geocent
                 && let Some(cart) = &proj_trans.cart
             {
-                transform_fwd(&cart, coords);
+                transform_fwd(cart, coords);
             }
             coords.set_x(coords.x() * proj.fr_meter);
             coords.set_y(coords.y() * proj.fr_meter);
@@ -399,6 +399,6 @@ fn transform_fwd_finalize<P: TransformCoordinates + Debug>(
     }
 
     if let Some(axisswap) = &proj_trans.axisswap {
-        (&axisswap).method.forward(coords);
+        axisswap.method.forward(coords);
     }
 }

@@ -9,7 +9,9 @@ pub use tables::*;
 /// ## Links
 /// - [Consult with this page to understand their purpose.](https://confluence.ecmwf.int/display/UDOC/What+is+the+GRIB+bitmap+-+ecCodes+GRIB+FAQ).
 /// - [Docs](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect6.shtml).
+///
 /// @param section - The byte block to understan how to parse bit-map data
+///
 /// @returns - Parsed bit-map section
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2BitMapSection {

@@ -1,9 +1,9 @@
 use crate::proj::{
-    aasin, adjlon, phi2, tsfn, CoordinateStep, Proj, ProjValue, ProjectCoordinates,
-    TransformCoordinates, ANGLE_RECTIFIED_TO_SKEW_GRID, AZIMUTH_PROJECTION_CENTRE,
+    ANGLE_RECTIFIED_TO_SKEW_GRID, AZIMUTH_PROJECTION_CENTRE, CoordinateStep,
     HOTINE_OBLIQUE_MERCATOR_VARIANT_A, HOTINE_OBLIQUE_MERCATOR_VARIANT_B, LATITUDE_OF_FIRST_POINT,
     LATITUDE_OF_SECOND_POINT, LONGITUDE_OF_FIRST_POINT, LONGITUDE_OF_PROJECTION_CENTRE,
-    LONGITUDE_OF_SECOND_POINT, NO_OFF, NO_ROTATION, NO_UOFF
+    LONGITUDE_OF_SECOND_POINT, NO_OFF, NO_ROTATION, NO_UOFF, Proj, ProjValue, ProjectCoordinates,
+    TransformCoordinates, aasin, adjlon, phi2, tsfn,
 };
 use alloc::rc::Rc;
 use core::{
@@ -38,10 +38,12 @@ const EPS: f64 = 1e-10;
 
 /// Hotine Oblique Mercator (variant A) Projection
 /// EPSG Codes Used by Hotine Oblique Mercator (variant A): 8811, 8812, 8813, 8814, 8815, 8806, 8807
-pub type HotineObliqueMercatorVariantAProjection = ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_A>;
+pub type HotineObliqueMercatorVariantAProjection =
+    ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_A>;
 /// Hotine Oblique Mercator (variant B) Projection
 /// EPSG Codes Used by Hotine Oblique Mercator (variant B): 8811, 8812, 8813, 8814, 8815, 8816, 8817
-pub type HotineObliqueMercatorVariantBProjection = ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_B>;
+pub type HotineObliqueMercatorVariantBProjection =
+    ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_B>;
 
 /// Oblique Mercator Projection
 #[derive(Debug, Clone, PartialEq)]
@@ -107,9 +109,8 @@ impl<const C: i64> CoordinateStep for ObliqueMercatorProjection<C> {
                     .get(&LONGITUDE_OF_PROJECTION_CENTRE)
                     .unwrap_or(&ProjValue::default())
                     .f64();
-                no_off = 
-                    // For libproj4 compatibility
-                    proj.params.get(&NO_OFF).unwrap_or(&ProjValue::default()).bool()
+                // For libproj4 compatibility
+                no_off = proj.params.get(&NO_OFF).unwrap_or(&ProjValue::default()).bool()
                     // for backward compatibility
                     || proj.params.get(&NO_UOFF).unwrap_or(&ProjValue::default()).bool();
             } else {

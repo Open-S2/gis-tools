@@ -64,7 +64,7 @@ pub fn simple_unpacking(reader: &BufferReader, drs: &Grib2DataRepresentationSect
     let decimal_scale_factor = *decimal_scale_factor as f64;
     let binary_scale_factor = *binary_scale_factor as f64;
     let reference_value = *reference_value as f64;
-    let number_of_bits = *number_of_bits as u8;
+    let number_of_bits = *number_of_bits;
     let dd = pow(10., decimal_scale_factor);
     let ee = pow(2., binary_scale_factor);
 

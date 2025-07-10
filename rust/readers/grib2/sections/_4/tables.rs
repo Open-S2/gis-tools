@@ -275,7 +275,7 @@ impl From<u16> for Grib2Table4_0 {
             1002 => Self::CrossSectionAnalysisAndForecastAveragedStatisticallyProcessedLatitudeLongitude,
             1100 => Self::HovmollerTypeGridNoAveragingStatisticalProcessing,
             1101 => Self::HovmollerTypeGridAveragingStatisticalProcessing,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3449,7 +3449,7 @@ pub fn grib2_lookup_table42_05(category: u8) -> TableCategory {
 /// - The sum of the water and ice fractions may exceed the total due to overlap between the volumes containing ice and those containing liquid water.
 /// - Fog is defined as cloud cover in the lowest model level.
 /// - This parameter is the amount of sunshine in seconds over a given length of time in seconds. Sunshine is defined as a radiation intensity above 120 W m-2.
-/// @see [GRIB2 - Table 4.2-0-6: Parameters for Discipline 0 Category 6 (Cloud category)](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-6: Parameters for Discipline 0 Category 6 (Cloud category)](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 6.
 ///
@@ -3774,7 +3774,7 @@ pub fn grib2_lookup_table42_06(category: u8) -> TableCategory {
 ///
 /// **Notes:**
 /// - Parameter deprecated - Use another parameter in parameter category 1: moisture instead.
-/// @see [GRIB2 - Table 4.2-0-7: Parameters for Discipline 0 Category 7 (Thermodynamic Stability category)](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-7: Parameters for Discipline 0 Category 7 (Thermodynamic Stability category)](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 7.
 ///
@@ -4024,7 +4024,7 @@ pub fn grib2_lookup_table42_07(category: u8) -> TableCategory {
 ///
 /// **Notes:**
 /// - Aerosol Type is described in Table 4.205.
-/// @see [GRIB2 - Table 4.2-0-13: Aerosols Category](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-13: Aerosols Category](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 13.
 ///
@@ -4089,7 +4089,7 @@ pub fn grib2_lookup_table42_013(category: u8) -> TableCategory {
 ///
 /// **Notes:**
 /// - Trace gases parameters, including Ozone and PM2.5 related metrics.
-/// @see [GRIB2 - Table 4.2-0-14: Trace Gases Category](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-14: Trace Gases Category](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 14.
 ///
@@ -4209,7 +4209,7 @@ pub fn grib2_lookup_table42_014(category: u8) -> TableCategory {
 ///
 /// **Notes:**
 /// - Radar-related parameters such as reflectivity, velocity, and precipitation.
-/// @see [GRIB2 - Table 4.2-0-15: Radar Category](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-15: Radar Category](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 15.
 ///
@@ -4336,7 +4336,7 @@ pub fn grib2_lookup_table42_015(category: u8) -> TableCategory {
 /// - Radar reflectivity and Echo Top products.
 /// - For Echo Top product, Use octet number 38 to store threshold value (e.g., 18.3 dB) in Product Definition Template 4.20.
 /// - Decibel (dB) is a logarithmic measure of the relative power or radar reflectivity.
-/// @see [GRIB2 - Table 4.2-0-16: Forecast Radar Imagery](https://www.example.com)
+///   @see [GRIB2 - Table 4.2-0-16: Forecast Radar Imagery](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 16.
 ///
@@ -4447,7 +4447,7 @@ pub fn grib2_lookup_table42_016(category: u8) -> TableCategory {
 /// 1. Definition of LPI after Lynn et. al. (2010): Prediction of lightning flash density with the WRF model, Adv. Geosci., 23, 11-16.
 /// 2. The total lightning flash density is the sum of cloud-to-ground and cloud-to-cloud lightning flash densities.
 /// 3. The subgrid-scale lightning potential index is derived from subgrid-scale information for models with coarser resolution.
-/// @see [GRIB2 - Table 4.2-0-17: Electrodynamics](https://www.example.com)
+///    @see [GRIB2 - Table 4.2-0-17: Electrodynamics](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 17.
 ///
@@ -4522,10 +4522,10 @@ pub fn grib2_lookup_table42_017(category: u8) -> TableCategory {
 ///
 /// **Notes:**
 /// 1. Statistical process 1 (Accumulation) does not change units. It is recommended to use another parameter
-/// without the word "time-integrated" in its name and accumulation in PDT.
+///    without the word "time-integrated" in its name and accumulation in PDT.
 /// 2. Conversion factor between "Specific Activity Concentration" (14) and "Air Concentration" (10) is "Mass Density" [kg m-3].
 /// 3. Use the radionuclide release start date as baseline to determine activity arrival or activity end.
-/// @see [GRIB2 - Table 4.2-0-18: Nuclear/Radiology Imagery](https://www.example.com)
+///    @see [GRIB2 - Table 4.2-0-18: Nuclear/Radiology Imagery](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 18.
 ///
@@ -4710,7 +4710,7 @@ pub fn grib2_lookup_table42_018(category: u8) -> TableCategory {
 /// 4. In astronomy, sky transparency means the effect on the viewing experience caused by the scattering of light through atmospheric water vapour, aerosols or other constituents. Ideal transparency conditions produce a black night sky conducive to viewing faint astronomical objects, almost like being in outer space. In poor transparency conditions, which may occur even in cloud-free conditions, the deep sky background is greyish (not black), faint details are washed out and contrast is reduced.
 /// 5. Seeing means the steadiness or turbulence of the atmosphere in the context of astronomical observation. Turbulence causes rapid random fluctuations of the optical path through the atmosphere. The twinkling of stars, for example, occurs in poor seeing conditions.
 /// 6. A duct layer is an atmospheric layer with a refractivity which leads to a trapping of electromagnetic waves. In a trapping layer the refractivity leads to a bending of EM waves, which is stronger than the Earth's curvature.
-/// @see [GRIB2 - Table 4.2-0-19: Physical Atmospheric](https://www.example.com)
+///    @see [GRIB2 - Table 4.2-0-19: Physical Atmospheric](https://www.example.com)
 ///
 /// This function provides a lookup for GRIB2 parameter categories for Discipline 0, Category 19.
 ///

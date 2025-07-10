@@ -284,7 +284,7 @@ impl From<u8> for Grib2TableA {
             211 => Self::EpaAirQualityForecastEasternUsDomain,
             215 => Self::SpcManualForecastProduct,
             220 => Self::NcepOpcAutomatedProduct,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -483,7 +483,7 @@ impl From<u8> for Grib2TableC {
             16 => Self::SpaceWeatherPredictionCenter,
             17 => Self::EsrlGlobalSystemsDivision,
             18 => Self::NationalWaterCenter,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }

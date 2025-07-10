@@ -1,8 +1,8 @@
 use crate::proj::{CoordinateStep, IoUnits, Proj, ProjectionTransform, Step, TransformCoordinates};
 use alloc::rc::Rc;
 use core::cell::RefCell;
+use core::f64::consts::FRAC_PI_2;
 use libm::{atan, atan2, cos, fabs, sin, sqrt};
-use std::f64::consts::FRAC_PI_2;
 
 /******************************************************************************
  * Project:  PROJ.4
@@ -124,10 +124,11 @@ impl CoordinateStep for CartesianConverter {
 }
 impl From<CartesianConverter> for ProjectionTransform {
     fn from(c: CartesianConverter) -> ProjectionTransform {
-        let mut proj_trans = ProjectionTransform::default();
-        proj_trans.proj = c.proj.clone();
-        proj_trans.method = Step::Cartesian(c.into());
-        proj_trans
+        ProjectionTransform {
+            proj: c.proj.clone(),
+            method: Step::Cartesian(c.into()),
+            ..Default::default()
+        }
     }
 }
 

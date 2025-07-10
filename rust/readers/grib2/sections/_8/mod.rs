@@ -5,6 +5,7 @@ use alloc::string::String;
 ///
 /// ## Links
 /// - [Docs](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect8.shtml)
+///
 /// @param section - byte block for section 8
 /// @returns - parsed end section
 #[derive(Debug, Clone, PartialEq, Eq)]

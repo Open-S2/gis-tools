@@ -53,13 +53,13 @@ fn no_op(_: u8) -> TableCategory {
 /// ## Notes
 /// - By convention, the flux sign is positive if downward.
 /// - When a new parameter is to be added to Code table 4.2 and more than one category applies, the
-/// choice of category should be made base on the intended use of product. The discipline and
-/// category are an important part of any product definition, so it is possible to have the same
-/// parameter name in more than one category. For example, "Water Temperature" in discipline 10
-/// (Oceanographic Products), category 4 (sub-surface properties) is used to reporting water
-/// temperature in the ocean or open sea, and is not the same as "Water temperature" in discipline
-/// 1 (Hydrological Products), category 2 (Inland water and sediment properties) which is used for
-/// reporting water temperature in freshwater lakes and rivers.
+///   choice of category should be made base on the intended use of product. The discipline and
+///   category are an important part of any product definition, so it is possible to have the same
+///   parameter name in more than one category. For example, "Water Temperature" in discipline 10
+///   (Oceanographic Products), category 4 (sub-surface properties) is used to reporting water
+///   temperature in the ocean or open sea, and is not the same as "Water temperature" in discipline
+///   1 (Hydrological Products), category 2 (Inland water and sediment properties) which is used for
+///   reporting water temperature in freshwater lakes and rivers.
 ///
 /// ## Reads as
 /// `{ [discipline]: { [param catagory]: { TableCategory } }}`
@@ -274,7 +274,7 @@ impl From<u8> for Grib2Table4_3 {
             198 => Self::PostProcessedDeterministicExpertWeightedForecast,
             199 => Self::EnsembleForecastBasedOnCounting,
             200 => Self::LocalProbabilityMatchedMean,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -380,7 +380,7 @@ impl From<u8> for Grib2Table4_4 {
             11 => Self::Hours6,
             12 => Self::Hours12,
             13 => Self::Second,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -928,7 +928,7 @@ impl From<u8> for Grib2Table4_6 {
             3 => Self::PositivelyPerturbedForecast,
             4 => Self::MultiModelForecast,
             192 => Self::PerturbedEnsembleMember,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1031,7 +1031,7 @@ impl From<u8> for Grib2Table4_7 {
             202 => Self::PercentileValue25OfAllMembers,
             203 => Self::PercentileValue75OfAllMembers,
             204 => Self::PercentileValue95OfAllMembers,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1112,7 +1112,7 @@ impl From<u8> for Grib2Table4_8 {
         match val {
             0 => Self::AnomalyCorrelation,
             1 => Self::RootMeanSquare,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1180,7 +1180,7 @@ impl From<u8> for Grib2Table4_9 {
             7 => Self::ProbabilityOfEventInNearNormalCategory,
             8 => Self::ProbabilityOfEventInBelowNormalCategory,
             9 => Self::ProbabilityBasedOnCountsOfCategoricalBoolean,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1317,7 +1317,7 @@ impl From<u8> for Grib2Table4_10 {
             207 => Self::AverageOfForecastAverages12Hour,
             208 => Self::Variance,
             209 => Self::Coefficient,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1414,7 +1414,7 @@ impl From<u8> for Grib2Table4_11 {
             3 => Self::SuccessiveTimesProcessedHaveStartTimeOfForecastIncrementedAndForecastTimeDecrementedSoThatValidTimeRemainsConstant,
             4 => Self::SuccessiveTimesProcessedHaveStartTimeOfForecastDecrementedAndForecastTimeIncrementedSoThatValidTimeRemainsConstant,
             5 => Self::FloatingSubintervalOfTimeBetweenForecastTimeAndEndOfOverallTimeInterval,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1477,7 +1477,7 @@ impl From<u8> for Grib2Table4_12 {
             0 => Self::MaintenanceMode,
             1 => Self::ClearAir,
             2 => Self::Precipitation,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1525,7 +1525,7 @@ impl From<u8> for Grib2Table4_13 {
         match val {
             0 => Self::NoQualityControlApplied,
             1 => Self::QualityControlApplied,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1572,7 +1572,7 @@ impl From<u8> for Grib2Table4_14 {
         match val {
             0 => Self::NoClutterFilterUsed,
             1 => Self::ClutterFilterUsed,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1630,7 +1630,7 @@ impl From<u8> for Grib2Table4_15 {
             4 => Self::BudgetInterpolation,
             5 => Self::SpectralInterpolation,
             6 => Self::NeighborBudgetInterpolation,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1708,7 +1708,7 @@ impl From<u8> for Grib2Table4_16 {
             3 => Self::StandardDeviation,
             4 => Self::RandomError,
             5 => Self::Probability,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1779,7 +1779,7 @@ impl From<u8> for Grib2Table4_91 {
             9 => Self::SmallerOrEqualSecondLimit,
             10 => Self::BetweenFirstAndSecondLimitIncludesSecondButNotFirst,
             11 => Self::EqualToFirstLimit,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1848,7 +1848,7 @@ impl From<u8> for Grib2Table4_100 {
             3 => Self::Reanalysis,
             4 => Self::ClimateProjection,
             5 => Self::GriddedObservations,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1915,7 +1915,7 @@ impl From<u8> for Grib2Table4_101 {
             21 => Self::ShiftOfTails,
             22 => Self::AnomalyOfProbabilities,
             23 => Self::StandardizedDroughtIndex,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -1997,7 +1997,7 @@ impl From<u8> for Grib2Table4_102 {
             29 => Self::IndexBasedOnGeneralisedExtremeValueDistribution,
             30 => Self::IndexBasedOnPearsonIIIDistribution,
             31 => Self::IndexBasedOnEmpiricalDistribution,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2076,7 +2076,7 @@ impl From<u8> for Grib2Table4_103 {
             2 => Self::Square,
             3 => Self::Wedge,
             4 => Self::SpanOfGridBoxesCenteredAroundGridBoxIJ,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2147,7 +2147,7 @@ impl From<u8> for Grib2Table4_104 {
             11 => Self::Sum,
             190 => Self::Quantile,
             191 => Self::Categorical,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2200,7 +2200,7 @@ impl From<u8> for Grib2Table4_105 {
         match val {
             0 => Self::IgnoreMissingData,
             1 => Self::NoData,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2267,7 +2267,7 @@ impl From<u8> for Grib2Table4_201 {
             10 => Self::Hail,
             11 => Self::Drizzle,
             12 => Self::FreezingDrizzle,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2317,10 +2317,8 @@ pub enum Grib2Table4_202 {
     Missing = 255,
 }
 impl From<u8> for Grib2Table4_202 {
-    fn from(val: u8) -> Self {
-        match val {
-            255 | _ => Self::Missing,
-        }
+    fn from(_: u8) -> Self {
+        Self::Missing
     }
 }
 impl core::fmt::Display for Grib2Table4_202 {
@@ -2403,7 +2401,7 @@ impl From<u8> for Grib2Table4_203 {
             19 => Self::CirrocumulusGroundBasedFog,
             20 => Self::CirrusGroundBasedFog,
             191 => Self::Unknown,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2488,7 +2486,7 @@ impl From<u8> for Grib2Table4_204 {
             2 => Self::Few,
             3 => Self::Scattered,
             4 => Self::Numerous,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2536,7 +2534,7 @@ impl From<u8> for Grib2Table4_205 {
         match val {
             0 => Self::AerosolNotPresent,
             1 => Self::AerosolPresent,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2581,7 +2579,7 @@ impl From<u8> for Grib2Table4_206 {
         match val {
             0 => Self::NotPresent,
             1 => Self::Present,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2634,7 +2632,7 @@ impl From<u8> for Grib2Table4_207 {
             3 => Self::Severe,
             4 => Self::Trace,
             5 => Self::Heavy,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2689,7 +2687,7 @@ impl From<u8> for Grib2Table4_208 {
             2 => Self::Moderate,
             3 => Self::Severe,
             4 => Self::Extreme,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2743,7 +2741,7 @@ impl From<u8> for Grib2Table4_209 {
             2 => Self::MechanicallyDrivenTurbulence,
             3 => Self::ForceConvection,
             4 => Self::FreeConvection,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2791,7 +2789,7 @@ impl From<u8> for Grib2Table4_210 {
         match val {
             0 => Self::ContrailNotPresent,
             1 => Self::ContrailPresent,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2838,7 +2836,7 @@ impl From<u8> for Grib2Table4_211 {
             0 => Self::LowBypass,
             1 => Self::HighBypass,
             2 => Self::NonBypass,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2908,7 +2906,7 @@ impl From<u8> for Grib2Table4_212 {
             11 => Self::Ice,
             12 => Self::TropicalForest,
             13 => Self::Savannah,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -2985,7 +2983,7 @@ impl From<u8> for Grib2Table4_213 {
             9 => Self::SandyClay,
             10 => Self::SiltyClay,
             11 => Self::Clay,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3051,7 +3049,7 @@ impl From<u8> for Grib2Table4_214 {
             4 => Self::Good,
             5 => Self::Excellent,
             191 => Self::Unknown,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3108,7 +3106,7 @@ impl From<u8> for Grib2Table4_215 {
             50 => Self::NoSnowNoCloud,
             100 => Self::Clouds,
             250 => Self::Snow,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3155,7 +3153,7 @@ impl From<u8> for Grib2Table4_216 {
         match val {
             0..=90 => Self::Elevation100m,
             254 => Self::Clouds,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3204,7 +3202,7 @@ impl From<u8> for Grib2Table4_217 {
             1 => Self::ClearOverLand,
             2 => Self::Cloud,
             3 => Self::NoData,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3330,7 +3328,7 @@ impl From<u8> for Grib2Table4_218 {
             110 => Self::UnknownCloudType,
             111 => Self::SingleLayerWaterCloud,
             112 => Self::SingleLayerIceCloud,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3418,7 +3416,7 @@ impl From<u8> for Grib2Table4_219 {
             1 => Self::FogInSegment,
             2 => Self::PoorQualityHeightEstimation,
             3 => Self::FogInSegmentAndPoorQualityHeightEstimation,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3467,7 +3465,7 @@ impl From<u8> for Grib2Table4_220 {
         match val {
             0 => Self::Latitude,
             1 => Self::Longitude,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3512,7 +3510,7 @@ impl From<u8> for Grib2Table4_221 {
         match val {
             0 => Self::NotIncluded,
             1 => Self::Extrapolated,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3557,7 +3555,7 @@ impl From<u8> for Grib2Table4_222 {
         match val {
             0 => Self::No,
             1 => Self::Yes,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3606,7 +3604,7 @@ impl From<u8> for Grib2Table4_223 {
             1 => Self::PossibleFireDetected,
             2 => Self::ProbableFireDetected,
             3 => Self::MissingCode,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3672,7 +3670,7 @@ impl From<u8> for Grib2Table4_224 {
             11 => Self::DryThunderstormRiskArea,
             14 => Self::CriticalRiskArea,
             18 => Self::ExtremelyCriticalRiskArea,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3731,7 +3729,7 @@ impl From<u8> for Grib2Table4_227 {
             2 => Self::Convective,
             3 => Self::Stratiform,
             4 => Self::Freezing,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -3785,7 +3783,7 @@ impl From<u8> for Grib2Table4_228 {
             2 => Self::Light,
             3 => Self::Moderate,
             4 => Self::Severe,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4065,7 +4063,7 @@ impl From<u16> for Grib2Table4_230 {
             62011 => Self::PrimaryParticulateOrganicMatterDry,
             62012 => Self::SecondaryParticulateOrganicMatterDry,
             62034 => Self::BrownCarbonDry,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4492,7 +4490,7 @@ impl From<u16> for Grib2Table4_233 {
             62024 => Self::Reserved62024,
             62025 => Self::VolcanicAsh,
             62036 => Self::BrownCarbonDry,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4712,7 +4710,7 @@ impl From<u8> for Grib2Table4_234 {
             18 => Self::MixedForest,
             19 => Self::InterruptedForest,
             20 => Self::WaterAndLandMixtures,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4764,7 +4762,7 @@ impl From<u8> for Grib2Table4_235 {
         match val {
             0 => Self::TotalWaveSpectrum,
             1 => Self::GeneralizedPartition,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4809,7 +4807,7 @@ impl From<u8> for Grib2Table4_236 {
             5 => Self::VeryFine,
             6 => Self::Organic,
             7 => Self::TropicalOrganic,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4905,7 +4903,7 @@ impl From<u8> for Grib2Table4_238 {
             27 => Self::OffRoadTransportation,
             28 => Self::NuclearPowerPlant,
             29 => Self::NuclearWeapon,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -4991,7 +4989,7 @@ impl From<u8> for Grib2Table4_239 {
             10 => Self::Swamp,
             11 => Self::Upland,
             12 => Self::WetTundra,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5081,7 +5079,7 @@ impl From<u16> for Grib2Table4_240 {
             6 => Self::LogNormalDistributionFixedVariance,
             7 => Self::LogNormalDistributionFixedVarianceAndParticleDensity,
             8 => Self::DerivedFromDistributionType7,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5150,7 +5148,7 @@ impl From<u8> for Grib2Table4_241 {
             5 => Self::WithInterceptedWater,
             6 => Self::WithInterceptedSnow,
             7 => Self::Aggregated,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5198,7 +5196,7 @@ impl From<u8> for Grib2Table4_242 {
             3 => Self::LandUseClassesECOCLIMAP,
             4 => Self::LandUseClassesECOCLIMAPSG,
             5 => Self::LandUseClassesUSGSEROSGLCCV20BATsClassification,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5318,7 +5316,7 @@ impl From<u8> for Grib2Table4_243 {
             37 => Self::ClosedForestOrShrublandPermanentlyFlooded,
             38 => Self::ClosedToOpenGrasslandRegularlyFlooded,
             39 => Self::Undefined,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5406,7 +5404,7 @@ impl From<u8> for Grib2Table4_244 {
             0 => Self::NoQualityInformationAvailable,
             1 => Self::Failed,
             2 => Self::Passed,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5445,7 +5443,7 @@ impl From<u8> for Grib2Table4_246 {
             1 => Self::WeakThunderstorm,
             2 => Self::ModerateThunderstorm,
             3 => Self::SevereThunderstorm,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5485,7 +5483,7 @@ impl From<u8> for Grib2Table4_247 {
             1 => Self::LightPrecipitation,
             2 => Self::ModeratePrecipitation,
             3 => Self::HeavyPrecipitation,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5521,7 +5519,7 @@ impl From<u8> for Grib2Table4_248 {
         match val {
             0 => Self::NearestForecastOrAnalysisTime,
             1 => Self::InterpolatedToValidAtSpecifiedLocalTime,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5563,7 +5561,7 @@ impl From<u8> for Grib2Table4_249 {
             1 => Self::Showers,
             2 => Self::Intermittent,
             3 => Self::Continuous,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5615,7 +5613,7 @@ impl From<u8> for Grib2Table4_250 {
             7 => Self::NorthWest,
             8 => Self::North,
             9 => Self::NorthEast,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5663,7 +5661,7 @@ impl From<u8> for Grib2Table4_251 {
             0 => Self::UndefinedSequence,
             1 => Self::GeometricSequence,
             2 => Self::ArithmeticSequence,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5717,7 +5715,7 @@ impl From<u8> for Grib2Table4_333 {
             7 => Self::SNAP,
             8 => Self::WrfChem,
             9 => Self::Trajectoire,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5768,7 +5766,7 @@ impl From<u8> for Grib2Table4_335 {
             2 => Self::JRODOS,
             3 => Self::Assimilated,
             4 => Self::Center,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -5826,7 +5824,7 @@ impl From<u8> for Grib2Table4_336 {
             8 => Self::GEMRDPS,
             9 => Self::GEMHRDPS,
             10 => Self::WRF,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }

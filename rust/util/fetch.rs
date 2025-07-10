@@ -28,12 +28,12 @@ pub fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetErro
     let url = url.strip_prefix("http://").ok_or(NetError::InvalidUrl)?;
     let parts: Vec<&str> = url.splitn(2, '/').collect();
 
-    let host = parts.get(0).ok_or(NetError::InvalidUrl)?;
+    let host = parts.first().ok_or(NetError::InvalidUrl)?;
     let path = parts.get(1).copied().unwrap_or("");
 
     let addr = format!("{host}:80");
     // let request = format!("GET /{} HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n\r\n", path, host);
-    let mut request = format!("GET /{} HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n", path, host);
+    let mut request = format!("GET /{path} HTTP/1.0\r\nHost: {host}\r\nConnection: close\r\n");
     for (k, v) in headers {
         request.push_str(&format!("{k}: {v}\r\n"));
     }

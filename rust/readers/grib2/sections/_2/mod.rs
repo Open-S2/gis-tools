@@ -4,12 +4,14 @@ use crate::parsers::{BufferReader, Reader};
 ///
 /// ## Notes
 /// 1. Center=7 (NCEP), subcenter=14(NWS Meteorological Development Laboratory (MDL))
-/// used octet 6 to indicate which local use table to use. For MDL, octet 6=1 indicates use:
-/// "MDL Template 2.1"
+///    used octet 6 to indicate which local use table to use. For MDL, octet 6=1 indicates use:
+///    "MDL Template 2.1"
 ///
 /// ## Links
 /// - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect2.shtml)
+///
 /// @param section - The byte block to pull basic local information
+///
 /// @returns - a parsed explaination of local use.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2LocalUseSection {

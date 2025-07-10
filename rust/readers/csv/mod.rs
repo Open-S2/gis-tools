@@ -6,7 +6,10 @@ use alloc::{
     vec::Vec,
 };
 use core::{cell::RefCell, marker::PhantomData};
-use s2json::{MValue, MValueCompatible, Properties, VectorFeature, VectorGeometry, VectorPoint};
+use s2json::{
+    MValue, MValueCompatible, PrimitiveValue, Properties, VectorFeature, VectorGeometry,
+    VectorPoint,
+};
 use serde::de::DeserializeOwned;
 
 /// User defined options on how to parse the CSV file
@@ -242,7 +245,9 @@ pub fn parse_csv_as_record<T: MValueCompatible>(
         let values = parse_csv_line(line, delimiter);
 
         for (value, header) in values.iter().take(header.len()).zip(header.iter()) {
-            record.insert(header.into(), value.into());
+            let val =
+                if value.trim().is_empty() { (&PrimitiveValue::Null).into() } else { value.into() };
+            record.insert(header.into(), val);
         }
 
         res.push(record.into());

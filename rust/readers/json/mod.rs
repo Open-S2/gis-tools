@@ -8,7 +8,8 @@ use alloc::{vec, vec::Vec};
 pub use large_json::*;
 pub use line_delimited::*;
 use s2json::{
-    Feature, FeatureCollection, Features, JSONCollection, S2FeatureCollection, VectorFeature,
+    Feature, FeatureCollection, Features, JSONCollection, MValue, Properties, S2FeatureCollection,
+    VectorFeature,
 };
 use serde::{Deserialize, de::DeserializeOwned};
 
@@ -135,7 +136,11 @@ impl ToGisJSON for &str {
 
 /// JSON Collection Reader
 #[derive(Debug, Clone)]
-pub struct JSONCollectionReader<M: Clone, P: Clone + Default, D: Clone + Default> {
+pub struct JSONCollectionReader<
+    M: Clone = (),
+    P: Clone + Default = Properties,
+    D: Clone + Default = MValue,
+> {
     /// Collection of features
     pub features: Vec<VectorFeature<M, P, D>>,
 }

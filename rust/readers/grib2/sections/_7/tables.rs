@@ -98,7 +98,7 @@ impl core::fmt::Display for Grib2Table7_0 {
                 "Spectral Data for limited area models - Complex Packing (see Template 7.53)"
             }
             Self::Missing => "Missing",
-            Self::Unknown(v) => return write!(f, "Unknown Data Template Definition ({})", v),
+            Self::Unknown(v) => return write!(f, "Unknown Data Template Definition ({v})"),
         };
         f.write_str(desc)
     }

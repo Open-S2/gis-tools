@@ -6,6 +6,8 @@ pub mod geotiff;
 pub mod gpx;
 /// Grib2 Reader
 pub mod grib2;
+/// GTFS Readers
+pub mod gtfs;
 /// JSON Reader
 pub mod json;
 /// LAS/LAZ Reader
@@ -27,6 +29,7 @@ pub use csv::*;
 pub use geotiff::*;
 pub use gpx::*;
 pub use grib2::*;
+pub use gtfs::*;
 pub use image::*;
 pub use las::*;
 pub use nadgrid::*;

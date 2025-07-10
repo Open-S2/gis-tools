@@ -52,6 +52,7 @@ impl Grib2Template5 {
 ///
 /// ## Notes
 /// - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
+///
 /// @returns - description of how to decode simple unpacked data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template50 {
@@ -354,9 +355,9 @@ impl Grib2Template540 {
 ///
 /// ## Notes
 /// - Removal of the real part of (0.0) coefficient from packed data is intended to reduce the
-/// variability of the coefficients, in order to improve packing accuracy.
+///   variability of the coefficients, in order to improve packing accuracy.
 /// - For some spectral representations, the (0.0) coefficient represents the mean value of the
-/// parameter represented.
+///   parameter represented.
 /// - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
 ///
 /// @returns - description of how to decode simple unpacked data
@@ -401,12 +402,12 @@ impl Grib2Template550 {
 ///
 /// ## Notes
 /// - The unpacked subset is a set of values defined in the same way as the full set of values
-/// (on a spectrum limited to j_s, k_s and m_s ), but on which scaling and packing are not applied.
-/// Associated values are stored in octets 6 onwards of section 7.
+///   (on a spectrum limited to j_s, k_s and m_s ), but on which scaling and packing are not applied.
+///   Associated values are stored in octets 6 onwards of section 7.
 /// - The remaining coefficients are multiplied by `(n x (n+1))p` , scaled and packed. The operator
-/// associated with this multiplication is derived from the Laplacian operator on the sphere.
+///   associated with this multiplication is derived from the Laplacian operator on the sphere.
 /// - The retrieval formula for a coefficient of wave number n is then: `Y = (R+X x 2e ) x 10-d x (n x(n+1))-p`
-/// where X is the packed scaled value associated with the coefficient.
+///   where X is the packed scaled value associated with the coefficient.
 ///
 /// @returns - description of how to decode simple unpacked data
 #[derive(Debug, Clone, PartialEq)]

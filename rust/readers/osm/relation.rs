@@ -173,7 +173,7 @@ pub enum RelationGeometry {
 }
 
 /// The expected metadata in the VectorFeature for all types (node, way, relation)
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, BitCast)]
 pub enum MemberType {
     /// Node type
     Node = 0,
@@ -181,23 +181,6 @@ pub enum MemberType {
     Way = 1,
     /// Relation type (collection of nodes, ways and relations)
     Relation = 2,
-}
-impl BitCast for MemberType {
-    fn to_u64(&self) -> u64 {
-        match self {
-            MemberType::Node => 0,
-            MemberType::Way => 1,
-            MemberType::Relation => 2,
-        }
-    }
-    fn from_u64(value: u64) -> Self {
-        match value {
-            0 => MemberType::Node,
-            1 => MemberType::Way,
-            2 => MemberType::Relation,
-            _ => panic!("unknown value {}", value),
-        }
-    }
 }
 
 /// Relation class contains a collection of nodes, ways and relations as members.

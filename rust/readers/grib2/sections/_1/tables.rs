@@ -96,7 +96,7 @@ impl From<u8> for Grib2Table1_0 {
             31 => Self::Version20230615,
             32 => Self::Version20231130,
             33 => Self::PreOperationalNextAmendment,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -178,7 +178,7 @@ impl From<u8> for Grib2Table1_1 {
     fn from(val: u8) -> Self {
         match val {
             0 => Self::LocalTablesNotUsed,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -237,7 +237,7 @@ impl From<u8> for Grib2Table1_2 {
             3 => Self::ObservationTime,
             4 => Self::LocalTime,
             5 => Self::SimulationStart,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -315,7 +315,7 @@ impl From<u8> for Grib2Table1_3 {
             11 => Self::CopernicusRegionalReanalysisTest,
             12 => Self::DestinationEarth,
             13 => Self::DestinationEarthTest,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -402,7 +402,7 @@ impl From<u8> for Grib2Table1_4 {
             7 => Self::ProcessedRadarObservations,
             8 => Self::EventProbability,
             192 => Self::ExperimentalProducts,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -462,7 +462,7 @@ impl From<u16> for Grib2Table1_5 {
             0 => Self::CalendarDefinition,
             1 => Self::PaleontologicalOffset,
             2 => Self::CalendarDefinitionAndPaleontologicalOffset,
-            65535 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
@@ -520,7 +520,7 @@ impl From<u8> for Grib2Table1_6 {
             1 => Self::Day360,
             2 => Self::Day365,
             3 => Self::ProlepticGregorian,
-            255 | _ => Self::Missing,
+            _ => Self::Missing,
         }
     }
 }
