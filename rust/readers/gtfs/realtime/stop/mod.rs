@@ -22,7 +22,7 @@ pub enum GTFSRealtimeWheelchairBoarding {
 
 /// Describes a stop which is served by trips. All fields are as described in the GTFS-Static specification.
 /// NOTE: This message is still experimental, and subject to change. It may be formally adopted in the future.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeStop {
     /// The stop_id of the stop
     pub stop_id: Option<String>, // 1 [string]
@@ -86,8 +86,8 @@ impl ProtoRead for GTFSRealtimeStop {
                     Some(stop_desc)
                 }
             }
-            6 => self.stop_lat = Some(pb.read_varint()),
-            7 => self.stop_lon = Some(pb.read_varint()),
+            6 => self.stop_lat = Some(pb.read_fixed()),
+            7 => self.stop_lon = Some(pb.read_fixed()),
             8 => self.zone_id = Some(pb.read_string()),
             9 => {
                 self.stop_url = {

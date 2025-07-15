@@ -72,6 +72,7 @@ pub use trips::*;
 // TODO: postprocess all interactions like `Trips -> shape_id [Link]` & `StopTime -> On-demand Service Routing Behavior [Link]`
 
 /// A piece of the GTFS schedule
+#[derive(Debug, Clone, PartialEq)]
 pub struct Piece {
     /// The name of the file
     pub filename: String,
@@ -242,8 +243,10 @@ impl GTFSScheduleReader {
 
         for item in iter_zip_folder(gzip_data).unwrap() {
             if let Ok(read_data) = (item.read)() {
-                let chunk = String::from_utf8_lossy(&read_data);
-                pieces.push(Piece { filename: item.filename, data: chunk.into() });
+                pieces.push(Piece {
+                    filename: item.filename,
+                    data: String::from_utf8_lossy(&read_data).into(),
+                });
             }
         }
 

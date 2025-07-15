@@ -53,7 +53,7 @@ pub use vehicle_position::*;
 /// - https://developers.google.com/transit/gtfs/examples/overview
 /// - https://mobilitydata.github.io/
 /// - https://www.transit.land
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeReader {
     /// The header of the message
     pub header: GTFSRealtimeHeader,

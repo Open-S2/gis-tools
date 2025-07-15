@@ -75,7 +75,7 @@ mod tests {
         path.push("tests/readers/grib2/fixtures/ref_simple_packing.grib2");
 
         let bytes = std::fs::read(path.clone()).unwrap();
-        let mut grib2_reader = GRIB2Reader::new(BufferReader::from(bytes).into(), vec![]);
+        let grib2_reader = GRIB2Reader::new(BufferReader::from(bytes).into(), vec![]);
 
         let mut points = grib2_reader.get_data().unwrap();
         points.sort_by(|a, b| {

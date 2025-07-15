@@ -84,7 +84,7 @@ pub enum GTFSRealtimeCause {
 }
 
 /// An alert, indicating some sort of incident in the public transit network.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeAlert {
     /// Time when the alert should be shown to the user. If missing, the
     /// alert will be shown as long as it appears in the feed.
@@ -196,7 +196,7 @@ impl ProtoRead for GTFSRealtimeAlert {
 
 /// A time interval. The interval is considered active at time 't' if 't' is
 /// greater than or equal to the start time and less than the end time.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTimeRange {
     /// Start time, in POSIX time (i.e., number of seconds since January 1st 1970
     /// 00:00:00 UTC).

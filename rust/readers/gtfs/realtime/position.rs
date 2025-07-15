@@ -1,7 +1,7 @@
 use pbf::{ProtoRead, Protobuf};
 
 /// A Position is a point on the Earth's surface.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimePosition {
     /// Degrees North, in the WGS-84 coordinate system.
     pub latitude: f32, // 1 [float]
@@ -22,11 +22,11 @@ pub struct GTFSRealtimePosition {
 impl ProtoRead for GTFSRealtimePosition {
     fn read(&mut self, tag: u64, pb: &mut Protobuf) {
         match tag {
-            1 => self.latitude = pb.read_varint(),
-            2 => self.longitude = pb.read_varint(),
-            3 => self.bearing = Some(pb.read_varint()),
-            4 => self.odometer = Some(pb.read_varint()),
-            5 => self.speed = Some(pb.read_varint()),
+            1 => self.latitude = pb.read_fixed(),
+            2 => self.longitude = pb.read_fixed(),
+            3 => self.bearing = Some(pb.read_fixed()),
+            4 => self.odometer = Some(pb.read_fixed()),
+            5 => self.speed = Some(pb.read_fixed()),
             _ => panic!("unknown tag {}", tag),
         }
     }

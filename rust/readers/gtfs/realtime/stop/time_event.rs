@@ -16,7 +16,7 @@ use pbf::{ProtoRead, Protobuf};
 /// note, we don't yet define its precise statistical meaning). It's possible
 /// for the uncertainty to be 0, for example for trains that are driven under
 /// computer timing control.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeStopTimeEvent {
     ///  Delay (in seconds) can be positive (meaning that the vehicle is late) or
     ///  negative (meaning that the vehicle is ahead of schedule). Delay of 0

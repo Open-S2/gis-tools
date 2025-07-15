@@ -42,8 +42,8 @@ pub use nadgrid::*;
 pub use netcdf::*;
 pub use osm::*;
 pub use pmtiles::*;
-use s2json::{MValue, MValueCompatible, Properties};
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use s2json::{MValue, Properties};
+use serde::{Deserialize, Serialize};
 pub use shapefile::*;
 pub use tile::*;
 pub use wkt::*;
@@ -118,14 +118,9 @@ impl From<&str> for ReaderType {
 
 /// The type of readers to choose from
 #[derive(Debug)]
-pub enum GISReader<
-    T: Reader + Debug,
-    M: Clone + DeserializeOwned = (),
-    P: DeserializeOwned + MValueCompatible = Properties,
-    D: DeserializeOwned + MValueCompatible = MValue,
-> {
+pub enum GISReader<T: Reader + Debug> {
     /// CSV data
-    CSV(Box<CSVReader<T, P>>),
+    CSV(Box<CSVReader<T, Properties>>),
     /// GeoTIFF data
     GeoTIFF(Box<GeoTIFFReader<T>>),
     /// GPX data
@@ -135,11 +130,11 @@ pub enum GISReader<
     /// GTFS data
     GTFS(Box<GTFSScheduleReader>),
     /// JSON data
-    JSON(Box<JSONReader<T, M, P, D>>),
+    JSON(Box<JSONReader<T, (), Properties, MValue>>),
     /// JSON-LD data
-    JSONLD(Box<NewLineDelimitedJSONReader<T, M, P, D>>),
+    JSONLD(Box<NewLineDelimitedJSONReader<T, (), Properties, MValue>>),
     /// JSON-SQ data
-    JSONSQ(Box<SequenceJSONReader<T, M, P, D>>),
+    JSONSQ(Box<SequenceJSONReader<T, (), Properties, MValue>>),
     /// LAS data
     LAS(Box<LASReader<T>>),
     /// LAZ data
@@ -151,7 +146,7 @@ pub enum GISReader<
     /// OSM data
     OSM(Box<OSMLocalReader<T>>),
     /// Shapefile
-    Shapefile(Box<ShapeFileReader<T, P>>),
+    Shapefile(Box<ShapeFileReader<T, Properties>>),
     // /// Tile data
     // Tile(Box<TileReader<P, D>>),
     /// WKT
@@ -163,15 +158,11 @@ pub enum GISReader<
 /// @param urlPath - The URL path to the file
 /// @param type - The file type if specified, otherwise it will be inferred
 /// @returns - The reader with {@link FeatureIterator} implemented
-pub fn file_type_to_reader<
-    M: Clone + DeserializeOwned,
-    P: Clone + Default + DeserializeOwned + MValueCompatible,
-    D: Clone + Default + DeserializeOwned + MValueCompatible,
->(
+pub fn file_type_to_reader(
     data: Vec<u8>,
     file_type: ReaderType,
     epsg_codes: Option<BTreeMap<String, String>>,
-) -> GISReader<BufferReader, M, P, D> {
+) -> GISReader<BufferReader> {
     let buffer = BufferReader::new(data);
     let epsg_codes = epsg_codes.unwrap_or_default();
     match file_type {

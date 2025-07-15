@@ -7,7 +7,7 @@ use pbf::{ProtoRead, Protobuf};
 /// the location of Stops exactly, but all Stops on a trip should lie within a small distance of
 /// the shape for that trip, i.e. close to straight line segments connecting the shape points
 /// NOTE: This message is still experimental, and subject to change. It may be formally adopted in the future
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeShape {
     /// Identifier of the shape. Must be different than any shape_id defined in the (CSV) GTFS.
     /// This field is required as per reference.md, but needs to be specified here optional because "Required is Forever"

@@ -63,7 +63,7 @@ pub enum GTFSRealtimeScheduleRelationship {
 ///   set. Note that if the trip_id is not known, then stop sequence ids in
 ///   TripUpdate are not sufficient, and stop_ids must be provided as well. In
 ///   addition, absolute arrival/departure times must be provided.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTripDescriptor {
     /// The trip_id from the GTFS feed that this selector refers to.
     /// For non frequency-based trips, this field is enough to uniquely identify
@@ -141,7 +141,7 @@ impl ProtoRead for GTFSRealtimeTripDescriptor {
 ///   set. Note that if the trip_id is not known, then stop sequence ids in
 ///   TripUpdate are not sufficient, and stop_ids must be provided as well. In
 ///   addition, absolute arrival/departure times must be provided.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeModifiedTripSelector {
     /// The 'id' from the FeedEntity in which the contained TripModifications object affects this trip.
     pub modifications_id: Option<String>, // 1 [string]

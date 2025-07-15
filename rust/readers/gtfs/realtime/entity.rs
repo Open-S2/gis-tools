@@ -52,7 +52,7 @@ impl From<&GTFSRealtimeEntity> for GTFSRealtimeEntityMessage {
 /// A definition (or update) of an entity in the transit feed.
 /// May be a TripUpdate, VehiclePosition, Alert, Shape, Stop, and/or TripModifications.
 /// At least one of the above must be present (unless the entity is being deleted).
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeEntity {
     /// The ids are used only to provide incrementality support. The id should be
     /// unique within a FeedMessage. Consequent FeedMessages may contain
@@ -129,7 +129,7 @@ impl ProtoRead for GTFSRealtimeEntity {
 /// GTFS feed.
 /// At least one specifier must be given. If several are given, then the
 /// matching has to apply to all the given specifiers.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeEntitySelector {
     /// Corresponds to agency_id in GTFS
     pub agency_id: Option<String>, // 1 [string]

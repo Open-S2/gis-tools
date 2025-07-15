@@ -5,7 +5,7 @@ use pbf::{ProtoRead, Protobuf};
 /// Defines updated properties of the trip, such as a new shape_id when there is a detour. Or defines the
 /// trip_id, start_date, and start_time of a DUPLICATED trip.
 /// NOTE: This message is still experimental, and subject to change. It may be formally adopted in the future
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTripProperties {
     /// Defines the identifier of a new trip that is a duplicate of an existing trip defined in (CSV) GTFS trips.txt
     /// but will start at a different service date and/or time (defined using the TripProperties.start_date and

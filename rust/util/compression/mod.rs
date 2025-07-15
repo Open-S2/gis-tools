@@ -263,7 +263,8 @@ pub fn iter_zip_folder(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
         )
         .to_string();
 
-        let next_central_directory_entry = at;
+        let central_entry_size = 46 + filename_length + extra_fields_length + comment_length;
+        let next_central_directory_entry = at + central_entry_size as u64;
 
         // >> Start reading entry
         at = local_entry_at as u64;
@@ -273,7 +274,7 @@ pub fn iter_zip_folder(raw: &[u8]) -> Result<Vec<ZipItem<'_>>, CompressError> {
             + 30
             + reader.uint16_le(Some(26 + at)) as usize
             + reader.uint16_le(Some(28 + at)) as usize;
-        let bytes_end = at as usize + compressed_size + bytes_start;
+        let bytes_end = bytes_start + compressed_size;
         let bytes = &raw[bytes_start..bytes_end];
 
         let read_fn = Box::new(move || {

@@ -14,10 +14,10 @@ use s2json::MValueCompatible;
 pub struct GTFSLocationGroup {
     /// **Required**
     /// Identifies a location group. Must be unique (e.g., "zoneA", "northSideGroup").
-    location_group_id: String,
+    pub location_group_id: String,
     /// **Optional**
     /// The name of the location group as displayed to the rider.
-    location_group_name: Option<String>,
+    pub location_group_name: Option<String>,
 }
 impl GTFSLocationGroup {
     /// Create a new GTFSLocationGroup

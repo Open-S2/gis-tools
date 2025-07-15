@@ -31,7 +31,7 @@ use pbf::{ProtoRead, Protobuf};
 /// that the trip is still proceeding.
 /// Note that the feed provider is allowed, but not required, to purge past
 /// updates - this is one case where this would be practically useful.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTripUpdate {
     /// The Trip that this message applies to. There can be at most one
     /// TripUpdate entity for each actual trip instance.

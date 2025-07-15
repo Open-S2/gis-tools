@@ -8,7 +8,7 @@ use pbf::{BitCast, ProtoRead, Protobuf};
 /// Status of the vehicle relative to the stop
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, BitCast)]
-pub enum VehicleStopStatus {
+pub enum GTFSVehicleStopStatus {
     /// The vehicle is just about to arrive at the stop (on a stop
     /// display, the vehicle symbol typically flashes).
     IncomingAt = 0,
@@ -80,7 +80,7 @@ pub enum GTFSRealtimeOccupancyStatus {
 }
 
 /// Realtime positioning information for a given vehicle.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeVehiclePosition {
     /// The Trip that this vehicle is serving.
     /// Can be empty or partial if the vehicle can not be identified with a given
@@ -95,7 +95,7 @@ pub struct GTFSRealtimeVehiclePosition {
     pub current_stop_sequence: Option<u32>, // 3 [uint32]
     /// The exact status of the vehicle with respect to the current stop.
     /// Ignored if current_stop_sequence is missing.
-    pub current_status: VehicleStopStatus, // 4 [enum]
+    pub current_status: GTFSVehicleStopStatus, // 4 [enum]
     /// Moment at which the vehicle's position was measured. In POSIX time
     /// (i.e., number of seconds since January 1st 1970 00:00:00 UTC).
     pub timestamp: Option<Date>, // 5 [uint64]
@@ -187,7 +187,7 @@ pub enum GTFSRealtimeWheelchairAccessible {
 }
 
 /// Identification information for the vehicle performing the trip.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeVehicleDescriptor {
     /// Internal system identification of the vehicle. Should be unique per
     /// vehicle, and can be used for tracking the vehicle as it proceeds through
@@ -216,7 +216,7 @@ impl ProtoRead for GTFSRealtimeVehicleDescriptor {
 
 /// Carriage specific details, used for vehicles composed of several carriages
 /// This message/field is still experimental, and subject to change. It may be formally adopted in the future.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeMultiCarriageDetails {
     /// Identification of the carriage. Should be unique per vehicle.
     pub id: Option<String>, // 1 [string]

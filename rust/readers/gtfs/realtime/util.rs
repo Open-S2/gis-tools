@@ -11,7 +11,7 @@ use pbf::{ProtoRead, Protobuf};
 ///    translation, the first matching translation is picked.
 /// 3. If some translation has an unspecified language code, that translation is
 ///    picked.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTranslatedString {
     /// At least one translation must be provided.
     pub translations: Vec<GTFSRealtimeTranslation>, // 1 [message]
@@ -42,7 +42,7 @@ impl ProtoRead for GTFSRealtimeTranslatedString {
 }
 
 /// The translations field of a GTFSRealtimeTranslatedString
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTranslation {
     /// A UTF-8 string containing the message.
     pub text: String, // 1

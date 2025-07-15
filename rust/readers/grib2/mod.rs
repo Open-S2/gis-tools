@@ -492,16 +492,15 @@ impl GRIB2Reader {
 
     /// Get the Vector Point feature data
     pub fn get_data(&self) -> Option<VectorMultiPoint> {
-        // setup geometry
-        if let Some(mut geometry) = self
+        let geo_grid = self
             .packets
             .borrow_mut()
             .get_mut(0)
-            .and_then(|p| Some(p.grid_definition.as_mut()?.values.build_grid()))
-        {
+            .and_then(|p| Some(p.grid_definition.as_mut()?.values.build_grid()));
+        // setup geometry
+        if let Some(mut geometry) = geo_grid {
             // add M-Values from each packet
-            for i in 0..self.packets.borrow().len() {
-                let packet = &self.packets.borrow()[i];
+            for (i, packet) in self.packets.borrow().iter().enumerate() {
                 let name = self.idxs.get(i).map(|i| i.name.clone()).unwrap_or(i.to_string());
                 if let Some(data) = packet.data.as_ref().map(|d| d.data(packet)) {
                     for (i, geo) in geometry.iter_mut().enumerate().take(data.len()) {

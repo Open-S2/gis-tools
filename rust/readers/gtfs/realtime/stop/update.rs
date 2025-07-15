@@ -41,7 +41,7 @@ pub enum GTFSRealtimeScheduleRelationshipUpdate {
 /// The update is linked to a specific stop either through stop_sequence or
 /// stop_id, so one of the fields below must necessarily be set.
 /// See the documentation in TripDescriptor for more information.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeStopTimeUpdate {
     /// Must be the same as in stop_times.txt in the corresponding GTFS feed.
     pub stop_sequence: Option<u32>, // 1 [uint32]
@@ -92,7 +92,7 @@ impl ProtoRead for GTFSRealtimeStopTimeUpdate {
 
 /// Provides the updated values for the stop time.
 /// NOTE: This message is still experimental, and subject to change. It may be formally adopted in the future.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeStopTimeProperties {
     /// Supports real-time stop assignments. Refers to a stop_id defined in the GTFS stops.txt.
     /// The new assigned_stop_id should not result in a significantly different trip experience for the end user than

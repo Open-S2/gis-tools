@@ -4,7 +4,7 @@ use pbf::{ProtoRead, Protobuf};
 
 /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in
 /// the future.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeTripModifications {
     /// A list of selected trips affected by this TripModifications.
     pub selected_trips: Vec<GTFSRealtimeSelectedTrips>, // 1 [repeated message]
@@ -42,7 +42,7 @@ impl ProtoRead for GTFSRealtimeTripModifications {
 
 /// A `Modification` message replaces a span of n stop times from each affected trip starting at
 /// `start_stop_selector`.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeModification {
     /// The stop selector of the first stop_time of the original trip that is to be affected by this modification.
     /// Used in conjuction with `end_stop_selector`.
@@ -98,7 +98,7 @@ impl ProtoRead for GTFSRealtimeModification {
 
 /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
 /// Select a stop by stop sequence or by stop_id. At least one of the two values must be provided.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeStopSelector {
     /// Must be the same as in stop_times.txt in the corresponding GTFS feed.
     pub stop_sequence: Option<u32>, // 1 [uint32]
@@ -117,7 +117,7 @@ impl ProtoRead for GTFSRealtimeStopSelector {
 }
 
 /// Selected trips affected by TripModifications.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeSelectedTrips {
     /// A list of trips affected with this replacement that all have the same new `shape_id`.
     pub trip_ids: Vec<String>, // 1 [repeated string]
@@ -139,7 +139,7 @@ impl ProtoRead for GTFSRealtimeSelectedTrips {
 
 /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the
 /// future.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeReplacementStop {
     /// The difference in seconds between the arrival time at this stop and the arrival time at the reference
     /// stop. The reference stop is the stop prior to start_stop_selector. If the modification begins

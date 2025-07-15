@@ -9,7 +9,7 @@ use pbf::{BitCast, ProtoRead, Protobuf};
 /// documentation will be updated when those discussions are finalized.
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, BitCast)]
-pub enum Incrementality {
+pub enum GTFSIncrementality {
     /// Full dataset
     #[default]
     FullDataset = 0,
@@ -18,7 +18,7 @@ pub enum Incrementality {
 }
 
 /// Metadata about a feed, included in feed messages.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GTFSRealtimeHeader {
     /// Version of the feed specification.
     /// The current version is 2.0.  Valid versions are "2.0", "1.0".
@@ -28,7 +28,7 @@ pub struct GTFSRealtimeHeader {
     /// that use this mode.  There are discussions on the GTFS Realtime mailing
     /// list around fully specifying the behavior of DIFFERENTIAL mode and the
     /// documentation will be updated when those discussions are finalized.
-    pub incrementality: Incrementality, // 2 [enum]
+    pub incrementality: GTFSIncrementality, // 2 [enum]
     /// This timestamp identifies the moment when the content of this feed has been
     /// created (in server time). In POSIX time (i.e., number of seconds since
     /// January 1st 1970 00:00:00 UTC).
@@ -42,7 +42,7 @@ impl Default for GTFSRealtimeHeader {
     fn default() -> Self {
         Self {
             gtfs_realtime_version: "2.0".into(),
-            incrementality: Incrementality::FullDataset,
+            incrementality: GTFSIncrementality::FullDataset,
             timestamp: None,
             feed_version: None,
         }

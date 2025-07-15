@@ -203,7 +203,7 @@ mod tests {
         let filenames: Vec<String> = items.iter().map(|item| item.filename.to_string()).collect();
         assert_eq!(
             filenames,
-            vec!["utf.cpg", "utf.cpg", "utf.cpg", "utf.cpg", "utf.cpg", "utf.cpg"]
+            vec!["utf.cpg", "utf.dbf", "utf.prj", "utf.qpj", "utf.shp", "utf.shx"]
         );
         let first = items.first().unwrap();
         let first_data = (first.read)().unwrap();
@@ -212,5 +212,32 @@ mod tests {
         // convert first_dat to string
         let first_string = String::from_utf8(first_data).unwrap();
         assert_eq!(first_string, "UTF-8");
+    }
+
+    #[test]
+    fn decode_zip_folder_2() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/caltrain_20160406.zip");
+        let data = fs::read(&path).expect("Failed to read file expected");
+
+        let items = iter_zip_folder(&data).unwrap();
+        assert_eq!(items.len(), 10);
+
+        let filenames: Vec<String> = items.iter().map(|item| item.filename.to_string()).collect();
+        assert_eq!(
+            filenames,
+            vec![
+                "agency.txt",
+                "calendar.txt",
+                "calendar_dates.txt",
+                "fare_attributes.txt",
+                "fare_rules.txt",
+                "routes.txt",
+                "shapes.txt",
+                "stop_times.txt",
+                "stops.txt",
+                "trips.txt"
+            ]
+        );
     }
 }
