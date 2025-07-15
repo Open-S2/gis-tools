@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # GRIB2 - TABLE 5.0 - DATA REPRESENTATION TEMPLATE NUMBER
 ///
 /// **Details**:

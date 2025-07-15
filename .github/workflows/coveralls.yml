@@ -29,7 +29,7 @@ jobs:
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly
         override: true
 
     # setup rust
@@ -46,7 +46,7 @@ jobs:
         cargo install grcov
 
     - name: Build Rust project
-      run: cargo build
+      run: cargo build --workspace --features nightly
       shell: bash
     
     # Rust tests
@@ -56,7 +56,7 @@ jobs:
         export CARGO_INCREMENTAL=0
         export RUSTFLAGS='-Cinstrument-coverage'
         export LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw'
-        cargo test --workspace
+        cargo test --workspace --features nightly
         grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*/.cargo/*" --ignore "/*/target/*" -o ./coverage/rust-lcov.info
       shell: bash
 

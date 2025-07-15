@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # Table 1.0 - GRIB Master Tables
 ///
 /// **Details**:

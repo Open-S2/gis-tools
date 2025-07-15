@@ -1,5 +1,6 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::geometry::{
         Source, altitude_from_mercator_z, altitude_to_mercator_z, bbox_to_xyz_bounds, convert_bbox,

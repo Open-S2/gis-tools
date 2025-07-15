@@ -1,7 +1,8 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use util::Date;
+    use gistools::util::Date;
 
     #[test]
     fn test_date() {

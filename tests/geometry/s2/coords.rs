@@ -1,5 +1,6 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::geometry::{
         K_LIMIT_IJ, K_MAX_SI_TI, S2Point, ST, UV, face_xyz_to_uv, face_xyz_to_uvw, get_u_axis,

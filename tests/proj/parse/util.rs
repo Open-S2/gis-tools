@@ -1,5 +1,6 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::proj::{
         angular_unit_to_degrees, get_prime_meridian, linear_unit_to_meters, to_camel_case,

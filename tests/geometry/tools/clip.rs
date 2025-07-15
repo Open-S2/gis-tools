@@ -1,6 +1,7 @@
 #[cfg(test)]
 #[allow(clippy::approx_constant)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::geometry::{
         clip_line_string, clip_multi_line_string, clip_multi_point, clip_multi_polygon, clip_point,

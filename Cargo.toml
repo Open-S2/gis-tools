@@ -54,6 +54,7 @@ default = ["std", "quadratic"] # Default feature
 quadratic = []                 # Feature for quadratic projection
 tan = []                       # Feature for tangential projection
 linear = []                    # Feature for linear projection
+nightly = []                   # Nightly system for improving coverage accuracy reporting
 # Conditional std feature enabling quadratic or other projection features
 std = ["memmap2", "flate2", "brotli", "ruzstd", "image"]
 

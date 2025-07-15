@@ -1,6 +1,7 @@
 #[cfg(test)]
 #[allow(clippy::approx_constant)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::geometry::K_AVG_ANGLE_SPAN;
 

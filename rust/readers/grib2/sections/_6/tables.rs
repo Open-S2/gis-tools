@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # GRIB2 - TABLE 6.0 - BIT MAP INDICATOR
 ///
 /// **Details**:

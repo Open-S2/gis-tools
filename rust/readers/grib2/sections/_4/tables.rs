@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 use alloc::string::String;
 
 /// Categories track a name with it's units and abbreviation

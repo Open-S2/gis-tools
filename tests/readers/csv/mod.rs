@@ -1,8 +1,9 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
-        parsers::FileReader,
+        parsers::{FeatureReader, FileReader},
         readers::{CSVReader, CSVReaderOptions, parse_csv_as_record, parse_csv_line},
     };
     use s2json::{
@@ -83,7 +84,49 @@ mod tests {
 
         let reader = CSVReader::new(FileReader::from(path), None);
 
-        let features: Vec<VectorFeature<(), Test, ()>> = reader.collect();
+        let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+
+        assert_eq!(
+            features,
+            vec![
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    properties: Test { name: "3".into() },
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 2.0, y: 1.0, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    properties: Test { name: "a".into() },
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 1.1, y: 3.2, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                }
+            ]
+        );
+
+        let features: Vec<VectorFeature<(), Test, ()>> = reader.par_iter(1, 1).collect();
 
         assert_eq!(
             features,

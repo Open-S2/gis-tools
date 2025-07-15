@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// Table 0 - NATIONAL/INTERNATIONAL ORIGINATING CENTERS
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/on388/table0.html)

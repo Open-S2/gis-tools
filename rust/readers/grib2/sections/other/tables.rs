@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # ON388 - TABLE A - GENERATING PROCESS OR MODEL
 ///
 /// **Details**:

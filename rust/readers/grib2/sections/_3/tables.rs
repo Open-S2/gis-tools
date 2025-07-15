@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # Table 3.0 - Source of Grid Definition
 ///
 /// **Details**:

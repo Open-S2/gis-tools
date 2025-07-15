@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 use crate::readers::{
     TableCategory, grib2_lookup_table42_00, grib2_lookup_table42_01, grib2_lookup_table42_02,
     grib2_lookup_table42_03, grib2_lookup_table42_04, grib2_lookup_table42_05,

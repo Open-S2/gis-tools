@@ -1,5 +1,6 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::data_store::{Vector, VectorStore};
     use serde::{Deserialize, Serialize};

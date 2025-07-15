@@ -1,5 +1,6 @@
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::geometry::{LonLat, S2CellId, S2Point};
     use s2json::{MValue, VectorPoint};

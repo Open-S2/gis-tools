@@ -2,6 +2,7 @@ mod spec;
 
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     extern crate alloc;
 
@@ -48,6 +49,120 @@ mod tests {
 
         let reader = GPXReader::new(gpx_input);
         let features: Vec<_> = reader.iter().collect();
+
+        let metadata = reader.metadata();
+        assert_eq!(metadata, GPXMetadata::default());
+
+        assert_eq!(features.len(), 3);
+
+        assert_eq!(
+            features,
+            vec![
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    properties: GPXProperties::default(),
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint {
+                            x: -122.4194,
+                            y: 37.7749,
+                            z: None,
+                            m: Some(GPXWaypoint {
+                                lat: 37.7749,
+                                lon: -122.4194,
+                                name: Some("Test Waypoint 1".into()),
+                                fix: Some(GPXFixType::D2),
+                                ..Default::default()
+                            }),
+                            t: None
+                        },
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    properties: GPXProperties {
+                        name: Some("Test Route 1".into()),
+                        ..Default::default()
+                    },
+                    geometry: VectorGeometry::LineString(VectorBaseGeometry {
+                        _type: VectorGeometryType::LineString,
+                        is_3d: false,
+                        coordinates: vec![
+                            VectorPoint {
+                                x: -122.4195,
+                                y: 37.775,
+                                z: None,
+                                m: Some(GPXWaypoint {
+                                    lat: 37.775,
+                                    lon: -122.4195,
+                                    name: Some("Route Point 1".into()),
+                                    ..Default::default()
+                                }),
+                                t: None
+                            },
+                            VectorPoint {
+                                x: -122.4196,
+                                y: 37.7751,
+                                z: None,
+                                m: Some(GPXWaypoint {
+                                    lat: 37.7751,
+                                    lon: -122.4196,
+                                    name: Some("Route Point 2".into()),
+                                    ..Default::default()
+                                }),
+                                t: None
+                            }
+                        ],
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    properties: GPXProperties {
+                        name: Some("Test Track 1".into()),
+                        ..Default::default()
+                    },
+                    geometry: VectorGeometry::MultiLineString(VectorBaseGeometry {
+                        _type: VectorGeometryType::MultiLineString,
+                        is_3d: false,
+                        coordinates: vec![vec![
+                            VectorPoint {
+                                x: -122.4197,
+                                y: 37.7752,
+                                z: None,
+                                m: Some(GPXWaypoint {
+                                    lat: 37.7752,
+                                    lon: -122.4197,
+                                    name: Some("Track Point 1".into()),
+                                    ..Default::default()
+                                }),
+                                t: None
+                            },
+                            VectorPoint {
+                                x: -122.4198,
+                                y: 37.7753,
+                                z: None,
+                                m: Some(GPXWaypoint {
+                                    lat: 37.7753,
+                                    lon: -122.4198,
+                                    name: Some("Track Point 2".into()),
+                                    ..Default::default()
+                                }),
+                                t: None
+                            }
+                        ]],
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        let features: Vec<_> = reader.par_iter(1, 1).collect();
 
         let metadata = reader.metadata();
         assert_eq!(metadata, GPXMetadata::default());

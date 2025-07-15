@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 /// # Table 7.0 - DATA TEMPLATE DEFINITIONS USED IN SECTION 7
 ///
 /// **Details**:

@@ -36,6 +36,16 @@ struct CSVParser {
     parsed_lines: VecDeque<String>,
 }
 impl CSVParser {
+    /// Create a new CSVParser
+    pub fn new() -> Self {
+        Self {
+            first_line: true,
+            fields: vec![],
+            offset: 0,
+            partial_line: String::new(),
+            parsed_lines: VecDeque::new(),
+        }
+    }
     /// given the fields in the first line split by the delimiter and store them
     pub fn parse_first_line(&mut self, line: &str, delimiter: char) {
         self.fields = line.split(delimiter).map(|v| v.trim().to_string()).collect();
@@ -73,13 +83,7 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
             lon_key: options.lon_key.unwrap_or("lon".into()),
             lat_key: options.lat_key.unwrap_or("lat".into()),
             height_key: options.height_key,
-            parser: RefCell::new(CSVParser {
-                first_line: true,
-                fields: vec![],
-                offset: 0,
-                partial_line: String::new(),
-                parsed_lines: VecDeque::new(),
-            }),
+            parser: RefCell::new(CSVParser::new()),
             _phantom: PhantomData,
         }
     }
@@ -210,11 +214,13 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, ()>
         P: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
+        *self.parser.borrow_mut() = CSVParser::new();
         CSVIterator { reader: self }
     }
 
     #[cfg(feature = "std")]
     fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        *self.parser.borrow_mut() = CSVParser::new();
         self.iter()
     }
 }

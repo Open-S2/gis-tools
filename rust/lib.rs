@@ -2,6 +2,8 @@
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![warn(clippy::collapsible_if)]
+// NOTE: Once coverage stabilizes, we can simplify this https://github.com/rust-lang/rust/issues/84605
+#![cfg_attr(feature = "nightly", feature(coverage_attribute))]
 //! # GIS Tools
 //! TODO
 

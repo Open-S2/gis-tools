@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+
 use crate::readers::TableCategory;
 use alloc::string::String;
 

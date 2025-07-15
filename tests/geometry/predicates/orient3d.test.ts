@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { orient3d, orient3dfast } from '../../../src';
+import { orient3d, orient3dfast, orient3dfastVector } from '../../../src';
 
 // import robustOrientation from 'robust-orientation';
 
@@ -45,4 +45,19 @@ test('orient3dfast', () => {
   expect(orient3dfast(0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1) > 0, 'above');
   expect(orient3dfast(0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, -1) < 0, 'below');
   expect(orient3dfast(0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0) === 0, 'coplanar');
+});
+
+test('orient3dfastVector', () => {
+  expect(
+    orient3dfastVector({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 1, y: 0, z: 0 }) > 0,
+    'above',
+  );
+  expect(
+    orient3dfastVector({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 1, y: 0, z: 0 }) < 0,
+    'below',
+  );
+  expect(
+    orient3dfastVector({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 1, y: 0, z: 0 }) === 0,
+    'coplanar',
+  );
 });

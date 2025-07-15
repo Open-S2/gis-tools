@@ -4,6 +4,7 @@ mod vector;
 
 #[cfg(test)]
 // #[coverage(off)]
+#[cfg_attr(feature = "nightly", coverage(off))]
 mod test {
     use gistools::geometry::{ConvertVectorFeatureWM, convert};
     use s2json::{
