@@ -140,7 +140,7 @@ pub fn name_to_param_id(name: &str) -> i64 {
         "false_northing" => FALSE_NORTHING,
         "central_meridian" => LONGITUDE_OF_FALSE_ORIGIN,
         "scale_factor" => SCALE_FACTOR_AT_NATURAL_ORIGIN,
-        "azimuth" => AZIMUTH_PROJECTION_CENTRE,
+        "azi" | "azimuth" => AZIMUTH_PROJECTION_CENTRE,
         "no_rot" => NO_ROTATION,
         "no_off" => NO_OFF,
         "no_unoff" => NO_UOFF,
@@ -223,6 +223,11 @@ pub const LAMBERT_CONFORMAL_CONIC_2SP: i64 = 9802;
 /// - EPSG Codes Used by Cassini-Soldner: 8801, 8802, 8806, 8807
 /// - Aliases: "cass", "Cassini"
 pub const CASSINI: i64 = 9806;
+/// Laborde
+/// - [EPSG Link](https://epsg.org/coord-operation-method_9813/Laborde.html)
+/// - EPSG Code: 9813
+/// - EPSG Codes Used by Laborde: 8811, 8812, 8813, 8815, 8806, 8807
+pub const LABORDE: i64 = 9813;
 /// Orthographic
 /// - [EPSG Link](https://epsg.org/coord-operation-method_9840/Orthographic.html)
 /// - EPSG Code: 9840

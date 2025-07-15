@@ -54,21 +54,21 @@ impl CoordinateStep for EquidistantCylindricalProjection {
         EquidistantCylindricalProjection { proj, store: store.into() }
     }
     fn forward<P: TransformCoordinates>(&self, p: &mut P) {
-        eqc_s_forward(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
+        eqc_s_forward(&self.store.borrow(), &self.proj.borrow(), p);
     }
     fn inverse<P: TransformCoordinates>(&self, p: &mut P) {
-        eqc_s_inverse(&mut self.store.borrow_mut(), &self.proj.borrow(), p);
+        eqc_s_inverse(&self.store.borrow(), &self.proj.borrow(), p);
     }
 }
 
 /// Equidistant Cylindrical Spheroidal forward project
-pub fn eqc_s_forward<P: TransformCoordinates>(eqc: &mut Eqc, proj: &Proj, p: &mut P) {
+pub fn eqc_s_forward<P: TransformCoordinates>(eqc: &Eqc, proj: &Proj, p: &mut P) {
     p.set_x(eqc.rc * p.lam());
     p.set_y(p.phi() - proj.phi0);
 }
 
 /// Equidistant Cylindrical Spheroidal inverse project
-pub fn eqc_s_inverse<P: TransformCoordinates>(eqc: &mut Eqc, proj: &Proj, p: &mut P) {
+pub fn eqc_s_inverse<P: TransformCoordinates>(eqc: &Eqc, proj: &Proj, p: &mut P) {
     p.set_lam(p.x() / eqc.rc);
     p.set_phi(p.y() + proj.phi0);
 }

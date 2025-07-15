@@ -549,6 +549,7 @@ mod tests {
             let axis = Axis::from_wkt(&arr[1]);
             assert_eq!(axis.name, "latitude");
             assert_eq!(axis.direction, AxisDirection::North);
+            assert_eq!(axis.order, 1);
         }
     }
 

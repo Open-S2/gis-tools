@@ -68,6 +68,8 @@ pub trait ToProjJSON {
     fn set_projected_crs(&mut self, _projected_crs: ProjectedCRS) {}
     /// Set the name
     fn set_projection(&mut self, _name: String) {}
+    /// Set the order
+    fn set_order(&mut self, _order: usize) {}
 }
 
 /// # Schema for PROJJSON (v0.7)
@@ -1399,6 +1401,9 @@ pub struct Axis {
     /// The direction of the axis.
     /// Examples include north, east, up, down, geocentricX, geocentricY, geocentricZ, etc.
     pub direction: AxisDirection,
+    /// The order of the axis.
+    /// Not part of the specification, added for convenience.
+    pub order: usize,
     /// The meridian for the axis, if applicable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meridian: Option<Meridian>,
@@ -1422,6 +1427,27 @@ pub struct Axis {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ids: Ids,
 }
+impl Axis {
+    /// Adjust the order if needed
+    pub fn adjust_if_needed(&mut self) {
+        if self.order != 0 {
+            return;
+        }
+        let name = self.name.to_lowercase();
+        self.order = if name.contains("longitude")
+            || name.contains("northing")
+            || name.contains("(lon)")
+            || name.contains("(Y)")
+            || name.contains("(N)")
+        {
+            2
+        } else if name.contains("z") {
+            3
+        } else {
+            1
+        };
+    }
+}
 impl ToProjJSON for Axis {
     fn set_id(&mut self, id: Id) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
@@ -1439,6 +1465,9 @@ impl ToProjJSON for Axis {
     }
     fn set_meridian(&mut self, meridian: Meridian) {
         self.meridian = Some(meridian);
+    }
+    fn set_order(&mut self, order: usize) {
+        self.order = order;
     }
 }
 
@@ -2750,7 +2779,9 @@ impl CoordinateSystem {
     pub fn to_projection_transform(&self, proj_transform: &mut ProjectionTransform) {
         self.subtype.to_projection_transform(proj_transform);
         if !self.axis.is_empty() {
-            let axis: Vec<AxisDirection> = self.axis.iter().map(|a| a.direction).collect();
+            let mut axiss = self.axis.clone();
+            axiss.sort_by(|a, b| a.order.cmp(&b.order));
+            let axis: Vec<AxisDirection> = axiss.iter().map(|a| a.direction).collect();
             let mut axis_converter = AxisSwapConverter::new(Rc::new(RefCell::new(Proj::default())));
             axis_converter.swap = axis.into();
             proj_transform.axisswap = Some(Box::new(axis_converter.into()));

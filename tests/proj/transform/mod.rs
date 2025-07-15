@@ -597,6 +597,18 @@ mod tests {
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.4116080195650045, 67.40891366747749));
     }
+
+    #[test]
+    fn test_oblique_mercator_laborde_tif() {
+        let mut transformer = Transformer::new();
+        transformer.set_source(
+            "PROJCRS[\"Tananarive / Laborde Grid\",BASEGEOGCRS[\"Tananarive\",DATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388,297,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7022]],ID[\"EPSG\",6297]],ID[\"EPSG\",4297]],CONVERSION[\"Laborde Grid (Greenwich)\",METHOD[\"Laborde Oblique Mercator\",ID[\"EPSG\",9813]],PARAMETER[\"Latitude of projection centre\",-18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8811]],PARAMETER[\"Longitude of projection centre\",46.4372291666669,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8812]],PARAMETER[\"Azimuth at projection centre\",18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8813]],PARAMETER[\"Scale factor at projection centre\",0.9995,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8815]],PARAMETER[\"False easting\",400000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",800000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",8440]],CS[Cartesian,2,ID[\"EPSG\",4530]],AXIS[\"Northing (X)\",north],AXIS[\"Easting (Y)\",east],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8441]]".into()
+        );
+        let mut point = Coords::new_xy(440720.0, 3751260.0);
+        transformer.forward_mut(&mut point);
+        // Should be: X: 46.5138333543 Y: 7.6972635012 (very close)
+        assert_eq!(point, Coords::new_xy(46.51427439279896, 7.634598997212268));
+    }
 }
 
 //   {

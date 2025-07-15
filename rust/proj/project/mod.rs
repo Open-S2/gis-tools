@@ -24,6 +24,8 @@ pub mod goode;
 pub mod gstmerc;
 /// Krovak Projections
 pub mod krovak;
+/// Laborde Projection
+pub mod labrd;
 /// Lambert Azimuthal Equal Area Projection
 pub mod laea;
 /// Lambert Conformal Conic Projection
@@ -85,6 +87,7 @@ pub use gnom::*;
 pub use goode::*;
 pub use gstmerc::*;
 pub use krovak::*;
+pub use labrd::*;
 pub use laea::*;
 pub use lcc::*;
 pub use lcca::*;

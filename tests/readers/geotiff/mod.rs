@@ -326,4 +326,42 @@ mod tests {
             BBox::new(5.321526135724707, 46.97709562609581, 5.321594191757158, 46.97713894791725)
         );
     }
+
+    #[test]
+    fn test_initial_geotiff_8441_oblique_mercator_laborde() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/projections/ProjectedCSTypeGeoKey_8441_oblique_mercator_laborde.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(
+            BufferReader::from(bytes),
+            Some(GeoTIFFOptions {
+                epsg_codes: BTreeMap::from([(
+                    "8441".into(),
+                    "PROJCRS[\"Tananarive / Laborde Grid\",BASEGEOGCRS[\"Tananarive\",DATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388,297,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7022]],ID[\"EPSG\",6297]],ID[\"EPSG\",4297]],CONVERSION[\"Laborde Grid (Greenwich)\",METHOD[\"Laborde Oblique Mercator\",ID[\"EPSG\",9813]],PARAMETER[\"Latitude of projection centre\",-18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8811]],PARAMETER[\"Longitude of projection centre\",46.4372291666669,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8812]],PARAMETER[\"Azimuth at projection centre\",18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8813]],PARAMETER[\"Scale factor at projection centre\",0.9995,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8815]],PARAMETER[\"False easting\",400000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",800000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",8440]],CS[Cartesian,2,ID[\"EPSG\",4530]],AXIS[\"Northing (X)\",north],AXIS[\"Easting (Y)\",east],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8441]]"
+                        .into(),
+                )]),
+            }),
+        );
+
+        // read header variables
+        let header = &geotiff.header;
+        let image_dir = &header.image_directories[0];
+
+        // The pixel scale
+        assert_eq!(image_dir.pixel_scale, GeoPixelScale { x: 60., y: 60., z: 0.0 });
+        // The tie point
+        assert_eq!(
+            image_dir.tie_point,
+            GeoTiePoint { i: 0.0, j: 0.0, k: 0.0, x: 440720.0, y: 3751320.0, z: 0.0 }
+        );
+
+        let mut first_image = geotiff.get_image(None).unwrap();
+        let bounds = first_image.get_bbox(false);
+        assert_eq!(bounds, BBox::new(440720.0, 3751260.0, 440780.0, 3751320.0));
+        let bounds_corrected = first_image.get_bbox(true);
+        assert_eq!(
+            bounds_corrected,
+            BBox::new(46.51427439279896, 7.634598997212268, 46.514794240617476, 7.635150371503749)
+        );
+    }
 }

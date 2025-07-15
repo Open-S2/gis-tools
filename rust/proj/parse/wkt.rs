@@ -198,9 +198,11 @@ impl WKTParser for Axis {
                 axis.abbreviation = arr[0].to_string();
                 axis.name = axis.abbreviation.clone();
                 axis.direction = AxisDirection::from(arr[1].to_string());
+                handle_common_fields(&mut axis, arr, 2);
             }
             // NOTE: BEARING, ORDER, and ANGLEUNIT exist, but add no value in modern WKT
         }
+        axis.adjust_if_needed();
         axis
     }
 }
@@ -573,6 +575,13 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                         continue;
                     };
                     res.set_projection(arr[0].to_string());
+                    i += 1;
+                }
+                "ORDER" => {
+                    let WKTValue::Array(arr) = &arr[i + 1] else {
+                        continue;
+                    };
+                    res.set_order(arr[0].to_float() as usize);
                     i += 1;
                 }
                 // TODO: MODEL -> DYNAMIC[FRAMEEPOCH[2010.0],MODEL["NAD83(CSRS)v6 velocity grid"]] -> Stored as DeformationModel

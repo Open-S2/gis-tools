@@ -194,6 +194,7 @@ fn transform_inv_prepare<P: TransformCoordinates + Debug>(
             let to_meter = proj.to_meter;
             let vto_meter = proj.vto_meter;
             coords.set_x(coords.x() * to_meter - proj.x0);
+            // 440720.0 - 400000
             coords.set_y(coords.y() * to_meter - proj.y0);
             coords.set_z(coords.z() * vto_meter - proj.z0);
             if proj.right == IoUnits::PROJECTED {

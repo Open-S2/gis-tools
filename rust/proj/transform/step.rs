@@ -11,14 +11,15 @@ use crate::proj::{
     HOTINE_OBLIQUE_MERCATOR_VARIANT_B, HotineObliqueMercatorVariantAProjection,
     HotineObliqueMercatorVariantBProjection, KROVAK, KROVAK_MODIFIED,
     KROVAK_MODIFIED_NORTH_ORIENTED, KROVAK_NORTH_ORIENTED, KrovakModifiedNorthOrientedProjection,
-    KrovakModifiedProjection, KrovakNorthOrientedProjection, KrovakProjection,
+    KrovakModifiedProjection, KrovakNorthOrientedProjection, KrovakProjection, LABORDE,
     LAMBERT_AZIMUTHAL_EQUAL_AREA, LAMBERT_AZIMUTHAL_EQUAL_AREA_SPHERICAL,
-    LAMBERT_CONFORMAL_CONIC_1SP, LAMBERT_CONFORMAL_CONIC_2SP, LambertAzimuthalEqualAreaProjection,
-    LambertAzimuthalEqualAreaSphericalProjection, LambertConformalConic1SPProjection,
-    LambertConformalConic2SPProjection, LambertConformalConicAlternativeProjection,
-    LambertEqualAreaConicProjection, MERCATOR, McBrydeThomasFlatPolarSinusoidalProjection,
-    MercatorProjection, Method, MillerCylindricalProjection, MollweideProjection,
-    NewZealandMapGridProjection, OBLIQUE_STEREOGRAPHIC, ORTHOGRAPHIC, OblatedEqualAreaProjection,
+    LAMBERT_CONFORMAL_CONIC_1SP, LAMBERT_CONFORMAL_CONIC_2SP, LabordeProjection,
+    LambertAzimuthalEqualAreaProjection, LambertAzimuthalEqualAreaSphericalProjection,
+    LambertConformalConic1SPProjection, LambertConformalConic2SPProjection,
+    LambertConformalConicAlternativeProjection, LambertEqualAreaConicProjection, MERCATOR,
+    McBrydeThomasFlatPolarSinusoidalProjection, MercatorProjection, Method,
+    MillerCylindricalProjection, MollweideProjection, NewZealandMapGridProjection,
+    OBLIQUE_STEREOGRAPHIC, ORTHOGRAPHIC, OblatedEqualAreaProjection,
     ObliqueCylindricalEqualAreaProjection, ObliqueStereographicAlternativeProjection,
     OrthographicProjection, POLAR_STEREOGRAPHIC_VARIANT_A, POLAR_STEREOGRAPHIC_VARIANT_B,
     POLAR_STEREOGRAPHIC_VARIANT_C, POLYCONIC, PolarStereographicVariantAProjection,
@@ -127,6 +128,8 @@ pub enum Step {
     KrovakM(Box<KrovakModifiedProjection>),
     /// Krovak Modified North Oriented Projection
     KrovakMNO(Box<KrovakModifiedNorthOrientedProjection>),
+    /// Laborde Projection
+    Labrd(Box<LabordeProjection>),
     /// Lambert Azimuthal Equal Area Projection
     Laea(Box<LambertAzimuthalEqualAreaProjection>),
     /// Lambert Azimuthal Equal Area Spherical Projection
@@ -202,10 +205,10 @@ impl Step {
             [
                 AxisSwap, Cartesian, GeoLat, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea,
                 Eck6, Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB,
-                Krovak, KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA,
-                MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly,
-                Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV,
-                WagV, WebMerc
+                Krovak, KrovakNO, KrovakM, KrovakMNO, Labrd, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP,
+                LccA, MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC,
+                Poly, Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg,
+                WagIV, WagV, WebMerc
             ]
         );
     }
@@ -218,10 +221,10 @@ impl Step {
             [
                 AxisSwap, Cartesian, GeoLat, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea,
                 Eck6, Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB,
-                Krovak, KrovakNO, KrovakM, KrovakMNO, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP, LccA,
-                MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC, Poly,
-                Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg, WagIV,
-                WagV, WebMerc
+                Krovak, KrovakNO, KrovakM, KrovakMNO, Labrd, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP,
+                LccA, MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC,
+                Poly, Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg,
+                WagIV, WagV, WebMerc
             ]
         );
     }
@@ -272,6 +275,7 @@ impl Step {
                 (KROVAK_NORTH_ORIENTED, KrovakNO, KrovakNorthOrientedProjection),
                 (KROVAK_MODIFIED, KrovakM, KrovakModifiedProjection),
                 (KROVAK_MODIFIED_NORTH_ORIENTED, KrovakMNO, KrovakModifiedNorthOrientedProjection),
+                (LABORDE, Labrd, LabordeProjection),
                 (LAMBERT_AZIMUTHAL_EQUAL_AREA, Laea, LambertAzimuthalEqualAreaProjection),
                 (
                     LAMBERT_AZIMUTHAL_EQUAL_AREA_SPHERICAL,
@@ -326,6 +330,7 @@ impl Step {
                 (KrovakNO, KrovakNorthOrientedProjection),
                 (KrovakM, KrovakModifiedProjection),
                 (KrovakMNO, KrovakModifiedNorthOrientedProjection),
+                (Labrd, LabordeProjection),
                 (Laea, LambertAzimuthalEqualAreaProjection),
                 (LaeaS, LambertAzimuthalEqualAreaSphericalProjection),
                 (Leac, LambertEqualAreaConicProjection),
