@@ -4,13 +4,13 @@
 mod tests {
     use core::f64;
     use gistools::{
-        data_structures::{Tile, TileStore, TileStoreOptions, TransformVectorGeometry},
+        data_structures::{HasLayer, Tile, TileStore, TileStoreOptions, TransformVectorGeometry},
         geometry::S2CellId,
     };
     use s2json::{
         BBox3D, Face, JSONCollection, MValue, Map, Projection, VectorFeature, VectorGeometry,
         VectorLineStringGeometry, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
-        VectorPoint, VectorPointGeometry,
+        VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
     };
     use std::collections::{BTreeMap, BTreeSet};
 
@@ -645,5 +645,126 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn test_tile_store_wg_polys() {
+        let json_string = r#"{
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "MultiPolygon",
+                        "coordinates": [[[
+                            [-13.292352825505162, 54.34883408204476],
+                            [36.83102287804303, 59.56941785818924],
+                            [50.34083898563978, 16.040052775278994],
+                            [76.38149901912357, 35.155968522292056]
+                        ]]]
+                    }
+                }
+            ]
+        }"#;
+        let data: JSONCollection = serde_json::from_str(json_string).unwrap();
+        let mut tile_store: TileStore = TileStore::<_, _, _>::new(
+            data,
+            TileStoreOptions { projection: Some(Projection::WG), ..Default::default() },
+        );
+
+        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
+        assert_eq!(face_0_tile.len(), 1);
+        let default_layer = face_0_tile.layers.get("default").unwrap();
+        assert_eq!(default_layer.features.len(), 1);
+
+        assert_eq!(
+            default_layer.features,
+            vec![VectorFeature {
+                _type: "VectorFeature".into(),
+                id: None,
+                face: 0.into(),
+                properties: Map::default(),
+                geometry: VectorGeometry::MultiPolygon(VectorMultiPolygonGeometry {
+                    _type: "MultiPolygon".into(),
+                    is_3d: false,
+                    coordinates: vec![vec![vec![
+                        VectorPoint {
+                            x: 0.4630767977069301,
+                            y: 0.31942614957229354,
+                            z: None,
+                            m: None,
+                            t: Some(1.0)
+                        },
+                        VectorPoint {
+                            x: 0.6023083968834528,
+                            y: 0.29277635129241236,
+                            z: None,
+                            m: None,
+                            t: Some(0.01120038734713082)
+                        },
+                        VectorPoint {
+                            x: 0.6398356638489994,
+                            y: 0.45485063470883236,
+                            z: None,
+                            m: None,
+                            t: Some(0.00605876326361668)
+                        },
+                        VectorPoint {
+                            x: 0.7121708306086766,
+                            y: 0.3955684303719546,
+                            z: None,
+                            m: None,
+                            t: Some(1.0)
+                        }
+                    ]]],
+                    bbox: Some(BBox3D {
+                        left: -13.292352825505162,
+                        bottom: 16.040052775278994,
+                        right: 76.38149901912357,
+                        top: 59.56941785818924,
+                        near: 1.7976931348623157e308,
+                        far: -1.7976931348623157e308
+                    }),
+                    vec_bbox: Some(BBox3D {
+                        left: 0.4630767977069301,
+                        bottom: 0.29277635129241236,
+                        right: 0.7121708306086766,
+                        top: 0.45485063470883236,
+                        near: 1.7976931348623157e308,
+                        far: -1.7976931348623157e308
+                    }),
+                    ..Default::default()
+                }),
+                metadata: None
+            }]
+        );
+    }
+
+    #[test]
+    fn test_tile_has_layer() {
+        #[derive(Debug, Default, Clone, PartialEq, MValue)]
+        struct Test {
+            id: i32,
+            layer: String,
+        }
+        impl HasLayer for Test {
+            fn get_layer(&self) -> Option<String> {
+                if self.layer.is_empty() {
+                    return None;
+                }
+                Some(self.layer.clone())
+            }
+        }
+
+        let test = Test { id: 0, layer: "layer".to_string() };
+        assert_eq!(test.get_layer(), Some("layer".to_string()));
+        let test = Test { id: 1, layer: "".to_string() };
+        assert_eq!(test.get_layer(), None);
+
+        let m_value: MValue = Test { id: 2, layer: "layer".to_string() }.into();
+        assert_eq!(m_value.get_layer(), Some("layer".to_string()));
+        let m_value: MValue = Test { id: 3, layer: "".to_string() }.into();
+        assert_eq!(m_value.get_layer(), Some("".into()));
     }
 }

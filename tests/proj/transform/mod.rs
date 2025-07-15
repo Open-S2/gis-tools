@@ -44,6 +44,11 @@ mod tests {
         point = Coords::new_xy(1., 1.);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(111319.49079327357, 111325.1428663851));
+
+        // INVERSE
+        point = Coords::new_xy(111319.49079327357, 111325.1428663851);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(0.9999999999999998, 0.9999999999999998));
     }
 
     #[test]
@@ -73,6 +78,11 @@ mod tests {
         let mut point = Coords::new_xy(470692.44, 4602888.9);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-93.35156259019989, 41.577148395419115));
+
+        // INVERSE
+        point = Coords::new_xy(-93.35156259019989, 41.577148395419115);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(470692.44000000035, 4602888.900000001));
     }
 
     #[test]
@@ -104,6 +114,11 @@ mod tests {
         let mut point = Coords::new_xy(827294.1414437726, 523980.63806166063);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(5.321526135724707, 46.97709562609581));
+
+        // INVERSE
+        let mut point = Coords::new_xy(5.321526135724707, 46.97709562609581);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(827294.1414437726, 523842.8507979368));
     }
 
     #[test]
@@ -133,6 +148,11 @@ mod tests {
         transformer.forward_mut(&mut point);
         // X: 40.7910238690 Y: 64.2243433975
         assert_eq!(point, Coords::new_xy(40.79425900508108, 64.24034708725664));
+
+        // INVERSE
+        let mut point = Coords::new_xy(40.79425900508108, 64.24034708725664);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(440720.00000036013, 3751259.999999994));
     }
 
     #[test]
@@ -163,6 +183,11 @@ mod tests {
         // -113.3199662151629, -41.66728402682234
         // X: -113.3200940304 Y: -41.6672566361
         assert_eq!(point, Coords::new_xy(-113.20585647093749, -41.5811270257062));
+
+        // INVERSE
+        let mut point = Coords::new_xy(-113.20585647093749, -41.5811270257062);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(440720.00000000093, 3616613.806924667));
 
         // "PROJCRS[
         //    \"SAD69 / Brazil Polyconic\",
@@ -208,6 +233,11 @@ mod tests {
         let mut point = Coords::new_xy(660013.4882918689, 185172.17110117766);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(8.226069554179047, 46.81630130834831));
+
+        // INVERSE
+        let mut point = Coords::new_xy(8.226069554179047, 46.81630130834831);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(660013.4882918688, 185172.17110117723));
     }
 
     #[test]
@@ -227,6 +257,11 @@ mod tests {
         let mut point = Coords::new_xy(231394.84, 902621.11);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-71.11881762226217, 42.373462604845976));
+
+        // INVERSE
+        let mut point = Coords::new_xy(-71.11881762226217, 42.373462604845976);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(231394.83999999953, 902636.0638467963));
     }
 
     #[test]
@@ -244,6 +279,11 @@ mod tests {
         let mut point = Coords::new_xy(88280.59904432714, 111340.90165417176);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(96.0005539986119, 31.12514852006117));
+
+        // TODO: INVERSE
+        // let mut point = Coords::new_xy(96.0005539986119, 31.12514852006117);
+        // transformer.inverse_mut(&mut point);
+        // assert_eq!(point, Coords::new_xy(88280.59904432714, 111340.90165417176));
     }
 
     #[test]
@@ -260,6 +300,11 @@ mod tests {
         let mut point = Coords::new_xy(738509.49, 5874620.38);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(10.999999980589731, 53.00000003761102));
+
+        // INVERSE
+        let mut point = Coords::new_xy(10.999999980589731, 53.00000003761102);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(738509.49, 5890046.489219537));
     }
 
     #[test]
@@ -277,6 +322,11 @@ mod tests {
         let mut point = Coords::new_xy(4388138.6, 3321736.46);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(11.00016692710655, 53.12718464234152));
+
+        // INVERSE
+        let mut point = Coords::new_xy(11.00016692710655, 53.12718464234152);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(4387947.452306732, 3335394.0260556303));
     }
 
     #[test]
@@ -295,6 +345,11 @@ mod tests {
         let mut point = Coords::new_xy(411461.807497, 4700123.744402);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords(-82.07666015625497, 42.44838867188127, 0., 0.));
+
+        // INVERSE
+        let mut point = Coords(-82.07666015625497, 42.44838867188127, 0., 0.);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(411461.8074970003, 4700123.744402));
     }
 
     #[test]
@@ -320,6 +375,11 @@ mod tests {
         let mut point = Coords::new_xy(-1877994.66, 3932281.56);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords(-16.100000002370027, 32.879999998811684, 0., 0.));
+
+        // INVERSE:
+        let mut point = Coords(-16.100000002370027, 32.879999998811684, 0., 0.);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(-1877994.6600000006, 3932281.56));
     }
 
     #[test]
@@ -336,6 +396,11 @@ mod tests {
         let mut point = Coords::new_xy(3891383.58309223, 6876758.9933288);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(59.99999999999991, 59.999999999999986));
+
+        // TODO: INVERSE
+        // let mut point = Coords::new_xy(59.99999999999991, 59.999999999999986);
+        // transformer.inverse_mut(&mut point);
+        // assert_eq!(point, Coords::new_xy(3891383.58309223, 6876758.9933288));
     }
 
     #[test]
@@ -360,6 +425,11 @@ mod tests {
         let mut point = Coords::new_xy(964813.103719, 1016486.305862);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-126.53999999999243, 54.15000000000263));
+
+        // INVERSE
+        let mut point = Coords::new_xy(-126.53999999999243, 54.15000000000263);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(964813.1037189998, 1016486.3058619986));
     }
 
     #[test]
@@ -380,6 +450,11 @@ mod tests {
         let mut point = Coords::new_xy(5112279.911077, -4143196.76625);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(50.977303830209756, 30.91526009373788));
+
+        // INVERSE
+        let mut point = Coords::new_xy(50.977303830209756, 30.91526009373788);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(5101306.389509294, -4134303.3840673887));
     }
 
     #[test]
@@ -404,6 +479,11 @@ mod tests {
         let mut point = Coords::new_xy(192524.3061766178, 178100.2740019509);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-60.63999998717283, 11.235080931047047));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(-60.63999998717283, 11.235080931047047);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(192524.30617711754, 178100.2740019492));
     }
 
     #[test]
@@ -423,6 +503,11 @@ mod tests {
         let mut point = Coords::new_xy(964813.103719, 1016486.305862);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-126.53999999999243, 54.15000000000263));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(-126.53999999999243, 54.15000000000263);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(964813.1037189998, 1016486.3058619986));
     }
 
     #[test]
@@ -449,6 +534,11 @@ mod tests {
         let mut point = Coords::new_xy(-544115.474379, -1144058.330762);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(37.08956301296606, 69.72361147765521));
+
+        // TODO: INVERSE:
+        // let mut point = Coords::new_xy(37.08956301296606, 69.72361147765521);
+        // transformer.inverse_mut(&mut point);
+        // assert_eq!(point, Coords::new_xy(-544115.474379, -1144058.330762));
     }
 
     #[test]
@@ -475,6 +565,11 @@ mod tests {
         let mut point = Coords::new_xy(-544115.474379, -1144058.330762);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(37.08956301296606, 69.72361147765521));
+
+        // TODO: INVERSE:
+        // let mut point = Coords::new_xy(37.08956301296606, 69.72361147765521);
+        // transformer.inverse_mut(&mut point);
+        // assert_eq!(point, Coords::new_xy(-544115.474379, -1144058.330762));
     }
 
     #[test]
@@ -491,6 +586,11 @@ mod tests {
         let mut point = Coords::new_xy(-155375.88535614178, 1404635.2633403721);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.3973289073953, 12.567196566642785));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(-1.3973289073953, 12.567196566642785);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(-155375.88535614178, 1404635.2633403721));
     }
 
     #[test]
@@ -508,6 +608,11 @@ mod tests {
         let mut point = Coords::new_xy(2464770.343667, 6056137.861919);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(172.46484795464002, -40.70170504823121));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(172.46484795464002, -40.70170504823121);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(2464770.343666981, 6056137.861922069));
     }
 
     #[test]
@@ -534,6 +639,11 @@ mod tests {
         let mut point = Coords::new_xy(658511.261946, 3043003.05468);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(52.60489360062432, 27.501084223177624));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(52.60489360062432, 27.501084223177624);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(658511.2619459995, 3043003.054680001));
     }
 
     #[test]
@@ -554,6 +664,11 @@ mod tests {
         let mut point = Coords::new_xy(2000000., 325449.806286);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(0., 74.99999999999869));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(0., 74.99999999999869);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(2000000.0, 325449.806285999));
     }
 
     // TODO: Something isn't right
@@ -580,6 +695,11 @@ mod tests {
         let mut point = Coords::new_xy(-125108.675828, 9016899.042114);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.4116080195650045, 67.40891366747749));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(-1.4116080195650045, 67.40891366747749);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(-125108.6758280449, 9016899.042113967));
     }
 
     #[test]
@@ -596,6 +716,11 @@ mod tests {
         let mut point = Coords::new_xy(-125108.675828, 9016899.042114);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.4116080195650045, 67.40891366747749));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(-1.4116080195650045, 67.40891366747749);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(-125108.6758280449, 9016899.042113967));
     }
 
     #[test]
@@ -608,6 +733,11 @@ mod tests {
         transformer.forward_mut(&mut point);
         // Should be: X: 46.5138333543 Y: 7.6972635012 (very close)
         assert_eq!(point, Coords::new_xy(46.51427439279896, 7.634598997212268));
+
+        // INVERSE:
+        let mut point = Coords::new_xy(46.51427439279896, 7.634598997212268);
+        transformer.inverse_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(440686.09020763607, 3751216.335492778));
     }
 }
 
