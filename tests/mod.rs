@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", feature(coverage_attribute))]
+
 mod data_store;
 mod data_structures;
 mod geometry;
