@@ -1,8 +1,5 @@
 use crate::parsers::{FeatureReader, Reader};
-use alloc::boxed::Box;
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::{vec, vec::Vec};
+use alloc::{boxed::Box, collections::BTreeMap, string::String, vec, vec::Vec};
 use core::cell::RefCell;
 use s2json::{MValue, Properties, ValueType, VectorFeature, VectorGeometry, VectorPoint};
 
@@ -139,10 +136,8 @@ impl From<u64> for CDFDataType {
     }
 }
 
-/**
- * @param type - the NetCDF data type
- * @returns the number of bytes for the data type
- */
+/// @param type - the NetCDF data type
+/// @returns the number of bytes for the data type
 fn type_to_bytes(r#type: CDFDataType) -> u64 {
     match r#type {
         CDFDataType::BYTE | CDFDataType::CHAR => 1,
@@ -165,22 +160,20 @@ pub struct NetCDFReaderOptions {
     pub prop_fields: Option<Vec<String>>,
 }
 
-/**
- * # NetCDF v3.x Reader
- *
- * ## Description
- * Read the NetCDF v3.x file format
- * [See specification](https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html)
- * Implements the {@link FeatureIterator} interface
- *
- * ## Usage
- * ```ts
- * // TODO
- * ```
- *
- * ## Links
- * - https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html
- */
+/// # NetCDF v3.x Reader
+///
+/// ## Description
+/// Read the NetCDF v3.x file format
+/// [See specification](https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html)
+/// Implements the {@link FeatureIterator} interface
+///
+/// ## Usage
+/// ```ts
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html
 #[derive(Debug)]
 pub struct NetCDFReader<T: Reader> {
     reader: T,
@@ -297,11 +290,9 @@ impl<T: Reader> NetCDFReader<T> {
         })
     }
 
-    /**
-     * Retrieves the data for a given variable
-     * @param variable_name - Name of the variable to search or variable object
-     * @returns The variable values
-     */
+    /// Retrieves the data for a given variable
+    /// @param variable_name - Name of the variable to search or variable object
+    /// @returns The variable values
     pub fn get_data_variable(&self, variable_name: String) -> Option<Vec<CDFValue>> {
         let variable = self.variables.iter().find(|val| val.name == variable_name).cloned();
         // return nothing if not found
@@ -320,38 +311,30 @@ impl<T: Reader> NetCDFReader<T> {
 
     // INTERNAL
 
-    /**
-     * Internal method to get the current offset
-     * @returns - the current offset
-     */
+    /// Internal method to get the current offset
+    /// @returns - the current offset
     fn get_offset(&self) -> u64 {
         if self.is64 { self.get_u64() } else { self.get_u32() }
     }
 
-    /**
-     * Internal method to get a 32 but value under the cursor
-     * @returns - a 32 bit value
-     */
+    /// Internal method to get a 32 but value under the cursor
+    /// @returns - a 32 bit value
     fn get_u32(&self) -> u64 {
         let data = self.reader.uint32_be(Some(*self.cursor.borrow()));
         *self.cursor.borrow_mut() += 4;
         data as u64
     }
 
-    /**
-     * Internal method to get a 64 but value under the cursor
-     * @returns - a 64 bit value
-     */
+    /// Internal method to get a 64 but value under the cursor
+    /// @returns - a 64 bit value
     fn get_u64(&self) -> u64 {
         let data = self.reader.uint64_be(Some(*self.cursor.borrow()));
         *self.cursor.borrow_mut() += 8;
         data
     }
 
-    /**
-     * Internal method to read a string under the cursor
-     * @returns - a string
-     */
+    /// Internal method to read a string under the cursor
+    /// @returns - a string
     fn get_name(&self) -> String {
         let name_length = self.get_u32();
         let name = self.reader.parse_string(Some(*self.cursor.borrow()), Some(name_length));
@@ -372,11 +355,9 @@ impl<T: Reader> NetCDFReader<T> {
         self.build_variables_list();
     }
 
-    /**
-     * @param type - the data type
-     * @param size - the data size
-     * @returns - the data
-     */
+    /// @param type - the data type
+    /// @param size - the data size
+    /// @returns - the data
     fn get_type(&self, r#type: CDFDataType, size: u64) -> CDFValue {
         let data = if r#type == CDFDataType::BYTE {
             let mut res = vec![];
@@ -429,9 +410,7 @@ impl<T: Reader> NetCDFReader<T> {
         data
     }
 
-    /**
-     * Internal method to build the dimension list
-     */
+    /// Internal method to build the dimension list
     fn build_dimension_list(&mut self) {
         let dim_list_tag = self.get_u32();
 
@@ -447,7 +426,7 @@ impl<T: Reader> NetCDFReader<T> {
 
             // Length of dimensions
             let dimension_size = self.get_u32();
-            //populate `name` and `size` for each dimension
+            // populate `name` and `size` for each dimension
             let mut index = 0;
             while index < dimension_size {
                 // Read name
@@ -467,10 +446,8 @@ impl<T: Reader> NetCDFReader<T> {
         }
     }
 
-    /**
-     * Internal method to build attributes including global attributes
-     * @returns - attributes from a block of data at a given offset
-     */
+    /// Internal method to build attributes including global attributes
+    /// @returns - attributes from a block of data at a given offset
     fn build_attributes(&mut self) -> CDFAttributes {
         let mut atrributes = CDFAttributes::default();
         let g_att_tag = self.get_u32();
@@ -564,11 +541,9 @@ impl<T: Reader> NetCDFReader<T> {
         self.record_dimension.record_step = Some(record_step);
     }
 
-    /**
-     * Read data for the given non-record variable
-     * @param variable - Variable metadata
-     * @returns - Data of the element
-     */
+    /// Read data for the given non-record variable
+    /// @param variable - Variable metadata
+    /// @returns - Data of the element
     fn get_non_record(&self, variable: CDFVariable) -> Vec<CDFValue> {
         // variable type
         let CDFVariable { size, r#type, .. } = variable;
@@ -585,11 +560,9 @@ impl<T: Reader> NetCDFReader<T> {
         data
     }
 
-    /**
-     * Read data for the given record variable
-     * @param variable - Variable metadata
-     * @returns - Data of the element
-     */
+    /// Read data for the given record variable
+    /// @param variable - Variable metadata
+    /// @returns - Data of the element
     fn get_record(&self, variable: CDFVariable) -> Vec<CDFValue> {
         // prep variables
         let CDFRecordDimension { record_step, size: total_size, .. } = self.record_dimension;

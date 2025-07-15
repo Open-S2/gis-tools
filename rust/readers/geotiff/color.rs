@@ -81,11 +81,9 @@ pub fn convert_color_space(
     }
 }
 
-/**
- * Converts raster with white is zero and max is one to RGB
- * @param raster - raster
- * @param max - maximum value
- */
+/// Converts raster with white is zero and max is one to RGB
+/// @param raster - raster
+/// @param max - maximum value
 pub fn from_white_is_zero(raster: &mut Raster, max: f64) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;

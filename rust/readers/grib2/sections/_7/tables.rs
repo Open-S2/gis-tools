@@ -40,7 +40,7 @@ pub enum Grib2Table7_0 {
     SpectralDataSimplePacking = 50,
     SpectralDataComplexPacking = 51,
     SpectralDataForLimitedAreaModelsComplexPacking = 53,
-    Missing = 255, // Note: The original JS has 255 as Missing, but the reserved range goes higher.
+    Missing = 255, /* Note: The original JS has 255 as Missing, but the reserved range goes higher. */
     Unknown(u16),
 }
 
@@ -88,7 +88,8 @@ impl core::fmt::Display for Grib2Table7_0 {
                 "Grid Point Data - Portable Network Graphics (PNG) format (see Template 7.41)"
             }
             Self::GridPointAndSpectralDataCcsdsRecommendedLosslessCompression => {
-                "Grid Point and Spectral data - CCSDS recommended lossless compression (see Template 7.42)"
+                "Grid Point and Spectral data - CCSDS recommended lossless compression (see \
+                 Template 7.42)"
             }
             Self::SpectralDataSimplePacking => "Spectral Data - Simple Packing (see Template 7.50)",
             Self::SpectralDataComplexPacking => {

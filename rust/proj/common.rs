@@ -720,7 +720,6 @@ pub fn tsfn(phi: f64, sinphi: f64, e: f64) -> f64 {
 /// Note: thresholds used have been verified to work with adams_ws2 and wink2
 ///
 /// Starts with initial guess provided by user in lp_initial
-///
 pub fn generic_inverse_2d<C: CoordinateStep, P: TransformCoordinates>(
     xy: &P,
     step: &C,

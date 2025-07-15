@@ -102,10 +102,8 @@ impl<T: Reader> ArithmeticDecoder<T> {
         }
     }
 
-    /**
-     * @param bits - The number of bits
-     * @returns - The decoded bits
-     */
+    /// @param bits - The number of bits
+    /// @returns - The decoded bits
     pub fn read_bits(&mut self, mut bits: u32) -> u32 {
         assert!(bits != 0 && (bits <= 32));
 
@@ -130,10 +128,8 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /**
-     * @param m - The arithmetic bit model
-     * @returns - The decoded bit
-     */
+    /// @param m - The arithmetic bit model
+    /// @returns - The decoded bit
     pub fn decode_bit(&mut self, m: &mut ArithmeticBitModel) -> u32 {
         let x = m.bit0_prob * (self.length >> BM_LENGTH_SHIFT); // product l x p0
         let sym = if self.value >= x { 1 } else { 0 }; // decision
@@ -227,7 +223,7 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /** @returns - The decoded bit */
+    /// @returns - The decoded bit
     pub fn read_bit(&mut self) -> u32 {
         self.length >>= 1;
         let sym = self.value / self.length; // decode symbol, change length
@@ -243,7 +239,7 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /** @returns - The decoded byte */
+    /// @returns - The decoded byte
     pub fn read_byte(&mut self) -> u8 {
         self.length >>= 8;
         let sym = self.value / self.length; // decode symbol, change length
@@ -259,7 +255,7 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym as u8
     }
 
-    /** @returns - The decoded short */
+    /// @returns - The decoded short
     pub fn read_short(&mut self) -> u16 {
         self.length >>= 16;
         let sym = self.value / self.length; // decode symbol, change length
@@ -275,34 +271,34 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym as u16
     }
 
-    /** @returns - The decoded int */
+    /// @returns - The decoded int
     pub fn read_int(&mut self) -> u32 {
         let lower_int = self.read_short() as u32;
         let upper_int = self.read_short() as u32;
         (upper_int << 16) | lower_int
     }
 
-    /** @returns - The decoded float */
+    /// @returns - The decoded float
     pub fn read_float(&mut self) -> f32 {
-        /* danger in float reinterpretation */
+        // danger in float reinterpretation
         let u32i32f32 = U32I32F32::new(self.read_int(), ValueType32::U32);
         u32i32f32.f32()
     }
 
-    /** @returns - The decoded int64 */
+    /// @returns - The decoded int64
     pub fn read_int64(&mut self) -> u64 {
         let lower_int = self.read_int() as u64;
         let upper_int = self.read_int() as u64;
         (upper_int << 32) | lower_int
     }
 
-    /** @returns - The decoded double */
+    /// @returns - The decoded double
     pub fn read_double(&mut self) -> f64 {
         let u64i64f64 = U64I64F64::new(self.read_int64(), ValueType64::U64);
         u64i64f64.f64()
     }
 
-    /** Renormalize the decoder interval */
+    /// Renormalize the decoder interval
     pub fn renorm_dec_interval(&mut self) {
         loop {
             let byte = self.reader.borrow().uint8(None) as u32;

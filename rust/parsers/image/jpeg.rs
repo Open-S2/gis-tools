@@ -3,19 +3,17 @@ use core::cell::RefCell;
 use libm::{ceil, floor};
 
 // /* -*- tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
-/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
-/*
-   Copyright 2011 notmasteryet
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-       http://www.apache.org/licenses/LICENSE-2.0
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+// vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab:
+// Copyright 2011 notmasteryet
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // - The JPEG specification can be found in the ITU CCITT Recommendation T.81
 //   (www.w3.org/Graphics/JPEG/itu-t81.pdf)
 // - The JFIF specification can be found in the JPEG File Interchange Format
@@ -1297,11 +1295,9 @@ fn decode_ac_first(
     }
 }
 
-/**
- * Decodes a successive approximation block
- * @param component - the component
- * @param zz - the block
- */
+/// Decodes a successive approximation block
+/// @param component - the component
+/// @param zz - the block
 fn decode_ac_successive(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1380,14 +1376,12 @@ fn decode_ac_successive(
         }
     }
 }
-/**
- * Decodes an MCU
- * @param component - The component
- * @param decode - The decoder
- * @param mcu - The mcu
- * @param row - The row
- * @param col - The column
- */
+/// Decodes an MCU
+/// @param component - The component
+/// @param decode - The decoder
+/// @param mcu - The mcu
+/// @param row - The row
+/// @param col - The column
 fn decode_mcu(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1408,12 +1402,10 @@ fn decode_mcu(
     decode(decode_scan, component, block_row, block_col);
 }
 
-/**
- * Decodes a block
- * @param component - The component
- * @param decode - The decoder
- * @param mcu - The mcu value
- */
+/// Decodes a block
+/// @param component - The component
+/// @param decode - The decoder
+/// @param mcu - The mcu value
 fn decode_block(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,

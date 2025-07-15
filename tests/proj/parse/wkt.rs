@@ -636,7 +636,15 @@ mod tests {
 
     #[test]
     fn test_proj_name() {
-        let wkt_str = "PROJCS[\"CH1903 / LV03\",GEOGCS[\"CH1903\",DATUM[\"D_CH1903\",SPHEROID[\"Bessel_1841\",6377397.155,299.1528128]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",46.95240555555556],PARAMETER[\"longitude_of_center\",7.439583333333333],PARAMETER[\"azimuth\",90],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",600000],PARAMETER[\"false_northing\",200000],UNIT[\"Meter\",1]]".into();
+        let wkt_str = "PROJCS[\"CH1903 / \
+                       LV03\",GEOGCS[\"CH1903\",DATUM[\"D_CH1903\",SPHEROID[\"Bessel_1841\",\
+                       6377397.155,299.1528128]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+                       017453292519943295]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"\
+                       ],PARAMETER[\"latitude_of_center\",46.95240555555556],PARAMETER[\"\
+                       longitude_of_center\",7.439583333333333],PARAMETER[\"azimuth\",90],\
+                       PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",600000],\
+                       PARAMETER[\"false_northing\",200000],UNIT[\"Meter\",1]]"
+            .into();
 
         let _proj_obj = ProjJSON::parse_wkt(wkt_str);
         println!("proj_obj: {_proj_obj:#?}");

@@ -663,7 +663,8 @@ impl core::fmt::Display for Grib2Table0 {
                 "US National Aeronautics and Space Administration (NASA)"
             }
             Self::IntegratedSystemDataManagerMarineEnvironmentalDataServiceIsdmMedsCanada => {
-                "Integrated System Data Management/Marine Environmental Data Service (ISDM/MEDS) - Canada"
+                "Integrated System Data Management/Marine Environmental Data Service (ISDM/MEDS) - \
+                 Canada"
             }
             Self::UsCooperativeInstitudeForMeteorologicalSatelliteStudies => {
                 "US Cooperative Institude for Meteorological Satellite Studies"
@@ -725,7 +726,8 @@ impl core::fmt::Display for Grib2Table0 {
             Self::UkraineNmc => "Ukraine (NMC)",
             Self::RepublicOfMoldovaNmc => "Republic of Moldova (NMC)",
             Self::OperationalProgrammeForTheExchangeOfWeatherRadarInformationOperaEumetnet => {
-                "Operational Programme for the Exchange of Weather RAdar Information (OPERA) - EUMETNET"
+                "Operational Programme for the Exchange of Weather RAdar Information (OPERA) - \
+                 EUMETNET"
             }
             Self::ConsortiumForSmallScaleModellingCosmo => {
                 "COnsortium for Small scale  MOdelling (COSMO)"

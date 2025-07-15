@@ -201,26 +201,24 @@ impl EquatorialTemplate {
     }
 }
 
-/**
- * # GRIB2 - GRID DEFINITION TEMPLATE 3.20
- *
- * ## Polar Stereographic Projection (Can be North or South)
- *
- * ## Links
- * - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-20.shtml)
- *
- * ## Notes
- * - The orientation of the grid is given by the longitude of the meridian along which the
- *   y-axis increases, LoV.
- * - The projection is defined by the latitude at which Dx and Dy are specified, LaD.
- * - Grid lengths Dx and Dy are in meters at the latitude LaD.
- * - Bit 3 of the resolution and component flags should be set to 1 to indicate that Dx and Dy
- *   are given in meters.
- *
- * @param section - byte block for template 3.20
- *
- * @returns - The parsed template
- */
+/// # GRIB2 - GRID DEFINITION TEMPLATE 3.20
+///
+/// ## Polar Stereographic Projection (Can be North or South)
+///
+/// ## Links
+/// - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-20.shtml)
+///
+/// ## Notes
+/// - The orientation of the grid is given by the longitude of the meridian along which the
+///   y-axis increases, LoV.
+/// - The projection is defined by the latitude at which Dx and Dy are specified, LaD.
+/// - Grid lengths Dx and Dy are in meters at the latitude LaD.
+/// - Bit 3 of the resolution and component flags should be set to 1 to indicate that Dx and Dy
+///   are given in meters.
+///
+/// @param section - byte block for template 3.20
+///
+/// @returns - The parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct PolarTemplate {
     /// Shape of Earth [Table 3.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-2.shtml)

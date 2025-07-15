@@ -212,12 +212,10 @@ impl RasterData {
     }
 }
 
-/**
- * @param array - An array of numbers
- * @param start - Start index
- * @param end - End index
- * @returns The sum
- */
+/// @param array - An array of numbers
+/// @param start - Start index
+/// @param end - End index
+/// @returns The sum
 pub fn sample_sum<T>(array: &[T], start: usize, end: usize) -> T
 where
     T: Copy + Sum<T>,
@@ -225,12 +223,10 @@ where
     array[start..end].iter().copied().sum()
 }
 
-/**
- * Check if the data needs normalization
- * @param format - the data format
- * @param bits_per_sample - the bits per sample
- * @returns - true if the data needs normalization
- */
+/// Check if the data needs normalization
+/// @param format - the data format
+/// @param bits_per_sample - the bits per sample
+/// @returns - true if the data needs normalization
 pub fn needs_normalization(format: usize, bits_per_sample: usize) -> bool {
     if (format == 1 || format == 2) && bits_per_sample <= 32 && bits_per_sample % 8 == 0 {
         false
@@ -239,18 +235,16 @@ pub fn needs_normalization(format: usize, bits_per_sample: usize) -> bool {
     }
 }
 
-/**
- * Normalize the array
- *
- * @param in_buffer - the input buffer
- * @param format - the data format
- * @param planar_configuration - the planar configuration
- * @param samples_per_pixel - the number of samples per pixel
- * @param bits_per_sample - the bits per sample
- * @param tile_width - the tile width
- * @param tile_height - the tile height
- * @returns - the normalized array
- */
+/// Normalize the array
+///
+/// @param in_buffer - the input buffer
+/// @param format - the data format
+/// @param planar_configuration - the planar configuration
+/// @param samples_per_pixel - the number of samples per pixel
+/// @param bits_per_sample - the bits per sample
+/// @param tile_width - the tile width
+/// @param tile_height - the tile height
+/// @returns - the normalized array
 pub fn normalize_array(
     in_buffer: Vec<u8>,
     format: usize,

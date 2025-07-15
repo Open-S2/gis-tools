@@ -7,11 +7,11 @@ pub struct GTFSRealtimePosition {
     pub latitude: f32, // 1 [float]
     /// Degrees East, in the WGS-84 coordinate system.
     pub longitude: f32, // 2 [float]
-    ///Bearing, in degrees, clockwise from North, i.e., 0 is North and 90 is East.
-    ///This can be the compass bearing, or the direction towards the next stop
-    ///or intermediate location.
-    ///This should not be direction deduced from the sequence of previous
-    ///positions, which can be computed from previous data.
+    /// Bearing, in degrees, clockwise from North, i.e., 0 is North and 90 is East.
+    /// This can be the compass bearing, or the direction towards the next stop
+    /// or intermediate location.
+    /// This should not be direction deduced from the sequence of previous
+    /// positions, which can be computed from previous data.
     pub bearing: Option<f32>, // 3 [float]
     /// Odometer value, in meters.
     pub odometer: Option<f64>, // 4 [double]

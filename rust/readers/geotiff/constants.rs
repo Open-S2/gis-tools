@@ -1,6 +1,4 @@
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
+use alloc::{collections::BTreeMap, string::String, vec::Vec};
 
 /// TIFF Photometric Interpretations
 #[derive(Debug, Clone, Copy, PartialEq)]

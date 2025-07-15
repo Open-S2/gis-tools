@@ -100,7 +100,8 @@ impl core::fmt::Display for Grib2Table5_0 {
                 "Run Length Packing With Level Values (see Template 5.200)"
             }
             Self::GridPointDataJpeg2000CodeStreamFormatAndSpatialDifferencing => {
-                "Grid point data - JPEG 2000 code stream format and spatial differencing (see Template 5.40000)"
+                "Grid point data - JPEG 2000 code stream format and spatial differencing (see \
+                 Template 5.40000)"
             }
             Self::Missing => "Missing",
         };

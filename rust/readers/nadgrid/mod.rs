@@ -1,6 +1,5 @@
 use crate::parsers::{FeatureReader, Reader};
-use alloc::string::String;
-use alloc::{vec, vec::Vec};
+use alloc::{string::String, vec, vec::Vec};
 use libm::round;
 use s2json::{
     MValue, Point, Properties, VectorFeature, VectorGeometry, VectorMultiPoint, VectorPoint,
@@ -214,25 +213,23 @@ pub struct NadGridMetadata {
     pub count: u64,
 }
 
-/**
- * # NAD Grid Reader
- *
- * ## Description
- * Loads/reads a binary NTv2 file (.gsb) implementing the {@link FeatureIterator} interface
- *
- * It should be noted that a proj4 Transformer usually uses this class internally. But if you want
- * to manually parse a .gsb file, you can use this class directly.
- *
- * ## Usage
- *
- * ```ts
- * // TODO
- * ```
- *
- * ## Links
- * - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
- * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
- */
+/// # NAD Grid Reader
+///
+/// ## Description
+/// Loads/reads a binary NTv2 file (.gsb) implementing the {@link FeatureIterator} interface
+///
+/// It should be noted that a proj4 Transformer usually uses this class internally. But if you want
+/// to manually parse a .gsb file, you can use this class directly.
+///
+/// ## Usage
+///
+/// ```ts
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
+/// - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
 #[derive(Debug)]
 pub struct NadGridReader<T: Reader> {
     /// The name of the grid
@@ -384,10 +381,8 @@ impl<T: Reader> NadGridReader<T> {
         }
     }
 
-    /**
-     * @param offset - offset to read in the subgrid header
-     * @returns - the subgrid header
-     */
+    /// @param offset - offset to read in the subgrid header
+    /// @returns - the subgrid header
     fn read_sub_grid_header(&self, offset: u64) -> NadSubGridHeader {
         let NadGridReader { reader, is_little_endian, .. } = self;
         let le = *is_little_endian;
@@ -432,11 +427,9 @@ impl<T: Reader> NadGridReader<T> {
         }
     }
 
-    /**
-     * @param offset - offset of the grid
-     * @param grid_header - header of the grid
-     * @returns - an array of grid nodes
-     */
+    /// @param offset - offset of the grid
+    /// @param grid_header - header of the grid
+    /// @returns - an array of grid nodes
     fn read_grid_nodes(&self, offset: u64, grid_header: &NadSubGridHeader) -> Vec<NadGridNode> {
         let NadGridReader { reader, is_little_endian, .. } = self;
         let le = *is_little_endian;

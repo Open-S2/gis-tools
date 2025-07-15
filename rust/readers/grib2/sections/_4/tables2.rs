@@ -1011,14 +1011,16 @@ pub fn grib2_lookup_table42_10(category: u8) -> TableCategory {
     match category {
         0 => TableCategory {
             parameter: String::from(
-                "Flash Flood Guidance (Encoded as an accumulation over a floating subinterval of time between the reference time and valid time)",
+                "Flash Flood Guidance (Encoded as an accumulation over a floating subinterval of \
+                 time between the reference time and valid time)",
             ),
             units: String::from("kg m-2"),
             abbrev: String::from("FFLDG"),
         },
         1 => TableCategory {
             parameter: String::from(
-                "Flash Flood Runoff (Encoded as an accumulation over a floating subinterval of time)",
+                "Flash Flood Runoff (Encoded as an accumulation over a floating subinterval of \
+                 time)",
             ),
             units: String::from("kg m-2"),
             abbrev: String::from("FFLDRO"),
@@ -1176,14 +1178,16 @@ pub fn grib2_lookup_table42_11(category: u8) -> TableCategory {
     match category {
         0 => TableCategory {
             parameter: String::from(
-                "Conditional percent precipitation amount fractile for an overall period (encoded as an accumulation)",
+                "Conditional percent precipitation amount fractile for an overall period (encoded \
+                 as an accumulation)",
             ),
             units: String::from("kg m-2"),
             abbrev: String::from("CPPOP"),
         },
         1 => TableCategory {
             parameter: String::from(
-                "Percent Precipitation in a sub-period of an overall period (encoded as a percent accumulation over the sub-period)",
+                "Percent Precipitation in a sub-period of an overall period (encoded as a percent \
+                 accumulation over the sub-period)",
             ),
             units: String::from("%"),
             abbrev: String::from("PPOSP"),
@@ -3021,14 +3025,16 @@ pub fn grib2_lookup_table42_31(category: u8) -> TableCategory {
         },
         98 => TableCategory {
             parameter: String::from(
-                "Correlation Coefficient Between MPE Rain Rates for Co-located IR Data and Microwave Data Rain Rates",
+                "Correlation Coefficient Between MPE Rain Rates for Co-located IR Data and \
+                 Microwave Data Rain Rates",
             ),
             units: String::from("Numeric"),
             abbrev: String::from("CCMPEMRR"),
         },
         99 => TableCategory {
             parameter: String::from(
-                "Standard Deviation Between MPE Rain Rates for Co-located IR Data and Microwave Data Rain Rates",
+                "Standard Deviation Between MPE Rain Rates for Co-located IR Data and Microwave \
+                 Data Rain Rates",
             ),
             units: String::from("Numeric"),
             abbrev: String::from("SDMPEMRR"),

@@ -7,8 +7,7 @@ use crate::{
     parsers::{RGBA, Reader},
     readers::{LASPoint, WavePacket, util::U64I64F64},
 };
-use alloc::rc::Rc;
-use alloc::{vec, vec::Vec};
+use alloc::{rc::Rc, vec, vec::Vec};
 use core::cell::RefCell;
 
 const LASZIP_GPSTIME_MULTIMAX: u32 = 512;
@@ -56,11 +55,11 @@ impl<T: Reader> LAZPoint10v1Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZPoint10v1Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init state */
+        // init state
         self.last_x_diff = [0, 0, 0];
         self.last_y_diff = [0, 0, 0];
         self.last_incr = 0;
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.ic_dx.init_decompressor();
         self.ic_dy.init_decompressor();
         self.ic_z.init_decompressor();
@@ -68,7 +67,7 @@ impl<T: Reader> ItemReader for LAZPoint10v1Reader<T> {
         self.ic_scan_angle_rank.init_decompressor();
         self.ic_point_source_id.init_decompressor();
         self.m_changed_values.init(None);
-        /* init "last item" to current item */
+        // init "last item" to current item
         self.last_item.inject_point10(item, 0);
         point.inject_point10(item, 0);
     }
@@ -216,7 +215,7 @@ impl<T: Reader> LAZGpsTime11v1Reader<T> {
     pub fn new(dec: Rc<RefCell<ArithmeticDecoder<T>>>) -> Self {
         Self {
             dec: dec.clone(),
-            /* create entropy models and integer compressors */
+            // create entropy models and integer compressors
             m_gpstime_multi: ArithmeticModel::new(LASZIP_GPSTIME_MULTIMAX, false),
             m_gpstime0_diff: ArithmeticModel::new(3, false),
             ic_gpstime: IntegerCompressor::new(dec, Some(32), Some(6), None, None),
@@ -228,14 +227,14 @@ impl<T: Reader> LAZGpsTime11v1Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZGpsTime11v1Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init state */
+        // init state
         self.last_item_diff = 0;
         self.multi_extreme_counter = 0;
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_gpstime_multi.init(None);
         self.m_gpstime0_diff.init(None);
         self.ic_gpstime.init_decompressor();
-        /* init last item */
+        // init last item
         self.last_item.set_u64(item.uint64_le(Some(0)));
         point.gps_time = Some(self.last_item.f64());
     }
@@ -312,7 +311,7 @@ impl<T: Reader> LAZrgb12v1Reader<T> {
     pub fn new(dec: Rc<RefCell<ArithmeticDecoder<T>>>) -> Self {
         Self {
             dec: dec.clone(),
-            /* create models and integer compressors */
+            // create models and integer compressors
             m_byte_used: ArithmeticModel::new(64, false),
             ic_rgb: IntegerCompressor::new(dec, Some(8), Some(6), None, None),
             last_item: [0; 3],
@@ -321,7 +320,7 @@ impl<T: Reader> LAZrgb12v1Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZrgb12v1Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_byte_used.init(None);
         self.ic_rgb.init_decompressor();
         let r = item.uint16_le(None);
@@ -396,7 +395,7 @@ impl<T: Reader> LAZwavepacket13v1Reader<T> {
         Self {
             index: 0,
             dec: dec.clone(),
-            /* create models and integer compressors */
+            // create models and integer compressors
             m_packet_index: ArithmeticModel::new(256, false),
             m_offset_diff: [
                 ArithmeticModel::new(4, false),
@@ -416,12 +415,12 @@ impl<T: Reader> LAZwavepacket13v1Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZwavepacket13v1Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init state */
+        // init state
         self.index = 0;
         self.last_diff32 = 0;
         self.sym_last_offset_diff = 0;
 
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_packet_index.init(None);
         for m in self.m_offset_diff.iter_mut() {
             m.init(None);
@@ -490,7 +489,7 @@ impl<T: Reader> LAZbyte10v1Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZbyte10v1Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, _point: &mut LASPoint, _context: &mut u32) {
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.ic_byte.init_decompressor();
         self.last_item = item.seek_slice(self.size as usize);
     }

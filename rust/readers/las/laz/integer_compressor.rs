@@ -114,11 +114,9 @@ impl<T: Reader> IntegerCompressor<T> {
         }
     }
 
-    /**
-     * @param pred - the predicted value
-     * @param context - the context DEFAULTS TO 0 IF NOT GIVEN
-     * @returns - the decompressed value
-     */
+    /// @param pred - the predicted value
+    /// @param context - the context DEFAULTS TO 0 IF NOT GIVEN
+    /// @returns - the decompressed value
     pub fn decompress(&mut self, pred: i32, context: u32) -> i32 {
         let mut real = pred + self.read_corrector(context);
         if real < 0 {

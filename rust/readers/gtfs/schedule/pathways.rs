@@ -64,7 +64,6 @@ impl From<i8> for GTFSIsBidirectional {
     }
 }
 
-/**
 /// # Pathways
 ///
 /// **Optional**
@@ -78,7 +77,6 @@ impl From<i8> for GTFSIsBidirectional {
 /// - Platforms with boarding areas must not have pathways directly; their boarding areas do.
 /// - Each platform (location_type=0) or boarding area (4) must have at least
 ///   one path to an entrance/exit (2) unless it’s impossible for riders to exit at that platform.
- */
 #[derive(Debug, Default, Clone, PartialEq, MValueCompatible)]
 pub struct GTFSPathway {
     /// **Required**

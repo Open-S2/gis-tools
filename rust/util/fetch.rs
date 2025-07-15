@@ -21,8 +21,10 @@ pub enum NetError {
 /// ex. fetch_url("http://example.com/file.bin")
 #[cfg(feature = "std")]
 pub fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
-    use std::io::{Read, Write};
-    use std::net::TcpStream;
+    use std::{
+        io::{Read, Write},
+        net::TcpStream,
+    };
 
     // Very crude parsing — expects "http://host/path"
     let url = url.strip_prefix("http://").ok_or(NetError::InvalidUrl)?;

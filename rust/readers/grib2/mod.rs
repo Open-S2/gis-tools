@@ -331,19 +331,18 @@ pub fn get_gfs_link<P: Into<String>>(
     let hour: String = hour.into();
     let product: String = product.into();
     link = format!(
-        "{link}gfs.{year}{month}{day}/{hour}/{domain_str}/{start_name}.t{hour}z.{product}.f{forecast}{end_name}",
+        "{link}gfs.{year}{month}{day}/{hour}/{domain_str}/{start_name}.t{hour}z.{product}.\
+         f{forecast}{end_name}",
     );
 
     link
 }
 
-/**
- * Parse the .idx file for GRIB2 section details using a URL
- * @param url - The URL of the .idx file
- * @param filters - The filters to apply
- * @param offset_position - The position of the offset in the ":" sequence
- * @returns - An array of Grib2SectionLocations
- */
+/// Parse the .idx file for GRIB2 section details using a URL
+/// @param url - The URL of the .idx file
+/// @param filters - The filters to apply
+/// @param offset_position - The position of the offset in the ":" sequence
+/// @returns - An array of Grib2SectionLocations
 pub fn parsed_idx_from_url(
     url: String,
     filters: Vec<String>,

@@ -3,8 +3,7 @@ use crate::proj::{
     Direction, IoUnits, ProjJSON, ProjectionTransform, adjlon, check_not_wgs84, datum_transform,
     geocentric_latitude,
 };
-use alloc::fmt::Debug;
-use alloc::{collections::BTreeMap, string::String};
+use alloc::{collections::BTreeMap, fmt::Debug, string::String};
 use core::f64::consts::FRAC_PI_2;
 
 /// # PROJ Transformer
@@ -378,7 +377,7 @@ fn transform_fwd_finalize<P: TransformCoordinates + Debug>(
             coords.set_z(proj.vfr_meter * (coords.z() + proj.z0));
         }
 
-        /* to continue processing in common with IoUnits::PROJECTED */
+        // to continue processing in common with IoUnits::PROJECTED
         IoUnits::PROJECTED => {
             coords.set_x(proj.fr_meter * (coords.x() + proj.x0));
             coords.set_y(proj.fr_meter * (coords.y() + proj.y0));

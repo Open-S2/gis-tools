@@ -5,53 +5,52 @@ use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use libm::{atan2, cos, fabs, sin, sqrt, tan};
 
-/*
-***************************************************************************
-
-               Lambert Conformal Conic Alternative
-               -----------------------------------
-
-    This is Gerald Evenden's 2003 implementation of an alternative
-    "almost" LCC, which has been in use historically, but which
-    should NOT be used for new projects - i.e: use this implementation
-    if you need interoperability with old data represented in this
-    projection, but not in any other case.
-
-    The code was originally discussed on the PROJ.4 mailing list in
-    a thread archived over at
-
-    http://lists.maptools.org/pipermail/proj/2003-March/000644.html
-
-    It was discussed again in the thread starting at
-
-    http://lists.maptools.org/pipermail/proj/2017-October/007828.html
-        and continuing at
-    http://lists.maptools.org/pipermail/proj/2017-November/007831.html
-
-    which prompted Clifford J. Mugnier to add these clarifying notes:
-
-    The French Army Truncated Cubic Lambert (partially conformal) Conic
-    projection is the Legal system for the projection in France between
-    the late 1800s and 1948 when the French Legislature changed the law
-    to recognize the fully conformal version.
-
-    It was (might still be in one or two North African prior French
-    Colonies) used in North Africa in Algeria, Tunisia, & Morocco, as
-    well as in Syria during the Levant.
-
-    Last time I have seen it used was about 30+ years ago in
-    Algeria when it was used to define Lease Block boundaries for
-    Petroleum Exploration & Production.
-
-    (signed)
-
-    Clifford J. Mugnier, c.p., c.m.s.
-    Chief of Geodesy
-    LSU Center for GeoInformatics
-    Dept. of Civil Engineering
-    LOUISIANA STATE UNIVERSITY
-
-*****************************************************************************/
+// *************************************************************************
+//
+// Lambert Conformal Conic Alternative
+// -----------------------------------
+//
+// This is Gerald Evenden's 2003 implementation of an alternative
+// "almost" LCC, which has been in use historically, but which
+// should NOT be used for new projects - i.e: use this implementation
+// if you need interoperability with old data represented in this
+// projection, but not in any other case.
+//
+// The code was originally discussed on the PROJ.4 mailing list in
+// a thread archived over at
+//
+// http://lists.maptools.org/pipermail/proj/2003-March/000644.html
+//
+// It was discussed again in the thread starting at
+//
+// http://lists.maptools.org/pipermail/proj/2017-October/007828.html
+// and continuing at
+// http://lists.maptools.org/pipermail/proj/2017-November/007831.html
+//
+// which prompted Clifford J. Mugnier to add these clarifying notes:
+//
+// The French Army Truncated Cubic Lambert (partially conformal) Conic
+// projection is the Legal system for the projection in France between
+// the late 1800s and 1948 when the French Legislature changed the law
+// to recognize the fully conformal version.
+//
+// It was (might still be in one or two North African prior French
+// Colonies) used in North Africa in Algeria, Tunisia, & Morocco, as
+// well as in Syria during the Levant.
+//
+// Last time I have seen it used was about 30+ years ago in
+// Algeria when it was used to define Lease Block boundaries for
+// Petroleum Exploration & Production.
+//
+// (signed)
+//
+// Clifford J. Mugnier, c.p., c.m.s.
+// Chief of Geodesy
+// LSU Center for GeoInformatics
+// Dept. of Civil Engineering
+// LOUISIANA STATE UNIVERSITY
+//
+// **************************************************************************
 
 const MAX_ITER: usize = 10;
 const DEL_TOL: f64 = 1e-12;
@@ -118,7 +117,7 @@ fn f_s(s: f64, c: f64) -> f64 {
 }
 
 fn f_sp(s: f64, c: f64) -> f64 {
-    /* deriv of fs */
+    // deriv of fs
     1. + 3. * s * s * c
 }
 

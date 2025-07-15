@@ -26,13 +26,11 @@ where
     }
 }
 
-/**
- * Decode a floating point block using the specified predictor
- *
- * @param row - the row to decode
- * @param stride - the number of bytes per row
- * @param bytes_per_sample - the number of bytes per sample
- */
+/// Decode a floating point block using the specified predictor
+///
+/// @param row - the row to decode
+/// @param stride - the number of bytes per row
+/// @param bytes_per_sample - the number of bytes per sample
 fn decode_row_floating_point<T>(row: &mut [T], stride: usize, bytes_per_sample: usize)
 where
     T: AddAssign + Copy,

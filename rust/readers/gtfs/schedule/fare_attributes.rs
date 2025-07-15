@@ -32,13 +32,11 @@ impl From<&str> for GTFSPaymentMethod {
     }
 }
 
-/**
- * Transfers can be:
- * - 0 = No transfers permitted
- * - 1 = One transfer
- * - 2 = Two transfers
- * - '' (empty string) = Unlimited transfers
- */
+/// Transfers can be:
+/// - 0 = No transfers permitted
+/// - 1 = One transfer
+/// - 2 = Two transfers
+/// - '' (empty string) = Unlimited transfers
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum GTFSTransfersType {
     /// 0 = No transfers permitted

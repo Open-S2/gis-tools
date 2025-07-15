@@ -19,36 +19,34 @@ pub struct LASReaderOptions {
 /// An LAS Shaped Vector Feature
 pub type LASVectorFeature = VectorFeature<(), Properties, LASPoint>;
 
-/**
- * # LAS Reader
- *
- * ## Description
- * Reads LAS data. Supports up to the LAS 1.4 specification.
- * [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
- * Implements the {@link FeatureIterator} interface
- *
- * Data is stored like so:
- * ```txt
- * |           PUBLIC HEADER BLOCK           |
- * |         VARIABLE LENGTH RECORDS         |
- * |            POINT DATA RECORDS           |
- * ```
- *
- * ## Usage
- *
- * ```ts
- * // TODO
- * ```
- *
- * ## Links
- * - https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online
- * - https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf
- * - https://liblas.org/development/index.html
- * - https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf
- * - https://github.com/PDAL/PDAL
- * - https://github.com/libLAS/libLAS (deprecated for PDAL)
- * - https://github.com/LASzip
- */
+/// # LAS Reader
+///
+/// ## Description
+/// Reads LAS data. Supports up to the LAS 1.4 specification.
+/// [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
+/// Implements the {@link FeatureIterator} interface
+///
+/// Data is stored like so:
+/// ```txt
+/// |           PUBLIC HEADER BLOCK           |
+/// |         VARIABLE LENGTH RECORDS         |
+/// |            POINT DATA RECORDS           |
+/// ```
+///
+/// ## Usage
+///
+/// ```ts
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online
+/// - https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf
+/// - https://liblas.org/development/index.html
+/// - https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf
+/// - https://github.com/PDAL/PDAL
+/// - https://github.com/libLAS/libLAS (deprecated for PDAL)
+/// - https://github.com/LASzip
 #[derive(Debug)]
 pub struct LASReader<T: Reader> {
     reader: T,

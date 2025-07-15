@@ -1,50 +1,7 @@
 use crate::proj::{CoordinateStep, IoUnits, Proj, ProjectionTransform, Step, TransformCoordinates};
 use alloc::rc::Rc;
-use core::cell::RefCell;
-use core::f64::consts::FRAC_PI_2;
+use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{atan, atan2, cos, fabs, sin, sqrt};
-
-/******************************************************************************
- * Project:  PROJ.4
- * Purpose:  Convert between ellipsoidal, geodetic coordinates and
- *           cartesian, geocentric coordinates.
- *
- *           Formally, this functionality is also found in the PJ_geocent.c
- *           code.
- *
- *           Actually, however, the PJ_geocent transformations are carried
- *           out in concert between 2D stubs in PJ_geocent.c and 3D code
- *           placed in pj_transform.c.
- *
- *           For pipeline-style datum shifts, we do need direct access
- *           to the full 3D interface for this functionality.
- *
- *           Hence this code, which may look like "just another PJ_geocent"
- *           but really is something substantially different.
- *
- * Author:   Thomas Knudsen, thokn@sdfe.dk
- *
- ******************************************************************************
- * Copyright (c) 2016, Thomas Knudsen / SDFE
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *****************************************************************************/
 
 /// # CARTESIAN / GEODETIC CONVERSIONS
 ///
@@ -138,7 +95,7 @@ pub fn normal_radius_of_curvature(a: f64, es: f64, sinphi: f64) -> f64 {
     if es == 0. {
         return a;
     }
-    /* This is from WP.  HM formula 2-149 gives an a,b version */
+    // This is from WP.  HM formula 2-149 gives an a,b version
     a / sqrt(1. - es * sinphi * sinphi)
 }
 
@@ -168,7 +125,7 @@ pub fn cartesian<P: TransformCoordinates>(proj: &Proj, coords: &mut P) {
     let sinphi = sin(coords.phi());
     let n = normal_radius_of_curvature(proj.a, proj.es, sinphi);
 
-    /* HM formula 5-27 (z formula follows WP) */
+    // HM formula 5-27 (z formula follows WP)
     let z = coords.z();
     let lam = coords.lam();
     coords.set_x((n + z) * cosphi * cos(lam));
@@ -184,7 +141,7 @@ pub fn geodetic<P: TransformCoordinates>(proj: &Proj, coords: &mut P) {
     let y_div_a = coords.y() * proj.ra;
     let z_div_a = coords.z() * proj.ra;
 
-    /* Perpendicular distance from point to Z-axis (HM eq. 5-28) */
+    // Perpendicular distance from point to Z-axis (HM eq. 5-28)
     let p_div_a = sqrt(x_div_a * x_div_a + y_div_a * y_div_a);
 
     let b_div_a = 1. - proj.f; // = proj.b / proj.a
@@ -227,10 +184,10 @@ pub fn geodetic<P: TransformCoordinates>(proj: &Proj, coords: &mut P) {
     }
     let lam = atan2(y_div_a, x_div_a);
     let z = if cosphi < 1e-6 {
-        /* poleward of 89.99994 deg, we avoid division by zero   */
-        /* by computing the height as the cartesian z value      */
-        /* minus the geocentric radius of the Earth at the given */
-        /* latitude                                              */
+        // poleward of 89.99994 deg, we avoid division by zero
+        // by computing the height as the cartesian z value
+        // minus the geocentric radius of the Earth at the given
+        // latitude
         let r = geocentric_radius(proj.a, b_div_a, cosphi, sinphi);
         fabs(coords.z()) - r
     } else {

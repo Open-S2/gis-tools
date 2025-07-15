@@ -10,56 +10,55 @@ use core::{
     f64::consts::{FRAC_PI_2, FRAC_PI_4},
 };
 use libm::{asin, atan, atan2, cos, fabs, pow, sin, sqrt, tan};
-/*
-******************************************************************************
- * A description of the (forward) projection is found in:
- *
- *      Bohuslav Veverka,
- *
- *      KROVAK’S PROJECTION AND ITS USE FOR THE
- *      CZECH REPUBLIC AND THE SLOVAK REPUBLIC,
- *
- *      50 years of the Research Institute of
- *      and the Slovak Republic Geodesy, Topography and Cartography
- *
- * which can be found via the Wayback Machine:
- *
- *      https://web.archive.org/web/20150216143806/https://www.vugtk.cz/odis/sborniky/sb2005/Sbornik_50_let_VUGTK/Part_1-Scientific_Contribution/16-Veverka.pdf
- *
- * Further info, including the inverse projection, is given by EPSG:
- *
- *      Guidance Note 7 part 2
- *      Coordinate Conversions and Transformations including Formulas
- *
- *      http://www.iogp.org/pubs/373-07-2.pdf
- *
- * Variable names in this file mostly follows what is used in the
- * paper by Veverka.
- *
- * According to EPSG the full Krovak projection method should have
- * the following parameters.  Within PROJ the azimuth, and pseudo
- * standard parallel are hardcoded in the algorithm and can't be
- * altered from outside. The others all have defaults to match the
- * common usage with Krovak projection.
- *
- *      lat_0 = latitude of centre of the projection
- *
- *      lon_0 = longitude of centre of the projection
- *
- *      ** = azimuth (true) of the centre line passing through the
- *           centre of the projection
- *
- *      ** = latitude of pseudo standard parallel
- *
- *      k  = scale factor on the pseudo standard parallel
- *
- *      x_0 = False Easting of the centre of the projection at the
- *            apex of the cone
- *
- *      y_0 = False Northing of the centre of the projection at
- *            the apex of the cone
- *
- *****************************************************************************/
+// ****************************************************************************
+// A description of the (forward) projection is found in:
+//
+//      Bohuslav Veverka,
+//
+//      KROVAK’S PROJECTION AND ITS USE FOR THE
+//      CZECH REPUBLIC AND THE SLOVAK REPUBLIC,
+//
+//      50 years of the Research Institute of
+//      and the Slovak Republic Geodesy, Topography and Cartography
+//
+// which can be found via the Wayback Machine:
+//
+//      https://web.archive.org/web/20150216143806/https://www.vugtk.cz/odis/sborniky/sb2005/Sbornik_50_let_VUGTK/Part_1-Scientific_Contribution/16-Veverka.pdf
+//
+// Further info, including the inverse projection, is given by EPSG:
+//
+//      Guidance Note 7 part 2
+//      Coordinate Conversions and Transformations including Formulas
+//
+//      http://www.iogp.org/pubs/373-07-2.pdf
+//
+// Variable names in this file mostly follows what is used in the
+// paper by Veverka.
+//
+// According to EPSG the full Krovak projection method should have
+// the following parameters.  Within PROJ the azimuth, and pseudo
+// standard parallel are hardcoded in the algorithm and can't be
+// altered from outside. The others all have defaults to match the
+// common usage with Krovak projection.
+//
+//      lat_0 = latitude of centre of the projection
+//
+//      lon_0 = longitude of centre of the projection
+//
+//      ** = azimuth (true) of the centre line passing through the
+//           centre of the projection
+//
+//      ** = latitude of pseudo standard parallel
+//
+//      k  = scale factor on the pseudo standard parallel
+//
+//      x_0 = False Easting of the centre of the projection at the
+//            apex of the cone
+//
+//      y_0 = False Northing of the centre of the projection at
+//            the apex of the cone
+//
+// **************************************************************************
 
 const EPS: f64 = 1e-15;
 const UQ: f64 = 1.04216856380474; // DU(2, 59, 42, 42.69689)

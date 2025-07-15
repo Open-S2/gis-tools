@@ -32,23 +32,17 @@ impl From<i8> for GTFSExceptionType {
 /// - If `calendar.txt` is omitted, all service dates must be listed here.
 #[derive(Debug, Default, Clone, PartialEq, MValueCompatible)]
 pub struct GTFSCalendarDate {
-    /**
-     * **Required**
-     * Identifies a set of dates where service exception occurs.
-     * References `calendar.service_id` if used with `calendar.txt`;
-     * or acts as a standalone ID if `calendar.txt` is omitted.
-     */
+    /// **Required**
+    /// Identifies a set of dates where service exception occurs.
+    /// References `calendar.service_id` if used with `calendar.txt`;
+    /// or acts as a standalone ID if `calendar.txt` is omitted.
     pub service_id: String,
-    /**
-     * **Required**
-     * Date of the service exception, parsed as a JavaScript Date.
-     * Originally in GTFS as a YYYYMMDD string (no time component).
-     */
+    /// **Required**
+    /// Date of the service exception, parsed as a JavaScript Date.
+    /// Originally in GTFS as a YYYYMMDD string (no time component).
     pub date: String,
-    /**
-     * **Required**
-     * Indicates whether service is added (1) or removed (2) on this date.
-     */
+    /// **Required**
+    /// Indicates whether service is added (1) or removed (2) on this date.
     pub exception_type: i8,
 }
 impl GTFSCalendarDate {

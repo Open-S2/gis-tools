@@ -103,7 +103,7 @@ impl<const C: i64> CoordinateStep for LambertConformalConicProjection<C> {
                 let m1 = _msfn(sinphi, cosphi, proj.es);
                 let ml1 = tsfn(store.phi1, sinphi, proj.e);
                 if secant {
-                    /* secant cone */
+                    // secant cone
                     sinphi = sin(store.phi2);
                     store.n = log(m1 / _msfn(sinphi, cos(store.phi2), proj.es));
                     if store.n == 0. {

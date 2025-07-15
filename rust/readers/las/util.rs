@@ -25,20 +25,16 @@ pub fn i8_clamp(n: i32) -> i8 {
     }
 }
 
-/**
- * zero the least significant bit
- * @param n - the number to zero
- * @returns - the zeroed number
- */
+/// zero the least significant bit
+/// @param n - the number to zero
+/// @returns - the zeroed number
 pub fn u32_zero_bit0(n: u32) -> u32 {
     n & 0xfffffffe
 }
 
-/**
- * Quantize a signed 16-bit number
- * @param n - the number to quantize
- * @returns - the quantized number
- */
+/// Quantize a signed 16-bit number
+/// @param n - the number to quantize
+/// @returns - the quantized number
 pub fn i16_quantize(n: f64) -> i16 {
     if (n) >= 0. { ((n) + 0.5) as i16 } else { ((n) - 0.5) as i16 }
 }

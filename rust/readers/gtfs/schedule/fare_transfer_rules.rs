@@ -55,70 +55,54 @@ impl From<i8> for GTFSFareTransferType {
     }
 }
 
-/**
- * # Fare Transfer Rules
- *
- * **Optional**
- * Defines the cost of transferring between fare legs specified in `fare_leg_rules.txt`.
- * Matching uses:
- * - from_leg_group_id
- * - to_leg_group_id
- * - transfer_count
- * - duration_limit
- * - duration_limit_type
- * - fare_transfer_type
- * - fare_product_id
- *
- * **Primary Key**: (from_leg_group_id, to_leg_group_id, fare_product_id, transfer_count, duration_limit)
- */
+/// # Fare Transfer Rules
+///
+/// **Optional**
+/// Defines the cost of transferring between fare legs specified in `fare_leg_rules.txt`.
+/// Matching uses:
+/// - from_leg_group_id
+/// - to_leg_group_id
+/// - transfer_count
+/// - duration_limit
+/// - duration_limit_type
+/// - fare_transfer_type
+/// - fare_product_id
+///
+/// **Primary Key**: (from_leg_group_id, to_leg_group_id, fare_product_id, transfer_count, duration_limit)
 #[derive(Debug, Default, Clone, PartialEq, MValueCompatible)]
 pub struct GTFSFareTransferRule {
-    /**
-     * **Optional**
-     * The pre-transfer fare leg group (`fare_leg_rules.leg_group_id`).
-     * - If no exact match is found, empty corresponds to all leg groups not listed under `from_leg_group_id`.
-     */
+    /// **Optional**
+    /// The pre-transfer fare leg group (`fare_leg_rules.leg_group_id`).
+    /// - If no exact match is found, empty corresponds to all leg groups not listed under `from_leg_group_id`.
     pub from_leg_group_id: Option<String>,
-    /**
-     * **Optional**
-     * The post-transfer fare leg group (`fare_leg_rules.leg_group_id`).
-     * - If no exact match is found, empty corresponds to all leg groups not listed under `to_leg_group_id`.
-     */
+    /// **Optional**
+    /// The post-transfer fare leg group (`fare_leg_rules.leg_group_id`).
+    /// - If no exact match is found, empty corresponds to all leg groups not listed under `to_leg_group_id`.
     pub to_leg_group_id: Option<String>,
-    /**
-     * **Conditionally Forbidden / Required**
-     * Defines how many consecutive transfers this rule may be applied to.
-     * - `-1` means no limit.
-     * - `1` or more = the transfer count this rule applies to.
-     *
-     * Forbidden if `from_leg_group_id !== to_leg_group_id`.
-     * Required if `from_leg_group_id === to_leg_group_id`.
-     */
+    /// **Conditionally Forbidden / Required**
+    /// Defines how many consecutive transfers this rule may be applied to.
+    /// - `-1` means no limit.
+    /// - `1` or more = the transfer count this rule applies to.
+    ///
+    /// Forbidden if `from_leg_group_id !== to_leg_group_id`.
+    /// Required if `from_leg_group_id === to_leg_group_id`.
     pub transfer_count: Option<i32>,
-    /**
-     * **Optional**
-     * Duration limit (in seconds) for the transfer. Empty means no limit.
-     */
+    /// **Optional**
+    /// Duration limit (in seconds) for the transfer. Empty means no limit.
     pub duration_limit: Option<i32>,
-    /**
-     * **Conditionally Required**
-     * Defines how to measure the `durationLimit`.
-     * - Required if `durationLimit` is defined.
-     * - Forbidden if `durationLimit` is empty.
-     */
+    /// **Conditionally Required**
+    /// Defines how to measure the `durationLimit`.
+    /// - Required if `durationLimit` is defined.
+    /// - Forbidden if `durationLimit` is empty.
     pub duration_limit_type: Option<i8>, // ?: GTFSDurationLimitType;
-    /**
-     * **Required**
-     * Indicates how to combine transfer costs:
-     * - 0 = from-leg cost + transfer cost
-     * - 1 = from-leg + transfer + to-leg cost
-     * - 2 = transfer cost only
-     */
+    /// **Required**
+    /// Indicates how to combine transfer costs:
+    /// - 0 = from-leg cost + transfer cost
+    /// - 1 = from-leg + transfer + to-leg cost
+    /// - 2 = transfer cost only
     pub fare_transfer_type: i8, // GTFSFareTransferType;
-    /**
-     * **Optional**
-     * Fare product ID for the transfer. If empty, cost is 0 (no transfer cost).
-     */
+    /// **Optional**
+    /// Fare product ID for the transfer. If empty, cost is 0 (no transfer cost).
     pub fare_product_id: Option<String>,
 }
 impl GTFSFareTransferRule {

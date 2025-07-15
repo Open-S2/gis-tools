@@ -186,7 +186,8 @@ impl core::fmt::Display for Grib2Table1_1 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let desc = match self {
             Self::LocalTablesNotUsed => {
-                "Local tables not used. Only table entries and templates from the current master table are valid."
+                "Local tables not used. Only table entries and templates from the current master \
+                 table are valid."
             }
             Self::Missing => "Missing",
         };

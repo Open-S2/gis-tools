@@ -5,7 +5,7 @@ use image::ImageReader;
 #[cfg(feature = "std")]
 use std::io::Cursor;
 
-/** Image Decoder Options */
+/// Image Decoder Options
 #[derive(Debug, Default, Clone)]
 pub struct DecodeOptions {
     /// The x position to start at
@@ -16,7 +16,7 @@ pub struct DecodeOptions {
     pub width: Option<u32>,
     /// The height to read in
     pub height: Option<u32>,
-    /** The modulo to use. For example you may have a 514x514 image, but you want to use 512x512 [Default=1] */
+    /// The modulo to use. For example you may have a 514x514 image, but you want to use 512x512 [Default=1]
     pub modulo: Option<u32>,
 }
 
@@ -57,12 +57,11 @@ pub fn image_decoder(
     })
 }
 
-/**
- * Image decoder
- * @param buffer - the input buffer
- * @param options - user defined options
- * @returns - the decoded buffer
- */
+/// Image decoder
+///
+/// @param buffer - the input buffer
+/// @param options - user defined options
+/// @returns - the decoded buffer
 #[cfg(feature = "std")]
 pub fn image_decoder_buffer(buffer: &Buffer, options: Option<DecodeOptions>) -> Buffer {
     image_decoder(buffer, options).unwrap().data

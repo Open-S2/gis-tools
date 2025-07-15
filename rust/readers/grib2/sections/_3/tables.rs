@@ -175,7 +175,8 @@ impl core::fmt::Display for Grib2Table3_1 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let desc = match self {
             Self::LatitudeLongitude => {
-                "Latitude/Longitude (See Template 3.0) Also called Equidistant Cylindrical or Plate Caree"
+                "Latitude/Longitude (See Template 3.0) Also called Equidistant Cylindrical or \
+                 Plate Caree"
             }
             Self::RotatedLatitudeLongitude => "Rotated Latitude/Longitude (See Template 3.1)",
             Self::StretchedLatitudeLongitude => "Stretched Latitude/Longitude (See Template 3.2)",
@@ -201,7 +202,8 @@ impl core::fmt::Display for Grib2Table3_1 {
                 "Polar Stereographic with modelling subdomains definition (See Template 3.23)"
             }
             Self::LambertConformal => {
-                "Lambert Conformal (Can be Secant, Tangent, Conical, or Bipolar) (See Template 3.30)"
+                "Lambert Conformal (Can be Secant, Tangent, Conical, or Bipolar) (See Template \
+                 3.30)"
             }
             Self::AlbersEqualArea => "Albers Equal Area (See Template 3.31)",
             Self::Reserved32 => "Reserved",
@@ -235,10 +237,12 @@ impl core::fmt::Display for Grib2Table3_1 {
                 "Spectral Mercator with modelling subdomains definition (See Template 3.61)"
             }
             Self::SpectralPolarStereographicWithModellingSubdomainsDefinition => {
-                "Spectral Polar Stereographic with modelling subdomains definition (See Template 3.62)"
+                "Spectral Polar Stereographic with modelling subdomains definition (See Template \
+                 3.62)"
             }
             Self::SpectralLambertConformalWithModellingSubdomainsDefinition => {
-                "Spectral Lambert conformal with modelling subdomains definition (See Template 3.63)"
+                "Spectral Lambert conformal with modelling subdomains definition (See Template \
+                 3.63)"
             }
             Self::SpaceViewPerspectiveOrOrthographic => {
                 "Space View Perspective or Orthographic (See Template 3.90)"
@@ -255,14 +259,17 @@ impl core::fmt::Display for Grib2Table3_1 {
                 "Lambert Azimuthal Equal Area Projection (See Template 3.140)"
             }
             Self::HierarchicalEqualAreaIsoLatitudePixelizationGridHealpix => {
-                "Hierarchical Equal Area isoLatitude Pixelization grid (HEALPix) (See Template 3.150)"
+                "Hierarchical Equal Area isoLatitude Pixelization grid (HEALPix) (See Template \
+                 3.150)"
             }
             Self::CurvilinearOrthogonalGrids => "Curvilinear Orthogonal Grids (See Template 3.204)",
             Self::CrossSectionGridWithPointsEquallySpacedOnTheHorizontal => {
-                "Cross Section Grid with Points Equally Spaced on the Horizontal (See Template 3.1000)"
+                "Cross Section Grid with Points Equally Spaced on the Horizontal (See Template \
+                 3.1000)"
             }
             Self::HovmollerDiagramWithPointsEquallySpacedOnTheHorizontal => {
-                "Hovmoller Diagram with Points Equally Spaced on the Horizontal (See Template 3.1100)"
+                "Hovmoller Diagram with Points Equally Spaced on the Horizontal (See Template \
+                 3.1100)"
             }
             Self::TimeSectionGrid => "Time Section Grid (See Template 3.1200)",
             Self::RotatedLatitudeLongitudeArakawaStaggeredEGrid => {
@@ -347,34 +354,46 @@ impl core::fmt::Display for Grib2Table3_2 {
                 "Earth assumed spherical with radius specified (in m) by data producer"
             }
             Self::EarthOblateSpheroidIau1965 => {
-                "Earth assumed oblate spheroid with size as determined by IAU in 1965 (major axis = 6,378,160.0 m, minor axis = 6,356,775.0 m, f = 1/297.0)"
+                "Earth assumed oblate spheroid with size as determined by IAU in 1965 (major axis \
+                 = 6,378,160.0 m, minor axis = 6,356,775.0 m, f = 1/297.0)"
             }
             Self::EarthOblateSpheroidMajorMinorAxesSpecifiedByProducerKm => {
-                "Earth assumed oblate spheroid with major and minor axes specified (in km) by data producer"
+                "Earth assumed oblate spheroid with major and minor axes specified (in km) by data \
+                 producer"
             }
             Self::EarthOblateSpheroidIagGrs80 => {
-                "Earth assumed oblate spheroid as defined in IAG-GRS80 model (major axis = 6,378,137.0 m, minor axis = 6,356,752.314 m, f = 1/298.257222101)"
+                "Earth assumed oblate spheroid as defined in IAG-GRS80 model (major axis = \
+                 6,378,137.0 m, minor axis = 6,356,752.314 m, f = 1/298.257222101)"
             }
             Self::EarthRepresentedByWgs84 => {
-                "Earth assumed represented by WGS84 (as used by ICAO since 1998) (Uses IAG-GRS80 as a basis)"
+                "Earth assumed represented by WGS84 (as used by ICAO since 1998) (Uses IAG-GRS80 \
+                 as a basis)"
             }
             Self::EarthSphericalRadius6371229 => {
                 "Earth assumed spherical with radius = 6,371,229.0 m"
             }
             Self::EarthOblateSpheroidMajorMinorAxesSpecifiedByProducerM => {
-                "Earth assumed oblate spheroid with major and minor axes specified (in m) by data producer"
+                "Earth assumed oblate spheroid with major and minor axes specified (in m) by data \
+                 producer"
             }
             Self::EarthSphericalRadius6371200Wgs84Datum => {
-                "Earth model assumed spherical with radius 6,371,200 m, but the horizontal datum of the resulting Latitude/Longitude field is the WGS84 reference frame"
+                "Earth model assumed spherical with radius 6,371,200 m, but the horizontal datum \
+                 of the resulting Latitude/Longitude field is the WGS84 reference frame"
             }
             Self::EarthOsgb1936Datum => {
-                "Earth represented by the OSGB 1936 Datum, using the Airy_1830 Spheroid, the Greenwich meridian as 0 Longitude, the Newlyn datum as mean sea level, 0 height."
+                "Earth represented by the OSGB 1936 Datum, using the Airy_1830 Spheroid, the \
+                 Greenwich meridian as 0 Longitude, the Newlyn datum as mean sea level, 0 height."
             }
             Self::EarthWgs84CorrectedGeomagnetic => {
-                "Earth model assumed WGS84 with corrected geomagnetic coordinates (latitude and longitude) defined by Gustafsson et al., 1992\". (see Note 1)"
+                "Earth model assumed WGS84 with corrected geomagnetic coordinates (latitude and \
+                 longitude) defined by Gustafsson et al., 1992\". (see Note 1)"
             }
             Self::SunSphericalRadius695990000 => {
-                "Sun assumed spherical with radius = 695 990 000 m (Allen, C.W., Astrophysical Quantities, 3rd ed.; Athlone: London, 1976) and Stonyhurst latitude and longitude system with origin at the intersection of the solar central meridian (as seen from Earth) and the solar equator (Thompson, W., Coordinate systems for solar image data, Astron. Astrophys. 2006, 449, 791-803)"
+                "Sun assumed spherical with radius = 695 990 000 m (Allen, C.W., Astrophysical \
+                 Quantities, 3rd ed.; Athlone: London, 1976) and Stonyhurst latitude and longitude \
+                 system with origin at the intersection of the solar central meridian (as seen \
+                 from Earth) and the solar equator (Thompson, W., Coordinate systems for solar \
+                 image data, Astron. Astrophys. 2006, 449, 791-803)"
             }
             Self::Missing => "Missing",
         };
@@ -522,10 +541,12 @@ impl core::fmt::Display for Grib2Table3_3Bit5 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let desc = match self {
             Self::ResolvedUvComponentsEasterlyNortherly => {
-                "Resolved u and v components of vector quantities relative to easterly and northerly directions"
+                "Resolved u and v components of vector quantities relative to easterly and \
+                 northerly directions"
             }
             Self::ResolvedUvComponentsGridIncreasingXy => {
-                "Resolved u and v components of vector quantities relative to the defined grid in the direction of increasing x and y (or i and j) coordinates, respectively."
+                "Resolved u and v components of vector quantities relative to the defined grid in \
+                 the direction of increasing x and y (or i and j) coordinates, respectively."
             }
             Self::Unknown(v) => return write!(f, "Unknown Bit 5 value ({v})"),
         };
@@ -595,7 +616,8 @@ impl core::fmt::Display for Grib2Table3_4 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "Bit 1: {}; Bit 2: {}; Bit 3: {}; Bit 4: {}; Bit 5: {}; Bit 6: {}; Bit 7: {}; Bit 8: {}",
+            "Bit 1: {}; Bit 2: {}; Bit 3: {}; Bit 4: {}; Bit 5: {}; Bit 6: {}; Bit 7: {}; Bit 8: \
+             {}",
             self.bit1, self.bit2, self.bit3, self.bit4, self.bit5, self.bit6, self.bit7, self.bit8
         )
     }
@@ -835,7 +857,10 @@ impl core::fmt::Display for Grib2Table3_4Bit8 {
                 "Rows have Ni grid points and columns have Nj grid points"
             }
             Self::RowsNiOrNiMinus1ColumnsNjOrNjMinus1GridPoints => {
-                "Rows have Ni grid points if points are not offset in i direction; Rows have Ni-1 grid points if points are offset by Di/2 in i direction. Columns have Nj grid points if points are not offset in j direction; Columns have Nj-1 grid points if points are offset by Dj/2 in j(y) direction."
+                "Rows have Ni grid points if points are not offset in i direction; Rows have Ni-1 \
+                 grid points if points are offset by Di/2 in i direction. Columns have Nj grid \
+                 points if points are not offset in j direction; Columns have Nj-1 grid points if \
+                 points are offset by Dj/2 in j(y) direction."
             }
             Self::Unknown(v) => return write!(f, "Unknown Bit 8 value ({v})"),
         };
@@ -1056,7 +1081,9 @@ impl core::fmt::Display for Grib2Table3_7 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let desc = match self {
             Self::ComplexNumbersFnmStoredAsPairsOfRealNumbers => {
-                "The complex numbers Fnm (See Code Table 3.6) are stored for M>=0 as pairs of real numbers Re(Fnm), lm(Fnm) ordered with n increasing from m to N(m), first for m=0 and then for m=1, 2, ... M (see note below)."
+                "The complex numbers Fnm (See Code Table 3.6) are stored for M>=0 as pairs of real \
+                 numbers Re(Fnm), lm(Fnm) ordered with n increasing from m to N(m), first for m=0 \
+                 and then for m=1, 2, ... M (see note below)."
             }
             Self::Missing => "Missing",
         };
@@ -1392,13 +1419,20 @@ impl core::fmt::Display for Grib2Table3_11 {
         let desc = match self {
             Self::NoAppendedList => "There is no appended list",
             Self::FullCoordinateCircles => {
-                "Numbers define number of points corresponding to full coordinate circles (i.e. parallels). Coordinate values on each circle are multiple of the circle mesh, and extreme coordinate values given in grid definition may not be reached in all rows."
+                "Numbers define number of points corresponding to full coordinate circles (i.e. \
+                 parallels). Coordinate values on each circle are multiple of the circle mesh, and \
+                 extreme coordinate values given in grid definition may not be reached in all rows."
             }
             Self::ExtremeCoordinateValues => {
-                "Numbers define number of points corresponding to coordinate lines delimited by extreme coordinate values given in grid definition which are present in each row."
+                "Numbers define number of points corresponding to coordinate lines delimited by \
+                 extreme coordinate values given in grid definition which are present in each row."
             }
             Self::ActualLatitudesForEachRow => {
-                "Numbers define the actual latitudes for each row in the grid. The list of numbers are integer values of the valid latitudes in microdegrees (scale by 106) or in unit equal to the ratio of the basic angle and the subdivisions number for each row, in the same order as specified in the \"scanning mode flag\" (bit no. 2) (see note 2)"
+                "Numbers define the actual latitudes for each row in the grid. The list of numbers \
+                 are integer values of the valid latitudes in microdegrees (scale by 106) or in \
+                 unit equal to the ratio of the basic angle and the subdivisions number for each \
+                 row, in the same order as specified in the \"scanning mode flag\" (bit no. 2) \
+                 (see note 2)"
             }
             Self::Missing => "Missing",
         };

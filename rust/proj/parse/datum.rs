@@ -3,8 +3,7 @@ use crate::proj::{
     TransformCoordinates,
 };
 use alloc::{vec, vec::Vec};
-use core::f64::consts::TAU;
-use core::f64::consts::{FRAC_PI_2, PI};
+use core::f64::consts::{FRAC_PI_2, PI, TAU};
 use libm::{atan, atan2, cos, sin, sqrt};
 
 /// Check if the source and destination datums are not WGS84
@@ -131,12 +130,10 @@ impl DatumParams {
     }
 }
 
-/**
- * Transforms a point from one datum to another
- * point - lon-lat WGS84 point to mutate
- * source - source projection
- * dest - destination projection
- */
+/// Transforms a point from one datum to another
+/// point - lon-lat WGS84 point to mutate
+/// source - source projection
+/// dest - destination projection
 pub fn datum_transform<P: TransformCoordinates>(point: &mut P, source: &Proj, dest: &Proj) {
     // Short cut if the datums are identical.
     if source.datum_type == dest.datum_type
@@ -238,8 +235,8 @@ pub fn geodetic_to_geocentric<P: TransformCoordinates>(p: &mut P, es: f64, a: f6
 
 /// converts a geocentric point to a geodetic point
 pub fn geocentric_to_geodetic<P: TransformCoordinates>(point: &mut P, es: f64, a: f64, _b: f64) {
-    /* local defintions and variables */
-    /* end-criterium of loop, accuracy of sin(Latitude) */
+    // local defintions and variables
+    // end-criterium of loop, accuracy of sin(Latitude)
     let genau = 1e-12;
     let genau2 = genau * genau;
     let maxiter = 30;
@@ -262,15 +259,14 @@ pub fn geocentric_to_geodetic<P: TransformCoordinates>(point: &mut P, es: f64, a
     let longitude = if p / a < genau { 0.0 } else { atan2(y, x) };
     let mut height;
 
-    /* --------------------------------------------------------------
-     * Following iterative algorithm was developped by
-     * "Institut for Erdmessung", University of Hannover, July 1988.
-     * Internet: www.ife.uni-hannover.de
-     * Iterative computation of CPHI,SPHI and Height.
-     * Iteration of CPHI and SPHI to 10**-12 radian resp.
-     * 2*10**-7 arcsec.
-     * --------------------------------------------------------------
-     */
+    // --------------------------------------------------------------
+    // Following iterative algorithm was developped by
+    // "Institut for Erdmessung", University of Hannover, July 1988.
+    // Internet: www.ife.uni-hannover.de
+    // Iterative computation of CPHI,SPHI and Height.
+    // Iteration of CPHI and SPHI to 10**-12 radian resp.
+    // 2*10**-7 arcsec.
+    // --------------------------------------------------------------
     let ct = z / rr; /* sin of geocentric latitude */
     let st = p / rr; /* cos of geocentric latitude */
     rx = 1.0 / sqrt(1.0 - es * (2.0 - es) * st * st);
@@ -278,13 +274,13 @@ pub fn geocentric_to_geodetic<P: TransformCoordinates>(point: &mut P, es: f64, a
     sphi0 = ct * rx;
     iter = 0;
 
-    /* loop to find sin(Latitude) resp. Latitude
-     * until |sin(Latitude(iter)-Latitude(iter-1))| < genau */
+    // loop to find sin(Latitude) resp. Latitude
+    // until |sin(Latitude(iter)-Latitude(iter-1))| < genau
     loop {
         iter += 1;
         rn = a / sqrt(1.0 - es * sphi0 * sphi0);
 
-        /*  ellipsoidal (geodetic) height */
+        // ellipsoidal (geodetic) height
         height = p * cphi0 + z * sphi0 - rn * (1.0 - es * sphi0 * sphi0);
 
         rk = (es * rn) / (rn + height);
@@ -299,7 +295,7 @@ pub fn geocentric_to_geodetic<P: TransformCoordinates>(point: &mut P, es: f64, a
         }
     }
 
-    /*      ellipsoidal (geodetic) latitude */
+    // ellipsoidal (geodetic) latitude
     let latitude = atan(sphi / cphi.abs());
 
     point.set_x(longitude);

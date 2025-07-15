@@ -44,25 +44,23 @@ pub const LASZIP_DECOMPRESS_SELECTIVE_BYTE0: u32 = 0x00010000;
 // /// LASZIP_DECOMPRESS_SELECTIVE Extra Bytes
 // pub const LASZIP_DECOMPRESS_SELECTIVE_EXTRA_BYTES: u32 = 0xffff0000;
 
-/**
- * for LAS files with the return (r) and the number (n) of
- * returns field correctly populated the mapping should really
- * be only the following.
- *  { 15, 15, 15, 15, 15, 15, 15, 15 },
- *  { 15,  0, 15, 15, 15, 15, 15, 15 },
- *  { 15,  1,  2, 15, 15, 15, 15, 15 },
- *  { 15,  3,  4,  5, 15, 15, 15, 15 },
- *  { 15,  6,  7,  8,  9, 15, 15, 15 },
- *  { 15, 10, 11, 12, 13, 14, 15, 15 },
- *  { 15, 15, 15, 15, 15, 15, 15, 15 },
- *  { 15, 15, 15, 15, 15, 15, 15, 15 }
- * however, some files start the numbering of r and n with 0,
- * only have return counts r, or only have number of return
- * counts n, or mix up the position of r and n. we therefore
- * "complete" the table to also map those "undesired" r & n
- * combinations to different contexts
- * 8 x 8 u8 values
- */
+/// for LAS files with the return (r) and the number (n) of
+/// returns field correctly populated the mapping should really
+/// be only the following.
+///  { 15, 15, 15, 15, 15, 15, 15, 15 },
+///  { 15,  0, 15, 15, 15, 15, 15, 15 },
+///  { 15,  1,  2, 15, 15, 15, 15, 15 },
+///  { 15,  3,  4,  5, 15, 15, 15, 15 },
+///  { 15,  6,  7,  8,  9, 15, 15, 15 },
+///  { 15, 10, 11, 12, 13, 14, 15, 15 },
+///  { 15, 15, 15, 15, 15, 15, 15, 15 },
+///  { 15, 15, 15, 15, 15, 15, 15, 15 }
+/// however, some files start the numbering of r and n with 0,
+/// only have return counts r, or only have number of return
+/// counts n, or mix up the position of r and n. we therefore
+/// "complete" the table to also map those "undesired" r & n
+/// combinations to different contexts
+/// 8 x 8 u8 values
 pub const NUMBER_RETURN_MAP: [[u8; 8]; 8] = [
     [15, 14, 13, 12, 11, 10, 9, 8],
     [14, 0, 1, 3, 6, 10, 10, 9],
@@ -74,25 +72,23 @@ pub const NUMBER_RETURN_MAP: [[u8; 8]; 8] = [
     [8, 9, 10, 11, 12, 13, 14, 15],
 ];
 
-/**
- * for LAS files with the return (r) and the number (n) of
- * returns field correctly populated the mapping should really
- * be only the following.
- *  {  0,  7,  7,  7,  7,  7,  7,  7 },
- *  {  7,  0,  7,  7,  7,  7,  7,  7 },
- *  {  7,  1,  0,  7,  7,  7,  7,  7 },
- *  {  7,  2,  1,  0,  7,  7,  7,  7 },
- *  {  7,  3,  2,  1,  0,  7,  7,  7 },
- *  {  7,  4,  3,  2,  1,  0,  7,  7 },
- *  {  7,  5,  4,  3,  2,  1,  0,  7 },
- *  {  7,  6,  5,  4,  3,  2,  1,  0 }
- * however, some files start the numbering of r and n with 0,
- * only have return counts r, or only have number of return
- * counts n, or mix up the position of r and n. we therefore
- * "complete" the table to also map those "undesired" r & n
- * combinations to different contexts
- * 8 x 8 u8 values
- */
+/// for LAS files with the return (r) and the number (n) of
+/// returns field correctly populated the mapping should really
+/// be only the following.
+///  {  0,  7,  7,  7,  7,  7,  7,  7 },
+///  {  7,  0,  7,  7,  7,  7,  7,  7 },
+///  {  7,  1,  0,  7,  7,  7,  7,  7 },
+///  {  7,  2,  1,  0,  7,  7,  7,  7 },
+///  {  7,  3,  2,  1,  0,  7,  7,  7 },
+///  {  7,  4,  3,  2,  1,  0,  7,  7 },
+///  {  7,  5,  4,  3,  2,  1,  0,  7 },
+///  {  7,  6,  5,  4,  3,  2,  1,  0 }
+/// however, some files start the numbering of r and n with 0,
+/// only have return counts r, or only have number of return
+/// counts n, or mix up the position of r and n. we therefore
+/// "complete" the table to also map those "undesired" r & n
+/// combinations to different contexts
+/// 8 x 8 u8 values
 pub const NUMBER_RETURN_LEVEL: [[u8; 8]; 8] = [
     [0, 1, 2, 3, 4, 5, 6, 7],
     [1, 0, 1, 2, 3, 4, 5, 6],
@@ -104,7 +100,7 @@ pub const NUMBER_RETURN_LEVEL: [[u8; 8]; 8] = [
     [7, 6, 5, 4, 3, 2, 1, 0],
 ];
 
-/** 6 context map. U8 c[16][16] */
+/// 6 context map. U8 c[16][16]
 pub const NUMBER_RETURN_MAP_6CTX: [[u8; 16]; 16] = [
     [0, 1, 2, 3, 4, 5, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5],
     [1, 0, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -124,7 +120,7 @@ pub const NUMBER_RETURN_MAP_6CTX: [[u8; 16]; 16] = [
     [5, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5],
 ];
 
-/** 8 context map. U8 c[16][16] */
+/// 8 context map. U8 c[16][16]
 pub const NUMBER_RETURN_LEVEL_8CTX: [[u8; 16]; 16] = [
     [0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7],
     [1, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7],

@@ -80,119 +80,83 @@ impl From<i8> for GTFSTimepoint {
 /// **Required** - Times that a vehicle arrives at and departs from stops for each trip.
 #[derive(Debug, Default, Clone, PartialEq, MValueCompatible)]
 pub struct GTFSStopTime {
-    /**
-     * **Required**
-     * Identifies a trip (`trips.trip_id`).
-     */
+    /// **Required**
+    /// Identifies a trip (`trips.trip_id`).
     pub trip_id: String,
-    /**
-     * **Conditionally Required**
-     * Arrival time at the stop in HH:MM:SS (local) or possibly > 24:00:00 after midnight.
-     * Required for the first/last stop of the trip or if `timepoint=1`.
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
-     */
+    /// **Conditionally Required**
+    /// Arrival time at the stop in HH:MM:SS (local) or possibly > 24:00:00 after midnight.
+    /// Required for the first/last stop of the trip or if `timepoint=1`.
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
     pub arrival_time: Option<String>,
-    /**
-     * **Conditionally Required**
-     * Departure time at the stop in HH:MM:SS (local) or possibly > 24:00:00 after midnight.
-     * Required if `timepoint=1`.
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
-     */
+    /// **Conditionally Required**
+    /// Departure time at the stop in HH:MM:SS (local) or possibly > 24:00:00 after midnight.
+    /// Required if `timepoint=1`.
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
     pub departure_time: Option<String>,
-    /**
-     * **Conditionally Required**
-     * References a stop (`stops.stop_id`). Must be a location_type of 0 or empty.
-     * Required if neither `location_group_id` nor `location_id` is used.
-     * Forbidden if `location_group_id` or `location_id` is defined.
-     */
+    /// **Conditionally Required**
+    /// References a stop (`stops.stop_id`). Must be a location_type of 0 or empty.
+    /// Required if neither `location_group_id` nor `location_id` is used.
+    /// Forbidden if `location_group_id` or `location_id` is defined.
     pub stop_id: Option<String>,
-    /**
-     * **Conditionally Forbidden**
-     * References a location group (`location_groups.location_group_id`).
-     * Forbidden if `stop_id` or `location_id` is defined.
-     */
+    /// **Conditionally Forbidden**
+    /// References a location group (`location_groups.location_group_id`).
+    /// Forbidden if `stop_id` or `location_id` is defined.
     pub location_group_id: Option<String>,
-    /**
-     * **Conditionally Forbidden**
-     * References a GeoJSON location ID (`locations.geojson`).
-     * Forbidden if `stop_id` or `location_group_id` is defined.
-     */
+    /// **Conditionally Forbidden**
+    /// References a GeoJSON location ID (`locations.geojson`).
+    /// Forbidden if `stop_id` or `location_group_id` is defined.
     pub location_id: Option<String>,
-    /**
-     * **Required**
-     * Order of stops (or location groups, or GeoJSON locations) for this trip.
-     * Must increase along the trip, but need not be consecutive.
-     */
+    /// **Required**
+    /// Order of stops (or location groups, or GeoJSON locations) for this trip.
+    /// Must increase along the trip, but need not be consecutive.
     pub stop_sequence: usize,
-    /**
-     * **Optional**
-     * Overrides the trip’s headsign at this specific stop.
-     */
+    /// **Optional**
+    /// Overrides the trip’s headsign at this specific stop.
     pub stop_headsign: Option<String>,
-    /**
-     * **Conditionally Required**
-     * Time on-demand service becomes available at this location/stop/location group.
-     * Required if `end_pickup_drop_off_window` is defined, or if `location_group_id` or `location_id` is used.
-     * Forbidden if `arrival_time` or `departure_time` is defined.
-     */
+    /// **Conditionally Required**
+    /// Time on-demand service becomes available at this location/stop/location group.
+    /// Required if `end_pickup_drop_off_window` is defined, or if `location_group_id` or `location_id` is used.
+    /// Forbidden if `arrival_time` or `departure_time` is defined.
     pub start_pickup_drop_off_window: Option<String>,
-    /**
-     * **Conditionally Required**
-     * Time on-demand service ends at this location/stop/location group.
-     * Required if `start_pickup_drop_off_window` is defined, or if `location_group_id` or `location_id` is used.
-     * Forbidden if `arrival_time` or `departure_time` is defined.
-     */
+    /// **Conditionally Required**
+    /// Time on-demand service ends at this location/stop/location group.
+    /// Required if `start_pickup_drop_off_window` is defined, or if `location_group_id` or `location_id` is used.
+    /// Forbidden if `arrival_time` or `departure_time` is defined.
     pub end_pickup_drop_off_window: Option<String>,
-    /**
-     * **Conditionally Forbidden**
-     * Pickup method:
-     * 0 or empty = Regular, 1 = None, 2 = Phone Agency, 3 = Coordinate with Driver
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined (for 0 or 3).
-     */
+    /// **Conditionally Forbidden**
+    /// Pickup method:
+    /// 0 or empty = Regular, 1 = None, 2 = Phone Agency, 3 = Coordinate with Driver
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined (for 0 or 3).
     pub pickup_type: Option<i8>, // ?: GTFSPickupType;
-    /**
-     * **Conditionally Forbidden**
-     * Drop-off method:
-     * 0 or empty = Regular, 1 = None, 2 = Phone Agency, 3 = Coordinate with Driver
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined (for 0).
-     */
+    /// **Conditionally Forbidden**
+    /// Drop-off method:
+    /// 0 or empty = Regular, 1 = None, 2 = Phone Agency, 3 = Coordinate with Driver
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined (for 0).
     pub drop_off_type: Option<i8>, // ?: GTFSDropOffType;
-    /**
-     * **Conditionally Forbidden**
-     * Continuous pickup from this stop_time to the next.
-     * 0 = Continuous, 1 or empty = None, 2 = Phone Agency, 3 = Coordinate with Driver
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
-     */
+    /// **Conditionally Forbidden**
+    /// Continuous pickup from this stop_time to the next.
+    /// 0 = Continuous, 1 or empty = None, 2 = Phone Agency, 3 = Coordinate with Driver
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
     pub continuous_pickup: Option<i8>, // ?: ContinuousPickup;
-    /**
-     * **Conditionally Forbidden**
-     * Continuous drop-off from this stop_time to the next.
-     * 0 = Continuous, 1 or empty = None, 2 = Phone Agency, 3 = Coordinate with Driver
-     * Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
-     */
+    /// **Conditionally Forbidden**
+    /// Continuous drop-off from this stop_time to the next.
+    /// 0 = Continuous, 1 or empty = None, 2 = Phone Agency, 3 = Coordinate with Driver
+    /// Forbidden if `start_pickup_drop_off_window` or `end_pickup_drop_off_window` are defined.
     pub continuous_drop_off: Option<i8>, // ?: ContinuousDropOff;
-    /**
-     * **Optional**
-     * Distance traveled along the associated shape from the first stop to this record’s stop.
-     * Must be in the same units used in shapes.txt.
-     */
+    /// **Optional**
+    /// Distance traveled along the associated shape from the first stop to this record’s stop.
+    /// Must be in the same units used in shapes.txt.
     pub shape_dist_traveled: Option<usize>,
-    /**
-     * **Optional**
-     * 0 = Times are approximate, 1 = Times are exact.
-     */
+    /// **Optional**
+    /// 0 = Times are approximate, 1 = Times are exact.
     pub timepoint: Option<i8>, // ?: Timepoint;
-    /**
-     * **Optional**
-     * Boarding booking rule reference (`booking_rules.booking_rule_id`).
-     * Recommended if `pickup_type=2`.
-     */
+    /// **Optional**
+    /// Boarding booking rule reference (`booking_rules.booking_rule_id`).
+    /// Recommended if `pickup_type=2`.
     pub pickup_booking_rule_id: Option<String>,
-    /**
-     * **Optional**
-     * Alighting booking rule reference (`booking_rules.booking_rule_id`).
-     * Recommended if `drop_off_type=2`.
-     */
+    /// **Optional**
+    /// Alighting booking rule reference (`booking_rules.booking_rule_id`).
+    /// Recommended if `drop_off_type=2`.
     pub drop_off_booking_rule_id: Option<String>,
 }
 impl GTFSStopTime {

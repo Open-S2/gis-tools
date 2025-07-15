@@ -48,7 +48,26 @@ mod tests {
     #[test]
     fn test_transform_utm() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCRS[\"NAD83 / UTM zone 15N\",BASEGEOGCRS[\"NAD83\",DATUM[\"North American Datum 1983\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7019]],ID[\"EPSG\",6269]],ID[\"EPSG\",4269]],CONVERSION[\"UTM zone 15N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-93,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",16015]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26915]]".into());
+        transformer.set_source(
+            "PROJCRS[\"NAD83 / UTM zone 15N\",BASEGEOGCRS[\"NAD83\",DATUM[\"North American Datum \
+             1983\",ELLIPSOID[\"GRS \
+             1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",\
+             7019]],ID[\"EPSG\",6269]],ID[\"EPSG\",4269]],CONVERSION[\"UTM zone \
+             15N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of \
+             natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"\
+             EPSG\",8801]],PARAMETER[\"Longitude of natural \
+             origin\",-93,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",\
+             8802]],PARAMETER[\"Scale factor at natural \
+             origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],\
+             PARAMETER[\"False \
+             easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],\
+             PARAMETER[\"False \
+             northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\"\
+             ,16015]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting \
+             (E)\",east],AXIS[\"Northing \
+             (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26915]]"
+                .into(),
+        );
 
         let mut point = Coords::new_xy(470692.44, 4602888.9);
         transformer.forward_mut(&mut point);
@@ -58,7 +77,28 @@ mod tests {
     #[test]
     fn test_transform_paris_lcc() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCRS[\"NTF (Paris) / Lambert Sud France\",BASEGEOGCRS[\"NTF (Paris)\",DATUM[\"Nouvelle Triangulation Francaise (Paris)\",ELLIPSOID[\"Clarke 1880 (IGN)\",6378249.2,293.466021293627,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7011]],ID[\"EPSG\",6807]],PRIMEM[\"Paris\",0.040792344,ANGLEUNIT[\"radian\",1,ID[\"EPSG\",9101]],ID[\"EPSG\",8903]],ID[\"EPSG\",4807]],CONVERSION[\"Lambert Sud France\",METHOD[\"Lambert Conic Conformal (1SP)\",ID[\"EPSG\",9801]],PARAMETER[\"Latitude of natural origin\",49,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",0,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.999877499,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",600000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",200000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",18093]],CS[Cartesian,2,ID[\"EPSG\",4499]],AXIS[\"Easting (X)\",east],AXIS[\"Northing (Y)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",27563]]".into());
+        transformer.set_source(
+            "PROJCRS[\"NTF (Paris) / Lambert Sud France\",BASEGEOGCRS[\"NTF \
+             (Paris)\",DATUM[\"Nouvelle Triangulation Francaise (Paris)\",ELLIPSOID[\"Clarke 1880 \
+             (IGN)\",6378249.2,293.466021293627,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"\
+             EPSG\",7011]],ID[\"EPSG\",6807]],PRIMEM[\"Paris\",0.040792344,ANGLEUNIT[\"radian\",1,\
+             ID[\"EPSG\",9101]],ID[\"EPSG\",8903]],ID[\"EPSG\",4807]],CONVERSION[\"Lambert Sud \
+             France\",METHOD[\"Lambert Conic Conformal \
+             (1SP)\",ID[\"EPSG\",9801]],PARAMETER[\"Latitude of natural \
+             origin\",49,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",\
+             8801]],PARAMETER[\"Longitude of natural \
+             origin\",0,ANGLEUNIT[\"grad\",0.015707963267949,ID[\"EPSG\",9105]],ID[\"EPSG\",\
+             8802]],PARAMETER[\"Scale factor at natural \
+             origin\",0.999877499,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],\
+             PARAMETER[\"False \
+             easting\",600000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],\
+             PARAMETER[\"False \
+             northing\",200000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"\
+             EPSG\",18093]],CS[Cartesian,2,ID[\"EPSG\",4499]],AXIS[\"Easting \
+             (X)\",east],AXIS[\"Northing \
+             (Y)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",27563]]"
+                .into(),
+        );
 
         let mut point = Coords::new_xy(827294.1414437726, 523980.63806166063);
         transformer.forward_mut(&mut point);
@@ -68,7 +108,25 @@ mod tests {
     #[test]
     fn test_transform_cassini_soldner() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCRS[\"Palestine 1923 / Palestine Grid\",BASEGEOGCRS[\"Palestine 1923\",DATUM[\"Palestine 1923\",ELLIPSOID[\"Clarke 1880 (Benoit)\",6378300.789,293.46631553898,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7010]],ID[\"EPSG\",6281]],ID[\"EPSG\",4281]],CONVERSION[\"Palestine Grid\",METHOD[\"Cassini-Soldner\",ID[\"EPSG\",9806]],PARAMETER[\"Latitude of natural origin\",31.7340969444447,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",35.2120805555558,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",170251.555,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",126867.909,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",18201]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",28191]]".into());
+        transformer.set_source(
+            "PROJCRS[\"Palestine 1923 / Palestine Grid\",BASEGEOGCRS[\"Palestine \
+             1923\",DATUM[\"Palestine 1923\",ELLIPSOID[\"Clarke 1880 \
+             (Benoit)\",6378300.789,293.46631553898,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\\
+             \
+             \"EPSG\",7010]],ID[\"EPSG\",6281]],ID[\"EPSG\",4281]],CONVERSION[\"Palestine \
+             Grid\",METHOD[\"Cassini-Soldner\",ID[\"EPSG\",9806]],PARAMETER[\"Latitude of natural \
+             origin\",31.7340969444447,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],\
+             ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural \
+             origin\",35.2120805555558,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],\
+             ID[\"EPSG\",8802]],PARAMETER[\"False \
+             easting\",170251.555,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],\
+             PARAMETER[\"False \
+             northing\",126867.909,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],\
+             ID[\"EPSG\",18201]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting \
+             (E)\",east],AXIS[\"Northing \
+             (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",28191]]"
+                .into(),
+        );
 
         let mut point = Coords::new_xy(440720.0, 3751260.0);
         transformer.forward_mut(&mut point);
@@ -80,7 +138,25 @@ mod tests {
     fn test_transform_polyconic() {
         // TODO: It needs to implement proper Cartesian conversion (handle the CS[Cartesian,2,ID[\"EPSG\",4499]],)
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCRS[\"SAD69 / Brazil Polyconic\",BASEGEOGCRS[\"SAD69\",DATUM[\"South American Datum 1969\",ELLIPSOID[\"GRS 1967 Modified\",6378160,298.25,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7050]],ID[\"EPSG\",6618]],ID[\"EPSG\",4618]],CONVERSION[\"Brazil Polyconic\",METHOD[\"American Polyconic\",ID[\"EPSG\",9818]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-54,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",5000000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",10000000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",19941]],CS[Cartesian,2,ID[\"EPSG\",4499]],AXIS[\"Easting (X)\",east],AXIS[\"Northing (Y)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",29101]]".into());
+        transformer.set_source(
+            "PROJCRS[\"SAD69 / Brazil Polyconic\",BASEGEOGCRS[\"SAD69\",DATUM[\"South American \
+             Datum 1969\",ELLIPSOID[\"GRS 1967 \
+             Modified\",6378160,298.25,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",\
+             7050]],ID[\"EPSG\",6618]],ID[\"EPSG\",4618]],CONVERSION[\"Brazil \
+             Polyconic\",METHOD[\"American Polyconic\",ID[\"EPSG\",9818]],PARAMETER[\"Latitude of \
+             natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"\
+             EPSG\",8801]],PARAMETER[\"Longitude of natural \
+             origin\",-54,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",\
+             8802]],PARAMETER[\"False \
+             easting\",5000000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],\
+             PARAMETER[\"False \
+             northing\",10000000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\\
+             \
+             \"EPSG\",19941]],CS[Cartesian,2,ID[\"EPSG\",4499]],AXIS[\"Easting \
+             (X)\",east],AXIS[\"Northing \
+             (Y)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",29101]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(440720.0, 3751260.0);
         transformer.forward_mut(&mut point);
         // -113.3199662151629, -41.66728402682234
@@ -117,7 +193,16 @@ mod tests {
     #[test]
     fn test_transform_hotine_oblique() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"CH1903 / LV03\",GEOGCS[\"CH1903\",DATUM[\"D_CH1903\",SPHEROID[\"Bessel_1841\",6377397.155,299.1528128]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",46.95240555555556],PARAMETER[\"longitude_of_center\",7.439583333333333],PARAMETER[\"azimuth\",90],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",600000],PARAMETER[\"false_northing\",200000],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"CH1903 / \
+             LV03\",GEOGCS[\"CH1903\",DATUM[\"D_CH1903\",SPHEROID[\"Bessel_1841\",6377397.155,299.\
+             1528128]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\
+             \"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",46.\
+             95240555555556],PARAMETER[\"longitude_of_center\",7.439583333333333],PARAMETER[\"\
+             azimuth\",90],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",600000],\
+             PARAMETER[\"false_northing\",200000],UNIT[\"Meter\",1]]"
+                .into(),
+        );
 
         let mut point = Coords::new_xy(660013.4882918689, 185172.17110117766);
         transformer.forward_mut(&mut point);
@@ -127,7 +212,17 @@ mod tests {
     #[test]
     fn test_transform_lcc() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"NAD83 / Massachusetts Mainland\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Lambert_Conformal_Conic\"],PARAMETER[\"standard_parallel_1\",42.68333333333333],PARAMETER[\"standard_parallel_2\",41.71666666666667],PARAMETER[\"latitude_of_origin\",41],PARAMETER[\"central_meridian\",-71.5],PARAMETER[\"false_easting\",200000],PARAMETER[\"false_northing\",750000],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"NAD83 / Massachusetts \
+             Mainland\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",\
+             SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\"\
+             ,0.017453292519943295]],PROJECTION[\"Lambert_Conformal_Conic\"],PARAMETER[\"\
+             standard_parallel_1\",42.68333333333333],PARAMETER[\"standard_parallel_2\",41.\
+             71666666666667],PARAMETER[\"latitude_of_origin\",41],PARAMETER[\"central_meridian\",\
+             -71.5],PARAMETER[\"false_easting\",200000],PARAMETER[\"false_northing\",750000],\
+             UNIT[\"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(231394.84, 902621.11);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-71.11881762226217, 42.373462604845976));
@@ -136,7 +231,15 @@ mod tests {
     #[test]
     fn test_transform_nec() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Asia_North_Equidistant_Conic\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Equidistant_Conic\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",95],PARAMETER[\"Standard_Parallel_1\",15],PARAMETER[\"Standard_Parallel_2\",65],PARAMETER[\"Latitude_Of_Origin\",30],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"Asia_North_Equidistant_Conic\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",\
+             SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\"\
+             ,0.017453292519943295]],PROJECTION[\"Equidistant_Conic\"],PARAMETER[\"False_Easting\"\
+             ,0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",95],PARAMETER[\"\
+             Standard_Parallel_1\",15],PARAMETER[\"Standard_Parallel_2\",65],PARAMETER[\"\
+             Latitude_Of_Origin\",30],UNIT[\"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(88280.59904432714, 111340.90165417176);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(96.0005539986119, 31.12514852006117));
@@ -145,7 +248,14 @@ mod tests {
     #[test]
     fn test_transform_sin() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"World_Sinusoidal\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Sinusoidal\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54008\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"World_Sinusoidal\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"\
+             WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+             017453292519943295]],PROJECTION[\"Sinusoidal\"],PARAMETER[\"False_Easting\",0],\
+             PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],\
+             AUTHORITY[\"EPSG\",\"54008\"]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(738509.49, 5874620.38);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(10.999999980589731, 53.00000003761102));
@@ -154,7 +264,15 @@ mod tests {
     #[test]
     fn test_transform_laea() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"ETRS89 / ETRS-LAEA\",GEOGCS[\"ETRS89\",DATUM[\"D_ETRS_1989\",SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Lambert_Azimuthal_Equal_Area\"],PARAMETER[\"latitude_of_origin\",52],PARAMETER[\"central_meridian\",10],PARAMETER[\"false_easting\",4321000],PARAMETER[\"false_northing\",3210000],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"ETRS89 / \
+             ETRS-LAEA\",GEOGCS[\"ETRS89\",DATUM[\"D_ETRS_1989\",SPHEROID[\"GRS_1980\",6378137,\
+             298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],\
+             PROJECTION[\"Lambert_Azimuthal_Equal_Area\"],PARAMETER[\"latitude_of_origin\",52],\
+             PARAMETER[\"central_meridian\",10],PARAMETER[\"false_easting\",4321000],PARAMETER[\"\
+             false_northing\",3210000],UNIT[\"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(4388138.6, 3321736.46);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(11.00016692710655, 53.12718464234152));
@@ -163,7 +281,16 @@ mod tests {
     #[test]
     fn test_transform_nad83() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"NAD83(CSRS) / UTM zone 17N\",GEOGCS[\"NAD83(CSRS)\",DATUM[\"D_North_American_1983_CSRS98\",SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-81],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"NAD83(CSRS) / UTM zone \
+             17N\",GEOGCS[\"NAD83(CSRS)\",DATUM[\"D_North_American_1983_CSRS98\",SPHEROID[\"\
+             GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+             017453292519943295]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"\
+             latitude_of_origin\",0],PARAMETER[\"central_meridian\",-81],PARAMETER[\"scale_factor\
+             \",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\
+             \"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(411461.807497, 4700123.744402);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords(-82.07666015625497, 42.44838867188127, 0., 0.));
@@ -172,7 +299,23 @@ mod tests {
     #[test]
     fn test_transform_utm_32n() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"ETRS89 / UTM zone 32N\",GEOGCS[\"ETRS89\",DATUM[\"European_Terrestrial_Reference_System_1989\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6258\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4258\"]],PROJECTION[\"Extended_Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",9],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"25832\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"ETRS89 / UTM zone \
+             32N\",GEOGCS[\"ETRS89\",DATUM[\"European_Terrestrial_Reference_System_1989\",\
+             SPHEROID[\"GRS \
+             1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],\
+             AUTHORITY[\"EPSG\",\"6258\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],\
+             UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\\
+             \
+             \
+             \
+             \"4258\"]],PROJECTION[\"Extended_Transverse_Mercator\"],PARAMETER[\"\
+             latitude_of_origin\",0],PARAMETER[\"central_meridian\",9],PARAMETER[\"scale_factor\",\
+             0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"\
+             metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",\
+             NORTH],AUTHORITY[\"EPSG\",\"25832\"]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(-1877994.66, 3932281.56);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords(-16.100000002370027, 32.879999998811684, 0., 0.));
@@ -181,7 +324,14 @@ mod tests {
     #[test]
     fn test_transform_utm_moll() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54009\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"\
+             WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+             017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],\
+             PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],\
+             AUTHORITY[\"EPSG\",\"54009\"]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(3891383.58309223, 6876758.9933288);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(59.99999999999991, 59.999999999999986));
@@ -190,7 +340,22 @@ mod tests {
     #[test]
     fn test_transform_bc_albers() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"NAD83 / BC Albers\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],PARAMETER[\"standard_parallel_1\",50],PARAMETER[\"standard_parallel_2\",58.5],PARAMETER[\"latitude_of_center\",45],PARAMETER[\"longitude_of_center\",-126],PARAMETER[\"false_easting\",1000000],PARAMETER[\"false_northing\",0],AUTHORITY[\"EPSG\",\"3005\"],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]".into());
+        transformer.set_source(
+            "PROJCS[\"NAD83 / BC \
+             Albers\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS \
+             1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6269\\
+             \
+             \
+             \
+             \"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.\
+             01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],UNIT[\"\
+             metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],\
+             PARAMETER[\"standard_parallel_1\",50],PARAMETER[\"standard_parallel_2\",58.5],\
+             PARAMETER[\"latitude_of_center\",45],PARAMETER[\"longitude_of_center\",-126],\
+             PARAMETER[\"false_easting\",1000000],PARAMETER[\"false_northing\",0],AUTHORITY[\"\
+             EPSG\",\"3005\"],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(964813.103719, 1016486.305862);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-126.53999999999243, 54.15000000000263));
@@ -199,7 +364,18 @@ mod tests {
     #[test]
     fn test_transform_np_azimuthal_eq() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"North_Pole_Azimuthal_Equidistant\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Azimuthal_Equidistant\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],PARAMETER[\"Latitude_Of_Origin\",90],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"102016\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"North_Pole_Azimuthal_Equidistant\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\\
+             \
+             \
+             \
+             \",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"\
+             Degree\",0.017453292519943295]],PROJECTION[\"Azimuthal_Equidistant\"],PARAMETER[\"\
+             False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],\
+             PARAMETER[\"Latitude_Of_Origin\",90],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"102016\"\
+             ]]"
+            .into(),
+        );
         let mut point = Coords::new_xy(5112279.911077, -4143196.76625);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(50.977303830209756, 30.91526009373788));
@@ -208,7 +384,22 @@ mod tests {
     #[test]
     fn test_transform_mount_dillon_tobago_grid_cassini() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Mount Dillon / Tobago Grid\",GEOGCS[\"Mount Dillon\",DATUM[\"Mount_Dillon\",SPHEROID[\"Clarke 1858\",6378293.645208759,294.2606763692654,AUTHORITY[\"EPSG\",\"7007\"]],AUTHORITY[\"EPSG\",\"6157\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4157\"]],UNIT[\"Clarke\'s link\",0.201166195164,AUTHORITY[\"EPSG\",\"9039\"]],PROJECTION[\"Cassini_Soldner\"],PARAMETER[\"latitude_of_origin\",11.25217861111111],PARAMETER[\"central_meridian\",-60.68600888888889],PARAMETER[\"false_easting\",187500],PARAMETER[\"false_northing\",180000],AUTHORITY[\"EPSG\",\"2066\"],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]".into());
+        transformer.set_source(
+            "PROJCS[\"Mount Dillon / Tobago Grid\",GEOGCS[\"Mount \
+             Dillon\",DATUM[\"Mount_Dillon\",SPHEROID[\"Clarke \
+             1858\",6378293.645208759,294.2606763692654,AUTHORITY[\"EPSG\",\"7007\"]],AUTHORITY[\"\
+             EPSG\",\"6157\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\\
+             \
+             \
+             \
+             \",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4157\"]],\
+             UNIT[\"Clarke\'s \
+             link\",0.201166195164,AUTHORITY[\"EPSG\",\"9039\"]],PROJECTION[\"Cassini_Soldner\"],\
+             PARAMETER[\"latitude_of_origin\",11.25217861111111],PARAMETER[\"central_meridian\",\
+             -60.68600888888889],PARAMETER[\"false_easting\",187500],PARAMETER[\"false_northing\",\
+             180000],AUTHORITY[\"EPSG\",\"2066\"],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(192524.3061766178, 178100.2740019509);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-60.63999998717283, 11.235080931047047));
@@ -217,7 +408,17 @@ mod tests {
     #[test]
     fn test_transform_bc_albers_nad83() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"NAD83 / BC Albers\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Albers\"],PARAMETER[\"standard_parallel_1\",50],PARAMETER[\"standard_parallel_2\",58.5],PARAMETER[\"latitude_of_origin\",45],PARAMETER[\"central_meridian\",-126],PARAMETER[\"false_easting\",1000000],PARAMETER[\"false_northing\",0],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"NAD83 / BC \
+             Albers\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",\
+             SPHEROID[\"GRS_1980\",6378137,298.257222101]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\"\
+             ,0.017453292519943295]],PROJECTION[\"Albers\"],PARAMETER[\"standard_parallel_1\",50],\
+             PARAMETER[\"standard_parallel_2\",58.5],PARAMETER[\"latitude_of_origin\",45],\
+             PARAMETER[\"central_meridian\",-126],PARAMETER[\"false_easting\",1000000],PARAMETER[\\
+             \
+             \"false_northing\",0],UNIT[\"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(964813.103719, 1016486.305862);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-126.53999999999243, 54.15000000000263));
@@ -226,7 +427,24 @@ mod tests {
     #[test]
     fn test_transform_ferro_krovak() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"S-JTSK (Ferro) / Krovak\",GEOGCS[\"S-JTSK (Ferro)\",DATUM[\"S_JTSK_Ferro\",SPHEROID[\"Bessel 1841\",6377397.155,299.1528128,AUTHORITY[\"EPSG\",\"7004\"]],AUTHORITY[\"EPSG\",\"6818\"]],PRIMEM[\"Ferro\",-17.66666666666667,AUTHORITY[\"EPSG\",\"8909\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4818\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Krovak\"],PARAMETER[\"latitude_of_center\",49.5],PARAMETER[\"longitude_of_center\",42.5],PARAMETER[\"azimuth\",30.28813972222222],PARAMETER[\"pseudo_standard_parallel_1\",78.5],PARAMETER[\"scale_factor\",0.9999],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],AUTHORITY[\"EPSG\",\"2065\"],AXIS[\"Y\",WEST],AXIS[\"X\",SOUTH]]".into());
+        transformer.set_source(
+            "PROJCS[\"S-JTSK (Ferro) / Krovak\",GEOGCS[\"S-JTSK \
+             (Ferro)\",DATUM[\"S_JTSK_Ferro\",SPHEROID[\"Bessel \
+             1841\",6377397.155,299.1528128,AUTHORITY[\"EPSG\",\"7004\"]],AUTHORITY[\"EPSG\",\"\
+             6818\"]],PRIMEM[\"Ferro\",-17.66666666666667,AUTHORITY[\"EPSG\",\"8909\"]],UNIT[\"\
+             degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4818\\
+             \
+             \
+             \
+             \"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Krovak\"],\
+             PARAMETER[\\
+             \
+             \"latitude_of_center\",49.5],PARAMETER[\"longitude_of_center\",42.5],PARAMETER[\"\
+             azimuth\",30.28813972222222],PARAMETER[\"pseudo_standard_parallel_1\",78.5],\
+             PARAMETER[\"scale_factor\",0.9999],PARAMETER[\"false_easting\",0],PARAMETER[\"\
+             false_northing\",0],AUTHORITY[\"EPSG\",\"2065\"],AXIS[\"Y\",WEST],AXIS[\"X\",SOUTH]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(-544115.474379, -1144058.330762);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(37.08956301296606, 69.72361147765521));
@@ -235,7 +453,24 @@ mod tests {
     #[test]
     fn test_transform_jtsk_krovak() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"S-JTSK (Ferro) / Krovak\",GEOGCS[\"S-JTSK (Ferro)\",DATUM[\"S_JTSK_Ferro\",SPHEROID[\"Bessel 1841\",6377397.155,299.1528128,AUTHORITY[\"EPSG\",\"7004\"]],AUTHORITY[\"EPSG\",\"6818\"]],PRIMEM[\"Ferro\",-17.66666666666667,AUTHORITY[\"EPSG\",\"8909\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4818\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Krovak\"],PARAMETER[\"latitude_of_center\",49.5],PARAMETER[\"longitude_of_center\",42.5],PARAMETER[\"azimuth\",30.28813972222222],PARAMETER[\"pseudo_standard_parallel_1\",78.5],PARAMETER[\"scale_factor\",0.9999],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],AUTHORITY[\"EPSG\",\"2065\"],AXIS[\"Y\",WEST],AXIS[\"X\",SOUTH]]".into());
+        transformer.set_source(
+            "PROJCS[\"S-JTSK (Ferro) / Krovak\",GEOGCS[\"S-JTSK \
+             (Ferro)\",DATUM[\"S_JTSK_Ferro\",SPHEROID[\"Bessel \
+             1841\",6377397.155,299.1528128,AUTHORITY[\"EPSG\",\"7004\"]],AUTHORITY[\"EPSG\",\"\
+             6818\"]],PRIMEM[\"Ferro\",-17.66666666666667,AUTHORITY[\"EPSG\",\"8909\"]],UNIT[\"\
+             degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4818\\
+             \
+             \
+             \
+             \"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Krovak\"],\
+             PARAMETER[\\
+             \
+             \"latitude_of_center\",49.5],PARAMETER[\"longitude_of_center\",42.5],PARAMETER[\"\
+             azimuth\",30.28813972222222],PARAMETER[\"pseudo_standard_parallel_1\",78.5],\
+             PARAMETER[\"scale_factor\",0.9999],PARAMETER[\"false_easting\",0],PARAMETER[\"\
+             false_northing\",0],AUTHORITY[\"EPSG\",\"2065\"],AXIS[\"Y\",WEST],AXIS[\"X\",SOUTH]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(-544115.474379, -1144058.330762);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(37.08956301296606, 69.72361147765521));
@@ -244,7 +479,14 @@ mod tests {
     #[test]
     fn test_transform_miller_cyl() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Sphere_Miller_Cylindrical\",GEOGCS[\"GCS_Sphere\",DATUM[\"D_Sphere\",SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Miller_Cylindrical\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"Sphere_Miller_Cylindrical\",GEOGCS[\"GCS_Sphere\",DATUM[\"D_Sphere\",\
+             SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+             017453292519943295]],PROJECTION[\"Miller_Cylindrical\"],PARAMETER[\"False_Easting\",\
+             0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",\
+             1]]"
+            .into(),
+        );
         let mut point = Coords::new_xy(-155375.88535614178, 1404635.2633403721);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.3973289073953, 12.567196566642785));
@@ -253,7 +495,15 @@ mod tests {
     #[test]
     fn test_transform_new_zealand_grid() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"NZGD49 / New Zealand Map Grid\",GEOGCS[\"NZGD49\",DATUM[\"D_New_Zealand_1949\",SPHEROID[\"International_1924\",6378388,297]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"New_Zealand_Map_Grid\"],PARAMETER[\"latitude_of_origin\",-41],PARAMETER[\"central_meridian\",173],PARAMETER[\"false_easting\",2510000],PARAMETER[\"false_northing\",6023150],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"NZGD49 / New Zealand Map \
+             Grid\",GEOGCS[\"NZGD49\",DATUM[\"D_New_Zealand_1949\",SPHEROID[\"International_1924\"\
+             ,6378388,297]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],\
+             PROJECTION[\"New_Zealand_Map_Grid\"],PARAMETER[\"latitude_of_origin\",-41],\
+             PARAMETER[\"central_meridian\",173],PARAMETER[\"false_easting\",2510000],PARAMETER[\"\
+             false_northing\",6023150],UNIT[\"Meter\",1]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(2464770.343667, 6056137.861919);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(172.46484795464002, -40.70170504823121));
@@ -262,7 +512,24 @@ mod tests {
     #[test]
     fn test_transform_nakhl_e_taqi_hotine() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Rassadiran / Nakhl e Taqi\", GEOGCS[\"Rassadiran\", DATUM[\"Rassadiran\", SPHEROID[\"International 1924\",6378388,297, AUTHORITY[\"EPSG\",\"7022\"]], TOWGS84[-133.63,-157.5,-158.62,0,0,0,0], AUTHORITY[\"EPSG\",\"6153\"]], PRIMEM[\"Greenwich\",0, AUTHORITY[\"EPSG\",\"8901\"]], UNIT[\"degree\",0.0174532925199433, AUTHORITY[\"EPSG\",\"9122\"]], AUTHORITY[\"EPSG\",\"4153\"]], PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"], PARAMETER[\"latitude_of_center\",27.51882880555555], PARAMETER[\"longitude_of_center\",52.60353916666667], PARAMETER[\"azimuth\",0.5716611944444444], PARAMETER[\"rectified_grid_angle\",0.5716611944444444], PARAMETER[\"scale_factor\",0.999895934], PARAMETER[\"false_easting\",658377.437], PARAMETER[\"false_northing\",3044969.194], UNIT[\"metre\",1, AUTHORITY[\"EPSG\",\"9001\"]], AXIS[\"Easting\",EAST], AXIS[\"Northing\",NORTH], AUTHORITY[\"EPSG\",\"2057\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"Rassadiran / Nakhl e Taqi\", GEOGCS[\"Rassadiran\", DATUM[\"Rassadiran\", \
+             SPHEROID[\"International 1924\",6378388,297, AUTHORITY[\"EPSG\",\"7022\"]], \
+             TOWGS84[-133.63,-157.5,-158.62,0,0,0,0], AUTHORITY[\"EPSG\",\"6153\"]], \
+             PRIMEM[\"Greenwich\",0, AUTHORITY[\"EPSG\",\"8901\"]], \
+             UNIT[\"degree\",0.0174532925199433, AUTHORITY[\"EPSG\",\"9122\"]], \
+             AUTHORITY[\"EPSG\",\"4153\"]], \
+             PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"], \
+             PARAMETER[\"latitude_of_center\",27.51882880555555], \
+             PARAMETER[\"longitude_of_center\",52.60353916666667], \
+             PARAMETER[\"azimuth\",0.5716611944444444], \
+             PARAMETER[\"rectified_grid_angle\",0.5716611944444444], \
+             PARAMETER[\"scale_factor\",0.999895934], PARAMETER[\"false_easting\",658377.437], \
+             PARAMETER[\"false_northing\",3044969.194], UNIT[\"metre\",1, \
+             AUTHORITY[\"EPSG\",\"9001\"]], AXIS[\"Easting\",EAST], AXIS[\"Northing\",NORTH], \
+             AUTHORITY[\"EPSG\",\"2057\"]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(658511.261946, 3043003.05468);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(52.60489360062432, 27.501084223177624));
@@ -271,7 +538,18 @@ mod tests {
     #[test]
     fn test_transform_polar_stere() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"WGS 84 / UPS North\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",90],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",0.994],PARAMETER[\"false_easting\",2000000],PARAMETER[\"false_northing\",2000000],AUTHORITY[\"EPSG\",\"32661\"],AXIS[\"Easting\",UNKNOWN],AXIS[\"Northing\",UNKNOWN]]".into());
+        transformer.set_source(
+            "PROJCS[\"WGS 84 / UPS North\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS \
+             84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"\
+             ]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.\
+             01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],UNIT[\"\
+             metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],PROJECTION[\"Polar_Stereographic\"],\
+             PARAMETER[\"latitude_of_origin\",90],PARAMETER[\"central_meridian\",0],PARAMETER[\"\
+             scale_factor\",0.994],PARAMETER[\"false_easting\",2000000],PARAMETER[\"\
+             false_northing\",2000000],AUTHORITY[\"EPSG\",\"32661\"],AXIS[\"Easting\",UNKNOWN],\
+             AXIS[\"Northing\",UNKNOWN]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(2000000., 325449.806286);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(0., 74.99999999999869));
@@ -290,7 +568,14 @@ mod tests {
     #[test]
     fn test_transform_van_der_grinten_i() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Sphere_Van_der_Grinten_I\",GEOGCS[\"GCS_Sphere\",DATUM[\"D_Sphere\",SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Van_der_Grinten_I\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1]]".into());
+        transformer.set_source(
+            "PROJCS[\"Sphere_Van_der_Grinten_I\",GEOGCS[\"GCS_Sphere\",DATUM[\"D_Sphere\",\
+             SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.\
+             017453292519943295]],PROJECTION[\"Van_der_Grinten_I\"],PARAMETER[\"False_Easting\",\
+             0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",\
+             1]]"
+            .into(),
+        );
         let mut point = Coords::new_xy(-125108.675828, 9016899.042114);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.4116080195650045, 67.40891366747749));
@@ -299,7 +584,14 @@ mod tests {
     #[test]
     fn test_transform_van_der_grinten_base() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCS[\"Sphere_Van_der_Grinten_I\",GEOGCS[\"GCS_Sphere\",DATUM[\"Not_specified_based_on_Authalic_Sphere\",SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"VanDerGrinten\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"53029\"]]".into());
+        transformer.set_source(
+            "PROJCS[\"Sphere_Van_der_Grinten_I\",GEOGCS[\"GCS_Sphere\",DATUM[\"\
+             Not_specified_based_on_Authalic_Sphere\",SPHEROID[\"Sphere\",6371000,0]],PRIMEM[\"\
+             Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"VanDerGrinten\"],\
+             PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"\
+             Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"53029\"]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(-125108.675828, 9016899.042114);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(-1.4116080195650045, 67.40891366747749));

@@ -13,14 +13,12 @@ fn dv(c: &RobinCoefs, z: f64) -> f64 {
     c.c1 + 2.0 * z * c.c2 + z * z * 3.0 * c.c3
 }
 
-/*
-note: following terms based upon 5 deg. intervals in degrees.
-
-Some background on these coefficients is available at:
-
-http://article.gmane.org/gmane.comp.gis.proj-4.devel/6039
-http://trac.osgeo.org/proj/ticket/113
-*/
+// note: following terms based upon 5 deg. intervals in degrees.
+//
+// Some background on these coefficients is available at:
+//
+// http://article.gmane.org/gmane.comp.gis.proj-4.devel/6039
+// http://trac.osgeo.org/proj/ticket/113
 
 /// Robin coefficients
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -142,7 +140,7 @@ pub fn robin_s_inverse<P: TransformCoordinates>(p: &mut P) {
     let mut lam = p.x() / FXC;
     let mut phi = fabs(p.y() / FYC);
     if phi >= 1. {
-        /* simple pathologic cases */
+        // simple pathologic cases
         if phi > ONEEPS {
             panic!("Coordinate outside projection domain");
         } else {
@@ -150,8 +148,8 @@ pub fn robin_s_inverse<P: TransformCoordinates>(p: &mut P) {
             lam /= X_COEFS[NODES].c0;
         }
     } else {
-        /* general problem */
-        /* in Y space, reduce to table interval */
+        // general problem
+        // in Y space, reduce to table interval
         let i = if f64::is_nan(phi) { -1. } else { round(floor(phi * NODES as f64)) };
         if i < 0. || i >= NODES as f64 {
             panic!("Coordinate outside projection domain");
@@ -167,11 +165,11 @@ pub fn robin_s_inverse<P: TransformCoordinates>(p: &mut P) {
             }
         }
         let t_coef = &Y_COEFS[i];
-        /* first guess, linear interp */
+        // first guess, linear interp
         let mut t = 5. * (phi - t_coef.c0) / (Y_COEFS[i + 1].c0 - t_coef.c0);
         let mut iters = MAX_ITER;
         while iters > 0 {
-            /* Newton-Raphson */
+            // Newton-Raphson
             let t1 = (v(t_coef, t) - phi) / dv(t_coef, t);
             t -= t1;
             if fabs(t1) < EPS {

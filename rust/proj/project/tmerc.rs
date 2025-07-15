@@ -12,17 +12,15 @@ use libm::{
     acos, asin, asinh, atan2, copysign, cos, exp, fabs, floor, hypot, log, round, sin, sinh, sqrt,
 };
 
-/*
- *                   Transverse Mercator implementations
- *
- * In this file two transverse mercator implementations are found. One of Gerald
- * Evenden/John Snyder origin and one of Knud Poder/Karsten Engsager origin. The
- * former is regarded as "approximate" in the following and the latter is
- * "exact". This word choice has been made to distinguish between the two
- * algorithms, where the Evenden/Snyder implementation is the faster, less
- * accurate implementation and the Poder/Engsager algorithm is a slightly
- * slower, but more accurate implementation.
- */
+//                   Transverse Mercator implementations
+//
+// In this file two transverse mercator implementations are found. One of Gerald
+// Evenden/John Snyder origin and one of Knud Poder/Karsten Engsager origin. The
+// former is regarded as "approximate" in the following and the latter is
+// "exact". This word choice has been made to distinguish between the two
+// algorithms, where the Evenden/Snyder implementation is the faster, less
+// accurate implementation and the Poder/Engsager algorithm is a slightly
+// slower, but more accurate implementation.
 
 /// Poder/Engsager if far from central meridian, otherwise Evenden/Snyder
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -98,13 +96,11 @@ const PROJ_ETMERC_ORDER: i32 = 6;
 /// Approximate Transverse Mercator functions
 pub fn tmerc_approx_e_fwd<P: TransformCoordinates>(tmerc: &mut TmercData, proj: &Proj, p: &mut P) {
     let evenden_snyder = &tmerc.approx;
-    /*
-     * Fail if our longitude is more than 90 degrees from the
-     * central meridian since the results are essentially garbage.
-     * Is error -20 really an appropriate return value?
-     *
-     *  http://trac.osgeo.org/proj/ticket/5
-     */
+    // Fail if our longitude is more than 90 degrees from the
+    // central meridian since the results are essentially garbage.
+    // Is error -20 really an appropriate return value?
+    //
+    //  http://trac.osgeo.org/proj/ticket/5
     if p.lam() < -FRAC_PI_2 || p.lam() > FRAC_PI_2 {
         panic!("Longitude out of range");
     }
@@ -168,8 +164,8 @@ pub fn tmerc_spherical_fwd<P: TransformCoordinates>(tmerc: &mut TmercData, proj:
 
     b = fabs(y);
     if cosphi == 1. && (p.lam() < -FRAC_PI_2 || p.lam() > FRAC_PI_2) {
-        /* Helps to be able to roundtrip |longitudes| > 90 at lat=0 */
-        /* We could also map to -M_PI ... */
+        // Helps to be able to roundtrip |longitudes| > 90 at lat=0
+        // We could also map to -M_PI ...
         y = PI;
     } else if b >= 1. {
         if (b - 1.) > EPS10 {
@@ -238,7 +234,7 @@ pub fn tmerc_spherical_inv<P: TransformCoordinates>(tmerc: &mut TmercData, proj:
         panic!("Coordinate outside projection domain");
     }
     let g = 0.5 * (h - 1. / h);
-    /* D, as in equation 8-8 of USGS "Map Projections - A Working Manual" */
+    // D, as in equation 8-8 of USGS "Map Projections - A Working Manual"
     let d = proj.phi0 + p.y() / evenden_snyder.esp;
     h = cos(d);
     p.set_phi(asin(sqrt((1. - h * h) / (1. + g * g))));
@@ -264,7 +260,6 @@ fn setup_approx(tmerc: &mut TmercData, proj: &Proj) {
     }
 }
 
-//
 //                  Exact Transverse Mercator functions
 //
 //
@@ -326,9 +321,9 @@ fn clen_s(
 pub fn tmerc_exact_e_fwd<P: TransformCoordinates>(tmerc: &mut TmercData, p: &mut P) {
     let poder_engsager = &tmerc.exact;
 
-    /* ell. LAT, LNG -> Gaussian LAT, LNG */
+    // ell. LAT, LNG -> Gaussian LAT, LNG
     let mut cn = auxlat_convert(p.phi(), &poder_engsager.cbg, PROJ_ETMERC_ORDER);
-    /* Gaussian LAT, LNG -> compl. sph. LAT */
+    // Gaussian LAT, LNG -> compl. sph. LAT
     let sin_cn = sin(cn);
     let cos_cn = cos(cn);
     let sin_ce = sin(p.lam());
@@ -344,48 +339,44 @@ pub fn tmerc_exact_e_fwd<P: TransformCoordinates>(tmerc: &mut TmercData, p: &mut
     // let denom = sqrt(1. - sin_ce_cos_cn * sin_ce_cos_cn);
     // let tan_ce = sin_ce_cos_cn / denom;
 
-    /* compl. sph. N, E -> ell. norm. N, E */
+    // compl. sph. N, E -> ell. norm. N, E
     let mut ce = asinh(tan_ce); /* Replaces: Ce  = log(tan(FORTPI + Ce*0.5)); */
-    /*
-     *  Non-optimized version:
-     *  let sin_arg_r  = sin(2*Cn);
-     *  let cos_arg_r  = cos(2*Cn);
-     *
-     *  Given:
-     *      sin(2 * Cn) = 2 sin(Cn) cos(Cn)
-     *          sin(atan(y)) = y / sqrt(1 + y^2)
-     *          cos(atan(y)) = 1 / sqrt(1 + y^2)
-     *      ==> sin(2 * Cn) = 2 tan_Cn / (1 + tan_Cn^2)
-     *
-     *      cos(2 * Cn) = 2cos^2(Cn) - 1
-     *                  = 2 / (1 + tan_Cn^2) - 1
-     */
+    //  Non-optimized version:
+    //  let sin_arg_r  = sin(2*Cn);
+    //  let cos_arg_r  = cos(2*Cn);
+    //
+    //  Given:
+    //      sin(2 * Cn) = 2 sin(Cn) cos(Cn)
+    //          sin(atan(y)) = y / sqrt(1 + y^2)
+    //          cos(atan(y)) = 1 / sqrt(1 + y^2)
+    //      ==> sin(2 * Cn) = 2 tan_Cn / (1 + tan_Cn^2)
+    //
+    //      cos(2 * Cn) = 2cos^2(Cn) - 1
+    //                  = 2 / (1 + tan_Cn^2) - 1
     let two_inv_denom_tan_ce = 2. * inv_denom_tan_ce;
     let two_inv_denom_tan_ce_square = two_inv_denom_tan_ce * inv_denom_tan_ce;
     let tmp_r = cos_cn_cos_ce * two_inv_denom_tan_ce_square;
     let sin_arg_r = sin_cn * tmp_r;
     let cos_arg_r = cos_cn_cos_ce * tmp_r - 1.;
 
-    /*
-     *  Non-optimized version:
-     *  let sinh_arg_i = sinh(2*Ce);
-     *  let cosh_arg_i = cosh(2*Ce);
-     *
-     *  Given
-     *      sinh(2 * Ce) = 2 sinh(Ce) cosh(Ce)
-     *          sinh(asinh(y)) = y
-     *          cosh(asinh(y)) = sqrt(1 + y^2)
-     *      ==> sinh(2 * Ce) = 2 tan_ce sqrt(1 + tan_ce^2)
-     *
-     *      cosh(2 * Ce) = 2cosh^2(Ce) - 1
-     *                   = 2 * (1 + tan_ce^2) - 1
-     *
-     * and 1+tan_ce^2 = 1 + sin_ce^2 * cos_cn^2 / (sin_cn^2 + cos_cn^2 *
-     * cos_ce^2) = (sin_cn^2 + cos_cn^2 * cos_ce^2 + sin_ce^2 * cos_cn^2) /
-     * (sin_cn^2 + cos_cn^2 * cos_ce^2) = 1. / (sin_cn^2 + cos_cn^2 * cos_ce^2)
-     * = inv_denom_tan_ce^2
-     *
-     */
+    //  Non-optimized version:
+    //  let sinh_arg_i = sinh(2*Ce);
+    //  let cosh_arg_i = cosh(2*Ce);
+    //
+    //  Given
+    //      sinh(2 * Ce) = 2 sinh(Ce) cosh(Ce)
+    //          sinh(asinh(y)) = y
+    //          cosh(asinh(y)) = sqrt(1 + y^2)
+    //      ==> sinh(2 * Ce) = 2 tan_ce sqrt(1 + tan_ce^2)
+    //
+    //      cosh(2 * Ce) = 2cosh^2(Ce) - 1
+    //                   = 2 * (1 + tan_ce^2) - 1
+    //
+    // and 1+tan_ce^2 = 1 + sin_ce^2 * cos_cn^2 / (sin_cn^2 + cos_cn^2 *
+    // cos_ce^2) = (sin_cn^2 + cos_cn^2 * cos_ce^2 + sin_ce^2 * cos_cn^2) /
+    // (sin_cn^2 + cos_cn^2 * cos_ce^2) = 1. / (sin_cn^2 + cos_cn^2 * cos_ce^2)
+    // = inv_denom_tan_ce^2
+    //
     let sinh_arg_i = tan_ce * two_inv_denom_tan_ce;
     let cosh_arg_i = two_inv_denom_tan_ce_square - 1.;
     let (d_cn, d_ce) = clen_s(&poder_engsager.gtu, sin_arg_r, cos_arg_r, sinh_arg_i, cosh_arg_i);
@@ -405,7 +396,7 @@ pub fn tmerc_exact_e_fwd<P: TransformCoordinates>(tmerc: &mut TmercData, p: &mut
 pub fn tmerc_exact_e_inv<P: TransformCoordinates>(tmerc: &mut TmercData, p: &mut P) {
     let poder_engsager = &tmerc.exact;
 
-    /* normalize N, E */
+    // normalize N, E
     let mut cn = (p.y() - poder_engsager.zb) / poder_engsager.qn;
     let mut ce = p.x() / poder_engsager.qn;
 

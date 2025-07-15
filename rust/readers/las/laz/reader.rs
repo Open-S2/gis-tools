@@ -72,7 +72,7 @@ impl<T: Reader + Debug> LAZState<T> {
 /// Implements the {@link FeatureIterator} interface
 ///
 /// Data is stored like so:
-///```txt
+/// ```txt
 /// |            PUBLIC HEADER BLOCK           |
 /// |          VARIABLE LENGTH RECORDS         |
 /// |             POINT DATA RECORDS           |

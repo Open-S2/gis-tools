@@ -31,11 +31,9 @@ pub fn get_decoder(compression: Option<u16>) -> Option<Decoder> {
     }
 }
 
-/**
 /// Packbits decoder
 /// @param buffer - an array of packed bits in a block
 /// @returns the decoded array
- */
 pub fn packbits_decoder(buffer: &[u8]) -> Vec<u8> {
     let mut out = vec![];
 

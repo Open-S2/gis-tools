@@ -480,7 +480,8 @@ pub fn grib2_lookup_table4_5(code: u8) -> TypeAndUnit {
         }
         13 => TypeAndUnit {
             r#type: String::from(
-                "Lowest level where vertically integrated cloud cover exceeds the specified percentage",
+                "Lowest level where vertically integrated cloud cover exceeds the specified \
+                 percentage",
             ),
             unit: String::from("%"),
         },
@@ -642,19 +643,22 @@ pub fn grib2_lookup_table4_5(code: u8) -> TypeAndUnit {
         168 => TypeAndUnit { r#type: String::from("Ocean Model Level"), unit: String::from("") },
         169 => TypeAndUnit {
             r#type: String::from(
-                "Ocean level defined by water density (sigma-theta) difference from near-surface to level",
+                "Ocean level defined by water density (sigma-theta) difference from near-surface \
+                 to level",
             ),
             unit: String::from("kg m-3"),
         },
         170 => TypeAndUnit {
             r#type: String::from(
-                "Ocean level defined by water potential temperature difference from near-surface to level",
+                "Ocean level defined by water potential temperature difference from near-surface \
+                 to level",
             ),
             unit: String::from("K"),
         },
         171 => TypeAndUnit {
             r#type: String::from(
-                "Ocean level defined by vertical eddy diffusivity difference from near-surface to level",
+                "Ocean level defined by vertical eddy diffusivity difference from near-surface to \
+                 level",
             ),
             unit: String::from("m² s-1"),
         },
@@ -1190,7 +1194,8 @@ impl core::fmt::Display for Grib2Table4_9 {
             Self::ProbabilityOfEventBelowLowerLimit => "Probability of event below lower limit",
             Self::ProbabilityOfEventAboveUpperLimit => "Probability of event above upper limit",
             Self::ProbabilityOfEventBetweenUpperAndLowerLimits => {
-                "Probability of event between upper and lower limits (range includes lower limit but not the upper limit)"
+                "Probability of event between upper and lower limits (range includes lower limit \
+                 but not the upper limit)"
             }
             Self::ProbabilityOfEventAboveLowerLimit => "Probability of event above lower limit",
             Self::ProbabilityOfEventBelowUpperLimit => "Probability of event below upper limit",
@@ -1641,22 +1646,28 @@ impl core::fmt::Display for Grib2Table4_15 {
                 "Data is calculated directly from the source grid with no interpolation"
             }
             Self::BilinearInterpolation => {
-                "Bilinear interpolation using the 4 source grid-point values surrounding the nominal grid-point"
+                "Bilinear interpolation using the 4 source grid-point values surrounding the \
+                 nominal grid-point"
             }
             Self::BicubicInterpolation => {
-                "Bicubic interpolation using the 4 source grid-point values surrounding the nominal grid-point"
+                "Bicubic interpolation using the 4 source grid-point values surrounding the \
+                 nominal grid-point"
             }
             Self::NearestNeighbor => {
-                "Using the value from the source grid-point which is nearest to the nominal grid-point"
+                "Using the value from the source grid-point which is nearest to the nominal \
+                 grid-point"
             }
             Self::BudgetInterpolation => {
-                "Budget interpolation using the 4 source grid-point values surrounding the nominal grid-point"
+                "Budget interpolation using the 4 source grid-point values surrounding the nominal \
+                 grid-point"
             }
             Self::SpectralInterpolation => {
-                "Spectral interpolation using the 4 source grid-point values surrounding the nominal grid-point"
+                "Spectral interpolation using the 4 source grid-point values surrounding the \
+                 nominal grid-point"
             }
             Self::NeighborBudgetInterpolation => {
-                "Neighbor-budget interpolation using the 4 source grid-point values surrounding the nominal grid-point"
+                "Neighbor-budget interpolation using the 4 source grid-point values surrounding \
+                 the nominal grid-point"
             }
             Self::Missing => "Missing",
         };
@@ -5088,28 +5099,37 @@ impl core::fmt::Display for Grib2Table4_240 {
         let desc = match self {
             Self::NoSpecificDistributionFunctionGiven => "No specific distribution function given",
             Self::DeltaFunctionsWithFixedDiameters => {
-                "Delta functions with spatially variable concentration and fixed diameters Dl(p1) in meter"
+                "Delta functions with spatially variable concentration and fixed diameters Dl(p1) \
+                 in meter"
             }
             Self::DeltaFunctionsWithFixedMasses => {
-                "Delta functions with spatially variable concentration and fixed masses Ml(p1) in kg"
+                "Delta functions with spatially variable concentration and fixed masses Ml(p1) in \
+                 kg"
             }
             Self::GaussianDistributionFixedMeanDiameterAndVariance => {
-                "Gaussian (Normal) distribution with spatially variable concentration and fixed mean diameter Dl(p1) and variance δ(p2)"
+                "Gaussian (Normal) distribution with spatially variable concentration and fixed \
+                 mean diameter Dl(p1) and variance δ(p2)"
             }
             Self::GaussianDistributionVariableParameters => {
-                "Gaussian (Normal) distribution with spatially variable concentration, mean diameter and variance"
+                "Gaussian (Normal) distribution with spatially variable concentration, mean \
+                 diameter and variance"
             }
             Self::LogNormalDistributionVariableParameters => {
-                "Log-normal distribution with spatially variable number density, mean diameter and variance"
+                "Log-normal distribution with spatially variable number density, mean diameter and \
+                 variance"
             }
             Self::LogNormalDistributionFixedVariance => {
-                "Log-normal distribution with spatially variable number density, mean diameter and fixed variance δ(p1)"
+                "Log-normal distribution with spatially variable number density, mean diameter and \
+                 fixed variance δ(p1)"
             }
             Self::LogNormalDistributionFixedVarianceAndParticleDensity => {
-                "Log-normal distribution with spatially variable number density and mass density and fixed variance δ and fixed particle density ρ(p2)"
+                "Log-normal distribution with spatially variable number density and mass density \
+                 and fixed variance δ and fixed particle density ρ(p2)"
             }
             Self::DerivedFromDistributionType7 => {
-                "No distribution function. The encoded variable is derived from variables characterized by type of distribution function of type No. 7 with fixed variance σ(p1) and fixed particle density ρ(p2)"
+                "No distribution function. The encoded variable is derived from variables \
+                 characterized by type of distribution function of type No. 7 with fixed variance \
+                 σ(p1) and fixed particle density ρ(p2)"
             }
             Self::Missing => "Missing",
         };
@@ -5208,12 +5228,14 @@ impl core::fmt::Display for Grib2Table4_242 {
                 "Land use classes according to ESA-GLOBCOVER GCV2009"
             }
             Self::LandUseClassesEuropeanCommissionGLC2000 => {
-                "Land use classes according to European Commission-Global Land Cover Project GLC2000"
+                "Land use classes according to European Commission-Global Land Cover Project \
+                 GLC2000"
             }
             Self::LandUseClassesECOCLIMAP => "Land use classes according to ECOCLIMAP",
             Self::LandUseClassesECOCLIMAPSG => "Land use classes according to ECOCLIMAP-SG",
             Self::LandUseClassesUSGSEROSGLCCV20BATsClassification => {
-                "Land use classes according to USGS EROS Global Land Cover Characterization (GLCC) v2.0 BATS Classification"
+                "Land use classes according to USGS EROS Global Land Cover Characterization (GLCC) \
+                 v2.0 BATS Classification"
             }
             Self::Missing => "Missing",
         };

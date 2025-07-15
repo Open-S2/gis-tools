@@ -78,7 +78,7 @@ pub enum Grib2Table4_0 {
     AnalysisOrForecastAerosol = 44,
     IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosol = 45,
     AverageAccumulationExtremeValuesStatisticallyProcessedAerosol = 46,
-    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosol2 = 47, // Note: Duplicate description, distinguished by value
+    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosol2 = 47, /* Note: Duplicate description, distinguished by value */
     AnalysisOrForecastOpticalPropertiesAerosol = 48,
     IndividualEnsembleForecastOpticalPropertiesAerosol = 49,
     CategoricalForecastAtHorizontalLevelOrLayerPointInTime = 51,
@@ -95,7 +95,7 @@ pub enum Grib2Table4_0 {
     IndividualEnsembleForecastSpatioTemporalChangingTiles = 63,
     AverageAccumulationExtremeValuesStatisticallyProcessedAtmosphericChemicalConstituentsDistributionFunction =
         67,
-    IndividualEnsembleForecastAtmosphericChemicalConstituentsDistributionFunction2 = 68, // Note: Duplicate description, distinguished by value
+    IndividualEnsembleForecastAtmosphericChemicalConstituentsDistributionFunction2 = 68, /* Note: Duplicate description, distinguished by value */
     PostProcessingAnalysisOrForecastPointInTime = 70,
     PostProcessingIndividualEnsembleForecastPointInTime = 71,
     PostProcessingAverageAccumulationExtremeValuesStatisticallyProcessed = 72,
@@ -110,8 +110,8 @@ pub enum Grib2Table4_0 {
     IndividualEnsembleForecastOpticalPropertiesAerosolSourceSink = 81,
     AverageAccumulationExtremeValuesStatisticallyProcessedAerosolSourceSink = 82,
     IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosolSourceSink = 83,
-    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosol3 = 84, // Note: Duplicate description, distinguished by value
-    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosolSourceSink2 = 85, // Note: Duplicate description, distinguished by value
+    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosol3 = 84, /* Note: Duplicate description, distinguished by value */
+    IndividualEnsembleForecastContinuousNonContinuousTimeIntervalAerosolSourceSink2 = 85, /* Note: Duplicate description, distinguished by value */
     QuantileForecastsAtHorizontalLevelOrLayerPointInTime = 86,
     QuantileForecastsAtHorizontalLevelOrLayerContinuousNonContinuousTimeInterval = 87,
     AnalysisOrForecastAtHorizontalLevelOrLayerSpecifiedLocalTime = 88,
@@ -1437,63 +1437,72 @@ pub fn grib2_lookup_table42_01(category: u8) -> TableCategory {
         },
         109 => TableCategory {
             parameter: String::from(
-                "Mass Density of Liquid Water Coating on Hail Expressed as Mass of Liquid Water per Unit Volume of Air",
+                "Mass Density of Liquid Water Coating on Hail Expressed as Mass of Liquid Water \
+                 per Unit Volume of Air",
             ),
             units: String::from("kg m-3"),
             abbrev: String::from("MDLWHVA"),
         },
         110 => TableCategory {
             parameter: String::from(
-                "Specific Mass of Liquid Water Coating on Hail Expressed as Mass of Liquid Water per Unit Mass of Moist Air",
+                "Specific Mass of Liquid Water Coating on Hail Expressed as Mass of Liquid Water \
+                 per Unit Mass of Moist Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("SMLWHMA"),
         },
         111 => TableCategory {
             parameter: String::from(
-                "Mass Mixing Ratio of Liquid Water Coating on Hail Expressed as Mass of Liquid Water per Unit Mass of Dry Air",
+                "Mass Mixing Ratio of Liquid Water Coating on Hail Expressed as Mass of Liquid \
+                 Water per Unit Mass of Dry Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("MMLWHDA"),
         },
         112 => TableCategory {
             parameter: String::from(
-                "Mass Density of Liquid Water Coating on Graupel Expressed as Mass of Liquid Water per Unit Volume of Air",
+                "Mass Density of Liquid Water Coating on Graupel Expressed as Mass of Liquid \
+                 Water per Unit Volume of Air",
             ),
             units: String::from("kg m-3"),
             abbrev: String::from("MDLWGVA"),
         },
         113 => TableCategory {
             parameter: String::from(
-                "Specific Mass of Liquid Water Coating on Graupel Expressed as Mass of Liquid Water per Unit Mass of Moist Air",
+                "Specific Mass of Liquid Water Coating on Graupel Expressed as Mass of Liquid \
+                 Water per Unit Mass of Moist Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("SMLWGMA"),
         },
         114 => TableCategory {
             parameter: String::from(
-                "Mass Mixing Ratio of Liquid Water Coating on Graupel Expressed as Mass of Liquid Water per Unit Mass of Dry Air",
+                "Mass Mixing Ratio of Liquid Water Coating on Graupel Expressed as Mass of Liquid \
+                 Water per Unit Mass of Dry Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("MMLWGDA"),
         },
         115 => TableCategory {
             parameter: String::from(
-                "Mass Density of Liquid Water Coating on Snow Expressed as Mass of Liquid Water per Unit Volume of Air",
+                "Mass Density of Liquid Water Coating on Snow Expressed as Mass of Liquid Water \
+                 per Unit Volume of Air",
             ),
             units: String::from("kg m-3"),
             abbrev: String::from("MDLWSVA"),
         },
         116 => TableCategory {
             parameter: String::from(
-                "Specific Mass of Liquid Water Coating on Snow Expressed as Mass of Liquid Water per Unit Mass of Moist Air",
+                "Specific Mass of Liquid Water Coating on Snow Expressed as Mass of Liquid Water \
+                 per Unit Mass of Moist Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("SMLWSMA"),
         },
         117 => TableCategory {
             parameter: String::from(
-                "Mass Mixing Ratio of Liquid Water Coating on Snow Expressed as Mass of Liquid Water per Unit Mass of Dry Air",
+                "Mass Mixing Ratio of Liquid Water Coating on Snow Expressed as Mass of Liquid \
+                 Water per Unit Mass of Dry Air",
             ),
             units: String::from("kg kg-1"),
             abbrev: String::from("MMLWSDA"),

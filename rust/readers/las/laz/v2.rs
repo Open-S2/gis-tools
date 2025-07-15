@@ -41,10 +41,8 @@ impl StreamingMedian5 {
         self.high = true;
     }
 
-    /**
-     * add a new value
-     * @param v - the new value to add
-     */
+    /// add a new value
+    /// @param v - the new value to add
     pub fn add(&mut self, v: i32) {
         let Self { high, values } = self;
         if *high {
@@ -151,14 +149,14 @@ impl<T: Reader> LAZPoint10v2Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZPoint10v2Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init state */
+        // init state
         for i in 0..16 {
             self.last_x_diff_median5[i].init();
             self.last_y_diff_median5[i].init();
             self.last_intensity[i] = 0;
             self.last_height[i / 2] = 0;
         }
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_changed_values.init(None);
         self.ic_intensity.init_decompressor();
         self.m_scan_angle_rank[0].init(None);
@@ -179,10 +177,10 @@ impl<T: Reader> ItemReader for LAZPoint10v2Reader<T> {
         self.ic_dy.init_decompressor();
         self.ic_z.init_decompressor();
 
-        /* init last item */
+        // init last item
         self.last_item.inject_point10(item, 0);
         point.inject_point10(item, 0);
-        /* but set intensity to zero */
+        // but set intensity to zero
         self.last_item.intensity = 0;
     }
 
@@ -337,16 +335,16 @@ impl<T: Reader> LAZGpsTime11v2Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZGpsTime11v2Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init state */
+        // init state
         self.last = 0;
         self.next = 0;
         self.last_gpstime_diff = [0, 0, 0, 0];
         self.multi_extreme_counter = [0, 0, 0, 0];
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_gpstime_multi.init(None);
         self.m_gpstime0diff.init(None);
         self.ic_gpstime.init_decompressor();
-        /* init last item */
+        // init last item
         self.last_gpstime[0].set_u64(item.uint64_le(Some(0)));
         self.last_gpstime[1].set_u64(0);
         self.last_gpstime[2].set_u64(0);
@@ -508,7 +506,7 @@ impl<T: Reader> LAZrgb12v2Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZrgb12v2Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, point: &mut LASPoint, _context: &mut u32) {
-        /* init models and integer compressors */
+        // init models and integer compressors
         self.m_byte_used.init(None);
         self.m_rgb_diff0.init(None);
         self.m_rgb_diff1.init(None);
@@ -516,7 +514,7 @@ impl<T: Reader> ItemReader for LAZrgb12v2Reader<T> {
         self.m_rgb_diff3.init(None);
         self.m_rgb_diff4.init(None);
         self.m_rgb_diff5.init(None);
-        /* init last item */
+        // init last item
         let r = item.uint16_le(None);
         let g = item.uint16_le(None);
         let b = item.uint16_le(None);
@@ -617,11 +615,11 @@ impl<T: Reader> LAZbyte10v2Reader<T> {
 }
 impl<T: Reader> ItemReader for LAZbyte10v2Reader<T> {
     fn init<R: Reader>(&mut self, item: &R, _point: &mut LASPoint, _context: &mut u32) {
-        /* init models and integer compressors */
+        // init models and integer compressors
         for m in self.m_byte.iter_mut() {
             m.init(None);
         }
-        /* init last item */
+        // init last item
         self.last_item = item.seek_slice(self.size as usize);
     }
 

@@ -1,0 +1,9 @@
+[tasks.fmt-check]
+command = "rustup"
+args = ["run", "nightly", "cargo", "fmt", "--all", "--", "--check"]
+# Run: cargo make fmt-check
+
+[tasks.fmt]
+command = "rustup"
+args = ["run", "nightly", "cargo", "fmt", "--all"]
+# Run: cargo make fmt to fix

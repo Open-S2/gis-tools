@@ -210,9 +210,9 @@ fn sumx(u: f64, v: f64, t: &mut f64) -> f64 {
     if *t != 0. {
         *t = if s != 0. { 0. - (up + vpp) } else { s };
     }
-    /* error-free sum:
-     * u + v =       s      + t
-     *       = round(u + v) + t */
+    // error-free sum:
+    // u + v =       s      + t
+    //       = round(u + v) + t
     s
 }
 
@@ -233,15 +233,15 @@ pub fn geod_init(g: &mut GeodGeodesic, a: f64, f: f64) {
                 (if g.e2 > 0. { atanh(sqrt(g.e2)) } else { atan(sqrt(-g.e2)) }) / sqrt(fabs(g.e2))
             }))
         / 2.; /* authalic radius squared */
-    /* The sig12 threshold for "really short".  Using the auxiliary sphere
-     * solution with dnm computed at (bet1 + bet2) / 2, the relative error in the
-     * azimuth consistency check is sig12^2 * abs(f) * min(1, 1-f/2) / 2.  (Error
-     * measured for 1/100 < b/a < 100 and abs(f) >= 1/1000.  For a given f and
-     * sig12, the max error occurs for lines near the pole.  If the old rule for
-     * computing dnm = (dn1 + dn2)/2 is used, then the error increases by a
-     * factor of 2.)  Setting this equal to epsilon gives sig12 = etol2.  Here
-     * 0.1 is a safety factor (error decreased by 100) and max(0.001, abs(f))
-     * stops etol2 getting too large in the nearly spherical case. */
+    // The sig12 threshold for "really short".  Using the auxiliary sphere
+    // solution with dnm computed at (bet1 + bet2) / 2, the relative error in the
+    // azimuth consistency check is sig12^2 * abs(f) * min(1, 1-f/2) / 2.  (Error
+    // measured for 1/100 < b/a < 100 and abs(f) >= 1/1000.  For a given f and
+    // sig12, the max error occurs for lines near the pole.  If the old rule for
+    // computing dnm = (dn1 + dn2)/2 is used, then the error increases by a
+    // factor of 2.)  Setting this equal to epsilon gives sig12 = etol2.  Here
+    // 0.1 is a safety factor (error decreased by 100) and max(0.001, abs(f))
+    // stops etol2 getting too large in the nearly spherical case.
     g.etol2 = 0.1 * TOL2 / sqrt(fmax(0.001, fabs(g.f)) * fmin(1.0, 1. - g.f / 2.) / 2.);
 
     a3coeff(g);
@@ -336,7 +336,7 @@ pub fn geod_lineinit(
     let mut salp1 = 0.0;
     let mut calp1 = 0.0;
     azi1 = ang_normalize(azi1);
-    /* Guard against underflow in salp0 */
+    // Guard against underflow in salp0
     sincosdx(ang_round(azi1), &mut salp1, &mut calp1);
     geod_lineinit_int(l, g, lat1, lon1, azi1, salp1, calp1, caps);
 }
@@ -374,16 +374,16 @@ pub fn geod_direct(
 /// The scale factor A3 = mean value of (d/dsigma)I3
 fn a3coeff(g: &mut GeodGeodesic) {
     let coeff: [f64; 18] = [
-        /* A3, coeff of eps^5, polynomial in n of order 0 */
-        -3., 128., /* A3, coeff of eps^4, polynomial in n of order 1 */
-        -2., -3., 64., /* A3, coeff of eps^3, polynomial in n of order 2 */
-        -1., -3., -1., 16., /* A3, coeff of eps^2, polynomial in n of order 2 */
-        3., -1., -2., 8., /* A3, coeff of eps^1, polynomial in n of order 1 */
-        1., -1., 2., /* A3, coeff of eps^0, polynomial in n of order 0 */
+        // A3, coeff of eps^5, polynomial in n of order 0
+        -3., 128., // A3, coeff of eps^4, polynomial in n of order 1
+        -2., -3., 64., // A3, coeff of eps^3, polynomial in n of order 2
+        -1., -3., -1., 16., // A3, coeff of eps^2, polynomial in n of order 2
+        3., -1., -2., 8., // A3, coeff of eps^1, polynomial in n of order 1
+        1., -1., 2., // A3, coeff of eps^0, polynomial in n of order 0
         1., 1.,
     ];
     let mut o = 0;
-    /* coeff of eps^j */
+    // coeff of eps^j
     for (k, j) in (0..N_A3).rev().enumerate() {
         let m = if N_A3 - j - 1 < j { N_A3 - j - 1 } else { j }; /* order of polynomial in n */
         g.a3x[k] = polyvalx(m, &coeff[o..], g.n) / coeff[o + m + 1];
@@ -394,28 +394,28 @@ fn a3coeff(g: &mut GeodGeodesic) {
 /// The coefficients C3[l] in the Fourier expansion of B3
 fn c3coeff(g: &mut GeodGeodesic) {
     let coeff: [f64; 45] = [
-        /* C3[1], coeff of eps^5, polynomial in n of order 0 */
-        3., 128., /* C3[1], coeff of eps^4, polynomial in n of order 1 */
-        2., 5., 128., /* C3[1], coeff of eps^3, polynomial in n of order 2 */
-        -1., 3., 3., 64., /* C3[1], coeff of eps^2, polynomial in n of order 2 */
-        -1., 0., 1., 8., /* C3[1], coeff of eps^1, polynomial in n of order 1 */
-        -1., 1., 4., /* C3[2], coeff of eps^5, polynomial in n of order 0 */
-        5., 256., /* C3[2], coeff of eps^4, polynomial in n of order 1 */
-        1., 3., 128., /* C3[2], coeff of eps^3, polynomial in n of order 2 */
-        -3., -2., 3., 64., /* C3[2], coeff of eps^2, polynomial in n of order 2 */
-        1., -3., 2., 32., /* C3[3], coeff of eps^5, polynomial in n of order 0 */
-        7., 512., /* C3[3], coeff of eps^4, polynomial in n of order 1 */
-        -10., 9., 384., /* C3[3], coeff of eps^3, polynomial in n of order 2 */
-        5., -9., 5., 192., /* C3[4], coeff of eps^5, polynomial in n of order 0 */
-        7., 512., /* C3[4], coeff of eps^4, polynomial in n of order 1 */
-        -14., 7., 512., /* C3[5], coeff of eps^5, polynomial in n of order 0 */
+        // C3[1], coeff of eps^5, polynomial in n of order 0
+        3., 128., // C3[1], coeff of eps^4, polynomial in n of order 1
+        2., 5., 128., // C3[1], coeff of eps^3, polynomial in n of order 2
+        -1., 3., 3., 64., // C3[1], coeff of eps^2, polynomial in n of order 2
+        -1., 0., 1., 8., // C3[1], coeff of eps^1, polynomial in n of order 1
+        -1., 1., 4., // C3[2], coeff of eps^5, polynomial in n of order 0
+        5., 256., // C3[2], coeff of eps^4, polynomial in n of order 1
+        1., 3., 128., // C3[2], coeff of eps^3, polynomial in n of order 2
+        -3., -2., 3., 64., // C3[2], coeff of eps^2, polynomial in n of order 2
+        1., -3., 2., 32., // C3[3], coeff of eps^5, polynomial in n of order 0
+        7., 512., // C3[3], coeff of eps^4, polynomial in n of order 1
+        -10., 9., 384., // C3[3], coeff of eps^3, polynomial in n of order 2
+        5., -9., 5., 192., // C3[4], coeff of eps^5, polynomial in n of order 0
+        7., 512., // C3[4], coeff of eps^4, polynomial in n of order 1
+        -14., 7., 512., // C3[5], coeff of eps^5, polynomial in n of order 0
         21., 2560.,
     ];
     let mut o = 0;
     let mut k = 0;
-    /* l is index of C3[l] */
+    // l is index of C3[l]
     for l in 1..N_C3 {
-        /* coeff of eps^j */
+        // coeff of eps^j
         for j in (l..N_C3).rev() {
             let m = if N_C3 - j - 1 < j { N_C3 - j - 1 } else { j }; /* order of polynomial in n */
             g.c3x[k] = polyvalx(m, &coeff[o..], g.n) / coeff[o + m + 1];
@@ -428,37 +428,37 @@ fn c3coeff(g: &mut GeodGeodesic) {
 /// The coefficients C4[l] in the Fourier expansion of I4
 fn c4coeff(g: &mut GeodGeodesic) {
     let coeff: [f64; 77] = [
-        /* C4[0], coeff of eps^5, polynomial in n of order 0 */
-        97., 15015., /* C4[0], coeff of eps^4, polynomial in n of order 1 */
-        1088., 156., 45045., /* C4[0], coeff of eps^3, polynomial in n of order 2 */
+        // C4[0], coeff of eps^5, polynomial in n of order 0
+        97., 15015., // C4[0], coeff of eps^4, polynomial in n of order 1
+        1088., 156., 45045., // C4[0], coeff of eps^3, polynomial in n of order 2
         -224., -4784., 1573., 45045.,
-        /* C4[0], coeff of eps^2, polynomial in n of order 3 */
+        // C4[0], coeff of eps^2, polynomial in n of order 3
         -10656., 14144., -4576., -858., 45045.,
-        /* C4[0], coeff of eps^1, polynomial in n of order 4 */
+        // C4[0], coeff of eps^1, polynomial in n of order 4
         64., 624., -4576., 6864., -3003., 15015.,
-        /* C4[0], coeff of eps^0, polynomial in n of order 5 */
+        // C4[0], coeff of eps^0, polynomial in n of order 5
         100., 208., 572., 3432., -12012., 30030., 45045.,
-        /* C4[1], coeff of eps^5, polynomial in n of order 0 */
-        1., 9009., /* C4[1], coeff of eps^4, polynomial in n of order 1 */
-        -2944., 468., 135135., /* C4[1], coeff of eps^3, polynomial in n of order 2 */
+        // C4[1], coeff of eps^5, polynomial in n of order 0
+        1., 9009., // C4[1], coeff of eps^4, polynomial in n of order 1
+        -2944., 468., 135135., // C4[1], coeff of eps^3, polynomial in n of order 2
         5792., 1040., -1287., 135135.,
-        /* C4[1], coeff of eps^2, polynomial in n of order 3 */
+        // C4[1], coeff of eps^2, polynomial in n of order 3
         5952., -11648., 9152., -2574., 135135.,
-        /* C4[1], coeff of eps^1, polynomial in n of order 4 */
+        // C4[1], coeff of eps^1, polynomial in n of order 4
         -64., -624., 4576., -6864., 3003., 135135.,
-        /* C4[2], coeff of eps^5, polynomial in n of order 0 */
-        8., 10725., /* C4[2], coeff of eps^4, polynomial in n of order 1 */
-        1856., -936., 225225., /* C4[2], coeff of eps^3, polynomial in n of order 2 */
+        // C4[2], coeff of eps^5, polynomial in n of order 0
+        8., 10725., // C4[2], coeff of eps^4, polynomial in n of order 1
+        1856., -936., 225225., // C4[2], coeff of eps^3, polynomial in n of order 2
         -8448., 4992., -1144., 225225.,
-        /* C4[2], coeff of eps^2, polynomial in n of order 3 */
+        // C4[2], coeff of eps^2, polynomial in n of order 3
         -1440., 4160., -4576., 1716., 225225.,
-        /* C4[3], coeff of eps^5, polynomial in n of order 0 */
-        -136., 63063., /* C4[3], coeff of eps^4, polynomial in n of order 1 */
-        1024., -208., 105105., /* C4[3], coeff of eps^3, polynomial in n of order 2 */
+        // C4[3], coeff of eps^5, polynomial in n of order 0
+        -136., 63063., // C4[3], coeff of eps^4, polynomial in n of order 1
+        1024., -208., 105105., // C4[3], coeff of eps^3, polynomial in n of order 2
         3584., -3328., 1144., 315315.,
-        /* C4[4], coeff of eps^5, polynomial in n of order 0 */
-        -128., 135135., /* C4[4], coeff of eps^4, polynomial in n of order 1 */
-        -2560., 832., 405405., /* C4[5], coeff of eps^5, polynomial in n of order 0 */
+        // C4[4], coeff of eps^5, polynomial in n of order 0
+        -128., 135135., // C4[4], coeff of eps^4, polynomial in n of order 1
+        -2560., 832., 405405., // C4[5], coeff of eps^5, polynomial in n of order 0
         128., 99099.,
     ];
     let mut o = 0;
@@ -499,28 +499,28 @@ pub fn ang_normalize(x: f64) -> f64 {
 
 /// Round an angle in degrees to the nearest integer
 pub fn ang_round(x: f64) -> f64 {
-    /* False positive in cppcheck requires "1.0" instead of "1" */
+    // False positive in cppcheck requires "1.0" instead of "1"
     let z = 1.0 / 16.0;
     let mut y = fabs(x);
     let w = z - y;
-    /* The compiler mustn't "simplify" z - (z - y) to y */
+    // The compiler mustn't "simplify" z - (z - y) to y
     y = if w > 0. { z - w } else { y };
     copysign(y, x)
 }
 
 /// Compute the difference between two angles in degrees
 pub fn ang_diff(x: f64, y: f64, e: &mut f64) -> f64 {
-    /* Use remainder instead of AngNormalize, since we treat boundary cases
-     * later taking account of the error */
+    // Use remainder instead of AngNormalize, since we treat boundary cases
+    // later taking account of the error
     let mut t = 0.;
     let mut d = sumx(remainder(-x, TD), remainder(y, TD), &mut t);
-    /* This second sum can only change d if abs(d) < 128, so don't need to
-     * apply remainder yet again. */
+    // This second sum can only change d if abs(d) < 128, so don't need to
+    // apply remainder yet again.
     d = sumx(remainder(d, TD), t, &mut t);
-    /* Fix the sign if d = -180, 0, 180. */
+    // Fix the sign if d = -180, 0, 180.
     if d == 0. || fabs(d) == HD {
-        /* If t == 0, take sign from y - x
-         * else (t != 0, implies d = +/-180), d and t must have opposite signs */
+        // If t == 0, take sign from y - x
+        // else (t != 0, implies d = +/-180), d and t must have opposite signs
         d = copysign(d, if t == 0. { y - x } else { -t });
     }
     if *e != 0. {
@@ -586,7 +586,7 @@ pub fn norm2(sinx: &mut f64, cosx: &mut f64) {
 /// using Clenshaw summation.  N.B. c[0] is unused for sin series
 /// Approx operation count = (n + 5) mult and (2 * n + 2) add */
 pub fn sin_cos_series(sinp: bool, sinx: f64, cosx: f64, c: &[f64], mut n: usize) -> f64 {
-    /* Point to one beyond last element */
+    // Point to one beyond last element
     let mut c_index = if sinp { 1 } else { 0 } + n - 1;
     let ar = 2. * (cosx - sinx) * (cosx + sinx); /* 2 * cos(2 * x) */
     c_index -= 1;
@@ -630,7 +630,7 @@ pub fn atan2dx(mut y: f64, mut x: f64) -> f64 {
         x = -x;
         q += 1;
     }
-    /* here x >= 0 and x >= abs(y), so angle is in [-pi/4, pi/4] */
+    // here x >= 0 and x >= abs(y), so angle is in [-pi/4, pi/4]
     let mut ang = atan2(y, x) / DEGREE;
     match q {
         1 => {
@@ -739,7 +739,7 @@ pub fn geod_geninverse_int(
     //   double Ca[nC];
     let mut ca = [0.0; N_C];
     //   boolx meridian;
-    /* somg12 == 2 marks that it needs to be calculated */
+    // somg12 == 2 marks that it needs to be calculated
     let mut omg12 = 0.;
     let mut somg12 = 2.;
     let mut comg12 = 0.;
@@ -763,64 +763,64 @@ pub fn geod_geninverse_int(
             });
 
     outmask &= CapType::OutAll as u32;
-    /* Compute longitude difference (ang_diff does this carefully).  Result is
-     * in [-180, 180] but -180 is only for west-going geodesics.  180 is for
-     * east-going and meridional geodesics. */
+    // Compute longitude difference (ang_diff does this carefully).  Result is
+    // in [-180, 180] but -180 is only for west-going geodesics.  180 is for
+    // east-going and meridional geodesics.
     let mut lon12 = ang_diff(lon1, lon2, &mut lon12s);
-    /* Make longitude difference positive. */
+    // Make longitude difference positive.
     let mut lonsign = if lon12.is_sign_positive() { -1. } else { 1. };
     lon12 *= lonsign;
     lon12s *= lonsign;
     let lam12 = lon12 * DEGREE;
-    /* Calculate sincos of lon12 + error (this applies ang_round internally). */
+    // Calculate sincos of lon12 + error (this applies ang_round internally).
     sincosde(lon12, lon12s, &mut slam12, &mut clam12);
     lon12s = (HD - lon12) - lon12s; /* the supplementary longitude difference */
 
-    /* If really close to the equator, treat as on equator. */
+    // If really close to the equator, treat as on equator.
     lat1 = ang_round(lat_fix(lat1));
     lat2 = ang_round(lat_fix(lat2));
-    /* Swap points so that point with higher (abs) latitude is point 1
-     * If one latitude is a nan, then it becomes lat1. */
+    // Swap points so that point with higher (abs) latitude is point 1
+    // If one latitude is a nan, then it becomes lat1.
     let swapp = if fabs(lat1) < fabs(lat2) { -1. } else { 1. };
     if swapp < 0. {
         lonsign *= -1.;
         swapx(&mut lat1, &mut lat2);
     }
-    /* Make lat1 <= -0 */
+    // Make lat1 <= -0
     let latsign = if lat1.is_sign_positive() { 1. } else { -1. };
     lat1 *= latsign;
     lat2 *= latsign;
-    /* Now we have
-     *
-     *     0 <= lon12 <= 180
-     *     -90 <= lat1 <= -0
-     *     lat1 <= lat2 <= -lat1
-     *
-     * longsign, swapp, latsign register the transformation to bring the
-     * coordinates to this canonical form.  In all cases, 1 means no change was
-     * made.  We make these transformations so that there are few cases to
-     * check, e.g., on verifying quadrants in atan2.  In addition, this
-     * enforces some symmetries in the results returned. */
+    // Now we have
+    //
+    //     0 <= lon12 <= 180
+    //     -90 <= lat1 <= -0
+    //     lat1 <= lat2 <= -lat1
+    //
+    // longsign, swapp, latsign register the transformation to bring the
+    // coordinates to this canonical form.  In all cases, 1 means no change was
+    // made.  We make these transformations so that there are few cases to
+    // check, e.g., on verifying quadrants in atan2.  In addition, this
+    // enforces some symmetries in the results returned.
 
     sincosdx(lat1, &mut sbet1, &mut cbet1);
     sbet1 *= g.f1;
-    /* Ensure cbet1 = +epsilon at poles */
+    // Ensure cbet1 = +epsilon at poles
     norm2(&mut sbet1, &mut cbet1);
     cbet1 = fmax(TINY, cbet1);
 
     sincosdx(lat2, &mut sbet2, &mut cbet2);
     sbet2 *= g.f1;
-    /* Ensure cbet2 = +epsilon at poles */
+    // Ensure cbet2 = +epsilon at poles
     norm2(&mut sbet2, &mut cbet2);
     cbet2 = fmax(TINY, cbet2);
 
-    /* If cbet1 < -sbet1, then cbet2 - cbet1 is a sensitive measure of the
-     * |bet1| - |bet2|.  Alternatively (cbet1 >= -sbet1), abs(sbet2) + sbet1 is
-     * a better measure.  This logic is used in assigning calp2 in Lambda12.
-     * Sometimes these quantities vanish and in that case we force bet2 = +/-
-     * bet1 exactly.  An example where is is necessary is the inverse problem
-     * 48.522876735459 0 -48.52287673545898293 179.599720456223079643
-     * which failed with Visual Studio 10 (Release and Debug) */
+    // If cbet1 < -sbet1, then cbet2 - cbet1 is a sensitive measure of the
+    // |bet1| - |bet2|.  Alternatively (cbet1 >= -sbet1), abs(sbet2) + sbet1 is
+    // a better measure.  This logic is used in assigning calp2 in Lambda12.
+    // Sometimes these quantities vanish and in that case we force bet2 = +/-
+    // bet1 exactly.  An example where is is necessary is the inverse problem
+    // 48.522876735459 0 -48.52287673545898293 179.599720456223079643
+    // which failed with Visual Studio 10 (Release and Debug)
 
     if cbet1 < -sbet1 {
         if cbet2 == cbet1 {
@@ -836,20 +836,20 @@ pub fn geod_geninverse_int(
     let mut meridian = lat1 == -QD || slam12 == 0.;
 
     if meridian {
-        /* Endpoints are on a single full meridian, so the geodesic might lie on
-         * a meridian. */
+        // Endpoints are on a single full meridian, so the geodesic might lie on
+        // a meridian.
 
         calp1 = clam12;
         salp1 = slam12; /* Head to the target longitude */
         calp2 = 1.;
         salp2 = 0.; /* At the target we're heading north */
-        /* tan(bet) = tan(sig) * cos(alp) */
+        // tan(bet) = tan(sig) * cos(alp)
         let ssig1 = sbet1;
         let csig1 = calp1 * cbet1;
         let ssig2 = sbet2;
         let csig2 = calp2 * cbet2;
 
-        /* sig12 = sig2 - sig1 */
+        // sig12 = sig2 - sig1
         sig12 = atan2(fmax(0.0, csig1 * ssig2 - ssig1 * csig2) + 0., csig1 * csig2 + ssig1 * ssig2);
         let mut _tmp_m12 = 0.;
         let mut _tmp_m21 = 0.;
@@ -880,15 +880,15 @@ pub fn geod_geninverse_int(
             },
             &mut ca,
         );
-        /* Add the check for sig12 since zero length geodesics might yield m12 <
-         * 0.  Test case was
-         *
-         *    echo 20.001 0 20.001 0 | GeodSolve -i
-         *
-         * In fact, we will have sig12 > pi/2 for meridional geodesic which is
-         * not a shortest path. */
+        // Add the check for sig12 since zero length geodesics might yield m12 <
+        // 0.  Test case was
+        //
+        //    echo 20.001 0 20.001 0 | GeodSolve -i
+        //
+        // In fact, we will have sig12 > pi/2 for meridional geodesic which is
+        // not a shortest path.
         if sig12 < 1. || m12x >= 0. {
-            /* Need at least 2, to handle 90 0 90 180 */
+            // Need at least 2, to handle 90 0 90 180
             if sig12 < 3. * TINY ||
               /* Prevent negative s12 or m12 for short lines */
               (sig12 < TOL0 && (s12x < 0. || m12x < 0.))
@@ -901,7 +901,7 @@ pub fn geod_geninverse_int(
             s12x *= g.b;
             a12 = sig12 / DEGREE;
         } else {
-            /* m12 < 0, i.e., prolate and too close to anti-podal */
+            // m12 < 0, i.e., prolate and too close to anti-podal
             meridian = false;
         }
     }
@@ -911,7 +911,7 @@ pub fn geod_geninverse_int(
           /* Mimic the way Lambda12 works with calp1 = 0 */
           (g.f <= 0. || lon12s >= g.f * HD)
     {
-        /* Geodesic runs along equator */
+        // Geodesic runs along equator
         calp2 = 0.;
         calp1 = calp2;
         salp2 = 1.;
@@ -926,10 +926,10 @@ pub fn geod_geninverse_int(
         }
         a12 = lon12 / g.f1;
     } else if !meridian {
-        /* Now point1 and point2 belong within a hemisphere bounded by a
-         * meridian and geodesic is neither meridional or equatorial. */
+        // Now point1 and point2 belong within a hemisphere bounded by a
+        // meridian and geodesic is neither meridional or equatorial.
 
-        /* Figure a starting point for Newton's method */
+        // Figure a starting point for Newton's method
         let mut dnm = 0.;
         sig12 = inverse_start(
             g, sbet1, cbet1, dn1, sbet2, cbet2, dn2, lam12, slam12, clam12, &mut salp1, &mut calp1,
@@ -937,7 +937,7 @@ pub fn geod_geninverse_int(
         );
 
         if sig12 >= 0. {
-            /* Short lines (inverse_start sets salp2, calp2, dnm) */
+            // Short lines (inverse_start sets salp2, calp2, dnm)
             s12x = sig12 * g.b * dnm;
             m12x = sq(dnm) * g.b * sin(sig12 / dnm);
             if (outmask & GeodMask::GeodGeodesicScale as u32) != 0 {
@@ -947,17 +947,17 @@ pub fn geod_geninverse_int(
             a12 = sig12 / DEGREE;
             omg12 = lam12 / (g.f1 * dnm);
         } else {
-            /* Newton's method.  This is a straightforward solution of f(alp1) =
-             * lambda12(alp1) - lam12 = 0 with one wrinkle.  f(alp) has exactly one
-             * root in the interval (0, pi) and its derivative is positive at the
-             * root.  Thus f(alp) is positive for alp > alp1 and negative for alp <
-             * alp1.  During the course of the iteration, a range (alp1a, alp1b) is
-             * maintained which brackets the root and with each evaluation of
-             * f(alp) the range is shrunk, if possible.  Newton's method is
-             * restarted whenever the derivative of f is negative (because the new
-             * value of alp1 is then further from the solution) or if the new
-             * estimate of alp1 lies outside (0,pi); in this case, the new starting
-             * guess is taken to be (alp1a + alp1b) / 2. */
+            // Newton's method.  This is a straightforward solution of f(alp1) =
+            // lambda12(alp1) - lam12 = 0 with one wrinkle.  f(alp) has exactly one
+            // root in the interval (0, pi) and its derivative is positive at the
+            // root.  Thus f(alp) is positive for alp > alp1 and negative for alp <
+            // alp1.  During the course of the iteration, a range (alp1a, alp1b) is
+            // maintained which brackets the root and with each evaluation of
+            // f(alp) the range is shrunk, if possible.  Newton's method is
+            // restarted whenever the derivative of f is negative (because the new
+            // value of alp1 is then further from the solution) or if the new
+            // estimate of alp1 lies outside (0,pi); in this case, the new starting
+            // guess is taken to be (alp1a + alp1b) / 2.
             let mut ssig1 = 0.;
             let mut csig1 = 0.;
             let mut ssig2 = 0.;
@@ -965,7 +965,7 @@ pub fn geod_geninverse_int(
             let mut eps = 0.;
             let mut domg12 = 0.;
             let mut numit: u32 = 0;
-            /* Bracketing range */
+            // Bracketing range
             let mut salp1a = TINY;
             let mut calp1a = 1.;
             let mut salp1b = TINY;
@@ -975,8 +975,8 @@ pub fn geod_geninverse_int(
             //   for (;; ++numit) {
             loop {
                 numit += 1;
-                /* the WGS84 test set: mean = 1.47, sd = 1.25, max = 16
-                 * WGS84 and random input: mean = 2.85, sd = 0.60 */
+                // the WGS84 test set: mean = 1.47, sd = 1.25, max = 16
+                // WGS84 and random input: mean = 2.85, sd = 0.60
                 let mut dv = 0.;
                 let v = lambda12(
                     g,
@@ -1011,7 +1011,7 @@ pub fn geod_geninverse_int(
                 {
                     break;
                 }
-                /* Update bracketing values */
+                // Update bracketing values
                 if v > 0. && (numit > MAXIT1 || calp1 / salp1 > calp1b / salp1b) {
                     salp1b = salp1;
                     calp1b = calp1;
@@ -1029,22 +1029,22 @@ pub fn geod_geninverse_int(
                             calp1 = calp1 * cdalp1 - salp1 * sdalp1;
                             salp1 = nsalp1;
                             norm2(&mut salp1, &mut calp1);
-                            /* In some regimes we don't get quadratic convergence because
-                             * slope -> 0.  So use convergence conditions based on epsilon
-                             * instead of sqrt(epsilon). */
+                            // In some regimes we don't get quadratic convergence because
+                            // slope -> 0.  So use convergence conditions based on epsilon
+                            // instead of sqrt(epsilon).
                             tripn = fabs(v) <= 16. * TOL0;
                             continue;
                         }
                     }
                 }
-                /* Either dv was not positive or updated value was outside legal
-                 * range.  Use the midpoint of the bracket as the next estimate.
-                 * This mechanism is not needed for the WGS84 ellipsoid, but it does
-                 * catch problems with more eccentric ellipsoids.  Its efficacy is
-                 * such for the WGS84 test set with the starting guess set to alp1 =
-                 * 90deg:
-                 * the WGS84 test set: mean = 5.21, sd = 3.93, max = 24
-                 * WGS84 and random input: mean = 4.74, sd = 0.99 */
+                // Either dv was not positive or updated value was outside legal
+                // range.  Use the midpoint of the bracket as the next estimate.
+                // This mechanism is not needed for the WGS84 ellipsoid, but it does
+                // catch problems with more eccentric ellipsoids.  Its efficacy is
+                // such for the WGS84 test set with the starting guess set to alp1 =
+                // 90deg:
+                // the WGS84 test set: mean = 5.21, sd = 3.93, max = 24
+                // WGS84 and random input: mean = 4.74, sd = 0.99
                 salp1 = (salp1a + salp1b) / 2.;
                 calp1 = (calp1a + calp1b) / 2.;
                 norm2(&mut salp1, &mut calp1);
@@ -1085,7 +1085,7 @@ pub fn geod_geninverse_int(
             s12x *= g.b;
             a12 = sig12 / DEGREE;
             if (outmask & GeodFlags::GeodLongUnroll as u32) != 0 {
-                /* omg12 = lam12 - domg12 */
+                // omg12 = lam12 - domg12
                 let sdomg12 = sin(domg12);
                 let cdomg12 = cos(domg12);
                 somg12 = slam12 * cdomg12 - clam12 * sdomg12;
@@ -1109,14 +1109,14 @@ pub fn geod_geninverse_int(
         let calp0 = hypot(calp1, salp1 * sbet1); /* calp0 > 0 */
         let alp12;
         if calp0 != 0. && salp0 != 0. {
-            /* From Lambda12: tan(bet) = tan(sig) * cos(alp) */
+            // From Lambda12: tan(bet) = tan(sig) * cos(alp)
             let mut ssig1 = sbet1;
             let mut csig1 = calp1 * cbet1;
             let mut ssig2 = sbet2;
             let mut csig2 = calp2 * cbet2;
             let k2 = sq(calp0) * g.ep2;
             let eps = k2 / (2. * (1. + sqrt(1. + k2)) + k2);
-            /* Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0). */
+            // Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0).
             let a4 = sq(g.a) * calp0 * salp0 * g.e2;
 
             norm2(&mut ssig1, &mut csig1);
@@ -1126,7 +1126,7 @@ pub fn geod_geninverse_int(
             let b42 = sin_cos_series(false, ssig2, csig2, &ca, N_C4);
             _s12 = a4 * (b42 - b41);
         } else {
-            /* Avoid problems with indeterminate sig1, sig2 on equator */
+            // Avoid problems with indeterminate sig1, sig2 on equator
             _s12 = 0.;
         }
 
@@ -1168,11 +1168,11 @@ pub fn geod_geninverse_int(
         }
         _s12 += g.c2 * alp12;
         _s12 *= swapp * lonsign * latsign;
-        /* Convert -0 to 0 */
+        // Convert -0 to 0
         _s12 += 0.;
     }
 
-    /* Convert calp, salp to azimuth accounting for lonsign, swapp, latsign. */
+    // Convert calp, salp to azimuth accounting for lonsign, swapp, latsign.
     if swapp < 0. {
         swapx(&mut salp1, &mut salp2);
         swapx(&mut calp1, &mut calp2);
@@ -1244,7 +1244,7 @@ pub fn geod_genposition(
     let mut _m12 = 0.0;
     let mut _m21 = 0.0;
     let mut _s12 = 0.0;
-    /* Avoid warning about uninitialized B12. */
+    // Avoid warning about uninitialized B12.
     let mut sig12;
     let mut ssig12 = 0.;
     let mut csig12 = 0.;
@@ -1289,15 +1289,15 @@ pub fn geod_genposition(
     }
 
     if (flags & GeodFlags::GeodArcmode as u32) != 0 {
-        /* Interpret s12_a12 as spherical arc length */
+        // Interpret s12_a12 as spherical arc length
         sig12 = s12_a12 * DEGREE;
         sincosdx(s12_a12, &mut ssig12, &mut csig12);
     } else {
-        /* Interpret s12_a12 as distance */
+        // Interpret s12_a12 as distance
         let tau12 = s12_a12 / (l.b * (1. + l.a1m1));
         let s = sin(tau12);
         let c = cos(tau12);
-        /* tau2 = tau1 + tau12 */
+        // tau2 = tau1 + tau12
         b12 = -sin_cos_series(
             true,
             l.stau1 * c + l.ctau1 * s,
@@ -1309,27 +1309,27 @@ pub fn geod_genposition(
         ssig12 = sin(sig12);
         csig12 = cos(sig12);
         if fabs(l.f) > 0.01 {
-            /* Reverted distance series is inaccurate for |f| > 1/100, so correct
-             * sig12 with 1 Newton iteration.  The following table shows the
-             * approximate maximum error for a = WGS_a() and various f relative to
-             * GeodesicExact.
-             *     erri = the error in the inverse solution (nm)
-             *     errd = the error in the direct solution (series only) (nm)
-             *     errda = the error in the direct solution (series + 1 Newton) (nm)
-             *
-             *       f     erri  errd errda
-             *     -1/5    12e6 1.2e9  69e6
-             *     -1/10  123e3  12e6 765e3
-             *     -1/20   1110 108e3  7155
-             *     -1/50  18.63 200.9 27.12
-             *     -1/100 18.63 23.78 23.37
-             *     -1/150 18.63 21.05 20.26
-             *      1/150 22.35 24.73 25.83
-             *      1/100 22.35 25.03 25.31
-             *      1/50  29.80 231.9 30.44
-             *      1/20   5376 146e3  10e3
-             *      1/10  829e3  22e6 1.5e6
-             *      1/5   157e6 3.8e9 280e6 */
+            // Reverted distance series is inaccurate for |f| > 1/100, so correct
+            // sig12 with 1 Newton iteration.  The following table shows the
+            // approximate maximum error for a = WGS_a() and various f relative to
+            // GeodesicExact.
+            //     erri = the error in the inverse solution (nm)
+            //     errd = the error in the direct solution (series only) (nm)
+            //     errda = the error in the direct solution (series + 1 Newton) (nm)
+            //
+            //       f     erri  errd errda
+            //     -1/5    12e6 1.2e9  69e6
+            //     -1/10  123e3  12e6 765e3
+            //     -1/20   1110 108e3  7155
+            //     -1/50  18.63 200.9 27.12
+            //     -1/100 18.63 23.78 23.37
+            //     -1/150 18.63 21.05 20.26
+            //      1/150 22.35 24.73 25.83
+            //      1/100 22.35 25.03 25.31
+            //      1/50  29.80 231.9 30.44
+            //      1/20   5376 146e3  10e3
+            //      1/10  829e3  22e6 1.5e6
+            //      1/5   157e6 3.8e9 280e6
 
             ssig2 = l.ssig1 * csig12 + l.csig1 * ssig12;
             csig2 = l.csig1 * csig12 - l.ssig1 * ssig12;
@@ -1338,11 +1338,11 @@ pub fn geod_genposition(
             sig12 -= serr / sqrt(1. + l.k2 * sq(ssig2));
             ssig12 = sin(sig12);
             csig12 = cos(sig12);
-            /* Update B12 below */
+            // Update B12 below
         }
     }
 
-    /* sig2 = sig1 + sig12 */
+    // sig2 = sig1 + sig12
     ssig2 = l.ssig1 * csig12 + l.csig1 * ssig12;
     csig2 = l.csig1 * csig12 - l.ssig1 * ssig12;
     let dn2 = sqrt(1. + l.k2 * sq(ssig2));
@@ -1357,16 +1357,16 @@ pub fn geod_genposition(
         }
         ab1 = (1. + l.a1m1) * (b12 - l.b11);
     }
-    /* sin(bet2) = cos(alp0) * sin(sig2) */
+    // sin(bet2) = cos(alp0) * sin(sig2)
     let sbet2 = l.calp0 * ssig2;
-    /* Alt: cbet2 = hypot(csig2, salp0 * ssig2); */
+    // Alt: cbet2 = hypot(csig2, salp0 * ssig2);
     cbet2 = hypot(l.salp0, l.calp0 * csig2);
     if cbet2 == 0. {
-        /* I.e., salp0 = 0, csig2 = 0.  Break the degeneracy in this case */
+        // I.e., salp0 = 0, csig2 = 0.  Break the degeneracy in this case
         csig2 = TINY;
         cbet2 = csig2;
     }
-    /* tan(alp0) = cos(sig2)*tan(alp2) */
+    // tan(alp0) = cos(sig2)*tan(alp2)
     let salp2 = l.salp0;
     let calp2 = l.calp0 * csig2; /* No need to normalize */
 
@@ -1380,10 +1380,10 @@ pub fn geod_genposition(
 
     if (outmask & GeodMask::GeodLongitude as u32) != 0 {
         let e = copysign(1., l.salp0); /* east or west going? */
-        /* tan(omg2) = sin(alp0) * tan(sig2) */
+        // tan(omg2) = sin(alp0) * tan(sig2)
         somg2 = l.salp0 * ssig2;
         comg2 = csig2; /* No need to normalize */
-        /* omg12 = omg2 - omg1 */
+        // omg12 = omg2 - omg1
         omg12 = if (flags & GeodFlags::GeodLongUnroll as u32) != 0 {
             e * (sig12 - (atan2(ssig2, csig2) - atan2(l.ssig1, l.csig1))
                 + (atan2(e * somg2, comg2) - atan2(e * l.somg1, l.comg1)))
@@ -1413,8 +1413,8 @@ pub fn geod_genposition(
         let ab2 = (1. + l.a2m1) * (b22 - l.b21);
         let j12 = (l.a1m1 - l.a2m1) * sig12 + (ab1 - ab2);
         if (outmask & GeodMask::GeodReducedlength as u32) != 0 {
-            /* Add parens around (csig1 * ssig2) and (ssig1 * csig2) to ensure
-             * accurate cancellation in the case of coincident points. */
+            // Add parens around (csig1 * ssig2) and (ssig1 * csig2) to ensure
+            // accurate cancellation in the case of coincident points.
             m12 = l.b
                 * ((dn2 * (l.csig1 * ssig2) - l.dn1 * (l.ssig1 * csig2)) - l.csig1 * csig2 * j12);
         }
@@ -1430,7 +1430,7 @@ pub fn geod_genposition(
         let salp12;
         let calp12;
         if l.calp0 == 0. || l.salp0 == 0. {
-            /* alp12 = alp2 - alp1, used in atan2 so no need to normalize */
+            // alp12 = alp2 - alp1, used in atan2 so no need to normalize
             salp12 = salp2 * l.calp1 - calp2 * l.salp1;
             calp12 = calp2 * l.calp1 + salp2 * l.salp1;
         } else {
@@ -1454,14 +1454,13 @@ pub fn geod_genposition(
         _s12 = l.c2 * atan2(salp12, calp12) + l.a4 * (b42 - l.b41);
     }
 
-    /* In the pattern
-     *
-     *   if ((outmask & GEOD_XX) && pYY)
-     *     *pYY = YY;
-     *
-     * the second check "&& pYY" is redundant.  It's there to make the CLang
-     * static analyzer happy.
-     */
+    // In the pattern
+    //
+    //   if ((outmask & GEOD_XX) && pYY)
+    //     *pYY = YY;
+    //
+    // the second check "&& pYY" is redundant.  It's there to make the CLang
+    // static analyzer happy.
     if ((outmask & GeodMask::GeodLatitude as u32) != 0) && *plat2 != 0. {
         *plat2 = lat2;
     }
@@ -1524,31 +1523,31 @@ pub fn geod_lineinit_int(
 
     sincosdx(ang_round(l.lat1), &mut sbet1, &mut cbet1);
     sbet1 *= l.f1;
-    /* Ensure cbet1 = +epsilon at poles */
+    // Ensure cbet1 = +epsilon at poles
     norm2(&mut sbet1, &mut cbet1);
     cbet1 = fmax(TINY, cbet1);
     l.dn1 = sqrt(1. + g.ep2 * sq(sbet1));
 
-    /* Evaluate alp0 from sin(alp1) * cos(bet1) = sin(alp0), */
+    // Evaluate alp0 from sin(alp1) * cos(bet1) = sin(alp0),
     l.salp0 = l.salp1 * cbet1; /* alp0 in [0, pi/2 - |bet1|] */
-    /* Alt: calp0 = hypot(sbet1, calp1 * cbet1).  The following
-     * is slightly better (consider the case salp1 = 0). */
+    // Alt: calp0 = hypot(sbet1, calp1 * cbet1).  The following
+    // is slightly better (consider the case salp1 = 0).
     l.calp0 = hypot(l.calp1, l.salp1 * sbet1);
-    /* Evaluate sig with tan(bet1) = tan(sig1) * cos(alp1).
-     * sig = 0 is nearest northward crossing of equator.
-     * With bet1 = 0, alp1 = pi/2, we have sig1 = 0 (equatorial line).
-     * With bet1 =  pi/2, alp1 = -pi, sig1 =  pi/2
-     * With bet1 = -pi/2, alp1 =  0 , sig1 = -pi/2
-     * Evaluate omg1 with tan(omg1) = sin(alp0) * tan(sig1).
-     * With alp0 in (0, pi/2], quadrants for sig and omg coincide.
-     * No atan2(0,0) ambiguity at poles since cbet1 = +epsilon.
-     * With alp0 = 0, omg1 = 0 for alp1 = 0, omg1 = pi for alp1 = pi. */
+    // Evaluate sig with tan(bet1) = tan(sig1) * cos(alp1).
+    // sig = 0 is nearest northward crossing of equator.
+    // With bet1 = 0, alp1 = pi/2, we have sig1 = 0 (equatorial line).
+    // With bet1 =  pi/2, alp1 = -pi, sig1 =  pi/2
+    // With bet1 = -pi/2, alp1 =  0 , sig1 = -pi/2
+    // Evaluate omg1 with tan(omg1) = sin(alp0) * tan(sig1).
+    // With alp0 in (0, pi/2], quadrants for sig and omg coincide.
+    // No atan2(0,0) ambiguity at poles since cbet1 = +epsilon.
+    // With alp0 = 0, omg1 = 0 for alp1 = 0, omg1 = pi for alp1 = pi.
     l.ssig1 = sbet1;
     l.somg1 = l.salp0 * sbet1;
     l.comg1 = sbet1;
     l.csig1 = if l.comg1 != 0. || l.calp1 != 0. { cbet1 * l.calp1 } else { 1. };
     norm2(&mut l.ssig1, &mut l.csig1); /* sig1 in (-pi, pi] */
-    /* norm2(somg1, comg1); -- don't need to normalize! */
+    // norm2(somg1, comg1); -- don't need to normalize!
 
     l.k2 = sq(l.calp0) * g.ep2;
     let eps = l.k2 / (2. * (1. + sqrt(1. + l.k2)) + l.k2);
@@ -1559,11 +1558,11 @@ pub fn geod_lineinit_int(
         l.b11 = sin_cos_series(true, l.ssig1, l.csig1, &l.c1a, N_C1);
         let s = sin(l.b11);
         let c = cos(l.b11);
-        /* tau1 = sig1 + b11 */
+        // tau1 = sig1 + b11
         l.stau1 = l.ssig1 * c + l.csig1 * s;
         l.ctau1 = l.csig1 * c - l.ssig1 * s;
-        /* Not necessary because c1pa reverts c1a
-         *    b11 = -sin_cos_series(true, stau1, ctau1, c1pa, N_C1_P); */
+        // Not necessary because c1pa reverts c1a
+        //    b11 = -sin_cos_series(true, stau1, ctau1, c1pa, N_C1_P);
     }
 
     if (l.caps & CapType::CapC1p as u32) != 0 {
@@ -1632,12 +1631,12 @@ fn c4f(g: &GeodGeodesic, eps: f64, c: &mut [f64]) {
 /// The coefficients C1[l] in the Fourier expansion of B1 */
 fn c1f(eps: f64, c: &mut [f64]) {
     let coeff: [f64; 18] = [
-        /* C1[1]/eps^1, polynomial in eps2 of order 2 */
-        -1., 6., -16., 32., /* C1[2]/eps^2, polynomial in eps2 of order 2 */
-        -9., 64., -128., 2048., /* C1[3]/eps^3, polynomial in eps2 of order 1 */
-        9., -16., 768., /* C1[4]/eps^4, polynomial in eps2 of order 1 */
-        3., -5., 512., /* C1[5]/eps^5, polynomial in eps2 of order 0 */
-        -7., 1280., /* C1[6]/eps^6, polynomial in eps2 of order 0 */
+        // C1[1]/eps^1, polynomial in eps2 of order 2
+        -1., 6., -16., 32., // C1[2]/eps^2, polynomial in eps2 of order 2
+        -9., 64., -128., 2048., // C1[3]/eps^3, polynomial in eps2 of order 1
+        9., -16., 768., // C1[4]/eps^4, polynomial in eps2 of order 1
+        3., -5., 512., // C1[5]/eps^5, polynomial in eps2 of order 0
+        -7., 1280., // C1[6]/eps^6, polynomial in eps2 of order 0
         -7., 2048.,
     ];
     let eps2 = sq(eps);
@@ -1679,7 +1678,7 @@ fn c1pf(eps: f64, c: &mut [f64]) {
 
 /// The scale factor A2-1 = mean value of (d/dsigma)I2 - 1
 fn a2m1f(eps: f64) -> f64 {
-    /* (eps+1)*A2-1, polynomial in eps2 of order 3 */
+    // (eps+1)*A2-1, polynomial in eps2 of order 3
     let coeff: [f64; 5] = [-11., -28., -192., 0., 256.];
     let m = N_A2 / 2;
     let t = polyvalx(m, &coeff, sq(eps)) / coeff[m + 1];
@@ -1689,12 +1688,12 @@ fn a2m1f(eps: f64) -> f64 {
 /// The coefficients C2[l] in the Fourier expansion of B2
 fn c2f(eps: f64, c: &mut [f64]) {
     let coeff: [f64; 18] = [
-        /* C2[1]/eps^1, polynomial in eps2 of order 2 */
-        1., 2., 16., 32., /* C2[2]/eps^2, polynomial in eps2 of order 2 */
-        35., 64., 384., 2048., /* C2[3]/eps^3, polynomial in eps2 of order 1 */
-        15., 80., 768., /* C2[4]/eps^4, polynomial in eps2 of order 1 */
-        7., 35., 512., /* C2[5]/eps^5, polynomial in eps2 of order 0 */
-        63., 1280., /* C2[6]/eps^6, polynomial in eps2 of order 0 */
+        // C2[1]/eps^1, polynomial in eps2 of order 2
+        1., 2., 16., 32., // C2[2]/eps^2, polynomial in eps2 of order 2
+        35., 64., 384., 2048., // C2[3]/eps^3, polynomial in eps2 of order 1
+        15., 80., 768., // C2[4]/eps^4, polynomial in eps2 of order 1
+        7., 35., 512., // C2[5]/eps^5, polynomial in eps2 of order 0
+        63., 1280., // C2[6]/eps^6, polynomial in eps2 of order 0
         77., 2048.,
     ];
     let eps2 = sq(eps);
@@ -1702,7 +1701,7 @@ fn c2f(eps: f64, c: &mut [f64]) {
     let mut o = 0;
     #[allow(clippy::needless_range_loop)]
     for l in 1..=N_C2 {
-        /* l is index of C2[l] */
+        // l is index of C2[l]
         let m = (N_C2 - l) / 2; /* order of polynomial in eps^2 */
         c[l] = d * polyvalx(m, &coeff[o..], eps2) / coeff[o + m + 1];
         o += m + 2;
@@ -1739,11 +1738,11 @@ pub fn inverse_start(
     let mut calp2 = 0.;
     let mut dnm = 0.;
 
-    /* Return a starting point for Newton's method in salp1 and calp1 (function
-     * value is -1).  If Newton's method doesn't need to be used, return also
-     * salp2 and calp2 and function value is sig12. */
+    // Return a starting point for Newton's method in salp1 and calp1 (function
+    // value is -1).  If Newton's method doesn't need to be used, return also
+    // salp2 and calp2 and function value is sig12.
     let mut sig12 = -1.; /* Return value */
-    /* bet12 = bet2 - bet1 in [0, pi); bet12a = bet2 + bet1 in (-pi, 0] */
+    // bet12 = bet2 - bet1 in [0, pi); bet12a = bet2 + bet1 in (-pi, 0]
     let sbet12 = sbet2 * cbet1 - cbet2 * sbet1;
     let cbet12 = cbet2 * cbet1 + sbet2 * sbet1;
 
@@ -1755,8 +1754,8 @@ pub fn inverse_start(
     if shortline {
         let mut sbetm2 = sq(sbet1 + sbet2);
 
-        /* sin((bet1+bet2)/2)^2
-         * =  (sbet1 + sbet2)^2 / ((sbet1 + sbet2)^2 + (cbet1 + cbet2)^2) */
+        // sin((bet1+bet2)/2)^2
+        // =  (sbet1 + sbet2)^2 / ((sbet1 + sbet2)^2 + (cbet1 + cbet2)^2)
         sbetm2 /= sbetm2 + sq(cbet1 + cbet2);
         dnm = sqrt(1. + g.ep2 * sbetm2);
         let omg12 = lam12 / (g.f1 * dnm);
@@ -1778,29 +1777,29 @@ pub fn inverse_start(
     let csig12 = sbet1 * sbet2 + cbet1 * cbet2 * comg12;
 
     if shortline && ssig12 < g.etol2 {
-        /* really short lines */
+        // really short lines
         salp2 = cbet1 * somg12;
         calp2 = sbet12
             - cbet1 * sbet2 * (if comg12 >= 0. { sq(somg12) / (1. + comg12) } else { 1. - comg12 });
         norm2(&mut salp2, &mut calp2);
-        /* Set return value */
+        // Set return value
         sig12 = atan2(ssig12, csig12);
     } else if fabs(g.n) > 0.1 || /* No a calc if too eccentric */
                  csig12 >= 0. ||
                  ssig12 >= 6. * fabs(g.n) * PI * sq(cbet1)
     {
-        /* Nothing to do, zeroth order spherical approximation is OK */
+        // Nothing to do, zeroth order spherical approximation is OK
     } else {
-        /* Scale lam12 and bet2 to x, y coordinate system where antipodal point
-         * is at origin and singular point is at y = 0, x = -1. */
+        // Scale lam12 and bet2 to x, y coordinate system where antipodal point
+        // is at origin and singular point is at y = 0, x = -1.
         let x;
         let y;
         let lamscale;
         let betscale;
         let lam12x = atan2(-slam12, -clam12); /* lam12 - pi */
         if g.f >= 0. {
-            /* In fact f == 0 does not get here */
-            /* x = dlong, y = dlat */
+            // In fact f == 0 does not get here
+            // x = dlong, y = dlat
             {
                 let k2 = sq(sbet1) * g.ep2;
                 let eps = k2 / (2. * (1. + sqrt(1. + k2)) + k2);
@@ -1811,14 +1810,14 @@ pub fn inverse_start(
             x = lam12x / lamscale;
             y = sbet12a / betscale;
         } else {
-            /* f < 0 */
-            /* x = dlat, y = dlong */
+            // f < 0
+            // x = dlat, y = dlong
             let cbet12a = cbet2 * cbet1 - sbet2 * sbet1;
             let bet12a = atan2(sbet12a, cbet12a);
             let mut m12b = 0.;
             let mut m0 = 0.;
-            /* In the case of lon12 = 180, this repeats a calculation made in
-             * Inverse. */
+            // In the case of lon12 = 180, this repeats a calculation made in
+            // Inverse.
             lengths(
                 g,
                 g.n,
@@ -1845,7 +1844,7 @@ pub fn inverse_start(
         }
 
         if y > -TOL1 && x > -1. - XTHRESH {
-            /* strip near cut */
+            // strip near cut
             if g.f >= 0. {
                 salp1 = fmin(1.0, -x);
                 calp1 = -sqrt(1. - sq(salp1));
@@ -1854,50 +1853,50 @@ pub fn inverse_start(
                 salp1 = sqrt(1. - sq(calp1));
             }
         } else {
-            /* Estimate alp1, by solving the a problem.
-             *
-             * Could estimate alpha1 = theta + pi/2, directly, i.e.,
-             *   calp1 = y/k; salp1 = -x/(1+k);  for f >= 0
-             *   calp1 = x/(1+k); salp1 = -y/k;  for f < 0 (need to check)
-             *
-             * However, it's better to estimate omg12 from a and use
-             * spherical formula to compute alp1.  This reduces the mean number of
-             * Newton iterations for a cases from 2.24 (min 0, max 6) to 2.12
-             * (min 0 max 5).  The changes in the number of iterations are as
-             * follows:
-             *
-             * change percent
-             *    1       5
-             *    0      78
-             *   -1      16
-             *   -2       0.6
-             *   -3       0.04
-             *   -4       0.002
-             *
-             * The histogram of iterations is (m = number of iterations estimating
-             * alp1 directly, n = number of iterations estimating via omg12, total
-             * number of trials = 148605):
-             *
-             *  iter    m      n
-             *    0   148    186
-             *    1 13046  13845
-             *    2 93315 102225
-             *    3 36189  32341
-             *    4  5396      7
-             *    5   455      1
-             *    6    56      0
-             *
-             * Because omg12 is near pi, estimate work with omg12a = pi - omg12 */
+            // Estimate alp1, by solving the a problem.
+            //
+            // Could estimate alpha1 = theta + pi/2, directly, i.e.,
+            //   calp1 = y/k; salp1 = -x/(1+k);  for f >= 0
+            //   calp1 = x/(1+k); salp1 = -y/k;  for f < 0 (need to check)
+            //
+            // However, it's better to estimate omg12 from a and use
+            // spherical formula to compute alp1.  This reduces the mean number of
+            // Newton iterations for a cases from 2.24 (min 0, max 6) to 2.12
+            // (min 0 max 5).  The changes in the number of iterations are as
+            // follows:
+            //
+            // change percent
+            //    1       5
+            //    0      78
+            //   -1      16
+            //   -2       0.6
+            //   -3       0.04
+            //   -4       0.002
+            //
+            // The histogram of iterations is (m = number of iterations estimating
+            // alp1 directly, n = number of iterations estimating via omg12, total
+            // number of trials = 148605):
+            //
+            //  iter    m      n
+            //    0   148    186
+            //    1 13046  13845
+            //    2 93315 102225
+            //    3 36189  32341
+            //    4  5396      7
+            //    5   455      1
+            //    6    56      0
+            //
+            // Because omg12 is near pi, estimate work with omg12a = pi - omg12
             let k = astroid(x, y);
             let omg12a = lamscale * (if g.f >= 0. { -x * k / (1. + k) } else { -y * (1. + k) / k });
             somg12 = sin(omg12a);
             comg12 = -cos(omg12a);
-            /* Update spherical estimate of alp1 using omg12 instead of lam12 */
+            // Update spherical estimate of alp1 using omg12 instead of lam12
             salp1 = cbet2 * somg12;
             calp1 = sbet12a - cbet2 * sbet1 * sq(somg12) / (1. - comg12);
         }
     }
-    /* Sanity check on starting guess.  Backwards check allows NaN through. */
+    // Sanity check on starting guess.  Backwards check allows NaN through.
     if salp1 > 0. {
         norm2(&mut salp1, &mut calp1);
     } else {
@@ -1957,28 +1956,28 @@ pub fn lambda12(
         calp1 = -TINY;
     }
 
-    /* sin(alp1) * cos(bet1) = sin(alp0) */
+    // sin(alp1) * cos(bet1) = sin(alp0)
     let salp0 = salp1 * cbet1;
     let calp0 = hypot(calp1, salp1 * sbet1); /* calp0 > 0 */
 
-    /* tan(bet1) = tan(sig1) * cos(alp1)
-     * tan(omg1) = sin(alp0) * tan(sig1) = tan(omg1)=tan(alp1)*sin(bet1) */
+    // tan(bet1) = tan(sig1) * cos(alp1)
+    // tan(omg1) = sin(alp0) * tan(sig1) = tan(omg1)=tan(alp1)*sin(bet1)
     ssig1 = sbet1;
     let somg1 = salp0 * sbet1;
     let comg1 = calp1 * cbet1;
     csig1 = comg1;
     norm2(&mut ssig1, &mut csig1);
-    /* norm2(&somg1, &comg1); -- don't need to normalize! */
+    // norm2(&somg1, &comg1); -- don't need to normalize!
 
-    /* Enforce symmetries in the case abs(bet2) = -bet1.  Need to be careful
-     * about this case, since this can yield singularities in the Newton
-     * iteration.
-     * sin(alp2) * cos(bet2) = sin(alp0) */
+    // Enforce symmetries in the case abs(bet2) = -bet1.  Need to be careful
+    // about this case, since this can yield singularities in the Newton
+    // iteration.
+    // sin(alp2) * cos(bet2) = sin(alp0)
     let salp2 = if cbet2 != cbet1 { salp0 / cbet2 } else { salp1 };
-    /* calp2 = sqrt(1 - sq(salp2))
-     *       = sqrt(sq(calp0) - sq(sbet2)) / cbet2
-     * and subst for calp0 and rearrange to give (choose positive sqrt
-     * to give alp2 in [0, pi/2]). */
+    // calp2 = sqrt(1 - sq(salp2))
+    //       = sqrt(sq(calp0) - sq(sbet2)) / cbet2
+    // and subst for calp0 and rearrange to give (choose positive sqrt
+    // to give alp2 in [0, pi/2]).
 
     let calp2 = if cbet2 != cbet1 || fabs(sbet2) != -sbet1 {
         sqrt(
@@ -1993,22 +1992,22 @@ pub fn lambda12(
         fabs(calp1)
     };
 
-    /* tan(bet2) = tan(sig2) * cos(alp2)
-     * tan(omg2) = sin(alp0) * tan(sig2). */
+    // tan(bet2) = tan(sig2) * cos(alp2)
+    // tan(omg2) = sin(alp0) * tan(sig2).
     ssig2 = sbet2;
     let somg2 = salp0 * sbet2;
     let comg2 = calp2 * cbet2;
     csig2 = comg2;
     norm2(&mut ssig2, &mut csig2);
-    /* norm2(&somg2, &comg2); -- don't need to normalize! */
+    // norm2(&somg2, &comg2); -- don't need to normalize!
 
-    /* sig12 = sig2 - sig1, limit to [0, pi] */
+    // sig12 = sig2 - sig1, limit to [0, pi]
     let sig12 = atan2(fmax(0.0, csig1 * ssig2 - ssig1 * csig2) + 0., csig1 * csig2 + ssig1 * ssig2);
 
-    /* omg12 = omg2 - omg1, limit to [0, pi] */
+    // omg12 = omg2 - omg1, limit to [0, pi]
     let somg12 = fmax(0.0, comg1 * somg2 - somg1 * comg2) + 0.;
     let comg12 = comg1 * comg2 + somg1 * somg2;
-    /* eta = omg12 - lam120 */
+    // eta = omg12 - lam120
     let eta = atan2(somg12 * clam120 - comg12 * slam120, comg12 * clam120 + somg12 * slam120);
     let k2 = sq(calp0) * g.ep2;
     let eps = k2 / (2. * (1. + sqrt(1. + k2)) + k2);
@@ -2090,8 +2089,8 @@ fn lengths(
     let mut a2 = 0.0;
     let mut cb = [0.0; N_C];
 
-    /* Return m12b = (reduced length)/b; also calculate s12b = distance/b,
-     * and m0 = coefficient of secular term in expression for reduced length. */
+    // Return m12b = (reduced length)/b; also calculate s12b = distance/b,
+    // and m0 = coefficient of secular term in expression for reduced length.
     let redlp = *pm12b != 0. || *pm0 != 0. || *p_m12 != 0. || *p_m21 != 0.;
     if *ps12b != 0. || redlp {
         a1 = a1m1f(eps);
@@ -2107,7 +2106,7 @@ fn lengths(
     if *ps12b != 0. {
         let b1 = sin_cos_series(true, ssig2, csig2, ca, N_C1)
             - sin_cos_series(true, ssig1, csig1, ca, N_C1);
-        /* Missing a factor of b */
+        // Missing a factor of b
         *ps12b = a1 * (sig12 + b1);
         // if redlp {
         //     let b2 = sin_cos_series(true, ssig2, csig2, &cb, N_C2)
@@ -2115,7 +2114,7 @@ fn lengths(
         //     j12 = m0 * sig12 + (A1 * b1 - A2 * b2);
         // }
     } else if redlp {
-        /* Assume here that nC1 >= nC2 */
+        // Assume here that nC1 >= nC2
         // int l;
         // for (l = 1; l <= nC2; ++l)
         for l in 1..N_C2 {
@@ -2147,14 +2146,14 @@ fn lengths(
 }
 
 fn sincosde(x: f64, t: f64, sinx: &mut f64, cosx: &mut f64) {
-    /* In order to minimize round-off errors, this function exactly reduces
-     * the argument to the range [-45, 45] before converting it to radians. */
+    // In order to minimize round-off errors, this function exactly reduces
+    // the argument to the range [-45, 45] before converting it to radians.
     //   double r, s, c; int q = 0;
     let q = remquo(x, QD);
     let mut r = ang_round(q.0 + t);
-    /* now abs(r) <= 45 */
+    // now abs(r) <= 45
     r *= DEGREE;
-    /* Possibly could call the gnu extension sincos */
+    // Possibly could call the gnu extension sincos
     let s = sin(r);
     let c = cos(r);
     match q.1 & 3 {
@@ -2173,11 +2172,11 @@ fn sincosde(x: f64, t: f64, sinx: &mut f64, cosx: &mut f64) {
         _ => {
             *sinx = -c;
             *cosx = s;
-        } /* case 3U */
+        } // case 3U
     }
-    /* http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1950.pdf */
+    // http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1950.pdf
     *cosx += 0.; /* special values from F.10.1.12 */
-    /* special values from F.10.1.13 */
+    // special values from F.10.1.13
     if *sinx == 0. {
         *sinx = copysign(*sinx, x);
     }
@@ -2190,44 +2189,44 @@ pub fn astroid(x: f64, y: f64) -> f64 {
     let q = sq(y);
     let r = (p + q - 1.) / 6.;
     if !(q == 0. && r <= 0.) {
-        /* Avoid possible division by zero when r = 0 by multiplying equations
-         * for s and t by r^3 and r, resp. */
+        // Avoid possible division by zero when r = 0 by multiplying equations
+        // for s and t by r^3 and r, resp.
         let _s = p * q / 4.; /* S = r^3 * s */
         let r2 = sq(r);
         let r3 = r * r2;
-        /* The discriminant of the quadratic equation for _t3.  This is zero on
-         * the evolute curve p^(1/3)+q^(1/3) = 1 */
+        // The discriminant of the quadratic equation for _t3.  This is zero on
+        // the evolute curve p^(1/3)+q^(1/3) = 1
         let disc = _s * (_s + 2. * r3);
         let mut u = r;
 
         if disc >= 0. {
             let mut _t3 = _s + r3;
-            /* Pick the sign on the sqrt to maximize abs(_t3).  This minimizes loss
-             * of precision due to cancellation.  The result is unchanged because
-             * of the way the T is used in definition of u. */
+            // Pick the sign on the sqrt to maximize abs(_t3).  This minimizes loss
+            // of precision due to cancellation.  The result is unchanged because
+            // of the way the T is used in definition of u.
             _t3 += if _t3 < 0. { -sqrt(disc) } else { sqrt(disc) }; /* _t3 = (r * t)^3 */
-            /* N.B. cbrt always returns the double root.  cbrt(-8) = -2. */
+            // N.B. cbrt always returns the double root.  cbrt(-8) = -2.
             let t = cbrt(_t3); /* T = r * t */
-            /* T can be zero; but then r2 / T -> 0. */
+            // T can be zero; but then r2 / T -> 0.
             u += t + (if t != 0. { r2 / t } else { 0. });
         } else {
-            /* T is complex, but the way u is defined the result is double. */
+            // T is complex, but the way u is defined the result is double.
             let ang = atan2(sqrt(-disc), -(_s + r3));
-            /* There are three possible cube roots.  We choose the root which
-             * avoids cancellation.  Note that disc < 0 implies that r < 0. */
+            // There are three possible cube roots.  We choose the root which
+            // avoids cancellation.  Note that disc < 0 implies that r < 0.
             u += 2. * r * cos(ang / 3.);
         }
         let v = sqrt(sq(u) + q); /* guaranteed positive */
-        /* Avoid loss of accuracy when u < 0. */
+        // Avoid loss of accuracy when u < 0.
         let uv = if u < 0. { q / (v - u) } else { u + v }; /* u+v, guaranteed positive */
         let w = (uv - q) / (2. * v); /* positive? */
-        /* Rearrange expression for k to avoid loss of accuracy due to
-         * subtraction.  Division by 0 not possible because uv > 0, w >= 0. */
+        // Rearrange expression for k to avoid loss of accuracy due to
+        // subtraction.  Division by 0 not possible because uv > 0, w >= 0.
         uv / (sqrt(uv + sq(w)) + w) /* guaranteed positive */
     } else {
-        /* q == 0 && r <= 0 */
-        /* y = 0 with |x| <= 1.  Handle this case directly.
-         * for y small, positive root is k = abs(y)/sqrt(1-x^2) */
+        // q == 0 && r <= 0
+        // y = 0 with |x| <= 1.  Handle this case directly.
+        // for y small, positive root is k = abs(y)/sqrt(1-x^2)
         0.
     }
 }
