@@ -255,14 +255,12 @@ impl GTFSScheduleReader {
     pub fn from_folder(folder_path: &str) -> Self {
         let mut pieces: Vec<Piece> = vec![];
 
-        for entry in std::fs::read_dir(folder_path).unwrap() {
-            if let Ok(entry) = entry {
-                if let Ok(read_data) = std::fs::read(entry.path()) {
-                    pieces.push(Piece {
-                        filename: entry.file_name().to_str().unwrap().into(),
-                        data: String::from_utf8_lossy(&read_data).into(),
-                    });
-                }
+        for entry in std::fs::read_dir(folder_path).unwrap().flatten() {
+            if let Ok(read_data) = std::fs::read(entry.path()) {
+                pieces.push(Piece {
+                    filename: entry.file_name().to_str().unwrap().into(),
+                    data: String::from_utf8_lossy(&read_data).into(),
+                });
             }
         }
 

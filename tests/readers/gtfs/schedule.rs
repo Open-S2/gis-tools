@@ -5,16 +5,18 @@ mod tests {
     use gistools::{
         parsers::{FeatureReader, RGBA},
         readers::{
-            GTFSArea, GTFSAttribution, GTFSBookingRule, GTFSBookingType, GTFSCalendar,
-            GTFSCalendarDate, GTFSContinuousPickupDropOff, GTFSDayAvailability,
-            GTFSDurationLimitType, GTFSExactTimes, GTFSExceptionType, GTFSFareAttribute,
-            GTFSFareLegJoinRule, GTFSFareLegRule, GTFSFareMedia, GTFSFareMediaType,
-            GTFSFareProduct, GTFSFareTransferRule, GTFSFareTransferType, GTFSFeedInfo,
-            GTFSFrequency, GTFSIsBidirectional, GTFSLevel, GTFSLocationGroup,
+            GTFSArea, GTFSAttribution, GTFSBikesAllowed, GTFSBookingRule, GTFSBookingType,
+            GTFSCalendar, GTFSCalendarDate, GTFSContinuousPickupDropOff, GTFSDayAvailability,
+            GTFSDirectionId, GTFSDurationLimitType, GTFSExactTimes, GTFSExceptionType,
+            GTFSFareAttribute, GTFSFareLegJoinRule, GTFSFareLegRule, GTFSFareMedia,
+            GTFSFareMediaType, GTFSFareProduct, GTFSFareTransferRule, GTFSFareTransferType,
+            GTFSFeedInfo, GTFSFrequency, GTFSIsBidirectional, GTFSLevel, GTFSLocationGroup,
             GTFSLocationGroupStop, GTFSNetwork, GTFSPathway, GTFSPathwayMode, GTFSPaymentMethod,
             GTFSPickupDropOffType, GTFSRoute, GTFSRouteNetwork, GTFSRoutePickupType, GTFSRouteType,
-            GTFSScheduleReader, GTFSStopArea, GTFSStopLocationType, GTFSStopTime, GTFSTimeframe,
-            GTFSTimepoint, GTFSTransfer, GTFSTransferType, GTFSTransfersType, GTFSTranslation,
+            GTFSScheduleReader, GTFSShape, GTFSShapeMValue, GTFSShapes, GTFSStopArea,
+            GTFSStopLocationType, GTFSStopTime, GTFSTimeframe, GTFSTimepoint, GTFSTransfer,
+            GTFSTransferType, GTFSTransfersType, GTFSTranslation, GTFSTrip,
+            GTFSWheelchairAccessibility,
         },
         util::Date,
     };
@@ -1413,6 +1415,42 @@ mod tests {
         assert_eq!(GTFSRoutePickupType::NoContinuousStoppingPickup, 1.into());
         assert_eq!(GTFSRoutePickupType::MustPhoneAgency, 2.into());
         assert_eq!(GTFSRoutePickupType::MustCoordinateWithDriver, 3.into());
+
+        let trips = &reader.trips;
+        let _804u = trips.get("804u").unwrap();
+        assert_eq!(
+            *_804u,
+            GTFSTrip {
+                route_id: "Bu-16APR".into(),
+                service_id: "CT-16APR-Caltrain-Sunday-02".into(),
+                trip_id: "804u".into(),
+                trip_headsign: Some("DIRIDON STATION".into()),
+                trip_short_name: Some("804".into()),
+                direction_id: Some(1),
+                block_id: None,
+                shape_id: Some("cal_sj_sf".into()),
+                wheelchair_accessible: Some(1),
+                bikes_allowed: Some(1),
+            }
+        );
+
+        assert_eq!(_804u.direction_id(), Some(GTFSDirectionId::Inbound));
+        assert_eq!(_804u.wheelchair_accessible(), Some(GTFSWheelchairAccessibility::Accessible));
+        assert_eq!(_804u.bikes_allowed(), Some(GTFSBikesAllowed::Allowed));
+
+        // GTFSDirectionId
+        assert_eq!(GTFSDirectionId::Outbound, 0.into());
+        assert_eq!(GTFSDirectionId::Inbound, 1.into());
+
+        // GTFSWheelchairAccessibility
+        assert_eq!(GTFSWheelchairAccessibility::NoInfo, 0.into());
+        assert_eq!(GTFSWheelchairAccessibility::Accessible, 1.into());
+        assert_eq!(GTFSWheelchairAccessibility::NotAccessible, 2.into());
+
+        // GTFSBikesAllowed
+        assert_eq!(GTFSBikesAllowed::NoInfo, 0.into());
+        assert_eq!(GTFSBikesAllowed::Allowed, 1.into());
+        assert_eq!(GTFSBikesAllowed::NotAllowed, 2.into());
     }
 
     #[test]
@@ -1422,5 +1460,17 @@ mod tests {
 
         let features: Vec<VectorFeature> = schedule.par_iter(1, 1).collect();
         assert_eq!(features.len(), 3);
+    }
+
+    #[test]
+    fn gtfs_schedule_shapes() {
+        let test_shape: GTFSShapeMValue = 0.0.into();
+        assert_eq!(test_shape, GTFSShapeMValue { shape_dist_traveled: 0.0 });
+        let test_shape: GTFSShapeMValue = 1.0.into();
+        assert_eq!(test_shape, GTFSShapeMValue { shape_dist_traveled: 1.0 });
+
+        let empty_test: Vec<GTFSShape> = vec![];
+        let empty_shape: GTFSShapes = (&empty_test).into();
+        assert_eq!(empty_shape, GTFSShapes { shapes: vec![], shape_id: "".into() });
     }
 }
