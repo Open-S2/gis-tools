@@ -1,1 +1,3 @@
-pub mod jpeg;
+mod decoder;
+mod jpeg;
+mod rgba;

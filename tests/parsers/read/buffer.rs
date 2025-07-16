@@ -58,6 +58,17 @@ mod tests {
         assert_eq!(1, buf.get_u8_at(0));
     }
 
+    // get_i8, get_i8_at & set_i8
+    #[test]
+    fn test_get_i8() {
+        let mut buf = Buffer::default();
+        buf.set_i8(1);
+        buf.set_i8_at(2, 2);
+        buf.set_pos(0);
+        assert_eq!(1, buf.get_i8());
+        assert_eq!(1, buf.get_i8_at(0));
+    }
+
     // get_u16, get_u16_at & set_u16
     #[test]
     fn test_get_u16() {
@@ -66,6 +77,17 @@ mod tests {
         buf.set_pos(0);
         assert_eq!(1, buf.get_u16());
         assert_eq!(1, buf.get_u16_at(0));
+    }
+
+    // get_i16, get_i16_at & set_i16
+    #[test]
+    fn test_get_i16() {
+        let mut buf = Buffer::default();
+        buf.set_i16(1);
+        buf.set_i16_at(4, 4);
+        buf.set_pos(0);
+        assert_eq!(1, buf.get_i16());
+        assert_eq!(1, buf.get_i16_at(0));
     }
 
     // get_i32, get_i32_at & set_i32
@@ -88,6 +110,16 @@ mod tests {
         assert_eq!(1, buf.get_u32_at(0));
     }
 
+    // get_f32, get_f32_at & set_f32
+    #[test]
+    fn test_get_f32() {
+        let mut buf = Buffer::default();
+        buf.set_f32(1.0);
+        buf.set_pos(0);
+        assert_eq!(1.0, buf.get_f32());
+        assert_eq!(1.0, buf.get_f32_at(0));
+    }
+
     // get_i64, get_i64_at & set_i64
     #[test]
     fn test_get_i64() {
@@ -108,6 +140,17 @@ mod tests {
         assert_eq!(1, buf.get_u64_at(0));
     }
 
+    // get_f64, get_f64_at & set_f64
+    #[test]
+    fn test_get_f64() {
+        let mut buf = Buffer::default();
+        buf.set_f64(1.0);
+        buf.set_f64_at(12, 12.0);
+        buf.set_pos(0);
+        assert_eq!(1.0, buf.get_f64());
+        assert_eq!(1.0, buf.get_f64_at(0));
+    }
+
     // decode_varint, read_varint, & write_varint
     #[test]
     fn test_decode_varint() {
@@ -120,6 +163,16 @@ mod tests {
         buf.set_pos(0);
         assert_eq!(1, buf.decode_varint());
         assert_eq!(19393930202, buf.decode_varint());
+    }
+
+    #[test]
+    fn test_copy_from_slice() {
+        let bytes = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let mut buf = Buffer::default();
+        buf.copy_from_slice(0, &bytes);
+        assert_eq!(bytes, buf.take());
+        buf.copy_from_slice(6, &bytes);
+        assert_eq!(bytes, buf.take()[6..]);
     }
 
     // take
@@ -163,31 +216,49 @@ mod tests {
         offset += 1;
         assert_eq!(reader.uint16_le(Some(offset)), 65535);
         assert_eq!(reader.uint16_be(Some(offset)), 65535);
+        assert_eq!(reader.uint16(Some(offset), Some(true)), 65535);
+        assert_eq!(reader.uint16(Some(offset), Some(false)), 65535);
         assert_eq!(reader.f16_le(Some(offset)), 9.1834e-41);
         assert_eq!(reader.f16_be(Some(offset)), 9.1834e-41);
+        assert_eq!(reader.f16(Some(offset), Some(true)), 9.1834e-41);
+        assert_eq!(reader.f16(Some(offset), Some(false)), 9.1834e-41);
         offset += 2;
         assert_eq!(reader.uint32_le(Some(offset)), 4294967295);
         assert_eq!(reader.uint32_be(Some(offset)), 4294967295);
+        assert_eq!(reader.uint32(Some(offset), Some(true)), 4294967295);
+        assert_eq!(reader.uint32(Some(offset), Some(false)), 4294967295);
         offset += 4;
         assert_eq!(reader.int8(Some(offset)), -128);
         offset += 1;
         assert_eq!(reader.int16_le(Some(offset)), -32768);
         assert_eq!(reader.int16_be(Some(offset)), 128);
+        assert_eq!(reader.int16(Some(offset), Some(true)), -32768);
+        assert_eq!(reader.int16(Some(offset), Some(false)), 128);
         offset += 2;
         assert_eq!(reader.int32_le(Some(offset)), -2147483648);
         assert_eq!(reader.int32_be(Some(offset)), 128);
+        assert_eq!(reader.int32(Some(offset), Some(true)), -2147483648);
+        assert_eq!(reader.int32(Some(offset), Some(false)), 128);
         offset += 4;
         assert_eq!(reader.f32_le(Some(offset)), 3.14);
         assert_eq!(reader.f32_be(Some(offset)), -490.56445);
+        assert_eq!(reader.f32(Some(offset), Some(true)), 3.14);
+        assert_eq!(reader.f32(Some(offset), Some(false)), -490.56445);
         offset += 4;
         assert_eq!(reader.f64_le(Some(offset)), 3.14159265359);
         assert_eq!(reader.f64_be(Some(offset)), -2.965482352282314e203);
+        assert_eq!(reader.f64(Some(offset), Some(true)), 3.14159265359);
+        assert_eq!(reader.f64(Some(offset), Some(false)), -2.965482352282314e203);
         offset += 8;
         assert_eq!(reader.uint64_le(Some(offset)), 12345678901234567890);
         assert_eq!(reader.uint64_be(Some(offset)), 15134944594269656235);
+        assert_eq!(reader.uint64(Some(offset), Some(true)), 12345678901234567890);
+        assert_eq!(reader.uint64(Some(offset), Some(false)), 15134944594269656235);
         offset += 8;
         assert_eq!(reader.int64_le(Some(offset)), -1234567890123456789);
         assert_eq!(reader.int64_be(Some(offset)), -1477718879929115154);
+        assert_eq!(reader.int64(Some(offset), Some(true)), -1234567890123456789);
+        assert_eq!(reader.int64(Some(offset), Some(false)), -1477718879929115154);
 
         let slice = reader.slice(Some(4), Some(8));
         assert_eq!(slice, &[255, 255, 255, 128]);

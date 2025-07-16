@@ -29,6 +29,13 @@ mod tests {
             writer.tiles.get(&TileKey::S2(S2TileKey { face: 4.into(), zoom: 3, x: 2, y: 1 })),
             Some(&vec![3, 2, 1])
         );
+
+        // get tiles
+        let tile_wm = writer.get_tile_wm(16, 2, 3);
+        let tile_s2 = writer.get_tile_s2(4.into(), 3, 2, 1);
+
+        assert_eq!(tile_wm, Some(vec![0, 1, 2]));
+        assert_eq!(tile_s2, Some(vec![3, 2, 1]));
     }
 
     #[test]

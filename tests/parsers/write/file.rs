@@ -17,9 +17,13 @@ mod tests {
         writer.append(&[0, 1, 2, 3, 4]);
         writer.append_string("TEST!");
         writer.write(&[10, 9], 1);
+        assert_eq!(writer.offset(), 3);
+        let mut writer_clone = writer.clone();
 
         let data = writer.take();
+        assert_eq!(data, vec![0, 10, 9, 3, 4, 84, 69, 83, 84, 33]);
 
+        let data = writer_clone.take();
         assert_eq!(data, vec![0, 10, 9, 3, 4, 84, 69, 83, 84, 33]);
     }
 }

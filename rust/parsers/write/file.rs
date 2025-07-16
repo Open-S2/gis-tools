@@ -23,7 +23,13 @@ impl FileWriter {
 }
 impl Clone for FileWriter {
     fn clone(&self) -> Self {
-        FileWriter::new(&self.path).unwrap()
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&self.path)
+            .expect("Failed to reopen file");
+        Self { path: self.path.clone(), file }
     }
 }
 impl Writer for FileWriter {

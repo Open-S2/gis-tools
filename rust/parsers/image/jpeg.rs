@@ -1,6 +1,6 @@
 use alloc::{collections::BTreeMap, rc::Rc, string::String, vec, vec::Vec};
 use core::cell::RefCell;
-use libm::{ceil, floor};
+use libm::ceil;
 
 // /* -*- tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 // vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab:
@@ -165,11 +165,6 @@ pub enum HuffmanNode {
     Leaf(u8),
     /// An internal node
     Node(Rc<RefCell<Vec<HuffmanNode>>>),
-}
-impl From<u8> for HuffmanNode {
-    fn from(value: u8) -> Self {
-        Self::Leaf(value)
-    }
 }
 impl Default for HuffmanNode {
     fn default() -> Self {
@@ -415,18 +410,18 @@ impl JpegStreamReader {
             4 => {
                 for _ in 0..self.height {
                     for _ in 0..self.width {
-                        let _c = data[i] as i32;
+                        let _c = data[i] as f64;
                         i += 1;
-                        let _m = data[i] as i32;
+                        let _m = data[i] as f64;
                         i += 1;
-                        let _y = data[i] as i32;
+                        let _y = data[i] as f64;
                         i += 1;
-                        let _k = data[i] as i32;
+                        let _k = data[i] as f64;
                         i += 1;
 
-                        let _r = 255 - clamp_to_8bit(_c * (1 - _k / 255) + _k);
-                        let _g = 255 - clamp_to_8bit(_m * (1 - _k / 255) + _k);
-                        let _b = 255 - clamp_to_8bit(_y * (1 - _k / 255) + _k);
+                        let _r = 255 - clamp_to_8bit(ceil(_c * (1. - _k / 255.) + _k));
+                        let _g = 255 - clamp_to_8bit(ceil(_m * (1. - _k / 255.) + _k));
+                        let _b = 255 - clamp_to_8bit(ceil(_y * (1. - _k / 255.) + _k));
 
                         image_data_array[j] = _r as u8;
                         j += 1;
@@ -688,13 +683,15 @@ impl JpegStreamReader {
                         reader.offset += 1;
                         let table_spec = data[reader.offset] as usize;
                         reader.offset += 1;
+                        ensure_len(&mut self.huffman_tables_dc, table_spec >> 4, HuffmanNode::Leaf(0));
                         component.borrow_mut().huffman_table_dc = match &self.huffman_tables_dc[table_spec >> 4] {
                             HuffmanNode::Node(nodes) => nodes.clone(),
-                            HuffmanNode::Leaf(_) => panic!("Expected a node"),
+                            HuffmanNode::Leaf(_) => Rc::new(RefCell::new(vec![])),
                         };
+                        ensure_len(&mut self.huffman_tables_ac, table_spec & 15, HuffmanNode::Leaf(0));
                         component.borrow_mut().huffman_table_ac = match &self.huffman_tables_ac[table_spec & 15] {
                             HuffmanNode::Node(nodes) => nodes.clone(),
-                            HuffmanNode::Leaf(_) => panic!("Expected a node"),
+                            HuffmanNode::Leaf(_) => Rc::new(RefCell::new(vec![])),
                         };
                         components.push(component.clone());
                     }
@@ -888,11 +885,11 @@ impl JpegStreamReader {
                             let _cb = component2_line[x * component2.scale_x * scale_x] as f64;
                             let _cr: f64 = component3_line[x * component3.scale_x * scale_x] as f64;
 
-                            _r = clamp_to_8bit(floor(_y + 1.402 * (_cr - 128.)) as i32) as u8;
-                            _g = clamp_to_8bit(floor(
+                            _r = clamp_to_8bit(_y + 1.402 * (_cr - 128.)) as u8;
+                            _g = clamp_to_8bit(
                                 _y - 0.3441363 * (_cb - 128.) - 0.71413636 * (_cr - 128.),
-                            ) as i32) as u8;
-                            _b = clamp_to_8bit(floor(_y + 1.772 * (_cb - 128.)) as i32) as u8;
+                            ) as u8;
+                            _b = clamp_to_8bit(_y + 1.772 * (_cb - 128.)) as u8;
                         }
 
                         data[offset] = _r;
@@ -942,13 +939,12 @@ impl JpegStreamReader {
                                 let _cr = component3_line[x * component3.scale_x * scale_x] as f64;
                                 _k = component4_line[x * component4.scale_x * scale_x];
 
-                                _c = 255 - clamp_to_8bit((_y + 1.402 * (_cr - 128.)) as i32) as u8;
+                                _c = 255 - clamp_to_8bit(_y + 1.402 * (_cr - 128.)) as u8;
                                 _m = 255
                                     - clamp_to_8bit(
-                                        (_y - 0.3441363 * (_cb - 128.) - 0.71413636 * (_cr - 128.))
-                                            as i32,
+                                        _y - 0.3441363 * (_cb - 128.) - 0.71413636 * (_cr - 128.),
                                     ) as u8;
-                                _ye = 255 - clamp_to_8bit((_y + 1.772 * (_cb - 128.)) as i32) as u8;
+                                _ye = 255 - clamp_to_8bit(_y + 1.772 * (_cb - 128.)) as u8;
                             }
                             data[offset] = 255 - _c;
                             offset += 1;
@@ -1452,7 +1448,7 @@ struct DecodeScan<'a> {
 #[allow(clippy::too_many_arguments)]
 fn decode_scan(
     data: &[u8],
-    mut offset: usize,
+    offset: usize,
     frame: &mut JPEGFrame,
     components: &[Rc<RefCell<JPEGComponent>>],
     mut reset_interval: usize,
@@ -1554,11 +1550,11 @@ fn decode_scan(
         if mcu == mcu_expected {
             // Skip trailing bytes at the end of the scan - until we reach the next marker
             loop {
-                if (data[offset] == 0xff) && (data[offset + 1] != 0x00) {
+                if (data[decode_scan.offset] == 0xff) && (data[decode_scan.offset + 1] != 0x00) {
                     break;
                 }
-                offset += 1;
-                if offset >= data.len() - 2 {
+                decode_scan.offset += 1;
+                if decode_scan.offset >= data.len() - 2 {
                     break;
                 }
             }
@@ -1566,20 +1562,20 @@ fn decode_scan(
 
         // find marker
         decode_scan.bits_count = 0;
-        marker = ((data[offset] as usize) << 8) | data[offset + 1] as usize;
+        marker = ((data[decode_scan.offset] as usize) << 8) | data[decode_scan.offset + 1] as usize;
         if marker < 0xff00 {
             panic!("marker was not found");
         }
 
         if (0xffd0..=0xffd7).contains(&marker) {
             // RSTx
-            offset += 2;
+            decode_scan.offset += 2;
         } else {
             break;
         }
     }
 
-    offset - start_offset
+    decode_scan.offset - start_offset
 }
 
 /// A port of poppler's IDCT method which in turn is taken from:
@@ -1783,6 +1779,6 @@ fn ensure_len<T: Clone>(vec: &mut Vec<T>, index: usize, default: T) {
 ///
 /// @param a - the number
 /// @returns - the clamped number
-fn clamp_to_8bit(a: i32) -> i32 {
-    a.clamp(0, 255)
+fn clamp_to_8bit(a: f64) -> i32 {
+    a.clamp(0., 255.) as i32
 }

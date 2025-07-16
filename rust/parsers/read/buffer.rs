@@ -102,6 +102,14 @@ impl Buffer {
         self.buf[pos] = value;
     }
 
+    /// return the current i8 under the buffer
+    pub fn get_i8(&mut self) -> i8 {
+        let value = self.get_i8_at(self.pos);
+        self.pos += 1;
+
+        value
+    }
+
     /// return the current i8 at position
     pub fn get_i8_at(&mut self, pos: usize) -> i8 {
         self.buf[pos] as i8
@@ -271,8 +279,8 @@ impl Buffer {
     }
 
     /// Set the current f32 at position
-    pub fn set_f32(&mut self, pos: usize, value: f32) {
-        self.set_u32_at(pos, value.to_bits());
+    pub fn set_f32(&mut self, value: f32) {
+        self.set_u32_at(self.pos, value.to_bits());
     }
 
     /// Set the current f32 at position
@@ -364,8 +372,8 @@ impl Buffer {
     }
 
     /// Set the current f64 at position
-    pub fn set_f64(&mut self, pos: usize, value: f64) {
-        self.set_f64_at(pos, value);
+    pub fn set_f64(&mut self, value: f64) {
+        self.set_f64_at(self.pos, value);
     }
 
     /// Set the current f64 at position
@@ -435,6 +443,9 @@ impl Buffer {
 
     /// Copy a slice into the buffer
     pub fn copy_from_slice(&mut self, offset: usize, slice: &[u8]) {
+        if offset + slice.len() > self.buf.len() {
+            self.buf.resize(offset + slice.len(), 0);
+        }
         self.buf[offset..offset + slice.len()].copy_from_slice(slice);
     }
 }

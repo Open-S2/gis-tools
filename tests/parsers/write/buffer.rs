@@ -13,6 +13,7 @@ mod tests {
         writer.append(&[0, 1, 2, 3, 4]);
         writer.append_string("TEST!");
         writer.write(&[10, 9], 1);
+        assert_eq!(writer.offset(), 10);
 
         let data = writer.take();
 
