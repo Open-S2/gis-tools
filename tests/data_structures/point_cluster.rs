@@ -32,7 +32,7 @@ mod tests {
         cluster_store.insert_lon_lat(LonLat::new(0., 0., Some(Test { a: 22 })));
         cluster_store.insert_lon_lat(LonLat::new(2., -2., Some(Test { a: 0 })));
         cluster_store.insert_lon_lat(LonLat::new(1., -1., Some(Test { a: 1 })));
-        cluster_store.insert_lon_lat(LonLat::new(-160., 60., Some(Test { a: 2 })));
+        cluster_store.insert_point(LonLat::new(-160., 60., None), Some(Test { a: 2 }));
         cluster_store.insert_face_st(0.into(), 0.25, 0.25, Test { a: 3 });
 
         cluster_store.build_clusters(None);

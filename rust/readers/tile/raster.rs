@@ -35,7 +35,7 @@ pub struct RasterTileFetcher<D: Clone + Default + GetRasterTileValue> {
     metadata: Metadata,
     phantom: PhantomData<D>,
 }
-impl<D: Clone + Default + GetRasterTileValue> TileFetcher<(), D, RasterTileReader<D>>
+impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader<D>>
     for RasterTileFetcher<D>
 {
     fn new<P: AsRef<Path>>(path: P, threshold: Option<u8>) -> RasterTileFetcher<D> {
@@ -78,7 +78,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<(), D, RasterTileReade
         RasterTileReader::new(self.path.clone(), self.get_metadata(), face, zoom, x, y, true)
     }
 }
-impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, (), D>
+impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, D, D>
     for RasterTileFetcher<D>
 {
     type FeatureIterator<'a>
@@ -113,7 +113,7 @@ pub struct RasterIterator<'a, D: Clone + Default + GetRasterTileValue> {
     threshold: u8,
 }
 impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D> {
-    type Item = VectorFeature<TileMetadata, (), D>;
+    type Item = VectorFeature<TileMetadata, D, D>;
     fn next(&mut self) -> Option<Self::Item> {
         let is_s2 = self.container.is_s2();
         while let Some((face, zoom, x, y)) = self.stack.pop() {
@@ -158,7 +158,7 @@ pub struct RasterTileReader<D: Clone + Default + GetRasterTileValue> {
     /// Help D pass
     _phantom: PhantomData<D>,
 }
-impl<D: Clone + Default + GetRasterTileValue> TileReader<(), D> for RasterTileReader<D> {
+impl<D: Clone + Default + GetRasterTileValue> TileReader<D, D> for RasterTileReader<D> {
     fn new(
         path: PathBuf,
         metadata: &Metadata,
@@ -190,7 +190,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileReader<(), D> for RasterTileRe
         }
     }
 
-    fn build_feature(&self) -> VectorFeature<TileMetadata, (), D> {
+    fn build_feature(&self) -> VectorFeature<TileMetadata, D, D> {
         match &self.metadata {
             TileMetadata::S2(s2) => self.build_feature_s2(s2),
             TileMetadata::WM(wm) => self.build_feature_wm(wm),
@@ -198,7 +198,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileReader<(), D> for RasterTileRe
     }
 }
 impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
-    fn build_feature_s2(&self, metadata: &S2TileMetadata) -> VectorFeature<TileMetadata, (), D> {
+    fn build_feature_s2(&self, metadata: &S2TileMetadata) -> VectorFeature<TileMetadata, D, D> {
         let S2TileMetadata { x, y, zoom, face } = metadata;
         let tile_size = self.image.width() as usize;
         let mut bbox = BBox3D::default();
@@ -232,7 +232,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
         }
     }
 
-    fn build_feature_wm(&self, metadata: &WMTileMetadata) -> VectorFeature<TileMetadata, (), D> {
+    fn build_feature_wm(&self, metadata: &WMTileMetadata) -> VectorFeature<TileMetadata, D, D> {
         let WMTileMetadata { x, y, zoom } = metadata;
         let tile_size = self.image.width() as usize;
         let mut bbox = BBox3D::default();

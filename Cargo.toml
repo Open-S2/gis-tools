@@ -72,3 +72,9 @@ opt-level = 3
 
 [profile.dev.package]
 image.opt-level = 3
+adler2.opt-level = 3
+crc32fast.opt-level = 3
+miniz_oxide.opt-level = 3
+png.opt-level = 3
+fdeflate.opt-level = 3
+flate2.opt-level = 3

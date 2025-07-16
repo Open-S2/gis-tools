@@ -26,7 +26,6 @@ impl Clone for FileWriter {
         let file = OpenOptions::new()
             .read(true)
             .write(true)
-            .create(true)
             .open(&self.path)
             .expect("Failed to reopen file");
         Self { path: self.path.clone(), file }

@@ -94,7 +94,7 @@ pub trait TileReader<P: Clone + Default, D: Clone + Default> {
         is_s2: bool,
     ) -> Self;
     /// Build a vector feature from the tile
-    fn build_feature(&self) -> VectorFeature<TileMetadata, (), D>;
+    fn build_feature(&self) -> VectorFeature<TileMetadata, P, D>;
 }
 
 /// Elevation converter

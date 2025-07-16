@@ -119,7 +119,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
     }
 
     /// Add a lon-lat pair as with any shape
-    pub fn insert_point<T: Clone, P: GetXY>(&mut self, point: P, data: Option<M>) {
+    pub fn insert_point<P: GetXY>(&mut self, point: P, data: Option<M>) {
         self.insert_vector_point(VectorPoint::new(point.x(), point.y(), None, data));
     }
 

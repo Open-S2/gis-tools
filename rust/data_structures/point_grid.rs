@@ -1,3 +1,4 @@
+use super::{IndexPoint, PointIndex};
 use crate::{
     data_store::{KV, KVStore, Vector, VectorStore},
     geometry::{LonLat, S2CellId, S2Point},
@@ -7,16 +8,14 @@ use crate::{
         get_interpolation,
     },
 };
-use alloc::{collections::BTreeSet, string::String, vec, vec::Vec};
+use alloc::{collections::BTreeSet, fmt::Debug, string::String, vec, vec::Vec};
 use libm::{floor, log2};
 use s2json::{BBox, Face, GetXY, JSONCollection, Projection};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
-use super::{IndexPoint, PointIndex};
-
 /// Options for grid clustering
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct GridOptions<V: Clone> {
+pub struct GridOptions<V: Clone + Debug> {
     /// projection to use
     pub projection: Option<Projection>,
     /// Name of the layer to build when requesting a tile
@@ -57,7 +56,8 @@ pub struct TileGrid<'a, V> {
 }
 
 /// A Point Grid that uses locally allocated data to store the data
-pub type LocalPointGrid<V = RGBA> = PointGrid<V, Vector<S2CellId, IndexPoint<V>>, KV<S2CellId, V>>;
+pub type LocalPointGrid<V = RGBA> =
+    PointGrid<V, Vector<S2CellId, IndexPoint<V>>, KV<S2CellId, Vec<V>>>;
 
 /// # Grid Cluster
 ///
@@ -66,7 +66,7 @@ pub type LocalPointGrid<V = RGBA> = PointGrid<V, Vector<S2CellId, IndexPoint<V>>
 /// Useful for building raster tiles or other grid like data (temperature, precipitation, wind, etc).
 #[derive(Debug)]
 pub struct PointGrid<
-    V: Interpolatable + Serialize + DeserializeOwned = RGBA,
+    V: Interpolatable + Serialize + DeserializeOwned + Debug = RGBA,
     S: VectorStore<S2CellId, IndexPoint<V>> = Vector<S2CellId, IndexPoint<V>>,
     G: KVStore<S2CellId, Vec<V>> = KV<S2CellId, Vec<V>>,
 > {
@@ -83,7 +83,7 @@ pub struct PointGrid<
     grid_tile_store: G,
 }
 impl<
-    V: Interpolatable + Serialize + DeserializeOwned,
+    V: Interpolatable + Serialize + DeserializeOwned + Debug,
     S: VectorStore<S2CellId, IndexPoint<V>>,
     G: KVStore<S2CellId, Vec<V>>,
 > PointGrid<V, S, G>
@@ -94,25 +94,26 @@ impl<
         let maxzoom_interpolation =
             options.maxzoom_interpolation.unwrap_or(InterpolationMethod::IDW);
         let interpolation = options.interpolation.unwrap_or(InterpolationMethod::Lanczos);
+        let projection = options.projection.unwrap_or(Projection::S2);
         PointGrid {
-            projection: options.projection.unwrap_or(Projection::S2),
+            projection,
             maxzoom_interpolation: get_interpolation(maxzoom_interpolation),
             interpolation: get_interpolation(interpolation),
-            get_value: options.get_value.unwrap_or(|_| V::default()),
+            get_value: options.get_value.unwrap_or(|v| v.data),
             buffer_size: options.buffer_size.unwrap_or(0),
             minzoom: options.minzoom.unwrap_or(0),
             maxzoom: options.maxzoom.unwrap_or(16),
             layer_name: options.layer_name.unwrap_or(String::from("default")),
             grid_size: options.grid_size.unwrap_or(512),
-            point_index: PointIndex::new(None, Some(Projection::S2)),
+            point_index: PointIndex::new(None, Some(projection)),
             grid_tile_store: G::new(None),
         }
     }
 
-    /// Insert a cell with the point and its corresponding data to the index
-    pub fn insert(&mut self, cell: S2CellId, point: S2Point, data: Option<V>) {
-        self.point_index.insert(cell, point, data);
-    }
+    // /// Insert a cell with the point and its corresponding data to the index
+    // pub fn insert(&mut self, cell: S2CellId, point: S2Point, data: Option<V>) {
+    //     self.point_index.insert(cell, point, data);
+    // }
 
     /// Add a lon-lat pair as with any shape
     pub fn insert_point<T: GetXY>(&mut self, point: T, data: Option<V>) {
@@ -179,6 +180,7 @@ impl<
         let zoom_grid_level =
             f64::min(self.maxzoom as f64 + floor(log2(grid_size_f64)) - 1., 30.) as u8;
 
+        self.point_index.sort();
         for (cell, _) in self.point_index.iter() {
             let maxzoom_id = cell.parent(Some(self.maxzoom)); // idParent(cell, maxzoom);
             // if maxzoom_id grid tile already exists, skip
@@ -187,7 +189,6 @@ impl<
             }
             // prep variables and grid result
             let face = cell.face();
-            //   let [s_min, t_min, s_max, t_max] = idBoundsST(maxzoom_id, maxzoom);
             let BBox { left: s_min, bottom: t_min, right: s_max, top: t_max } =
                 maxzoom_id.bounds_st(Some(self.maxzoom));
             let s_pixel = (s_max - s_min) / grid_size_f64;
@@ -209,19 +210,22 @@ impl<
                     let mut point_shapes: Vec<IndexPoint<V>>;
                     let fst_point = S2CellId::from_face_st(face, s, t);
                     let mut st_cell = fst_point.parent(Some(zoom_grid_level));
-                    while {
+                    loop {
                         point_shapes = self
                             .point_index
                             .search_range(st_cell, None, None)
                             .into_iter()
                             .map(|(_, point)| point.clone())
                             .collect();
+                        if !point_shapes.is_empty()
+                            || grid_level_search <= zoom_grid_level - 3
+                            || grid_level_search == 0
+                        {
+                            break;
+                        }
                         grid_level_search -= 1;
-                        st_cell = st_cell.parent(Some(grid_level_search - 1));
-                        point_shapes.is_empty()
-                            && grid_level_search > 0
-                            && grid_level_search > zoom_grid_level - 3
-                    } {}
+                        st_cell = st_cell.parent(Some(grid_level_search));
+                    }
                     if point_shapes.is_empty() {
                         continue;
                     }
@@ -241,6 +245,7 @@ impl<
     }
 
     /// Build the parent cells. We simply search for the children of the cell and merge/downsample.
+    ///
     /// @param zoom - the current zoom we are upscaling to
     /// @param cells - the cells to build grids for
     /// returns the parent cells for the next round of upscaling
@@ -251,9 +256,10 @@ impl<
 
         for cell in cells {
             let mut grid: Vec<V> = vec![V::default(); grid_length * grid_length];
-            let [bl_od, br_id, tl_id, tr_id] = cell.children(None);
+            let (face, cell_zoom, i, j) = cell.to_face_ij();
+            let [bl_id, br_id, tl_id, tr_id] = S2CellId::children_ij(face, cell_zoom, i, j);
             // for each child, downsample into the result grid
-            self.downsample_grid(bl_od, &mut grid, 0, 0);
+            self.downsample_grid(bl_id, &mut grid, 0, 0);
             self.downsample_grid(br_id, &mut grid, half_grid_length, 0);
             self.downsample_grid(tl_id, &mut grid, 0, half_grid_length);
             self.downsample_grid(tr_id, &mut grid, half_grid_length, half_grid_length);
@@ -269,11 +275,11 @@ impl<
 
     /// Upscale a grid into the target grid at x,y position
     fn downsample_grid(&self, cell_id: S2CellId, target: &mut [V], x: usize, y: usize) {
-        let grid = self.grid_tile_store.get(cell_id);
-        if grid.is_none() {
+        let grid = if let Some(grid) = self.grid_tile_store.get(cell_id) {
+            grid
+        } else {
             return;
-        }
-        let grid = grid.unwrap();
+        };
 
         let Self { grid_size, buffer_size, .. } = self;
         let grid_length = (grid_size + buffer_size * 2) as usize;
@@ -283,35 +289,30 @@ impl<
 
         for j in 0..half_grid_length {
             for i in 0..half_grid_length {
-                // Filter "dead/null" pixels from source_points
-                let mut source_points: Vec<IndexPoint<V>> = vec![];
-                if grid[j * 2 * grid_length + i * 2] != null_val {
-                    source_points.push(IndexPoint::new(
-                        S2Point::new(0., 0., 0.),
-                        grid[j * 2 * grid_length + i * 2],
-                    ));
-                }
-                if grid[j * 2 * grid_length + (i * 2 + 1)] != null_val {
-                    source_points.push(IndexPoint::new(
-                        S2Point::new(1., 0., 0.),
-                        grid[j * 2 * grid_length + (i * 2 + 1)],
-                    ));
-                }
-                if grid[(j * 2 + 1) * grid_length + i * 2] != null_val {
-                    source_points.push(IndexPoint::new(
-                        S2Point::new(0., 1., 0.),
-                        grid[(j * 2 + 1) * grid_length + i * 2],
-                    ));
-                }
-                if grid[(j * 2 + 1) * grid_length + (i * 2 + 1)] != null_val {
-                    source_points.push(IndexPoint::new(
-                        S2Point::new(1., 1., 0.),
-                        grid[(j * 2 + 1) * grid_length + (i * 2 + 1)],
-                    ));
-                }
+                let base_j = j * 2;
+                let base_i = i * 2;
+
+                let source_points: Vec<IndexPoint<V>> = [
+                    ((0.0, 0.0), base_j * grid_length + base_i),
+                    ((1.0, 0.0), base_j * grid_length + base_i + 1),
+                    ((0.0, 1.0), (base_j + 1) * grid_length + base_i),
+                    ((1.0, 1.0), (base_j + 1) * grid_length + base_i + 1),
+                ]
+                .into_iter()
+                .filter_map(|((x, y), idx)| {
+                    let value = grid[idx];
+                    if value != null_val {
+                        Some(IndexPoint::new(S2Point::new(x, y, 0.0), value))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
                 if source_points.is_empty() {
                     continue;
                 }
+
                 target[(j + y) * grid_length + (i + x)] =
                     (self.interpolation)(&mid_point, &source_points, self.get_value);
             }
