@@ -739,6 +739,19 @@ mod tests {
         transformer.inverse_mut(&mut point);
         assert_eq!(point, Coords::new_xy(440686.09020763607, 3751216.335492778));
     }
+
+    #[test]
+    fn test_should_not_touch() {
+        let mut transformer = Transformer::new();
+        transformer.set_source("GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]".into());
+        let mut point = Coords::new_xy(0.0, 0.0);
+        transformer.forward_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(0.0, 0.0));
+
+        let mut point = Coords::new_xy(122.0, -55.0);
+        transformer.forward_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(122.0, -55.0));
+    }
 }
 
 //   {

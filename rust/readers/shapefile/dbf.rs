@@ -138,21 +138,17 @@ impl<T: Reader, M: MValueCompatible> DataBaseFile<T, M> {
         let text_data: String = self.reader.parse_string(Some(offset), Some(len)).trim().into();
 
         match v_type {
-            'N' | 'F' | 'O' => (text_data.parse::<f64>().expect("Failed to parse float")).into(),
-            'D' => Date::new(
-                text_data[0..4].parse::<u16>().expect("Failed to parse year"),
-                text_data[4..6].parse::<u8>().expect("Failed to parse month"),
-                text_data[6..8].parse::<u8>().expect("Failed to parse day"),
-            )
-            .get_time()
-            .into(),
+            'N' | 'F' | 'O' => text_data.parse::<f64>().unwrap_or(0.0).into(),
+            'D' => {
+                let year = text_data[0..4].parse::<u16>().unwrap_or(0) + 1900;
+                let month = text_data[4..6].parse::<u8>().unwrap_or(0);
+                let day = text_data[6..8].parse::<u8>().unwrap_or(0);
+                Date::new(year, month, day).get_time().into()
+            }
             'L' => (text_data.to_lowercase() == "y" || text_data.to_lowercase() == "t").into(),
             _ => {
-                if text_data == "undefined" {
-                    PrimitiveValue::Null
-                } else {
-                    text_data.into()
-                }
+                // C is char
+                if text_data == "undefined" { PrimitiveValue::Null } else { text_data.into() }
             }
         }
     }

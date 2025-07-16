@@ -1,5 +1,6 @@
 use crate::proj::{
-    AxisDirection, CoordinateStep, IoUnits, Proj, ProjectionTransform, Step, TransformCoordinates,
+    AxisDirection, CoordinateStep, IoUnits, Proj, ProjectCoordinates, ProjectionTransform, Step,
+    TransformCoordinates,
 };
 use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
@@ -84,6 +85,19 @@ pub struct AxisSwapConverter {
     proj: Rc<RefCell<Proj>>,
     /// The axis swapping guide
     pub swap: AxisSwap,
+}
+impl ProjectCoordinates for AxisSwapConverter {
+    fn code(&self) -> i64 {
+        -1
+    }
+
+    fn name(&self) -> &'static str {
+        "axis swap"
+    }
+
+    fn names() -> &'static [&'static str] {
+        &["axis swap", "axis"]
+    }
 }
 impl From<AxisSwapConverter> for ProjectionTransform {
     fn from(asc: AxisSwapConverter) -> ProjectionTransform {

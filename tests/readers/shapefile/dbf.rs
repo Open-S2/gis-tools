@@ -209,4 +209,30 @@ mod tests {
             ])
         );
     }
+
+    #[test]
+    fn test_dbf_pyacfl() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/PYACFL.DBF");
+
+        let reader = FileReader::new(path).unwrap();
+        let dbf: DataBaseFile<FileReader, MValue> = DataBaseFile::new(reader, Some("utf-8".into()));
+        assert_eq!(dbf.get_header().records, 45);
+
+        let props = dbf.get_properties(0).unwrap();
+        assert_eq!(props.len(), 20);
+    }
+
+    #[test]
+    fn test_dbf_dbase_not_latin1() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/dbase_not_latin1.dbf");
+
+        let reader = FileReader::new(path).unwrap();
+        let dbf: DataBaseFile<FileReader, MValue> = DataBaseFile::new(reader, Some("utf-8".into()));
+        assert_eq!(dbf.get_header().records, 2);
+
+        let props = dbf.get_properties(0).unwrap();
+        assert_eq!(props.len(), 10);
+    }
 }

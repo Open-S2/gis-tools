@@ -18,8 +18,6 @@ pub struct ProjectionTransform {
     pub proj: Rc<RefCell<Proj>>,
     /// mutation method
     pub method: Step,
-    /// boolean to indicate if this transform is wgs84
-    pub is_wgs84: bool,
     // These PJs are used for implementing cs2cs style coordinate handling in the 4D API
     /// Axis swapping if needed
     pub axisswap: Option<Box<ProjectionTransform>>,
@@ -41,7 +39,6 @@ impl Default for ProjectionTransform {
         Self {
             proj,
             method: method.into(),
-            is_wgs84: false,
             axisswap: None,
             cart: None,
             cart_wgs84: None,
@@ -57,7 +54,6 @@ impl ProjectionTransform {
         Self {
             proj: Rc::new(RefCell::new(Proj::default())),
             method: BaseProjection::to_step(),
-            is_wgs84: true,
             axisswap: None,
             cart: None,
             cart_wgs84: None,

@@ -1,4 +1,6 @@
-use crate::proj::{CoordinateStep, Direction, IoUnits, Proj, TransformCoordinates};
+use crate::proj::{
+    CoordinateStep, Direction, IoUnits, Proj, ProjectCoordinates, TransformCoordinates,
+};
 use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{atan, tan};
@@ -21,6 +23,19 @@ use libm::{atan, tan};
 #[derive(Debug, Clone, PartialEq)]
 pub struct GeocentricLatitudeConverter {
     proj: Rc<RefCell<Proj>>,
+}
+impl ProjectCoordinates for GeocentricLatitudeConverter {
+    fn code(&self) -> i64 {
+        -1
+    }
+
+    fn name(&self) -> &'static str {
+        "geocentric"
+    }
+
+    fn names() -> &'static [&'static str] {
+        &["geocentric", "geoc"]
+    }
 }
 impl CoordinateStep for GeocentricLatitudeConverter {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {

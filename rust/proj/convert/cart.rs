@@ -1,4 +1,7 @@
-use crate::proj::{CoordinateStep, IoUnits, Proj, ProjectionTransform, Step, TransformCoordinates};
+use crate::proj::{
+    CoordinateStep, IoUnits, Proj, ProjectCoordinates, ProjectionTransform, Step,
+    TransformCoordinates,
+};
 use alloc::rc::Rc;
 use core::{cell::RefCell, f64::consts::FRAC_PI_2};
 use libm::{atan, atan2, cos, fabs, sin, sqrt};
@@ -59,6 +62,19 @@ use libm::{atan, atan2, cos, fabs, sin, sqrt};
 #[derive(Debug, Clone, PartialEq)]
 pub struct CartesianConverter {
     proj: Rc<RefCell<Proj>>,
+}
+impl ProjectCoordinates for CartesianConverter {
+    fn code(&self) -> i64 {
+        -1
+    }
+
+    fn name(&self) -> &'static str {
+        "cartesian"
+    }
+
+    fn names() -> &'static [&'static str] {
+        &["cartesian", "cart"]
+    }
 }
 impl CoordinateStep for CartesianConverter {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {

@@ -1,7 +1,7 @@
 use super::TransformCoordinates;
 use crate::proj::{
-    Direction, IoUnits, ProjJSON, ProjectionTransform, adjlon, check_not_wgs84, datum_transform,
-    geocentric_latitude,
+    Direction, IoUnits, ProjJSON, ProjectionTransform, Step, adjlon, check_not_wgs84,
+    datum_transform, geocentric_latitude,
 };
 use alloc::{collections::BTreeMap, fmt::Debug, string::String};
 use core::f64::consts::FRAC_PI_2;
@@ -126,7 +126,7 @@ pub fn transform_point<P: TransformCoordinates + Debug>(
     point: &mut P,
 ) {
     // Check if there are any steps
-    if src == dest || (src.is_wgs84 && dest.is_wgs84) {
+    if src == dest || (Step::same_step(&src.method, &dest.method)) {
         return;
     }
     let has_z = point.has_z();

@@ -1,4 +1,4 @@
-use crate::proj::{CoordinateStep, IoUnits, Proj, TransformCoordinates};
+use crate::proj::{CoordinateStep, IoUnits, Proj, ProjectCoordinates, TransformCoordinates};
 use alloc::rc::Rc;
 use core::cell::RefCell;
 
@@ -10,6 +10,19 @@ use core::cell::RefCell;
 #[derive(Debug, Clone, PartialEq)]
 pub struct GeocentricConverter {
     proj: Rc<RefCell<Proj>>,
+}
+impl ProjectCoordinates for GeocentricConverter {
+    fn code(&self) -> i64 {
+        -1
+    }
+
+    fn name(&self) -> &'static str {
+        "geocentric latitude"
+    }
+
+    fn names() -> &'static [&'static str] {
+        &["geocent", "geocentric latitude"]
+    }
 }
 impl CoordinateStep for GeocentricConverter {
     fn new(proj: Rc<RefCell<Proj>>) -> Self {

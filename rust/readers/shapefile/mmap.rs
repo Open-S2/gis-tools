@@ -1,5 +1,5 @@
 use super::{DataBaseFile, Definition, ShapeFileReader};
-use crate::{parsers::MMapReader, proj::ProjectionTransform};
+use crate::{parsers::MMapReader, proj::Transformer};
 use s2json::MValueCompatible;
 use std::{
     collections::BTreeMap,
@@ -7,7 +7,6 @@ use std::{
     io::Read,
     path::Path,
     string::{String, ToString},
-    vec::Vec,
 };
 
 /// # Build a Shapefile from an input path
@@ -16,7 +15,6 @@ use std::{
 /// Given a path to where all the shapefile relevant files exist, build a Shapefile
 pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
     input: I,
-    defs: Option<Vec<ProjectionTransform>>,
     epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<MMapReader, P> {
     let path = input.to_string().replace(".shp", "");
@@ -33,7 +31,7 @@ pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
     let cpg: Option<String> = if exists(&cpg_str).is_ok() { Some(cpg_str) } else { None };
     let definition = Definition { shp, dbf, prj, cpg };
 
-    shapefile_from_definition(definition, defs, epsg_codes)
+    shapefile_from_definition(definition, epsg_codes)
 }
 
 /// # Build a Shapefile from a Definition
@@ -42,13 +40,12 @@ pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
 /// Given a collection of files, build a Shapefile
 pub fn shapefile_from_definition<P: MValueCompatible>(
     def: Definition,
-    _defs: Option<Vec<ProjectionTransform>>,
-    _epsg_codes: BTreeMap<String, String>,
+    epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<MMapReader, P> {
     let Definition { shp, dbf, prj, cpg } = def;
     let mut database_file = None;
     let mut encoding = None;
-    let transform = None;
+    let mut transform = None;
     if let Some(cpg) = cpg {
         // read cpg file as string
         let mut file = File::open(cpg).unwrap();
@@ -58,19 +55,17 @@ pub fn shapefile_from_definition<P: MValueCompatible>(
             encoding = Some(input_str);
         }
     }
-    // TODO: Handle projection
-    if prj.is_some() {
-        panic!("Projection not yet implemented");
+    // Handle projection
+    if let Some(prj) = prj {
+        let mut transformer = Transformer::new();
+        for (code, value) in epsg_codes.iter() {
+            transformer.insert_epsg_code(code.clone(), value.clone());
+        }
+        let pr_str = std::fs::read_to_string(prj).unwrap();
+        transformer.set_source(pr_str);
+        transform = Some(transformer);
     }
-    // let transform: Transformer | undefined = undefined;
-    // let projection: string | undefined = undefined;
-    // if (prj != undefined) {
-    //     projection = await readFile(prj, { encoding: 'utf8' });
-    //     transform = new Transformer(projection);
-    //     for (let def of defs) transform.insertDefinition(def);
-    //     for (let [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
-    //     transform.setSource(projection);
-    // }
+    // handle database data
     if let Some(dbf) = dbf {
         database_file = Some(DataBaseFile::new(MMapReader::from(dbf), encoding));
     }

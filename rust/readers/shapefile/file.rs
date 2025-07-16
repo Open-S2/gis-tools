@@ -66,7 +66,8 @@ pub fn shapefile_from_definition<P: MValueCompatible>(
         for (code, value) in epsg_codes.iter() {
             transformer.insert_epsg_code(code.clone(), value.clone());
         }
-        transformer.set_source(prj);
+        let pr_str = std::fs::read_to_string(prj).unwrap();
+        transformer.set_source(pr_str);
         transform = Some(transformer);
     }
     // handle database data
@@ -81,7 +82,7 @@ pub fn shapefile_from_definition<P: MValueCompatible>(
 ///
 /// ## Description
 /// Assumes the input is an arraybuffer that is pointing to a collection of zip shapefile data.
-pub fn shapefile_from_gzip<M: Clone, P: MValueCompatible>(
+pub fn shapefile_from_gzip<P: MValueCompatible>(
     input: &str,
     epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<BufferReader, P> {

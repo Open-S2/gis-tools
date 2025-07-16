@@ -70,6 +70,16 @@ macro_rules! match_ids {
     }};
 }
 
+macro_rules! dispatch_name {
+    ($self:ident, [ $($variant:ident),* ]) => {
+        match $self {
+            $(
+                Step::$variant(inner) => inner.name(),
+            )*
+        }
+    };
+}
+
 /// Conversion/Transform/Projection step
 #[derive(Debug, Clone, PartialEq)]
 pub enum Step {
@@ -196,6 +206,24 @@ pub enum Step {
     WebMerc(Box<WebMercatorProjection>),
 }
 impl Step {
+    /// Check if there is another step that has the same name
+    pub fn same_step(&self, other: &Step) -> bool {
+        self.name() == other.name()
+    }
+    /// Get the name of the step
+    pub fn name(&self) -> &str {
+        dispatch_name!(
+            self,
+            [
+                AxisSwap, Cartesian, GeoLat, Geocentric, Aea, Aeqd, Airy, Base, Bonne, Cass, Cea,
+                Eck6, Eqc, Eqdc, Eqearth, Etmerc, Gnom, GnSinu, Goode, Gstmerc, HotineA, HotineB,
+                Krovak, KrovakNO, KrovakM, KrovakMNO, Labrd, Laea, LaeaS, Leac, Lcc1SP, Lcc2SP,
+                LccA, MBTfps, Merc, Mill, Moll, Nzmg, Ocea, Oea, Ortho, PSterA, PSterB, PSterC,
+                Poly, Robin, Sinu, Somerc, Stere, Sterea, Tcc, Tcea, Tmerc, TmercSO, Utm, Vandg,
+                WagIV, WagV, WebMerc
+            ]
+        )
+    }
     /// forward conversion
     pub fn forward<P: TransformCoordinates>(&self, point: &mut P) {
         dispatch_step!(

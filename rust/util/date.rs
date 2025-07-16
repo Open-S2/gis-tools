@@ -91,7 +91,7 @@ impl Date {
         // Sum up days for previous months in the current year
         let leap = is_leap_year(self.year) as usize;
         for m in 0..(self.month as usize - 1) {
-            days += DAYS_IN_MONTH[leap][m] as i64;
+            days += DAYS_IN_MONTH[leap][m % 12] as i64;
         }
 
         // Add days of the current month
