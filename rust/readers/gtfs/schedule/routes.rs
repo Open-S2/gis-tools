@@ -14,6 +14,7 @@ use s2json::MValueCompatible;
 /// 7 - Funicular,
 /// 11 - Trolleybus
 /// 12 - Monorail.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum GTFSRouteType {
     /// 0 - Tram
     Tram = 0,
@@ -58,6 +59,7 @@ impl From<i8> for GTFSRouteType {
 /// 1/empty - No continuous stopping pickup,
 /// 2 - Must phone agency,
 /// 3 - Must coordinate with driver.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum GTFSRoutePickupType {
     /// 0 - Continuous stopping pickup
     ContinuousStoppingPickup = 0,
@@ -158,23 +160,23 @@ impl GTFSRoute {
         res
     }
     /// Get route type
-    pub fn get_route_type(&self) -> GTFSRouteType {
+    pub fn route_type(&self) -> GTFSRouteType {
         GTFSRouteType::from(self.route_type)
     }
     /// Get the continuous_pickup
-    pub fn get_continuous_pickup(&self) -> Option<GTFSRoutePickupType> {
+    pub fn continuous_pickup(&self) -> Option<GTFSRoutePickupType> {
         self.continuous_pickup.map(GTFSRoutePickupType::from)
     }
     /// Get the continuous_drop_off
-    pub fn get_continuous_drop_off(&self) -> Option<GTFSRoutePickupType> {
+    pub fn continuous_drop_off(&self) -> Option<GTFSRoutePickupType> {
         self.continuous_drop_off.map(GTFSRoutePickupType::from)
     }
     /// Get the route color
-    pub fn get_route_color(&self) -> Option<RGBA> {
+    pub fn route_color(&self) -> Option<RGBA> {
         self.route_color.as_ref().map(|c| RGBA::from_hex(c))
     }
     /// Get the route text color
-    pub fn get_route_text_color(&self) -> Option<RGBA> {
+    pub fn route_text_color(&self) -> Option<RGBA> {
         self.route_text_color.as_ref().map(|c| RGBA::from_hex(c))
     }
 }

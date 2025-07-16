@@ -16,18 +16,18 @@ use s2json::MValueCompatible;
 /// Indicates when the fare must be paid:
 /// - 0 = On board
 /// - 1 = Before boarding
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum GTFSPaymentMethod {
     /// 0 = On board
     OnBoard = 0,
     /// 1 = Before boarding
     PreBoard = 1,
 }
-impl From<&str> for GTFSPaymentMethod {
-    fn from(s: &str) -> Self {
+impl From<i8> for GTFSPaymentMethod {
+    fn from(s: i8) -> Self {
         match s {
-            "0" => GTFSPaymentMethod::OnBoard,
-            "1" => GTFSPaymentMethod::PreBoard,
-            _ => panic!("Invalid payment method"),
+            1 => GTFSPaymentMethod::PreBoard,
+            _ => GTFSPaymentMethod::OnBoard,
         }
     }
 }
@@ -51,11 +51,10 @@ pub enum GTFSTransfersType {
 impl From<&str> for GTFSTransfersType {
     fn from(s: &str) -> Self {
         match s {
-            "0" => GTFSTransfersType::NoTransfers,
             "1" => GTFSTransfersType::OneTransfer,
             "2" => GTFSTransfersType::TwoTransfers,
             "" => GTFSTransfersType::UnlimitedTransfers,
-            _ => panic!("Invalid transfers type"),
+            _ => GTFSTransfersType::NoTransfers,
         }
     }
 }
@@ -79,7 +78,7 @@ pub struct GTFSFareAttribute {
     /// When the fare must be paid.
     /// - 0 = Paid on board
     /// - 1 = Must be paid before boarding
-    pub payment_method: String,
+    pub payment_method: i8,
     /// **Required**
     /// Number of transfers permitted on this fare.
     /// - 0 = No transfers
@@ -107,7 +106,7 @@ impl GTFSFareAttribute {
     }
     /// Get the payment type
     pub fn payment_method(&self) -> GTFSPaymentMethod {
-        self.payment_method.as_str().into()
+        self.payment_method.into()
     }
     /// Get the transfers type
     pub fn transfers(&self) -> GTFSTransfersType {

@@ -185,44 +185,41 @@ impl GTFSScheduleReader {
         let mut res = GTFSScheduleReader::default();
 
         for Piece { filename, data } in pieces {
-            match filename.as_str() {
-                "agency.txt" => res.agencies = GTFSAgency::new(data),
-                "areas.txt" => res.areas = GTFSArea::new(data),
-                "attributions.txt" => res.attributions = GTFSAttribution::new(data),
-                "booking_rules.txt" => res.booking_rules = GTFSBookingRule::new(data),
-                "calendar.txt" => res.calendar = GTFSCalendar::new(data),
-                "calendar_dates.txt" => res.calendar_dates = GTFSCalendarDate::new(data),
-                "fare_attributes.txt" => res.fare_attributes = GTFSFareAttribute::new(data),
-                "fare_leg_join_rules.txt" => {
-                    res.fare_leg_join_rules = GTFSFareLegJoinRule::new(data)
-                }
+            let stem = filename.split('.').next().unwrap_or("");
+            match stem {
+                "agency" => res.agencies = GTFSAgency::new(data),
+                "areas" => res.areas = GTFSArea::new(data),
+                "attributions" => res.attributions = GTFSAttribution::new(data),
+                "booking_rules" => res.booking_rules = GTFSBookingRule::new(data),
+                "calendar" => res.calendar = GTFSCalendar::new(data),
+                "calendar_dates" => res.calendar_dates = GTFSCalendarDate::new(data),
+                "fare_attributes" => res.fare_attributes = GTFSFareAttribute::new(data),
+                "fare_leg_join_rules" => res.fare_leg_join_rules = GTFSFareLegJoinRule::new(data),
                 "fare_leg_rules.txt" => res.fare_leg_rules = GTFSFareLegRule::new(data),
-                "fare_media.txt" => res.fare_media = GTFSFareMedia::new(data),
-                "fare_products.txt" => res.fare_products = GTFSFareProduct::new(data),
-                "fare_rules.txt" => res.fare_rules = GTFSFareRule::new(data),
-                "fare_transfer_rules.txt" => {
-                    res.fare_transfer_rules = GTFSFareTransferRule::new(data)
-                }
-                "feed_info.txt" => res.feed_info = GTFSFeedInfo::new(data),
-                "frequencies.txt" => res.frequencies = GTFSFrequency::new(data),
-                "levels.txt" => res.levels = GTFSLevel::new(data),
-                "location_groups.txt" => res.location_groups = GTFSLocationGroup::new(data),
-                "location_group_stops.txt" => {
+                "fare_media" => res.fare_media = GTFSFareMedia::new(data),
+                "fare_products" => res.fare_products = GTFSFareProduct::new(data),
+                "fare_rules" => res.fare_rules = GTFSFareRule::new(data),
+                "fare_transfer_rules" => res.fare_transfer_rules = GTFSFareTransferRule::new(data),
+                "feed_info" => res.feed_info = GTFSFeedInfo::new(data),
+                "frequencies" => res.frequencies = GTFSFrequency::new(data),
+                "levels" => res.levels = GTFSLevel::new(data),
+                "location_groups" => res.location_groups = GTFSLocationGroup::new(data),
+                "location_group_stops" => {
                     res.location_group_stops = GTFSLocationGroupStop::new(data)
                 }
-                "networks.txt" => res.networks = GTFSNetwork::new(data),
-                "pathways.txt" => res.pathways = GTFSPathway::new(data),
-                "route_networks.txt" => res.route_networks = GTFSRouteNetwork::new(data),
-                "routes.txt" => res.routes = GTFSRoute::new(data),
-                "shapes.txt" => res.shapes = GTFSShape::new(data),
-                "stop_areas.txt" => res.stop_areas = GTFSStopArea::new(data),
-                "stops.txt" => res.stops = GTFSStop::new(data),
-                "stop_times.txt" => res.stop_times = GTFSStopTime::new(data),
-                "timeframes.txt" => res.timeframes = GTFSTimeframe::new(data),
-                "transfers.txt" => res.transfers = GTFSTransfer::new(data),
-                "translations.txt" => res.translations = GTFSTranslation::new(data),
-                "trips.txt" => res.trips = GTFSTrip::new(data),
-                "locations.geojson" => {
+                "networks" => res.networks = GTFSNetwork::new(data),
+                "pathways" => res.pathways = GTFSPathway::new(data),
+                "route_networks" => res.route_networks = GTFSRouteNetwork::new(data),
+                "routes" => res.routes = GTFSRoute::new(data),
+                "shapes" => res.shapes = GTFSShape::new(data),
+                "stop_areas" => res.stop_areas = GTFSStopArea::new(data),
+                "stops" => res.stops = GTFSStop::new(data),
+                "stop_times" => res.stop_times = GTFSStopTime::new(data),
+                "timeframes" => res.timeframes = GTFSTimeframe::new(data),
+                "transfers" => res.transfers = GTFSTransfer::new(data),
+                "translations" => res.translations = GTFSTranslation::new(data),
+                "trips" => res.trips = GTFSTrip::new(data),
+                "locations" => {
                     if let Ok(mut feature_collection) = data.as_str().to_feature_collection() {
                         res.geojson = Some(JSONCollectionReader::from(&mut feature_collection));
                     }
@@ -247,6 +244,25 @@ impl GTFSScheduleReader {
                     filename: item.filename,
                     data: String::from_utf8_lossy(&read_data).into(),
                 });
+            }
+        }
+
+        GTFSScheduleReader::new(&pieces)
+    }
+
+    /// Build a GTFS Schedule Reader from a standard folder
+    #[cfg(feature = "std")]
+    pub fn from_folder(folder_path: &str) -> Self {
+        let mut pieces: Vec<Piece> = vec![];
+
+        for entry in std::fs::read_dir(folder_path).unwrap() {
+            if let Ok(entry) = entry {
+                if let Ok(read_data) = std::fs::read(entry.path()) {
+                    pieces.push(Piece {
+                        filename: entry.file_name().to_str().unwrap().into(),
+                        data: String::from_utf8_lossy(&read_data).into(),
+                    });
+                }
             }
         }
 

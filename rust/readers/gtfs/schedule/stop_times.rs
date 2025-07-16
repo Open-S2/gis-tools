@@ -169,23 +169,23 @@ impl GTFSStopTime {
         res
     }
     /// Get the pickup_type
-    pub fn get_pickup_type(&self) -> Option<GTFSPickupDropOffType> {
+    pub fn pickup_type(&self) -> Option<GTFSPickupDropOffType> {
         self.pickup_type.map(GTFSPickupDropOffType::from)
     }
     /// Get the drop_off_type
-    pub fn get_drop_off_type(&self) -> Option<GTFSPickupDropOffType> {
+    pub fn drop_off_type(&self) -> Option<GTFSPickupDropOffType> {
         self.drop_off_type.map(GTFSPickupDropOffType::from)
     }
     /// Get the continuous_pickup
-    pub fn get_continuous_pickup(&self) -> Option<GTFSContinuousPickupDropOff> {
+    pub fn continuous_pickup(&self) -> Option<GTFSContinuousPickupDropOff> {
         self.continuous_pickup.map(GTFSContinuousPickupDropOff::from)
     }
     /// Get the continuous_drop_off
-    pub fn get_continuous_drop_off(&self) -> Option<GTFSContinuousPickupDropOff> {
+    pub fn continuous_drop_off(&self) -> Option<GTFSContinuousPickupDropOff> {
         self.continuous_drop_off.map(GTFSContinuousPickupDropOff::from)
     }
     /// Get the timepoint
-    pub fn get_timepoint(&self) -> Option<GTFSTimepoint> {
+    pub fn timepoint(&self) -> Option<GTFSTimepoint> {
         self.timepoint.map(GTFSTimepoint::from)
     }
 }

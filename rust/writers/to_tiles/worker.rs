@@ -222,7 +222,7 @@ impl TileWorker {
     }
 
     /// Iterate through all the stores and sort/cluster as needed and build tiles
-    pub fn build_tiles(&mut self) -> TileWorkerTileBuilder {
+    pub fn build_tiles(&mut self) -> TileWorkerTileBuilder<'_> {
         let mut tile_stack = vec![S2CellId::from_face(0)];
         if self.build_guide.projection == Projection::S2 {
             tile_stack.extend([

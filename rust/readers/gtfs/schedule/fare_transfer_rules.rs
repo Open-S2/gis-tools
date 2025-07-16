@@ -115,11 +115,11 @@ impl GTFSFareTransferRule {
         res
     }
     /// Get the duration_limit_type
-    pub fn get_duration_limit_type(&self) -> Option<GTFSDurationLimitType> {
+    pub fn duration_limit_type(&self) -> Option<GTFSDurationLimitType> {
         self.duration_limit_type.map(GTFSDurationLimitType::from)
     }
     /// Get the fare_transfer_type
-    pub fn get_fare_transfer_type(&self) -> GTFSFareTransferType {
+    pub fn fare_transfer_type(&self) -> GTFSFareTransferType {
         self.fare_transfer_type.into()
     }
 }

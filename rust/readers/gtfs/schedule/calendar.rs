@@ -14,10 +14,10 @@ pub enum GTFSDayAvailability {
     /// 1 - Service available on this day.
     Available = 1,
 }
-impl From<&str> for GTFSDayAvailability {
-    fn from(s: &str) -> Self {
-        match s.trim() {
-            "1" => GTFSDayAvailability::Available,
+impl From<i8> for GTFSDayAvailability {
+    fn from(i: i8) -> Self {
+        match i {
+            1 => GTFSDayAvailability::Available,
             _ => GTFSDayAvailability::NotAvailable,
         }
     }
@@ -35,25 +35,25 @@ pub struct GTFSCalendar {
     pub service_id: String,
     /// **Required**
     /// Service availability on Mondays: 0 or 1.
-    pub monday: String,
+    pub monday: i8,
     /// **Required**
     /// Service availability on Tuesdays: 0 or 1.
-    pub tuesday: String,
+    pub tuesday: i8,
     /// **Required**
     /// Service availability on Wednesdays: 0 or 1.
-    pub wednesday: String,
+    pub wednesday: i8,
     /// **Required**
     /// Service availability on Thursdays: 0 or 1.
-    pub thursday: String,
+    pub thursday: i8,
     /// **Required**
     /// Service availability on Fridays: 0 or 1.
-    pub friday: String,
+    pub friday: i8,
     /// **Required**
     /// Service availability on Saturdays: 0 or 1.
-    pub saturday: String,
+    pub saturday: i8,
     /// **Required**
     /// Service availability on Sundays: 0 or 1.
-    pub sunday: String,
+    pub sunday: i8,
     /// **Required**
     /// Start service day (inclusive) for the interval. Format: YYYYMMDD
     pub start_date: String,
@@ -72,31 +72,31 @@ impl GTFSCalendar {
     }
     /// Get the availability for Monday
     pub fn monday(&self) -> GTFSDayAvailability {
-        self.monday.as_str().into()
+        self.monday.into()
     }
     /// Get the availability for Tuesday
     pub fn tuesday(&self) -> GTFSDayAvailability {
-        self.tuesday.as_str().into()
+        self.tuesday.into()
     }
     /// Get the availability for Wednesday
     pub fn wednesday(&self) -> GTFSDayAvailability {
-        self.wednesday.as_str().into()
+        self.wednesday.into()
     }
     /// Get the availability for Thursday
     pub fn thursday(&self) -> GTFSDayAvailability {
-        self.thursday.as_str().into()
+        self.thursday.into()
     }
     /// Get the availability for Friday
     pub fn friday(&self) -> GTFSDayAvailability {
-        self.friday.as_str().into()
+        self.friday.into()
     }
     /// Get the availability for Saturday
     pub fn saturday(&self) -> GTFSDayAvailability {
-        self.saturday.as_str().into()
+        self.saturday.into()
     }
     /// Get the availability for Sunday
     pub fn sunday(&self) -> GTFSDayAvailability {
-        self.sunday.as_str().into()
+        self.sunday.into()
     }
     /// Get the start date
     pub fn start_date(&self) -> Date {

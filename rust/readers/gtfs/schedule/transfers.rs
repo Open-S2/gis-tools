@@ -10,7 +10,7 @@ use s2json::MValueCompatible;
 /// - 4 = In-seat transfer (stay onboard, same vehicle)
 /// - 5 = In-seat transfers not allowed
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
-pub enum TransferType {
+pub enum GTFSTransferType {
     /// 0 = Recommended transfer
     Recommended = 0,
     /// 1 = Timed transfer
@@ -24,15 +24,15 @@ pub enum TransferType {
     /// 5 = In-seat transfers not allowed
     InSeatNotAllowed = 5,
 }
-impl From<i8> for TransferType {
+impl From<i8> for GTFSTransferType {
     fn from(value: i8) -> Self {
         match value {
-            1 => TransferType::Timed,
-            2 => TransferType::MinTimeRequired,
-            3 => TransferType::NotPossible,
-            4 => TransferType::InSeatTransfer,
-            5 => TransferType::InSeatNotAllowed,
-            _ => TransferType::Recommended,
+            1 => GTFSTransferType::Timed,
+            2 => GTFSTransferType::MinTimeRequired,
+            3 => GTFSTransferType::NotPossible,
+            4 => GTFSTransferType::InSeatTransfer,
+            5 => GTFSTransferType::InSeatNotAllowed,
+            _ => GTFSTransferType::Recommended,
         }
     }
 }
@@ -99,7 +99,7 @@ impl GTFSTransfer {
         res
     }
     /// Get the transfer_type
-    pub fn get_transfer_type(&self) -> TransferType {
-        TransferType::from(self.transfer_type)
+    pub fn transfer_type(&self) -> GTFSTransferType {
+        GTFSTransferType::from(self.transfer_type)
     }
 }

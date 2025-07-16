@@ -138,11 +138,11 @@ impl GTFSPathway {
         res
     }
     /// Get the pathway_mode
-    pub fn get_pathway_mode(&self) -> GTFSPathwayMode {
+    pub fn pathway_mode(&self) -> GTFSPathwayMode {
         GTFSPathwayMode::from(self.pathway_mode)
     }
     /// Get the is_bidirectional
-    pub fn get_is_bidirectional(&self) -> GTFSIsBidirectional {
+    pub fn is_bidirectional(&self) -> GTFSIsBidirectional {
         GTFSIsBidirectional::from(self.is_bidirectional)
     }
 }

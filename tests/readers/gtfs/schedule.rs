@@ -3,20 +3,88 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
-        parsers::FeatureReader,
+        parsers::{FeatureReader, RGBA},
         readers::{
-            GTFSArea, GTFSAttribution, GTFSBookingRule, GTFSFareLegJoinRule, GTFSFareLegRule,
-            GTFSFareMedia, GTFSFareProduct, GTFSFareTransferRule, GTFSFeedInfo, GTFSFrequency,
-            GTFSLevel, GTFSLocationGroup, GTFSLocationGroupStop, GTFSNetwork, GTFSPathway,
-            GTFSRouteNetwork, GTFSScheduleReader, GTFSStopArea, GTFSTimeframe, GTFSTransfer,
-            GTFSTranslation,
+            GTFSArea, GTFSAttribution, GTFSBookingRule, GTFSBookingType, GTFSCalendar,
+            GTFSCalendarDate, GTFSContinuousPickupDropOff, GTFSDayAvailability,
+            GTFSDurationLimitType, GTFSExactTimes, GTFSExceptionType, GTFSFareAttribute,
+            GTFSFareLegJoinRule, GTFSFareLegRule, GTFSFareMedia, GTFSFareMediaType,
+            GTFSFareProduct, GTFSFareTransferRule, GTFSFareTransferType, GTFSFeedInfo,
+            GTFSFrequency, GTFSIsBidirectional, GTFSLevel, GTFSLocationGroup,
+            GTFSLocationGroupStop, GTFSNetwork, GTFSPathway, GTFSPathwayMode, GTFSPaymentMethod,
+            GTFSPickupDropOffType, GTFSRoute, GTFSRouteNetwork, GTFSRoutePickupType, GTFSRouteType,
+            GTFSScheduleReader, GTFSStopArea, GTFSStopLocationType, GTFSStopTime, GTFSTimeframe,
+            GTFSTimepoint, GTFSTransfer, GTFSTransferType, GTFSTransfersType, GTFSTranslation,
         },
+        util::Date,
     };
     use s2json::{
         BBox3D, Properties, VectorBaseGeometry, VectorFeature, VectorGeometry, VectorGeometryType,
         VectorPoint,
     };
     use std::{collections::BTreeMap, fs, path::PathBuf};
+
+    #[test]
+    fn gtfs_calendar() {
+        let test = GTFSCalendar {
+            service_id: "test_id".into(),
+            monday: 0,
+            tuesday: 1,
+            wednesday: 0,
+            thursday: 1,
+            friday: 0,
+            saturday: 1,
+            sunday: 0,
+            start_date: "20250102".into(),
+            end_date: "20250102".into(),
+        };
+        assert_eq!(test.monday(), GTFSDayAvailability::NotAvailable);
+        assert_eq!(test.tuesday(), GTFSDayAvailability::Available);
+        assert_eq!(test.wednesday(), GTFSDayAvailability::NotAvailable);
+        assert_eq!(test.thursday(), GTFSDayAvailability::Available);
+        assert_eq!(test.friday(), GTFSDayAvailability::NotAvailable);
+        assert_eq!(test.saturday(), GTFSDayAvailability::Available);
+        assert_eq!(test.sunday(), GTFSDayAvailability::NotAvailable);
+        assert_eq!(test.start_date(), Date::new(2025, 0, 2));
+        assert_eq!(test.end_date(), Date::new(2025, 0, 2));
+
+        let calendar = fs::read_to_string(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/readers/gtfs/fixtures/calendar.csv"),
+        )
+        .unwrap();
+
+        let calendar = GTFSCalendar::new(&calendar);
+        assert_eq!(
+            calendar,
+            vec![
+                GTFSCalendar {
+                    service_id: "CAL0".into(),
+                    monday: 0,
+                    tuesday: 1,
+                    wednesday: 0,
+                    thursday: 1,
+                    friday: 0,
+                    saturday: 1,
+                    sunday: 0,
+                    start_date: "20250102".into(),
+                    end_date: "20250102".into()
+                },
+                GTFSCalendar {
+                    service_id: "CAL1".into(),
+                    monday: 1,
+                    tuesday: 0,
+                    wednesday: 1,
+                    thursday: 1,
+                    friday: 1,
+                    saturday: 1,
+                    sunday: 1,
+                    start_date: "20250522".into(),
+                    end_date: "20251001".into()
+                }
+            ]
+        );
+    }
 
     #[test]
     fn gtfs_schedule_transfers() {
@@ -142,6 +210,16 @@ mod tests {
                 }
             ]
         );
+
+        let first = transfers.get(0).unwrap();
+        assert_eq!(first.transfer_type(), GTFSTransferType::Recommended);
+
+        assert_eq!(GTFSTransferType::Recommended, 0.into());
+        assert_eq!(GTFSTransferType::Timed, 1.into());
+        assert_eq!(GTFSTransferType::MinTimeRequired, 2.into());
+        assert_eq!(GTFSTransferType::NotPossible, 3.into());
+        assert_eq!(GTFSTransferType::InSeatTransfer, 4.into());
+        assert_eq!(GTFSTransferType::InSeatNotAllowed, 5.into());
     }
 
     #[test]
@@ -378,6 +456,46 @@ mod tests {
     }
 
     #[test]
+    fn gtfs_schedule_calendar_dates() {
+        let calendar_dates = fs::read_to_string(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/readers/gtfs/fixtures/calendar_dates.csv"),
+        )
+        .unwrap();
+
+        let calendar_dates = GTFSCalendarDate::new(&calendar_dates);
+        assert_eq!(
+            calendar_dates,
+            BTreeMap::from([
+                (
+                    "CD_0".into(),
+                    GTFSCalendarDate {
+                        service_id: "CD_0".into(),
+                        date: "20250522".into(),
+                        exception_type: -1,
+                    }
+                ),
+                (
+                    "CD_1".into(),
+                    GTFSCalendarDate {
+                        service_id: "CD_1".into(),
+                        date: "20251001".into(),
+                        exception_type: 2,
+                    }
+                )
+            ])
+        );
+
+        let first_calendar_date = calendar_dates.get("CD_0").unwrap();
+        assert_eq!(first_calendar_date.date(), Date::new(2025, 4, 22));
+        assert_eq!(first_calendar_date.exception_type(), GTFSExceptionType::Added);
+
+        let second_calendar_date = calendar_dates.get("CD_1").unwrap();
+        assert_eq!(second_calendar_date.date(), Date::new(2025, 9, 1));
+        assert_eq!(second_calendar_date.exception_type(), GTFSExceptionType::Removed);
+    }
+
+    #[test]
     fn gtfs_schedule_route_networks() {
         let route_networks = fs::read_to_string(
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -442,6 +560,54 @@ mod tests {
     }
 
     #[test]
+    fn gtfs_schedule_fare_attributes() {
+        let fare_attributes = fs::read_to_string(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/readers/gtfs/fixtures/fare_attributes.csv"),
+        )
+        .unwrap();
+
+        let fare_attributes = GTFSFareAttribute::new(&fare_attributes);
+        assert_eq!(
+            fare_attributes,
+            BTreeMap::from([
+                (
+                    "core_local_one_way_trip".into(),
+                    GTFSFareAttribute {
+                        fare_id: "core_local_one_way_trip".into(),
+                        price: 0.00,
+                        currency_type: "USD".into(),
+                        payment_method: 0,
+                        transfers: "0".into(),
+                        transfer_duration: Some(0),
+                        agency_id: None,
+                    }
+                ),
+                (
+                    "away".into(),
+                    GTFSFareAttribute {
+                        fare_id: "away".into(),
+                        price: 15.20,
+                        currency_type: "BRT".into(),
+                        payment_method: 1,
+                        transfers: "".into(),
+                        transfer_duration: Some(-1),
+                        agency_id: Some("test_id".into()),
+                    }
+                )
+            ])
+        );
+
+        let core_local = fare_attributes.get("core_local_one_way_trip").unwrap();
+        assert_eq!(core_local.payment_method(), GTFSPaymentMethod::OnBoard);
+        assert_eq!(core_local.transfers(), GTFSTransfersType::NoTransfers);
+
+        let away = fare_attributes.get("away").unwrap();
+        assert_eq!(away.payment_method(), GTFSPaymentMethod::PreBoard);
+        assert_eq!(away.transfers(), GTFSTransfersType::UnlimitedTransfers);
+    }
+
+    #[test]
     fn gtfs_schedule_fare_transfer_rules() {
         let fare_transfer_rules = fs::read_to_string(
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -462,6 +628,19 @@ mod tests {
                 fare_product_id: None
             }]
         );
+
+        let first = fare_transfer_rules.get(0).unwrap();
+        assert_eq!(first.fare_transfer_type(), GTFSFareTransferType::FromLegPlusTransfer);
+        assert_eq!(first.duration_limit_type(), Some(GTFSDurationLimitType::DepCurrentDepNext));
+
+        assert_eq!(GTFSFareTransferType::FromLegPlusTransfer, 0.into());
+        assert_eq!(GTFSFareTransferType::FromLegTransferToLeg, 1.into());
+        assert_eq!(GTFSFareTransferType::TransferOnly, 2.into());
+
+        assert_eq!(GTFSDurationLimitType::DepCurrentArrNext, 0.into());
+        assert_eq!(GTFSDurationLimitType::DepCurrentDepNext, 1.into());
+        assert_eq!(GTFSDurationLimitType::ArrCurrentDepNext, 2.into());
+        assert_eq!(GTFSDurationLimitType::ArrCurrentArrNext, 3.into());
     }
 
     #[test]
@@ -520,6 +699,12 @@ mod tests {
                 }
             ]
         );
+
+        let first = frequencies.get(0).unwrap();
+        assert_eq!(first.exact_times(), None);
+
+        assert_eq!(GTFSExactTimes::FrequencyBased, 0.into());
+        assert_eq!(GTFSExactTimes::ScheduleBased, 1.into());
     }
 
     #[test]
@@ -578,6 +763,15 @@ mod tests {
                 )
             ])
         );
+
+        let cash = fare_media.get("cash").unwrap();
+        assert_eq!(cash.fare_media_type(), GTFSFareMediaType::None);
+
+        assert_eq!(GTFSFareMediaType::PhysicalPaperTicket, 1.into());
+        assert_eq!(GTFSFareMediaType::PhysicalTransitCard, 2.into());
+        assert_eq!(GTFSFareMediaType::CEMV, 3.into());
+        assert_eq!(GTFSFareMediaType::MobileApp, 4.into());
+        assert_eq!(GTFSFareMediaType::None, 20.into());
     }
 
     #[test]
@@ -759,6 +953,33 @@ mod tests {
                 )
             ])
         );
+
+        let example = GTFSBookingRule {
+            booking_rule_id: "flächenrufbus_angermünde_weekdays".into(),
+            booking_type: 1,
+            prior_notice_duration_min: Some(60),
+            prior_notice_duration_max: None,
+            prior_notice_last_day: None,
+            prior_notice_last_time: None,
+            prior_notice_start_day: None,
+            prior_notice_start_time: None,
+            prior_notice_service_id: None,
+            message: Some(
+                "Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 \
+                             und 24:00 möglich, oder online rund um die Uhr"
+                    .into(),
+            ),
+            pickup_message: None,
+            drop_off_message: None,
+            phone_number: Some("+49 3332 442 755".into()),
+            info_url: Some("https://uvg-online.com/rufbus-angermuende/".into()),
+            booking_url: Some("https://uvg.tdimo.net/bapp/#/astBuchungenView".into()),
+        };
+        assert_eq!(example.get_booking_type(), GTFSBookingType::SameDay);
+
+        assert_eq!(GTFSBookingType::RealTime, 0.into());
+        assert_eq!(GTFSBookingType::SameDay, 1.into());
+        assert_eq!(GTFSBookingType::PriorDays, 2.into());
     }
 
     #[test]
@@ -813,6 +1034,24 @@ mod tests {
                 }
             )])
         );
+
+        let example = GTFSAttribution {
+            attribution_id: Some("rp".into()),
+            agency_id: None,
+            route_id: None,
+            trip_id: None,
+            organization_name: "Rejseplanen".into(),
+            is_producer: Some("1".into()),
+            is_operator: None,
+            is_authority: None,
+            attribution_url: Some("https://www.rejseplanen.dk".into()),
+            attribution_email: None,
+            attribution_phone: None,
+        };
+
+        assert!(!example.is_authority());
+        assert!(!example.is_operator());
+        assert!(example.is_producer());
     }
 
     #[test]
@@ -863,6 +1102,21 @@ mod tests {
                 )
             ])
         );
+
+        let escalator_a = pathways.get("escalatorA").unwrap();
+        assert_eq!(escalator_a.pathway_mode(), GTFSPathwayMode::Walkway);
+        assert_eq!(escalator_a.is_bidirectional(), GTFSIsBidirectional::Unidirectional);
+
+        assert_eq!(GTFSPathwayMode::Walkway, 1.into());
+        assert_eq!(GTFSPathwayMode::Stairs, 2.into());
+        assert_eq!(GTFSPathwayMode::MovingSidewalk, 3.into());
+        assert_eq!(GTFSPathwayMode::Escalator, 4.into());
+        assert_eq!(GTFSPathwayMode::Elevator, 5.into());
+        assert_eq!(GTFSPathwayMode::FareGate, 6.into());
+        assert_eq!(GTFSPathwayMode::ExitGate, 7.into());
+
+        assert_eq!(GTFSIsBidirectional::Unidirectional, 0.into());
+        assert_eq!(GTFSIsBidirectional::Bidirectional, 1.into());
     }
 
     #[test]
@@ -1056,5 +1310,117 @@ mod tests {
                 ..Default::default()
             },
         );
+
+        let stops = &reader.stops;
+        let _70011 = stops.get("70011").unwrap();
+        assert_eq!(_70011.get_location_type(), Some(GTFSStopLocationType::Stop));
+
+        assert_eq!(GTFSStopLocationType::Stop, 0.into());
+        assert_eq!(GTFSStopLocationType::Station, 1.into());
+        assert_eq!(GTFSStopLocationType::Entrance, 2.into());
+        assert_eq!(GTFSStopLocationType::GenericNode, 3.into());
+        assert_eq!(GTFSStopLocationType::BoardingArea, 4.into());
+
+        // let shapes = &reader.shapes;
+        // let cal_tam_sj = shapes.get("cal_tam_sj").unwrap();
+
+        let stop_times = &reader.stop_times;
+        let first = stop_times.get(0).unwrap();
+
+        assert_eq!(
+            *first,
+            GTFSStopTime {
+                trip_id: "23a".into(),
+                arrival_time: Some("7:33:00".into()),
+                departure_time: Some("7:33:00".into()),
+                stop_id: Some("777403".into()),
+                location_group_id: None,
+                location_id: None,
+                stop_sequence: 1,
+                stop_headsign: None,
+                start_pickup_drop_off_window: None,
+                end_pickup_drop_off_window: None,
+                pickup_type: Some(0),
+                drop_off_type: Some(0),
+                continuous_pickup: None,
+                continuous_drop_off: None,
+                shape_dist_traveled: None,
+                timepoint: None,
+                pickup_booking_rule_id: None,
+                drop_off_booking_rule_id: None,
+            }
+        );
+
+        assert_eq!(first.pickup_type(), Some(GTFSPickupDropOffType::Regular));
+        assert_eq!(first.drop_off_type(), Some(GTFSPickupDropOffType::Regular));
+        assert_eq!(first.continuous_pickup(), None);
+        assert_eq!(first.continuous_drop_off(), None);
+        assert_eq!(first.timepoint(), None);
+
+        assert_eq!(GTFSPickupDropOffType::Regular, 0.into());
+        assert_eq!(GTFSPickupDropOffType::None, 1.into());
+        assert_eq!(GTFSPickupDropOffType::PhoneAgency, 2.into());
+        assert_eq!(GTFSPickupDropOffType::CoordinateDriver, 3.into());
+
+        assert_eq!(GTFSContinuousPickupDropOff::Continuous, 0.into());
+        assert_eq!(GTFSContinuousPickupDropOff::None, 1.into());
+        assert_eq!(GTFSContinuousPickupDropOff::PhoneAgency, 2.into());
+        assert_eq!(GTFSContinuousPickupDropOff::CoordinateDriver, 3.into());
+
+        assert_eq!(GTFSTimepoint::Approximate, 0.into());
+        assert_eq!(GTFSTimepoint::Exact, 1.into());
+
+        let routes = &reader.routes;
+        let bu_16_apr = routes.get("Bu-16APR").unwrap();
+
+        assert_eq!(
+            *bu_16_apr,
+            GTFSRoute {
+                route_id: "Bu-16APR".into(),
+                agency_id: None,
+                route_short_name: None,
+                route_long_name: Some("Baby Bullet".into()),
+                route_desc: None,
+                route_type: 2,
+                route_url: None,
+                route_color: Some("E31837".into()),
+                route_text_color: None,
+                route_sort_order: None,
+                continuous_pickup: None,
+                continuous_drop_off: None,
+                network_id: None
+            }
+        );
+
+        assert_eq!(bu_16_apr.route_type(), GTFSRouteType::Rail);
+        assert_eq!(bu_16_apr.continuous_pickup(), None);
+        assert_eq!(bu_16_apr.continuous_drop_off(), None);
+        assert_eq!(bu_16_apr.route_color(), Some(RGBA::from_hex("E31837")));
+        assert_eq!(bu_16_apr.route_text_color(), None);
+
+        assert_eq!(GTFSRouteType::Tram, 0.into());
+        assert_eq!(GTFSRouteType::Subway, 1.into());
+        assert_eq!(GTFSRouteType::Rail, 2.into());
+        assert_eq!(GTFSRouteType::Bus, 3.into());
+        assert_eq!(GTFSRouteType::Ferry, 4.into());
+        assert_eq!(GTFSRouteType::CableTram, 5.into());
+        assert_eq!(GTFSRouteType::AerialLift, 6.into());
+        assert_eq!(GTFSRouteType::Funicular, 7.into());
+        assert_eq!(GTFSRouteType::Trolleybus, 11.into());
+        assert_eq!(GTFSRouteType::Monorail, 12.into());
+
+        assert_eq!(GTFSRoutePickupType::ContinuousStoppingPickup, 0.into());
+        assert_eq!(GTFSRoutePickupType::NoContinuousStoppingPickup, 1.into());
+        assert_eq!(GTFSRoutePickupType::MustPhoneAgency, 2.into());
+        assert_eq!(GTFSRoutePickupType::MustCoordinateWithDriver, 3.into());
+    }
+
+    #[test]
+    fn gtfs_schedule_from_folder() {
+        let folder = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/readers/gtfs/fixtures");
+        let schedule = GTFSScheduleReader::from_folder(folder.to_str().unwrap());
+
+        let features: Vec<VectorFeature> = schedule.par_iter(1, 1).collect();
+        assert_eq!(features.len(), 3);
     }
 }

@@ -15,6 +15,15 @@ pub enum GTFSBookingType {
     /// Prior day(s)
     PriorDays = 2,
 }
+impl From<i8> for GTFSBookingType {
+    fn from(value: i8) -> Self {
+        match value {
+            1 => GTFSBookingType::SameDay,
+            2 => GTFSBookingType::PriorDays,
+            _ => GTFSBookingType::RealTime,
+        }
+    }
+}
 
 /// # Booking Rules
 ///
@@ -94,10 +103,6 @@ impl GTFSBookingRule {
     }
     /// Get the booking type
     pub fn get_booking_type(&self) -> GTFSBookingType {
-        match self.booking_type {
-            1 => GTFSBookingType::SameDay,
-            2 => GTFSBookingType::PriorDays,
-            _ => GTFSBookingType::RealTime,
-        }
+        self.booking_type.into()
     }
 }

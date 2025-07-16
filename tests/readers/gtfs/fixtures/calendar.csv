@@ -1,0 +1,3 @@
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date,
+"CAL0",0,1,0,1,0,1,0,"20250102","20250102",
+"CAL1",1,0,1,1,1,1,1,"20250522","20251001",
