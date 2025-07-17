@@ -404,6 +404,7 @@ pub const WGS66: Ellipsoidal = Ellipsoidal { a: 6_378_145.0, b: None, rf: Some(2
 pub const SPHERE: Ellipsoidal = Ellipsoidal { a: 6_370_997.0, b: Some(6_370_997.0), rf: None };
 
 /// Given a name, return the corresponding ellipsoid
+#[cfg_attr(feature = "nightly", coverage(off))]
 pub fn get_ellipsoid_from_id(id: i64) -> Option<Ellipsoidal> {
     match id {
         1024 => Some(CGCS2000),
@@ -461,6 +462,7 @@ pub fn get_ellipsoid_from_id(id: i64) -> Option<Ellipsoidal> {
 }
 
 /// Given a name, return the corresponding ellipsoid
+#[cfg_attr(feature = "nightly", coverage(off))]
 pub fn get_ellipsoid(name: &str) -> Option<Ellipsoidal> {
     // fix name to remove _ and convert to uppercase
     let name = name.to_uppercase().replace("_", "");

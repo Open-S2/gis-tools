@@ -30,7 +30,8 @@ pub enum DatumType {
     NoDatum = 5,
 }
 impl DatumType {
-    fn is_params(&self) -> bool {
+    /// Check if the datum type is 3 or 7
+    pub fn is_params(&self) -> bool {
         matches!(self, DatumType::Param3 | DatumType::Param7)
     }
 
@@ -136,7 +137,7 @@ impl DatumParams {
 /// dest - destination projection
 pub fn datum_transform<P: TransformCoordinates>(point: &mut P, source: &Proj, dest: &Proj) {
     // Short cut if the datums are identical.
-    if source.datum_type == dest.datum_type
+    if source.datum_params == dest.datum_params
         || source.datum_type == DatumType::NoDatum
         || dest.datum_type == DatumType::NoDatum
     {
@@ -433,6 +434,7 @@ pub const RNB72: ToWGS84Datum = ToWGS84Datum {
 };
 
 /// Given a name, return the corresponding ellipsoid
+#[cfg_attr(feature = "nightly", coverage(off))]
 pub fn get_datum(name: &str) -> Option<ToWGS84Datum> {
     // fix name to remove _ and convert to uppercase
     let name = name.to_uppercase().replace("_", "");

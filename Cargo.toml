@@ -69,6 +69,11 @@ harness = false
 [profile.bench]
 inherits = "release"
 opt-level = 3
+# un-comment these when using flamegraph.
+# debug = true
+
+# [profile.release]
+# debug = true
 
 [profile.dev.package]
 image.opt-level = 3

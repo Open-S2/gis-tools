@@ -3,8 +3,8 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::proj::{
-        angular_unit_to_degrees, get_prime_meridian, linear_unit_to_meters, to_camel_case,
-        to_pascal_case,
+        angular_unit_to_degrees, axis_name_to_order, get_prime_meridian, linear_unit_to_meters,
+        to_camel_case, to_pascal_case,
     };
 
     #[test]
@@ -233,5 +233,37 @@ mod tests {
         assert_eq!(get_prime_meridian("tokyo"), 0.0);
         assert_eq!(get_prime_meridian(""), 0.0); // Empty string
         assert_eq!(get_prime_meridian("Some Random City"), 0.0);
+    }
+
+    #[test]
+    fn test_axis_name_to_order() {
+        // 0s
+        assert_eq!(axis_name_to_order("X"), 0);
+        assert_eq!(axis_name_to_order("(x)"), 0);
+        assert_eq!(axis_name_to_order("east"), 0);
+        assert_eq!(axis_name_to_order("east (x)"), 0);
+        assert_eq!(axis_name_to_order("(e)"), 0);
+        assert_eq!(axis_name_to_order("easting"), 0);
+        assert_eq!(axis_name_to_order("easting (x)"), 0);
+
+        // 1s
+        assert_eq!(axis_name_to_order("y"), 1);
+        assert_eq!(axis_name_to_order("(y)"), 1);
+        assert_eq!(axis_name_to_order("north"), 1);
+        assert_eq!(axis_name_to_order("north (y)"), 1);
+        assert_eq!(axis_name_to_order("(n)"), 1);
+        assert_eq!(axis_name_to_order("northing"), 1);
+        assert_eq!(axis_name_to_order("northing (y)"), 1);
+
+        // 2s
+        assert_eq!(axis_name_to_order("z"), 2);
+        assert_eq!(axis_name_to_order("(z)"), 2);
+
+        // 3s
+        assert_eq!(axis_name_to_order("t"), 3);
+        assert_eq!(axis_name_to_order("(t)"), 3);
+
+        // everything else
+        assert_eq!(axis_name_to_order("anything"), 0);
     }
 }
