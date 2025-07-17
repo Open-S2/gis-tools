@@ -41,7 +41,7 @@ pub struct LayerHandler<M: Clone + HasLayer, P: MValueCompatible, D: MValueCompa
 }
 
 /// No matter the type of layer you want to build, these are default properties to include
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct BaseLayer {
     /// Explain what the layer is
     pub description: Option<String>,
@@ -52,7 +52,7 @@ pub struct BaseLayer {
 }
 
 /// Guide to building Raster layer data
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct RasterLayerGuide {
     /// describes how the image will be stored
     pub output_type: String,
@@ -63,6 +63,7 @@ pub struct RasterLayerGuide {
     pub base: BaseLayer,
 }
 impl From<&RasterLayerGuide> for LayerMetaData {
+    #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
     fn from(lg: &RasterLayerGuide) -> Self {
         LayerMetaData {
             description: lg.base.description.clone(),
@@ -75,7 +76,7 @@ impl From<&RasterLayerGuide> for LayerMetaData {
 }
 
 /// Guide to building Grid layer data
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct GridLayerGuide {
     /// Grid clustering guide
     pub grid_guide: GridOptions<f64>,
@@ -86,6 +87,7 @@ pub struct GridLayerGuide {
     pub base: BaseLayer,
 }
 impl From<&GridLayerGuide> for LayerMetaData {
+    #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
     fn from(lg: &GridLayerGuide) -> Self {
         LayerMetaData {
             description: lg.base.description.clone(),
@@ -98,7 +100,7 @@ impl From<&GridLayerGuide> for LayerMetaData {
 }
 
 /// Guide to building Cluster layer data
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ClusterLayerGuide {
     /// If options are provided, the assumption is the point data is clustered
     pub cluster_guide: ClusterOptions,
@@ -121,7 +123,7 @@ impl From<&ClusterLayerGuide> for LayerMetaData {
 }
 
 /// Guide to building Vector layer data
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct VectorLayerGuide {
     /// Guide on how to splice the data into vector tiles
     pub vector_guide: TileStoreOptions,
@@ -153,7 +155,7 @@ impl From<&VectorLayerGuide> for LayerMetaData {
 }
 
 /// List of user defined guides to build layers
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum LayerGuide {
     /// Raster guide
@@ -169,9 +171,11 @@ impl LayerGuide {
     /// Get the minzoom and maxzoom of the active layer guide
     pub fn zooms(&self) -> (u8, u8) {
         match self {
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => {
                 (r.raster_guide.minzoom.unwrap_or(0), r.raster_guide.maxzoom.unwrap_or(16))
             }
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => {
                 (g.grid_guide.minzoom.unwrap_or(0), g.grid_guide.maxzoom.unwrap_or(16))
             }
@@ -187,7 +191,9 @@ impl LayerGuide {
     /// Check the source name matches the layer"s source
     pub fn has_source(&self, source_name: &str) -> bool {
         match self {
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => r.base.source_name == source_name,
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => g.base.source_name == source_name,
             LayerGuide::Cluster(c) => c.base.source_name == source_name,
             LayerGuide::Vector(v) => v.base.source_name == source_name,
@@ -197,7 +203,9 @@ impl LayerGuide {
     /// Get the layer name of the active layer guide
     pub fn layer_name(&self) -> &str {
         match self {
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => &r.base.layer_name,
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => &g.base.layer_name,
             LayerGuide::Cluster(c) => &c.base.layer_name,
             LayerGuide::Vector(v) => &v.base.layer_name,
@@ -220,7 +228,9 @@ impl Default for LayerGuide {
 impl From<&LayerGuide> for LayerMetaData {
     fn from(layer_guide: &LayerGuide) -> Self {
         match layer_guide {
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => r.into(),
+            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => g.into(),
             LayerGuide::Cluster(c) => c.into(),
             LayerGuide::Vector(v) => v.into(),
@@ -275,7 +285,7 @@ impl From<&FormatOutput> for SourceType {
 }
 
 /// The source input
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Source {
     /// The name of the source
     pub source_name: String,
@@ -285,7 +295,7 @@ pub struct Source {
 }
 
 /// The source input
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub enum WhichTileWriting {
     /// Use local memory
     #[default]
@@ -297,7 +307,7 @@ pub enum WhichTileWriting {
 }
 
 /// A user defined guide on building the vector tiles
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct JSONBuildGuide {
     /// The name of the data

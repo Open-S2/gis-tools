@@ -14,7 +14,7 @@ use s2json::{BBox, Face, GetXY, JSONCollection, Projection};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 /// Options for grid clustering
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GridOptions<V: Clone + Debug> {
     /// projection to use
     pub projection: Option<Projection>,

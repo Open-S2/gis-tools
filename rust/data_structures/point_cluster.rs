@@ -14,7 +14,7 @@ use s2json::{
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 /// Options for point clustering
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ClusterOptions {
     /// projection to use
     pub projection: Option<Projection>,

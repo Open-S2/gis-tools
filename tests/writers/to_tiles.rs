@@ -7,7 +7,8 @@ mod tests {
         parsers::FileReader,
         readers::json::JSONReader,
         writers::{
-            BaseLayer, BuildGuide, LayerGuide, LocalTileWriter, TileBuilder, VectorLayerGuide,
+            BaseLayer, BuildGuide, FormatOutput, JSONBuildGuide, LayerGuide, LocalTileWriter,
+            TileBuilder, VectorLayerGuide, WhichTileWriting,
         },
     };
     use open_vector_tile::Extent;
@@ -15,7 +16,7 @@ mod tests {
         Center, DrawType, Encoding, FaceBounds, LayerMetaData, Metadata, Scheme, SourceType,
         TileStatsMetadata, VectorLayer,
     };
-    use s2json::{BBox, MValue, MValueCompatible, PrimitiveShape, Shape, ShapeType};
+    use s2json::{BBox, MValue, MValueCompatible, PrimitiveShape, Projection, Shape, ShapeType};
     use serde::{Deserialize, Serialize};
     use std::{collections::BTreeMap, path::PathBuf, vec};
 
@@ -42,6 +43,7 @@ mod tests {
             vector_guide: TileStoreOptions { maxzoom: Some(4), ..Default::default() },
             ..Default::default()
         }));
+        build_guide.attributions = BTreeMap::from([("a".into(), "b".into())]);
         let mut tile_builder = TileBuilder::new(local_tile_writer, build_guide);
 
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -90,7 +92,7 @@ mod tests {
                 minzoom: 0,
                 maxzoom: 4,
                 centerpoint: Center { lon: 0.0, lat: 0.0, zoom: 2 },
-                attributions: BTreeMap::default(),
+                attributions: BTreeMap::from([("a".into(), "b".into())]),
                 layers: BTreeMap::from([(
                     "points".into(),
                     LayerMetaData {
@@ -132,5 +134,45 @@ mod tests {
                 template: None
             }
         );
+    }
+
+    #[test]
+    fn test_jsonbuild_guide() {
+        let default = JSONBuildGuide::default();
+        assert_eq!(
+            default,
+            JSONBuildGuide {
+                name: "auto generated".into(),
+                description: "generated via OpenS2 gis-tools".into(),
+                version: "1.0.0".into(),
+                extension: "pbf".into(),
+                projection: Projection::S2,
+                encoding: Encoding::None,
+                attribution: BTreeMap::default(),
+                format: FormatOutput::default(),
+                vector_sources: vec![],
+                raster_sources: vec![],
+                grid_sources: vec![],
+                build_indices: true,
+                layer_guides: vec![],
+                tile_writer: WhichTileWriting::Local,
+                threads: 1,
+            }
+        );
+    }
+
+    #[test]
+    fn test_format_output() {
+        assert_eq!(FormatOutput::from("mapbox"), FormatOutput::Mapbox);
+        assert_eq!(FormatOutput::from("flat-open-s2"), FormatOutput::FlatOpenS2);
+        assert_eq!(FormatOutput::from("open-s2"), FormatOutput::OpenS2);
+        assert_eq!(FormatOutput::from("raster"), FormatOutput::Raster);
+        assert_eq!(FormatOutput::from("unknown"), FormatOutput::OpenS2);
+
+        let source_type: SourceType = (&FormatOutput::from("mapbox")).into();
+        assert_eq!(source_type, SourceType::Vector);
+
+        let source_type: SourceType = (&FormatOutput::from("raster")).into();
+        assert_eq!(source_type, SourceType::Raster);
     }
 }

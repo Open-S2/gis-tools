@@ -63,16 +63,17 @@ impl<W: TileWriter> TileBuilder<W> {
         on_layer_feature: Option<&Vec<LayerHandler<M, P, D>>>,
     ) {
         for mut feature in reader.iter() {
-            if let Some(on_feature) = on_source_feature {
-                if let Some(new_feature) = (on_feature)(take(&mut feature)) {
-                    feature = new_feature;
-                }
+            if let Some(on_feature) = on_source_feature
+                && let Some(new_feature) = (on_feature)(take(&mut feature))
+            {
+                feature = new_feature;
             }
             self.worker.store_feature(feature, source_name.clone(), on_layer_feature);
         }
     }
 
     /// Add vector points with RGBA attributes to build raster tiles
+    #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
     pub fn add_raster_source<
         M: Clone,
         P: MValueCompatible,
@@ -87,6 +88,7 @@ impl<W: TileWriter> TileBuilder<W> {
     }
 
     /// Add data that will be gridded like raster data but float precision points
+    #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
     pub fn add_grid_source<
         M: Clone,
         P: MValueCompatible,

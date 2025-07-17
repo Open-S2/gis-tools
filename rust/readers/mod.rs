@@ -49,7 +49,7 @@ pub use tile::*;
 pub use wkt::*;
 
 /// The type of readers to choose from
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ReaderType {
     /// CSV data
