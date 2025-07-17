@@ -231,9 +231,10 @@ impl GeoKeyDirectoryKeys {
 }
 
 /// TIFF Field Types
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum GeoTIFFTypes {
     /// Byte
+    #[default]
     BYTE = 0x0001,
     /// ASCII
     ASCII = 0x0002,
@@ -314,7 +315,7 @@ impl From<u16> for GeoTIFFTypes {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct GeoStore {
     /// Internal data
-    pub data: BTreeMap<u16, Vec<u8>>,
+    pub data: BTreeMap<u16, (Vec<u8>, GeoTIFFTypes)>,
 }
 impl GeoStore {
     /// len
@@ -330,94 +331,211 @@ impl GeoStore {
         self.data.contains_key(&key)
     }
     /// Common function name
-    pub fn insert(&mut self, key: u16, value: Vec<u8>) {
-        self.data.insert(key, value);
+    pub fn insert(&mut self, key: u16, value: Vec<u8>, field_type: GeoTIFFTypes) {
+        self.data.insert(key, (value, field_type));
     }
     /// Set a value
-    pub fn set(&mut self, key: u16, value: Vec<u8>) {
-        self.data.insert(key, value);
+    pub fn set(&mut self, key: u16, value: Vec<u8>, field_type: GeoTIFFTypes) {
+        self.data.insert(key, (value, field_type));
     }
     /// Get a value
-    pub fn get(&self, key: u16) -> Option<Vec<u8>> {
+    pub fn get(&self, key: u16) -> Option<(Vec<u8>, GeoTIFFTypes)> {
         self.data.get(&key).cloned()
     }
     /// Set a short
     pub fn set_short(&mut self, key: u16, value: i16) {
-        self.set(key, value.to_le_bytes().to_vec());
+        self.set(key, value.to_le_bytes().to_vec(), GeoTIFFTypes::SHORT);
     }
     /// Get a short
     pub fn get_short(&self, key: u16) -> Option<i16> {
-        self.get(key).map(|v| i16::from_le_bytes(v.try_into().unwrap()))
+        // self.get(key).map(|(v, _)| i16::from_le_bytes(v.try_into().unwrap()))
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v[0] as i16,
+            GeoTIFFTypes::SHORT => i16::from_le_bytes(v.try_into().unwrap()),
+            GeoTIFFTypes::SBYTE => v[0] as i16,
+            GeoTIFFTypes::SSHORT => i16::from_le_bytes(v.try_into().unwrap()),
+            _ => panic!("Invalid type"),
+        })
     }
     /// Set a string
     pub fn set_string(&mut self, key: u16, value: String) {
-        self.set(key, value.as_bytes().to_vec());
+        self.set(key, value.as_bytes().to_vec(), GeoTIFFTypes::ASCII);
     }
     /// Get a string
     pub fn get_string(&self, key: u16) -> Option<String> {
-        self.get(key).map(|v| String::from_utf8_lossy(&v[..v.len().saturating_sub(1)]).into())
+        self.get(key).map(|(v, _)| String::from_utf8_lossy(&v[..v.len().saturating_sub(1)]).into())
     }
     /// Set a double
     pub fn set_double(&mut self, key: u16, value: f64) {
-        self.set(key, value.to_le_bytes().to_vec());
+        self.set(key, value.to_le_bytes().to_vec(), GeoTIFFTypes::DOUBLE);
     }
     /// Get a double
     pub fn get_double(&self, key: u16) -> Option<f64> {
-        self.get(key).map(|v| {
-            if v.len() == 1 {
-                v[0] as f64
-            } else {
-                f64::from_le_bytes(v.try_into().unwrap_or([0; 8]))
+        // // TODO: This is cool because we can fix this
+        // self.get(key).map(|(v, r#type)| {
+        //     if v.len() == 1 {
+        //         v[0] as f64
+        //     } else {
+        //         f64::from_le_bytes(v.try_into().unwrap_or([0; 8]))
+        //     }
+        // })
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v[0] as f64,
+            GeoTIFFTypes::SHORT => u16::from_le_bytes(v.try_into().unwrap_or([0; 2])) as f64,
+            GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => {
+                u32::from_le_bytes(v.try_into().unwrap_or([0; 4])) as f64
             }
+            GeoTIFFTypes::SBYTE => v[0] as i8 as f64,
+            GeoTIFFTypes::SSHORT => i16::from_le_bytes(v.try_into().unwrap_or([0; 2])) as f64,
+            GeoTIFFTypes::SLONG | GeoTIFFTypes::SRATIONAL => {
+                i32::from_le_bytes(v.try_into().unwrap_or([0; 4])) as f64
+            }
+            GeoTIFFTypes::FLOAT => f32::from_le_bytes(v.try_into().unwrap_or([0; 4])) as f64,
+            GeoTIFFTypes::DOUBLE => f64::from_le_bytes(v.try_into().unwrap_or([0; 8])),
+            _ => panic!("Invalid type"),
         })
     }
 
     /// get u16 array
     pub fn get_u16s(&self, key: u16) -> Option<Vec<u16>> {
-        self.get(key).map(|v| {
-            v.chunks(2).map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v.iter().map(|chunk| *chunk as u16).collect(),
+            GeoTIFFTypes::SHORT => {
+                v.chunks(2).map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type"),
         })
     }
     /// get u32 array
     pub fn get_u32s(&self, key: u16) -> Option<Vec<u32>> {
-        self.get(key).map(|v| {
-            v.chunks(4).map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v.iter().map(|chunk| *chunk as u32).collect(),
+            GeoTIFFTypes::SHORT => v
+                .chunks(2)
+                .map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap()) as u32)
+                .collect(),
+            GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => {
+                v.chunks(4).map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
     /// get u64 array
     pub fn get_u64s(&self, key: u16) -> Option<Vec<u64>> {
-        self.get(key).map(|v| {
-            v.chunks(8).map(|chunk| u64::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v.iter().map(|chunk| *chunk as u64).collect(),
+            GeoTIFFTypes::SHORT => v
+                .chunks(2)
+                .map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap()) as u64)
+                .collect(),
+            GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => v
+                .chunks(4)
+                .map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap()) as u64)
+                .collect(),
+            GeoTIFFTypes::LONG8 => {
+                v.chunks(8).map(|chunk| u64::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
     /// get i16 array
     pub fn geti16s(&self, key: u16) -> Option<Vec<i16>> {
-        self.get(key).map(|v| {
-            v.chunks(2).map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::SBYTE => v.iter().map(|chunk| *chunk as i16).collect(),
+            GeoTIFFTypes::SSHORT => {
+                v.chunks(2).map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type"),
         })
     }
     /// get i32 array
     pub fn geti32s(&self, key: u16) -> Option<Vec<i32>> {
-        self.get(key).map(|v| {
-            v.chunks(4).map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::SBYTE => v.iter().map(|chunk| *chunk as i32).collect(),
+            GeoTIFFTypes::SSHORT => v
+                .chunks(2)
+                .map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap()) as i32)
+                .collect(),
+            GeoTIFFTypes::SLONG | GeoTIFFTypes::SRATIONAL => {
+                v.chunks(4).map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
     /// get i64 array
     pub fn geti64s(&self, key: u16) -> Option<Vec<i64>> {
-        self.get(key).map(|v| {
-            v.chunks(8).map(|chunk| i64::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::SBYTE => v.iter().map(|chunk| *chunk as i64).collect(),
+            GeoTIFFTypes::SSHORT => v
+                .chunks(2)
+                .map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap()) as i64)
+                .collect(),
+            GeoTIFFTypes::SLONG | GeoTIFFTypes::SRATIONAL => v
+                .chunks(4)
+                .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()) as i64)
+                .collect(),
+            GeoTIFFTypes::SLONG8 => {
+                v.chunks(8).map(|chunk| i64::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
     /// get f32 array
     pub fn getf32s(&self, key: u16) -> Option<Vec<f32>> {
-        self.get(key).map(|v| {
-            v.chunks(4).map(|chunk| f32::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v.iter().map(|chunk| *chunk as f32).collect(),
+            GeoTIFFTypes::SHORT => v
+                .chunks(2)
+                .map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap()) as f32)
+                .collect(),
+            GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => v
+                .chunks(4)
+                .map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap()) as f32)
+                .collect(),
+            GeoTIFFTypes::SBYTE => v.iter().map(|chunk| *chunk as f32).collect(),
+            GeoTIFFTypes::SSHORT => v
+                .chunks(2)
+                .map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap()) as f32)
+                .collect(),
+            GeoTIFFTypes::SLONG | GeoTIFFTypes::SRATIONAL => v
+                .chunks(4)
+                .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()) as f32)
+                .collect(),
+            GeoTIFFTypes::FLOAT => {
+                v.chunks(4).map(|chunk| f32::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
     /// get f64 array
     pub fn getf64s(&self, key: u16) -> Option<Vec<f64>> {
-        self.get(key).map(|v| {
-            v.chunks(8).map(|chunk| f64::from_le_bytes(chunk.try_into().unwrap())).collect()
+        self.get(key).map(|(v, r#type)| match r#type {
+            GeoTIFFTypes::BYTE => v.iter().map(|chunk| *chunk as f64).collect(),
+            GeoTIFFTypes::SHORT => v
+                .chunks(2)
+                .map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap()) as f64)
+                .collect(),
+            GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => v
+                .chunks(4)
+                .map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap()) as f64)
+                .collect(),
+            GeoTIFFTypes::SBYTE => v.iter().map(|chunk| *chunk as f64).collect(),
+            GeoTIFFTypes::SSHORT => v
+                .chunks(2)
+                .map(|chunk| i16::from_le_bytes(chunk.try_into().unwrap()) as f64)
+                .collect(),
+            GeoTIFFTypes::SLONG | GeoTIFFTypes::SRATIONAL => v
+                .chunks(4)
+                .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()) as f64)
+                .collect(),
+            GeoTIFFTypes::FLOAT => v
+                .chunks(4)
+                .map(|chunk| f32::from_le_bytes(chunk.try_into().unwrap()) as f64)
+                .collect(),
+            GeoTIFFTypes::DOUBLE => {
+                v.chunks(8).map(|chunk| f64::from_le_bytes(chunk.try_into().unwrap())).collect()
+            }
+            _ => panic!("Invalid type: {:?}", r#type),
         })
     }
 }

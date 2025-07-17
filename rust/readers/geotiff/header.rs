@@ -11,6 +11,7 @@ use alloc::vec::Vec;
 struct KeyValue {
     key: u16,
     value: Vec<u8>,
+    field_type: GeoTIFFTypes,
 }
 
 /// A tiepoint structured for decoding images
@@ -55,8 +56,8 @@ pub struct ImageDirectory {
 }
 impl ImageDirectory {
     /// Insert a variable into the image directory
-    pub fn insert(&mut self, key: u16, value: Vec<u8>) {
-        self.variables.insert(key, value);
+    pub fn insert(&mut self, key: u16, value: Vec<u8>, field_type: GeoTIFFTypes) {
+        self.variables.insert(key, value, field_type);
     }
     /// Get the length of variables
     pub fn len(&self) -> usize {
@@ -104,13 +105,12 @@ impl GeoTIFFHeaderReader {
         }
         let le = self.little_endian;
 
-        let magic_number = if le { reader.uint16_le(Some(2)) } else { reader.uint16_be(Some(2)) };
+        let magic_number = reader.uint16(Some(2), Some(le));
         if magic_number == 42 {
             self.big_tiff = false;
         } else if magic_number == 43 {
             self.big_tiff = true;
-            let offset_byte_size =
-                if le { reader.uint16_le(Some(4)) } else { reader.uint16_be(Some(4)) };
+            let offset_byte_size = reader.uint16(Some(4), Some(le));
             if offset_byte_size != 8 {
                 panic!("Unsupported offset byte-size.");
             }
@@ -172,8 +172,9 @@ impl GeoTIFFHeaderReader {
                 // TIFFTAG_GEODOUBLEPARAMS can just be placed inside the variables section
                 // else if field_tag == 34737 { ... }
                 else {
-                    let KeyValue { key, value } = self.get_key_value(field_tag as u64, i, reader);
-                    ifd.insert(key, value);
+                    let KeyValue { key, value, field_type } =
+                        self.get_key_value(field_tag as u64, i, reader);
+                    ifd.insert(key, value, field_type);
                 }
                 i += entry_size;
             }
@@ -181,7 +182,7 @@ impl GeoTIFFHeaderReader {
             if let Some(geokey_dir_offset) = geokey_dir_offset {
                 self.get_geo_key_directory(&mut ifd, geokey_dir_offset, reader);
             } else {
-                panic!("No GeoKeyDirectory found. May contain errors");
+                // panic!("No GeoKeyDirectory found. May contain errors");
             }
             if !ifd.is_empty() {
                 self.image_directories.push(ifd);
@@ -321,7 +322,7 @@ impl GeoTIFFHeaderReader {
         );
 
         // write the tags value to the file directly
-        KeyValue { key: field_tag as u16, value }
+        KeyValue { key: field_tag as u16, value, field_type: field_type.into() }
     }
 
     /// @param field_tag - the tag to read
@@ -377,9 +378,13 @@ pub fn parse_geotiff_raw_geokeys(raw_geokeys: &[u16], file_dir: &GeoStore) -> Ge
 
         if location == 0 {
             geo_key_directory.set_short(key, offset as i16);
-        } else if let Some(value) = file_dir.get(location) {
+        } else if let Some((value, _)) = file_dir.get(location) {
             let offset = offset as usize;
-            geo_key_directory.set(key, value[offset..(offset + count)].to_vec());
+            geo_key_directory.set(
+                key,
+                value[offset..(offset + count)].to_vec(),
+                GeoTIFFTypes::BYTE,
+            );
         }
 
         i += 4;

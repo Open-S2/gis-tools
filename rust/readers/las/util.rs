@@ -147,7 +147,6 @@ impl IntoValue64 for f64 {
 pub struct U32I32F32 {
     bytes: [u8; 4],
 }
-
 impl U32I32F32 {
     /// Creates a new U32I32F32
     pub fn new(value: impl IntoValue32, ty: ValueType32) -> Self {

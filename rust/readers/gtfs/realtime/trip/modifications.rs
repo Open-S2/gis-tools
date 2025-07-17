@@ -1,3 +1,7 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+// NOTE: I can't find data that actually uses this and most modules don't support so.
+// This is an experimental module, exists incase the GTFS-Realtime spec changes to include it
+
 use crate::util::Date;
 use alloc::{string::String, vec::Vec};
 use pbf::{ProtoRead, Protobuf};

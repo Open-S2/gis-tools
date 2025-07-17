@@ -5,7 +5,7 @@ mod tests {
     extern crate alloc;
 
     use gistools::{
-        parsers::BufferReader,
+        parsers::{BufferReader, FeatureReader},
         readers::{
             FieldTagNames, GTiffDataType, GeoKeyDirectoryKeys, GeoPixelScale, GeoTIFFOptions,
             GeoTIFFReader, GeoTiePoint,
@@ -227,42 +227,6 @@ mod tests {
         assert_eq!(raster.max, 65_535.0);
     }
 
-    // use std::fs::File;
-    // use tiff::decoder::{Decoder, DecodingResult};
-
-    //     #[test]
-    //     fn test_load_tiff() {
-    //         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //         path.push("tests/readers/geotiff/fixtures/initial.tiff");
-    //         // let path = Path::new("tests/data/test_image.tiff");
-    //         let file = File::open(path).expect("failed to open TIFF file");
-
-    // //         Loaded U16 TIFF with 3_622_080 pixels
-    // // Dimensions: 539x448
-
-    //         let mut decoder = Decoder::new(file).expect("failed to create decoder");
-
-    //         let result = decoder.read_image().expect("failed to read image");
-
-    //         match result {
-    //             DecodingResult::U8(data) => {
-    //                 println!("Loaded U8 TIFF with {} pixels", data.len());
-    //                 assert!(!data.is_empty());
-    //             }
-    //             DecodingResult::U16(data) => {
-    //                 println!("Loaded U16 TIFF with {} pixels", data.len());
-    //                 assert!(!data.is_empty());
-    //             }
-    //             other => panic!("unexpected TIFF format: {other:?}"),
-    //         }
-
-    //         let width = decoder.dimensions().unwrap().0;
-    //         let height = decoder.dimensions().unwrap().1;
-
-    //         println!("Dimensions: {width}x{height}");
-    //         assert!(width > 0 && height > 0);
-    //     }
-
     #[test]
     fn test_initial_epsg_27563_only_pcs_code() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -363,5 +327,181 @@ mod tests {
             bounds_corrected,
             BBox::new(46.51427439279896, 7.634598997212268, 46.514794240617476, 7.635150371503749)
         );
+    }
+
+    #[test]
+    fn test_geotiff_rgba() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/RGBA.tiff");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+
+        {
+            let mut image = geotiff.get_image(None).unwrap();
+            let raster = image.raster_data(None);
+            let rgb = image.get_rgba();
+
+            assert_eq!(raster.width, 2_474);
+            assert_eq!(raster.height, 2_624);
+            assert_eq!(raster.alpha, false);
+            assert_eq!(raster.min, 0.);
+            assert_eq!(raster.max, 200.);
+            assert_eq!(rgb.width, 2_474);
+            assert_eq!(rgb.height, 2_624);
+            assert_eq!(rgb.alpha, true);
+            assert_eq!(rgb.min, 0.);
+            assert_eq!(rgb.max, 200.);
+
+            // pull in raw data to compare:
+            let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            path.push("tests/readers/geotiff/fixtures/RGBA_raster.rgba");
+            let expected = std::fs::read(path).unwrap();
+            assert_eq!(raster.to_u8s(), expected);
+
+            let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            path.push("tests/readers/geotiff/fixtures/RGBA_rgba.rgba");
+            let expected = std::fs::read(path).unwrap();
+            assert_eq!(rgb.to_u8s(), expected);
+        }
+
+        // let grid: Vec<_> = geotiff.iter().collect();
+        // assert_eq!(grid.len(), 1);
+
+        // let grid: Vec<_> = geotiff.par_iter(1, 0).collect();
+        // assert_eq!(grid.len(), 1);
+    }
+
+    #[test]
+    fn test_geotiff_ycbcr() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+
+        {
+            let mut image = geotiff.get_image(None).unwrap();
+            let raster = image.raster_data(None);
+            let rgb = image.get_rgba();
+
+            assert_eq!(raster.width, 541);
+            assert_eq!(raster.height, 449);
+            assert_eq!(raster.alpha, false);
+            assert_eq!(raster.min, 0.);
+            assert_eq!(raster.max, 255.0);
+            assert_eq!(rgb.width, 541);
+            assert_eq!(rgb.height, 449);
+            assert_eq!(rgb.alpha, false);
+            assert_eq!(rgb.min, 0.);
+            assert_eq!(rgb.max, 255.0);
+
+            // pull in raw data to compare:
+            // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            // path.push("tests/readers/geotiff/fixtures/ycbcr_raster.rgba");
+            // let expected = std::fs::read(path).unwrap();
+            // assert_eq!(raster.to_u8s()[0..500], expected[0..500]);
+
+            // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            // path.push("tests/readers/geotiff/fixtures/ycbcr_rgba.rgba");
+            // let expected = std::fs::read(path).unwrap();
+            // assert_eq!(rgb.to_u8s()[0..500], expected[0..500]);
+        }
+
+        let grid: Vec<_> = geotiff.iter().collect();
+        assert_eq!(grid.len(), 1);
+
+        let grid: Vec<_> = geotiff.par_iter(1, 0).collect();
+        assert_eq!(grid.len(), 1);
+    }
+
+    #[test]
+    fn test_geotiff_i32() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/int32.tiff");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+
+        {
+            let mut image = geotiff.get_image(None).unwrap();
+            let raster = image.raster_data(None);
+            // let data = raster.to_i32s();
+
+            assert_eq!(raster.width, 539);
+            assert_eq!(raster.height, 448);
+            assert_eq!(raster.alpha, false);
+            assert_eq!(raster.min, -32768.0);
+            assert_eq!(raster.max, 32766.0);
+
+            // // pull in raw data to compare:
+            // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            // path.push("tests/readers/geotiff/fixtures/int32_raster.i32");
+            // let expected = std::fs::read(path).unwrap();
+            // let expected: Vec<i32> = expected
+            //     .chunks_exact(4)
+            //     .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()))
+            //     .collect();
+            // assert_eq!(data, expected);
+        }
+
+        // let grid: Vec<_> = geotiff.iter().collect();
+        // assert_eq!(grid.len(), 1);
+
+        // let grid: Vec<_> = geotiff.par_iter(1, 0).collect();
+        // assert_eq!(grid.len(), 1);
+    }
+
+    #[test]
+    fn test_geotiff_cmyk() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/cmyk.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+        assert_eq!(geotiff.len(), 1);
+        assert!(!geotiff.is_empty());
+
+        {
+            let mut image = geotiff.get_image(None).unwrap();
+            let raster = image.raster_data(None);
+            let rgb = image.get_rgba();
+
+            assert_eq!(raster.width, 541);
+            assert_eq!(raster.height, 449);
+            assert_eq!(raster.alpha, false);
+            assert_eq!(raster.min, 0.);
+            assert_eq!(raster.max, 255.0);
+            assert_eq!(rgb.width, 541);
+            assert_eq!(rgb.height, 449);
+            assert_eq!(rgb.alpha, false);
+            assert_eq!(rgb.min, 0.);
+            assert_eq!(rgb.max, 255.0);
+
+            // pull in raw data to compare:
+            let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            path.push("tests/readers/geotiff/fixtures/cmyk_raster.rgba");
+            let expected = std::fs::read(path).unwrap();
+            assert_eq!(raster.to_u8s(), expected);
+
+            // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            // path.push("tests/readers/geotiff/fixtures/cmyk_rgba.rgba");
+            // let expected = std::fs::read(path).unwrap();
+            // assert!(rgb.data.len() == expected.len());
+            // assert_eq!(rgb.to_u8s(), expected);
+        }
+    }
+
+    #[test]
+    fn test_geotiff_lzw_predictor() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/lzw_predictor.tiff");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+
+        let mut image = geotiff.get_image(None).unwrap();
+        let raster = image.raster_data(None);
+
+        assert_eq!(raster.width, 539);
+        assert_eq!(raster.height, 448);
+        assert_eq!(raster.alpha, false);
+        assert_eq!(raster.min, 0.0);
+        assert_eq!(raster.max, 65535.0);
     }
 }

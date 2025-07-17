@@ -159,6 +159,9 @@ testFunc('rgba test', async (): Promise<void> => {
   );
   const cmpImage = await cmpTiff.getImage();
 
+  // await Bun.write(`${__dirname}/fixtures/RGBA_raster.rgba`, new Uint8Array(raster.data.buffer));
+  // await Bun.write(`${__dirname}/fixtures/RGBA_rgba.rgba`, new Uint8Array(rgb.data.buffer));
+
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
   expect(raster.width).toEqual(cmpRaster.width);
@@ -183,6 +186,8 @@ testFunc('int32 test', async (): Promise<void> => {
   );
   const cmpImage = await cmpTiff.getImage();
 
+  // await Bun.write(`${__dirname}/fixtures/int32_raster.i32`, new Uint8Array(raster.data.buffer));
+
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
   expect(raster.width).toEqual(cmpRaster.width);
@@ -201,6 +206,9 @@ testFunc('ycbcr test', async (): Promise<void> => {
     await Bun.file(`${__dirname}/fixtures/ycbcr.tif`).arrayBuffer(),
   );
   const cmpImage = await cmpTiff.getImage();
+
+  // await Bun.write(`${__dirname}/fixtures/ycbcr_raster.rgba`, new Uint8Array(raster.data.buffer));
+  // await Bun.write(`${__dirname}/fixtures/ycbcr_rgba.rgba`, new Uint8Array(rgb.data.buffer));
 
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
@@ -227,6 +235,9 @@ testFunc('cielab test', async (): Promise<void> => {
   );
   const cmpImage = await cmpTiff.getImage();
 
+  // await Bun.write(`${__dirname}/fixtures/cielab_raster.rgba`, new Uint8Array(raster.data.buffer));
+  // await Bun.write(`${__dirname}/fixtures/cielab_rgba.rgba`, new Uint8Array(rgb.data.buffer));
+
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
   expect(raster.width).toEqual(cmpRaster.width);
@@ -252,6 +263,9 @@ testFunc('cmyk test', async (): Promise<void> => {
   );
   const cmpImage = await cmpTiff.getImage();
 
+  // await Bun.write(`${__dirname}/fixtures/cmyk_raster.rgba`, new Uint8Array(raster.data.buffer));
+  // await Bun.write(`${__dirname}/fixtures/cmyk_rgba.rgba`, new Uint8Array(rgb.data.buffer));
+
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
   expect(raster.width).toEqual(cmpRaster.width);
@@ -276,6 +290,11 @@ testFunc('lzw_predictor.tiff test', async (): Promise<void> => {
     await Bun.file(`${__dirname}/fixtures/lzw_predictor.tiff`).arrayBuffer(),
   );
   const cmpImage = await cmpTiff.getImage();
+
+  // await Bun.write(
+  //   `${__dirname}/fixtures/lzw_predictor_raster.rgba`,
+  //   new Uint8Array(raster.data.buffer),
+  // );
 
   const cmpRaster = await cmpImage.readRasters({ interleave: true });
   expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);

@@ -1,28 +1,42 @@
 use alloc::vec::Vec;
 use std::ops::AddAssign;
 
-/// Decode a block using the specified predictor
-///
-/// @param row - the row to decode
-/// @param stride - the number of bytes per row
-fn decode_row_acc<T>(row: &mut [T], stride: usize)
-where
-    T: AddAssign + Copy,
-{
-    let mut length = (row.len() - stride) as isize;
+/// Decode a block using the specified predictor (u8 version)
+pub fn decode_row_acc_u8(row: &mut [u8], stride: usize) {
+    let mut length = row.len().saturating_sub(stride);
     let mut offset = 0;
-    loop {
-        let mut i = stride;
-        while i > 0 {
-            row[offset + stride] += row[offset];
+    while length > 0 {
+        for _ in 0..stride {
+            row[offset + stride] = row[offset + stride].wrapping_add(row[offset]);
             offset += 1;
-            i -= 1;
         }
+        length -= stride;
+    }
+}
 
-        length -= stride as isize;
-        if length <= 0 {
-            break;
+/// Decode a block using the specified predictor (u16 version)
+pub fn decode_row_acc_u16(row: &mut [u16], stride: usize) {
+    let mut length = row.len().saturating_sub(stride);
+    let mut offset = 0;
+    while length > 0 {
+        for _ in 0..stride {
+            row[offset + stride] = row[offset + stride].wrapping_add(row[offset]);
+            offset += 1;
         }
+        length -= stride;
+    }
+}
+
+/// Decode a block using the specified predictor (u32 version)
+pub fn decode_row_acc_u32(row: &mut [u32], stride: usize) {
+    let mut length = row.len().saturating_sub(stride);
+    let mut offset = 0;
+    while length > 0 {
+        for _ in 0..stride {
+            row[offset + stride] = row[offset + stride].wrapping_add(row[offset]);
+            offset += 1;
+        }
+        length -= stride;
     }
 }
 
@@ -101,13 +115,13 @@ pub fn apply_predictor(
                 ..(i + 1) * stride * width * bytes_per_sample];
             match bits_per_sample[0] {
                 8 => {
-                    decode_row_acc(row, stride);
+                    decode_row_acc_u8(row, stride);
                 }
                 16 => {
-                    decode_row_acc(as_u16_slice_mut(row), stride);
+                    decode_row_acc_u16(as_u16_slice_mut(row), stride);
                 }
                 32 => {
-                    decode_row_acc(as_u32_slice_mut(row), stride);
+                    decode_row_acc_u32(as_u32_slice_mut(row), stride);
                 }
                 _ => panic!("Predictor 2 not allowed with {} bits per sample.", bits_per_sample[0]),
             }

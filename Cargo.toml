@@ -27,7 +27,7 @@ path = "rust/lib.rs"
 earclip = "1.6"
 open-vector-tile = "1.9"
 pbf = "1.22"
-s2json = "1.35"
+s2json = "1.36"
 s2-tilejson = "1.9"
 # External shared dependencies
 libm = "0.2"

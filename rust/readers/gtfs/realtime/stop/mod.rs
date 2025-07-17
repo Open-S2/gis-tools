@@ -1,3 +1,6 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+// NOTE: THis is an experimental module, exists incase the GTFS-Realtime spec changes to include it
+
 mod time_event;
 mod update;
 

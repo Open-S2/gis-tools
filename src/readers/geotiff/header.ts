@@ -25,9 +25,7 @@ interface KeyValue {
   value: undefined | number | number[] | string;
 }
 
-/**
- * GeoTIFF Header Reader
- */
+/** GeoTIFF Header Reader */
 export class GeoTIFFHeaderReader {
   #littleEndian = true;
   #bigTiff = false;

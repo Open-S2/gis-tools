@@ -180,8 +180,8 @@ pub fn from_ycb_cr(raster: &mut Raster) {
     let mut j = 0;
     while i < data.len() {
         let y = data[i];
-        let cb = data[i + 1] - 0x80 as f64;
-        let cr = data[i + 2] - 0x80 as f64;
+        let cb = data[i + 1] - (0x80 as f64);
+        let cr = data[i + 2] - (0x80 as f64);
 
         rbgdata[j] = y + 1.402 * cr;
         rbgdata[j + 1] = y - 0.34414 * cb - 0.71414 * cr;

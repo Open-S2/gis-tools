@@ -12,7 +12,7 @@ use crate::{
 use alloc::{rc::Rc, vec, vec::Vec};
 use core::cell::RefCell;
 use half::f16;
-use libm::{fmax, fmin, pow, sqrt};
+use libm::{fmax, fmin, pow, round, sqrt};
 use s2json::{BBox, Properties, VectorGeometry, VectorMultiPoint, VectorPoint};
 
 /// Metadata for a GeoTIFF image
@@ -47,27 +47,27 @@ pub struct Raster {
 impl Raster {
     /// Convert the data to u8s
     pub fn to_u8s(&self) -> Vec<u8> {
-        self.data.iter().map(|x| fmax(0., fmin(255., *x)) as u8).collect()
+        self.data.iter().map(|x| round(fmax(0., fmin(255., *x))) as u8).collect()
     }
     /// Convert the data to u16s
     pub fn to_u16s(&self) -> Vec<u16> {
-        self.data.iter().map(|x| fmax(0., fmin(65535., *x)) as u16).collect()
+        self.data.iter().map(|x| round(fmax(0., fmin(65535., *x))) as u16).collect()
     }
     /// Convert the data to u32s
     pub fn to_u32s(&self) -> Vec<u32> {
-        self.data.iter().map(|x| fmax(0., fmin(4294967295., *x)) as u32).collect()
+        self.data.iter().map(|x| round(fmax(0., fmin(4294967295., *x))) as u32).collect()
     }
     /// Convert the data to i8s
     pub fn to_i8s(&self) -> Vec<i8> {
-        self.data.iter().map(|x| fmax(-128., fmin(127., *x)) as i8).collect()
+        self.data.iter().map(|x| round(fmax(-128., fmin(127., *x))) as i8).collect()
     }
     /// Convert the data to i16s
     pub fn to_i16s(&self) -> Vec<i16> {
-        self.data.iter().map(|x| fmax(-32768., fmin(32767., *x)) as i16).collect()
+        self.data.iter().map(|x| round(fmax(-32768., fmin(32767., *x))) as i16).collect()
     }
     /// Convert the data to i32s
     pub fn to_i32s(&self) -> Vec<i32> {
-        self.data.iter().map(|x| fmax(-2147483648., fmin(2147483647., *x)) as i32).collect()
+        self.data.iter().map(|x| round(fmax(-2147483648., fmin(2147483647., *x))) as i32).collect()
     }
     /// Convert the data to f16s
     pub fn to_f16s(&self) -> Vec<f16> {
@@ -604,7 +604,11 @@ impl<T: Reader> GeoTIFFImage<T> {
         let mut data = if let Some(decode_fn) = &mut self.decode_fn {
             decode_fn(
                 &slice,
-                self.image_directory.variables.get(FieldTagNames::JPEGTables as u16).as_deref(),
+                self.image_directory
+                    .variables
+                    .get(FieldTagNames::JPEGTables as u16)
+                    .map(|v| v.0)
+                    .as_deref(),
             )
         } else {
             slice

@@ -9,7 +9,7 @@ mod tests {
         parsers::{FeatureReader, FileReader, RGBA},
         readers::{
             LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReaderOptions, LAZCompressor,
-            LAZHeader, LAZHeaderItem, LAZHeaderItemType, LAZReader,
+            LAZHeader, LAZHeaderItem, LAZHeaderItemType, LAZReader, NewLineDelimitedJSONReader,
         },
     };
     use s2json::{GetXY, GetZ, VectorPoint};
@@ -247,6 +247,48 @@ mod tests {
                 nir: None
             })
         );
+    }
+
+    #[test]
+    fn test_laz_reader_v2_compare() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/simple.jsonld");
+        let expected_reader: NewLineDelimitedJSONReader<FileReader, ()> =
+            NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
+        let expected_features: Vec<_> = expected_reader.iter().collect();
+        let expected_features: Vec<_> = expected_features
+            .iter()
+            .map(|f| {
+                let point = f.geometry.point().unwrap();
+                VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+            })
+            .collect();
+        assert_eq!(expected_features.len(), 1_065);
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/simple.laz");
+        let laz_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions { dont_transform: true, ..Default::default() }),
+        );
+
+        let all_points: Vec<_> = laz_reader.iter().collect();
+        assert_eq!(all_points.len(), 1_065);
+
+        let features: Vec<_> = all_points
+            .iter()
+            .map(|f| {
+                let point = f.geometry.point().unwrap();
+                VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+            })
+            .collect();
+
+        // compare all points +- 1e-6
+        for (expected, actual) in expected_features.iter().zip(features.iter()) {
+            assert!((expected.x() - actual.x()).abs() < 1e-6);
+            assert!((expected.y() - actual.y()).abs() < 1e-6);
+            assert!((expected.z().unwrap_or(0.) - actual.z().unwrap_or(0.)).abs() < 1e-6);
+        }
     }
 
     #[test]
@@ -567,34 +609,13 @@ mod tests {
             .collect();
 
         assert_eq!(features.len(), 110_000);
-
-        // Map the features each to ONLY points
-        // assert_eq!(features[0..10], expected_features[0..10]);
     }
 
     #[test]
     fn test_laz_autzen_v3() {
-        // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        // path.push("tests/readers/las/fixtures/simple.jsonld");
-        // let expected_reader: NewLineDelimitedJSONReader<FileReader, (), Properties, MValue> =
-        //     NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
-        // let expected_features: Vec<_> = expected_reader.iter().collect();
-        // assert_eq!(expected_features.len(), 110_000);
-        // let expected_features: Vec<_> = expected_features
-        //     .iter()
-        //     .map(|f| {
-        //         let point = f.geometry.point().unwrap();
-        //         VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
-        //     })
-        //     .collect();
-        // assert_eq!(expected_features.len(), 110_000);
-
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/las/fixtures/autzen_trim_v3.laz");
-        let laz_reader = LAZReader::new(
-            FileReader::from(path.clone()),
-            Some(LASReaderOptions { dont_transform: true, ..Default::default() }),
-        );
+        let laz_reader = LAZReader::new(FileReader::from(path.clone()), None);
         let features: Vec<_> = laz_reader.iter().collect();
         let features: Vec<_> = features
             .iter()
@@ -605,8 +626,5 @@ mod tests {
             .collect();
 
         assert_eq!(features.len(), 110_000);
-
-        // Map the features each to ONLY points
-        // assert_eq!(features[0..10], expected_features[0..10]);
     }
 }

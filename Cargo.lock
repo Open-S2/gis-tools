@@ -1194,15 +1194,15 @@ checksum = "0c6a884d2998352bb4daf0183589aec883f16a6da1f4dde84d8e2e9a5409a1ce"
 
 [[package]]
 name = "rustix"
-version = "1.0.7"
+version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c71e83d6afe7ff64890ec6b71d6a69bb8a610ab78ce364b3352876bb4c801266"
+checksum = "11181fbabf243db407ef8df94a6ce0b2f9a733bd8be4ad02b4eda9602296cac8"
 dependencies = [
  "bitflags 2.9.1",
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1239,9 +1239,9 @@ dependencies = [
 
 [[package]]
 name = "s2json"
-version = "1.35.0"
+version = "1.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94c229b9429a2e46aadc31a6203f4becce1fac2fce5ad1f6b5d498e55185a0de"
+checksum = "e421889dbbc28dcbb00404265bf14871d2170f3d4041d5ab6c3e4bed1ca5a001"
 dependencies = [
  "s2json-core",
  "s2json-derive",
@@ -1249,9 +1249,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-core"
-version = "1.35.0"
+version = "1.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34da704f8aab500b6a0f9beedbfc1cdf8afc0c3a20b0e6f0612cd11dea763a44"
+checksum = "9eb38e299dfd8d95298b65cee0f769c9482e7dbeaf7f01ada17b2778cdcc6433"
 dependencies = [
  "libm",
  "pbf",
@@ -1261,9 +1261,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-derive"
-version = "1.35.0"
+version = "1.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3ee8f940a869974985e927b9515bb9fcc4152e19e1809236f53810c14d5a639"
+checksum = "95b8061c56492ba4c133ab37016177eb980149f9c87c1b61bc9327b419920c56"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",

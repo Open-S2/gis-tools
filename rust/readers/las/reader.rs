@@ -2,7 +2,10 @@ use super::{LASExtendedVariableLengthRecord, LASHeader, LASPoint};
 use crate::{
     parsers::{FeatureReader, Reader},
     proj::Transformer,
-    readers::{FieldTagNames, GeoStore, build_transform_from_geo_keys, parse_geotiff_raw_geokeys},
+    readers::{
+        FieldTagNames, GeoStore, GeoTIFFTypes, build_transform_from_geo_keys,
+        parse_geotiff_raw_geokeys,
+    },
 };
 use alloc::{collections::BTreeMap, string::String, vec::Vec};
 use s2json::{Properties, VectorFeature, VectorGeometry, VectorPoint};
@@ -300,14 +303,22 @@ pub fn build_geo_key_directory(
         .get(&(FieldTagNames::GeoDoubleParams as u32))
         .and_then(|v| v.data.clone());
     if let Some(double_record) = double_record {
-        file_dir.set(FieldTagNames::GeoDoubleParams as u16, double_record.to_vec());
+        file_dir.set(
+            FieldTagNames::GeoDoubleParams as u16,
+            double_record.to_vec(),
+            GeoTIFFTypes::DOUBLE,
+        );
     }
     // GeoAsciiParamsTag (34737)
     let ascii_record = variable_length_records
         .get(&(FieldTagNames::GeoAsciiParams as u32))
         .and_then(|v| v.data.clone());
     if let Some(ascii_record) = ascii_record {
-        file_dir.set(FieldTagNames::GeoAsciiParams as u16, ascii_record.to_vec());
+        file_dir.set(
+            FieldTagNames::GeoAsciiParams as u16,
+            ascii_record.to_vec(),
+            GeoTIFFTypes::ASCII,
+        );
     }
     let gkd = parse_geotiff_raw_geokeys(&raw_geo_keys, &file_dir);
     if wkt_is_none {
