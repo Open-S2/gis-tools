@@ -8,11 +8,11 @@ mod tests {
     use gistools::{
         parsers::{FeatureReader, FileReader, RGBA},
         readers::{
-            LASExtendedVariableLengthRecord, LASHeader, LASPoint, LAZCompressor, LAZHeader,
-            LAZHeaderItem, LAZHeaderItemType, LAZReader,
+            LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReaderOptions, LAZCompressor,
+            LAZHeader, LAZHeaderItem, LAZHeaderItemType, LAZReader,
         },
     };
-    use s2json::VectorPoint;
+    use s2json::{GetXY, GetZ, VectorPoint};
     use std::path::PathBuf;
 
     #[test]
@@ -532,5 +532,81 @@ mod tests {
                 nir: None
             })
         );
+    }
+
+    #[test]
+    fn test_laz_autzen() {
+        // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        // path.push("tests/readers/las/fixtures/simple.jsonld");
+        // let expected_reader: NewLineDelimitedJSONReader<FileReader, (), Properties, MValue> =
+        //     NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
+        // let expected_features: Vec<_> = expected_reader.iter().collect();
+        // assert_eq!(expected_features.len(), 110_000);
+        // let expected_features: Vec<_> = expected_features
+        //     .iter()
+        //     .map(|f| {
+        //         let point = f.geometry.point().unwrap();
+        //         VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+        //     })
+        //     .collect();
+        // assert_eq!(expected_features.len(), 110_000);
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/autzen_trim.laz");
+        let laz_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions { dont_transform: true, ..Default::default() }),
+        );
+        let features: Vec<_> = laz_reader.iter().collect();
+        let features: Vec<_> = features
+            .iter()
+            .map(|f| {
+                let point = f.geometry.point().unwrap();
+                VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+            })
+            .collect();
+
+        assert_eq!(features.len(), 110_000);
+
+        // Map the features each to ONLY points
+        // assert_eq!(features[0..10], expected_features[0..10]);
+    }
+
+    #[test]
+    fn test_laz_autzen_v3() {
+        // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        // path.push("tests/readers/las/fixtures/simple.jsonld");
+        // let expected_reader: NewLineDelimitedJSONReader<FileReader, (), Properties, MValue> =
+        //     NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
+        // let expected_features: Vec<_> = expected_reader.iter().collect();
+        // assert_eq!(expected_features.len(), 110_000);
+        // let expected_features: Vec<_> = expected_features
+        //     .iter()
+        //     .map(|f| {
+        //         let point = f.geometry.point().unwrap();
+        //         VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+        //     })
+        //     .collect();
+        // assert_eq!(expected_features.len(), 110_000);
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/autzen_trim_v3.laz");
+        let laz_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions { dont_transform: true, ..Default::default() }),
+        );
+        let features: Vec<_> = laz_reader.iter().collect();
+        let features: Vec<_> = features
+            .iter()
+            .map(|f| {
+                let point = f.geometry.point().unwrap();
+                VectorPoint::from_xyz(point.x(), point.y(), point.z().unwrap_or(0.))
+            })
+            .collect();
+
+        assert_eq!(features.len(), 110_000);
+
+        // Map the features each to ONLY points
+        // assert_eq!(features[0..10], expected_features[0..10]);
     }
 }

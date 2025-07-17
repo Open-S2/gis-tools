@@ -112,4 +112,10 @@ mod tests {
         assert_eq!(arr_wkt.to_string(), "".to_string());
         assert_eq!(arr_wkt.to_arr(), Some(&vec![WKTValue::String("test".into())]))
     }
+
+    #[test]
+    fn test_weird_ending_bug() {
+        let wkt_str = "TEST[ITEM[\"a\", \"b\"], ITEM[\"c\", \"d\"], ITEM[\"e\", \"f\"]]\u{0000}";
+        let _wkt_obj = parse_wkt_object(wkt_str);
+    }
 }

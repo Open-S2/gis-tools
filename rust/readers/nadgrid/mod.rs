@@ -318,20 +318,14 @@ impl<T: Reader> NadGridReader<T> {
     fn read_header(&mut self) {
         let NadGridReader { reader, is_little_endian, .. } = self;
         let le = *is_little_endian;
-        self.header.n_fields = if le { reader.int32_le(Some(8)) } else { reader.int32_be(Some(8)) };
-        self.header.n_subgrid_fields =
-            if le { reader.int32_le(Some(24)) } else { reader.int32_be(Some(24)) };
-        self.header.n_subgrids =
-            if le { reader.int32_le(Some(40)) } else { reader.int32_be(Some(40)) };
+        self.header.n_fields = reader.int32(Some(8), Some(le));
+        self.header.n_subgrid_fields = reader.int32(Some(24), Some(le));
+        self.header.n_subgrids = reader.int32(Some(40), Some(le));
         self.header.shift_type = reader.parse_string(Some(56), Some(8));
-        self.header.from_semi_major_axis =
-            if le { reader.f64_le(Some(120)) } else { reader.f64_be(Some(120)) };
-        self.header.from_semi_minor_axis =
-            if le { reader.f64_le(Some(136)) } else { reader.f64_be(Some(136)) };
-        self.header.to_semi_major_axis =
-            if le { reader.f64_le(Some(152)) } else { reader.f64_be(Some(152)) };
-        self.header.to_semi_minor_axis =
-            if le { reader.f64_le(Some(168)) } else { reader.f64_be(Some(168)) };
+        self.header.from_semi_major_axis = reader.f64(Some(120), Some(le));
+        self.header.from_semi_minor_axis = reader.f64(Some(136), Some(le));
+        self.header.to_semi_major_axis = reader.f64(Some(152), Some(le));
+        self.header.to_semi_minor_axis = reader.f64(Some(168), Some(le));
     }
 
     /// Build all grid data
@@ -389,41 +383,13 @@ impl<T: Reader> NadGridReader<T> {
         NadSubGridHeader {
             name: reader.parse_string(Some(offset + 8), Some(8)),
             parent: reader.parse_string(Some(offset + 24), Some(8)),
-            lower_latitude: if le {
-                reader.f64_le(Some(offset + 72))
-            } else {
-                reader.f64_be(Some(offset + 72))
-            },
-            upper_latitude: if le {
-                reader.f64_le(Some(offset + 88))
-            } else {
-                reader.f64_be(Some(offset + 88))
-            },
-            lower_longitude: if le {
-                reader.f64_le(Some(offset + 104))
-            } else {
-                reader.f64_be(Some(offset + 104))
-            },
-            upper_longitude: if le {
-                reader.f64_le(Some(offset + 120))
-            } else {
-                reader.f64_be(Some(offset + 120))
-            },
-            latitude_interval: if le {
-                reader.f64_le(Some(offset + 136))
-            } else {
-                reader.f64_be(Some(offset + 136))
-            },
-            longitude_interval: if le {
-                reader.f64_le(Some(offset + 152))
-            } else {
-                reader.f64_be(Some(offset + 152))
-            },
-            grid_node_count: if le {
-                reader.int32_le(Some(offset + 168))
-            } else {
-                reader.int32_be(Some(offset + 168))
-            },
+            lower_latitude: reader.f64(Some(offset + 72), Some(le)),
+            upper_latitude: reader.f64(Some(offset + 88), Some(le)),
+            lower_longitude: reader.f64(Some(offset + 104), Some(le)),
+            upper_longitude: reader.f64(Some(offset + 120), Some(le)),
+            latitude_interval: reader.f64(Some(offset + 136), Some(le)),
+            longitude_interval: reader.f64(Some(offset + 152), Some(le)),
+            grid_node_count: reader.int32(Some(offset + 168), Some(le)),
         }
     }
 
@@ -435,31 +401,15 @@ impl<T: Reader> NadGridReader<T> {
         let le = *is_little_endian;
         let node_count = grid_header.grid_node_count as u64;
         let nodes_offset = offset + 176;
-        let grid_record_length: u64 = 16;
+        let grl: u64 = 16; // grid_record_length
         let mut grid_shift_records = vec![];
         let mut i: u64 = 0;
         while i < node_count {
             grid_shift_records.push(NadGridNode {
-                latitude_shift: if le {
-                    reader.f32_le(Some(nodes_offset + i * grid_record_length)) as f64
-                } else {
-                    reader.f32_be(Some(nodes_offset + i * grid_record_length)) as f64
-                },
-                longitude_shift: if le {
-                    reader.f32_le(Some(nodes_offset + i * grid_record_length + 4)) as f64
-                } else {
-                    reader.f32_be(Some(nodes_offset + i * grid_record_length + 4)) as f64
-                },
-                latitude_accuracy: if le {
-                    reader.f32_le(Some(nodes_offset + i * grid_record_length + 8)) as f64
-                } else {
-                    reader.f32_be(Some(nodes_offset + i * grid_record_length + 8)) as f64
-                },
-                longitude_accuracy: if le {
-                    reader.f32_le(Some(nodes_offset + i * grid_record_length + 12)) as f64
-                } else {
-                    reader.f32_be(Some(nodes_offset + i * grid_record_length + 12)) as f64
-                },
+                latitude_shift: reader.f32(Some(nodes_offset + i * grl), Some(le)) as f64,
+                longitude_shift: reader.f32(Some(nodes_offset + i * grl + 4), Some(le)) as f64,
+                latitude_accuracy: reader.f32(Some(nodes_offset + i * grl + 8), Some(le)) as f64,
+                longitude_accuracy: reader.f32(Some(nodes_offset + i * grl + 12), Some(le)) as f64,
             });
             i += 1;
         }

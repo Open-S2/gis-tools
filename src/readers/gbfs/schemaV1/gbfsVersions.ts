@@ -71,9 +71,7 @@ export const gbfsVersionsSchemaV11 = {
   required: ['last_updated', 'ttl', 'version', 'data'],
 };
 
-/**
- * GBFS Versions Schema V1.1 Interface
- */
+/** GBFS Versions Schema V1.1 Interface */
 export interface GBFSVersionsV11 {
   /** Last time the data in the feed was updated in POSIX time. */
   last_updated: number;

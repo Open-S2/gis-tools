@@ -363,7 +363,13 @@ impl GeoStore {
     }
     /// Get a double
     pub fn get_double(&self, key: u16) -> Option<f64> {
-        self.get(key).map(|v| f64::from_le_bytes(v.try_into().unwrap()))
+        self.get(key).map(|v| {
+            if v.len() == 1 {
+                v[0] as f64
+            } else {
+                f64::from_le_bytes(v.try_into().unwrap_or([0; 8]))
+            }
+        })
     }
 
     /// get u16 array

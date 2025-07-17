@@ -1777,13 +1777,13 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
                 item_rgb[0] |= last_item[0] & 0xff00;
             }
             if (sym & (1 << 6)) != 0 {
-                let diff = (item_rgb[0] & 0x00ff) as i32 - (last_item[0] & 0x00ff) as i32;
+                let diff: i32 = (item_rgb[0] & 0x00ff) as i32 - (last_item[0] & 0x00ff) as i32;
                 if (sym & (1 << 2)) != 0 {
                     corr = self.dec_rgb.as_mut().unwrap().decode_symbol(
                         self.contexts[self.current_context as usize].m_rgb_diff2.as_mut().unwrap(),
                     ) as u8;
                     item_rgb[1] = u8_fold(
-                        corr as u32 + (u8_clamp(diff as u32 + (last_item[1] & 255) as u32) as u32),
+                        corr as u32 + u8_clamp((diff + (last_item[1] & 255) as i32) as u32) as u32,
                     ) as u16;
                 } else {
                     item_rgb[1] = last_item[1] & 0xff;
@@ -1796,7 +1796,7 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
                         + ((item_rgb[1] & 0x00ff) as i32 - (last_item[1] & 0x00ff) as i32))
                         / 2;
                     item_rgb[2] = u8_fold(
-                        corr as u32 + u8_clamp(diff as u32 + (last_item[2] & 255) as u32) as u32,
+                        corr as u32 + u8_clamp((diff + (last_item[2] & 255) as i32) as u32) as u32,
                     ) as u16;
                 } else {
                     item_rgb[2] = last_item[2] & 0xff;
@@ -1807,7 +1807,7 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
                         self.contexts[self.current_context as usize].m_rgb_diff3.as_mut().unwrap(),
                     ) as u8;
                     item_rgb[1] |= (u8_fold(
-                        corr as u32 + u8_clamp(diff as u32 + (last_item[1] >> 8) as u32) as u32,
+                        corr as u32 + u8_clamp((diff + (last_item[1] >> 8) as i32) as u32) as u32,
                     ) as u16)
                         << 8;
                 } else {
@@ -1820,7 +1820,7 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
                     let diff =
                         (diff + ((item_rgb[1] >> 8) as i32 - (last_item[1] >> 8) as i32)) / 2;
                     item_rgb[2] |= (u8_fold(
-                        corr as u32 + u8_clamp(diff as u32 + (last_item[2] >> 8) as u32) as u32,
+                        corr as u32 + u8_clamp((diff + (last_item[2] >> 8) as i32) as u32) as u32,
                     ) as u16)
                         << 8;
                 } else {

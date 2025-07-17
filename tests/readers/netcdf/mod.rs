@@ -6,11 +6,14 @@ mod tests {
 
     use alloc::vec;
     use gistools::{
-        parsers::{FeatureReader, FileReader},
-        readers::{CDFDimension, CDFRecordDimension, CDFVariable, NetCDFReader},
+        parsers::{BufferReader, FeatureReader, FileReader},
+        readers::{
+            CDFDataType, CDFDimension, CDFRecordDimension, CDFValue, CDFVariable, NetCDFReader,
+            NetCDFReaderOptions, netcdf_type_to_bytes,
+        },
     };
-    use s2json::VectorPoint;
-    use std::{collections::BTreeMap, path::PathBuf};
+    use s2json::{GetXY, VectorPoint};
+    use std::{collections::BTreeMap, fs, path::PathBuf};
 
     #[test]
     #[should_panic(expected = "Not a valid NetCDF file: should start with CDF")]
@@ -102,19 +105,108 @@ mod tests {
     fn test_netcdf_ichthyop() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/netcdf/fixtures/ichthyop.nc");
+        let data = fs::read(path.clone()).unwrap();
 
-        let netcdf_reader = NetCDFReader::new(FileReader::from(path.clone()), None);
+        let netcdf_reader = NetCDFReader::new(
+            BufferReader::from(data),
+            Some(NetCDFReaderOptions {
+                lon_key: Some("lon".into()),
+                lat_key: Some("lat".into()),
+                height_key: Some("depth".into()),
+                prop_fields: Some(vec!["depth".into()]),
+            }),
+        );
 
         assert!(!netcdf_reader.is_empty());
         assert_eq!(netcdf_reader.len(), 49);
 
+        for i in 0..49 {
+            let _ = netcdf_reader.get_properties(i);
+        }
+
         let point = netcdf_reader.get_point(0).unwrap();
-        assert_eq!(point, VectorPoint::new(-9.00235366821289, 53.26256561279297, None, None));
+        assert_eq!(
+            VectorPoint::from_xy(point.x(), point.y()),
+            VectorPoint::new(-9.00235366821289, 53.26256561279297, None, None)
+        );
 
         let features: Vec<_> = netcdf_reader.iter().collect();
         assert_eq!(features.len(), 49);
 
         let geo = features[0].geometry.point().unwrap();
-        assert_eq!(*geo, VectorPoint::new(-9.00235366821289, 53.26256561279297, None, None));
+        assert_eq!(
+            VectorPoint::from_xy(geo.x(), geo.y()),
+            VectorPoint::new(-9.00235366821289, 53.26256561279297, None, None)
+        );
+
+        // par iter
+        let features: Vec<_> = netcdf_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 49);
+
+        let geo = features[0].geometry.point().unwrap();
+        assert_eq!(
+            VectorPoint::from_xy(geo.x(), geo.y()),
+            VectorPoint::new(-9.00235366821289, 53.26256561279297, None, None)
+        );
+    }
+
+    #[test]
+    fn test_netcdf_64_bit() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/netcdf/fixtures/model1_md2.nc");
+
+        let netcdf_reader = NetCDFReader::new(FileReader::from(path.clone()), None);
+
+        assert!(netcdf_reader.is_empty());
+        assert!(netcdf_reader.is64);
+        assert_eq!(netcdf_reader.len(), 0);
+
+        let variable = netcdf_reader.get_data_variable("cell_angular".into()).unwrap();
+        assert_eq!(variable[0], "a".into());
+        let variable = netcdf_reader.get_data_variable("cell_spatial".into()).unwrap();
+        assert_eq!(variable[0], "a".into());
+    }
+
+    #[test]
+    fn test_netcdf_cdf_value() {
+        let test = CDFValue::default();
+        assert_eq!(test, CDFValue::Number(0.0));
+
+        assert_eq!(test.to_num(), 0.0);
+        assert_eq!(CDFValue::Number(1.1).to_num(), 1.1);
+        assert_eq!(CDFValue::Number(1.1).get_index(0), 0.);
+        assert_eq!(CDFValue::Array(vec![1.1]).to_num(), 0.);
+    }
+
+    #[test]
+    fn test_netcdf_cdf_data_type() {
+        let test = CDFDataType::default();
+        assert_eq!(test, CDFDataType::BYTE);
+        assert_eq!(CDFDataType::BYTE, 1_u64.into());
+        assert_eq!(CDFDataType::BYTE, 0_u64.into());
+        assert_eq!(CDFDataType::BYTE, 7_u64.into());
+        assert_eq!(CDFDataType::CHAR, 2_u64.into());
+        assert_eq!(CDFDataType::SHORT, 3_u64.into());
+        assert_eq!(CDFDataType::INT, 4_u64.into());
+        assert_eq!(CDFDataType::FLOAT, 5_u64.into());
+        assert_eq!(CDFDataType::DOUBLE, 6_u64.into());
+
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::BYTE), 1);
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::CHAR), 1);
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::SHORT), 2);
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::INT), 4);
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::FLOAT), 4);
+        assert_eq!(netcdf_type_to_bytes(CDFDataType::DOUBLE), 8);
+    }
+
+    #[test]
+    fn test_netcdf_agilent() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/netcdf/fixtures/agilent_hplc.cdf");
+
+        let netcdf_reader = NetCDFReader::new(FileReader::from(path.clone()), None);
+
+        let features: Vec<_> = netcdf_reader.iter().collect();
+        assert_eq!(features.len(), 0);
     }
 }

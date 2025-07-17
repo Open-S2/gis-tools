@@ -752,6 +752,15 @@ mod tests {
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(122.0, -55.0));
     }
+
+    // #[test]
+    // fn test_llc_laz_coverage() {
+    //     let mut transformer = Transformer::new();
+    //     transformer.set_source("PROJCS[\"NAD_1983_HARN_Lambert_Conformal_Conic\",GEOGCS[\"GCS_North_American_1983_HARN\",DATUM[\"NAD83_High_Accuracy_Regional_Network\",SPHEROID[\"GRS_1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6152\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Lambert_Conformal_Conic_2SP\"],PARAMETER[\"standard_parallel_1\",43],PARAMETER[\"standard_parallel_2\",45.5],PARAMETER[\"latitude_of_origin\",41.75],PARAMETER[\"central_meridian\",-120.5],PARAMETER[\"false_easting\",1312335.958005249],PARAMETER[\"false_northing\",0],UNIT[\"foot\",0.3048,AUTHORITY[\"EPSG\",\"9002\"]]]\u{0000}".into());
+    //     let mut point = Coords::new_xy(636001.76, 848935.2000000001);
+    //     transformer.inverse_mut(&mut point);
+    //     assert_eq!(point, Coords::new_xy(120.5, 41.75));
+    // }
 }
 
 //   {

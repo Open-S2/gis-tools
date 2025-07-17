@@ -52,8 +52,9 @@ pub trait WKTParser: Default {
 
 /// Parses a WKT object
 pub fn parse_wkt_object(wkt_str: &str) -> WKTValue {
+    let wkt_str = clean_string(wkt_str);
     let mut res: WKTObject = vec![];
-    _parse_wkt_object(wkt_str.into(), &mut res);
+    _parse_wkt_object(wkt_str, &mut res);
 
     // convert to WKTValue
     WKTValue::Array(res)

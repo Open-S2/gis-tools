@@ -10,13 +10,6 @@ mod tests {
     };
     use std::path::PathBuf;
 
-    // TODO:
-    // - [ ] trip update
-    // - [ ] alert
-    // - [ ] shape
-    // - [ ] stop
-    // - [ ] trip modifications
-
     #[test]
     fn gtfs_vehicle_position() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -74,5 +67,104 @@ mod tests {
         assert!(vehicle.label.is_none());
         assert!(vehicle.license_plate.is_none());
         assert_eq!(vehicle.wheelchair_accessible, GTFSRealtimeWheelchairAccessible::NoValue);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_1() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_1.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_2() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_2.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_3() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_3.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_4() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_4.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_5() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_5.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_6() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_6.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_7() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_7.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_8() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_8.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_9() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_9.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_10() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_10.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_successfully_read_test_data_11() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/realtime_test_data_11.pb");
+
+        let data = std::fs::read(path).unwrap();
+        let _reader = GTFSRealtimeReader::new(data, None);
     }
 }

@@ -125,7 +125,8 @@ impl<T: Reader + Debug> LAZReader<T> {
             transformer.insert_epsg_code(epsg_code.clone(), wkt.clone());
         }
         let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
-        let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
+        let geo_key_directory =
+            build_geo_key_directory(&variable_length_records, &mut transformer, wkt.is_none());
         let reader = Rc::new(RefCell::new(reader));
         let mut laz_reader = Self {
             reader: reader.clone(),

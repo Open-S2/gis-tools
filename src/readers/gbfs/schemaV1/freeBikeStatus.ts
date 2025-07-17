@@ -196,9 +196,7 @@ export const gbfsFreeBikeStatusSchemaV10 = {
   required: ['last_updated', 'ttl', 'data'],
 };
 
-/**
- * Free Bike Status Schema V1.0 Interface
- */
+/** Free Bike Status Schema V1.0 Interface */
 export interface GBFSFreeBikeStatusV10 {
   /** Last time the data in the feed was updated in POSIX time. */
   last_updated: number;

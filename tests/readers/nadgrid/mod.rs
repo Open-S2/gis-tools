@@ -38,12 +38,18 @@ mod tests {
         let first_mp = nadgrid_reader.get_points(0).unwrap();
         assert_eq!(first_mp.len(), 5_208);
 
+        let doesnt_exist = nadgrid_reader.get_points(10_000);
+        assert!(doesnt_exist.is_none());
+
         assert_eq!(
             first_mp[0],
             VectorPoint::new(3.47407399194824e-5, -1.3331145212039613e-5, None, None)
         );
 
         let features = nadgrid_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+
+        let features = nadgrid_reader.par_iter(1, 0).collect::<Vec<_>>();
         assert_eq!(features.len(), 1);
     }
 }

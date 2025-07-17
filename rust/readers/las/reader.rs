@@ -72,7 +72,8 @@ impl<T: Reader> LASReader<T> {
             transformer.insert_epsg_code(epsg_code.clone(), wkt.clone());
         }
         let wkt = build_wkt(&header, &variable_length_records, &mut transformer);
-        let geo_key_directory = build_geo_key_directory(&variable_length_records, &mut transformer);
+        let geo_key_directory =
+            build_geo_key_directory(&variable_length_records, &mut transformer, wkt.is_none());
         Self {
             reader,
             header,
@@ -279,6 +280,7 @@ pub fn build_wkt(
 pub fn build_geo_key_directory(
     variable_length_records: &BTreeMap<u32, LASExtendedVariableLengthRecord>,
     transformer: &mut Transformer,
+    wkt_is_none: bool,
 ) -> GeoStore {
     let mut file_dir = GeoStore::default();
     // GeoKeyDirectoryTag (34735)
@@ -308,7 +310,9 @@ pub fn build_geo_key_directory(
         file_dir.set(FieldTagNames::GeoAsciiParams as u16, ascii_record.to_vec());
     }
     let gkd = parse_geotiff_raw_geokeys(&raw_geo_keys, &file_dir);
-    build_transform_from_geo_keys(transformer, &gkd);
+    if wkt_is_none {
+        build_transform_from_geo_keys(transformer, &gkd);
+    }
 
     gkd
 }

@@ -34,6 +34,15 @@ impl CDFValue {
         }
     }
 }
+impl From<&CDFValue> for ValueType {
+    fn from(value: &CDFValue) -> Self {
+        match value {
+            CDFValue::String(s) => s.into(),
+            CDFValue::Number(n) => (*n).into(),
+            CDFValue::Array(v) => v.clone().into(),
+        }
+    }
+}
 impl From<&str> for CDFValue {
     fn from(value: &str) -> Self {
         CDFValue::String(value.into())
@@ -125,7 +134,6 @@ pub enum CDFDataType {
 impl From<u64> for CDFDataType {
     fn from(value: u64) -> Self {
         match value {
-            1 => CDFDataType::BYTE,
             2 => CDFDataType::CHAR,
             3 => CDFDataType::SHORT,
             4 => CDFDataType::INT,
@@ -138,7 +146,7 @@ impl From<u64> for CDFDataType {
 
 /// @param type - the NetCDF data type
 /// @returns the number of bytes for the data type
-fn type_to_bytes(r#type: CDFDataType) -> u64 {
+pub fn netcdf_type_to_bytes(r#type: CDFDataType) -> u64 {
     match r#type {
         CDFDataType::BYTE | CDFDataType::CHAR => 1,
         CDFDataType::SHORT => 2,
@@ -249,12 +257,8 @@ impl<T: Reader> NetCDFReader<T> {
         for field in self.prop_fields.clone().into_iter() {
             let value = self.get_data_variable(field.clone());
             if let Some(value) = value {
-                let field = field.clone();
-                let value: ValueType = match value[index as usize].clone() {
-                    CDFValue::String(s) => s.into(),
-                    CDFValue::Number(n) => n.into(),
-                    CDFValue::Array(v) => v.into(),
-                };
+                let field: String = field.clone();
+                let value: ValueType = (&value[index as usize]).into();
                 m.insert(field, value);
             }
         }
@@ -548,7 +552,7 @@ impl<T: Reader> NetCDFReader<T> {
         // variable type
         let CDFVariable { size, r#type, .. } = variable;
         // size of the data
-        let total_size = size / type_to_bytes(r#type);
+        let total_size = size / netcdf_type_to_bytes(r#type);
         // iterates over the data
         let mut data = vec![];
         let mut i = 0;
@@ -567,7 +571,7 @@ impl<T: Reader> NetCDFReader<T> {
         // prep variables
         let CDFRecordDimension { record_step, size: total_size, .. } = self.record_dimension;
         let CDFVariable { size, r#type, .. } = variable;
-        let width = if size != 0 { size / type_to_bytes(r#type) } else { 1 };
+        let width = if size != 0 { size / netcdf_type_to_bytes(r#type) } else { 1 };
 
         if record_step.is_none() {
             panic!("record_dimension.record_step is undefined");
