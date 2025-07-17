@@ -171,11 +171,9 @@ impl LayerGuide {
     /// Get the minzoom and maxzoom of the active layer guide
     pub fn zooms(&self) -> (u8, u8) {
         match self {
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => {
                 (r.raster_guide.minzoom.unwrap_or(0), r.raster_guide.maxzoom.unwrap_or(16))
             }
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => {
                 (g.grid_guide.minzoom.unwrap_or(0), g.grid_guide.maxzoom.unwrap_or(16))
             }
@@ -191,9 +189,7 @@ impl LayerGuide {
     /// Check the source name matches the layer"s source
     pub fn has_source(&self, source_name: &str) -> bool {
         match self {
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => r.base.source_name == source_name,
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => g.base.source_name == source_name,
             LayerGuide::Cluster(c) => c.base.source_name == source_name,
             LayerGuide::Vector(v) => v.base.source_name == source_name,
@@ -203,9 +199,7 @@ impl LayerGuide {
     /// Get the layer name of the active layer guide
     pub fn layer_name(&self) -> &str {
         match self {
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => &r.base.layer_name,
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => &g.base.layer_name,
             LayerGuide::Cluster(c) => &c.base.layer_name,
             LayerGuide::Vector(v) => &v.base.layer_name,
@@ -228,9 +222,7 @@ impl Default for LayerGuide {
 impl From<&LayerGuide> for LayerMetaData {
     fn from(layer_guide: &LayerGuide) -> Self {
         match layer_guide {
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Raster(r) => r.into(),
-            #[cfg_attr(feature = "nightly", coverage(off))] // not implemented don't punish
             LayerGuide::Grid(g) => g.into(),
             LayerGuide::Cluster(c) => c.into(),
             LayerGuide::Vector(v) => v.into(),
