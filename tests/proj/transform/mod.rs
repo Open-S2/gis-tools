@@ -1,8 +1,87 @@
+mod step;
+
 #[cfg(test)]
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use gistools::proj::{Coords, Transformer};
+    use gistools::proj::{Coords, TransformCoordinates, Transformer};
+
+    #[derive(Debug, Default, Clone, Copy, PartialEq)]
+    struct Test(pub f64, pub f64, pub f64, pub f64);
+    impl TransformCoordinates for Test {
+        fn x(&self) -> f64 {
+            self.0
+        }
+
+        fn y(&self) -> f64 {
+            self.1
+        }
+        fn z(&self) -> f64 {
+            self.2
+        }
+        fn t(&self) -> f64 {
+            self.3
+        }
+        fn set_x(&mut self, x: f64) {
+            self.0 = x;
+        }
+        fn set_y(&mut self, y: f64) {
+            self.1 = y;
+        }
+        fn set_z(&mut self, z: f64) {
+            self.2 = z;
+        }
+
+        fn set_t(&mut self, t: f64) {
+            self.3 = t;
+        }
+        fn has_z(&self) -> bool {
+            true
+        }
+    }
+
+    #[test]
+    fn test_transform_coordinates() {
+        let mut test = Test::default();
+        test.set_u(1.1);
+        assert_eq!(test.u(), 1.1);
+
+        test.set_s(1.2);
+        assert_eq!(test.s(), 1.2);
+
+        test.set_o(1.3);
+        assert_eq!(test.o(), 1.3);
+
+        test.set_e(1.4);
+        assert_eq!(test.e(), 1.4);
+
+        test.set_v(1.5);
+        assert_eq!(test.v(), 1.5);
+
+        test.set_a1(1.6);
+        assert_eq!(test.a1(), 1.6);
+
+        test.set_p(1.7);
+        assert_eq!(test.p(), 1.7);
+
+        test.set_n(1.8);
+        assert_eq!(test.n(), 1.8);
+
+        test.set_w(1.9);
+        assert_eq!(test.w(), 1.9);
+
+        test.set_a2(1.11);
+        assert_eq!(test.a2(), 1.11);
+
+        test.set_k(1.12);
+        assert_eq!(test.k(), 1.12);
+
+        test.set_up(1.13);
+        assert_eq!(test.up(), 1.13);
+
+        test.set_t(1.14);
+        assert_eq!(test.t(), 1.14);
+    }
 
     #[test]
     fn test_transformer() {

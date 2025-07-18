@@ -265,13 +265,11 @@ pub fn aea_e_inverse<P: TransformCoordinates>(aea: &mut AeaData, proj: &Proj, p:
             let qs = (aea.c - p.phi() * p.phi()) / aea.n;
             if fabs(aea.ec - fabs(qs)) > TOL7 {
                 if fabs(qs) > 2. {
-                    // ERROR: PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
-                    return;
+                    panic!("Coordinate outside projection domain");
                 }
                 p.set_phi(authalic_lat_inverse(asin(qs / aea.qp), &aea.apa, proj, aea.qp));
                 if p.phi() == f64::INFINITY {
-                    // ERROR: PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
-                    return;
+                    panic!("Coordinate outside projection domain");
                 }
             } else {
                 p.set_phi(if qs < 0. { -FRAC_PI_2 } else { FRAC_PI_2 });

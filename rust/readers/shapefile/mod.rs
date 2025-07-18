@@ -10,10 +10,7 @@ pub mod mmap;
 pub mod shp;
 
 use crate::{parsers::BufferReader, proj::Transformer, util::iter_zip_folder};
-use alloc::{
-    collections::BTreeMap,
-    string::{String, ToString},
-};
+use alloc::{collections::BTreeMap, string::String};
 pub use dbf::*;
 use s2json::MValueCompatible;
 pub use shp::*;
@@ -48,8 +45,7 @@ pub fn shapefile_from_gzip<P: MValueCompatible>(
     let mut shp_data = None;
     for item in iter_zip_folder(input).unwrap() {
         if item.filename.ends_with("cpg") {
-            encoding =
-                Some(String::from_utf8_lossy(&(item.read)().unwrap_or_default()).to_string());
+            encoding = Some(String::from_utf8_lossy(&(item.read)().unwrap_or_default()).into());
         } else if item.filename.ends_with("dbf") {
             if let Ok(data) = (item.read)() {
                 dbf_reader = Some(DataBaseFile::new(data.into(), encoding.clone()));
@@ -64,7 +60,7 @@ pub fn shapefile_from_gzip<P: MValueCompatible>(
                 for (code, value) in epsg_codes.iter() {
                     transformer.insert_epsg_code(code.clone(), value.clone());
                 }
-                transformer.set_source(String::from_utf8_lossy(&data).to_string());
+                transformer.set_source(String::from_utf8_lossy(&data).into());
                 transform = Some(transformer);
             }
         }

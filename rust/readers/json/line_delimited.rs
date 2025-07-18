@@ -52,6 +52,14 @@ impl<
         }
     }
 
+    /// Reset to the beginning
+    pub fn reset(&self) {
+        let mut parser = self.parser.borrow_mut();
+        parser.offset = 0;
+        parser.tmp_chunks.clear();
+        parser.partial_line.clear();
+    }
+
     /// Get the next feature
     pub fn next_feature(&self) -> Option<VectorFeature<M, P, D>> {
         let mut parser = self.parser.borrow_mut();
@@ -165,6 +173,7 @@ impl<
         D: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
+        self.reset();
         NewLineDelimitedJSONIterator { reader: self }
     }
 
@@ -194,6 +203,14 @@ impl<
     /// Create a new SequenceJSONReader
     pub fn new(reader: T) -> SequenceJSONReader<T, M, P, D> {
         SequenceJSONReader { newline: NewLineDelimitedJSONReader::new(reader, Some('␞')) }
+    }
+
+    /// Reset to the beginning
+    pub fn reset(&self) {
+        let mut parser = self.newline.parser.borrow_mut();
+        parser.offset = 0;
+        parser.tmp_chunks.clear();
+        parser.partial_line.clear();
     }
 }
 impl<
@@ -250,6 +267,7 @@ impl<
         D: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
+        self.reset();
         SequenceJSONIterator { reader: self }
     }
 

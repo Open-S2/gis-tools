@@ -11,22 +11,24 @@ use std::{
     fs::{File, exists},
     io::Read,
     path::Path,
-    string::{String, ToString},
+    string::String,
 };
 
 /// # Build a Shapefile from an input path
 ///
 /// ## Description
 /// Given a path to where all the shapefile relevant files exist, build a Shapefile
-pub fn shapefile_from_path<I: AsRef<Path> + ToString, P: MValueCompatible>(
+pub fn shapefile_from_path<I: AsRef<Path>, P: MValueCompatible>(
     input: I,
     epsg_codes: BTreeMap<String, String>,
 ) -> ShapeFileReader<FileReader, P> {
-    let path = input.to_string().replace(".shp", "");
-    let shp = path.clone() + ".shp";
-    let dbf_str = path.clone() + ".dbf";
-    let prj_str = path.clone() + ".prj";
-    let cpg_str = path.clone() + ".cpg";
+    let path = input.as_ref().to_path_buf();
+    let stem = path.with_extension(""); // removes `.shp`
+    let path_str: String = stem.to_string_lossy().into();
+    let shp = path_str.clone() + ".shp";
+    let dbf_str = path_str.clone() + ".dbf";
+    let prj_str = path_str.clone() + ".prj";
+    let cpg_str = path_str.clone() + ".cpg";
 
     if exists(&shp).is_err() {
         panic!("Shapefile does not exist");
