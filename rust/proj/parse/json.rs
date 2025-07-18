@@ -612,13 +612,15 @@ impl ToProjJSON for ParametricCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -670,13 +672,15 @@ impl ToProjJSON for ParametricDatum {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_anchor(&mut self, anchor: String) {
@@ -723,13 +727,15 @@ impl ToProjJSON for PointMotionOperation {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_accuracy(&mut self, accuracy: String) {
@@ -1002,13 +1008,15 @@ impl ToProjJSON for BoundCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
 }
@@ -1052,13 +1060,15 @@ impl ToProjJSON for ConcatenatedOperation {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_accuracy(&mut self, accuracy: String) {
@@ -1150,13 +1160,15 @@ impl ToProjJSON for CompoundCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
 }
@@ -1194,13 +1206,15 @@ impl ToProjJSON for EngineeringCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -1253,13 +1267,15 @@ impl ToProjJSON for EngineeringDatum {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_anchor(&mut self, anchor: String) {
@@ -1670,13 +1686,15 @@ impl ToProjJSON for DerivedEngineeringCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -1731,13 +1749,15 @@ impl ToProjJSON for DerivedGeodeticCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -1804,13 +1824,15 @@ impl ToProjJSON for GeodeticCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -1909,13 +1931,15 @@ impl ToProjJSON for GeodeticReferenceFrame {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_anchor(&mut self, anchor: String) {
@@ -1967,13 +1991,15 @@ impl ToProjJSON for DerivedParametricCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2028,13 +2054,15 @@ impl ToProjJSON for DerivedProjectedCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2092,13 +2120,15 @@ impl ToProjJSON for DerivedTemporalCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2153,13 +2183,15 @@ impl ToProjJSON for DerivedVerticalCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2220,13 +2252,15 @@ impl ToProjJSON for DynamicGeodeticReferenceFrame {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_anchor(&mut self, anchor: String) {
@@ -2523,13 +2557,15 @@ impl ToProjJSON for ProjectedCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2706,15 +2742,15 @@ impl CoordinateSystemSubtype {
                 // let cart = CartesianConverter::new(Rc::new(RefCell::new(Proj::default())));
                 // proj_transform.cart = Some(Box::new(cart.into()));
             }
-            CoordinateSystemSubtype::Spherical => {}
-            CoordinateSystemSubtype::Ellipsoidal => {}
-            CoordinateSystemSubtype::Vertical => {}
-            CoordinateSystemSubtype::Ordinal => {}
-            CoordinateSystemSubtype::Parametric => {}
-            CoordinateSystemSubtype::Affine => {}
-            CoordinateSystemSubtype::TemporalDateTime => {}
-            CoordinateSystemSubtype::TemporalCount => {}
-            CoordinateSystemSubtype::TemporalMeasure => {}
+            _ => todo!(), // CoordinateSystemSubtype::Spherical => {}
+                          // CoordinateSystemSubtype::Ellipsoidal => {}
+                          // CoordinateSystemSubtype::Vertical => {}
+                          // CoordinateSystemSubtype::Ordinal => {}
+                          // CoordinateSystemSubtype::Parametric => {}
+                          // CoordinateSystemSubtype::Affine => {}
+                          // CoordinateSystemSubtype::TemporalDateTime => {}
+                          // CoordinateSystemSubtype::TemporalCount => {}
+                          // CoordinateSystemSubtype::TemporalMeasure => {}
         }
     }
 }
@@ -2833,13 +2869,15 @@ impl ToProjJSON for Transformation {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_accuracy(&mut self, accuracy: String) {
@@ -2890,13 +2928,15 @@ impl ToProjJSON for TemporalCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -2950,13 +2990,15 @@ impl ToProjJSON for TemporalDatum {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
 }
@@ -3010,13 +3052,15 @@ impl ToProjJSON for VerticalCRS {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_coordinate_system(&mut self, cs: CoordinateSystem) {
@@ -3087,13 +3131,15 @@ impl ToProjJSON for VerticalReferenceFrame {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_epoch(&mut self, epoch: f64) {
@@ -3138,13 +3184,15 @@ impl ToProjJSON for DynamicVerticalReferenceFrame {
     }
     fn set_usage(&mut self, usage: ObjectUsage) {
         // If array is active, add to array; if id is already set, migrate to array; otherwise set id
-        if !self.usages.is_empty() {
-            self.usages.push(usage);
-        } else if let Some(u) = self.usage.clone() {
-            self.usages.extend(vec![u, usage]);
-            self.usage = None;
+        if self.usages.is_empty() {
+            if let Some(u) = self.usage.clone() {
+                self.usages.extend(vec![u, usage]);
+                self.usage = None;
+            } else {
+                self.usage = Some(usage);
+            }
         } else {
-            self.usage = Some(usage);
+            self.usages.push(usage);
         }
     }
     fn set_anchor(&mut self, anchor: String) {
