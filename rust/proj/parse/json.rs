@@ -1444,7 +1444,7 @@ impl Axis {
         } else if name.contains("z") {
             3
         } else {
-            1
+            0
         };
     }
 }

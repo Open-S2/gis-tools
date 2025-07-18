@@ -154,8 +154,12 @@ impl WKTParser for Ellipsoid {
             ellipsoid.inverse_flattening =
                 Some(ValueInMetreOrValueAndUnit::from_unit(unit, inverse_flattening));
         } else {
-            ellipsoid.semi_major_axis = Some(semi_major_axis.into());
-            ellipsoid.inverse_flattening = Some(inverse_flattening.into());
+            if semi_major_axis != 0.0 {
+                ellipsoid.semi_major_axis = Some(semi_major_axis.into());
+            }
+            if inverse_flattening != 0.0 {
+                ellipsoid.inverse_flattening = Some(inverse_flattening.into());
+            }
         }
         ellipsoid
     }
@@ -274,6 +278,7 @@ impl WKTParser for Meridian {
             if let Some(lon) = arr.first() {
                 meridian.longitude = ValueInDegreeOrValueAndUnit::from_unit(unit, lon.to_float());
             }
+            handle_common_fields(&mut meridian, arr, 2);
         }
         meridian
     }
@@ -478,7 +483,11 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     i += 1;
                 }
                 "EPOCH" | "ANCHOREPOCH" | "COORDEPOCH" => {
-                    res.set_epoch(arr[i + 1].to_float());
+                    let WKTValue::Array(arr) = &arr[i + 1] else {
+                        continue;
+                    };
+                    let epoch = arr.get(0).map(|s| s.to_float()).unwrap_or_default();
+                    res.set_epoch(epoch);
                     i += 1;
                 }
                 "FRAMEEPOCH" => {
@@ -563,7 +572,11 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     i += 1;
                 }
                 "ANCHOR" => {
-                    res.set_anchor(arr[i + 1].to_string());
+                    let WKTValue::Array(arr) = &arr[i + 1] else {
+                        continue;
+                    };
+                    let anchor = arr.get(0).map(|s| s.to_string()).unwrap_or_default();
+                    res.set_anchor(anchor);
                     i += 1;
                 }
                 "USAGE" => {
@@ -574,14 +587,16 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    res.set_projection(arr[0].to_string());
+                    let proj = arr.get(0).map(|s| s.to_string()).unwrap_or_default();
+                    res.set_projection(proj);
                     i += 1;
                 }
                 "ORDER" => {
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    res.set_order(arr[0].to_float() as usize);
+                    let order = arr.get(0).map(|s| s.to_float() as usize).unwrap_or_default();
+                    res.set_order(order);
                     i += 1;
                 }
                 // TODO: MODEL -> DYNAMIC[FRAMEEPOCH[2010.0],MODEL["NAD83(CSRS)v6 velocity grid"]] -> Stored as DeformationModel

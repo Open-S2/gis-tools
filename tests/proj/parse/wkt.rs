@@ -10,13 +10,47 @@ mod tests {
         parsers::{WKTParser, WKTValue, parse_wkt_object},
         proj::{
             Axis, AxisDirection, CRS, Conversion, CoordinateSystem, CoordinateSystemSubtype,
-            Ellipsoid, Id, Method, ObjectUsage, ParameterValue, ProjJSON, TemporalExtent, Unit,
-            UnitObject, UnitType, ValueAndUnit, ValueInMetreOrValueAndUnit, VerticalExtent,
+            DatumEnsemble, DatumEnsembleMember, Ellipsoid, EngineeringDatum, GeodeticCRS,
+            GeodeticReferenceFrame, Id, Meridian, Method, ObjectUsage, ParameterValue,
+            ParametricDatum, PrimeMeridian, ProjBBox, ProjJSON, ProjValue, ProjectedCRS,
+            TemporalDatum, TemporalExtent, Unit, UnitObject, UnitType, ValueAndUnit,
+            ValueInDegreeOrValueAndUnit, ValueInMetreOrValueAndUnit, VerticalExtent,
+            VerticalReferenceFrame,
         },
     };
 
     #[test]
     fn test_length_unit_from_wkt() {
+        let wkt_str = r#"LENGTHUNIT[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Unit::from_wkt(&arr[1]);
+            assert_eq!(
+                usage,
+                Unit::UnitObject(UnitObject {
+                    r#type: UnitType::Unit,
+                    name: "".into(),
+                    conversion_factor: None,
+                    id: None,
+                    ids: vec![]
+                })
+            );
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = Unit::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(
+            usage,
+            Unit::UnitObject(UnitObject {
+                r#type: UnitType::Unit,
+                name: "".into(),
+                conversion_factor: None,
+                id: None,
+                ids: vec![]
+            })
+        );
+
         let wkt_str_metre = r#"LENGTHUNIT["metre",1.0]"#;
         let wkt_value_metre = parse_wkt_object(wkt_str_metre);
         if let WKTValue::Array(arr) = wkt_value_metre {
@@ -44,6 +78,18 @@ mod tests {
 
     #[test]
     fn test_vertical_extent_from_wkt() {
+        let wkt_str = r#"VERTICALEXTENT[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = VerticalExtent::from_wkt(&arr[1]);
+            assert_eq!(usage, VerticalExtent::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = VerticalExtent::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, VerticalExtent::default());
+
         let wkt_str1 = r#"VERTICALEXTENT[-1000,0,LENGTHUNIT["metre",1.0]]"#;
         let wkt_value1 = parse_wkt_object(wkt_str1);
         if let WKTValue::Array(arr) = wkt_value1 {
@@ -114,6 +160,18 @@ mod tests {
 
     #[test]
     fn test_temporal_extent_from_wkt() {
+        let wkt_str = r#"TIMEEXTENT[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = TemporalExtent::from_wkt(&arr[1]);
+            assert_eq!(usage, TemporalExtent::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = TemporalExtent::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, TemporalExtent::default());
+
         let wkt_str1 = r#"TIMEEXTENT[2013-01-01,2013-12-31]"#;
         let wkt_value1 = parse_wkt_object(wkt_str1);
         if let WKTValue::Array(arr) = wkt_value1 {
@@ -155,6 +213,18 @@ mod tests {
 
     #[test]
     fn test_usage_from_wkt() {
+        let wkt_str = r#"USAGE[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = ObjectUsage::from_wkt(&arr[1]);
+            assert_eq!(usage, ObjectUsage::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = ObjectUsage::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ObjectUsage::default());
+
         let wkt_str_ve = r#"USAGE[SCOPE["Large scale topographic mapping and cadastre."],VERTICALEXTENT[-1000,0]]"#;
         let wkt_value_ve = parse_wkt_object(wkt_str_ve);
         if let WKTValue::Array(arr) = wkt_value_ve {
@@ -244,6 +314,36 @@ mod tests {
 
     #[test]
     fn test_identifier_from_wkt() {
+        let wkt_str = r#"ID[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Id::from_wkt(&arr[1]);
+            assert_eq!(usage, Id::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let wkt_str = r#"ID["Authority name","Abcd_Ef",CITATION[],URI[]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Id::from_wkt(&arr[1]);
+            assert_eq!(
+                usage,
+                Id {
+                    authority: "Authority name".into(),
+                    code: "Abcd_Ef".into(),
+                    authority_citation: Some("".into()),
+                    uri: Some("".into()),
+                    ..Default::default()
+                }
+            );
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = Id::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Id::default());
+
         let wkt_str1 = r#"ID["Authority name","Abcd_Ef",7.1]"#;
         let wkt_value1 = parse_wkt_object(wkt_str1);
         if let WKTValue::Array(arr) = wkt_value1 {
@@ -332,6 +432,18 @@ mod tests {
 
     #[test]
     fn test_parse_ellipsoid_minimal() {
+        let wkt_str = r#"ELLIPSOID[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Ellipsoid::from_wkt(&arr[1]);
+            assert_eq!(usage, Ellipsoid::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = Ellipsoid::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Ellipsoid::default());
+
         let wkt_str = r#"ELLIPSOID["GRS 1980",6378137,298.257222101]"#;
         let wkt_obj = parse_wkt_object(wkt_str);
         if let WKTValue::Array(arr) = wkt_obj {
@@ -463,6 +575,18 @@ mod tests {
 
     #[test]
     fn test_parameter_value_from_wkt() {
+        let wkt_str = r#"PARAMETER[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = ParameterValue::from_wkt(&arr[1]);
+            assert_eq!(usage, ParameterValue::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = ParameterValue::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ParameterValue::default());
+
         let wkt_str_number = r#"PARAMETER["semi_major","6378137.0"]"#;
         let wkt_value_number = parse_wkt_object(wkt_str_number);
         if let WKTValue::Array(arr) = wkt_value_number {
@@ -533,6 +657,18 @@ mod tests {
 
     #[test]
     fn test_cs_value_from_wkt() {
+        let wkt_str = r#"CS[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = CoordinateSystem::from_wkt(&arr[1]);
+            assert_eq!(usage, CoordinateSystem::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = CoordinateSystem::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, CoordinateSystem::default());
+
         let wkt_str = r#"CS[ellipsoidal,2]"#;
         let wkt_value = parse_wkt_object(wkt_str);
         if let WKTValue::Array(arr) = wkt_value {
@@ -543,6 +679,18 @@ mod tests {
 
     #[test]
     fn test_axis_value_from_wkt() {
+        let wkt_str = r#"AXIS[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Axis::from_wkt(&arr[1]);
+            assert_eq!(usage, Axis::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = Axis::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Axis::default());
+
         let wkt_str = r#"AXIS["latitude",north,ORDER[1]],"#;
         let wkt_value = parse_wkt_object(wkt_str);
         if let WKTValue::Array(arr) = wkt_value {
@@ -555,8 +703,19 @@ mod tests {
 
     #[test]
     fn test_conversion() {
-        let wkt_str = r#"CONVERSION["UTM zone 10N",METHOD["Transverse Mercator",ID["EPSG",9807]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-123,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["Scale factor at natural origin",0.9996,SCALEUNIT["unity",1.0],ID["EPSG",8805]],PARAMETER["False easting",500000,LENGTHUNIT["metre",1.0],ID["EPSG",8806]],PARAMETER["False northing",0,LENGTHUNIT["metre",1.0],ID["EPSG",8807]]]"#;
+        let wkt_str = r#"CONVERSION[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Conversion::from_wkt(&arr[1]);
+            assert_eq!(usage, Conversion::default());
+        } else {
+            panic!("Expected an array");
+        }
 
+        let usage = Conversion::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Conversion::default());
+
+        let wkt_str = r#"CONVERSION["UTM zone 10N",METHOD["Transverse Mercator",ID["EPSG",9807]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-123,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["Scale factor at natural origin",0.9996,SCALEUNIT["unity",1.0],ID["EPSG",8805]],PARAMETER["False easting",500000,LENGTHUNIT["metre",1.0],ID["EPSG",8806]],PARAMETER["False northing",0,LENGTHUNIT["metre",1.0],ID["EPSG",8807]]]"#;
         let wkt_value = parse_wkt_object(wkt_str);
         if let WKTValue::Array(arr) = wkt_value {
             let conversion = Conversion::from_wkt(&arr[1]);
@@ -568,8 +727,19 @@ mod tests {
 
     #[test]
     fn test_method() {
-        let wkt_str = r#"METHOD["Transverse Mercator",ID["EPSG",9807]]"#;
+        let wkt_str = r#"METHOD[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Method::from_wkt(&arr[1]);
+            assert_eq!(usage, Method::default());
+        } else {
+            panic!("Expected an array");
+        }
 
+        let usage = Method::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Method::default());
+
+        let wkt_str = r#"METHOD["Transverse Mercator",ID["EPSG",9807]]"#;
         let wkt_value = parse_wkt_object(wkt_str);
         if let WKTValue::Array(arr) = wkt_value {
             let method = Method::from_wkt(&arr[1]);
@@ -579,6 +749,21 @@ mod tests {
                 Some(Id { authority: "EPSG".into(), code: "9807".into(), ..Default::default() })
             );
         }
+    }
+
+    #[test]
+    fn test_proj_bbox() {
+        let wkt_str = r#"BBOX[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = ProjBBox::from_wkt(&arr[1]);
+            assert_eq!(usage, ProjBBox::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = ProjBBox::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ProjBBox::default());
     }
 
     #[test]
@@ -650,5 +835,363 @@ mod tests {
 
         let _proj_obj = ProjJSON::parse_wkt(wkt_str);
         println!("proj_obj: {_proj_obj:#?}");
+    }
+
+    #[test]
+    fn datum_ensemble() {
+        let wkt_str = r#"ENSEMBLE[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = DatumEnsemble::from_wkt(&arr[1]);
+            assert_eq!(usage, DatumEnsemble::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = DatumEnsemble::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, DatumEnsemble::default());
+    }
+
+    #[test]
+    fn prime_meridian() {
+        let wkt_str = r#"PRIMEMERIDIAN[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = PrimeMeridian::from_wkt(&arr[1]);
+            assert_eq!(usage, PrimeMeridian::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = PrimeMeridian::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, PrimeMeridian::default());
+    }
+
+    #[test]
+    fn reference_frame_geodetic() {
+        let wkt_str = r#"GEODETICDATUM[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = GeodeticReferenceFrame::from_wkt(&arr[1]);
+            assert_eq!(usage, GeodeticReferenceFrame::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = GeodeticReferenceFrame::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, GeodeticReferenceFrame::default());
+    }
+
+    #[test]
+    fn geodetic_crs() {
+        let wkt_str = r#"GEOGRAPHICCRS[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = GeodeticCRS::from_wkt(&arr[1]);
+            assert_eq!(usage, GeodeticCRS::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = GeodeticCRS::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, GeodeticCRS::default());
+    }
+
+    #[test]
+    fn projected_crs() {
+        let wkt_str = r#"PROJECTEDCRS[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = ProjectedCRS::from_wkt(&arr[1]);
+            assert_eq!(usage, ProjectedCRS::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = ProjectedCRS::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ProjectedCRS::default());
+    }
+
+    #[test]
+    #[should_panic(expected = "Expected one of")]
+    fn proj_json_fail() {
+        let _proj_json =
+            ProjJSON::from_wkt(&WKTValue::Array(vec![WKTValue::String("none".to_string())]));
+
+        let usage = ProjJSON::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ProjJSON::default());
+    }
+
+    #[test]
+    fn proj_json_default() {
+        let proj_json = ProjJSON::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(proj_json, ProjJSON::default());
+
+        let proj_json = ProjJSON::from_wkt(&WKTValue::Array(vec![]));
+        assert_eq!(proj_json, ProjJSON::default());
+    }
+
+    #[test]
+    fn wkt_catchall() {
+        let wkt_str = r#"METHOD["",MEMBERS[],EPOCH[],FRAMEEPOCH[],TDATUM[],EDATUM[],PDATUM[],MERIDIAN[],AREA[],ANCHOR[],USAGE[],PROJECTION[],ORDER[]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Method::from_wkt(&arr[1]);
+            assert_eq!(usage, Method::default());
+        } else {
+            panic!("Expected an array");
+        }
+    }
+
+    #[test]
+    fn datum_ensemble_member() {
+        let wkt_str = r#"MEMBERS[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = DatumEnsembleMember::from_wkt(&arr[1]);
+            assert_eq!(usage, DatumEnsembleMember::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = DatumEnsembleMember::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, DatumEnsembleMember::default());
+
+        let wkt_str = r#"MEMBERS["members",ID["EPSG",1234]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = DatumEnsembleMember::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                DatumEnsembleMember {
+                    name: "members".into(),
+                    id: Some(Id {
+                        authority: "EPSG".into(),
+                        code: ProjValue::String("1234".into()),
+                        version: None,
+                        authority_citation: None,
+                        uri: None
+                    }),
+                    ids: vec![]
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn meridian() {
+        let wkt_str = r#"MERIDIAN[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = Meridian::from_wkt(&arr[1]);
+            assert_eq!(usage, Meridian::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = Meridian::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, Meridian::default());
+
+        let wkt_str = r#"MERIDIAN[LENGTHUNIT["metre",1.0],ID["EPSG",1234]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = Meridian::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                Meridian {
+                    id: Some(Id {
+                        authority: "EPSG".into(),
+                        code: ProjValue::String("1234".into()),
+                        version: None,
+                        authority_citation: None,
+                        uri: None
+                    }),
+                    ids: vec![],
+                    schema: None,
+                    r#type: None,
+                    longitude: ValueInDegreeOrValueAndUnit::ValueAndUnit(ValueAndUnit {
+                        value: 0.0,
+                        unit: Unit::UnitObject(UnitObject {
+                            r#type: UnitType::Unit,
+                            name: "metre".into(),
+                            conversion_factor: Some(1.0),
+                            id: None,
+                            ids: vec![]
+                        })
+                    })
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn vertical_reference_frame() {
+        let wkt_str = r#"VERTICALDATUM[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = VerticalReferenceFrame::from_wkt(&arr[1]);
+            assert_eq!(usage, VerticalReferenceFrame::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = VerticalReferenceFrame::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, VerticalReferenceFrame::default());
+
+        let wkt_str = r#"VERTICALDATUM["TEST",ANCHOR["anchor",0],ANCHOREPOCH[1.1]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = VerticalReferenceFrame::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                VerticalReferenceFrame {
+                    r#type: None,
+                    name: "TEST".into(),
+                    anchor: Some("anchor".into()),
+                    anchor_epoch: Some(1.1),
+                    usage: None,
+                    usages: vec![],
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn temporal_datum() {
+        let wkt_str = r#"TDATUM[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = TemporalDatum::from_wkt(&arr[1]);
+            assert_eq!(usage, TemporalDatum::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = TemporalDatum::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, TemporalDatum::default());
+
+        let wkt_str = r#"TDATUM["TEST",USAGE[SCOPE["Geographic coverage."],BBOX[10,20,30,40]]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = TemporalDatum::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                TemporalDatum {
+                    r#type: None,
+                    name: "TEST".into(),
+                    calendar: "".into(),
+                    time_origin: None,
+                    usage: Some(ObjectUsage {
+                        schema: None,
+                        scope: "Geographic coverage.".into(),
+                        area: None,
+                        bbox: Some(ProjBBox {
+                            south_latitude: 10.0,
+                            west_longitude: 20.0,
+                            north_latitude: 30.0,
+                            east_longitude: 40.0
+                        }),
+                        vertical_extent: None,
+                        temporal_extent: None,
+                        remarks: None,
+                        id: None,
+                        ids: vec![]
+                    }),
+                    usages: vec![]
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn engineering_datum() {
+        let wkt_str = r#"EDATUM[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = EngineeringDatum::from_wkt(&arr[1]);
+            assert_eq!(usage, EngineeringDatum::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = EngineeringDatum::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, EngineeringDatum::default());
+
+        let wkt_str = r#"EDATUM["TEST",USAGE[SCOPE["Geographic coverage."],BBOX[10,20,30,40]]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = EngineeringDatum::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                EngineeringDatum {
+                    r#type: None,
+                    name: "TEST".into(),
+                    usage: Some(ObjectUsage {
+                        schema: None,
+                        scope: "Geographic coverage.".into(),
+                        area: None,
+                        bbox: Some(ProjBBox {
+                            south_latitude: 10.0,
+                            west_longitude: 20.0,
+                            north_latitude: 30.0,
+                            east_longitude: 40.0
+                        }),
+                        vertical_extent: None,
+                        temporal_extent: None,
+                        remarks: None,
+                        id: None,
+                        ids: vec![]
+                    }),
+                    usages: vec![],
+                    anchor: None,
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn parametric_datum() {
+        let wkt_str = r#"PDATUM[]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let usage = ParametricDatum::from_wkt(&arr[1]);
+            assert_eq!(usage, ParametricDatum::default());
+        } else {
+            panic!("Expected an array");
+        }
+
+        let usage = ParametricDatum::from_wkt(&WKTValue::String("".to_string()));
+        assert_eq!(usage, ParametricDatum::default());
+
+        let wkt_str = r#"PDATUM["TEST",USAGE[SCOPE["Geographic coverage."],BBOX[10,20,30,40]]]"#;
+        let wkt_value = parse_wkt_object(wkt_str);
+        if let WKTValue::Array(arr) = wkt_value {
+            let members = ParametricDatum::from_wkt(&arr[1]);
+            assert_eq!(
+                members,
+                ParametricDatum {
+                    r#type: None,
+                    name: "TEST".into(),
+                    usage: Some(ObjectUsage {
+                        schema: None,
+                        scope: "Geographic coverage.".into(),
+                        area: None,
+                        bbox: Some(ProjBBox {
+                            south_latitude: 10.0,
+                            west_longitude: 20.0,
+                            north_latitude: 30.0,
+                            east_longitude: 40.0
+                        }),
+                        vertical_extent: None,
+                        temporal_extent: None,
+                        remarks: None,
+                        id: None,
+                        ids: vec![]
+                    }),
+                    usages: vec![],
+                    anchor: "".into(),
+                }
+            );
+        }
     }
 }
