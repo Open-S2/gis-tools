@@ -59,7 +59,7 @@ impl<W: TileWriter> TileBuilder<W> {
         &mut self,
         source_name: String,
         reader: T,
-        on_source_feature: Option<&OnFeature<M, P, D>>,
+        on_source_feature: Option<OnFeature<M, P, D>>,
         on_layer_feature: Option<&Vec<LayerHandler<M, P, D>>>,
     ) {
         for mut feature in reader.iter() {
@@ -82,7 +82,7 @@ impl<W: TileWriter> TileBuilder<W> {
     >(
         _source_name: String,
         _reader: T,
-        _on_feature: Option<&OnFeature<M, P, D>>,
+        _on_feature: Option<OnFeature<M, P, D>>,
     ) {
         unimplemented!()
     }
@@ -97,7 +97,7 @@ impl<W: TileWriter> TileBuilder<W> {
     >(
         _source_name: String,
         _reader: T,
-        _on_feature: Option<&OnFeature<M, P, D>>,
+        _on_feature: Option<OnFeature<M, P, D>>,
     ) {
         unimplemented!()
     }

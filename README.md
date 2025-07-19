@@ -43,7 +43,7 @@ Notable features of GIS-Tools are:
 * 📦 Build Vector Tiles, Raster Tiles, and Gridded Data Tiles. Vector supports 3 output formats (Mapbox Vector Tile, Open S2 Tiles, and Flat Open S2 Tiles).
 * ✅ Most data structures support all projections, but primarily focus the big 3 states above. Also handle large data sets through working with the filesystem and mmap buffers.
 * 📖 Contains **23** native GIS readers. The list of readers are: CSV, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, Shapefiles, raster and vector tiles, WKT, and XML.
-* 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript or Rust.
+* 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript. Rust requires a little more: [libm](https://github.com/rust-lang/libm), [half](https://docs.rs/half/latest/half/), [regex](https://github.com/rust-lang/regex), [serde](https://github.com/serde-rs/serde), [serde_json](https://github.com/serde-rs/json), and some optional std [memmap2](https://github.com/RazrFalcon/memmap2-rs), [image](https://github.com/image-rs/image), and [flate2](https://github.com/rust-lang/flate2-rs).
 * 🧲 Full suite of tools for points, lines, polygons, greater-circle-arcs, predicates, and more.
 * 🌌 Space specific tools for planets and satellite orbits.
 

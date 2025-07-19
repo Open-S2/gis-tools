@@ -17,7 +17,6 @@ use open_vector_tile::{
     base::{BaseVectorLayer, BaseVectorTile, s2json_to_base},
     mapbox, write_tile,
 };
-use s2_tilejson::DrawType;
 use s2json::{
     Face, JSONCollection, MValue, MValueCompatible, Projection, VectorFeature, VectorGeometry,
     VectorPolygon,
@@ -122,6 +121,14 @@ impl TileWorker {
                         vlg,
                     );
                 }
+                // LayerGuide::Cluster(clg) => {
+                //     self.store_cluster_feature(
+                //         feature.to_m_vector_feature(|_| {
+                //             Some(ToTileMetadata::new(clg.base.layer_name.clone()))
+                //         }),
+                //         clg,
+                //     );
+                // }
                 _ => {
                     unimplemented!()
                 }
@@ -133,7 +140,7 @@ impl TileWorker {
     pub fn store_vector_feature(&mut self, feature: MVectorFeature, layer: VectorLayerGuide) {
         let BuildGuide { projection, .. } = &self.build_guide;
         // skip features who are not using the layer guide's
-        if !layer.draw_types.contains(&to_draw_type(&feature)) {
+        if !layer.draw_types.contains(&(&feature).into()) {
             return;
         }
         let minzoom = layer.vector_guide.minzoom.unwrap_or(0);
@@ -407,56 +414,6 @@ fn get_zooms(layer_guides: &[LayerGuide]) -> (u8, u8) {
     (min, max)
 }
 
-/// Check if a feature is included by draw types defined by the layer guide
-fn to_draw_type<M: Clone, P: MValueCompatible, D: MValueCompatible>(
-    feature: &VectorFeature<M, P, D>,
-) -> DrawType {
-    match &feature.geometry {
-        VectorGeometry::Point(p) => {
-            if p.is_3d {
-                DrawType::Points3D
-            } else {
-                DrawType::Points
-            }
-        }
-        VectorGeometry::MultiPoint(mp) => {
-            if mp.is_3d {
-                DrawType::Points3D
-            } else {
-                DrawType::Points
-            }
-        }
-        VectorGeometry::LineString(l) => {
-            if l.is_3d {
-                DrawType::Lines3D
-            } else {
-                DrawType::Lines
-            }
-        }
-        VectorGeometry::MultiLineString(ml) => {
-            if ml.is_3d {
-                DrawType::Lines3D
-            } else {
-                DrawType::Lines
-            }
-        }
-        VectorGeometry::Polygon(p) => {
-            if p.is_3d {
-                DrawType::Polygons3D
-            } else {
-                DrawType::Polygons
-            }
-        }
-        VectorGeometry::MultiPolygon(mp) => {
-            if mp.is_3d {
-                DrawType::Polygons3D
-            } else {
-                DrawType::Polygons
-            }
-        }
-    }
-}
-
 /// Pre-earclip polygons for faster processing of the tile client side
 pub fn earclip_polygons<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     feature: &mut VectorFeature<M, P, D>,
@@ -489,6 +446,7 @@ pub fn earclip_polygons<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     }
     let tess_pos = verts.len();
 
+    // TODO: we can actually skip tesselate if our projection is not S2
     let level = 1 << fmax(fmin(floor(zoom as f64 / 2.), 4.), 0.) as i32;
     let division = (16 / level) as f64;
     if division > 1. {

@@ -24,11 +24,11 @@ path = "rust/lib.rs"
 
 [dependencies]
 # Open S2 dependencies
-earclip = "1.6"
+earclip = "1.7"
 open-vector-tile = "1.9"
 pbf = "1.22"
 s2json = "1.36"
-s2-tilejson = "1.9"
+s2-tilejson = "1.10"
 # External shared dependencies
 libm = "0.2"
 half = "2.6"

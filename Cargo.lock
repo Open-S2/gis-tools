@@ -381,9 +381,9 @@ dependencies = [
 
 [[package]]
 name = "earclip"
-version = "1.6.1"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3dcb6735a6bf579fc6763d8178fb1aa0ff616e327d3a2ce9de0e7908e922898b"
+checksum = "a91e090bd91dff08cca09ab78716a7925bf8856d0c564320dfaa2cf530e23c98"
 dependencies = [
  "libm",
  "s2json",
@@ -1228,9 +1228,9 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "s2-tilejson"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8efb0888e83e1e336b7a186d317003955219369b1ca054959b42d63b2368dd38"
+checksum = "25213ba235b5f9b6ba9b99972b82a8b47bc757b5002adb8c05573a6c2aeb2569"
 dependencies = [
  "s2json",
  "serde",
