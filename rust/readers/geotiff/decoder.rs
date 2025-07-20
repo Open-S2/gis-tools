@@ -7,6 +7,8 @@ use alloc::{vec, vec::Vec};
 /// Internal interface for decoder
 pub type Decoder = fn(buffer: &[u8], tables: Option<&[u8]>) -> Vec<u8>;
 
+/// Returns the decoder function matching the given compression value
+///
 /// @param compression - the encoded compression value
 /// @returns the decoder function matching the given compression value
 pub fn get_decoder(compression: Option<u16>) -> Option<Decoder> {

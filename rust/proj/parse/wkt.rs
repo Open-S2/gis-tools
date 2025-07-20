@@ -486,7 +486,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    let epoch = arr.get(0).map(|s| s.to_float()).unwrap_or_default();
+                    let epoch = arr.first().map(|s| s.to_float()).unwrap_or_default();
                     res.set_epoch(epoch);
                     i += 1;
                 }
@@ -575,7 +575,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    let anchor = arr.get(0).map(|s| s.to_string()).unwrap_or_default();
+                    let anchor = arr.first().map(|s| s.to_string()).unwrap_or_default();
                     res.set_anchor(anchor);
                     i += 1;
                 }
@@ -587,7 +587,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    let proj = arr.get(0).map(|s| s.to_string()).unwrap_or_default();
+                    let proj = arr.first().map(|s| s.to_string()).unwrap_or_default();
                     res.set_projection(proj);
                     i += 1;
                 }
@@ -595,7 +595,7 @@ fn handle_common_fields<T: ToProjJSON>(res: &mut T, arr: &[WKTValue], start_inde
                     let WKTValue::Array(arr) = &arr[i + 1] else {
                         continue;
                     };
-                    let order = arr.get(0).map(|s| s.to_float() as usize).unwrap_or_default();
+                    let order = arr.first().map(|s| s.to_float() as usize).unwrap_or_default();
                     res.set_order(order);
                     i += 1;
                 }
