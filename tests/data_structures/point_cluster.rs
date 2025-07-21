@@ -89,7 +89,7 @@ mod tests {
         path = path.join("tests/readers/json/fixtures/multipoint.geojson");
 
         let reader: JSONReader<FileReader, (), Props, Props> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
 
         let mut cluster_store = LocalClusterStore::new(
             Some(ClusterOptions {

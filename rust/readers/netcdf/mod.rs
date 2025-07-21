@@ -3,6 +3,10 @@ use alloc::{boxed::Box, collections::BTreeMap, string::String, vec, vec::Vec};
 use core::cell::RefCell;
 use s2json::{MValue, Properties, ValueType, VectorFeature, VectorGeometry, VectorPoint};
 
+// TODO: I don't know why anymore but the FileReader is SLOOOOOW, I think it re-reads over and over.
+// But the BufferReader is fast. 99% of nc files are small so this is probably not worth the effort
+// to fix anytime soon
+
 /// The kind of data that can be stored in a NetCDF file
 #[derive(Debug, Clone, PartialEq)]
 pub enum CDFValue {
@@ -172,12 +176,37 @@ pub struct NetCDFReaderOptions {
 ///
 /// ## Description
 /// Read the NetCDF v3.x file format
+///
 /// [See specification](https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html)
-/// Implements the {@link FeatureIterator} interface
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// ## Usage
-/// ```ts
-/// // TODO
+///
+/// ### Buffer Reader
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader, BufferReader},
+///     readers::{NetCDFReader, NetCDFReaderOptions},
+/// };
+///
+/// // Ignore this, used to setup example
+/// use std::path::PathBuf;
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/netcdf/fixtures/ichthyop.nc");
+/// let data: Vec<u8> = std::fs::read(path).unwrap();
+///
+/// let netcdf_reader = NetCDFReader::new(
+///     BufferReader::from(data),
+///     Some(NetCDFReaderOptions {
+///         lon_key: Some("lon".into()),
+///         lat_key: Some("lat".into()),
+///         height_key: Some("depth".into()),
+///         prop_fields: Some(vec!["depth".into()]),
+///     }),
+/// );
+/// assert_eq!(netcdf_reader.len(), 49);
+/// let features: Vec<_> = netcdf_reader.iter().collect();
 /// ```
 ///
 /// ## Links

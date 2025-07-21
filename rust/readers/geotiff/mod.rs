@@ -45,9 +45,53 @@ pub struct GeoTIFFOptions {
 /// ## Description
 /// This class reads a GeoTIFF file and returns a list of GeoTIFF images.
 ///
+/// Implements the [`FeatureReader`] trait
+///
 /// ## Usage
+///
+/// ### File Reader
 /// ```rust
-/// // TODO
+/// use gistools::{
+///     parsers::{FeatureReader, FileReader},
+///     readers::{GeoTIFFReader, GeoTIFFOptions},
+/// };
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
+/// let geotiff = GeoTIFFReader::new(FileReader::from(path), None);
+///
+/// {
+///     // you can pull in the image directly
+///     let mut image = geotiff.get_image(None).unwrap();
+///     // read the raster data as any data format
+///     let raster = image.raster_data(None);
+///     // or read in the RGB data as RGBA u8 linear encoded
+///     let rgb = image.get_rgba();
+/// }
+///
+/// // Or you can just pull in the all the grids
+/// let grids: Vec<_> = geotiff.iter().collect();
+/// assert_eq!(grids.len(), 1);
+/// ```
+///
+/// ### Buffer Reader
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader, BufferReader},
+///     readers::{GeoTIFFReader, GeoTIFFOptions},
+/// };
+///
+/// // Ignore this, used to setup example
+/// use std::path::PathBuf;
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
+/// let bytes: Vec<u8> = std::fs::read(path).unwrap();
+///
+/// // read in teh data and build the grid
+/// let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
+/// let grid: Vec<_> = geotiff.iter().collect();
+/// assert_eq!(grid.len(), 1);
 /// ```
 ///
 /// ## Links

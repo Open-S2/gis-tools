@@ -917,8 +917,15 @@ pub enum LASClassification14 {
     BridgeDeck,
     /// High Noise
     HighNoise,
-    /// Overlap Points
-    OverlapPoints,
+    /// Overhead Structure (e.g., conveyors, mining equipment, traffic lights)
+    OverheadSructure,
+    /// Ignored Ground (e.g., breakline proximity)
+    IgnoredGround,
+    /// Snow
+    Snow,
+    /// Temporal Exclusion (Features excluded due to changes over time between
+    /// data sources, e.g., water levels, landslides, permafrost)
+    TemporalExclusion,
     /// Reserved
     Reserved,
     /// User Definable
@@ -945,7 +952,11 @@ impl From<u8> for LASClassification14 {
             16 => Self::WireStructureConnector,
             17 => Self::BridgeDeck,
             18 => Self::HighNoise,
-            // 19..=63 => Self::Reserved,
+            19 => Self::OverheadSructure,
+            20 => Self::IgnoredGround,
+            21 => Self::Snow,
+            22 => Self::TemporalExclusion,
+            // 23..=63 => Self::Reserved,
             64..=255 => Self::UserDefinable,
             _ => Self::Reserved,
         }

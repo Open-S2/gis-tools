@@ -57,6 +57,56 @@ impl CSVParser {
 /// ## Description
 /// Parse (Geo|S2)JSON from a file that is in the CSV format
 ///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+///
+/// ### File Reader
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader, FileReader},
+///     readers::{CSVReader, CSVReaderOptions},
+/// };
+/// use s2json::{MValue, VectorFeature};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/csv/fixtures/basic.csv");
+///
+/// #[derive(Debug, Default, Clone, PartialEq, MValue, Serialize, Deserialize)]
+/// struct Test {
+///     name: String,
+/// }
+///
+/// let reader = CSVReader::new(FileReader::from(path), None);
+/// let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+/// ```
+///
+/// ### Buffer Reader
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader, BufferReader},
+///     readers::{CSVReader, CSVReaderOptions},
+/// };
+/// use s2json::{MValue, VectorFeature};
+/// use serde::{Deserialize, Serialize};
+///
+/// // Ignore this setup, just ensures a passing test.
+/// use std::path::PathBuf;
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/csv/fixtures/basic.csv");
+/// let data = std::fs::read(path).unwrap();
+///
+/// #[derive(Debug, Default, Clone, PartialEq, MValue, Serialize, Deserialize)]
+/// struct Test {
+///     name: String,
+/// }
+///
+/// let reader = CSVReader::new(BufferReader::from(data), None);
+/// let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+/// ```
+///
 /// ## Links
 /// - https://en.wikipedia.org/wiki/Comma-separated_values
 /// - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
@@ -230,6 +280,29 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, ()>
 /// the delimiter is the character used to separate fields
 /// the line_delimiter is the character used to separate lines
 /// returns an object with key-value pairs whose keys and values are both strings
+///
+/// Example:
+/// ```rust
+/// use gistools::readers::parse_csv_as_record;
+/// use s2json::MValue;
+///
+/// #[derive(Debug, Default, Clone, PartialEq, MValue)]
+/// struct Test {
+///     a: String,
+///     b: String,
+///     c: String,
+/// }
+/// let source = "a,b,c\n1,2,3\n4,5,6";
+/// let res = parse_csv_as_record::<Test>(source, None, None);
+///
+/// assert_eq!(
+///     res,
+///     vec![
+///         Test { a: "1".into(), b: "2".into(), c: "3".into() },
+///         Test { a: "4".into(), b: "5".into(), c: "6".into() },
+///     ]
+/// );
+/// ```
 pub fn parse_csv_as_record<T: MValueCompatible>(
     source: &str,
     delimiter: Option<char>,

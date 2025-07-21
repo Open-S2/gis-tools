@@ -7,8 +7,8 @@ mod tests {
         readers::json::{NewLineDelimitedJSONReader, SequenceJSONReader},
     };
     use s2json::{
-        BBox3D, MValue, MValueCompatible, VectorBaseGeometry, VectorFeature, VectorFeatureType,
-        VectorGeometry, VectorGeometryType, VectorPoint,
+        BBox3D, MValue, MValueCompatible, Properties, VectorBaseGeometry, VectorFeature,
+        VectorFeatureType, VectorGeometry, VectorGeometryType, VectorPoint,
     };
     use serde::{Deserialize, Serialize};
     use std::{path::PathBuf, vec, vec::Vec};
@@ -606,5 +606,16 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn test_json_line_delimited_larger() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/json/fixtures/larger.jsonld");
+
+        let line_del_reader = NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
+        let features: Vec<VectorFeature<(), Properties, MValue>> = line_del_reader.collect();
+
+        assert_eq!(features.len(), 1_064);
     }
 }

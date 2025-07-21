@@ -15,6 +15,25 @@ mod tests {
     use s2json::{GetXY, GetZ, VectorPoint};
     use std::path::PathBuf;
 
+    const _26915: &str = "PROJCRS[\"NAD83 / UTM zone 15N\",BASEGEOGCRS[\"NAD83\",DATUM[\"North \
+                     American Datum 1983\",ELLIPSOID[\"GRS \
+                     1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"\
+                     EPSG\",7019]],ID[\"EPSG\",6269]],ID[\"EPSG\",4269]],CONVERSION[\"UTM zone \
+                     15N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude \
+                     of natural \
+                     origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"\
+                     EPSG\",8801]],PARAMETER[\"Longitude of natural \
+                     origin\",-93,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"\
+                     EPSG\",8802]],PARAMETER[\"Scale factor at natural \
+                     origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],\
+                     PARAMETER[\"False \
+                     easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",\
+                     8806]],PARAMETER[\"False \
+                     northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],\
+                     ID[\"EPSG\",16015]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting \
+                     (E)\",east],AXIS[\"Northing \
+                     (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26915]]";
+
     #[test]
     fn test_laz_reader_v2() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -626,5 +645,155 @@ mod tests {
             .collect();
 
         assert_eq!(features.len(), 110_000);
+    }
+
+    #[test]
+    fn test_laz_reader_1_4_w_evlr() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1_4_w_evlr.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1_000);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_with_color_laz() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2-with-color.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1_065);
+    }
+
+    #[test]
+    fn test_laz_reader_extra_laz() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/extra.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1_065);
+    }
+
+    #[test]
+    fn test_laz_reader_point10_laz() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/point10.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1_065);
+    }
+
+    #[test]
+    fn test_laz_reader_1_1_0() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.1_0.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_1_1() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.1_1.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_1_2() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.1_2.laz");
+
+        let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_6() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_6.laz");
+
+        let las_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions {
+                epsg_codes: BTreeMap::from([("26915".into(), _26915.into())]),
+                dont_transform: false,
+            }),
+        );
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_7() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_6.laz");
+
+        let las_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions {
+                epsg_codes: BTreeMap::from([("26915".into(), _26915.into())]),
+                dont_transform: false,
+            }),
+        );
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_8() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_6.laz");
+
+        let las_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions {
+                epsg_codes: BTreeMap::from([("26915".into(), _26915.into())]),
+                dont_transform: false,
+            }),
+        );
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_9() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_7.laz");
+
+        let las_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions {
+                epsg_codes: BTreeMap::from([("26915".into(), _26915.into())]),
+                dont_transform: false,
+            }),
+        );
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_laz_reader_1_2_10() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_10.laz");
+
+        let las_reader = LAZReader::new(
+            FileReader::from(path.clone()),
+            Some(LASReaderOptions {
+                epsg_codes: BTreeMap::from([("26915".into(), _26915.into())]),
+                dont_transform: false,
+            }),
+        );
+        let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
     }
 }

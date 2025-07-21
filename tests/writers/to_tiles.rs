@@ -71,7 +71,7 @@ mod tests {
         path = path.join("tests/readers/json/fixtures/multipoint.geojson");
 
         let reader: JSONReader<FileReader, (), Props, Props> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
 
         tile_builder.add_vector_source("test".into(), reader, None, None);
         tile_builder.build_tiles();
@@ -253,7 +253,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/all-features.json");
         let reader: JSONReader<FileReader, (), Properties, Properties> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
         tile_builder.add_vector_source("all_features".into(), reader, None, None);
 
         // build
@@ -323,7 +323,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/no_3d.json");
         let reader: JSONReader<FileReader, (), Properties, Properties> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
 
         let on_source: OnFeature<_, _, _> = |feature| Some(feature);
         let on_layers: Vec<LayerHandler<_, _, _>> =

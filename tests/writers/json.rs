@@ -25,8 +25,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/points.geojson");
 
-        let reader: JSONReader<FileReader, (), Props, ()> =
-            JSONReader::new(FileReader::from(path), None);
+        let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
         let mut writer = BufferWriter::default();
 
         // write
@@ -49,8 +48,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/points.geojson");
 
-        let reader: JSONReader<FileReader, (), Props, ()> =
-            JSONReader::new(FileReader::from(path), None);
+        let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
         let mut writer = BufferWriter::default();
 
         // write
@@ -81,8 +79,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/points.geojson");
 
-        let reader: JSONReader<FileReader, (), Props, ()> =
-            JSONReader::new(FileReader::from(path), None);
+        let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
         let mut writer = BufferWriter::default();
 
         // write
@@ -105,8 +102,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path = path.join("tests/writers/fixtures/points.geojson");
 
-        let reader: JSONReader<FileReader, (), Props, ()> =
-            JSONReader::new(FileReader::from(path), None);
+        let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
         let mut writer = BufferWriter::default();
 
         // write

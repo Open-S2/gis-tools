@@ -38,6 +38,27 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 /// GPX (the GPS Exchange Format) is a light-weight XML data format for the interchange of GPS data
 /// (waypoints, routes, and tracks) between applications and Web services on the Internet.
 ///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+///
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader, FileReader},
+///     readers::{GPXReader},
+/// };
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/gpx/fixtures/gpx-test-short.gpx");
+/// let gpx_string = std::fs::read_to_string(path).unwrap();
+///
+/// let gpx_data = GPXReader::new(&gpx_string);
+///
+/// let features: Vec<_> = gpx_data.iter().collect();
+/// assert_eq!(features.len(), 4);
+/// ```
+///
 /// ## Links
 /// https://www.topografix.com/gpx.asp
 #[derive(Debug)]

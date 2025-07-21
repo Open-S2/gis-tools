@@ -29,6 +29,37 @@ struct JSONParser {
     end: Option<usize>,
     is_object: bool,
 }
+impl Default for JSONParser {
+    fn default() -> Self {
+        JSONParser {
+            buffer: vec![],
+            chunk_size: 65_536,
+            offset: 0,
+            pos: 0,
+            brace_depth: 0,
+            feature: vec![],
+            start: None,
+            end: None,
+            is_object: true,
+        }
+    }
+}
+impl JSONParser {
+    /// Reset to the beginning
+    pub fn setup<
+        T: Reader,
+        M: Clone + DeserializeOwned,
+        P: Clone + Default + DeserializeOwned,
+        D: Clone + Default + DeserializeOwned,
+    >(
+        &mut self,
+        reader: &JSONReader<T, M, P, D>,
+    ) {
+        *self = JSONParser::default();
+        self.chunk_size = u64::min(65_536, reader.length - self.offset);
+        self.buffer = reader.reader.slice(Some(0), Some(self.chunk_size)).to_vec();
+    }
+}
 
 /// # JSON Reader
 ///
@@ -54,38 +85,28 @@ impl<
 > JSONReader<T, M, P, D>
 {
     /// Create a new JSONReader
-    pub fn new(reader: T, chunk_size: Option<u64>) -> JSONReader<T, M, P, D> {
+    pub fn new(reader: T) -> JSONReader<T, M, P, D> {
         let length = reader.len();
         let json_reader = JSONReader {
             reader,
             length,
-            parser: RefCell::new(JSONParser {
-                buffer: vec![],
-                chunk_size: chunk_size.unwrap_or(65_536),
-                offset: 0,
-                pos: 0,
-                brace_depth: 0,
-                feature: vec![],
-                start: None,
-                end: None,
-                is_object: true,
-            }),
+            parser: RefCell::new(JSONParser::default()),
             _phantom: PhantomData,
         };
+        json_reader.reset();
 
-        // buffer the first chunk
-        {
-            let mut parser = json_reader.parser.borrow_mut();
-            parser.chunk_size = u64::min(65_536, json_reader.length - parser.offset);
-            parser.buffer = json_reader.reader.slice(Some(0), Some(parser.chunk_size)).to_vec();
-        }
+        json_reader
+    }
+
+    /// Reset to the beginning
+    pub fn reset(&self) {
+        // reset the parser reading in the first chunk
+        self.parser.borrow_mut().setup(self);
         // find out starting position
-        let set = json_reader.set_start_position();
+        let set = self.set_start_position();
         if !set {
             panic!("File is not geojson or s2json");
         }
-
-        json_reader
     }
 
     /// since we know that a '{' is the start of a feature after we read a '"features"',
@@ -202,6 +223,7 @@ impl<
                 parser.chunk_size = u64::min(65_536, self.length - parser.offset);
                 parser.buffer =
                     self.reader.slice(Some(parser.offset), Some(parser.offset + parser.chunk_size));
+                drop(parser);
                 self.next_feature()
             } else {
                 None
@@ -262,6 +284,7 @@ impl<
         D: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
+        self.reset();
         JSONIterator { reader: self }
     }
 

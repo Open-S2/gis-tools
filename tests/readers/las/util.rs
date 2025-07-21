@@ -3,7 +3,7 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::readers::util::{
-        IntoValue64, U32I32F32, U64I64F64, ValueType32, ValueType64, i8_clamp,
+        IntoValue32, IntoValue64, U32I32F32, U64I64F64, ValueType32, ValueType64, i8_clamp,
     };
 
     #[test]
@@ -118,5 +118,29 @@ mod tests {
         assert_eq!(data.f32(), val_f32);
         assert_eq!(data.u32(), val_f32.to_bits());
         assert_eq!(data.i32(), val_f32.to_bits() as i32);
+    }
+
+    #[test]
+    fn u32_into_value32() {
+        let val: u32 = 0xDEADBEEF;
+        assert_eq!(val.into_u32(), val);
+        assert_eq!(val.into_i32(), val as i32);
+        assert_eq!(val.into_f32(), val as f32);
+    }
+
+    #[test]
+    fn i32_into_value32() {
+        let val: i32 = -12345678;
+        assert_eq!(val.into_u32(), val as u32);
+        assert_eq!(val.into_i32(), val);
+        assert_eq!(val.into_f32(), val as f32);
+    }
+
+    #[test]
+    fn f32_into_value32() {
+        let val: f32 = 3.14159;
+        assert_eq!(val.into_u32(), val.to_bits());
+        assert_eq!(val.into_i32(), val.to_bits() as i32);
+        assert_eq!(val.into_f32(), val);
     }
 }

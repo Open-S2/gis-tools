@@ -179,7 +179,7 @@ impl GISReader<BufferReader> {
             ReaderType::GTFS => {
                 GISReader::GTFS(GTFSScheduleReader::from_gzip(&buffer.slice(None, None)).into())
             }
-            ReaderType::JSON => GISReader::JSON(JSONReader::new(buffer, None).into()),
+            ReaderType::JSON => GISReader::JSON(JSONReader::new(buffer).into()),
             ReaderType::JSONLD => {
                 GISReader::JSONLD(NewLineDelimitedJSONReader::new(buffer, None).into())
             }
@@ -249,7 +249,7 @@ impl GISReader<FileReader> {
                 GISReader::GTFS(GTFSScheduleReader::from_gzip(&fs::read(file).unwrap()).into())
             }
             ReaderType::JSON => {
-                GISReader::JSON(JSONReader::new(FileReader::new(file).unwrap(), None).into())
+                GISReader::JSON(JSONReader::new(FileReader::new(file).unwrap()).into())
             }
             ReaderType::JSONLD => GISReader::JSONLD(
                 NewLineDelimitedJSONReader::new(FileReader::new(file).unwrap(), None).into(),

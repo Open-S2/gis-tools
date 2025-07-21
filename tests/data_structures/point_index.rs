@@ -172,7 +172,7 @@ mod tests {
         path = path.join("tests/readers/json/fixtures/multipoint.geojson");
 
         let reader: JSONReader<FileReader, (), Props, Props> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
 
         let mut point_index = LocalPointIndex::new(None, Some(Projection::WG));
         point_index.insert_reader(&reader);
@@ -214,7 +214,7 @@ mod tests {
         path = path.join("tests/readers/json/fixtures/multipoint.geojson");
 
         let reader: JSONReader<FileReader, (), Props, Props> =
-            JSONReader::new(FileReader::from(path), None);
+            JSONReader::new(FileReader::from(path));
 
         let mut point_index = LocalPointIndex::new(None, None);
         point_index.insert_reader(&reader);
