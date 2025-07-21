@@ -26,13 +26,13 @@ jobs:
     - name: Run JavaScript/TypeScript tests
       run: bun run test
 
+    # setup rust
+
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
         override: true
-
-    # setup rust
 
     - name: Install Clippy
       run: rustup component add clippy

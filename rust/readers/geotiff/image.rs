@@ -91,7 +91,7 @@ pub struct SampleFormat {
 }
 
 /// A Container for a GeoTIFF image
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default)]
 pub struct GeoTIFFImage<T: Reader> {
     reader: Rc<RefCell<T>>,
     image_directory: ImageDirectory,

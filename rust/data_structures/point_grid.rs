@@ -143,7 +143,7 @@ impl<
     }
 
     ///  Get the point data as a grid of a tile
-    pub fn get_tile(&self, id: S2CellId) -> Option<TileGrid<V>> {
+    pub fn get_tile(&self, id: S2CellId) -> Option<TileGrid<'_, V>> {
         let Self { layer_name, grid_size, buffer_size, .. } = self;
         let data = self.grid_tile_store.get(id);
 

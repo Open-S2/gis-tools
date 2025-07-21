@@ -324,12 +324,12 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> S2BaseStore<R, K, V>
     }
 
     /// Iterate over the store, one key-value at a time
-    pub fn iter(&mut self) -> Iter<R, K, V> {
+    pub fn iter(&mut self) -> Iter<'_, R, K, V> {
         Iter { container: self, index: 0 }
     }
 
     /// Iterate over the store but group all values related to a key
-    pub fn iter_multi(&mut self) -> IterMulti<R, K, V> {
+    pub fn iter_multi(&mut self) -> IterMulti<'_, R, K, V> {
         IterMulti { container: self, index: 0 }
     }
 }
