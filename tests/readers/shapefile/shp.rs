@@ -7,7 +7,7 @@ mod tests {
     use alloc::string::String;
     use gistools::{
         parsers::{FeatureReader, FileReader},
-        readers::{DataBaseFile, SHPHeader, ShapeFileReader},
+        readers::{DataBaseFile, GISReader, ReaderType, SHPHeader, ShapeFileReader},
     };
     use s2json::{
         BBox3D, MValue, MValueCompatible, VectorFeature, VectorFeatureType, VectorGeometry,
@@ -51,7 +51,11 @@ mod tests {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(1),
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.6328125, 41.244772343082076, Some(())),
+                        VectorPoint::new_xy(
+                            -108.6328125,
+                            41.244772343082076,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()
@@ -60,7 +64,11 @@ mod tests {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(2),
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.97956848144531, 41.253032440653186, Some(())),
+                        VectorPoint::new_xy(
+                            -108.97956848144531,
+                            41.253032440653186,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()
@@ -119,7 +127,11 @@ mod tests {
                     id: Some(1),
                     properties: FieldStruct::new("💩".into()),
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.6328125, 41.244772343082076, Some(())),
+                        VectorPoint::new_xy(
+                            -108.6328125,
+                            41.244772343082076,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()
@@ -129,7 +141,11 @@ mod tests {
                     id: Some(2),
                     properties: FieldStruct::new("Hněvošický háj".into()),
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.97956848144531, 41.253032440653186, Some(())),
+                        VectorPoint::new_xy(
+                            -108.97956848144531,
+                            41.253032440653186,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()
@@ -168,14 +184,14 @@ mod tests {
                 geometry: VectorGeometry::new_multilinestring(
                     vec![
                         vec![
-                            VectorPoint::new_xyz(-120., 45., 800., Some(())),
-                            VectorPoint::new_xyz(-119., 44., 1100., Some(())),
-                            VectorPoint::new_xyz(-118., 43., 2300., Some(())),
+                            VectorPoint::new_xyz(-120., 45., 800., Some(MValue::default())),
+                            VectorPoint::new_xyz(-119., 44., 1100., Some(MValue::default())),
+                            VectorPoint::new_xyz(-118., 43., 2300., Some(MValue::default())),
                         ],
                         vec![
-                            VectorPoint::new_xyz(-115., 40., 0., Some(())),
-                            VectorPoint::new_xyz(-114., 39., 0., Some(())),
-                            VectorPoint::new_xyz(-113., 38., 0., Some(())),
+                            VectorPoint::new_xyz(-115., 40., 0., Some(MValue::default())),
+                            VectorPoint::new_xyz(-114., 39., 0., Some(MValue::default())),
+                            VectorPoint::new_xyz(-113., 38., 0., Some(MValue::default())),
                         ],
                     ],
                     Some(BBox3D::new(-120., 38., -113., 45., 0., 2300.)),
@@ -223,5 +239,24 @@ mod tests {
                 ..Default::default()
             }]
         )
+    }
+
+    #[test]
+    fn test_shapefile_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/utf.shp");
+        let gis_reader = GISReader::from_path(path, None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::Shapefile);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 2);
+
+        // buffer
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/shapefile/fixtures/utf.zip");
+        let bytes = std::fs::read(path).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::Shapefile, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 2);
     }
 }

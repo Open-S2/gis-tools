@@ -5,7 +5,7 @@ mod tests {
     use gistools::{
         parsers::{FeatureReader, FileReader},
         readers::{
-            OSMLocalReader, OSMReaderOptions,
+            GISReader, OSMLocalReader, OSMReaderOptions, ReaderType,
             filter::{OSMTagFilter, OSMTagFilterType},
             header_block::OSMHeader,
             info::InfoBlock,
@@ -553,5 +553,22 @@ mod tests {
 
         let mut osm = OSMLocalReader::new(reader, None);
         osm.parse_blocks();
+    }
+
+    #[test]
+    fn test_osm_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/osm/fixtures/test.pbf");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::OSM);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 8);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::OSM, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 8);
     }
 }

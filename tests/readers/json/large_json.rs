@@ -4,7 +4,7 @@
 mod tests {
     use gistools::{
         parsers::{FeatureReader, FileReader},
-        readers::json::JSONReader,
+        readers::{GISReader, ReaderType, json::JSONReader},
     };
     use s2json::{
         BBox3D, MValue, MValueCompatible, Properties, VectorBaseGeometry, VectorFeature,
@@ -330,5 +330,22 @@ mod tests {
         let features: Vec<VectorFeature<(), Properties, MValue>> = line_del_reader.collect();
 
         assert_eq!(features.len(), 1_064);
+    }
+
+    #[test]
+    fn test_json_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/json/fixtures/points.geojson");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::JSON);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 3);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::JSON, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 3);
     }
 }

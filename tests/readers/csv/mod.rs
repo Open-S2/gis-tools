@@ -4,10 +4,12 @@
 mod tests {
     use gistools::{
         parsers::{FeatureReader, FileReader},
-        readers::{CSVReader, CSVReaderOptions, parse_csv_as_record, parse_csv_line},
+        readers::{
+            CSVReader, CSVReaderOptions, GISReader, ReaderType, parse_csv_as_record, parse_csv_line,
+        },
     };
     use s2json::{
-        MValue, MValueCompatible, VectorBaseGeometry, VectorFeature, VectorFeatureType,
+        MValue, MValueCompatible, Properties, VectorBaseGeometry, VectorFeature, VectorFeatureType,
         VectorGeometry, VectorGeometryType, VectorPoint,
     };
     use serde::{Deserialize, Serialize};
@@ -84,7 +86,7 @@ mod tests {
 
         let reader = CSVReader::new(FileReader::from(path), None);
 
-        let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = reader.iter().collect();
 
         assert_eq!(
             features,
@@ -126,7 +128,7 @@ mod tests {
             ]
         );
 
-        let features: Vec<VectorFeature<(), Test, ()>> = reader.par_iter(1, 1).collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = reader.par_iter(1, 1).collect();
 
         assert_eq!(
             features,
@@ -190,7 +192,7 @@ mod tests {
             }),
         );
 
-        let features: Vec<VectorFeature<(), Test, ()>> = reader.collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = reader.collect();
 
         assert_eq!(
             features,
@@ -233,6 +235,110 @@ mod tests {
                             m: None,
                             t: None
                         },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_csv_reader_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/csv/fixtures/basic.csv");
+
+        let reader = GISReader::from_path(path, None, None);
+        assert_eq!(reader.get_type(), ReaderType::CSV);
+
+        let features: Vec<VectorFeature<(), Properties, MValue>> = reader.iter().collect();
+
+        assert_eq!(
+            features,
+            vec![
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    // properties: Test { name: "3".into() },
+                    properties: Properties::from([("name".into(), "3".into())]),
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 2.0, y: 1.0, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    // properties: Test { name: "a".into() },
+                    properties: Properties::from([("name".into(), "a".into())]),
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 1.1, y: 3.2, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                }
+            ]
+        );
+
+        // buffer
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/csv/fixtures/basic.csv");
+        let bytes = std::fs::read(path.clone()).unwrap();
+
+        let reader = GISReader::from_buffer(bytes, ReaderType::CSV, None);
+        let features: Vec<VectorFeature<(), Properties, MValue>> = reader.par_iter(1, 0).collect();
+
+        assert_eq!(
+            features,
+            vec![
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    // properties: Test { name: "3".into() },
+                    properties: Properties::from([("name".into(), "3".into())]),
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 2.0, y: 1.0, z: None, m: None, t: None },
+                        offset: None,
+                        bbox: None,
+                        vec_bbox: None,
+                        indices: None,
+                        tessellation: None
+                    }),
+                    metadata: None
+                },
+                VectorFeature {
+                    _type: VectorFeatureType::VectorFeature,
+                    id: None,
+                    face: 0.into(),
+                    // properties: Test { name: "a".into() },
+                    properties: Properties::from([("name".into(), "a".into())]),
+                    geometry: VectorGeometry::Point(VectorBaseGeometry {
+                        _type: VectorGeometryType::Point,
+                        is_3d: false,
+                        coordinates: VectorPoint { x: 1.1, y: 3.2, z: None, m: None, t: None },
                         offset: None,
                         bbox: None,
                         vec_bbox: None,

@@ -8,7 +8,9 @@ use super::{
 use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
-use s2json::{BBox3D, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorPoint};
+use s2json::{
+    BBox3D, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorPoint,
+};
 use serde::{Deserialize, Serialize};
 
 /// Intermediate node
@@ -17,7 +19,7 @@ pub struct IntermediateNode {
     /// The node id
     pub id: u64,
     /// The nodes longitude
-    pub point: VectorPoint<()>,
+    pub point: VectorPoint<MValue>,
     /// The key-value pairs of the node
     pub properties: Properties,
     /// The node metadata
@@ -25,7 +27,10 @@ pub struct IntermediateNode {
 }
 impl IntermediateNode {
     /// Convert the node to a vector feature
-    pub fn to_vector_feature(&self, add_bbox: bool) -> VectorFeature<OSMMetadata, Properties, ()> {
+    pub fn to_vector_feature(
+        &self,
+        add_bbox: bool,
+    ) -> VectorFeature<OSMMetadata, Properties, MValue> {
         let coordinates = self.point.clone();
         let bbox = if add_bbox { Some(BBox3D::from_point(&coordinates)) } else { None };
         VectorFeature {
@@ -64,7 +69,7 @@ pub struct Node {
 impl OSMFilterable for Node {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -110,7 +115,7 @@ impl Node {
     }
 
     /// Gain access to the nodes geometry
-    pub fn to_vector_geometry(&self, pb: &PrimitiveBlock) -> VectorPoint<()> {
+    pub fn to_vector_geometry(&self, pb: &PrimitiveBlock) -> VectorPoint<MValue> {
         let (lon, lat) = self.get_lon_lat(pb);
         let z = get_elevation(&self.properties(pb));
         VectorPoint::new(lon, lat, z, None)

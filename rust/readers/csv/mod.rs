@@ -80,7 +80,7 @@ impl CSVParser {
 /// }
 ///
 /// let reader = CSVReader::new(FileReader::from(path), None);
-/// let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+/// let features: Vec<VectorFeature<(), Test, MValue>> = reader.iter().collect();
 /// ```
 ///
 /// ### Buffer Reader
@@ -104,7 +104,7 @@ impl CSVParser {
 /// }
 ///
 /// let reader = CSVReader::new(BufferReader::from(data), None);
-/// let features: Vec<VectorFeature<(), Test, ()>> = reader.iter().collect();
+/// let features: Vec<VectorFeature<(), Test, MValue>> = reader.iter().collect();
 /// ```
 ///
 /// ## Links
@@ -139,7 +139,7 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
     }
 
     /// Grab the next feature if it exists
-    pub fn next_feature(&self) -> Option<VectorFeature<(), P, ()>> {
+    pub fn next_feature(&self) -> Option<VectorFeature<(), P, MValue>> {
         let mut parser = self.parser.borrow_mut();
         // Keep returning from the queue if there's data
         while let Some(line) = parser.parsed_lines.pop_front() {
@@ -201,11 +201,11 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
 
     /// given a line, parse the values mapped to the first lines fields
     /// returns a GeoJSON Vector Feature
-    fn parse_line(&self, line: &str, fields: &[String]) -> VectorFeature<(), P, ()> {
+    fn parse_line(&self, line: &str, fields: &[String]) -> VectorFeature<(), P, MValue> {
         let values: Vec<String> =
             line.split(self.delimiter).map(|v| v.trim().to_string()).collect();
         let mut properties = Properties::new();
-        let mut coordinates: VectorPoint<()> = VectorPoint::default();
+        let mut coordinates: VectorPoint<MValue> = VectorPoint::default();
 
         for (value, field) in values.iter().zip(fields.iter()) {
             if field.is_empty() || value.is_empty() {
@@ -236,25 +236,25 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
     }
 }
 impl<T: Reader, P: MValueCompatible + DeserializeOwned> Iterator for CSVReader<T, P> {
-    type Item = VectorFeature<(), P, ()>;
+    type Item = VectorFeature<(), P, MValue>;
     fn next(&mut self) -> Option<Self::Item> {
         self.next_feature()
     }
 }
 /// The CSV Iterator tool
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CSVIterator<'a, T: Reader, P: MValueCompatible + DeserializeOwned> {
     reader: &'a CSVReader<T, P>,
 }
 impl<T: Reader, P: MValueCompatible + DeserializeOwned> Iterator for CSVIterator<'_, T, P> {
-    type Item = VectorFeature<(), P, ()>;
+    type Item = VectorFeature<(), P, MValue>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.reader.next_feature()
     }
 }
 /// A feature reader trait with a callback-based approach
-impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, ()>
+impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, MValue>
     for CSVReader<T, P>
 {
     type FeatureIterator<'a>

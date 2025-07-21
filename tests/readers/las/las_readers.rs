@@ -8,7 +8,8 @@ mod tests {
     use gistools::{
         parsers::{FeatureReader, FileReader, RGBA},
         readers::{
-            LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReader, LASReaderOptions,
+            GISReader, LASExtendedVariableLengthRecord, LASHeader, LASPoint, LASReader,
+            LASReaderOptions, ReaderType,
         },
     };
     use s2json::VectorPoint;
@@ -492,6 +493,31 @@ mod tests {
             }),
         );
         let features = las_reader.iter().collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_las_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/las/fixtures/1.2_10.las");
+        let gis_reader = GISReader::from_path(
+            path.clone(),
+            None,
+            Some(BTreeMap::from([("26915".into(), _26915.into())])),
+        );
+        assert_eq!(gis_reader.get_type(), ReaderType::LAS);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 1);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(
+            bytes,
+            ReaderType::LAS,
+            Some(BTreeMap::from([("26915".into(), _26915.into())])),
+        );
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
         assert_eq!(features.len(), 1);
     }
 }

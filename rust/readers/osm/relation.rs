@@ -9,7 +9,7 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{BitCast, ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorLineString,
+    BBox3D, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorLineString,
     VectorMultiLineString, VectorMultiPolygon, VectorPoint, VectorPolygon,
 };
 use serde::{Deserialize, Serialize};
@@ -53,12 +53,12 @@ pub struct IntermediateRelation {
 }
 impl IntermediateRelation {
     /// Convert the node to a vector feature
-    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<()>>, _W: KVStore<u64, WayNodes>>(
+    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<MValue>>, _W: KVStore<u64, WayNodes>>(
         &self,
         node_geometry: &_N,
         way_geometry: &_W,
         add_bbox: bool,
-    ) -> Option<VectorFeature<OSMMetadata, Properties, ()>> {
+    ) -> Option<VectorFeature<OSMMetadata, Properties, MValue>> {
         let mut bbox = BBox3D::default();
         let IntermediateRelation { id, members, properties, info } = &self;
         let i_nodes: Vec<IntermediateNodeMember> = members
@@ -84,7 +84,7 @@ impl IntermediateRelation {
         for IntermediateWayMember { role, way_id } in &i_ways {
             let w = way_geometry.get(*way_id);
             if let Some(w) = w {
-                let mut mapped_w: VectorLineString<()> = vec![];
+                let mut mapped_w: VectorLineString<MValue> = vec![];
                 for node_id in w {
                     let n = node_geometry.get(*node_id);
                     if let Some(n) = n {
@@ -102,7 +102,7 @@ impl IntermediateRelation {
 
         let mut relation_geo = geo.unwrap();
         let bbox = if add_bbox { Some(bbox) } else { None };
-        let geometry: VectorGeometry<()> = match &mut relation_geo {
+        let geometry: VectorGeometry<MValue> = match &mut relation_geo {
             RelationGeometry::Lines(lines) => {
                 if lines.len() == 1 {
                     VectorGeometry::new_linestring(core::mem::take(&mut lines[0]), bbox)
@@ -150,7 +150,7 @@ pub struct NodeMember {
     /// The role of the node relative to the relation
     pub role: String,
     /// The node geometry
-    pub node: VectorPoint<()>,
+    pub node: VectorPoint<MValue>,
 }
 /// Way Member
 #[derive(Debug)]
@@ -160,16 +160,16 @@ pub struct WayMember {
     /// The role of the way relative to the relation
     pub role: String,
     /// The way geometry
-    pub way: VectorLineString<()>,
+    pub way: VectorLineString<MValue>,
 }
 
 /// Relation coordinates from ways with information about node relations.
 #[derive(Debug)]
 pub enum RelationGeometry {
     /// Lines
-    Lines(VectorMultiLineString<()>),
+    Lines(VectorMultiLineString<MValue>),
     /// Area
-    Area(VectorMultiPolygon<()>),
+    Area(VectorMultiPolygon<MValue>),
 }
 
 /// The expected metadata in the VectorFeature for all types (node, way, relation)
@@ -258,7 +258,7 @@ impl Relation {
 impl OSMFilterable for Relation {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -309,9 +309,9 @@ impl ProtoRead for Relation {
 /// If the ways include an 'outer' or 'inner', then we know its an area, otherwise its a line.
 fn build_geometry(ways: &mut [WayMember]) -> Option<RelationGeometry> {
     // prep variables
-    let mut polygons: VectorMultiPolygon<()> = vec![];
-    let mut current_polygon: VectorPolygon<()> = vec![];
-    let mut current_ring: VectorLineString<()> = vec![];
+    let mut polygons: VectorMultiPolygon<MValue> = vec![];
+    let mut current_polygon: VectorPolygon<MValue> = vec![];
+    let mut current_ring: VectorLineString<MValue> = vec![];
     let is_area = ways.iter().any(|m| m.role == "outer" || m.role == "inner");
 
     // prepare step: members are stored out of order

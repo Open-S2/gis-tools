@@ -8,8 +8,8 @@ mod tests {
     use gistools::{
         parsers::{BufferReader, FeatureReader, FileReader},
         readers::{
-            CDFDataType, CDFDimension, CDFRecordDimension, CDFValue, CDFVariable, NetCDFReader,
-            NetCDFReaderOptions, netcdf_type_to_bytes,
+            CDFDataType, CDFDimension, CDFRecordDimension, CDFValue, CDFVariable, GISReader,
+            NetCDFReader, NetCDFReaderOptions, ReaderType, netcdf_type_to_bytes,
         },
     };
     use s2json::{GetXY, VectorPoint};
@@ -207,6 +207,23 @@ mod tests {
         let netcdf_reader = NetCDFReader::new(FileReader::from(path.clone()), None);
 
         let features: Vec<_> = netcdf_reader.iter().collect();
+        assert_eq!(features.len(), 0);
+    }
+
+    #[test]
+    fn test_netcdf_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/netcdf/fixtures/agilent_hplc.cdf");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::NetCDF);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 0);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::NetCDF, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
         assert_eq!(features.len(), 0);
     }
 }

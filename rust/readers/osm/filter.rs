@@ -7,14 +7,14 @@ use super::{
 };
 use crate::{data_store::KVStore, parsers::Reader};
 use alloc::{collections::BTreeMap, string::String};
-use s2json::VectorPoint;
+use s2json::{MValue, VectorPoint};
 
 /// OSM Filterable is a trait to ensure that an object can be filtered
 pub trait OSMFilterable {
     /// Check if the object is filterable
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,

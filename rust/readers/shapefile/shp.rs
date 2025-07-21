@@ -6,7 +6,7 @@ use crate::{
 use alloc::{vec, vec::Vec};
 use core::marker::PhantomData;
 use s2json::{
-    BBox3D, MValueCompatible, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
+    BBox3D, MValue, MValueCompatible, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
     VectorGeometryType, VectorLineString, VectorMultiLineString, VectorMultiPoint,
     VectorMultiPointGeometry, VectorPoint, VectorPointGeometry,
 };
@@ -46,7 +46,7 @@ pub struct ShapeFileReader<T: Reader, P: MValueCompatible = Properties> {
     dbf: Option<DataBaseFile<T, P>>, // Use the same lifetime for dbf
     transform: Option<Transformer>,
     row_offsets: Vec<u64>,
-    _phantom: PhantomData<VectorFeature<(), P, ()>>,
+    _phantom: PhantomData<VectorFeature<(), P, MValue>>,
 }
 impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
     /// Create a new Shapefile Reader
@@ -115,7 +115,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         res
     }
 
-    fn parse_row(&self, index: usize) -> Option<VectorFeature<(), P, ()>> {
+    fn parse_row(&self, index: usize) -> Option<VectorFeature<(), P, MValue>> {
         if index >= self.row_offsets.len() {
             return None;
         }
@@ -155,7 +155,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         })
     }
 
-    fn parse_geometry(&self, _type: i32, data: &[u8]) -> Option<VectorGeometry<()>> {
+    fn parse_geometry(&self, _type: i32, data: &[u8]) -> Option<VectorGeometry<MValue>> {
         let reader: BufferReader = data.into();
         let is_3d = _type == 11 || _type == 13 || _type == 15 || _type == 18;
         if _type == 1 || _type == 11 {
@@ -181,7 +181,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         data: &BufferReader,
         offset: u64,
         offset_3d: Option<u64>,
-    ) -> VectorPoint<()> {
+    ) -> VectorPoint<MValue> {
         let mut z: Option<f64> = None;
         if let Some(offset) = offset_3d {
             z = Some(data.f64_le(Some(offset)));
@@ -195,7 +195,11 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         point
     }
 
-    fn parse_multi_point(&self, data: &BufferReader, is_3d: bool) -> Option<VectorGeometry<()>> {
+    fn parse_multi_point(
+        &self,
+        data: &BufferReader,
+        is_3d: bool,
+    ) -> Option<VectorGeometry<MValue>> {
         let num_points = data.int32_le(Some(32)) as u64;
         if num_points == 0 {
             return None;
@@ -213,7 +217,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
             z_offset += 16;
         }
 
-        let mut coordinates: VectorMultiPoint<()> = vec![];
+        let mut coordinates: VectorMultiPoint<MValue> = vec![];
         let mut index = 0;
         while index < num_points {
             let point = self.parse_point(data, offset, if is_3d { Some(z_offset) } else { None });
@@ -250,7 +254,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         data: &BufferReader,
         is_poly: bool,
         is_3d: bool,
-    ) -> Option<VectorGeometry<()>> {
+    ) -> Option<VectorGeometry<MValue>> {
         let num_parts = data.int32_le(Some(32)) as u64; // The number of rings in the polygon.
         let num_points = data.int32_le(Some(36)) as u64; // the total number of points in the polygon.
         if num_points == 0 || num_parts == 0 {
@@ -280,11 +284,11 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
 
         // build coordinates
         let mut index = 0;
-        let mut coordinates: VectorMultiLineString<()> = vec![];
+        let mut coordinates: VectorMultiLineString<MValue> = vec![];
         for i in 0..num_parts {
             let part_end = parts.get(i as usize + 1).unwrap_or(&num_points);
             // build a line for part
-            let mut line: VectorLineString<()> = vec![];
+            let mut line: VectorLineString<MValue> = vec![];
             while index < *part_end {
                 let point =
                     self.parse_point(data, offset, if is_3d { Some(z_offset) } else { None });
@@ -321,7 +325,7 @@ pub struct ShapefileIterator<'a, T: Reader, P: MValueCompatible> {
     stride: usize,
 }
 impl<T: Reader, P: MValueCompatible> Iterator for ShapefileIterator<'_, T, P> {
-    type Item = VectorFeature<(), P, ()>;
+    type Item = VectorFeature<(), P, MValue>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(feature) = self.reader.parse_row(self.index) {
@@ -332,7 +336,7 @@ impl<T: Reader, P: MValueCompatible> Iterator for ShapefileIterator<'_, T, P> {
     }
 }
 /// A feature reader trait with a callback-based approach
-impl<T: Reader, P: MValueCompatible> FeatureReader<(), P, ()> for ShapeFileReader<T, P> {
+impl<T: Reader, P: MValueCompatible> FeatureReader<(), P, MValue> for ShapeFileReader<T, P> {
     type FeatureIterator<'a>
         = ShapefileIterator<'a, T, P>
     where

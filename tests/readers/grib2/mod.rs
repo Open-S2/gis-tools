@@ -6,8 +6,8 @@ mod tests {
 
     use alloc::{vec, vec::Vec};
     use gistools::{
-        parsers::BufferReader,
-        readers::{GRIB2Reader, Grib2SectionLocations, parse_idx},
+        parsers::{BufferReader, FeatureReader},
+        readers::{GISReader, GRIB2Reader, Grib2SectionLocations, ReaderType, parse_idx},
     };
     use s2json::VectorPoint;
     use std::{
@@ -109,5 +109,22 @@ mod tests {
                 .unwrap();
             assert_eq!(m_value, expected_points[i].m.unwrap());
         }
+    }
+
+    #[test]
+    fn test_grib2_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/ref_simple_packing.grib2");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::GRIB2);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 1);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::GRIB2, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 1);
     }
 }

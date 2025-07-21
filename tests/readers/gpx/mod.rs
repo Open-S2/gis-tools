@@ -6,10 +6,14 @@ mod spec;
 mod tests {
     extern crate alloc;
 
+    use std::path::PathBuf;
+
     use alloc::vec;
     use gistools::{
         parsers::FeatureReader,
-        readers::{GPXFixType, GPXMetadata, GPXProperties, GPXReader, GPXWaypoint},
+        readers::{
+            GISReader, GPXFixType, GPXMetadata, GPXProperties, GPXReader, GPXWaypoint, ReaderType,
+        },
     };
     use s2json::{
         VectorBaseGeometry, VectorFeature, VectorFeatureType, VectorGeometry, VectorGeometryType,
@@ -275,5 +279,24 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn test_gpx_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gpx/fixtures/gpx-test-short.gpx");
+        let reader = GISReader::from_path(path, None, None);
+        assert_eq!(reader.get_type(), ReaderType::GPX);
+        let grid: Vec<_> = reader.iter().collect();
+        assert_eq!(grid.len(), 4);
+
+        // buffer
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gpx/fixtures/gpx-test-short.gpx");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gpx = GISReader::from_buffer(bytes, ReaderType::GPX, None);
+        let grid: Vec<_> = gpx.par_iter(1, 0).collect();
+        assert_eq!(grid.len(), 4);
     }
 }

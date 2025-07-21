@@ -21,13 +21,14 @@ use crate::{
 };
 use alloc::{boxed::Box, vec::Vec};
 use blob::{Blob, BlobHeader};
+use core::fmt::Debug;
 use filter::*;
 use header_block::{HeaderBlock, OSMHeader};
 use node::IntermediateNode;
 use pbf::Protobuf;
 use primitive::{OSMMetadata, PrimitiveBlock};
 use relation::IntermediateRelation;
-use s2json::{Properties, VectorFeature, VectorPoint};
+use s2json::{MValue, Properties, VectorFeature, VectorPoint};
 use way::{IntermediateWay, WayNodes};
 
 // TODO: Add threads for reading the blocks
@@ -69,7 +70,17 @@ impl Default for OSMReaderOptions {
 /// OSM File Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
 pub type OSMFileReader<T> = OSMReader<
     T,
-    FileKV<u64, VectorPoint<()>>,
+    FileKV<u64, VectorPoint<MValue>>,
+    FileKV<u64, IntermediateNode>,
+    FileKV<u64, WayNodes>,
+    FileKV<u64, IntermediateWay>,
+    FileKV<u64, IntermediateRelation>,
+>;
+/// OSM File Reader Iterator
+pub type OSMFileReaderIter<'a, T> = OsmReaderIter<
+    'a,
+    T,
+    FileKV<u64, VectorPoint<MValue>>,
     FileKV<u64, IntermediateNode>,
     FileKV<u64, WayNodes>,
     FileKV<u64, IntermediateWay>,
@@ -79,7 +90,17 @@ pub type OSMFileReader<T> = OSMReader<
 /// OSM Buffer Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
 pub type OSMLocalReader<T> = OSMReader<
     T,
-    KV<u64, VectorPoint<()>>,
+    KV<u64, VectorPoint<MValue>>,
+    KV<u64, IntermediateNode>,
+    KV<u64, WayNodes>,
+    KV<u64, IntermediateWay>,
+    KV<u64, IntermediateRelation>,
+>;
+/// OSM Buffer Reader Iterator
+pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
+    'a,
+    T,
+    KV<u64, VectorPoint<MValue>>,
     KV<u64, IntermediateNode>,
     KV<u64, WayNodes>,
     KV<u64, IntermediateWay>,
@@ -93,7 +114,7 @@ pub type OSMLocalReader<T> = OSMReader<
 #[derive(Debug, Clone)]
 pub struct OSMReader<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<()>> = KV<u64, VectorPoint<()>>,
+    _N: KVStore<u64, VectorPoint<MValue>> = KV<u64, VectorPoint<MValue>>,
     N: KVStore<u64, IntermediateNode> = KV<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes> = KV<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay> = KV<u64, IntermediateWay>,
@@ -134,7 +155,7 @@ pub struct OSMReader<
 }
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<()>>,
+    _N: KVStore<u64, VectorPoint<MValue>>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -292,7 +313,7 @@ impl<
         &mut self,
         pool_size: usize,
         thread_id: usize,
-        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, ()>),
+        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, MValue>),
     ) {
         if pool_size == 0 || thread_id > pool_size {
             panic!("pool_size must be > 0 and thread_id must be <= pool_size");
@@ -316,7 +337,7 @@ impl<
     /// Prep data in memory
     pub fn parse_node_blocks(
         &mut self,
-        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, ()>),
+        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, MValue>),
     ) {
         self._offset = 0;
         // skip the header
@@ -329,7 +350,7 @@ impl<
     fn parse_node_block(
         &mut self,
         block: PrimitiveBlock,
-        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, ()>),
+        cb: &mut dyn FnMut(VectorFeature<OSMMetadata, Properties, MValue>),
     ) {
         for group in &block.primitive_groups {
             for node in &group.nodes {
@@ -355,7 +376,7 @@ impl<
 pub struct OsmReaderIter<
     'a,
     T: Reader,
-    _N: KVStore<u64, VectorPoint<()>>,
+    _N: KVStore<u64, VectorPoint<MValue>>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -366,17 +387,31 @@ pub struct OsmReaderIter<
     way_iter: Box<dyn Iterator<Item = (&'a u64, &'a IntermediateWay)> + 'a>,
     relation_iter: Box<dyn Iterator<Item = (&'a u64, &'a IntermediateRelation)> + 'a>,
 }
+impl<
+    'a,
+    T: Reader,
+    _N: KVStore<u64, VectorPoint<MValue>>,
+    N: KVStore<u64, IntermediateNode>,
+    _W: KVStore<u64, WayNodes>,
+    W: KVStore<u64, IntermediateWay>,
+    R: KVStore<u64, IntermediateRelation>,
+> Debug for OsmReaderIter<'a, T, _N, N, _W, W, R>
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "OsmReaderIter")
+    }
+}
 
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<()>>,
+    _N: KVStore<u64, VectorPoint<MValue>>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
     R: KVStore<u64, IntermediateRelation>,
 > Iterator for OsmReaderIter<'_, T, _N, N, _W, W, R>
 {
-    type Item = VectorFeature<OSMMetadata, Properties, ()>;
+    type Item = VectorFeature<OSMMetadata, Properties, MValue>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let node_geometry = &self.reader.node_geometry;
@@ -395,12 +430,12 @@ impl<
 }
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<()>>,
+    _N: KVStore<u64, VectorPoint<MValue>>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
     R: KVStore<u64, IntermediateRelation>,
-> FeatureReader<OSMMetadata, Properties, ()> for OSMReader<T, _N, N, _W, W, R>
+> FeatureReader<OSMMetadata, Properties, MValue> for OSMReader<T, _N, N, _W, W, R>
 {
     type FeatureIterator<'a>
         = OsmReaderIter<'a, T, _N, N, _W, W, R>

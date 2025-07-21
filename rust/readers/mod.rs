@@ -29,7 +29,7 @@ pub mod wkt;
 
 #[cfg(feature = "std")]
 use crate::parsers::FileReader;
-use crate::parsers::{BufferReader, Reader};
+use crate::parsers::{BufferReader, FeatureReader, Reader};
 use alloc::{boxed::Box, collections::BTreeMap, string::String, vec, vec::Vec};
 use core::fmt::Debug;
 pub use csv::*;
@@ -44,7 +44,7 @@ pub use nadgrid::*;
 pub use netcdf::*;
 pub use osm::*;
 pub use pmtiles::*;
-use s2json::{MValue, Properties};
+use s2json::{MValue, Properties, VectorFeature};
 use serde::{Deserialize, Serialize};
 pub use shapefile::*;
 #[cfg(feature = "std")]
@@ -101,18 +101,18 @@ impl From<&str> for ReaderType {
             "jsonld" | "geojsonld" | "s2jsonld" | "json-ld" | "geojson-ld" | "s2json-ld" => {
                 ReaderType::JSONLD
             }
-            "jsonsq" | "geojsonsq" | "s2jsonsq" | "json-sq" | "geojson-sq" | "s2json-sq" => {
+            "jsonsq" | "geojsonseq" | "geojsonsq" | "s2jsonseq" | "s2jsonsq" | "json-seq"
+            | "json-sq" | "geojson-seq" | "geojson-sq" | "s2json-seq" | "s2json-sq" => {
                 ReaderType::JSONSQ
             }
             "las" => ReaderType::LAS,
             "laz" => ReaderType::LAZ,
-            "nadgrid" => ReaderType::NADGrid,
+            "nadgrid" | "nad" | "gsb" => ReaderType::NADGrid,
             "netcdf" | "nc4" | "cdf" | "nc" => ReaderType::NetCDF,
-            "osm" => ReaderType::OSM,
+            "osm" | "pbf" => ReaderType::OSM,
             "shapefile" | "shp" | "zip" => ReaderType::Shapefile,
-            "tile" => ReaderType::Tile,
             "wkt" => ReaderType::WKT,
-            _ => ReaderType::CSV,
+            _ => ReaderType::Tile,
         }
     }
 }
@@ -152,6 +152,29 @@ pub enum GISReader<T: Reader + Debug> {
     // Tile(Box<TileReader<P, D>>),
     /// WKT
     WKT(Box<WKTGeometryReader>),
+}
+impl<T: Reader + Debug> GISReader<T> {
+    /// Get the type of the reader
+    pub fn get_type(&self) -> ReaderType {
+        match self {
+            GISReader::CSV(_) => ReaderType::CSV,
+            GISReader::GeoTIFF(_) => ReaderType::GeoTIFF,
+            GISReader::GPX(_) => ReaderType::GPX,
+            GISReader::GRIB2(_) => ReaderType::GRIB2,
+            GISReader::GTFS(_) => ReaderType::GTFS,
+            GISReader::JSON(_) => ReaderType::JSON,
+            GISReader::JSONLD(_) => ReaderType::JSONLD,
+            GISReader::JSONSQ(_) => ReaderType::JSONSQ,
+            GISReader::LAS(_) => ReaderType::LAS,
+            GISReader::LAZ(_) => ReaderType::LAZ,
+            GISReader::NADGrid(_) => ReaderType::NADGrid,
+            GISReader::NetCDF(_) => ReaderType::NetCDF,
+            GISReader::OSM(_) => ReaderType::OSM,
+            GISReader::Shapefile(_) => ReaderType::Shapefile,
+            // GISReader::Tile(_) => ReaderType::Tile,
+            GISReader::WKT(_) => ReaderType::WKT,
+        }
+    }
 }
 impl GISReader<BufferReader> {
     /// Given a file and a file type, return a reader
@@ -198,8 +221,15 @@ impl GISReader<BufferReader> {
                 )
                 .into(),
             ),
+            ReaderType::NADGrid => {
+                GISReader::NADGrid(NadGridReader::new("default".into(), buffer).into())
+            }
             ReaderType::NetCDF => GISReader::NetCDF(NetCDFReader::new(buffer, None).into()),
-            ReaderType::OSM => GISReader::OSM(OSMLocalReader::new(buffer, None).into()),
+            ReaderType::OSM => {
+                let mut osm = OSMLocalReader::new(buffer, None);
+                osm.parse_blocks();
+                GISReader::OSM(osm.into())
+            }
             ReaderType::Shapefile => GISReader::Shapefile(
                 shapefile_from_gzip(&buffer.slice(None, None), epsg_codes).into(),
             ),
@@ -219,6 +249,7 @@ impl GISReader<FileReader> {
     #[cfg(feature = "std")]
     pub fn from_path<P: AsRef<Path>>(
         file: P,
+        file_type: Option<ReaderType>,
         epsg_codes: Option<BTreeMap<String, String>>,
     ) -> GISReader<FileReader> {
         use crate::readers::file::shapefile_from_path;
@@ -226,7 +257,7 @@ impl GISReader<FileReader> {
 
         let path = file.as_ref().to_path_buf();
         let path_ending = path.extension().and_then(OsStr::to_str).unwrap_or("");
-        let file_type: ReaderType = path_ending.into();
+        let file_type: ReaderType = file_type.unwrap_or(path_ending.into());
         let epsg_codes = epsg_codes.unwrap_or_default();
         match file_type {
             ReaderType::CSV => {
@@ -271,11 +302,16 @@ impl GISReader<FileReader> {
                 )
                 .into(),
             ),
+            ReaderType::NADGrid => GISReader::NADGrid(
+                NadGridReader::new("default".into(), FileReader::new(file).unwrap()).into(),
+            ),
             ReaderType::NetCDF => {
                 GISReader::NetCDF(NetCDFReader::new(FileReader::new(file).unwrap(), None).into())
             }
             ReaderType::OSM => {
-                GISReader::OSM(OSMLocalReader::new(FileReader::new(file).unwrap(), None).into())
+                let mut osm = OSMLocalReader::new(FileReader::new(file).unwrap(), None);
+                osm.parse_blocks();
+                GISReader::OSM(osm.into())
             }
             ReaderType::Shapefile => {
                 // if file ends in zip, use shapefile_from_zip
@@ -290,6 +326,135 @@ impl GISReader<FileReader> {
                 GISReader::WKT(WKTGeometryReader::new(input_str).into())
             }
             _ => panic!("Unsupported file type: {file_type:?}"),
+        }
+    }
+}
+
+/// The Global GIS Iterator tool
+#[derive(Debug)]
+pub enum GISIterator<'a, T: Reader + Debug> {
+    /// CSV Iterator
+    CSV(CSVIterator<'a, T, Properties>),
+    /// GeoTIFF Iterator
+    GeoTIFF(GeoTIFFIterator<'a, T>),
+    /// GPX Iterator
+    GPX(GPXIterator<'a>),
+    /// GRIB2 Iterator
+    GRIB2(GRIB2Iterator<'a>),
+    /// GTFS Iterator
+    GTFS(GTFSScheduleIterator),
+    /// JSON Iterator
+    JSON(JSONIterator<'a, T, (), Properties, MValue>),
+    /// JSON-LD Iterator
+    JSONLD(NewLineDelimitedJSONIterator<'a, T, (), Properties, MValue>),
+    /// JSON-SQ Iterator
+    JSONSQ(SequenceJSONIterator<'a, T, (), Properties, MValue>),
+    /// LAS Iterator
+    LAS(LASIterator<'a, T>),
+    /// LAZ Iterator
+    LAZ(LAZIterator<'a, T>),
+    /// NAD Grid Iterator
+    NADGrid(NadGridIterator<'a, T>),
+    /// NetCDF Iterator
+    NetCDF(CDFIterator<'a, T>),
+    /// OSM Iterator
+    OSM(OSMLocalReaderIter<'a, T>),
+    /// Shapefile Iterator
+    Shapefile(ShapefileIterator<'a, T, Properties>),
+    /// WKT Iterator
+    WKT(WKTIterator<'a>),
+}
+impl<'a, T: Reader + Debug> Iterator for GISIterator<'a, T> {
+    type Item = VectorFeature<(), Properties, MValue>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            GISIterator::CSV(iterator) => iterator.next().map(|f| f.to_m_vector_feature(|_| None)),
+            GISIterator::GeoTIFF(iterator) => {
+                iterator.next().map(|f| f.to_m_vector_feature(|_| None))
+            }
+            GISIterator::GPX(iterator) => iterator.next().map(|f| f.to_m_vector_feature(|_| None)),
+            GISIterator::GRIB2(iterator) => {
+                iterator.next().map(|f| f.to_m_vector_feature(|_| None))
+            }
+            GISIterator::GTFS(iterator) => iterator.next(),
+            GISIterator::JSON(iterator) => iterator.next(),
+            GISIterator::JSONLD(iterator) => iterator.next(),
+            GISIterator::JSONSQ(iterator) => iterator.next(),
+            GISIterator::LAS(iterator) => iterator.next().map(|f| f.to_m_vector_feature(|_| None)),
+            GISIterator::LAZ(iterator) => iterator.next().map(|f| f.to_m_vector_feature(|_| None)),
+            GISIterator::NADGrid(iterator) => iterator.next().map(|f| VectorFeature {
+                _type: f._type,
+                id: f.id,
+                face: f.face,
+                properties: f.properties,
+                geometry: f.geometry,
+                metadata: None,
+            }),
+            GISIterator::NetCDF(iterator) => iterator.next(),
+            GISIterator::OSM(iterator) => iterator.next().map(|f| VectorFeature {
+                _type: f._type,
+                id: f.id,
+                face: f.face,
+                properties: f.properties,
+                geometry: f.geometry,
+                metadata: None,
+            }),
+            GISIterator::Shapefile(iterator) => iterator.next(),
+            GISIterator::WKT(iterator) => iterator.next(),
+        }
+    }
+}
+impl<T: Reader + Debug> FeatureReader<(), Properties, MValue> for GISReader<T> {
+    type FeatureIterator<'a>
+        = GISIterator<'a, T>
+    where
+        T: 'a;
+
+    fn iter(&self) -> Self::FeatureIterator<'_> {
+        match self {
+            GISReader::CSV(reader) => GISIterator::CSV(reader.iter()),
+            GISReader::GeoTIFF(reader) => GISIterator::GeoTIFF(reader.iter()),
+            GISReader::GPX(reader) => GISIterator::GPX(reader.iter()),
+            GISReader::GRIB2(reader) => GISIterator::GRIB2(reader.iter()),
+            GISReader::GTFS(reader) => GISIterator::GTFS(reader.iter()),
+            GISReader::JSON(reader) => GISIterator::JSON(reader.iter()),
+            GISReader::JSONLD(reader) => GISIterator::JSONLD(reader.iter()),
+            GISReader::JSONSQ(reader) => GISIterator::JSONSQ(reader.iter()),
+            GISReader::LAS(reader) => GISIterator::LAS(reader.iter()),
+            GISReader::LAZ(reader) => GISIterator::LAZ(reader.iter()),
+            GISReader::NADGrid(reader) => GISIterator::NADGrid(reader.iter()),
+            GISReader::NetCDF(reader) => GISIterator::NetCDF(reader.iter()),
+            GISReader::OSM(reader) => GISIterator::OSM(reader.iter()),
+            GISReader::Shapefile(reader) => GISIterator::Shapefile(reader.iter()),
+            GISReader::WKT(reader) => GISIterator::WKT(reader.iter()),
+        }
+    }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        match self {
+            GISReader::CSV(reader) => GISIterator::CSV(reader.par_iter(pool_size, thread_id)),
+            GISReader::GeoTIFF(reader) => {
+                GISIterator::GeoTIFF(reader.par_iter(pool_size, thread_id))
+            }
+            GISReader::GPX(reader) => GISIterator::GPX(reader.par_iter(pool_size, thread_id)),
+            GISReader::GRIB2(reader) => GISIterator::GRIB2(reader.par_iter(pool_size, thread_id)),
+            GISReader::GTFS(reader) => GISIterator::GTFS(reader.par_iter(pool_size, thread_id)),
+            GISReader::JSON(reader) => GISIterator::JSON(reader.par_iter(pool_size, thread_id)),
+            GISReader::JSONLD(reader) => GISIterator::JSONLD(reader.par_iter(pool_size, thread_id)),
+            GISReader::JSONSQ(reader) => GISIterator::JSONSQ(reader.par_iter(pool_size, thread_id)),
+            GISReader::LAS(reader) => GISIterator::LAS(reader.par_iter(pool_size, thread_id)),
+            GISReader::LAZ(reader) => GISIterator::LAZ(reader.par_iter(pool_size, thread_id)),
+            GISReader::NADGrid(reader) => {
+                GISIterator::NADGrid(reader.par_iter(pool_size, thread_id))
+            }
+            GISReader::NetCDF(reader) => GISIterator::NetCDF(reader.par_iter(pool_size, thread_id)),
+            GISReader::OSM(reader) => GISIterator::OSM(reader.par_iter(pool_size, thread_id)),
+            GISReader::Shapefile(reader) => {
+                GISIterator::Shapefile(reader.par_iter(pool_size, thread_id))
+            }
+            GISReader::WKT(reader) => GISIterator::WKT(reader.par_iter(pool_size, thread_id)),
         }
     }
 }

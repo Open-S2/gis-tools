@@ -6,7 +6,7 @@ mod tests {
 
     use gistools::{
         parsers::{FeatureReader, FileReader},
-        readers::{NadGridHeader, NadGridReader},
+        readers::{GISReader, NadGridHeader, NadGridReader, ReaderType},
     };
     use s2json::VectorPoint;
     use std::path::PathBuf;
@@ -50,6 +50,23 @@ mod tests {
         assert_eq!(features.len(), 1);
 
         let features = nadgrid_reader.par_iter(1, 0).collect::<Vec<_>>();
+        assert_eq!(features.len(), 1);
+    }
+
+    #[test]
+    fn test_nadgrid_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/proj4/fixtures/BETA2007.gsb");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::NADGrid);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 1);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::NADGrid, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
         assert_eq!(features.len(), 1);
     }
 }

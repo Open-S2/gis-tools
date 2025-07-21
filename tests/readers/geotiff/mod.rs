@@ -7,8 +7,8 @@ mod tests {
     use gistools::{
         parsers::{BufferReader, FeatureReader},
         readers::{
-            FieldTagNames, GTiffDataType, GeoKeyDirectoryKeys, GeoPixelScale, GeoTIFFOptions,
-            GeoTIFFReader, GeoTiePoint,
+            FieldTagNames, GISReader, GTiffDataType, GeoKeyDirectoryKeys, GeoPixelScale,
+            GeoTIFFOptions, GeoTIFFReader, GeoTiePoint, ReaderType,
         },
     };
     use s2json::BBox;
@@ -503,5 +503,24 @@ mod tests {
         assert_eq!(raster.alpha, false);
         assert_eq!(raster.min, 0.0);
         assert_eq!(raster.max, 65535.0);
+    }
+
+    #[test]
+    fn test_geotiff_ycbcr_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
+        let reader = GISReader::from_path(path, None, None);
+        assert_eq!(reader.get_type(), ReaderType::GeoTIFF);
+        let grid: Vec<_> = reader.iter().collect();
+        assert_eq!(grid.len(), 1);
+
+        // buffer
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GISReader::from_buffer(bytes, ReaderType::GeoTIFF, None);
+        let grid: Vec<_> = geotiff.par_iter(1, 0).collect();
+        assert_eq!(grid.len(), 1);
     }
 }

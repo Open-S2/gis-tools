@@ -4,9 +4,13 @@
 mod tests {
     extern crate alloc;
 
+    use std::path::PathBuf;
+
     use gistools::{
         parsers::FeatureReader,
-        readers::{WKTGeometryReader, parse_wkt_geometry, split_wkt_geometry},
+        readers::{
+            GISReader, ReaderType, WKTGeometryReader, parse_wkt_geometry, split_wkt_geometry,
+        },
     };
     use s2json::{
         BBox3D, VectorBaseGeometry, VectorFeature, VectorGeometry, VectorGeometryType, VectorPoint,
@@ -766,5 +770,22 @@ TRIANGLE((0 0 0,0 1 0,1 1 0,0 0 0))"#;
                 Some(BBox3D::from_multi_polygon(&expected))
             ))
         );
+    }
+
+    #[test]
+    fn test_wkt_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/wkt/fixtures/collections.wkt");
+        let gis_reader = GISReader::from_path(path.clone(), None, None);
+        assert_eq!(gis_reader.get_type(), ReaderType::WKT);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 6);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::WKT, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 6);
     }
 }

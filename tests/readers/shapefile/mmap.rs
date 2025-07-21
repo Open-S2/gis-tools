@@ -40,7 +40,7 @@ mod tests {
             }
         );
 
-        let features: Vec<VectorFeature<(), Props, ()>> = shp.iter().collect();
+        let features: Vec<VectorFeature<(), Props, MValue>> = shp.iter().collect();
         assert_eq!(features.len(), 2);
 
         assert_eq!(
@@ -51,7 +51,11 @@ mod tests {
                     id: Some(1),
                     properties: Props { field: "💩".into() },
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.6328125, 41.244772343082076, Some(())),
+                        VectorPoint::new_xy(
+                            -108.6328125,
+                            41.244772343082076,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()
@@ -61,7 +65,11 @@ mod tests {
                     id: Some(2),
                     properties: Props { field: "Hněvošický háj".into() },
                     geometry: VectorGeometry::new_point(
-                        VectorPoint::new_xy(-108.97956848144531, 41.253032440653186, Some(())),
+                        VectorPoint::new_xy(
+                            -108.97956848144531,
+                            41.253032440653186,
+                            Some(MValue::default())
+                        ),
                         None
                     ),
                     ..Default::default()

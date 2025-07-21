@@ -9,7 +9,7 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{vec, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorLineString,
+    BBox3D, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorLineString,
     VectorPoint,
 };
 use serde::{Deserialize, Serialize};
@@ -33,15 +33,15 @@ pub struct IntermediateWay {
 }
 impl IntermediateWay {
     /// Convert the node to a vector feature
-    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<()>>>(
+    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<MValue>>>(
         &self,
         node_geometry: &_N,
         add_bbox: bool,
-    ) -> VectorFeature<OSMMetadata, Properties, ()> {
+    ) -> VectorFeature<OSMMetadata, Properties, MValue> {
         let IntermediateWay { id, is_area, way_nodes, properties, info } = &self;
         let mut bbox = BBox3D::default();
         // build line
-        let mut vector_line: VectorLineString<()> = vec![];
+        let mut vector_line: VectorLineString<MValue> = vec![];
         for way_node in way_nodes {
             let node = node_geometry.get(*way_node);
             if let Some(node) = node {
@@ -99,7 +99,7 @@ impl Way {
     /// Checks if the way is an area based on it's key-value pairs
     pub fn is_area<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -152,7 +152,7 @@ impl Way {
     /// @returns - the way as an intermediate vector feature
     pub fn to_intermediate_feature<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -180,7 +180,7 @@ impl Way {
 impl OSMFilterable for Way {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<()>>,
+        _N: KVStore<u64, VectorPoint<MValue>>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,

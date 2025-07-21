@@ -5,18 +5,18 @@ mod tests {
     use gistools::{
         parsers::{FeatureReader, RGBA},
         readers::{
-            GTFSArea, GTFSAttribution, GTFSBikesAllowed, GTFSBookingRule, GTFSBookingType,
-            GTFSCalendar, GTFSCalendarDate, GTFSContinuousPickupDropOff, GTFSDayAvailability,
-            GTFSDirectionId, GTFSDurationLimitType, GTFSExactTimes, GTFSExceptionType,
-            GTFSFareAttribute, GTFSFareLegJoinRule, GTFSFareLegRule, GTFSFareMedia,
-            GTFSFareMediaType, GTFSFareProduct, GTFSFareTransferRule, GTFSFareTransferType,
-            GTFSFeedInfo, GTFSFrequency, GTFSIsBidirectional, GTFSLevel, GTFSLocationGroup,
-            GTFSLocationGroupStop, GTFSNetwork, GTFSPathway, GTFSPathwayMode, GTFSPaymentMethod,
-            GTFSPickupDropOffType, GTFSRoute, GTFSRouteNetwork, GTFSRoutePickupType, GTFSRouteType,
-            GTFSScheduleReader, GTFSShape, GTFSShapeMValue, GTFSShapes, GTFSStopArea,
-            GTFSStopLocationType, GTFSStopTime, GTFSTimeframe, GTFSTimepoint, GTFSTransfer,
-            GTFSTransferType, GTFSTransfersType, GTFSTranslation, GTFSTrip,
-            GTFSWheelchairAccessibility,
+            GISReader, GTFSArea, GTFSAttribution, GTFSBikesAllowed, GTFSBookingRule,
+            GTFSBookingType, GTFSCalendar, GTFSCalendarDate, GTFSContinuousPickupDropOff,
+            GTFSDayAvailability, GTFSDirectionId, GTFSDurationLimitType, GTFSExactTimes,
+            GTFSExceptionType, GTFSFareAttribute, GTFSFareLegJoinRule, GTFSFareLegRule,
+            GTFSFareMedia, GTFSFareMediaType, GTFSFareProduct, GTFSFareTransferRule,
+            GTFSFareTransferType, GTFSFeedInfo, GTFSFrequency, GTFSIsBidirectional, GTFSLevel,
+            GTFSLocationGroup, GTFSLocationGroupStop, GTFSNetwork, GTFSPathway, GTFSPathwayMode,
+            GTFSPaymentMethod, GTFSPickupDropOffType, GTFSRoute, GTFSRouteNetwork,
+            GTFSRoutePickupType, GTFSRouteType, GTFSScheduleReader, GTFSShape, GTFSShapeMValue,
+            GTFSShapes, GTFSStopArea, GTFSStopLocationType, GTFSStopTime, GTFSTimeframe,
+            GTFSTimepoint, GTFSTransfer, GTFSTransferType, GTFSTransfersType, GTFSTranslation,
+            GTFSTrip, GTFSWheelchairAccessibility, ReaderType,
         },
         util::Date,
     };
@@ -1472,5 +1472,22 @@ mod tests {
         let empty_test: Vec<GTFSShape> = vec![];
         let empty_shape: GTFSShapes = (&empty_test).into();
         assert_eq!(empty_shape, GTFSShapes { shapes: vec![], shape_id: "".into() });
+    }
+
+    #[test]
+    fn test_gtfs_gis_reader() {
+        // file
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/gtfs/fixtures/caltrain_20160406.zip");
+        let gis_reader = GISReader::from_path(path.clone(), Some(ReaderType::GTFS), None);
+        assert_eq!(gis_reader.get_type(), ReaderType::GTFS);
+        let features: Vec<_> = gis_reader.iter().collect();
+        assert_eq!(features.len(), 103);
+
+        // buffer
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let gis_reader = GISReader::from_buffer(bytes, ReaderType::GTFS, None);
+        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        assert_eq!(features.len(), 103);
     }
 }
