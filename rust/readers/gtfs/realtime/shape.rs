@@ -1,3 +1,6 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
+// NOTE: THis is an experimental module, exists incase the GTFS-Realtime spec changes to include it
+
 use alloc::string::String;
 use pbf::{ProtoRead, Protobuf};
 

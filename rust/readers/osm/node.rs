@@ -51,7 +51,7 @@ impl IntermediateNode {
 
 /// Node class
 /// contains a single node.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Node {
     /// The node id
     pub id: u64,
@@ -159,7 +159,7 @@ impl ProtoRead for Node {
 /// containing key-stringid and val-stringid, using a stringid of 0 as a
 /// delimiter between nodes.
 ///    ( (<keyid> <valid>)* '0' )*
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct DenseNodes {
     ids: Vec<i64>, // DELTA coded
     denseinfo: Option<DenseInfo>,

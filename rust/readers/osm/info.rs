@@ -32,7 +32,7 @@ pub struct InfoBlock {
 }
 
 /// Optional metadata that may be included into each primitive.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Info {
     /// The version of the object. Default is -1
     pub version: i32,
@@ -95,7 +95,7 @@ impl ProtoRead for Info {
 }
 
 /// DenseInfo
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct DenseInfo {
     version: Vec<i32>,
     time_stamp: Vec<i64>, // DELTA coded (millisec_stamp = time_stamp*dateGranularity.)

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="custom-writer">
+  <meta
+    osm_base="2024-07-22T00:00:00Z"
+    osm3s:replication_sequence_number="1045"
+    osm3s:replication_base_url="https://planet.openstreetmap.org/replication/minute/"
+    osm3s:timestamp="2024-07-22T00:00:00Z"
+  />
+  <bounds minlat="40.0" minlon="-111.0" maxlat="40.1" maxlon="-111.1"/>
+  <node
+    id="1"
+    lat="40.0"
+    lon="-111.0"
+    version="1"
+    timestamp="2020-01-01T00:00:00Z"
+    changeset="1"
+    uid="123"
+    user="tester"
+    visible="true"
+  />
+</osm>

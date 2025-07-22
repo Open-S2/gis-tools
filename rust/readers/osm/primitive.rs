@@ -19,7 +19,7 @@ pub struct OSMMetadataRelation {
 }
 
 /// The expected metadata in the VectorFeature for all types (node, way, relation)
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct OSMMetadata {
     /// The type of the VectorFeature
     pub osm_type: MemberType,
@@ -116,7 +116,8 @@ pub struct PrimitiveGroup {
     pub ways: Vec<Way>,
     /// Relations - collections of nodes, ways and relations
     pub relations: Vec<Relation>,
-    // pub changesets: Vec<ChangeSet>,
+    /// Changesets
+    pub changesets: Vec<ChangeSet>,
 }
 /// Read in the contents of the primitive block
 impl ProtoRead for PrimitiveGroup {
@@ -142,11 +143,11 @@ impl ProtoRead for PrimitiveGroup {
                 pb.read_message(&mut relation);
                 self.relations.push(relation);
             }
-            // 5 => {
-            //     let mut changeset = ChangeSet::default();
-            //     pb.read_message(&mut changeset);
-            //     self.changesets.push(changeset);
-            // }
+            5 => {
+                let mut changeset = ChangeSet::default();
+                pb.read_message(&mut changeset);
+                self.changesets.push(changeset);
+            }
             _ => panic!("unknown tag {}", tag),
         }
     }
@@ -178,18 +179,18 @@ impl ProtoRead for StringTable {
     }
 }
 
-// /// This is kept for backwards compatibility but not used anywhere.
-// #[derive(Debug, Default)]
-// pub struct ChangeSet {
-//     /// The id of the changeset
-//     pub id: i64,
-// }
-// /// Read in the contents of the header block
-// impl ProtoRead for ChangeSet {
-//     fn read(&mut self, tag: u64, pb: &mut Protobuf) {
-//         match tag {
-//             1 => self.id = pb.read_varint(),
-//             _ => panic!("unknown tag {}", tag),
-//         }
-//     }
-// }
+/// This is kept for backwards compatibility but not used anywhere.
+#[derive(Debug, Default)]
+pub struct ChangeSet {
+    /// The id of the changeset
+    pub id: i64,
+}
+/// Read in the contents of the header block
+impl ProtoRead for ChangeSet {
+    fn read(&mut self, tag: u64, pb: &mut Protobuf) {
+        match tag {
+            1 => self.id = pb.read_varint(),
+            _ => panic!("unknown tag {}", tag),
+        }
+    }
+}

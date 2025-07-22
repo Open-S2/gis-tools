@@ -140,14 +140,14 @@ export class Node {
   #readLayer(tag: number, node: Node, pbf: PbfReader): void {
     const { primitiveBlock: pb } = node;
 
-    if (tag === 1) this.id = pbf.readVarint();
-    else if (tag === 2) this.#keys = pbf.readPackedVarint();
-    else if (tag === 3) this.#vals = pbf.readPackedVarint();
-    else if (tag === 4) this.info = new Info(pb, pbf);
+    if (tag === 1) node.id = pbf.readVarint();
+    else if (tag === 2) node.#keys = pbf.readPackedVarint();
+    else if (tag === 3) node.#vals = pbf.readPackedVarint();
+    else if (tag === 4) node.info = new Info(pb, pbf);
     else if (tag === 8)
-      this.lat = 0.000000001 * (pb.latOffset + pb.granularity * pbf.readSVarint());
+      node.lat = 0.000000001 * (pb.latOffset + pb.granularity * pbf.readSVarint());
     else if (tag === 9)
-      this.lon = 0.000000001 * (pb.lonOffset + pb.granularity * pbf.readSVarint());
+      node.lon = 0.000000001 * (pb.lonOffset + pb.granularity * pbf.readSVarint());
     else throw new Error(`Unknown tag: ${tag}`);
   }
 

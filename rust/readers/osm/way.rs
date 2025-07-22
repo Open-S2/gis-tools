@@ -75,7 +75,7 @@ impl IntermediateWay {
 }
 
 /// Way Class
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Way {
     /// The way's ID
     pub id: u64,

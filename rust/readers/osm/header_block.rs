@@ -43,7 +43,7 @@ impl From<&HeaderBlock> for OSMHeader {
 /// The OSM Header Block
 /// A block containing OSM header information that helps guide the parser
 /// of the OSM data how to interpret the data.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct HeaderBlock {
     bbox: HeaderBBox,
     // Additional tags to aid in parsing this dataset
@@ -87,7 +87,7 @@ impl ProtoRead for HeaderBlock {
 /// The bounding box field in the OSM header. BBOX, as used in the OSM
 /// header. Units are always in nanodegrees -- they do not obey
 /// granularity rules.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct HeaderBBox {
     left: i64,
     right: i64,
@@ -97,7 +97,12 @@ pub struct HeaderBBox {
 impl HeaderBBox {
     /// Returns the bounding box as a [left, bottom, right, top] array
     fn to_bbox(&self) -> BBox {
-        BBox::new(self.left as f64, self.bottom as f64, self.right as f64, self.top as f64)
+        BBox::new(
+            self.left as f64 / 1_000_000_000.0,
+            self.bottom as f64 / 1_000_000_000.0,
+            self.right as f64 / 1_000_000_000.0,
+            self.top as f64 / 1_000_000_000.0,
+        )
     }
 }
 /// Read in the contents of the bounding box

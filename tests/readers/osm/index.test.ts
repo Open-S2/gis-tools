@@ -14,7 +14,7 @@ test('parse basic case', async () => {
     osmosis_replication_base_url: undefined,
     osmosis_replication_sequence_number: -1,
     osmosis_replication_timestamp: -1,
-    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    required_features: [],
     source: undefined,
     writingprogram: undefined,
   });
@@ -239,7 +239,7 @@ test('parse basic case with mmap', async () => {
     osmosis_replication_base_url: undefined,
     osmosis_replication_sequence_number: -1,
     osmosis_replication_timestamp: -1,
-    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    required_features: [],
     source: undefined,
     writingprogram: undefined,
   });
@@ -291,7 +291,7 @@ test('parse basic case with filesystem', async () => {
     osmosis_replication_base_url: undefined,
     osmosis_replication_sequence_number: -1,
     osmosis_replication_timestamp: -1,
-    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    required_features: [],
     source: undefined,
     writingprogram: undefined,
   });
@@ -343,7 +343,7 @@ test('parse only nodes', async () => {
     osmosis_replication_base_url: undefined,
     osmosis_replication_sequence_number: -1,
     osmosis_replication_timestamp: -1,
-    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    required_features: [],
     source: undefined,
     writingprogram: undefined,
   });
@@ -498,7 +498,7 @@ test('parse only ways', async () => {
     osmosis_replication_base_url: undefined,
     osmosis_replication_sequence_number: -1,
     osmosis_replication_timestamp: -1,
-    required_features: ['-x�S��/�\rN�H�M�\r3�3S�rI�+N'],
+    required_features: [],
     source: undefined,
     writingprogram: undefined,
   });
@@ -889,4 +889,44 @@ test('check changeset is parsed without error', async () => {
   const features = await Array.fromAsync(reader);
 
   expect(features.length).toBe(0);
+});
+
+test('check header is parsed without error', async () => {
+  const fileReader = new FileReader(`${__dirname}/fixtures/header.osm.pbf`);
+
+  const reader = new OSMReader(fileReader, { removeEmptyNodes: false, addBBox: true });
+  const header = reader.getHeader();
+  expect(header).toEqual({
+    bbox: [-1, -1, -1, -1],
+    optional_features: [],
+    osmosis_replication_base_url: undefined,
+    osmosis_replication_sequence_number: -1,
+    osmosis_replication_timestamp: -1,
+    required_features: [],
+    source: undefined,
+    writingprogram: undefined,
+  });
+  const features = await Array.fromAsync(reader);
+
+  expect(features.length).toBe(1);
+});
+
+test('read nodes with no dense set', async () => {
+  const fileReader = new FileReader(`${__dirname}/fixtures/output-nodense.pbf`);
+
+  const reader = new OSMReader(fileReader, { removeEmptyNodes: false, addBBox: true });
+  const header = reader.getHeader();
+  expect(header).toEqual({
+    bbox: [0, 0, 15, 15],
+    optional_features: [],
+    osmosis_replication_base_url: undefined,
+    osmosis_replication_sequence_number: -1,
+    osmosis_replication_timestamp: -1,
+    required_features: ['OsmSchema-V0.6'],
+    source: 'handmade',
+    writingprogram: '0.49.2',
+  });
+  const features = await Array.fromAsync(reader);
+
+  expect(features.length).toBe(2);
 });

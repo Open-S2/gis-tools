@@ -6,7 +6,7 @@ use alloc::string::String;
 use pbf::{ProtoRead, Protobuf};
 
 /// The type of a GTFSRealtimeEntity message
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum GTFSRealtimeEntityMessage {
     /// A Trip Update message
     TripUpdate(GTFSRealtimeTripUpdate),
@@ -104,21 +104,22 @@ impl ProtoRead for GTFSRealtimeEntity {
                 pb.read_message(&mut alert);
                 self.alert = Some(alert);
             }
-            6 => {
-                let mut shape = GTFSRealtimeShape::default();
-                pb.read_message(&mut shape);
-                self.shape = Some(shape);
-            }
-            7 => {
-                let mut stop = GTFSRealtimeStop::default();
-                pb.read_message(&mut stop);
-                self.stop = Some(stop);
-            }
-            8 => {
-                let mut trip_modifications = GTFSRealtimeTripModifications::default();
-                pb.read_message(&mut trip_modifications);
-                self.trip_modifications = Some(trip_modifications);
-            }
+            // These are not yet implemented
+            // 6 => {
+            //     let mut shape = GTFSRealtimeShape::default();
+            //     pb.read_message(&mut shape);
+            //     self.shape = Some(shape);
+            // }
+            // 7 => {
+            //     let mut stop = GTFSRealtimeStop::default();
+            //     pb.read_message(&mut stop);
+            //     self.stop = Some(stop);
+            // }
+            // 8 => {
+            //     let mut trip_modifications = GTFSRealtimeTripModifications::default();
+            //     pb.read_message(&mut trip_modifications);
+            //     self.trip_modifications = Some(trip_modifications);
+            // }
             _ => panic!("unknown tag {}", tag),
         }
     }

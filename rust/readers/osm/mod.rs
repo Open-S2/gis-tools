@@ -25,7 +25,7 @@ use core::fmt::Debug;
 use filter::*;
 use header_block::{HeaderBlock, OSMHeader};
 use node::IntermediateNode;
-use pbf::Protobuf;
+use pbf::{Field, Protobuf, Type};
 use primitive::{OSMMetadata, PrimitiveBlock};
 use relation::IntermediateRelation;
 use s2json::{MValue, Properties, VectorFeature, VectorPoint};
@@ -200,8 +200,13 @@ impl<
         if blob_header.is_none() {
             panic!("OSM header not found");
         }
-        let mut pbf = Protobuf::from(blob_header.unwrap());
+        let bytes = blob_header.unwrap();
+        let mut pbf = Protobuf::from(bytes.clone());
         let mut header_block = HeaderBlock::default();
+        let Field { tag, r#type } = pbf.read_field();
+        if tag != 1 || r#type != Type::Bytes {
+            return OSMHeader::default();
+        }
         pbf.read_message(&mut header_block);
 
         header_block.to_header()
@@ -360,16 +365,6 @@ impl<
             }
         }
     }
-
-    /// Returns an iterator over nodes, ways, and relations in sequence.
-    pub fn iter(&self) -> OsmReaderIter<'_, T, _N, N, _W, W, R> {
-        OsmReaderIter {
-            reader: self,
-            node_iter: Box::new(self.nodes.iter()),
-            way_iter: Box::new(self.ways.iter()),
-            relation_iter: Box::new(self.relations.iter()),
-        }
-    }
 }
 
 /// OSM Reader iterator
@@ -448,7 +443,12 @@ impl<
         R: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        self.iter()
+        OsmReaderIter {
+            reader: self,
+            node_iter: Box::new(self.nodes.iter()),
+            way_iter: Box::new(self.ways.iter()),
+            relation_iter: Box::new(self.relations.iter()),
+        }
     }
 
     fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {

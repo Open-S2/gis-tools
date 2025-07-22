@@ -313,24 +313,18 @@ test('Check data/feb17.tle.txt matches satellite.js', async () => {
     if ('error' in sat3200) continue;
 
     const satrec = twoline2satrec(secondLine, thirdline);
-    const satrecZero = sgp4(satrec, 0);
+    const satrecZero = sgp4(satrec, 0)!;
     if ('error' in satrecZero) continue;
-    const satrec1600 = sgp4(satrec, 1600);
+    const satrec1600 = sgp4(satrec, 1600)!;
     if ('error' in satrec1600) continue;
-    const satrec3200 = sgp4(satrec, 3200);
+    const satrec3200 = sgp4(satrec, 3200)!;
     if ('error' in satrec3200) continue;
 
-    // @ts-expect-error - no need to type check against a package interface
     expect(satZero.position).toEqual(satrecZero.position);
-    // @ts-expect-error - no need to type check against a package interface
     expect(satZero.velocity).toEqual(satrecZero.velocity);
-    // @ts-expect-error - no need to type check against a package interface
     expect(sat1600.position).toEqual(satrec1600.position);
-    // @ts-expect-error - no need to type check against a package interface
     expect(sat1600.velocity).toEqual(satrec1600.velocity);
-    // @ts-expect-error - no need to type check against a package interface
     expect(sat3200.position).toEqual(satrec3200.position);
-    // @ts-expect-error - no need to type check against a package interface
     expect(sat3200.velocity).toEqual(satrec3200.velocity);
 
     // PROPAGATION

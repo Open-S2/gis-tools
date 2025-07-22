@@ -43,6 +43,10 @@ export class HeaderBlock {
 
   /** @param pbf - the Protobuf object to read from */
   constructor(pbf: PbfReader) {
+    const { tag, type } = pbf.readTag();
+    if (tag !== 1 || type !== 2) {
+      return this;
+    }
     pbf.readMessage(this.#readLayer, this);
   }
 
@@ -110,10 +114,10 @@ export class HeaderBBox {
    * @param pbf - the Protobuf object to read from
    */
   readLayer(tag: number, bbox: HeaderBBox, pbf: PbfReader): void {
-    if (tag === 1) bbox.left = pbf.readVarint();
-    else if (tag === 2) bbox.right = pbf.readVarint();
-    else if (tag === 3) bbox.top = pbf.readVarint();
-    else if (tag === 4) bbox.bottom = pbf.readVarint();
+    if (tag === 1) bbox.left = pbf.readSVarint() / 1_000_000_000.0;
+    else if (tag === 2) bbox.right = pbf.readSVarint() / 1_000_000_000.0;
+    else if (tag === 3) bbox.top = pbf.readSVarint() / 1_000_000_000.0;
+    else if (tag === 4) bbox.bottom = pbf.readSVarint() / 1_000_000_000.0;
     else throw new Error('unknown tag ' + tag);
   }
 

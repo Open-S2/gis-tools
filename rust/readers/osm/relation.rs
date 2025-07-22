@@ -173,9 +173,10 @@ pub enum RelationGeometry {
 }
 
 /// The expected metadata in the VectorFeature for all types (node, way, relation)
-#[derive(Debug, Copy, Clone, PartialEq, BitCast)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, BitCast)]
 pub enum MemberType {
     /// Node type
+    #[default]
     Node = 0,
     /// Way type (lines and polygons)
     Way = 1,
@@ -184,7 +185,7 @@ pub enum MemberType {
 }
 
 /// Relation class contains a collection of nodes, ways and relations as members.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Relation {
     /// The relation's id
     pub id: u64,

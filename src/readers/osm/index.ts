@@ -268,9 +268,7 @@ export class OSMReader implements FeatureIterator<OSMMetadata, Properties, OSMPr
     }
   }
 
-  /**
-   * @returns - The header of the OSM file
-   */
+  /** @returns - The header of the OSM file */
   getHeader(): OSMHeader {
     this.#offset = 0;
     const blobHeader = this.#next();

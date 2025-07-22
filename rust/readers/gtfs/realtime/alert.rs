@@ -169,26 +169,28 @@ impl ProtoRead for GTFSRealtimeAlert {
                 self.tts_description_text = Some(translated_string);
             }
             14 => self.severity_level = pb.read_varint(),
-            15 => {
-                let mut translated_string = GTFSRealtimeTranslatedString::default();
-                pb.read_message(&mut translated_string);
-                self.image = Some(translated_string);
-            }
-            16 => {
-                let mut translated_string = GTFSRealtimeTranslatedString::default();
-                pb.read_message(&mut translated_string);
-                self.image_alternative_text = Some(translated_string);
-            }
-            17 => {
-                let mut translated_string = GTFSRealtimeTranslatedString::default();
-                pb.read_message(&mut translated_string);
-                self.cause_detail = Some(translated_string);
-            }
-            18 => {
-                let mut translated_string = GTFSRealtimeTranslatedString::default();
-                pb.read_message(&mut translated_string);
-                self.effect_detail = Some(translated_string);
-            }
+            // NOTE: These are still experimental fields not yet added. Keeping them here for future
+            // use.
+            // 15 => {
+            //     let mut translated_string = GTFSRealtimeTranslatedString::default();
+            //     pb.read_message(&mut translated_string);
+            //     self.image = Some(translated_string);
+            // }
+            // 16 => {
+            //     let mut translated_string = GTFSRealtimeTranslatedString::default();
+            //     pb.read_message(&mut translated_string);
+            //     self.image_alternative_text = Some(translated_string);
+            // }
+            // 17 => {
+            //     let mut translated_string = GTFSRealtimeTranslatedString::default();
+            //     pb.read_message(&mut translated_string);
+            //     self.cause_detail = Some(translated_string);
+            // }
+            // 18 => {
+            //     let mut translated_string = GTFSRealtimeTranslatedString::default();
+            //     pb.read_message(&mut translated_string);
+            //     self.effect_detail = Some(translated_string);
+            // }
             _ => panic!("unknown tag {}", tag),
         }
     }

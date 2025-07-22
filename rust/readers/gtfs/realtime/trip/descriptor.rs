@@ -1,6 +1,6 @@
 use crate::{readers::parse_gtfs_date, util::Date};
 use alloc::string::String;
-use pbf::{BitCast, ProtoRead, Protobuf};
+use pbf::{BitCast, ProtoRead, ProtoWrite, Protobuf};
 
 /// The relation between this trip and the static schedule. If a trip is done
 /// in accordance with temporary schedule, not reflected in GTFS, then it
@@ -153,6 +153,23 @@ pub struct GTFSRealtimeModifiedTripSelector {
     /// The start date of this trip instance in YYYYMMDD format, applied to the modified trip. Same
     /// definition as start_date in TripDescriptor.
     pub start_date: Option<Date>, // 4 [string]
+}
+/// Write in the contents of the GTFSRealtimeModifiedTripSelector
+impl ProtoWrite for GTFSRealtimeModifiedTripSelector {
+    fn write(&self, pb: &mut Protobuf) {
+        if let Some(modifications_id) = &self.modifications_id {
+            pb.write_string_field(1, modifications_id.as_ref());
+        }
+        if let Some(affected_trip_id) = &self.affected_trip_id {
+            pb.write_string_field(2, affected_trip_id.as_ref());
+        }
+        if let Some(start_time) = &self.start_time {
+            pb.write_string_field(3, start_time.as_ref());
+        }
+        if let Some(start_date) = &self.start_date {
+            pb.write_string_field(4, &start_date.to_string());
+        }
+    }
 }
 /// Read in the contents of the GTFSRealtimeModifiedTripSelector
 impl ProtoRead for GTFSRealtimeModifiedTripSelector {

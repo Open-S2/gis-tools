@@ -4,10 +4,21 @@
 mod tests {
     extern crate alloc;
 
-    use gistools::readers::{
-        GTFSIncrementality, GTFSRealtimeHeader, GTFSRealtimeReader,
-        GTFSRealtimeWheelchairAccessible, GTFSVehicleStopStatus,
+    use gistools::{
+        readers::{
+            GTFSIncrementality, GTFSRealtimeAlert, GTFSRealtimeEntity, GTFSRealtimeEntityMessage,
+            GTFSRealtimeEntitySelector, GTFSRealtimeHeader, GTFSRealtimeModifiedTripSelector,
+            GTFSRealtimeMultiCarriageDetails, GTFSRealtimePosition, GTFSRealtimeReader,
+            GTFSRealtimeShape, GTFSRealtimeStop, GTFSRealtimeStopTimeEvent,
+            GTFSRealtimeStopTimeProperties, GTFSRealtimeStopTimeUpdate, GTFSRealtimeTimeRange,
+            GTFSRealtimeTranslatedString, GTFSRealtimeTranslation, GTFSRealtimeTripDescriptor,
+            GTFSRealtimeTripModifications, GTFSRealtimeTripProperties, GTFSRealtimeTripUpdate,
+            GTFSRealtimeVehicleDescriptor, GTFSRealtimeVehiclePosition,
+            GTFSRealtimeWheelchairAccessible, GTFSVehicleStopStatus,
+        },
+        util::Date,
     };
+    use pbf::{ProtoRead, Protobuf};
     use std::path::PathBuf;
 
     #[test]
@@ -166,5 +177,230 @@ mod tests {
 
         let data = std::fs::read(path).unwrap();
         let _reader = GTFSRealtimeReader::new(data, None);
+    }
+
+    #[test]
+    fn gtfs_realtime_gtfsrealtime_translated_string() {
+        let mut test = GTFSRealtimeTranslatedString::default();
+        assert_eq!(test.to_string(None), "");
+
+        test.translations.push(GTFSRealtimeTranslation {
+            language: Some("en".to_string()),
+            text: "test".to_string(),
+        });
+        assert_eq!(test.to_string(None), "test");
+    }
+
+    #[test]
+    fn gtfs_realtime_entity_message() {
+        // deleted
+        let reatime = GTFSRealtimeEntity { is_deleted: true, ..Default::default() };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(message, GTFSRealtimeEntityMessage::Deleted);
+
+        // nothing is deleted
+        let reatime = GTFSRealtimeEntity::default();
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(message, GTFSRealtimeEntityMessage::Deleted);
+
+        // trip_update
+        let reatime = GTFSRealtimeEntity {
+            trip_update: Some(GTFSRealtimeTripUpdate::default()),
+            ..Default::default()
+        };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(
+            message,
+            GTFSRealtimeEntityMessage::TripUpdate(GTFSRealtimeTripUpdate::default())
+        );
+
+        // vehicle_position
+        let reatime = GTFSRealtimeEntity {
+            vehicle_position: Some(GTFSRealtimeVehiclePosition::default()),
+            ..Default::default()
+        };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(
+            message,
+            GTFSRealtimeEntityMessage::VehiclePosition(GTFSRealtimeVehiclePosition::default())
+        );
+
+        // alert
+        let reatime =
+            GTFSRealtimeEntity { alert: Some(GTFSRealtimeAlert::default()), ..Default::default() };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(message, GTFSRealtimeEntityMessage::Alert(GTFSRealtimeAlert::default()));
+
+        // shape
+        let reatime =
+            GTFSRealtimeEntity { shape: Some(GTFSRealtimeShape::default()), ..Default::default() };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(message, GTFSRealtimeEntityMessage::Shape(GTFSRealtimeShape::default()));
+
+        // stop
+        let reatime =
+            GTFSRealtimeEntity { stop: Some(GTFSRealtimeStop::default()), ..Default::default() };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(message, GTFSRealtimeEntityMessage::Stop(GTFSRealtimeStop::default()));
+
+        // trip_modifications
+        let reatime = GTFSRealtimeEntity {
+            trip_modifications: Some(GTFSRealtimeTripModifications::default()),
+            ..Default::default()
+        };
+        let message: GTFSRealtimeEntityMessage = (&reatime).into();
+        assert_eq!(
+            message,
+            GTFSRealtimeEntityMessage::TripModifications(GTFSRealtimeTripModifications::default())
+        );
+    }
+
+    #[test]
+    fn gtfs_realtime_modified_trip_descriptor() {
+        let trip_descriptor = GTFSRealtimeModifiedTripSelector {
+            modifications_id: Some("id_1".into()),
+            affected_trip_id: Some("trip_id_1".into()),
+            start_time: Some("00:00:00".into()),
+            start_date: Some(Date::new(2020, 1, 1)),
+        };
+        let mut pb = Protobuf::default();
+        pb.write_fields(&trip_descriptor);
+        pb.set_pos(0);
+        let mut trip_descriptor2 = GTFSRealtimeModifiedTripSelector::default();
+        pb.read_fields(&mut trip_descriptor2, None);
+        assert_eq!(trip_descriptor, trip_descriptor2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_gtfsrealtime_translated_string_should_panic() {
+        let mut test = GTFSRealtimeTranslatedString::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_gtfsrealtime_translated_should_panic() {
+        let mut test = GTFSRealtimeTranslation::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_vehicle_position_should_panic() {
+        let mut test = GTFSRealtimeVehiclePosition::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_vehicle_descriptor_should_panic() {
+        let mut test = GTFSRealtimeVehicleDescriptor::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_multi_carriage_details_should_panic() {
+        let mut test = GTFSRealtimeMultiCarriageDetails::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_position_should_panic() {
+        let mut test = GTFSRealtimePosition::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_reader_should_panic() {
+        let mut test = GTFSRealtimeReader::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_header_should_panic() {
+        let mut test = GTFSRealtimeHeader::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_entity_selector_should_panic() {
+        let mut test = GTFSRealtimeEntitySelector::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_entity_should_panic() {
+        let mut test = GTFSRealtimeEntity::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_range_panic() {
+        let mut test = GTFSRealtimeTimeRange::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_alert_panic() {
+        let mut test = GTFSRealtimeAlert::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_trip_update_panic() {
+        let mut test = GTFSRealtimeTripUpdate::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_trip_properties_panic() {
+        let mut test = GTFSRealtimeTripProperties::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_stop_time_properties_panic() {
+        let mut test = GTFSRealtimeStopTimeProperties::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_stop_time_update_panic() {
+        let mut test = GTFSRealtimeStopTimeUpdate::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_modified_trip_selector_panic() {
+        let mut test = GTFSRealtimeModifiedTripSelector::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_trip_descriptor_panic() {
+        let mut test = GTFSRealtimeTripDescriptor::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn gtfs_realtime_stop_time_event_panic() {
+        let mut test = GTFSRealtimeStopTimeEvent::default();
+        test.read(0, &mut Protobuf::default());
     }
 }

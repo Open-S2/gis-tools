@@ -3,16 +3,21 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
+        data_structures::HasLayer,
         parsers::{FeatureReader, FileReader},
         readers::{
             GISReader, OSMLocalReader, OSMReaderOptions, ReaderType,
+            blob::{Blob, BlobHeader},
             filter::{OSMTagFilter, OSMTagFilterType},
-            header_block::OSMHeader,
-            info::InfoBlock,
-            primitive::OSMMetadata,
-            relation::{IntermediateNodeMember, MemberType},
+            header_block::{HeaderBBox, HeaderBlock, OSMHeader},
+            info::{DenseInfo, Info, InfoBlock},
+            node::{DenseNodes, Node},
+            primitive::{ChangeSet, OSMMetadata, PrimitiveBlock, PrimitiveGroup, StringTable},
+            relation::{IntermediateNodeMember, MemberType, Relation},
+            way::Way,
         },
     };
+    use pbf::{ProtoRead, Protobuf};
     use s2json::{
         BBox, BBox3D, Map, VectorBaseGeometry, VectorFeature, VectorFeatureType, VectorGeometry,
         VectorGeometryType, VectorPoint,
@@ -33,23 +38,12 @@ mod tests {
         let mut osm = OSMLocalReader::new(reader, None);
         osm.parse_blocks();
 
-        let header: OSMHeader = osm.get_header();
+        assert_eq!(osm.get_header(), OSMHeader::default());
 
-        assert_eq!(
-            header,
-            OSMHeader {
-                bbox: BBox { left: 0.0, bottom: 0.0, right: 0.0, top: 0.0 },
-                required_features: vec!["-x�S��/�\rN�H�M�\r3�3S�rI�+N".into()],
-                optional_features: vec![],
-                writingprogram: None,
-                source: None,
-                osmosis_replication_timestamp: 0,
-                osmosis_replication_sequence_number: 0,
-                osmosis_replication_base_url: None
-            }
-        );
-
-        let features: Vec<_> = osm.iter().collect();
+        let iter = osm.iter();
+        let debug_str = format!("{:?}", iter);
+        assert_eq!(debug_str, "OsmReaderIter");
+        let features: Vec<_> = iter.collect();
 
         assert_eq!(features.len(), 8);
 
@@ -544,6 +538,7 @@ mod tests {
         assert_eq!(features.len(), 6); // or whatever the expected number is
     }
 
+    // osmosis --read-xml file=changeset.xml --write-pbf file=changeset.osm.pbf
     #[test]
     fn oms_changesets_working() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -553,6 +548,20 @@ mod tests {
 
         let mut osm = OSMLocalReader::new(reader, None);
         osm.parse_blocks();
+    }
+
+    // osmosis --read-xml file=header.xml --write-pbf file=header.osm.pbf
+    #[test]
+    fn oms_header_working() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/osm/fixtures/header.osm.pbf");
+        let path_str = path.to_str().unwrap();
+        let reader = FileReader::from(path_str);
+
+        let mut osm = OSMLocalReader::new(reader, None);
+        osm.parse_blocks();
+
+        assert_eq!(osm.get_header(), OSMHeader::default());
     }
 
     #[test]
@@ -570,5 +579,180 @@ mod tests {
         let gis_reader = GISReader::from_buffer(bytes, ReaderType::OSM, None);
         let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
         assert_eq!(features.len(), 8);
+    }
+
+    #[test]
+    fn osm_sample_test() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/osm/fixtures/sample.pbf");
+        let path_str = path.to_str().unwrap();
+        let reader = FileReader::from(path_str);
+
+        let mut osm = OSMLocalReader::new(reader, None);
+        osm.parse_blocks();
+
+        let features: Vec<_> = osm.iter().collect();
+        assert_eq!(features.len(), 339);
+    }
+
+    #[test]
+    fn osm_isle_of_man() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/osm/fixtures/isle-of-man-latest.osm.pbf");
+        let path_str = path.to_str().unwrap();
+        let reader = FileReader::from(path_str);
+
+        let mut osm = OSMLocalReader::new(reader, None);
+        osm.parse_blocks();
+
+        let features: Vec<_> = osm.iter().collect();
+        assert_eq!(features.len(), 562_030);
+    }
+
+    // osmosis --read-xml file=nodes.xml --write-pbf file=output-nodense.pbf compress=none usedense=false
+    #[test]
+    fn osm_node_test() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/osm/fixtures/output-nodense.pbf");
+        let path_str = path.to_str().unwrap();
+        let reader = FileReader::from(path_str);
+
+        let mut osm = OSMLocalReader::new(reader, None);
+        osm.parse_blocks();
+
+        assert_eq!(
+            osm.get_header(),
+            OSMHeader {
+                bbox: BBox { left: 0.0, bottom: 0.0, right: 15.0, top: 15.0 },
+                required_features: vec!["OsmSchema-V0.6".into()],
+                optional_features: vec![],
+                writingprogram: Some("0.49.2".into()),
+                source: Some("handmade".into()),
+                osmosis_replication_timestamp: 0,
+                osmosis_replication_sequence_number: 0,
+                osmosis_replication_base_url: None
+            }
+        );
+
+        let features: Vec<_> = osm.iter().collect();
+        assert_eq!(features.len(), 2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_blob_header_should_panic() {
+        let mut test = BlobHeader::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_blob_should_panic() {
+        let mut test = Blob::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_blob_not_supported_should_panic() {
+        let mut test = Blob::default();
+        test.read(5, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_header_block_should_panic() {
+        let mut test = HeaderBlock::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_header_bbox_block_should_panic() {
+        let mut test = HeaderBBox::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_dense_info_should_panic() {
+        let mut test = DenseInfo::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_info_should_panic() {
+        let mut test = Info::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_dense_nodes_should_panic() {
+        let mut test = DenseNodes::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_node_should_panic() {
+        let mut test = Node::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_changeset_should_panic() {
+        let mut test = ChangeSet::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_string_table_should_panic() {
+        let mut test = StringTable::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_primitive_group_should_panic() {
+        let mut test = PrimitiveGroup::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_primitive_block_should_panic() {
+        let mut test = PrimitiveBlock::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    fn osm_way_should_do_nothing() {
+        let mut test = Way::default();
+        test.read(9, &mut Protobuf::default());
+        assert_eq!(test, Way::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_way_should_panic() {
+        let mut test = Way::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    #[should_panic]
+    fn osm_relation_should_panic() {
+        let mut test = Relation::default();
+        test.read(0, &mut Protobuf::default());
+    }
+
+    #[test]
+    fn osm_osmmetadata_layer() {
+        let test = OSMMetadata::default();
+        assert_eq!(test.get_layer(), None);
     }
 }

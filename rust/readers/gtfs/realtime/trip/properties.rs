@@ -40,6 +40,12 @@ pub struct GTFSRealtimeTripProperties {
     /// be marked as schedule_relationship=SKIPPED.
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
     pub shape_id: Option<String>, // 4 [string]
+    /// Specifies the headsign for this trip when it differs from the original.
+    /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
+    pub trip_headsign: Option<String>, // 5 [string]
+    /// Specifies the name for this trip when it differs from the original.
+    /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
+    pub trip_short_name: Option<String>, // 6 [string]
 }
 /// Read in the contents of the GTFSRealtimeTripProperties
 impl ProtoRead for GTFSRealtimeTripProperties {
@@ -48,7 +54,10 @@ impl ProtoRead for GTFSRealtimeTripProperties {
             1 => self.trip_id = Some(pb.read_string()),
             2 => self.start_date = Some(parse_gtfs_date(&pb.read_string()).unwrap_or_default()),
             3 => self.start_time = Some(pb.read_string()),
-            4 => self.shape_id = Some(pb.read_string()),
+            // Experimental. May be used in the future
+            // 4 => self.shape_id = Some(pb.read_string()),
+            // 5 => self.trip_headsign = Some(pb.read_string()),
+            // 6 => self.trip_short_name = Some(pb.read_string()),
             _ => panic!("unknown tag {}", tag),
         }
     }

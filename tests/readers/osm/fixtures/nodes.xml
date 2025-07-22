@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="handmade">
+    <bounds minlat="0" minlon="0" maxlat="15" maxlon="15"/>
+    <node id="1" lat="50.0" lon="10.0" version="3" timestamp="2020-01-01T00:00:00Z">
+        <info version="3" changeset="123" uid="1000" user="test_user" visible="true" />
+        <tag k="name" v="Example Node" />
+        <tag k="type" v="test" />
+    </node>
+    <node
+        id="2"
+        lat="50.1"
+        lon="10.1"
+        version="2"
+        timestamp="2020-01-01T00:00:00Z"
+        changeset="124"
+        uid="1001"
+        user="another_user"
+        visible="true"
+    />
+</osm>

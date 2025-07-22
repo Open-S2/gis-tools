@@ -111,4 +111,9 @@ impl Date {
             self.year, self.month, self.day, self.hour, self.minute, self.second
         )
     }
+
+    /// Returns a string representing the Date in the YYYYMMDD format
+    pub fn to_string(&self) -> String {
+        format!("{:04}{:02}{:02}", self.year, self.month + 1, self.day)
+    }
 }
