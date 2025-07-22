@@ -1,5 +1,5 @@
 use crate::{readers::parse_gtfs_date, util::Date};
-use alloc::string::String;
+use alloc::string::{String, ToString};
 use pbf::{BitCast, ProtoRead, ProtoWrite, Protobuf};
 
 /// The relation between this trip and the static schedule. If a trip is done

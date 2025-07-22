@@ -49,7 +49,7 @@ pub fn packbits_decoder(buffer: &[u8]) -> Vec<u8> {
             let count = (-(header as isize) + 1) as usize;
             i += 1;
             let value = buffer[i];
-            out.extend(std::iter::repeat(value).take(count));
+            out.extend(core::iter::repeat_n(value, count));
             i += 1;
         } else {
             // Positive header: copy next (header + 1) bytes

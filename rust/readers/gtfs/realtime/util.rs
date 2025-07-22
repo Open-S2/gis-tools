@@ -19,7 +19,7 @@ pub struct GTFSRealtimeTranslatedString {
 impl GTFSRealtimeTranslatedString {
     /// Converts the GTFSRealtimeTranslatedString to a String
     pub fn to_string(&self, ui_language: Option<&str>) -> String {
-        if self.translations.len() == 0 {
+        if self.translations.is_empty() {
             return String::new();
         }
         let ui_language = ui_language.unwrap_or("en");

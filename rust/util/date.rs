@@ -1,4 +1,4 @@
-use alloc::{format, string::String};
+use alloc::{fmt, format, string::String};
 
 /// Helper function to check if a year is a leap year
 const fn is_leap_year(year: u16) -> bool {
@@ -111,9 +111,9 @@ impl Date {
             self.year, self.month, self.day, self.hour, self.minute, self.second
         )
     }
-
-    /// Returns a string representing the Date in the YYYYMMDD format
-    pub fn to_string(&self) -> String {
-        format!("{:04}{:02}{:02}", self.year, self.month + 1, self.day)
+}
+impl fmt::Display for Date {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:04}{:02}{:02}", self.year, self.month + 1, self.day)
     }
 }
