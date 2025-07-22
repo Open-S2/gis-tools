@@ -13,6 +13,7 @@ mod tests {
             GeoPixelScale, GeoTIFFOptions, GeoTIFFReader, GeoTiePoint, PhotometricInterpretations,
             Raster, ReaderType, apply_predictor, build_samples, convert_color_space,
             decode_row_acc_u8, decode_row_acc_u16, decode_row_acc_u32, decode_row_floating_point,
+            get_reader_for_sample, needs_normalization, normalize_array, sample_sum,
         },
     };
     use s2json::BBox;
@@ -546,6 +547,59 @@ mod tests {
     }
 
     #[test]
+    fn test_geotiff_deflate_last_strip_extra_data() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/deflate-last-strip-extra-data.tiff");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), Some(GeoTIFFOptions { epsg_codes: BTreeMap::from([("26711".into(), "PROJCRS[\"NAD27 / UTM zone 11N\",BASEGEOGCRS[\"NAD27\",DATUM[\"North American Datum 1927\",ELLIPSOID[\"Clarke 1866\",6378206.4,294.978698213901,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7008]],ID[\"EPSG\",6267]],ID[\"EPSG\",4267]],CONVERSION[\"UTM zone 11N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-117,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",16011]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26711]]".into())]) }));
+
+        let mut image = geotiff.get_image(None).unwrap();
+        let raster = image.raster_data(None);
+
+        assert_eq!(raster.width, 500);
+        assert_eq!(raster.height, 500);
+        assert_eq!(raster.alpha, false);
+        assert_eq!(raster.min, 16.0);
+        assert_eq!(raster.max, 255.0);
+    }
+
+    // TODO: GET THIS WORKING
+    // https://gitlab.com/libtiff/libtiff/-/tree/master/test/images?ref_type=heads
+    // #[test]
+    // fn test_geotiff_palette_1c_4b() {
+    //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    //     path.push("tests/readers/geotiff/fixtures/palette-1c-4b.tiff");
+    //     let bytes = std::fs::read(path.clone()).unwrap();
+    //     let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), Some(GeoTIFFOptions { epsg_codes: BTreeMap::from([("26711".into(), "PROJCRS[\"NAD27 / UTM zone 11N\",BASEGEOGCRS[\"NAD27\",DATUM[\"North American Datum 1927\",ELLIPSOID[\"Clarke 1866\",6378206.4,294.978698213901,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7008]],ID[\"EPSG\",6267]],ID[\"EPSG\",4267]],CONVERSION[\"UTM zone 11N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-117,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",16011]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26711]]".into())]) }));
+
+    //     let mut image = geotiff.get_image(None).unwrap();
+    //     let raster = image.raster_data(None);
+
+    //     assert_eq!(raster.width, 500);
+    //     assert_eq!(raster.height, 500);
+    //     assert_eq!(raster.alpha, false);
+    //     assert_eq!(raster.min, 16.0);
+    //     assert_eq!(raster.max, 255.0);
+    // }
+
+    #[test]
+    fn test_geotiff_webp_lossless_rgba_alpha_fully_opaque() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/geotiff/fixtures/webp_lossless_rgba_alpha_fully_opaque.tif");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), Some(GeoTIFFOptions { epsg_codes: BTreeMap::from([("26711".into(), "PROJCRS[\"NAD27 / UTM zone 11N\",BASEGEOGCRS[\"NAD27\",DATUM[\"North American Datum 1927\",ELLIPSOID[\"Clarke 1866\",6378206.4,294.978698213901,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7008]],ID[\"EPSG\",6267]],ID[\"EPSG\",4267]],CONVERSION[\"UTM zone 11N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-117,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",16011]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",26711]]".into())]) }));
+
+        let mut image = geotiff.get_image(None).unwrap();
+        let raster = image.raster_data(None);
+
+        assert_eq!(raster.width, 20);
+        assert_eq!(raster.height, 20);
+        assert_eq!(raster.alpha, false);
+        assert_eq!(raster.min, 74.0);
+        assert_eq!(raster.max, 255.0);
+    }
+
+    #[test]
     fn test_geotiff_rastering() {
         let test = Raster {
             width: 20,
@@ -941,9 +995,180 @@ mod tests {
         let _ = apply_predictor(vec![1, 2], 2, 1, 1, vec![8, 16], 1);
     }
 
+    #[test]
+    fn test_gtiff_data_type_unsigned() {
+        assert_eq!(GTiffDataType::to_type(1, 8), GTiffDataType::U8);
+        assert_eq!(GTiffDataType::to_type(1, 16), GTiffDataType::U16);
+        assert_eq!(GTiffDataType::to_type(1, 32), GTiffDataType::U32);
+    }
+
+    #[test]
+    fn test_gtiff_data_type_signed() {
+        assert_eq!(GTiffDataType::to_type(2, 8), GTiffDataType::I8);
+        assert_eq!(GTiffDataType::to_type(2, 16), GTiffDataType::I16);
+        assert_eq!(GTiffDataType::to_type(2, 32), GTiffDataType::I32);
+    }
+
+    #[test]
+    fn test_gtiff_data_type_floating() {
+        assert_eq!(GTiffDataType::to_type(3, 16), GTiffDataType::F16);
+        assert_eq!(GTiffDataType::to_type(3, 32), GTiffDataType::F32);
+        assert_eq!(GTiffDataType::to_type(3, 64), GTiffDataType::F64);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_gtiff_data_type_unsupported() {
+        GTiffDataType::to_type(1, 40);
+    }
+
+    #[test]
+    fn test_sample_sum_basic() {
+        let data = [1, 2, 3, 4, 5];
+        assert_eq!(sample_sum(&data, 1, 4), 9);
+    }
+
+    #[test]
+    fn test_needs_normalization_unsigned_ok() {
+        assert!(!needs_normalization(1, 8));
+        assert!(!needs_normalization(1, 32));
+    }
+
+    #[test]
+    fn test_needs_normalization_signed_ok() {
+        assert!(!needs_normalization(2, 16));
+    }
+
+    #[test]
+    fn test_needs_normalization_float_ok() {
+        assert!(!needs_normalization(3, 16));
+        assert!(!needs_normalization(3, 32));
+        assert!(!needs_normalization(3, 64));
+    }
+
+    #[test]
+    fn test_needs_normalization_true() {
+        assert!(needs_normalization(3, 24));
+        assert!(needs_normalization(1, 7));
+    }
+
+    #[test]
+    fn test_get_reader_unsigned_8() {
+        let reader = get_reader_for_sample(8, 1);
+        let buf = [42u8];
+        assert_eq!(reader(&buf, 0, true), 42.0);
+    }
+
+    #[test]
+    fn test_get_reader_unsigned_16() {
+        let reader = get_reader_for_sample(16, 1);
+        let le = [0x34, 0x12];
+        let be = [0x12, 0x34];
+        assert_eq!(reader(&le, 0, true), 0x1234 as f64);
+        assert_eq!(reader(&be, 0, false), 0x1234 as f64);
+    }
+
+    #[test]
+    fn test_get_reader_signed_8() {
+        let reader = get_reader_for_sample(8, 2);
+        let buf = [0xFF]; // -1
+        assert_eq!(reader(&buf, 0, true), -1.0);
+    }
+
+    #[test]
+    fn test_get_reader_signed_16() {
+        let reader = get_reader_for_sample(16, 2);
+        let le = [0xFF, 0xFF]; // -1
+        assert_eq!(reader(&le, 0, true), -1.0);
+    }
+
+    #[test]
+    fn test_get_reader_float_32() {
+        let reader = get_reader_for_sample(32, 3);
+        let val: f32 = 3.5;
+        let bytes = val.to_le_bytes();
+        assert_eq!(reader(&bytes, 0, true), 3.5);
+    }
+
+    #[test]
+    fn test_get_reader_float_64() {
+        let reader = get_reader_for_sample(64, 3);
+        let val: f64 = 1.25;
+        let bytes = val.to_le_bytes();
+        assert_eq!(reader(&bytes, 0, true), 1.25);
+    }
+
+    #[test]
+    fn test_get_reader_float_16() {
+        use half::f16;
+        let reader = get_reader_for_sample(16, 3);
+        let val = f16::from_f32(2.0);
+        let bytes = val.to_le_bytes();
+        assert_eq!(reader(&bytes, 0, true), 2.0);
+    }
+
+    #[test]
+    fn test_normalize_array_8bit_planar1() {
+        // 1 sample/pixel, 2x2 tile
+        let input = vec![
+            0b00000001, 0b00000010, // row 1: 1, 2
+            0b00000011, 0b00000100, // row 2: 3, 4
+        ];
+        let output = normalize_array(input, 1, 1, 1, 8, 2, 2);
+        assert_eq!(output, vec![1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_normalize_array_8bit_planar2() {
+        // planar configuration = 2: assume just one sample per tile
+        let input = vec![0b00000001, 0b00000010]; // 2 values
+        let output = normalize_array(input, 1, 2, 1, 8, 2, 1);
+        assert_eq!(output, vec![1, 2]);
+    }
+
     // #[test]
-    // #[should_panic]
-    // fn test_geotiff_get_decoder_should_panic() {
-    //     get_decoder(Some(0))
+    // fn test_normalize_array_16bit() {
+    //     // Two pixels: 0x1234 and 0xABCD
+    //     let input = vec![
+    //         0x12, 0x34, 0x00, // pixel 1
+    //         0xAB, 0xCD, 0x00, // pixel 2
+    //         0x00, 0x00, 0x00,
+    //     ];
+    //     let output = normalize_array(input, 1, 1, 1, 16, 2, 1);
+    //     assert_eq!(output, vec![0x12, 0x34, 0xAB, 0xCD]);
     // }
+
+    // #[test]
+    // fn test_normalize_array_24bit() {
+    //     // Two pixels: 0x112233 and 0xAABBCC
+    //     let input = vec![0x11, 0x22, 0x33, 0xAA, 0xBB, 0xCC];
+    //     let output = normalize_array(input, 1, 1, 1, 24, 2, 1);
+    //     assert_eq!(output, vec![0x11, 0x22, 0x33, 0xAA, 0xBB, 0xCC]);
+    // }
+
+    // #[test]
+    // fn test_normalize_array_32bit() {
+    //     // One pixel: 0x01020304
+    //     let input = vec![0x01, 0x02, 0x03, 0x04];
+    //     let output = normalize_array(input, 1, 1, 1, 32, 1, 1);
+    //     assert_eq!(output, vec![0x01, 0x02, 0x03, 0x04]);
+    // }
+
+    #[test]
+    fn test_normalize_array_multisample() {
+        // 2 samples/pixel, 1x2 tile
+        // pixel 1: [1,2], pixel 2: [3,4]
+        let input = vec![0b00000001, 0b00000010, 0b00000011, 0b00000100];
+        let output = normalize_array(input, 1, 1, 2, 8, 1, 2);
+        assert_eq!(output, vec![1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_normalize_array_format_3() {
+        // 2 samples/pixel, 1x2 tile
+        // pixel 1: [1,2], pixel 2: [3,4]
+        let input = vec![0b00000001, 0b00000010, 0b00000011, 0b00000100];
+        let output = normalize_array(input, 3, 1, 2, 8, 1, 2);
+        assert_eq!(output, vec![0, 0, 0, 0]);
+    }
 }

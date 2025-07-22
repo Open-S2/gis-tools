@@ -20,7 +20,7 @@ pub fn get_decoder(compression: Option<u16>) -> Option<Decoder> {
             decompress_fflate(buffer, dict).unwrap()
         }),
         #[cfg(feature = "std")]
-        6 | 50001 => Some(|buffer: &[u8], _tables: Option<&[u8]>| -> Vec<u8> {
+        6 | 256 | 50001 => Some(|buffer: &[u8], _tables: Option<&[u8]>| -> Vec<u8> {
             image_decoder_buffer(&(buffer.to_vec().into()), None).take()
         }),
         7 => {

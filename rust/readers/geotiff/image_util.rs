@@ -228,7 +228,7 @@ pub fn get_reader_for_sample(
     format: u16,
 ) -> fn(buffer: &[u8], offset: usize, little_endian: bool) -> f64 {
     match format {
-        1 => {
+        0 | 1 => {
             // unsigned integer data
             if bits_per_sample <= 8 {
                 return |buffer: &[u8], offset: usize, _little_endian: bool| -> f64 {
@@ -323,5 +323,5 @@ pub fn get_reader_for_sample(
         }
         _ => {}
     }
-    panic!("Unsupported data format/bits_per_sample");
+    panic!("Unsupported data format/bits_per_sample: {format} / {bits_per_sample}");
 }
