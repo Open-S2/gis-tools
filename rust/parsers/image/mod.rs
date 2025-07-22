@@ -6,6 +6,8 @@ pub mod jpeg;
 pub mod rgba;
 // /// Image utility functions
 // pub mod util;
+// /// JPEG 2000 data
+// pub mod jpeg2000;
 
 use super::Buffer;
 pub use decoder::*;

@@ -1,3 +1,4 @@
+#![cfg_attr(feature = "nightly", coverage(off))]
 use alloc::{collections::BTreeMap, string::String, vec::Vec};
 
 /// TIFF Photometric Interpretations
@@ -417,6 +418,10 @@ impl GeoStore {
             GeoTIFFTypes::LONG | GeoTIFFTypes::RATIONAL => {
                 v.chunks(4).map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap())).collect()
             }
+            GeoTIFFTypes::LONG8 => v
+                .chunks(8)
+                .map(|chunk| u64::from_le_bytes(chunk.try_into().unwrap()) as u32)
+                .collect(),
             _ => panic!("Invalid type: {:?}", r#type),
         })
     }

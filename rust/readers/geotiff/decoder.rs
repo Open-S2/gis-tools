@@ -34,33 +34,30 @@ pub fn get_decoder(compression: Option<u16>) -> Option<Decoder> {
 }
 
 /// Packbits decoder
+///
 /// @param buffer - an array of packed bits in a block
 /// @returns the decoded array
 pub fn packbits_decoder(buffer: &[u8]) -> Vec<u8> {
     let mut out = vec![];
+    let mut i = 0;
 
-    let mut i: usize = 0;
     while i < buffer.len() {
-        let mut header = buffer[i] as isize;
+        let header = buffer[i] as i8;
+
         if header < 0 {
-            let next = buffer[i + 1];
-            header = -header;
-            let mut j = 0;
-            while j <= header {
-                out.push(next);
-                j += 1;
-            }
+            // Negative header: repeat next byte (-header + 1) times
+            let count = (-(header as isize) + 1) as usize;
+            i += 1;
+            let value = buffer[i];
+            out.extend(std::iter::repeat(value).take(count));
             i += 1;
         } else {
-            let mut j: isize = 0;
-            while j <= header {
-                out.push(buffer[((i as isize) + j + 1) as usize]);
-                j += 1;
-            }
-            i = ((i as isize) + header + 1) as usize;
+            // Positive header: copy next (header + 1) bytes
+            let count = (header as usize) + 1;
+            out.extend_from_slice(&buffer[i + 1..i + 1 + count]);
+            i += count + 1;
         }
-        i += 1;
     }
 
-    out.to_vec()
+    out
 }

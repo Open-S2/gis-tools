@@ -840,6 +840,28 @@ mod tests {
     //     transformer.inverse_mut(&mut point);
     //     assert_eq!(point, Coords::new_xy(120.5, 41.75));
     // }
+
+    // #[test]
+    // fn test_coordinate_operation() {
+    //     let mut transformer = Transformer::new();
+    //     transformer.set_source("COORDINATEOPERATION[\"Azores Central 1995 to PTRA08 (4)\",VERSION[\"IGP-Prt Az Pico\"],SOURCECRS[GEOGCRS[\"Azores Central 1995\",DATUM[\"Azores Central Islands 1995\",ELLIPSOID[\"International 1924\",6378388,297,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7022]],ID[\"EPSG\",6665]],CS[ellipsoidal,2,ID[\"EPSG\",6422]],AXIS[\"Geodetic latitude (Lat)\",north],AXIS[\"Geodetic longitude (Lon)\",east],ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",4665]]],TARGETCRS[GEOGCRS[\"PTRA08\",DATUM[\"Autonomous Regions of Portugal 2008\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7019]],ID[\"EPSG\",1041]],CS[ellipsoidal,2,ID[\"EPSG\",6422]],AXIS[\"Geodetic latitude (Lat)\",north],AXIS[\"Geodetic longitude (Lon)\",east],ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",5013]]],METHOD[\"Geocentric translations (geog2D domain)\",ID[\"EPSG\",9603]],PARAMETER[\"X-axis translation\",-105.531,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",166.39,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",-37.326,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8607]],OPERATIONACCURACY[1],ID[\"EPSG\",5030]]".into());
+    //     let mut point = Coords::new_xy(636001.76, 848935.2000000001);
+    //     transformer.inverse_mut(&mut point);
+    //     assert_eq!(point, Coords::new_xy(120.5, 41.75));
+    // }
+
+    #[test]
+    fn test_equal_earth() {
+        let mut transformer = Transformer::new();
+        transformer.set_source("PROJCRS[\"WGS 84 / Equal Earth Greenwich\",BASEGEOGCRS[\"WGS 84\",ENSEMBLE[\"World Geodetic System 1984 ensemble\", MEMBER[\"World Geodetic System 1984 (Transit)\", ID[\"EPSG\",1166]], MEMBER[\"World Geodetic System 1984 (G730)\", ID[\"EPSG\",1152]], MEMBER[\"World Geodetic System 1984 (G873)\", ID[\"EPSG\",1153]], MEMBER[\"World Geodetic System 1984 (G1150)\", ID[\"EPSG\",1154]], MEMBER[\"World Geodetic System 1984 (G1674)\", ID[\"EPSG\",1155]], MEMBER[\"World Geodetic System 1984 (G1762)\", ID[\"EPSG\",1156]], MEMBER[\"World Geodetic System 1984 (G2139)\", ID[\"EPSG\",1309]], MEMBER[\"World Geodetic System 1984 (G2296)\", ID[\"EPSG\",1383]], ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7030]], ENSEMBLEACCURACY[2],ID[\"EPSG\",6326]],ID[\"EPSG\",4326]],CONVERSION[\"Equal Earth Greenwich\",METHOD[\"Equal Earth\",ID[\"EPSG\",1078]],PARAMETER[\"Longitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",8854]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8857]]".into());
+        let mut point = Coords::new_xy(0.0, 0.0);
+        transformer.forward_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(0.0, 0.0));
+
+        let mut point = Coords::new_xy(122.0, -55.0);
+        transformer.forward_mut(&mut point);
+        assert_eq!(point, Coords::new_xy(0.001273489453382342, -0.00042805724568957857));
+    }
 }
 
 //   {

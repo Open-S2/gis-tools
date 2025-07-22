@@ -243,152 +243,159 @@
 
 
 
-import GtfsRealtimeBindings from 'gtfs-realtime-bindings';
-import * as fs from 'fs';
+// import GtfsRealtimeBindings from 'gtfs-realtime-bindings';
+// import * as fs from 'fs';
 
-const message: GtfsRealtimeBindings.transit_realtime.IFeedMessage = {
-  header: {
-    gtfsRealtimeVersion: '2.0',
-    incrementality: 1, // Incrementality (0-1)
-    timestamp: Math.floor(Date.now() / 1000),
-  },
-  entity: [{
-    id: 'vehicle-1',
-    isDeleted: false,
-    tripUpdate: { // ITripUpdate
-        trip:  { // ITripDescriptor
-          tripId: "trip-002",
-          routeId: "route-A",
-          directionId: 2,
-          startTime: "10:00:00",
-          startDate: "2020-01-01",
-          scheduleRelationship: 6 // ScheduleRelationship (0-6)
-        },
-        vehicle: { // IVehicleDescriptor
-          id: "vehicle-001",
-          label: "vlabel-1",
-          licensePlate: "license-plate-1",
-        },
-        stopTimeUpdate: [{ // IStopTimeUpdate
-            stopSequence: 1,
-            stopId: "stop-001",
-            arrival: { // IStopTimeEvent
-              delay: 20,
-              time: Math.floor(Date.now() / 1000),
-              uncertainty: 0,
-            },
-            departure: { // IStopTimeEvent
-              delay: 100,
-              time: Math.floor(Date.now() / 1000),
-              uncertainty: 3,
-            },
-            scheduleRelationship: 3, // ScheduleRelationship UNIQUE (0-3)
-            stopTimeProperties: { // IStopTimeProperties
-              assignedStopId: "stop-001",
-            }
-        }],
-        timestamp: Math.floor(Date.now() / 1000),
-        delay: 20,
-        tripProperties: { // ITripProperties
-            tripId: "trip-002",
-            startDate: "2020-01-01",
-            startTime: "10:00:00",
-        },
-    },
-    vehicle: { // IVehiclePosition
-      trip: { // ITripDescriptor
-        tripId: 'trip-001',
-        routeId: 'route-A',
-        directionId: 22,
-        startTime: "10:00:00",
-        startDate: "2020-01-01",
-        scheduleRelationship: 6, // ScheduleRelationship (0-6)
-      },
-      vehicle: { // IVehicleDescriptor
-        id: "id-22",
-        label: "label-22",
-        licensePlate: "license-plate-22",
-      },
-      position: { // IPosition
-        latitude: 40.0,
-        longitude: -111.9,
-        bearing: 90.0,
-        odometer: 22.2,
-        speed: 33.2,
-      },
-      currentStopSequence: 1,
-      stopId: 'stop-001',
-      currentStatus: 2, // VehicleStopStatus (0-2)
-      timestamp: Math.floor(Date.now() / 1000),
-        congestionLevel: 4, // CongestionLevel (0-4)
-        occupancyStatus: 8, // OccupancyStatus (0-8)
-        occupancyPercentage: 10,
-        multiCarriageDetails: [{ // ICarriageDetails
-            id: "id-33",
-            label: "label-33",
-            occupancyStatus: 8, // OccupancyStatus (0-8)
-            occupancyPercentage: 33,
-            carriageSequence: 33,
-        }],
-    },
-    alert: { // IAlert
-        activePeriod: [{ // ITimeRange
-          start: Math.floor(Date.now() / 1000),
-          end: Math.floor(Date.now() / 1000),
-        }],
-        informedEntity: [{ // IEntitySelector
-          agencyId: "agency-1",
-          routeId: "route-1",
-          routeType: 1,
-          trip: { // ITripDescriptor
-            tripId: "trip-1",
-            routeId: "route-1",
-            directionId: 3,
-            startTime: "00:00:00",
-            startDate: "2020-01-01",
-            scheduleRelationship: 6, // ScheduleRelationship (0-6)
-          },
-          stopId: "stop-1",
-          directionId: 3,
-        }],
-        cause: 12, // Cause (1-12)
-        effect: 11, // Effect (1-11)
-        url: { // ITranslatedString
-          translation: [{
-            text: "text-1",
-            language: "EN",
-          }]
-        },
-        headerText: { // ITranslatedString
-          translation: [{
-            text: "text0",
-            language: "LA",
-          }]
-        },
-        descriptionText: { // ITranslatedString
-          translation: [{
-            text: "text1",
-            language: "BE",
-          }]
-        },
-        ttsHeaderText: { // ITranslatedString
-          translation: [{
-            text: "text2",
-            language: "UR",
-          }]
-        },
-        ttsDescriptionText: { // ITranslatedString
-          translation: [{
-            text: "text3",
-            language: "RA",
-          }]
-        },
+// const message: GtfsRealtimeBindings.transit_realtime.IFeedMessage = {
+//   header: {
+//     gtfsRealtimeVersion: '2.0',
+//     incrementality: 1, // Incrementality (0-1)
+//     timestamp: Math.floor(Date.now() / 1000),
+//   },
+//   entity: [{
+//     id: 'vehicle-1',
+//     isDeleted: false,
+//     tripUpdate: { // ITripUpdate
+//         trip:  { // ITripDescriptor
+//           tripId: "trip-002",
+//           routeId: "route-A",
+//           directionId: 2,
+//           startTime: "10:00:00",
+//           startDate: "2020-01-01",
+//           scheduleRelationship: 6 // ScheduleRelationship (0-6)
+//         },
+//         vehicle: { // IVehicleDescriptor
+//           id: "vehicle-001",
+//           label: "vlabel-1",
+//           licensePlate: "license-plate-1",
+//         },
+//         stopTimeUpdate: [{ // IStopTimeUpdate
+//             stopSequence: 1,
+//             stopId: "stop-001",
+//             arrival: { // IStopTimeEvent
+//               delay: 20,
+//               time: Math.floor(Date.now() / 1000),
+//               uncertainty: 0,
+//             },
+//             departure: { // IStopTimeEvent
+//               delay: 100,
+//               time: Math.floor(Date.now() / 1000),
+//               uncertainty: 3,
+//             },
+//             scheduleRelationship: 3, // ScheduleRelationship UNIQUE (0-3)
+//             stopTimeProperties: { // IStopTimeProperties
+//               assignedStopId: "stop-001",
+//             }
+//         }],
+//         timestamp: Math.floor(Date.now() / 1000),
+//         delay: 20,
+//         tripProperties: { // ITripProperties
+//             tripId: "trip-002",
+//             startDate: "2020-01-01",
+//             startTime: "10:00:00",
+//         },
+//     },
+//     vehicle: { // IVehiclePosition
+//       trip: { // ITripDescriptor
+//         tripId: 'trip-001',
+//         routeId: 'route-A',
+//         directionId: 22,
+//         startTime: "10:00:00",
+//         startDate: "2020-01-01",
+//         scheduleRelationship: 6, // ScheduleRelationship (0-6)
+//       },
+//       vehicle: { // IVehicleDescriptor
+//         id: "id-22",
+//         label: "label-22",
+//         licensePlate: "license-plate-22",
+//       },
+//       position: { // IPosition
+//         latitude: 40.0,
+//         longitude: -111.9,
+//         bearing: 90.0,
+//         odometer: 22.2,
+//         speed: 33.2,
+//       },
+//       currentStopSequence: 1,
+//       stopId: 'stop-001',
+//       currentStatus: 2, // VehicleStopStatus (0-2)
+//       timestamp: Math.floor(Date.now() / 1000),
+//         congestionLevel: 4, // CongestionLevel (0-4)
+//         occupancyStatus: 8, // OccupancyStatus (0-8)
+//         occupancyPercentage: 10,
+//         multiCarriageDetails: [{ // ICarriageDetails
+//             id: "id-33",
+//             label: "label-33",
+//             occupancyStatus: 8, // OccupancyStatus (0-8)
+//             occupancyPercentage: 33,
+//             carriageSequence: 33,
+//         }],
+//     },
+//     alert: { // IAlert
+//         activePeriod: [{ // ITimeRange
+//           start: Math.floor(Date.now() / 1000),
+//           end: Math.floor(Date.now() / 1000),
+//         }],
+//         informedEntity: [{ // IEntitySelector
+//           agencyId: "agency-1",
+//           routeId: "route-1",
+//           routeType: 1,
+//           trip: { // ITripDescriptor
+//             tripId: "trip-1",
+//             routeId: "route-1",
+//             directionId: 3,
+//             startTime: "00:00:00",
+//             startDate: "2020-01-01",
+//             scheduleRelationship: 6, // ScheduleRelationship (0-6)
+//           },
+//           stopId: "stop-1",
+//           directionId: 3,
+//         }],
+//         cause: 12, // Cause (1-12)
+//         effect: 11, // Effect (1-11)
+//         url: { // ITranslatedString
+//           translation: [{
+//             text: "text-1",
+//             language: "EN",
+//           }]
+//         },
+//         headerText: { // ITranslatedString
+//           translation: [{
+//             text: "text0",
+//             language: "LA",
+//           }]
+//         },
+//         descriptionText: { // ITranslatedString
+//           translation: [{
+//             text: "text1",
+//             language: "BE",
+//           }]
+//         },
+//         ttsHeaderText: { // ITranslatedString
+//           translation: [{
+//             text: "text2",
+//             language: "UR",
+//           }]
+//         },
+//         ttsDescriptionText: { // ITranslatedString
+//           translation: [{
+//             text: "text3",
+//             language: "RA",
+//           }]
+//         },
 
-        /** Alert severityLevel */
-        severityLevel: 4, // SeverityLevel (1-4)
-    },
-  }],
-};
+//         /** Alert severityLevel */
+//         severityLevel: 4, // SeverityLevel (1-4)
+//     },
+//   }],
+// };
 
-const buffer = GtfsRealtimeBindings.transit_realtime.FeedMessage.encode(message).finish();
-fs.writeFileSync('./realtime_test_data_11.pb', buffer);
+// const buffer = GtfsRealtimeBindings.transit_realtime.FeedMessage.encode(message).finish();
+// fs.writeFileSync('./realtime_test_data_11.pb', buffer);
+
+
+
+const bytes = [117, 114, 108, 32];
+const buffer = Buffer.from(bytes);
+const value = buffer.readUInt32BE(0);
+console.log(value); // 1780692640

@@ -246,6 +246,7 @@ fn from_epsg_key(id: Option<i16>) -> Option<String> {
 /// @param angle - the angle
 /// @param units - the unit type of the angle
 /// @returns - the angle in radians
+#[cfg_attr(feature = "nightly", coverage(off))]
 fn get_angle(angle: Option<f64>, units: Option<i16>) -> Option<f64> {
     match units.unwrap_or_default() {
         9001 => angle,
@@ -271,6 +272,7 @@ fn get_angle(angle: Option<f64>, units: Option<i16>) -> Option<f64> {
 ///
 /// @param key - the geotiff key
 /// @returns - the proj4 name
+#[cfg_attr(feature = "nightly", coverage(off))]
 fn build_proj_name(key: Option<i16>) -> Option<String> {
     match key.unwrap_or_default() {
         1 => Some("tmerc".into()),  // Transverse_Mercator, GaussBoaga; GaussKruger
@@ -308,6 +310,7 @@ fn build_proj_name(key: Option<i16>) -> Option<String> {
 ///
 /// @param key - the geotiff key
 /// @returns - the proj4 ellipsoid
+#[cfg_attr(feature = "nightly", coverage(off))]
 fn build_ellps(key: Option<i16>) -> String {
     match key.unwrap_or_default() {
         7001 => "airy".into(),
@@ -354,6 +357,7 @@ fn build_ellps(key: Option<i16>) -> String {
 ///
 /// @param key - the geotiff key
 /// @returns - the proj4 to_meter
+#[cfg_attr(feature = "nightly", coverage(off))]
 pub fn geotiff_to_meter(key: Option<i16>) -> f64 {
     match key.unwrap_or_default() {
         9001 => 1.0,                              // Linear_Meter

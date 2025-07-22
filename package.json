@@ -69,6 +69,7 @@
     "build:zig:strip": "wasm-strip zig-out/bin/optimized-uint64.wasm",
     "build:badges": "bun run tools/buildBadges.ts",
     "build:epsg": "bun run tools/buildEPSG.ts",
+    "rust:test:coverage": "RUSTC_BOOTSTRAP=1 cargo +nightly llvm-cov --lcov --output-path coverage/lcov.info --workspace --features nightly",
     "cleanCoverage": "rm -rf coverage && mkdir coverage",
     "types:bundle": "bun run types:build && node scripts/types.mjs",
     "prepublishOnly": "bun run lint+build+test+docs",

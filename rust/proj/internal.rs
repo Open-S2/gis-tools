@@ -241,11 +241,11 @@ impl Proj {
     pub fn set_f64(&mut self, id: i64, value: f64) {
         self.insert_param(id, value.into());
     }
-    /// Set a variable from user input (usually used by the API / TUI)
-    pub fn set_var(&mut self, name: &str, value: &str) {
-        let name_id = name_to_param_id(name);
-        self.insert_param(name_id, value.into());
-    }
+    // /// Set a variable from user input (usually used by the API / TUI)
+    // pub fn set_var(&mut self, name: &str, value: &str) {
+    //     let name_id = name_to_param_id(name);
+    //     self.insert_param(name_id, value.into());
+    // }
     /// Insert a param given code and value
     fn insert_param(&mut self, id: i64, value: ProjValue) {
         self.add_to_params(id, &value);

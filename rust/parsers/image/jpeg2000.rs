@@ -1,3179 +1,2473 @@
-// // https://github.com/runk/jpeg2000/tree/main
-// import type { Reader } from '../index.js';
-
-// /** Image and tile size */
-// interface SIZ {
-//   Xsiz: number;
-//   Ysiz: number;
-//   XOsiz: number;
-//   YOsiz: number;
-//   XTsiz: number;
-//   YTsiz: number;
-//   XTOsiz: number;
-//   YTOsiz: number;
-//   Csiz: number;
-// }
-
-// /** Component defined Image tile */
-// interface ComponentTile {
-//   left: number;
-//   // top: number;
-//   width: number;
-//   height: number;
-//   items: Uint8ClampedArray;
-// }
-
-// /** Size and resolution container */
-// interface SizePerResolution {
-//   width: number;
-//   height: number;
-// }
-
-// /** Defined size per component */
-// interface SizePerComponent {
-//   resolutions: SizePerResolution[];
-//   minWidth: number;
-//   minHeight: number;
-//   maxNumWide: number;
-//   maxNumHigh: number;
-// }
-
-// /** Precinct size in image scale */
-// interface PrecinctSizeInImageScale {
-//   components: SizePerComponent[];
-//   minWidth: number;
-//   minHeight: number;
-//   maxNumWide: number;
-//   maxNumHigh: number;
-// }
-
-// /** Precinct size only */
-// interface PrecinctSize {
-//   PPx: number;
-//   PPy: number;
-// }
-
-// /** Coding definition */
-// interface CodingStyleParameters {
-//   entropyCoderWithCustomPrecincts: boolean;
-//   sopMarkerUsed: boolean;
-//   ephMarkerUsed: boolean;
-//   progressionOrder: number;
-//   layersCount: number;
-//   multipleComponentTransform: number;
-//   decompositionLevelsCount: number;
-//   xcb: number;
-//   ycb: number;
-//   selectiveArithmeticCodingBypass: boolean;
-//   resetContextProbabilities: boolean;
-//   terminationOnEachCodingPass: boolean;
-//   verticallyStripe: boolean;
-//   predictableTermination: boolean;
-//   segmentationSymbolUsed: boolean;
-//   reversibleTransformation: boolean;
-//   precinctsSizes: PrecinctSize[];
-// }
-
-// /** Tile context */
-// interface ContextTile {
-//   tx0: number;
-//   ty0: number;
-//   tx1: number;
-//   ty1: number;
-//   width: number;
-//   height: number;
-//   components: ContextTileComponent[];
-//   packetsIterator?: ComponentPositionIterator;
-//   codingStyleDefaultParameters: CodingStyleParameters;
-// }
-
-// /** Components track the properties of each component */
-// interface Component {
-//   precision: number;
-//   isSigned: boolean;
-//   XRsiz: number;
-//   YRsiz: number;
-//   x0: number;
-//   x1: number;
-//   y0: number;
-//   y1: number;
-//   width: number;
-//   height: number;
-// }
-
-// /** Tile component context */
-// interface ContextTileComponent {
-//   tcx0: number;
-//   tcy0: number;
-//   tcx1: number;
-//   tcy1: number;
-//   width: number;
-//   height: number;
-//   resolutions: Resolution[];
-//   subbands: SubBand[];
-//   quantizationParameters: QuantizationParameters;
-//   codingStyleParameters: CodingStyleParameters;
-// }
-
-// /** Context to track image params across tiles */
-// interface Context {
-//   mainHeader: boolean;
-//   components: Component[];
-//   QCD: QuantizationParameters;
-//   QCC: QuantizationParameters[];
-//   COD: CodingStyleParameters;
-//   COC: CodingStyleParameters[];
-//   SIZ: SIZ;
-//   tiles: ContextTile[];
-//   currentTile: Tile;
-// }
-
-// /** Tile container */
-// interface Tile {
-//   index: number;
-//   length: number;
-//   dataEnd: number;
-//   partIndex: number;
-//   partsCount: number;
-//   COD: CodingStyleParameters;
-//   COC: CodingStyleParameters[];
-//   QCD: QuantizationParameters;
-//   QCC: QuantizationParameters[];
-//   components: Component[];
-// }
-
-// /** A level in the pyramid */
-// interface Level {
-//   width: number;
-//   height: number;
-//   items: number[] | Uint8Array | Float32Array;
-//   index?: number;
-// }
-
-// /** Block dimensions */
-// interface BlockDimensions {
-//   PPx: number;
-//   PPy: number;
-//   xcb_: number;
-//   ycb_: number;
-// }
-
-// /** Packets track the code blocks of each layer */
-// interface Packet {
-//   layerNumber: number;
-//   codeblocks: CodeBlock[];
-// }
-
-// /** Queue item container */
-// interface QueueItem {
-//   codeblock: CodeBlock;
-//   codingpasses: number;
-//   dataLength: number;
-// }
-
-// /** Data referenced by a codeblock */
-// interface CodeBlockData {
-//   data: Reader;
-//   start: number;
-//   end: number;
-//   codingpasses: number;
-// }
-
-// /** Codeblock container */
-// interface CodeBlock {
-//   cbx: number;
-//   cby: number;
-//   tbx0: number;
-//   tby0: number;
-//   tbx1: number;
-//   tby1: number;
-//   tbx0_: number;
-//   tby0_: number;
-//   tbx1_: number;
-//   tby1_: number;
-//   precinctNumber: number;
-//   subbandType: SubBandType;
-//   Lblock: number;
-//   precinct?: Precinct;
-//   included?: boolean;
-//   zeroBitPlanes?: number;
-//   data?: CodeBlockData[];
-// }
-
-// /** Precinct parameters */
-// interface PrecinctParameters {
-//   precinctWidth: number;
-//   precinctHeight: number;
-//   numprecinctswide: number;
-//   numprecinctshigh: number;
-//   numprecincts: number;
-//   precinctWidthInSubband: number;
-//   precinctHeightInSubband: number;
-// }
-
-// /** Resolution at a specified level */
-// interface Resolution {
-//   trx0: number;
-//   try0: number;
-//   trx1: number;
-//   try1: number;
-//   resLevel: number;
-//   subbands: SubBand[];
-//   precinctParameters: PrecinctParameters;
-// }
-
-// /** Precinct container */
-// interface Precinct {
-//   cbxMin: number;
-//   cbyMin: number;
-//   cbxMax: number;
-//   cbyMax: number;
-//   inclusionTree?: InclusionTree;
-//   zeroBitPlanesTree?: TagTree;
-// }
-
-// /** Codeblock parameters */
-// interface CodeBlockParams {
-//   codeblockWidth: number;
-//   codeblockHeight: number;
-//   numcodeblockwide: number;
-//   numcodeblockhigh: number;
-// }
-
-// /** Subband container */
-// interface SubBand {
-//   tbx0: number;
-//   tby0: number;
-//   tbx1: number;
-//   tby1: number;
-//   type: SubBandType;
-//   resolution: Resolution;
-//   codeblocks: CodeBlock[];
-//   precincts: Precinct[];
-//   codeblockParameters: CodeBlockParams;
-// }
-
-// /** Tile transform */
-// interface TileTransform {
-//   left: number;
-//   top: number;
-//   width: number;
-//   height: number;
-//   items: number[] | Uint8Array | Float32Array;
-// }
-
-// /** Subpacket Quantization default container */
-// interface SPQCD {
-//   epsilon: number;
-//   mu: number;
-// }
-
-// /** Quantization parameters */
-// interface QuantizationParameters {
-//   noQuantization: boolean;
-//   scalarExpounded: boolean;
-//   guardBits: number;
-//   spqcds: SPQCD[];
-// }
-
-// /** Component position iterator */
-// interface ComponentPositionIterator {
-//   nextPacket: () => Packet;
-// }
-
-// /** Subband type */
-// type SubBandType = 'HH' | 'HL' | 'LL' | 'LH';
-
-// /** Table E.1 */
-// const SubbandsGainLog2 = {
-//   LL: 0,
-//   LH: 1,
-//   HL: 1,
-//   HH: 2,
-// };
-
-// /**
-//  * Default SIZ container
-//  * @returns - the default SIZ
-//  */
-// function defaultSIZ(): SIZ {
-//   return {
-//     Xsiz: 0,
-//     Ysiz: 0,
-//     XOsiz: 0,
-//     YOsiz: 0,
-//     XTsiz: 0,
-//     YTsiz: 0,
-//     XTOsiz: 0,
-//     YTOsiz: 0,
-//     Csiz: 0,
-//   };
-// }
-
-// /**
-//  * Default codeblock parameters
-//  * @returns - the default codeblock parameters
-//  */
-// function defaultCodeBlockParams(): CodeBlockParams {
-//   return {
-//     codeblockWidth: 0,
-//     codeblockHeight: 0,
-//     numcodeblockwide: 0,
-//     numcodeblockhigh: 0,
-//   };
-// }
-
-// /**
-//  * Default coding style parameters
-//  * @returns - the default coding style parameters
-//  */
-// function defaultCodingStyleParameters(): CodingStyleParameters {
-//   return {
-//     entropyCoderWithCustomPrecincts: false,
-//     sopMarkerUsed: false,
-//     ephMarkerUsed: false,
-//     progressionOrder: 0,
-//     layersCount: 0,
-//     multipleComponentTransform: 0,
-//     decompositionLevelsCount: 0,
-//     xcb: 0,
-//     ycb: 0,
-//     selectiveArithmeticCodingBypass: false,
-//     resetContextProbabilities: false,
-//     terminationOnEachCodingPass: false,
-//     verticallyStripe: false,
-//     predictableTermination: false,
-//     segmentationSymbolUsed: false,
-//     reversibleTransformation: false,
-//     precinctsSizes: [],
-//   };
-// }
-
-// /**
-//  * Default tile
-//  * @returns - the default tile
-//  */
-// function defaultTile(): Tile {
-//   return {
-//     index: 0,
-//     length: 0,
-//     dataEnd: 0,
-//     partIndex: 0,
-//     partsCount: 0,
-//     COD: defaultCodingStyleParameters(),
-//     QCD: defaultQuantizationParameters(),
-//     QCC: [],
-//     COC: [],
-//     components: [],
-//   };
-// }
-
-// /**
-//  * Default quantization parameters
-//  * @returns - the default quantization parameters
-//  */
-// function defaultQuantizationParameters(): QuantizationParameters {
-//   return {
-//     noQuantization: false,
-//     scalarExpounded: false,
-//     guardBits: 0,
-//     spqcds: [],
-//   };
-// }
-
-// /**
-//  * Precinct parameters
-//  * @returns - the default precinct parameters
-//  */
-// function defaultPrecinctParameters(): PrecinctParameters {
-//   return {
-//     precinctWidth: 0,
-//     precinctHeight: 0,
-//     numprecinctswide: 0,
-//     numprecinctshigh: 0,
-//     numprecincts: 0,
-//     precinctWidthInSubband: 0,
-//     precinctHeightInSubband: 0,
-//   };
-// }
-
-// /**
-//  * Jpeg2000 image decoder
-//  * @returns - the Jpeg2000 image
-//  */
-// export class JpxImage {
-//   failOnCorruptedImage = false;
-//   width = 0;
-//   height = 0;
-//   componentsCount = 0;
-//   tiles: ComponentTile[] = [];
-
-//   /** @param reader - the reader to parse from */
-//   constructor(reader: Reader | undefined) {
-//     if (reader !== undefined) this.parse(reader);
-//   }
-
-//   /**
-//    * parse the input data into components
-//    * @param reader - the reader to parse from
-//    */
-//   parse(reader: Reader) {
-//     const head = reader.getUint16(0);
-//     // No box header, immediate start of codestream (SOC)
-//     if (head === 0xff4f) {
-//       this.parseCodestream(reader, 0, reader.byteLength);
-//       return;
-//     }
-
-//     let position = 0;
-//     const length = reader.byteLength;
-//     while (position < length) {
-//       let headerSize = 8;
-//       let lbox = reader.getUint16(position);
-//       const tbox = reader.getUint16(position + 4);
-//       position += headerSize;
-//       if (lbox === 1) {
-//         // XLBox: read UInt64 according to spec.
-//         // JavaScript's int precision of 53 bit should be sufficient here.
-//         lbox = reader.getUint16(position) * 4294967296 + reader.getUint16(position + 4);
-//         position += 8;
-//         headerSize += 8;
-//       }
-//       if (lbox === 0) {
-//         lbox = length - position + headerSize;
-//       }
-//       if (lbox < headerSize) {
-//         throw new Error('Invalid box field size');
-//       }
-//       const dataLength = lbox - headerSize;
-//       let jumpDataLength = true;
-//       switch (tbox) {
-//         case 0x6a703268: // 'jp2h'
-//           jumpDataLength = false; // parsing child boxes
-//           break;
-//         case 0x636f6c72: {
-//           // Colorspaces are not used, the CS from the PDF is used. // 'colr'
-//           // const method = data[position];
-//           const method = reader.getUint8(position);
-//           if (method === 1) {
-//             // enumerated colorspace
-//             const colorspace = reader.getUint32(position + 3);
-//             switch (colorspace) {
-//               case 16: // this indicates a sRGB colorspace
-//               case 17: // this indicates a grayscale colorspace
-//               case 18: // this indicates a YUV colorspace
-//                 break;
-//               default:
-//                 console.warn('Unknown colorspace ' + colorspace);
-//                 break;
-//             }
-//           } else if (method === 2) {
-//             console.info('ICC profile not supported');
-//           }
-//           break;
-//         }
-//         case 0x6a703263: // 'jp2c'
-//           this.parseCodestream(reader, position, position + dataLength);
-//           break;
-//         case 0x6a502020: // 'jP\024\024'
-//           if (reader.getUint32(position) !== 0x0d0a870a) {
-//             console.warn('Invalid JP2 signature');
-//           }
-//           break;
-//         // The following header types are valid but currently not used:
-//         case 0x6a501a1a: // 'jP\032\032'
-//         case 0x66747970: // 'ftyp'
-//         case 0x72726571: // 'rreq'
-//         case 0x72657320: // 'res '
-//         case 0x69686472: // 'ihdr'
-//           break;
-//         default: {
-//           const headerType = String.fromCharCode(
-//             (tbox >> 24) & 0xff,
-//             (tbox >> 16) & 0xff,
-//             (tbox >> 8) & 0xff,
-//             tbox & 0xff,
-//           );
-//           console.warn('Unsupported header type ' + tbox + ' (' + headerType + ')');
-//           break;
-//         }
-//       }
-//       if (jumpDataLength) {
-//         position += dataLength;
-//       }
-//     }
-//   }
-
-//   /**
-//    * parse the input data into components
-//    * @param data - compressed data
-//    * @param start - start index
-//    * @param end - end index
-//    */
-//   parseCodestream(data: Reader, start: number, end: number): void {
-//     const context: Context = {
-//       mainHeader: false,
-//       components: [],
-//       QCD: defaultQuantizationParameters(),
-//       QCC: [],
-//       COC: [],
-//       SIZ: defaultSIZ(),
-//       tiles: [],
-//       currentTile: defaultTile(),
-//       COD: defaultCodingStyleParameters(),
-//     };
-//     let doNotRecover = false;
-//     try {
-//       let position = start;
-//       while (position + 1 < end) {
-//         const code = data.getUint16(position);
-//         position += 2;
-
-//         let length = 0;
-//         switch (code) {
-//           case 0xff4f: // Start of codestream (SOC)
-//             context.mainHeader = true;
-//             break;
-//           case 0xffd9: // End of codestream (EOC)
-//             break;
-//           case 0xff51: {
-//             // Image and tile size (SIZ)
-//             length = data.getUint16(position);
-//             const siz: SIZ = {
-//               Xsiz: data.getUint32(position + 4),
-//               Ysiz: data.getUint32(position + 8),
-//               XOsiz: data.getUint32(position + 12),
-//               YOsiz: data.getUint32(position + 16),
-//               XTsiz: data.getUint32(position + 20),
-//               YTsiz: data.getUint32(position + 24),
-//               XTOsiz: data.getUint32(position + 28),
-//               YTOsiz: data.getUint32(position + 32),
-//               Csiz: data.getUint16(position + 36),
-//             };
-//             let j = position + 38;
-//             for (let i = 0; i < siz.Csiz; i++) {
-//               const component: Component = {
-//                 precision: (data.getUint8(j) & 0x7f) + 1,
-//                 isSigned: !((data.getUint8(j) & 0x80) === 0),
-//                 XRsiz: data.getUint8(j + 1),
-//                 YRsiz: data.getUint8(j + 2),
-//                 x0: 0,
-//                 y0: 0,
-//                 x1: 0,
-//                 y1: 0,
-//                 width: 0,
-//                 height: 0,
-//               };
-//               j += 3;
-//               calculateComponentDimensions(component, siz);
-//               context.components.push(component);
-//             }
-//             context.SIZ = siz;
-//             calculateTileGrids(context, context.components);
-//             context.QCC = [];
-//             context.COC = [];
-//             break;
-//           }
-//           case 0xff5c: {
-//             // Quantization default (QCD)
-//             length = data.getUint16(position);
-//             let j = position + 2;
-//             const sqcd = data.getUint8(j++);
-//             let spqcdSize = 0;
-//             let scalarExpounded = false;
-//             switch (sqcd & 0x1f) {
-//               case 0:
-//                 spqcdSize = 8;
-//                 scalarExpounded = true;
-//                 break;
-//               case 1:
-//                 spqcdSize = 16;
-//                 scalarExpounded = false;
-//                 break;
-//               case 2:
-//                 spqcdSize = 16;
-//                 scalarExpounded = true;
-//                 break;
-//               default:
-//                 throw new Error('Invalid SQcd value ' + sqcd);
-//             }
-//             const noQuantization = spqcdSize === 8;
-//             const guardBits = sqcd >> 5;
-//             const spqcds: SPQCD[] = [];
-//             while (j < length + position) {
-//               let epsilon = 0;
-//               let mu = 0;
-//               if (spqcdSize === 8) {
-//                 epsilon = data.getUint8(j++) >> 3;
-//                 mu = 0;
-//               } else {
-//                 epsilon = data.getUint8(j) >> 3;
-//                 mu = ((data.getUint8(j) & 0x7) << 8) | data.getUint8(j + 1);
-//                 j += 2;
-//               }
-//               spqcds.push({ epsilon, mu });
-//             }
-//             const qcd: QuantizationParameters = {
-//               noQuantization,
-//               scalarExpounded,
-//               guardBits,
-//               spqcds,
-//             };
-//             if (context.mainHeader) {
-//               context.QCD = qcd;
-//             } else {
-//               context.currentTile.QCD = qcd;
-//               context.currentTile.QCC = [];
-//             }
-//             break;
-//           }
-//           case 0xff5d: {
-//             // Quantization component (QCC)
-//             length = data.getUint16(position);
-//             let j = position + 2;
-//             let cqcc = 0;
-//             if (context.SIZ.Csiz < 257) {
-//               cqcc = data.getUint8(j++);
-//             } else {
-//               cqcc = data.getUint16(j);
-//               j += 2;
-//             }
-//             const sqcd = data.getUint8(j++);
-//             let spqcdSize = 0;
-//             let scalarExpounded = false;
-//             switch (sqcd & 0x1f) {
-//               case 0:
-//                 spqcdSize = 8;
-//                 scalarExpounded = true;
-//                 break;
-//               case 1:
-//                 spqcdSize = 16;
-//                 scalarExpounded = false;
-//                 break;
-//               case 2:
-//                 spqcdSize = 16;
-//                 scalarExpounded = true;
-//                 break;
-//               default:
-//                 throw new Error('Invalid SQcd value ' + sqcd);
-//             }
-//             const noQuantization = spqcdSize === 8;
-//             const guardBits = sqcd >> 5;
-//             const spqcds: SPQCD[] = [];
-//             while (j < length + position) {
-//               let epsilon = 0;
-//               let mu = 0;
-//               if (spqcdSize === 8) {
-//                 epsilon = data.getUint8(j++) >> 3;
-//                 mu = 0;
-//               } else {
-//                 epsilon = data.getUint8(j) >> 3;
-//                 mu = ((data.getUint8(j) & 0x7) << 8) | data.getUint8(j + 1);
-//                 j += 2;
-//               }
-//               spqcds.push({ epsilon, mu });
-//             }
-//             const qcc: QuantizationParameters = {
-//               noQuantization,
-//               scalarExpounded,
-//               guardBits,
-//               spqcds,
-//             };
-//             if (context.mainHeader) {
-//               context.QCC[cqcc] = qcc;
-//             } else {
-//               context.currentTile.QCC[cqcc] = qcc;
-//             }
-//             break;
-//           }
-//           case 0xff52: {
-//             // Coding style default (COD)
-//             length = data.getUint16(position);
-//             let j = position + 2;
-//             const scod = data.getUint8(j++);
-//             const entropyCoderWithCustomPrecincts = !((scod & 1) === 0);
-//             const sopMarkerUsed = !((scod & 2) === 0);
-//             const ephMarkerUsed = !((scod & 4) === 0);
-//             const progressionOrder = data.getUint8(j++);
-//             const layersCount = data.getUint16(j);
-//             j += 2;
-//             const multipleComponentTransform = data.getUint8(j++);
-
-//             const decompositionLevelsCount = data.getUint8(j++);
-//             const xcb = (data.getUint8(j++) & 0xf) + 2;
-//             const ycb = (data.getUint8(j++) & 0xf) + 2;
-//             const blockStyle = data.getUint8(j++);
-//             const selectiveArithmeticCodingBypass = !((blockStyle & 1) === 0);
-//             const resetContextProbabilities = !((blockStyle & 2) === 0);
-//             const terminationOnEachCodingPass = !((blockStyle & 4) === 0);
-//             const verticallyStripe = !((blockStyle & 8) === 0);
-//             const predictableTermination = !((blockStyle & 16) === 0);
-//             const segmentationSymbolUsed = !((blockStyle & 32) === 0);
-//             const reversibleTransformation = !(data.getUint8(j++) === 0);
-//             const precinctsSizes: PrecinctSize[] = [];
-//             if (entropyCoderWithCustomPrecincts) {
-//               while (j < length + position) {
-//                 const precinctsSize = data.getUint8(j++);
-//                 precinctsSizes.push({
-//                   PPx: precinctsSize & 0xf,
-//                   PPy: precinctsSize >> 4,
-//                 });
-//               }
-//             }
-//             const unsupported: string[] = [];
-//             if (selectiveArithmeticCodingBypass)
-//               unsupported.push('selectiveArithmeticCodingBypass');
-//             if (resetContextProbabilities) unsupported.push('resetContextProbabilities');
-//             if (terminationOnEachCodingPass) unsupported.push('terminationOnEachCodingPass');
-//             if (verticallyStripe) unsupported.push('verticallyStripe');
-//             if (predictableTermination) unsupported.push('predictableTermination');
-//             if (unsupported.length > 0) {
-//               doNotRecover = true;
-//               console.warn(`JPX: Unsupported COD options (${unsupported.join(', ')}).`);
-//             }
-//             const cod: CodingStyleParameters = {
-//               entropyCoderWithCustomPrecincts,
-//               sopMarkerUsed,
-//               ephMarkerUsed,
-//               progressionOrder,
-//               layersCount,
-//               multipleComponentTransform,
-//               decompositionLevelsCount,
-//               xcb,
-//               ycb,
-//               selectiveArithmeticCodingBypass,
-//               resetContextProbabilities,
-//               terminationOnEachCodingPass,
-//               verticallyStripe,
-//               predictableTermination,
-//               segmentationSymbolUsed,
-//               reversibleTransformation,
-//               precinctsSizes,
-//             };
-//             if (context.mainHeader) {
-//               context.COD = cod;
-//             } else {
-//               context.currentTile.COD = cod;
-//               context.currentTile.COC = [];
-//             }
-//             break;
-//           }
-//           case 0xff90: {
-//             // Start of tile-part (SOT)
-//             length = data.getUint16(position);
-//             const index = data.getUint16(position + 2);
-//             const tileLength = data.getUint32(position + 4);
-//             const dataEnd = tileLength + position - 2;
-//             const partIndex = data.getUint8(position + 8);
-//             const partsCount = data.getUint8(position + 9);
-//             const tile: Tile = {
-//               index,
-//               length: tileLength,
-//               dataEnd,
-//               partIndex,
-//               partsCount,
-//               COD: defaultCodingStyleParameters(),
-//               COC: [],
-//               QCD: defaultQuantizationParameters(),
-//               QCC: [],
-//               components: [],
-//             };
-
-//             context.mainHeader = false;
-//             if (tile.partIndex === 0) {
-//               // reset component specific settings
-//               tile.COD = context.COD;
-//               tile.COC = context.COC.slice(0); // clone of the global COC
-//               tile.QCD = context.QCD;
-//               tile.QCC = context.QCC.slice(0); // clone of the global COC
-//             }
-//             context.currentTile = tile;
-//             break;
-//           }
-//           case 0xff93: {
-//             // Start of data (SOD)
-//             const tile = context.currentTile;
-//             if (tile.partIndex === 0) {
-//               initializeTile(context, tile.index);
-//               buildPackets(context);
-//             }
-
-//             // moving to the end of the data
-//             length = tile.dataEnd - position;
-//             parseTilePackets(context, data, position, length);
-//             break;
-//           }
-//           case 0xff53: // Coding style component (COC)
-//             console.warn('JPX: Codestream code 0xFF53 (COC) is not implemented.');
-//           /* falls through */
-//           case 0xff55: // Tile-part lengths, main header (TLM)
-//           case 0xff57: // Packet length, main header (PLM)
-//           case 0xff58: // Packet length, tile-part header (PLT)
-//           case 0xff64: // Comment (COM)
-//             length = data.getUint16(position);
-//             // skipping content
-//             break;
-//           default:
-//             throw new Error('Unknown codestream code: ' + code.toString(16));
-//         }
-//         position += length;
-//       }
-//     } catch (e) {
-//       if (e instanceof Error) {
-//         if (doNotRecover || this.failOnCorruptedImage) {
-//           throw new Error(e.message);
-//         } else {
-//           console.error(`JPX: Trying to recover from: "${e.message}".`);
-//         }
-//       } else {
-//         console.error(e);
-//       }
-//     }
-//     this.tiles = transformComponents(context);
-//     this.width = context.SIZ.Xsiz - context.SIZ.XOsiz;
-//     this.height = context.SIZ.Ysiz - context.SIZ.YOsiz;
-//     this.componentsCount = context.SIZ.Csiz;
-//   }
-// }
-
-// /**
-//  * @param component - component to update the dimensions
-//  * @param siz - SIZ parameters
-//  */
-// function calculateComponentDimensions(component: Component, siz: SIZ): void {
-//   const { ceil } = Math;
-//   // Section B.2 Component mapping
-//   component.x0 = ceil(siz.XOsiz / component.XRsiz);
-//   component.x1 = ceil(siz.Xsiz / component.XRsiz);
-//   component.y0 = ceil(siz.YOsiz / component.YRsiz);
-//   component.y1 = ceil(siz.Ysiz / component.YRsiz);
-//   component.width = component.x1 - component.x0;
-//   component.height = component.y1 - component.y0;
-// }
-
-// /**
-//  * Section B.3 Division into tile and tile-components
-//  * @param context - global context to extract parameters
-//  * @param components - components to update
-//  */
-// function calculateTileGrids(context: Context, components: Component[]): void {
-//   const { ceil, min, max } = Math;
-//   const siz = context.SIZ;
-//   const tiles: ContextTile[] = [];
-//   const numXtiles = ceil((siz.Xsiz - siz.XTOsiz) / siz.XTsiz);
-//   const numYtiles = ceil((siz.Ysiz - siz.YTOsiz) / siz.YTsiz);
-//   for (let q = 0; q < numYtiles; q++) {
-//     for (let p = 0; p < numXtiles; p++) {
-//       const tx0 = max(siz.XTOsiz + p * siz.XTsiz, siz.XOsiz);
-//       const ty0 = max(siz.YTOsiz + q * siz.YTsiz, siz.YOsiz);
-//       const tx1 = min(siz.XTOsiz + (p + 1) * siz.XTsiz, siz.Xsiz);
-//       const ty1 = min(siz.YTOsiz + (q + 1) * siz.YTsiz, siz.Ysiz);
-//       tiles.push({
-//         tx0,
-//         ty0,
-//         tx1,
-//         ty1,
-//         width: tx1 - tx0,
-//         height: ty1 - ty0,
-//         components: [],
-//         codingStyleDefaultParameters: defaultCodingStyleParameters(),
-//       });
-//     }
-//   }
-//   context.tiles = tiles;
-
-//   const componentsCount = siz.Csiz;
-//   for (let i = 0, ii = componentsCount; i < ii; i++) {
-//     const component = components[i];
-//     for (let j = 0, jj = tiles.length; j < jj; j++) {
-//       const tile = tiles[j];
-//       const tcx0 = ceil(tile.tx0 / component.XRsiz);
-//       const tcy0 = ceil(tile.ty0 / component.YRsiz);
-//       const tcx1 = ceil(tile.tx1 / component.XRsiz);
-//       const tcy1 = ceil(tile.ty1 / component.YRsiz);
-//       tile.components[i] = {
-//         tcx0,
-//         tcy0,
-//         tcx1,
-//         tcy1,
-//         width: tcx1 - tcx0,
-//         height: tcy1 - tcy0,
-//         resolutions: [],
-//         subbands: [],
-//         quantizationParameters: defaultQuantizationParameters(),
-//         codingStyleParameters: defaultCodingStyleParameters(),
-//       };
-//     }
-//   }
-// }
-
-// /**
-//  * @param component - component to update
-//  * @param r - resolution
-//  * @returns - block dimensions
-//  */
-// function getBlocksDimensions(component: ContextTileComponent, r: number): BlockDimensions {
-//   const { min } = Math;
-//   const codOrCoc = component.codingStyleParameters;
-//   let PPx = 0;
-//   let PPy = 0;
-//   let xcb_ = 0;
-//   let ycb_ = 0;
-//   if (!codOrCoc.entropyCoderWithCustomPrecincts) {
-//     PPx = 15;
-//     PPy = 15;
-//   } else {
-//     PPx = codOrCoc.precinctsSizes[r].PPx;
-//     PPy = codOrCoc.precinctsSizes[r].PPy;
-//   }
-//   // calculate codeblock size as described in section B.7
-//   xcb_ = r > 0 ? min(codOrCoc.xcb, PPx - 1) : min(codOrCoc.xcb, PPx);
-//   ycb_ = r > 0 ? min(codOrCoc.ycb, PPy - 1) : min(codOrCoc.ycb, PPy);
-
-//   return {
-//     PPx,
-//     PPy,
-//     xcb_,
-//     ycb_,
-//   };
-// }
-
-// /**
-//  * @param resolution - resolution to update precincts
-//  * @param dimensions - block dimensions
-//  */
-// function buildPrecincts(resolution: Resolution, dimensions: BlockDimensions): void {
-//   const { ceil, floor } = Math;
-//   // Section B.6 Division resolution to precincts
-//   const precinctWidth = 1 << dimensions.PPx;
-//   const precinctHeight = 1 << dimensions.PPy;
-//   // Jasper introduces codeblock groups for mapping each subband codeblocks
-//   // to precincts. Precinct partition divides a resolution according to width
-//   // and height parameters. The subband that belongs to the resolution level
-//   // has a different size than the level, unless it is the zero resolution.
-
-//   // From Jasper documentation: jpeg2000.pdf, section K: Tier-2 coding:
-//   // The precinct partitioning for a particular subband is derived from a
-//   // partitioning of its parent LL band (i.e., the LL band at the next higher
-//   // resolution level)... The LL band associated with each resolution level is
-//   // divided into precincts... Each of the resulting precinct regions is then
-//   // mapped into its child subbands (if any) at the next lower resolution
-//   // level. This is accomplished by using the coordinate transformation
-//   // (u, v) = (ceil(x/2), ceil(y/2)) where (x, y) and (u, v) are the
-//   // coordinates of a point in the LL band and child subband, respectively.
-//   const isZeroRes = resolution.resLevel === 0;
-//   const precinctWidthInSubband = 1 << (dimensions.PPx + (isZeroRes ? 0 : -1));
-//   const precinctHeightInSubband = 1 << (dimensions.PPy + (isZeroRes ? 0 : -1));
-//   const numprecinctswide =
-//     resolution.trx1 > resolution.trx0
-//       ? ceil(resolution.trx1 / precinctWidth) - floor(resolution.trx0 / precinctWidth)
-//       : 0;
-//   const numprecinctshigh =
-//     resolution.try1 > resolution.try0
-//       ? ceil(resolution.try1 / precinctHeight) - floor(resolution.try0 / precinctHeight)
-//       : 0;
-//   const numprecincts = numprecinctswide * numprecinctshigh;
-
-//   resolution.precinctParameters = {
-//     precinctWidth,
-//     precinctHeight,
-//     numprecinctswide,
-//     numprecinctshigh,
-//     numprecincts,
-//     precinctWidthInSubband,
-//     precinctHeightInSubband,
-//   };
-// }
-// /**
-//  * @param subband - subband to update
-//  * @param dimensions - block dimensions to use
-//  */
-// function buildCodeblocks(subband: SubBand, dimensions: BlockDimensions): void {
-//   const { max, min, floor } = Math;
-//   // Section B.7 Division sub-band into code-blocks
-//   const xcb_ = dimensions.xcb_;
-//   const ycb_ = dimensions.ycb_;
-//   const codeblockWidth = 1 << xcb_;
-//   const codeblockHeight = 1 << ycb_;
-//   const cbx0 = subband.tbx0 >> xcb_;
-//   const cby0 = subband.tby0 >> ycb_;
-//   const cbx1 = (subband.tbx1 + codeblockWidth - 1) >> xcb_;
-//   const cby1 = (subband.tby1 + codeblockHeight - 1) >> ycb_;
-//   const precinctParameters = subband.resolution.precinctParameters;
-//   const codeblocks: CodeBlock[] = [];
-//   const precincts: Precinct[] = [];
-//   for (let j = cby0; j < cby1; j++) {
-//     for (let i = cbx0; i < cbx1; i++) {
-//       const codeblock: CodeBlock = {
-//         cbx: i,
-//         cby: j,
-//         tbx0: codeblockWidth * i,
-//         tby0: codeblockHeight * j,
-//         tbx1: codeblockWidth * (i + 1),
-//         tby1: codeblockHeight * (j + 1),
-//         tbx0_: 0,
-//         tby0_: 0,
-//         tbx1_: 0,
-//         tby1_: 0,
-//         precinctNumber: 0,
-//         subbandType: 'HH',
-//         Lblock: 0,
-//       };
-
-//       codeblock.tbx0_ = max(subband.tbx0, codeblock.tbx0);
-//       codeblock.tby0_ = max(subband.tby0, codeblock.tby0);
-//       codeblock.tbx1_ = min(subband.tbx1, codeblock.tbx1);
-//       codeblock.tby1_ = min(subband.tby1, codeblock.tby1);
-
-//       // Calculate precinct number for this codeblock, codeblock position
-//       // should be relative to its subband, use actual dimension and position
-//       // See comment about codeblock group width and height
-//       const pi = floor(
-//         (codeblock.tbx0_ - subband.tbx0) / precinctParameters.precinctWidthInSubband,
-//       );
-//       const pj = floor(
-//         (codeblock.tby0_ - subband.tby0) / precinctParameters.precinctHeightInSubband,
-//       );
-//       const precinctNumber = pi + pj * precinctParameters.numprecinctswide;
-
-//       codeblock.precinctNumber = precinctNumber;
-//       codeblock.subbandType = subband.type;
-//       codeblock.Lblock = 3;
-
-//       if (codeblock.tbx1_ <= codeblock.tbx0_ || codeblock.tby1_ <= codeblock.tby0_) {
-//         continue;
-//       }
-//       codeblocks.push(codeblock);
-//       // building precinct for the sub-band
-//       let precinct = precincts[precinctNumber];
-//       if (precinct !== undefined) {
-//         if (i < precinct.cbxMin) {
-//           precinct.cbxMin = i;
-//         } else if (i > precinct.cbxMax) {
-//           precinct.cbxMax = i;
-//         }
-//         if (j < precinct.cbyMin) {
-//           precinct.cbxMin = j;
-//         } else if (j > precinct.cbyMax) {
-//           precinct.cbyMax = j;
-//         }
-//       } else {
-//         precincts[precinctNumber] = precinct = {
-//           cbxMin: i,
-//           cbyMin: j,
-//           cbxMax: i,
-//           cbyMax: j,
-//         };
-//       }
-//       codeblock.precinct = precinct;
-//     }
-//   }
-//   subband.codeblockParameters = {
-//     codeblockWidth: xcb_,
-//     codeblockHeight: ycb_,
-//     numcodeblockwide: cbx1 - cbx0 + 1,
-//     numcodeblockhigh: cby1 - cby0 + 1,
-//   };
-//   subband.codeblocks = codeblocks;
-//   subband.precincts = precincts;
-// }
-// /**
-//  * @param resolution - the resolution of the packet
-//  * @param precinctNumber - the precinct number in the resolution
-//  * @param layerNumber - the associated layer
-//  * @returns - the built packet
-//  */
-// function createPacket(resolution: Resolution, precinctNumber: number, layerNumber: number): Packet {
-//   const precinctCodeblocks: CodeBlock[] = [];
-//   // Section B.10.8 Order of info in packet
-//   // sub-bands already ordered in 'LL', 'HL', 'LH', and 'HH' sequence
-//   for (const { codeblocks } of resolution.subbands) {
-//     for (const codeblock of codeblocks) {
-//       if (codeblock.precinctNumber !== precinctNumber) continue;
-//       precinctCodeblocks.push(codeblock);
-//     }
-//   }
-//   return {
-//     layerNumber,
-//     codeblocks: precinctCodeblocks,
-//   };
-// }
-
-// /**
-//  * Layer Resolution Component Position Iterator
-//  */
-// class LayerResolutionComponentPositionIterator implements ComponentPositionIterator {
-//   layersCount: number;
-//   componentsCount: number;
-//   maxDecompositionLevelsCount = 0;
-//   tile: ContextTile;
-//   l = 0;
-//   r = 0;
-//   i = 0;
-//   k = 0;
-//   /**
-//    * @param context - global context to pull data from
-//    */
-//   constructor(context: Context) {
-//     const siz = context.SIZ;
-//     const tileIndex = context.currentTile.index;
-//     this.tile = context.tiles[tileIndex];
-//     this.layersCount = this.tile.codingStyleDefaultParameters.layersCount;
-//     this.componentsCount = siz.Csiz;
-//     for (let q = 0; q < this.componentsCount; q++) {
-//       this.maxDecompositionLevelsCount = Math.max(
-//         this.maxDecompositionLevelsCount,
-//         this.tile.components[q].codingStyleParameters.decompositionLevelsCount,
-//       );
-//     }
-//   }
-
-//   /**
-//    * Section B.12.1.1 Layer-resolution-component-position
-//    * @returns - the next packet in the layer resolution
-//    */
-//   nextPacket(): Packet {
-//     for (; this.l < this.layersCount; this.l++) {
-//       for (; this.r <= this.maxDecompositionLevelsCount; this.r++) {
-//         for (; this.i < this.componentsCount; this.i++) {
-//           const component = this.tile.components[this.i];
-//           if (this.r > component.codingStyleParameters.decompositionLevelsCount) {
-//             continue;
-//           }
-
-//           const resolution = component.resolutions[this.r];
-//           const numprecincts = resolution.precinctParameters.numprecincts;
-//           for (; this.k < numprecincts; ) {
-//             const packet = createPacket(resolution, this.k, this.l);
-//             this.k++;
-//             return packet;
-//           }
-//           this.k = 0;
-//         }
-//         this.i = 0;
-//       }
-//       this.r = 0;
-//     }
-//     throw new Error('Out of packets');
-//   }
-// }
-
-// /**
-//  * Resolution Layer Component Position Iterator
-//  */
-// class ResolutionLayerComponentPositionIterator implements ComponentPositionIterator {
-//   layersCount: number;
-//   componentsCount: number;
-//   maxDecompositionLevelsCount: number;
-//   tile: ContextTile;
-//   l = 0;
-//   r = 0;
-//   i = 0;
-//   k = 0;
-//   /**
-//    * @param context - global context to pull data from
-//    */
-//   constructor(context: Context) {
-//     const siz = context.SIZ;
-//     const tileIndex = context.currentTile.index;
-//     this.tile = context.tiles[tileIndex];
-//     this.layersCount = this.tile.codingStyleDefaultParameters.layersCount;
-//     this.componentsCount = siz.Csiz;
-//     this.maxDecompositionLevelsCount = 0;
-//     for (let q = 0; q < this.componentsCount; q++) {
-//       this.maxDecompositionLevelsCount = Math.max(
-//         this.maxDecompositionLevelsCount,
-//         this.tile.components[q].codingStyleParameters.decompositionLevelsCount,
-//       );
-//     }
-//   }
-
-//   /**
-//    * Section B.12.1.2 Resolution-layer-component-position
-//    * @returns - the next packet in the resolution layer
-//    */
-//   nextPacket(): Packet {
-//     // Section B.12.1.2 Resolution-layer-component-position
-//     for (; this.r <= this.maxDecompositionLevelsCount; this.r++) {
-//       for (; this.l < this.layersCount; this.l++) {
-//         for (; this.i < this.componentsCount; this.i++) {
-//           const component = this.tile.components[this.i];
-//           if (this.r > component.codingStyleParameters.decompositionLevelsCount) {
-//             continue;
-//           }
-
-//           const resolution = component.resolutions[this.r];
-//           const numprecincts = resolution.precinctParameters.numprecincts;
-//           for (; this.k < numprecincts; ) {
-//             const packet = createPacket(resolution, this.k, this.l);
-//             this.k++;
-//             return packet;
-//           }
-//           this.k = 0;
-//         }
-//         this.i = 0;
-//       }
-//       this.l = 0;
-//     }
-//     throw new Error('Out of packets');
-//   }
-// }
-// /**
-//  * Resolution Position Component Layer Iterator
-//  */
-// class ResolutionPositionComponentLayerIterator implements ComponentPositionIterator {
-//   maxDecompositionLevelsCount = 0;
-//   layersCount: number;
-//   componentsCount: number;
-//   maxNumPrecinctsInLevel: Int32Array;
-//   tile: ContextTile;
-//   l = 0;
-//   r = 0;
-//   c = 0;
-//   p = 0;
-
-//   /**
-//    * @param context - global context to pull data from
-//    */
-//   constructor(context: Context) {
-//     const { max } = Math;
-//     const siz = context.SIZ;
-//     const tileIndex = context.currentTile.index;
-//     this.tile = context.tiles[tileIndex];
-//     this.layersCount = this.tile.codingStyleDefaultParameters.layersCount;
-//     const componentsCount = (this.componentsCount = siz.Csiz);
-//     for (let c = 0; c < componentsCount; c++) {
-//       const component = this.tile.components[c];
-//       this.maxDecompositionLevelsCount = max(
-//         this.maxDecompositionLevelsCount,
-//         component.codingStyleParameters.decompositionLevelsCount,
-//       );
-//     }
-//     this.maxNumPrecinctsInLevel = new Int32Array(this.maxDecompositionLevelsCount + 1);
-//     for (let r = 0; r <= this.maxDecompositionLevelsCount; ++r) {
-//       let maxNumPrecincts = 0;
-//       for (let c = 0; c < componentsCount; ++c) {
-//         const resolutions = this.tile.components[c].resolutions;
-//         if (r < resolutions.length) {
-//           maxNumPrecincts = max(maxNumPrecincts, resolutions[r].precinctParameters.numprecincts);
-//         }
-//       }
-//       this.maxNumPrecinctsInLevel[r] = maxNumPrecincts;
-//     }
-//   }
-
-//   /**
-//    * Section B.12.1.3 Resolution-position-component-layer
-//    * @returns - the next packet in the resolution layer
-//    */
-//   nextPacket(): Packet {
-//     for (; this.r <= this.maxDecompositionLevelsCount; this.r++) {
-//       for (; this.p < this.maxNumPrecinctsInLevel[this.r]; this.p++) {
-//         for (; this.c < this.componentsCount; this.c++) {
-//           const component = this.tile.components[this.c];
-//           if (this.r > component.codingStyleParameters.decompositionLevelsCount) {
-//             continue;
-//           }
-//           const resolution = component.resolutions[this.r];
-//           const numprecincts = resolution.precinctParameters.numprecincts;
-//           if (this.p >= numprecincts) continue;
-//           for (; this.l < this.layersCount; ) {
-//             const packet = createPacket(resolution, this.p, this.l);
-//             this.l++;
-//             return packet;
-//           }
-//           this.l = 0;
-//         }
-//         this.c = 0;
-//       }
-//       this.p = 0;
-//     }
-//     throw new Error('Out of packets');
-//   }
-// }
-
-// /**
-//  * Position Component Resolution Layer Iterator
-//  */
-// class PositionComponentResolutionLayerIterator {
-//   layersCount: number;
-//   componentsCount: number;
-//   precinctsSizes: PrecinctSizeInImageScale;
-//   precinctsIterationSizes: PrecinctSizeInImageScale;
-//   tile: ContextTile;
-//   l = 0;
-//   r = 0;
-//   c = 0;
-//   px = 0;
-//   py = 0;
-//   /** @param context - global context to pull data from */
-//   constructor(context: Context) {
-//     const siz = context.SIZ;
-//     const tileIndex = context.currentTile.index;
-//     this.tile = context.tiles[tileIndex];
-//     this.layersCount = this.tile.codingStyleDefaultParameters.layersCount;
-//     this.componentsCount = siz.Csiz;
-//     this.precinctsSizes = getPrecinctSizesInImageScale(this.tile);
-//     this.precinctsIterationSizes = this.precinctsSizes;
-//   }
-
-//   /**
-//    * Section B.12.1.4 Position-component-resolution-layer
-//    * @returns - the next packet in the position layer
-//    */
-//   nextPacket(): Packet {
-//     for (; this.py < this.precinctsIterationSizes.maxNumHigh; this.py++) {
-//       for (; this.px < this.precinctsIterationSizes.maxNumWide; this.px++) {
-//         for (; this.c < this.componentsCount; this.c++) {
-//           const component = this.tile.components[this.c];
-//           const decompositionLevelsCount = component.codingStyleParameters.decompositionLevelsCount;
-//           for (; this.r <= decompositionLevelsCount; this.r++) {
-//             const resolution = component.resolutions[this.r];
-//             const sizeInImageScale = this.precinctsSizes.components[this.c].resolutions[this.r];
-//             const k = getPrecinctIndexIfExist(
-//               this.px,
-//               this.py,
-//               sizeInImageScale,
-//               this.precinctsIterationSizes,
-//               resolution,
-//             );
-//             if (k === null) continue;
-//             for (; this.l < this.layersCount; ) {
-//               const packet = createPacket(resolution, k, this.l);
-//               this.l++;
-//               return packet;
-//             }
-//             this.l = 0;
-//           }
-//           this.r = 0;
-//         }
-//         this.c = 0;
-//       }
-//       this.px = 0;
-//     }
-//     throw new Error('Out of packets');
-//   }
-// }
-// /**
-//  * Component Position Resolution Layer Iterator
-//  */
-// class ComponentPositionResolutionLayerIterator {
-//   layersCount: number;
-//   componentsCount: number;
-//   precinctsSizes: PrecinctSizeInImageScale;
-//   tile: ContextTile;
-//   l = 0;
-//   r = 0;
-//   c = 0;
-//   px = 0;
-//   py = 0;
-//   /**
-//    * @param context - global context to pull data from
-//    */
-//   constructor(context: Context) {
-//     const siz = context.SIZ;
-//     const tileIndex = context.currentTile.index;
-//     this.tile = context.tiles[tileIndex];
-//     this.layersCount = this.tile.codingStyleDefaultParameters.layersCount;
-//     this.componentsCount = siz.Csiz;
-//     this.precinctsSizes = getPrecinctSizesInImageScale(this.tile);
-//   }
-
-//   /**
-//    * Section B.12.1.5 Component-position-resolution-layer
-//    * @returns - the next packet in the position layer
-//    */
-//   nextPacket(): Packet {
-//     for (; this.c < this.componentsCount; ++this.c) {
-//       const component = this.tile.components[this.c];
-//       const precinctsIterationSizes = this.precinctsSizes.components[this.c];
-//       const decompositionLevelsCount = component.codingStyleParameters.decompositionLevelsCount;
-//       for (; this.py < precinctsIterationSizes.maxNumHigh; this.py++) {
-//         for (; this.px < precinctsIterationSizes.maxNumWide; this.px++) {
-//           for (; this.r <= decompositionLevelsCount; this.r++) {
-//             const resolution = component.resolutions[this.r];
-//             const sizeInImageScale = precinctsIterationSizes.resolutions[this.r];
-//             const k = getPrecinctIndexIfExist(
-//               this.px,
-//               this.py,
-//               sizeInImageScale,
-//               this.precinctsSizes,
-//               resolution,
-//             );
-//             if (k === null) continue;
-//             for (; this.l < this.layersCount; ) {
-//               const packet = createPacket(resolution, k, this.l);
-//               this.l++;
-//               return packet;
-//             }
-//             this.l = 0;
-//           }
-//           this.r = 0;
-//         }
-//         this.px = 0;
-//       }
-//       this.py = 0;
-//     }
-//     throw new Error('Out of packets');
-//   }
-// }
-
-// /**
-//  * @param pxIndex - x position index
-//  * @param pyIndex - y position index
-//  * @param sizeInImageScale - size in image scale
-//  * @param precinctIterationSizes - precinct iteration sizes
-//  * @param resolution - resolution to check row size
-//  * @returns - precinct index if it exists
-//  */
-// function getPrecinctIndexIfExist(
-//   pxIndex: number,
-//   pyIndex: number,
-//   sizeInImageScale: SizePerResolution,
-//   precinctIterationSizes: PrecinctSizeInImageScale,
-//   resolution: Resolution,
-// ): number | null {
-//   const posX = pxIndex * precinctIterationSizes.minWidth;
-//   const posY = pyIndex * precinctIterationSizes.minHeight;
-//   if (posX % sizeInImageScale.width !== 0 || posY % sizeInImageScale.height !== 0) {
-//     return null;
-//   }
-//   const startPrecinctRowIndex =
-//     (posY / sizeInImageScale.width) * resolution.precinctParameters.numprecinctswide;
-//   return posX / sizeInImageScale.height + startPrecinctRowIndex;
-// }
-
-// /**
-//  * @param tile - tile to get precinct sizes from
-//  * @returns - precinct sizes
-//  */
-// function getPrecinctSizesInImageScale(tile: ContextTile): PrecinctSizeInImageScale {
-//   const { min, max } = Math;
-//   const { components } = tile;
-//   const componentsCount = components.length;
-//   let minWidth = Number.MAX_VALUE;
-//   let minHeight = Number.MAX_VALUE;
-//   let maxNumWide = 0;
-//   let maxNumHigh = 0;
-//   const sizePerComponent: SizePerComponent[] = new Array(componentsCount);
-//   for (let c = 0; c < componentsCount; c++) {
-//     const component = components[c];
-//     const decompositionLevelsCount = component.codingStyleParameters.decompositionLevelsCount;
-//     const sizePerResolution: SizePerResolution[] = new Array(decompositionLevelsCount + 1);
-//     let minWidthCurrentComponent = Number.MAX_VALUE;
-//     let minHeightCurrentComponent = Number.MAX_VALUE;
-//     let maxNumWideCurrentComponent = 0;
-//     let maxNumHighCurrentComponent = 0;
-//     let scale = 1;
-//     for (let r = decompositionLevelsCount; r >= 0; --r) {
-//       const resolution = component.resolutions[r];
-//       const widthCurrentResolution = scale * resolution.precinctParameters.precinctWidth;
-//       const heightCurrentResolution = scale * resolution.precinctParameters.precinctHeight;
-//       minWidthCurrentComponent = min(minWidthCurrentComponent, widthCurrentResolution);
-//       minHeightCurrentComponent = min(minHeightCurrentComponent, heightCurrentResolution);
-//       maxNumWideCurrentComponent = max(
-//         maxNumWideCurrentComponent,
-//         resolution.precinctParameters.numprecinctswide,
-//       );
-//       maxNumHighCurrentComponent = max(
-//         maxNumHighCurrentComponent,
-//         resolution.precinctParameters.numprecinctshigh,
-//       );
-//       sizePerResolution[r] = {
-//         width: widthCurrentResolution,
-//         height: heightCurrentResolution,
-//       };
-//       scale <<= 1;
-//     }
-//     minWidth = min(minWidth, minWidthCurrentComponent);
-//     minHeight = min(minHeight, minHeightCurrentComponent);
-//     maxNumWide = max(maxNumWide, maxNumWideCurrentComponent);
-//     maxNumHigh = max(maxNumHigh, maxNumHighCurrentComponent);
-//     sizePerComponent[c] = {
-//       resolutions: sizePerResolution,
-//       minWidth: minWidthCurrentComponent,
-//       minHeight: minHeightCurrentComponent,
-//       maxNumWide: maxNumWideCurrentComponent,
-//       maxNumHigh: maxNumHighCurrentComponent,
-//     };
-//   }
-//   return {
-//     components: sizePerComponent,
-//     minWidth,
-//     minHeight,
-//     maxNumWide,
-//     maxNumHigh,
-//   };
-// }
-
-// /**
-//  * Build packets from our global context tile data
-//  * @param context - context to build packets from
-//  */
-// function buildPackets(context: Context): void {
-//   const { ceil } = Math;
-//   const siz = context.SIZ;
-//   const tileIndex = context.currentTile.index;
-//   const tile = context.tiles[tileIndex];
-//   const componentsCount = siz.Csiz;
-//   // Creating resolutions and sub-bands for each component
-//   for (let c = 0; c < componentsCount; c++) {
-//     const component = tile.components[c];
-//     const decompositionLevelsCount = component.codingStyleParameters.decompositionLevelsCount;
-//     // Section B.5 Resolution levels and sub-bands
-//     const resolutions: Resolution[] = [];
-//     const subbands: SubBand[] = [];
-//     for (let r = 0; r <= decompositionLevelsCount; r++) {
-//       const blocksDimensions = getBlocksDimensions(component, r);
-//       const scale = 1 << (decompositionLevelsCount - r);
-//       const resolution: Resolution = {
-//         trx0: ceil(component.tcx0 / scale),
-//         try0: ceil(component.tcy0 / scale),
-//         trx1: ceil(component.tcx1 / scale),
-//         try1: ceil(component.tcy1 / scale),
-//         resLevel: r,
-//         precinctParameters: defaultPrecinctParameters(),
-//         subbands: [],
-//       };
-//       buildPrecincts(resolution, blocksDimensions);
-//       resolutions.push(resolution);
-
-//       if (r === 0) {
-//         // one sub-band (LL) with last decomposition
-//         const subband: SubBand = {
-//           type: 'LL',
-//           tbx0: ceil(component.tcx0 / scale),
-//           tby0: ceil(component.tcy0 / scale),
-//           tbx1: ceil(component.tcx1 / scale),
-//           tby1: ceil(component.tcy1 / scale),
-//           resolution,
-//           codeblocks: [],
-//           precincts: [],
-//           codeblockParameters: defaultCodeBlockParams(),
-//         };
-//         buildCodeblocks(subband, blocksDimensions);
-//         subbands.push(subband);
-//         resolution.subbands = [subband];
-//       } else {
-//         const bscale = 1 << (decompositionLevelsCount - r + 1);
-//         const resolutionSubbands = [];
-//         // three sub-bands (HL, LH and HH) with rest of decompositions
-//         const subbandHL: SubBand = {
-//           type: 'HL',
-//           tbx0: ceil(component.tcx0 / bscale - 0.5),
-//           tby0: ceil(component.tcy0 / bscale),
-//           tbx1: ceil(component.tcx1 / bscale - 0.5),
-//           tby1: ceil(component.tcy1 / bscale),
-//           resolution,
-//           codeblocks: [],
-//           precincts: [],
-//           codeblockParameters: defaultCodeBlockParams(),
-//         };
-//         buildCodeblocks(subbandHL, blocksDimensions);
-//         subbands.push(subbandHL);
-//         resolutionSubbands.push(subbandHL);
-
-//         const subbandLH: SubBand = {
-//           type: 'LH',
-//           tbx0: ceil(component.tcx0 / bscale),
-//           tby0: ceil(component.tcy0 / bscale - 0.5),
-//           tbx1: ceil(component.tcx1 / bscale),
-//           tby1: ceil(component.tcy1 / bscale - 0.5),
-//           resolution,
-//           codeblocks: [],
-//           precincts: [],
-//           codeblockParameters: defaultCodeBlockParams(),
-//         };
-//         buildCodeblocks(subbandLH, blocksDimensions);
-//         subbands.push(subbandLH);
-//         resolutionSubbands.push(subbandLH);
-
-//         const subbandHH: SubBand = {
-//           type: 'HH',
-//           tbx0: ceil(component.tcx0 / bscale - 0.5),
-//           tby0: ceil(component.tcy0 / bscale - 0.5),
-//           tbx1: ceil(component.tcx1 / bscale - 0.5),
-//           tby1: ceil(component.tcy1 / bscale - 0.5),
-//           resolution,
-//           codeblocks: [],
-//           precincts: [],
-//           codeblockParameters: defaultCodeBlockParams(),
-//         };
-//         buildCodeblocks(subbandHH, blocksDimensions);
-//         subbands.push(subbandHH);
-//         resolutionSubbands.push(subbandHH);
-
-//         resolution.subbands = resolutionSubbands;
-//       }
-//     }
-//     component.resolutions = resolutions;
-//     component.subbands = subbands;
-//   }
-//   // Generate the packets sequence
-//   const progressionOrder = tile.codingStyleDefaultParameters.progressionOrder;
-//   switch (progressionOrder) {
-//     case 0:
-//       tile.packetsIterator = new LayerResolutionComponentPositionIterator(context);
-//       break;
-//     case 1:
-//       tile.packetsIterator = new ResolutionLayerComponentPositionIterator(context);
-//       break;
-//     case 2:
-//       tile.packetsIterator = new ResolutionPositionComponentLayerIterator(context);
-//       break;
-//     case 3:
-//       tile.packetsIterator = new PositionComponentResolutionLayerIterator(context);
-//       break;
-//     case 4:
-//       tile.packetsIterator = new ComponentPositionResolutionLayerIterator(context);
-//       break;
-//     default:
-//       throw new Error(`Unsupported progression order ${progressionOrder}`);
-//   }
-// }
-// /**
-//  * Parse tile packets
-//  * @param context - global context to pull data from
-//  * @param data - the raw data to be parsed
-//  * @param offset - the offset in the raw data
-//  * @param dataLength - the length of the raw data
-//  * @returns - the number of parsed packets
-//  */
-// function parseTilePackets(
-//   context: Context,
-//   data: Reader,
-//   offset: number,
-//   dataLength: number,
-// ): number {
-//   let position = 0,
-//     buffer = 0,
-//     bufferSize = 0,
-//     skipNextBit = false;
-//   /**
-//    * Reads the specified number of bits
-//    * @param count - the number of bits to read
-//    * @returns - the buffer size
-//    */
-//   function readBits(count: number): number {
-//     while (bufferSize < count) {
-//       const b = data.getUint8(offset + position);
-//       position++;
-//       if (skipNextBit) {
-//         buffer = (buffer << 7) | b;
-//         bufferSize += 7;
-//         skipNextBit = false;
-//       } else {
-//         buffer = (buffer << 8) | b;
-//         bufferSize += 8;
-//       }
-//       if (b === 0xff) skipNextBit = true;
-//     }
-//     bufferSize -= count;
-//     return (buffer >>> bufferSize) & ((1 << count) - 1);
-//   }
-//   /**
-//    * Skips the marker if it is equal to the specified value
-//    * @param value - the value to skip
-//    * @returns - true if the marker was skipped
-//    */
-//   function skipMarkerIfEqual(value: number): boolean {
-//     if (
-//       data.getUint8(offset + position - 1) === 0xff &&
-//       data.getUint8(offset + position) === value
-//     ) {
-//       skipBytes(1);
-//       return true;
-//     } else if (
-//       data.getUint8(offset + position) === 0xff &&
-//       data.getUint8(offset + position + 1) === value
-//     ) {
-//       skipBytes(2);
-//       return true;
-//     }
-//     return false;
-//   }
-//   /**
-//    * Skips the specified number of bytes
-//    * @param count - the number of bytes to skip
-//    */
-//   function skipBytes(count: number): void {
-//     position += count;
-//   }
-//   /**
-//    * Aligns the buffer to the next byte
-//    */
-//   function alignToByte(): void {
-//     bufferSize = 0;
-//     if (skipNextBit) {
-//       position++;
-//       skipNextBit = false;
-//     }
-//   }
-//   /**
-//    * Reads the number of coding passes
-//    * @returns - the number of coding passes
-//    */
-//   function readCodingpasses(): number {
-//     if (readBits(1) === 0) return 1;
-//     if (readBits(1) === 0) return 2;
-//     let value = readBits(2);
-//     if (value < 3) return value + 3;
-//     value = readBits(5);
-//     if (value < 31) return value + 6;
-//     value = readBits(7);
-//     return value + 37;
-//   }
-//   const tileIndex = context.currentTile.index;
-//   const tile = context.tiles[tileIndex];
-//   const { sopMarkerUsed, ephMarkerUsed } = context.COD;
-//   const { packetsIterator } = tile;
-//   if (packetsIterator === undefined) throw new Error('Packets iterator not initialized');
-//   while (position < dataLength) {
-//     alignToByte();
-//     // Skip also marker segment length and packet sequence ID
-//     if (sopMarkerUsed && skipMarkerIfEqual(0x91)) skipBytes(4);
-//     const { layerNumber, codeblocks } = packetsIterator.nextPacket();
-//     if (readBits(1) === 0) continue;
-//     const queue: QueueItem[] = [];
-//     for (const codeblock of codeblocks) {
-//       const { precinct, cbx, cby, included } = codeblock;
-//       if (precinct === undefined) throw new Error('Precinct not defined');
-//       const { cbxMin, cbyMin, cbxMax, cbyMax } = precinct;
-//       const codeblockColumn = cbx - cbxMin;
-//       const codeblockRow = cby - cbyMin;
-//       let codeblockIncluded = false;
-//       let firstTimeInclusion = false;
-//       if (included !== undefined) {
-//         codeblockIncluded = !(readBits(1) === 0);
-//       } else {
-//         // reading inclusion tree
-//         if (precinct.inclusionTree === undefined) {
-//           // building inclusion and zero bit-planes trees
-//           const width = cbxMax - cbxMin + 1;
-//           const height = cbyMax - cbyMin + 1;
-//           precinct.inclusionTree = new InclusionTree(width, height, layerNumber);
-//           precinct.zeroBitPlanesTree = new TagTree(width, height);
-//         }
-
-//         const inclusionTree = precinct.inclusionTree;
-//         if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {
-//           while (true) {
-//             if (readBits(1) !== 0) {
-//               if (!inclusionTree.nextLevel()) {
-//                 codeblock.included = true;
-//                 codeblockIncluded = firstTimeInclusion = true;
-//                 break;
-//               }
-//             } else {
-//               inclusionTree.incrementValue(layerNumber);
-//               break;
-//             }
-//           }
-//         }
-//       }
-//       // codedDataLength A 40 80 94
-//       // HERHERHEHRHERHERHEHRHERHHREHRHRH A
-//       // codedDataLength A 6 82 94
-//       // codeblocks [
-//       //   undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
-//       //   undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
-//       //   undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
-//       //   undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
-//       // ]
-
-//       // codedDataLength B 40 80 94 6
-//       // HERHERHEHRHERHERHEHRHERHHREHRHRH B
-//       // codedDataLength B 6 82 94 6
-//       // codeblocks [
-//       //   true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-//       //   true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-//       //   true, true, true, true
-//       // ]
-//       if (!codeblockIncluded) continue;
-//       if (firstTimeInclusion) {
-//         const { zeroBitPlanesTree } = precinct;
-//         if (zeroBitPlanesTree === undefined) throw new Error('Zero bit-planes tree not defined');
-//         zeroBitPlanesTree.reset(codeblockColumn, codeblockRow);
-//         while (true) {
-//           if (readBits(1) !== 0) {
-//             if (!zeroBitPlanesTree.nextLevel()) break;
-//           } else {
-//             zeroBitPlanesTree.incrementValue();
-//           }
-//         }
-//         codeblock.zeroBitPlanes = zeroBitPlanesTree.value;
-//       }
-//       const codingpasses = readCodingpasses();
-//       while (readBits(1) !== 0) {
-//         codeblock.Lblock++;
-//       }
-//       const codingpassesLog2 = log2(codingpasses);
-//       // rounding down log2
-//       const bits =
-//         (codingpasses < 1 << codingpassesLog2 ? codingpassesLog2 - 1 : codingpassesLog2) +
-//         codeblock.Lblock;
-//       const codedDataLength = readBits(bits);
-//       queue.push({
-//         codeblock,
-//         codingpasses,
-//         dataLength: codedDataLength,
-//       });
-//     }
-//     alignToByte();
-//     if (ephMarkerUsed) skipMarkerIfEqual(0x92);
-//     while (queue.length > 0) {
-//       const packetItem = queue.shift();
-//       if (packetItem === undefined) break;
-//       const { codeblock } = packetItem;
-//       if (codeblock.data === undefined) codeblock.data = [];
-//       codeblock.data.push({
-//         data,
-//         start: offset + position,
-//         end: offset + position + packetItem.dataLength,
-//         codingpasses: packetItem.codingpasses,
-//       });
-//       position += packetItem.dataLength;
-//     }
-//   }
-//   return position;
-// }
-
-// /**
-//  * Copies the subband coefficients
-//  * @param coefficients - array of coefficients
-//  * @param levelWidth - width of the level
-//  * @param subband - subband to copy from
-//  * @param delta - quantization delta
-//  * @param mb - block size
-//  * @param reversible - true if the transform is reversible
-//  * @param segmentationSymbolUsed - true if the segmentation symbol is used
-//  */
-// function copyCoefficients(
-//   coefficients: Float32Array,
-//   levelWidth: number,
-//   subband: SubBand,
-//   delta: number,
-//   mb: number,
-//   reversible: boolean,
-//   segmentationSymbolUsed: boolean,
-// ) {
-//   const x0 = subband.tbx0;
-//   const y0 = subband.tby0;
-//   const width = subband.tbx1 - subband.tbx0;
-//   const codeblocks = subband.codeblocks;
-//   const right = subband.type.charAt(0) === 'H' ? 1 : 0;
-//   const bottom = subband.type.charAt(1) === 'H' ? levelWidth : 0;
-
-//   for (let i = 0, ii = codeblocks.length; i < ii; ++i) {
-//     const codeblock = codeblocks[i];
-//     const blockWidth = codeblock.tbx1_ - codeblock.tbx0_;
-//     const blockHeight = codeblock.tby1_ - codeblock.tby0_;
-//     if (blockWidth === 0 || blockHeight === 0) continue;
-//     if (codeblock.data === undefined) continue;
-
-//     const bitModel = new BitModel(
-//       blockWidth,
-//       blockHeight,
-//       codeblock.subbandType,
-//       codeblock.zeroBitPlanes ?? 0,
-//       mb,
-//     );
-//     let currentCodingpassType = 2; // first bit plane starts from cleanup
-
-//     // collect data
-//     const { data } = codeblock;
-//     let totalLength = 0;
-//     let codingpasses = 0;
-//     for (const dataItem of data) {
-//       totalLength += dataItem.end - dataItem.start;
-//       codingpasses += dataItem.codingpasses;
-//     }
-//     const encodedData = new Uint8Array(totalLength);
-//     let position = 0;
-//     for (const dataItem of data) {
-//       const chunk = dataItem.data.slice(dataItem.start, dataItem.end);
-//       const uint8Chunk = new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength);
-//       encodedData.set(uint8Chunk, position);
-//       position += uint8Chunk.length;
-//     }
-//     // decoding the item
-//     const decoder = new JPEG2000ArithmeticDecoder(encodedData, 0, totalLength);
-//     bitModel.setDecoder(decoder);
-
-//     for (let j = 0; j < codingpasses; j++) {
-//       switch (currentCodingpassType) {
-//         case 0:
-//           bitModel.runSignificancePropagationPass();
-//           break;
-//         case 1:
-//           bitModel.runMagnitudeRefinementPass();
-//           break;
-//         case 2:
-//           bitModel.runCleanupPass();
-//           if (segmentationSymbolUsed) {
-//             bitModel.checkSegmentationSymbol();
-//           }
-//           break;
-//       }
-//       currentCodingpassType = (currentCodingpassType + 1) % 3;
-//     }
-
-//     let offset = codeblock.tbx0_ - x0 + (codeblock.tby0_ - y0) * width;
-//     const sign = bitModel.coefficentsSign;
-//     const magnitude = bitModel.coefficentsMagnitude;
-//     const bitsDecoded = bitModel.bitsDecoded;
-//     const magnitudeCorrection = reversible ? 0 : 0.5;
-//     position = 0;
-//     // Do the interleaving of Section F.3.3 here, so we do not need
-//     // to copy later. LL level is not interleaved, just copied.
-//     const interleave = subband.type !== 'LL';
-//     for (let j = 0; j < blockHeight; j++) {
-//       const row = (offset / width) | 0; // row in the non-interleaved subband
-//       const levelOffset = 2 * row * (levelWidth - width) + right + bottom;
-//       for (let k = 0; k < blockWidth; k++) {
-//         let n = magnitude[position];
-//         if (n !== 0) {
-//           n = (n + magnitudeCorrection) * delta;
-//           if (sign[position] !== 0) {
-//             n = -n;
-//           }
-//           const nb = bitsDecoded[position];
-//           const pos = interleave ? levelOffset + (offset << 1) : offset;
-//           if (reversible && nb >= mb) {
-//             coefficients[pos] = n;
-//           } else {
-//             coefficients[pos] = n * (1 << (mb - nb));
-//           }
-//         }
-//         offset++;
-//         position++;
-//       }
-//       offset += width - blockWidth;
-//     }
-//   }
-// }
-
-// /**
-//  * Transforms a tile to a 2D array of coefficients
-//  * @param context - global context to pull data from
-//  * @param tile - tile to transform
-//  * @param c - component index
-//  * @returns - the transformed tile
-//  */
-// function transformTile(context: Context, tile: ContextTile, c: number): TileTransform {
-//   const component = tile.components[c];
-//   const { codingStyleParameters, quantizationParameters } = component;
-//   const { decompositionLevelsCount, segmentationSymbolUsed } = codingStyleParameters;
-//   const { spqcds, scalarExpounded, guardBits } = quantizationParameters;
-//   const precision = context.components[c].precision;
-
-//   const reversible = codingStyleParameters.reversibleTransformation;
-//   const transform = reversible ? new ReversibleTransform() : new IrreversibleTransform();
-
-//   const subbandCoefficients: Level[] = [];
-//   let b = 0;
-//   for (let i = 0; i <= decompositionLevelsCount; i++) {
-//     const resolution = component.resolutions[i];
-
-//     const width = resolution.trx1 - resolution.trx0;
-//     const height = resolution.try1 - resolution.try0;
-//     // Allocate space for the whole sublevel.
-//     const coefficients = new Float32Array(width * height);
-
-//     for (let j = 0, jj = resolution.subbands.length; j < jj; j++) {
-//       let mu, epsilon;
-//       if (!scalarExpounded) {
-//         // formula E-5
-//         mu = spqcds[0].mu;
-//         epsilon = spqcds[0].epsilon + (i > 0 ? 1 - i : 0);
-//       } else {
-//         mu = spqcds[b].mu;
-//         epsilon = spqcds[b].epsilon;
-//         b++;
-//       }
-
-//       const subband = resolution.subbands[j];
-//       const gainLog2 = SubbandsGainLog2[subband.type];
-
-//       // calculate quantization coefficient (Section E.1.1.1)
-//       const delta = reversible ? 1 : 2 ** (precision + gainLog2 - epsilon) * (1 + mu / 2048);
-//       const mb = guardBits + epsilon - 1;
-
-//       // In the first resolution level, copyCoefficients will fill the
-//       // whole array with coefficients. In the succeeding passes,
-//       // copyCoefficients will consecutively fill in the values that belong
-//       // to the interleaved positions of the HL, LH, and HH coefficients.
-//       // The LL coefficients will then be interleaved in Transform.iterate().
-//       copyCoefficients(coefficients, width, subband, delta, mb, reversible, segmentationSymbolUsed);
-//     }
-//     subbandCoefficients.push({
-//       width,
-//       height,
-//       items: coefficients,
-//     });
-//   }
-
-//   const result = transform.calculate(subbandCoefficients, component.tcx0, component.tcy0);
-//   return {
-//     left: component.tcx0,
-//     top: component.tcy0,
-//     width: result.width,
-//     height: result.height,
-//     items: result.items,
-//   };
-// }
-// /**
-//  * Transforms a tile to a 2D array of coefficients
-//  * @param context - global context to pull data from
-//  * @returns - the transformed tiles
-//  */
-// function transformComponents(context: Context): ComponentTile[] {
-//   const {
-//     tiles,
-//     components,
-//     SIZ: { Csiz: componentsCount },
-//   } = context;
-//   const resultImages = [];
-//   for (let i = 0, ii = tiles.length; i < ii; i++) {
-//     const tile = tiles[i];
-//     const transformedTiles: TileTransform[] = [];
-//     for (let c = 0; c < componentsCount; c++) {
-//       transformedTiles[c] = transformTile(context, tile, c);
-//     }
-//     const tile0 = transformedTiles[0];
-//     const out = new Uint8ClampedArray(tile0.items.length * componentsCount);
-//     const result = {
-//       left: tile0.left,
-//       top: tile0.top,
-//       width: tile0.width,
-//       height: tile0.height,
-//       items: out,
-//     };
-
-//     // Section G.2.2 Inverse multi component transform
-//     let shift,
-//       offset,
-//       pos = 0,
-//       j,
-//       jj,
-//       y0,
-//       y1,
-//       y2;
-//     if (tile.codingStyleDefaultParameters.multipleComponentTransform !== 0) {
-//       const fourComponents = componentsCount === 4;
-//       const y0items = transformedTiles[0].items;
-//       const y1items = transformedTiles[1].items;
-//       const y2items = transformedTiles[2].items;
-//       const y3items = fourComponents ? transformedTiles[3].items : null;
-
-//       // HACK: The multiple component transform formulas below assume that
-//       // all components have the same precision. With this in mind, we
-//       // compute shift and offset only once.
-//       shift = components[0].precision - 8;
-//       offset = (128 << shift) + 0.5;
-
-//       const component0 = tile.components[0];
-//       const alpha01 = componentsCount - 3;
-//       jj = y0items.length;
-//       if (component0.codingStyleParameters.reversibleTransformation) {
-//         // inverse irreversible multiple component transform
-//         for (j = 0; j < jj; j++, pos += alpha01) {
-//           y0 = y0items[j] + offset;
-//           y1 = y1items[j];
-//           y2 = y2items[j];
-//           out[pos++] = (y0 + 1.402 * y2) >> shift;
-//           out[pos++] = (y0 - 0.34413 * y1 - 0.71414 * y2) >> shift;
-//           out[pos++] = (y0 + 1.772 * y1) >> shift;
-//         }
-//       } else {
-//         // inverse reversible multiple component transform
-//         for (j = 0; j < jj; j++, pos += alpha01) {
-//           y0 = y0items[j] + offset;
-//           y1 = y1items[j];
-//           y2 = y2items[j];
-//           const g = y0 - ((y2 + y1) >> 2);
-
-//           out[pos++] = (g + y2) >> shift;
-//           out[pos++] = g >> shift;
-//           out[pos++] = (g + y1) >> shift;
-//         }
-//       }
-//       if (fourComponents && y3items !== null) {
-//         for (j = 0, pos = 3; j < jj; j++, pos += 4) {
-//           out[pos] = (y3items[j] + offset) >> shift;
-//         }
-//       }
-//     } else {
-//       // no multi-component transform
-//       for (let c = 0; c < componentsCount; c++) {
-//         const items = transformedTiles[c].items;
-//         shift = components[c].precision - 8;
-//         offset = (128 << shift) + 0.5;
-//         for (pos = c, j = 0, jj = items.length; j < jj; j++) {
-//           out[pos] = (items[j] + offset) >> shift;
-//           pos += componentsCount;
-//         }
-//       }
-//     }
-//     resultImages.push(result);
-//   }
-//   return resultImages;
-// }
-// /**
-//  * Initializes a tile
-//  * @param context - global context to pull data from
-//  * @param tileIndex - tile index
-//  */
-// function initializeTile(context: Context, tileIndex: number): void {
-//   const {
-//     SIZ: { Csiz: componentsCount },
-//     currentTile,
-//     tiles,
-//   } = context;
-//   const tile = tiles[tileIndex];
-//   for (let c = 0; c < componentsCount; c++) {
-//     const component = tile.components[c];
-//     const qcdOrQcc = currentTile.QCC[c] !== undefined ? currentTile.QCC[c] : currentTile.QCD;
-//     component.quantizationParameters = qcdOrQcc;
-//     const codOrCoc = currentTile.COC[c] !== undefined ? currentTile.COC[c] : currentTile.COD;
-//     component.codingStyleParameters = codOrCoc;
-//   }
-//   tile.codingStyleDefaultParameters = currentTile.COD;
-// }
-
-// /**
-//  * Section B.10.2 Tag trees
-//  */
-// class TagTree {
-//   currentLevel = 0;
-//   levels: Level[] = [];
-//   value: undefined | number;
-
-//   /**
-//    * @param width - width of the tree
-//    * @param height - height of the tree
-//    */
-//   constructor(width: number, height: number) {
-//     const { max, ceil } = Math;
-//     const levelsLength = log2(max(width, height)) + 1;
-//     for (let i = 0; i < levelsLength; i++) {
-//       this.levels.push({
-//         width,
-//         height,
-//         items: [],
-//       });
-//       width = ceil(width / 2);
-//       height = ceil(height / 2);
-//     }
-//   }
-//   /**
-//    * Resets the tree
-//    * @param i - i coordinate
-//    * @param j - j coordinate
-//    */
-//   reset(i: number, j: number): void {
-//     let currentLevel = 0;
-//     let value = 0;
-//     while (currentLevel < this.levels.length) {
-//       const level = this.levels[currentLevel];
-//       const index = i + j * level.width;
-//       if (level.items[index] !== undefined) {
-//         value = level.items[index];
-//         break;
-//       }
-//       level.index = index;
-//       i >>= 1;
-//       j >>= 1;
-//       currentLevel++;
-//     }
-//     currentLevel--;
-//     const level = this.levels[currentLevel];
-//     level.items[level.index ?? 0] = value;
-//     this.currentLevel = currentLevel;
-//     this.value = undefined;
-//   }
-//   /**
-//    * Increment value of the current level
-//    */
-//   incrementValue(): void {
-//     const level = this.levels[this.currentLevel];
-//     level.items[level.index ?? 0]++;
-//   }
-//   /**
-//    * Moves the cursor to the next level
-//    * @returns - true if there is a next level
-//    */
-//   nextLevel(): boolean {
-//     let currentLevel = this.currentLevel;
-//     let level = this.levels[currentLevel];
-//     const value = level.items[level.index ?? 0];
-//     currentLevel--;
-//     if (currentLevel < 0) {
-//       this.value = value;
-//       return false;
-//     }
-
-//     this.currentLevel = currentLevel;
-//     level = this.levels[currentLevel];
-//     level.items[level.index ?? 0] = value;
-//     return true;
-//   }
-// }
-
-// /**
-//  * Section B.10.3 Inclusion trees
-//  */
-// class InclusionTree {
-//   currentLevel = 0;
-//   levels: Level[] = [];
-//   /**
-//    * @param width - width of the tree
-//    * @param height - height of the tree
-//    * @param defaultValue - default value
-//    */
-//   constructor(width: number, height: number, defaultValue: number) {
-//     const { max, ceil } = Math;
-//     const levelsLength = log2(max(width, height)) + 1;
-//     for (let i = 0; i < levelsLength; i++) {
-//       const items = new Uint8Array(width * height);
-//       for (let j = 0, jj = items.length; j < jj; j++) items[j] = defaultValue;
-//       this.levels.push({
-//         width,
-//         height,
-//         items,
-//       });
-
-//       width = ceil(width / 2);
-//       height = ceil(height / 2);
-//     }
-//   }
-
-//   /**
-//    * Resets the tree
-//    * @param i - i coordinate
-//    * @param j - j coordinate
-//    * @param stopValue - stop value
-//    * @returns - true if there is a next level
-//    */
-//   reset(i: number, j: number, stopValue: number): boolean {
-//     let currentLevel = 0;
-//     while (currentLevel < this.levels.length) {
-//       const level = this.levels[currentLevel];
-//       const index = i + j * level.width;
-//       level.index = index;
-//       const value = level.items[index];
-
-//       if (value === 0xff) break;
-
-//       if (value > stopValue) {
-//         this.currentLevel = currentLevel;
-//         // already know about this one, propagating the value to top levels
-//         this.propagateValues();
-//         return false;
-//       }
-
-//       i >>= 1;
-//       j >>= 1;
-//       currentLevel++;
-//     }
-//     this.currentLevel = currentLevel - 1;
-//     return true;
-//   }
-//   /**
-//    * Increments the value of the current level
-//    * @param stopValue - stop value
-//    */
-//   incrementValue(stopValue: number): void {
-//     const level = this.levels[this.currentLevel];
-//     level.items[level.index ?? 0] = stopValue + 1;
-//     this.propagateValues();
-//   }
-//   /** Propagates the value to the top levels */
-//   propagateValues(): void {
-//     let levelIndex = this.currentLevel;
-//     let level = this.levels[levelIndex];
-//     const currentValue = level.items[level.index ?? 0];
-//     while (--levelIndex >= 0) {
-//       level = this.levels[levelIndex];
-//       level.items[level.index ?? 0] = currentValue;
-//     }
-//   }
-//   /**
-//    * Moves the cursor to the next level
-//    * @returns - true if there is a next level
-//    */
-//   nextLevel(): boolean {
-//     let currentLevel = this.currentLevel;
-//     let level = this.levels[currentLevel];
-//     const value = level.items[level.index ?? 0];
-//     level.items[level.index ?? 0] = 0xff;
-//     currentLevel--;
-//     if (currentLevel < 0) return false;
-
-//     this.currentLevel = currentLevel;
-//     level = this.levels[currentLevel];
-//     level.items[level.index ?? 0] = value;
-//     return true;
-//   }
-// }
-
-// const UNIFORM_CONTEXT = 17;
-// const RUNLENGTH_CONTEXT = 18;
-
-// /**
-//  * Section D. Coefficient bit modeling
-//  */
-// class BitModel {
-//   neighborsSignificance: Uint8Array;
-//   coefficentsSign: Uint8Array;
-//   contextLabelTable: Uint8Array;
-//   coefficentsMagnitude: Uint8Array | Uint16Array | Uint32Array;
-//   processingFlags: Uint8Array;
-//   bitsDecoded: Uint8Array;
-//   contexts = new Int8Array(0);
-//   decoder!: JPEG2000ArithmeticDecoder;
-
-//   /**
-//    * @param width - width
-//    * @param height - height
-//    * @param subband - subband
-//    * @param zeroBitPlanes - zero bit planes size
-//    * @param mb - block size
-//    */
-//   constructor(
-//     readonly width: number,
-//     readonly height: number,
-//     subband: SubBandType,
-//     zeroBitPlanes: number,
-//     mb: number,
-//   ) {
-//     let contextLabelTable;
-//     // Table D-1
-//     // The index is binary presentation: 0dddvvhh, ddd - sum of Di (0..4),
-//     // vv - sum of Vi (0..2), and hh - sum of Hi (0..2)
-//     if (subband === 'HH') {
-//       contextLabelTable = new Uint8Array([
-//         0, 1, 2, 0, 1, 2, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 3, 4, 5, 0, 4, 5, 5, 0, 5, 5, 5, 0, 0, 0, 0,
-//         0, 6, 7, 7, 0, 7, 7, 7, 0, 7, 7, 7, 0, 0, 0, 0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8, 0, 0, 0,
-//         0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8,
-//       ]);
-//     } else if (subband === 'HL') {
-//       contextLabelTable = new Uint8Array([
-//         0, 3, 4, 0, 5, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 1, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0,
-//         0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0, 0, 0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8, 0, 0, 0,
-//         0, 0, 2, 3, 4, 0, 6, 7, 7, 0, 8, 8, 8,
-//       ]);
-//     } else {
-//       contextLabelTable = new Uint8Array([
-//         0, 5, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 1, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0,
-//         0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0, 0, 0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8, 0, 0, 0,
-//         0, 0, 2, 6, 8, 0, 3, 7, 8, 0, 4, 7, 8,
-//       ]);
-//     }
-//     this.contextLabelTable = contextLabelTable;
-
-//     const coefficientCount = width * height;
-
-//     // coefficients outside the encoding region treated as insignificant
-//     // add border state cells for significanceState
-//     this.neighborsSignificance = new Uint8Array(coefficientCount);
-//     this.coefficentsSign = new Uint8Array(coefficientCount);
-//     let coefficentsMagnitude;
-//     if (mb > 14) {
-//       coefficentsMagnitude = new Uint32Array(coefficientCount);
-//     } else if (mb > 6) {
-//       coefficentsMagnitude = new Uint16Array(coefficientCount);
-//     } else {
-//       coefficentsMagnitude = new Uint8Array(coefficientCount);
-//     }
-//     this.coefficentsMagnitude = coefficentsMagnitude;
-//     this.processingFlags = new Uint8Array(coefficientCount);
-
-//     const bitsDecoded = new Uint8Array(coefficientCount);
-//     if (zeroBitPlanes !== 0) {
-//       for (let i = 0; i < coefficientCount; i++) {
-//         bitsDecoded[i] = zeroBitPlanes;
-//       }
-//     }
-//     this.bitsDecoded = bitsDecoded;
-
-//     this.reset();
-//   }
-
-//   /**
-//    * Set decoder
-//    * @param decoder - decoder to use
-//    */
-//   setDecoder(decoder: JPEG2000ArithmeticDecoder): void {
-//     this.decoder = decoder;
-//   }
-
-//   /**
-//    * Reset the tree
-//    */
-//   reset(): void {
-//     // We have 17 contexts that are accessed via context labels,
-//     // plus the uniform and runlength context.
-//     this.contexts = new Int8Array(19);
-
-//     // Contexts are packed into 1 byte:
-//     // highest 7 bits carry the index, lowest bit carries mps
-//     this.contexts[0] = (4 << 1) | 0;
-//     this.contexts[UNIFORM_CONTEXT] = (46 << 1) | 0;
-//     this.contexts[RUNLENGTH_CONTEXT] = (3 << 1) | 0;
-//   }
-//   /**
-//    * Set neighbors significance
-//    * @param row - row
-//    * @param column - column
-//    * @param index - index to set
-//    */
-//   setNeighborsSignificance(row: number, column: number, index: number): void {
-//     const { width, height, neighborsSignificance } = this;
-//     const left = column > 0;
-//     const right = column + 1 < width;
-//     let i;
-
-//     if (row > 0) {
-//       i = index - width;
-//       if (left) {
-//         neighborsSignificance[i - 1] += 0x10;
-//       }
-//       if (right) {
-//         neighborsSignificance[i + 1] += 0x10;
-//       }
-//       neighborsSignificance[i] += 0x04;
-//     }
-
-//     if (row + 1 < height) {
-//       i = index + width;
-//       if (left) neighborsSignificance[i - 1] += 0x10;
-//       if (right) neighborsSignificance[i + 1] += 0x10;
-//       neighborsSignificance[i] += 0x04;
-//     }
-
-//     if (left) neighborsSignificance[index - 1] += 0x01;
-//     if (right) neighborsSignificance[index + 1] += 0x01;
-//     neighborsSignificance[index] |= 0x80;
-//   }
-//   /** Run significance propagation */
-//   runSignificancePropagationPass(): void {
-//     const {
-//       decoder,
-//       width,
-//       height,
-//       processingFlags,
-//       coefficentsMagnitude,
-//       coefficentsSign,
-//       neighborsSignificance,
-//       contextLabelTable: labels,
-//       contexts,
-//       bitsDecoded,
-//     } = this;
-//     const processedInverseMask = ~1;
-//     const processedMask = 1;
-//     const firstMagnitudeBitMask = 2;
-
-//     for (let i0 = 0; i0 < height; i0 += 4) {
-//       for (let j = 0; j < width; j++) {
-//         let index = i0 * width + j;
-//         for (let i1 = 0; i1 < 4; i1++, index += width) {
-//           const i = i0 + i1;
-//           if (i >= height) {
-//             break;
-//           }
-//           // clear processed flag first
-//           processingFlags[index] &= processedInverseMask;
-
-//           if (coefficentsMagnitude[index] !== 0 || neighborsSignificance[index] === 0) {
-//             continue;
-//           }
-
-//           const contextLabel = labels[neighborsSignificance[index]];
-//           const decision = decoder.readBit(contexts, contextLabel);
-//           if (decision !== 0) {
-//             const sign = this.decodeSignBit(i, j, index);
-//             coefficentsSign[index] = sign;
-//             coefficentsMagnitude[index] = 1;
-//             this.setNeighborsSignificance(i, j, index);
-//             processingFlags[index] |= firstMagnitudeBitMask;
-//           }
-//           bitsDecoded[index]++;
-//           processingFlags[index] |= processedMask;
-//         }
-//       }
-//     }
-//   }
-//   /**
-//    * Decode sign bit
-//    * @param row - row size
-//    * @param column - column size
-//    * @param index - index to decode
-//    * @returns - sign
-//    */
-//   decodeSignBit(row: number, column: number, index: number): number {
-//     const { decoder, width, height, coefficentsMagnitude, coefficentsSign, contexts } = this;
-//     let contribution: number,
-//       sign0: number,
-//       sign1: number,
-//       significance1: boolean,
-//       contextLabel: number,
-//       decoded: number;
-
-//     // calculate horizontal contribution
-//     significance1 = column > 0 && coefficentsMagnitude[index - 1] !== 0;
-//     if (column + 1 < width && coefficentsMagnitude[index + 1] !== 0) {
-//       sign1 = coefficentsSign[index + 1];
-//       if (significance1) {
-//         sign0 = coefficentsSign[index - 1];
-//         contribution = 1 - sign1 - sign0;
-//       } else {
-//         contribution = 1 - sign1 - sign1;
-//       }
-//     } else if (significance1) {
-//       sign0 = coefficentsSign[index - 1];
-//       contribution = 1 - sign0 - sign0;
-//     } else {
-//       contribution = 0;
-//     }
-//     const horizontalContribution = 3 * contribution;
-
-//     // calculate vertical contribution and combine with the horizontal
-//     significance1 = row > 0 && coefficentsMagnitude[index - width] !== 0;
-//     if (row + 1 < height && coefficentsMagnitude[index + width] !== 0) {
-//       sign1 = coefficentsSign[index + width];
-//       if (significance1) {
-//         sign0 = coefficentsSign[index - width];
-//         contribution = 1 - sign1 - sign0 + horizontalContribution;
-//       } else {
-//         contribution = 1 - sign1 - sign1 + horizontalContribution;
-//       }
-//     } else if (significance1) {
-//       sign0 = coefficentsSign[index - width];
-//       contribution = 1 - sign0 - sign0 + horizontalContribution;
-//     } else {
-//       contribution = horizontalContribution;
-//     }
-
-//     if (contribution >= 0) {
-//       contextLabel = 9 + contribution;
-//       decoded = decoder.readBit(contexts, contextLabel) ?? 0;
-//     } else {
-//       contextLabel = 9 - contribution;
-//       decoded = (decoder.readBit(contexts, contextLabel) ?? 0) ^ 1;
-//     }
-//     return decoded;
-//   }
-//   /** Run magnitude refinement */
-//   runMagnitudeRefinementPass(): void {
-//     const {
-//       decoder,
-//       contexts,
-//       width,
-//       height,
-//       bitsDecoded,
-//       processingFlags,
-//       coefficentsMagnitude,
-//       neighborsSignificance,
-//     } = this;
-//     const processedMask = 1;
-//     const firstMagnitudeBitMask = 2;
-//     const length = width * height;
-//     const width4 = width * 4;
-
-//     for (let index0 = 0, indexNext: number; index0 < length; index0 = indexNext) {
-//       indexNext = Math.min(length, index0 + width4);
-//       for (let j = 0; j < width; j++) {
-//         for (let index = index0 + j; index < indexNext; index += width) {
-//           // significant but not those that have just become
-//           if (coefficentsMagnitude[index] === 0 || (processingFlags[index] & processedMask) !== 0) {
-//             continue;
-//           }
-
-//           let contextLabel = 16;
-//           if ((processingFlags[index] & firstMagnitudeBitMask) !== 0) {
-//             processingFlags[index] ^= firstMagnitudeBitMask;
-//             // first refinement
-//             const significance = neighborsSignificance[index] & 127;
-//             contextLabel = significance === 0 ? 15 : 14;
-//           }
-
-//           const bit = decoder.readBit(contexts, contextLabel) ?? 0;
-//           coefficentsMagnitude[index] = (coefficentsMagnitude[index] << 1) | bit;
-//           bitsDecoded[index]++;
-//           processingFlags[index] |= processedMask;
-//         }
-//       }
-//     }
-//   }
-//   /** Run cleanup pass */
-//   runCleanupPass(): void {
-//     const {
-//       decoder,
-//       contexts,
-//       width,
-//       height,
-//       neighborsSignificance,
-//       coefficentsMagnitude,
-//       coefficentsSign,
-//       contextLabelTable: labels,
-//       bitsDecoded,
-//       processingFlags,
-//     } = this;
-//     const processedMask = 1;
-//     const firstMagnitudeBitMask = 2;
-//     const oneRowDown = width;
-//     const twoRowsDown = width * 2;
-//     const threeRowsDown = width * 3;
-//     let iNext;
-//     for (let i0 = 0; i0 < height; i0 = iNext) {
-//       iNext = Math.min(i0 + 4, height);
-//       const indexBase = i0 * width;
-//       const checkAllEmpty = i0 + 3 < height;
-//       for (let j = 0; j < width; j++) {
-//         const index0 = indexBase + j;
-//         // using the property: labels[neighborsSignificance[index]] === 0
-//         // when neighborsSignificance[index] === 0
-//         const allEmpty =
-//           checkAllEmpty &&
-//           processingFlags[index0] === 0 &&
-//           processingFlags[index0 + oneRowDown] === 0 &&
-//           processingFlags[index0 + twoRowsDown] === 0 &&
-//           processingFlags[index0 + threeRowsDown] === 0 &&
-//           neighborsSignificance[index0] === 0 &&
-//           neighborsSignificance[index0 + oneRowDown] === 0 &&
-//           neighborsSignificance[index0 + twoRowsDown] === 0 &&
-//           neighborsSignificance[index0 + threeRowsDown] === 0;
-//         let i1 = 0;
-//         let index = index0;
-//         let i = i0;
-//         let sign: number;
-//         if (allEmpty) {
-//           const hasSignificantCoefficent = decoder.readBit(contexts, RUNLENGTH_CONTEXT);
-//           if (hasSignificantCoefficent === 0) {
-//             bitsDecoded[index0]++;
-//             bitsDecoded[index0 + oneRowDown]++;
-//             bitsDecoded[index0 + twoRowsDown]++;
-//             bitsDecoded[index0 + threeRowsDown]++;
-//             continue; // next column
-//           }
-//           i1 =
-//             (decoder.readBit(contexts, UNIFORM_CONTEXT) << 1) |
-//             decoder.readBit(contexts, UNIFORM_CONTEXT);
-//           if (i1 !== 0) {
-//             i = i0 + i1;
-//             index += i1 * width;
-//           }
-
-//           sign = this.decodeSignBit(i, j, index);
-//           coefficentsSign[index] = sign;
-//           coefficentsMagnitude[index] = 1;
-//           this.setNeighborsSignificance(i, j, index);
-//           processingFlags[index] |= firstMagnitudeBitMask;
-
-//           index = index0;
-//           for (let i2 = i0; i2 <= i; i2++, index += width) {
-//             bitsDecoded[index]++;
-//           }
-
-//           i1++;
-//         }
-//         for (i = i0 + i1; i < iNext; i++, index += width) {
-//           if (coefficentsMagnitude[index] !== 0 || (processingFlags[index] & processedMask) !== 0) {
-//             continue;
-//           }
-
-//           const contextLabel = labels[neighborsSignificance[index]];
-//           const decision = decoder.readBit(contexts, contextLabel);
-//           if (decision === 1) {
-//             sign = this.decodeSignBit(i, j, index);
-//             coefficentsSign[index] = sign;
-//             coefficentsMagnitude[index] = 1;
-//             this.setNeighborsSignificance(i, j, index);
-//             processingFlags[index] |= firstMagnitudeBitMask;
-//           }
-//           bitsDecoded[index]++;
-//         }
-//       }
-//     }
-//   }
-//   /** Check segmentation symbol */
-//   checkSegmentationSymbol(): void {
-//     const decoder = this.decoder;
-//     const contexts = this.contexts;
-//     const symbol =
-//       (decoder.readBit(contexts, UNIFORM_CONTEXT) << 3) |
-//       (decoder.readBit(contexts, UNIFORM_CONTEXT) << 2) |
-//       (decoder.readBit(contexts, UNIFORM_CONTEXT) << 1) |
-//       decoder.readBit(contexts, UNIFORM_CONTEXT);
-//     if (symbol !== 0xa) {
-//       throw new Error('Invalid segmentation symbol');
-//     }
-//   }
-// }
-
-// /**
-//  * Section F, Discrete wavelet transformation
-//  */
-// class Transform {
-//   /**
-//    * Default filter function to fill with parent classes
-//    * @param _x - buffer
-//    * @param _offset - offset in the buffer to start
-//    * @param _length - length of the buffer to read
-//    */
-//   filter(_x: Float32Array, _offset: number, _length: number): void {}
-
-//   /**
-//    * Calculate
-//    * @param subbands - subbands
-//    * @param u0 - u
-//    * @param v0 - v
-//    * @returns - the calculated subbands
-//    */
-//   calculate(subbands: Level[], u0: number, v0: number): Level {
-//     let ll = subbands[0];
-//     for (let i = 1, ii = subbands.length; i < ii; i++) {
-//       ll = this.iterate(ll, subbands[i], u0, v0);
-//     }
-//     return ll;
-//   }
-//   /**
-//    * Extend the buffer
-//    * @param buffer - the buffer
-//    * @param offset - the offset
-//    * @param size - the size to extend by
-//    */
-//   extend(buffer: Float32Array, offset: number, size: number): void {
-//     // Section F.3.7 extending... using max extension of 4
-//     let i1 = offset - 1,
-//       j1 = offset + 1;
-//     let i2 = offset + size - 2,
-//       j2 = offset + size;
-//     buffer[i1--] = buffer[j1++];
-//     buffer[j2++] = buffer[i2--];
-//     buffer[i1--] = buffer[j1++];
-//     buffer[j2++] = buffer[i2--];
-//     buffer[i1--] = buffer[j1++];
-//     buffer[j2++] = buffer[i2--];
-//     buffer[i1] = buffer[j1];
-//     buffer[j2] = buffer[i2];
-//   }
-//   /**
-//    * Level Iterator
-//    * @param ll - level
-//    * @param hl_lh_hh - boxed level
-//    * @param u0 - u
-//    * @param v0 - v
-//    * @returns - the level
-//    */
-//   iterate(ll: Level, hl_lh_hh: Level, u0: number, v0: number): Level {
-//     const llWidth = ll.width,
-//       llHeight = ll.height,
-//       llItems = ll.items;
-//     const width = hl_lh_hh.width;
-//     const height = hl_lh_hh.height;
-//     // fix items if needed
-//     if (Array.isArray(hl_lh_hh.items)) hl_lh_hh.items = new Uint8Array(hl_lh_hh.items);
-//     const items = hl_lh_hh.items;
-//     let i, j, k, l, u, v;
-
-//     // Interleave LL according to Section F.3.3
-//     for (k = 0, i = 0; i < llHeight; i++) {
-//       l = i * 2 * width;
-//       for (j = 0; j < llWidth; j++, k++, l += 2) {
-//         items[l] = llItems[k];
-//       }
-//     }
-//     // The LL band is not needed anymore.
-//     // llItems = ll.items = null;
-
-//     const bufferPadding = 4;
-//     const rowBuffer = new Float32Array(width + 2 * bufferPadding);
-
-//     // Section F.3.4 HOR_SR
-//     if (width === 1) {
-//       // if width = 1, when u0 even keep items as is, when odd divide by 2
-//       if ((u0 & 1) !== 0) {
-//         for (v = 0, k = 0; v < height; v++, k += width) {
-//           items[k] *= 0.5;
-//         }
-//       }
-//     } else {
-//       for (v = 0, k = 0; v < height; v++, k += width) {
-//         rowBuffer.set(items.subarray(k, k + width), bufferPadding);
-
-//         this.extend(rowBuffer, bufferPadding, width);
-//         this.filter(rowBuffer, bufferPadding, width);
-
-//         items.set(rowBuffer.subarray(bufferPadding, bufferPadding + width), k);
-//       }
-//     }
-
-//     // Accesses to the items array can take long, because it may not fit into
-//     // CPU cache and has to be fetched from main memory. Since subsequent
-//     // accesses to the items array are not local when reading columns, we
-//     // have a cache miss every time. To reduce cache misses, get up to
-//     // 'numBuffers' items at a time and store them into the individual
-//     // buffers. The colBuffers should be small enough to fit into CPU cache.
-//     let numBuffers = 16;
-//     const colBuffers = [];
-//     for (i = 0; i < numBuffers; i++) {
-//       colBuffers.push(new Float32Array(height + 2 * bufferPadding));
-//     }
-//     let b: number,
-//       currentBuffer = 0;
-//     const ll2 = bufferPadding + height;
-
-//     // Section F.3.5 VER_SR
-//     if (height === 1) {
-//       // if height = 1, when v0 even keep items as is, when odd divide by 2
-//       if ((v0 & 1) !== 0) {
-//         for (u = 0; u < width; u++) {
-//           items[u] *= 0.5;
-//         }
-//       }
-//     } else {
-//       for (u = 0; u < width; u++) {
-//         // if we ran out of buffers, copy several image columns at once
-//         if (currentBuffer === 0) {
-//           numBuffers = Math.min(width - u, numBuffers);
-//           for (k = u, l = bufferPadding; l < ll2; k += width, l++) {
-//             for (b = 0; b < numBuffers; b++) {
-//               colBuffers[b][l] = items[k + b];
-//             }
-//           }
-//           currentBuffer = numBuffers;
-//         }
-
-//         currentBuffer--;
-//         const buffer = colBuffers[currentBuffer];
-//         this.extend(buffer, bufferPadding, height);
-//         this.filter(buffer, bufferPadding, height);
-
-//         // If this is last buffer in this group of buffers, flush all buffers.
-//         if (currentBuffer === 0) {
-//           k = u - numBuffers + 1;
-//           for (l = bufferPadding; l < ll2; k += width, l++) {
-//             for (b = 0; b < numBuffers; b++) {
-//               items[k + b] = colBuffers[b][l];
-//             }
-//           }
-//         }
-//       }
-//     }
-
-//     return {
-//       width,
-//       height,
-//       items,
-//     };
-//   }
-// }
-
-// /**
-//  * Section 3.8.2 Irreversible 9-7 filter
-//  */
-// class IrreversibleTransform extends Transform {
-//   /**
-//    * Filter function
-//    * @param x - buffer
-//    * @param offset - offset
-//    * @param length - length
-//    */
-//   filter(x: Float32Array, offset: number, length: number): void {
-//     const len = length >> 1;
-//     offset = offset | 0;
-//     let j: number, current: number, next: number;
-
-//     const alpha = -1.586134342059924;
-//     const beta = -0.052980118572961;
-//     const gamma = 0.882911075530934;
-//     const delta = 0.443506852043971;
-//     const K = 1.230174104914001;
-//     const K_ = 1 / K;
-
-//     // step 1 is combined with step 3
-
-//     // step 2
-//     j = offset - 3;
-//     for (let n = len + 4; n-- !== 0; j += 2) {
-//       x[j] *= K_;
-//     }
-
-//     // step 1 & 3
-//     j = offset - 2;
-//     current = delta * x[j - 1];
-//     for (let n = len + 3; n-- !== 0; j += 2) {
-//       next = delta * x[j + 1];
-//       x[j] = K * x[j] - current - next;
-//       if (n-- !== 0) {
-//         j += 2;
-//         current = delta * x[j + 1];
-//         x[j] = K * x[j] - current - next;
-//       } else {
-//         break;
-//       }
-//     }
-
-//     // step 4
-//     j = offset - 1;
-//     current = gamma * x[j - 1];
-//     for (let n = len + 2; n-- !== 0; j += 2) {
-//       next = gamma * x[j + 1];
-//       x[j] -= current + next;
-//       if (n-- !== 0) {
-//         j += 2;
-//         current = gamma * x[j + 1];
-//         x[j] -= current + next;
-//       } else {
-//         break;
-//       }
-//     }
-
-//     // step 5
-//     j = offset;
-//     current = beta * x[j - 1];
-//     for (let n = len + 1; n-- !== 0; j += 2) {
-//       next = beta * x[j + 1];
-//       x[j] -= current + next;
-//       if (n-- !== 0) {
-//         j += 2;
-//         current = beta * x[j + 1];
-//         x[j] -= current + next;
-//       } else {
-//         break;
-//       }
-//     }
-
-//     // step 6
-//     if (len !== 0) {
-//       j = offset + 1;
-//       current = alpha * x[j - 1];
-//       for (let n = len; n-- !== 0; j += 2) {
-//         next = alpha * x[j + 1];
-//         x[j] -= current + next;
-//         if (n-- !== 0) {
-//           j += 2;
-//           current = alpha * x[j + 1];
-//           x[j] -= current + next;
-//         } else {
-//           break;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// /**
-//  * Section 3.8.1 Reversible 5-3 filter
-//  */
-// class ReversibleTransform extends Transform {
-//   /**
-//    * Filter
-//    * @param x - buffer
-//    * @param offset - offset
-//    * @param length - length
-//    */
-//   filter(x: Float32Array, offset: number, length: number): void {
-//     const len = length >> 1;
-//     offset = offset | 0;
-//     let j: number, n: number;
-
-//     for (j = offset, n = len + 1; n-- !== 0; j += 2) {
-//       x[j] -= (x[j - 1] + x[j + 1] + 2) >> 2;
-//     }
-
-//     for (j = offset + 1, n = len; n-- !== 0; j += 2) {
-//       x[j] += (x[j - 1] + x[j + 1]) >> 1;
-//     }
-//   }
-// }
-
-// // Table C-2
-// const QeTable = [
-//   { qe: 0x5601, nmps: 1, nlps: 1, switchFlag: 1 },
-//   { qe: 0x3401, nmps: 2, nlps: 6, switchFlag: 0 },
-//   { qe: 0x1801, nmps: 3, nlps: 9, switchFlag: 0 },
-//   { qe: 0x0ac1, nmps: 4, nlps: 12, switchFlag: 0 },
-//   { qe: 0x0521, nmps: 5, nlps: 29, switchFlag: 0 },
-//   { qe: 0x0221, nmps: 38, nlps: 33, switchFlag: 0 },
-//   { qe: 0x5601, nmps: 7, nlps: 6, switchFlag: 1 },
-//   { qe: 0x5401, nmps: 8, nlps: 14, switchFlag: 0 },
-//   { qe: 0x4801, nmps: 9, nlps: 14, switchFlag: 0 },
-//   { qe: 0x3801, nmps: 10, nlps: 14, switchFlag: 0 },
-//   { qe: 0x3001, nmps: 11, nlps: 17, switchFlag: 0 },
-//   { qe: 0x2401, nmps: 12, nlps: 18, switchFlag: 0 },
-//   { qe: 0x1c01, nmps: 13, nlps: 20, switchFlag: 0 },
-//   { qe: 0x1601, nmps: 29, nlps: 21, switchFlag: 0 },
-//   { qe: 0x5601, nmps: 15, nlps: 14, switchFlag: 1 },
-//   { qe: 0x5401, nmps: 16, nlps: 14, switchFlag: 0 },
-//   { qe: 0x5101, nmps: 17, nlps: 15, switchFlag: 0 },
-//   { qe: 0x4801, nmps: 18, nlps: 16, switchFlag: 0 },
-//   { qe: 0x3801, nmps: 19, nlps: 17, switchFlag: 0 },
-//   { qe: 0x3401, nmps: 20, nlps: 18, switchFlag: 0 },
-//   { qe: 0x3001, nmps: 21, nlps: 19, switchFlag: 0 },
-//   { qe: 0x2801, nmps: 22, nlps: 19, switchFlag: 0 },
-//   { qe: 0x2401, nmps: 23, nlps: 20, switchFlag: 0 },
-//   { qe: 0x2201, nmps: 24, nlps: 21, switchFlag: 0 },
-//   { qe: 0x1c01, nmps: 25, nlps: 22, switchFlag: 0 },
-//   { qe: 0x1801, nmps: 26, nlps: 23, switchFlag: 0 },
-//   { qe: 0x1601, nmps: 27, nlps: 24, switchFlag: 0 },
-//   { qe: 0x1401, nmps: 28, nlps: 25, switchFlag: 0 },
-//   { qe: 0x1201, nmps: 29, nlps: 26, switchFlag: 0 },
-//   { qe: 0x1101, nmps: 30, nlps: 27, switchFlag: 0 },
-//   { qe: 0x0ac1, nmps: 31, nlps: 28, switchFlag: 0 },
-//   { qe: 0x09c1, nmps: 32, nlps: 29, switchFlag: 0 },
-//   { qe: 0x08a1, nmps: 33, nlps: 30, switchFlag: 0 },
-//   { qe: 0x0521, nmps: 34, nlps: 31, switchFlag: 0 },
-//   { qe: 0x0441, nmps: 35, nlps: 32, switchFlag: 0 },
-//   { qe: 0x02a1, nmps: 36, nlps: 33, switchFlag: 0 },
-//   { qe: 0x0221, nmps: 37, nlps: 34, switchFlag: 0 },
-//   { qe: 0x0141, nmps: 38, nlps: 35, switchFlag: 0 },
-//   { qe: 0x0111, nmps: 39, nlps: 36, switchFlag: 0 },
-//   { qe: 0x0085, nmps: 40, nlps: 37, switchFlag: 0 },
-//   { qe: 0x0049, nmps: 41, nlps: 38, switchFlag: 0 },
-//   { qe: 0x0025, nmps: 42, nlps: 39, switchFlag: 0 },
-//   { qe: 0x0015, nmps: 43, nlps: 40, switchFlag: 0 },
-//   { qe: 0x0009, nmps: 44, nlps: 41, switchFlag: 0 },
-//   { qe: 0x0005, nmps: 45, nlps: 42, switchFlag: 0 },
-//   { qe: 0x0001, nmps: 45, nlps: 43, switchFlag: 0 },
-//   { qe: 0x5601, nmps: 46, nlps: 46, switchFlag: 0 },
-// ];
-
-// /**
-//  * Calculate the base 2 logarithm of the number `x`. This differs from the
-//  * native function in the sense that it returns the ceiling value and that it
-//  * returns 0 instead of `Infinity`/`NaN` for `x` values smaller than/equal to 0.
-//  * @param x - the number to calculate the logarithm of
-//  * @returns the base 2 logarithm
-//  */
-// function log2(x: number): number {
-//   if (x <= 0) return 0;
-//   return Math.ceil(Math.log2(x));
-// }
-
-// /**
-//  * This class implements the QM Coder decoding as defined in
-//  *   JPEG 2000 Part I Final Committee Draft Version 1.0
-//  *   Annex C.3 Arithmetic decoding procedure
-//  * available at http://www.jpeg.org/public/fcd15444-1.pdf
-//  *
-//  * The arithmetic decoder is used in conjunction with context models to decode
-//  * JPEG2000 and JBIG2 streams.
-//  */
-// export class JPEG2000ArithmeticDecoder {
-//   a: number;
-//   chigh: number;
-//   ct = 0;
-//   clow = 0;
-//   /**
-//    * C.3.5 Initialisation of the decoder (INITDEC)
-//    * @param data - compressed data
-//    * @param start - start index
-//    * @param end - end index
-//    */
-//   constructor(
-//     public data: Uint8Array,
-//     public start: number,
-//     public end: number,
-//   ) {
-//     this.chigh = data[start];
-//     this.byteIn();
-
-//     this.chigh = ((this.chigh << 7) & 0xffff) | ((this.clow >> 9) & 0x7f);
-//     this.clow = (this.clow << 7) & 0xffff;
-//     this.ct -= 7;
-//     this.a = 0x8000;
-//   }
-
-//   /** C.3.4 Compressed data input (BYTEIN) */
-//   byteIn(): void {
-//     const data = this.data;
-//     let bp = this.start;
-
-//     if (data[bp] === 0xff) {
-//       if (data[bp + 1] > 0x8f) {
-//         this.clow += 0xff00;
-//         this.ct = 8;
-//       } else {
-//         bp++;
-//         this.clow += data[bp] << 9;
-//         this.ct = 7;
-//         this.start = bp;
-//       }
-//     } else {
-//       bp++;
-//       this.clow += bp < this.end ? data[bp] << 8 : 0xff00;
-//       this.ct = 8;
-//       this.start = bp;
-//     }
-//     if (this.clow > 0xffff) {
-//       this.chigh += this.clow >> 16;
-//       this.clow &= 0xffff;
-//     }
-//   }
-
-//   /**
-//    * C.3.2 Decoding a decision (DECODE)
-//    * @param contexts - context models
-//    * @param pos - context model index
-//    * @returns 0 or 1
-//    */
-//   readBit(contexts: number[] | Int8Array, pos: number): number {
-//     // Contexts are packed into 1 byte:
-//     // highest 7 bits carry cx.index, lowest bit carries cx.mps
-//     let cx_index = contexts[pos] >> 1,
-//       cx_mps = contexts[pos] & 1;
-//     const qeTableIcx = QeTable[cx_index];
-//     const qeIcx = qeTableIcx.qe;
-//     let d;
-//     let a = this.a - qeIcx;
-
-//     if (this.chigh < qeIcx) {
-//       // exchangeLps
-//       if (a < qeIcx) {
-//         a = qeIcx;
-//         d = cx_mps;
-//         cx_index = qeTableIcx.nmps;
-//       } else {
-//         a = qeIcx;
-//         d = 1 ^ cx_mps;
-//         if (qeTableIcx.switchFlag === 1) {
-//           cx_mps = d;
-//         }
-//         cx_index = qeTableIcx.nlps;
-//       }
-//     } else {
-//       this.chigh -= qeIcx;
-//       if ((a & 0x8000) !== 0) {
-//         this.a = a;
-//         return cx_mps;
-//       }
-//       // exchangeMps
-//       if (a < qeIcx) {
-//         d = 1 ^ cx_mps;
-//         if (qeTableIcx.switchFlag === 1) {
-//           cx_mps = d;
-//         }
-//         cx_index = qeTableIcx.nlps;
-//       } else {
-//         d = cx_mps;
-//         cx_index = qeTableIcx.nmps;
-//       }
-//     }
-//     // C.3.3 renormD;
-//     do {
-//       if (this.ct === 0) this.byteIn();
-
-//       a <<= 1;
-//       this.chigh = ((this.chigh << 1) & 0xffff) | ((this.clow >> 15) & 1);
-//       this.clow = (this.clow << 1) & 0xffff;
-//       this.ct--;
-//     } while ((a & 0x8000) === 0);
-//     this.a = a;
-
-//     contexts[pos] = (cx_index << 1) | cx_mps;
-//     return d;
-//   }
-// }
+#![allow(missing_docs)]
+
+use crate::parsers::Reader;
+use alloc::{borrow::ToOwned, format, string::String, vec, vec::Vec};
+use core::fmt;
+
+// jP\040\040 (0x6A50 2020)
+const BOX_TYPE_SIGNATURE: BoxType = 1783636000;
+const BOX_TYPE_FILE_TYPE: BoxType = 1718909296;
+const BOX_TYPE_HEADER: BoxType = 1785737832;
+const BOX_TYPE_IMAGE_HEADER: BoxType = 1768449138;
+const BOX_TYPE_BITS_PER_COMPONENT: BoxType = 1651532643;
+const BOX_TYPE_COLOUR_SPECIFICATION: BoxType = 1668246642;
+const BOX_TYPE_PALETTE: BoxType = 1885564018;
+const BOX_TYPE_COMPONENT_MAPPING: BoxType = 1668112752;
+const BOX_TYPE_CHANNEL_DEFINITION: BoxType = 1667523942;
+const BOX_TYPE_RESOLUTION: BoxType = 1919251232;
+const BOX_TYPE_CAPTURE_RESOLUTION: BoxType = 1919251299;
+const BOX_TYPE_DEFAULT_DISPLAY_RESOLUTION: BoxType = 1919251300;
+const BOX_TYPE_CONTIGUOUS_CODESTREAM: BoxType = 1785737827;
+const BOX_TYPE_INTELLECTUAL_PROPERTY: BoxType = 1785737833;
+const BOX_TYPE_XML: BoxType = 2020437024;
+const BOX_TYPE_UUID: BoxType = 1970628964;
+const BOX_TYPE_UUID_INFO: BoxType = 1969843814;
+const BOX_TYPE_UUID_LIST: BoxType = 1970041716;
+const BOX_TYPE_DATA_ENTRY_URL: BoxType = 1970433056;
+
+// jp2\040
+const BRAND_JP2: &'static str = "jp2\040"; // [106, 112, 50, 32];
+
+// jp2\040
+const BRAND_JPX: &'static str = "jp2\040"; // [106, 112, 120, 32];
+
+// <CR><LF><0x87><LF> (0x0D0A 870A).
+const SIGNATURE_MAGIC: u32 = 218793738;
+
+#[derive(Debug)]
+enum BoxTypes {
+    Signature,
+    FileType,
+    Header,
+    ImageHeader,
+    BitsPerComponent,
+    ColourSpecification,
+    Palette,
+    ComponentMapping,
+    ChannelDefinition,
+    Resolution,
+    CaptureResolution,
+    DefaultDisplayResolution,
+    ContiguousCodestream,
+    IntellectualProperty,
+    XML,
+    UUID,
+    UUIDInfo,
+    UUIDList,
+    DataEntryURL,
+    Unknown,
+}
+
+impl fmt::Display for BoxTypes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl BoxTypes {
+    fn new(value: BoxType) -> BoxTypes {
+        match value {
+            BOX_TYPE_SIGNATURE => BoxTypes::Signature,
+            BOX_TYPE_FILE_TYPE => BoxTypes::FileType,
+            BOX_TYPE_HEADER => BoxTypes::Header,
+            BOX_TYPE_IMAGE_HEADER => BoxTypes::ImageHeader,
+            BOX_TYPE_BITS_PER_COMPONENT => BoxTypes::BitsPerComponent,
+            BOX_TYPE_COLOUR_SPECIFICATION => BoxTypes::ColourSpecification,
+            BOX_TYPE_PALETTE => BoxTypes::Palette,
+            BOX_TYPE_COMPONENT_MAPPING => BoxTypes::ComponentMapping,
+            BOX_TYPE_CHANNEL_DEFINITION => BoxTypes::ChannelDefinition,
+
+            BOX_TYPE_RESOLUTION => BoxTypes::Resolution,
+            BOX_TYPE_CAPTURE_RESOLUTION => BoxTypes::CaptureResolution,
+            BOX_TYPE_DEFAULT_DISPLAY_RESOLUTION => BoxTypes::DefaultDisplayResolution,
+
+            BOX_TYPE_CONTIGUOUS_CODESTREAM => BoxTypes::ContiguousCodestream,
+            BOX_TYPE_INTELLECTUAL_PROPERTY => BoxTypes::IntellectualProperty,
+            BOX_TYPE_XML => BoxTypes::XML,
+
+            BOX_TYPE_UUID => BoxTypes::UUID,
+            BOX_TYPE_UUID_INFO => BoxTypes::UUIDInfo,
+            BOX_TYPE_UUID_LIST => BoxTypes::UUIDList,
+            BOX_TYPE_DATA_ENTRY_URL => BoxTypes::DataEntryURL,
+            _ => BoxTypes::Unknown,
+        }
+    }
+}
+
+type BoxType = u32;
+
+// The building-block of the JP2 file format is called a box.
+//
+// All information contained within the JP2 file is encapsulated in boxes.
+//
+// This Recommendation | International Standard defines several types of boxes;
+// the definition of each specific box type defines the kinds of information
+// that may be found within a box of that type. Some boxes will be defined to
+// contain other boxes.
+pub trait JBox {
+    fn identifier(&self) -> BoxType;
+    fn length(&self) -> u64;
+    fn offset(&self) -> u64;
+    fn decode<R: Reader>(&mut self, reader: &mut R);
+}
+
+// I.5.1
+//
+// JPEG 2000 Signature box
+//
+// The Signature box identifies that the format of this file was defined by the
+// JPEG 2000 Recommendation | International Standard, as well as provides a
+// small amount of information which can help determine the validity of the rest
+// of the file.
+//
+// The Signature box shall be the first box in the file, and all files shall
+// contain one and only one Signature box.
+
+// For file verification purposes, this box can be considered a fixed-length
+// 12-byte string which shall have the value: 0x0000 000C 6A50 2020 0D0A 870A.
+
+// The combination of the particular type and contents for this box enable an
+// application to detect a common set of file transmission errors.
+//
+// - The CR-LF sequence in the contents catches bad file transfers that alter
+// newline sequences.
+// - The control-Z character in the type stops file display under MS-DOS.
+// - The final linefeed checks for the inverse of the CR-LF translation problem.
+// - The third character of the box contents has its high-bit set to catch bad
+// file transfers that clear bit 7
+#[derive(Debug, Default, PartialEq)]
+pub struct SignatureBox {
+    length: u64,
+    offset: u64,
+}
+
+impl SignatureBox {
+    pub fn signature(&self) -> u32 {
+        SIGNATURE_MAGIC
+    }
+}
+
+impl JBox for SignatureBox {
+    // The type of the JPEG 2000 Signature box shall be ‘jP\040\040’ (0x6A50 2020)
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_SIGNATURE
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    // The contents of this box shall be the 4-byte character string ‘<CR><LF><0x87><LF>’ (0x0D0A 870A).
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.length = 12;
+        let buffer = reader.uint32_be(None);
+
+        if buffer != SIGNATURE_MAGIC {
+            panic!("Invalid signature: {buffer:?}");
+        };
+    }
+}
+
+type CompatibilityList = Vec<u32>;
+
+// I.5.2
+//
+// File Type box
+//
+// The File Type box completely defines all of the contents of this file, as
+// well as a separate list of readers with which this file is compatible, and
+// thus the file can be properly interpreted within the scope of that other
+// standard.
+//
+// This box shall immediately follow the Signature box.
+//
+// All files shall contain one and only one File Type box
+//
+// This differentiates between the standard which completely describes the file,
+// from other standards that interpret a subset of the file.
+#[derive(Debug, Default, PartialEq)]
+pub struct FileTypeBox {
+    length: u64,
+    offset: u64,
+    brand: String,
+    min_version: u32,
+    compatibility_list: CompatibilityList,
+}
+
+impl FileTypeBox {
+    // Brand
+    //
+    // This field specifies the Recommendation | International Standard which
+    // completely defines this file.
+    //
+    // This field is specified by a four byte string of ISO 646 characters.
+    //
+    // In addition, the Brand field shall be considered functionally equivalent
+    // to a major version number. A major version change (if there ever is one),
+    // representing an incompatible change in the JP2 file format, shall define
+    // a different value for the Brand field.
+    //
+    // If the value of the Brand field is not ‘jp2\040’, then a value of
+    // ‘jp2\040’ in the Compatibility listindicates that a JP2 reader can
+    // interpret the file in some manner as intended by the creator of the
+    // file.
+    pub fn brand(&self) -> String {
+        self.brand.clone()
+    }
+
+    // Minor version
+    //
+    // This parameter defines the minor version number of this JP2 specification
+    // for which thefile complies.
+    //
+    // The parameter is defined as a 4-byte big endian unsigned integer.
+    //
+    // The value of this field shall be zero.
+    //
+    // However, readers shall continue to parse and interpret this file even if
+    // the value of thisfield is not zero.
+    pub fn min_version(&self) -> u32 {
+        self.min_version
+    }
+
+    // Compatibility list
+    //
+    // This field specifies a code representing this Recommendation |
+    // International Standard, another standard, or a profile of another
+    // standard, to which the file conforms.
+    //
+    // This field is encoded as a four byte string of ISO 646 characters.
+    pub fn compatibility_list(&self) -> Vec<String> {
+        self.compatibility_list
+            .iter()
+            .map(|c| {
+                // convert to u8s then parse as string
+                String::from_utf8(Vec::from(c.to_be_bytes())).unwrap()
+            })
+            .collect()
+    }
+}
+
+impl JBox for FileTypeBox {
+    // The type of the File Type Box shall be ‘ftyp’ (0x6674 7970).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_FILE_TYPE
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.brand = reader.parse_string(None, Some(4));
+        if self.brand == BRAND_JPX {
+            panic!("Unsupported JPX");
+        } else if self.brand != BRAND_JP2 {
+            // return Err(JP2Error::InvalidBrand { brand: self.brand, offset: reader.tell() }.into());
+            panic!("Invalid brand: {:?}", self.brand);
+        }
+
+        self.min_version = reader.uint32_be(None);
+
+        // The number of CL fields is determined by the length of this box
+        let mut size = (self.length() - 8) / 4;
+        while size > 0 {
+            let buffer = reader.uint32_be(None);
+            self.compatibility_list.push(buffer);
+            size -= 1;
+        }
+
+        // A file shall have at least one CL field in the File Type box, and shall contain the value‘jp2\040’ in one of the CL fields in the File Type box, and all conforming readers shall properly interpret all files with ‘jp2\040’ in one of the CL fields.
+        // Other values of the Compatibility list field are reserved for ISO use.
+        // TODO: Rebuild this correctly
+        // if self.compatibility_list.iter().find(|c| **c == BRAND_JP2).is_none() {
+        //     panic!("Not compatible");
+        // }
+    }
+}
+
+// I.5.3
+//
+// JP2 Header Box
+//
+// The JP2 Header box contains generic information about the file, such as
+// number of components, colourspace, and grid resolution.
+//
+// This box is a superbox.
+// This box contains several boxes.
+//
+// Within a JP2 file, there shall be one and only one JP2 Header box.
+//
+// Other boxes may be defined in other standards and may be ignored by
+// conforming readers. Those boxes contained within the JP2 Header box that are
+// defined within this Recommendation | InternationalStandard are as follows:
+
+// - Image Header box - This box specifies information about the image, such
+// as its height and width.
+//
+// - Bits Per Component box - This box specifies the bit depth of each
+// component in the codestream after decompression. This box may be found
+// anywhere in the JP2 Header box provided that it comes after the Image Header
+// box.
+//
+// - Colour Specification boxes - These boxes specify the colourspace of the
+// decompressed image. The use of multiple Colour Specification boxes
+// provides the ability for a decoder to be given multiple optimization or
+// compatibility options for colour processing. These boxes may be found
+// anywhere in the JP2 Header box provided that they come after the Image Header
+// box. All Colour Specification boxes shall be contiguous within the JP2 Header
+// box.
+//
+// - Palette box - This box defines the palette to use to create multiple
+// components from a single component. This box may be found anywhere in the JP2
+// Header box provided that it comes after the Image Header box.
+//
+// - Component Mapping box - This box defines how image channels are identified
+// from the actual components in the codestream. This box may be found anywhere
+// in the JP2 Header box provided that it comes after the Image Header box.
+//
+// - Channel Definition box - This box defines the channels in the image. This
+// box may be found anywhere in the JP2 Header box provided that it comes after
+// the ImageHeader box.
+//
+// - Resolution box - This box specifies the capture and default display grid
+// resolutions of the image. This box may be found anywhere in the JP2 Header
+// box provided that it comes after the Image Header box.
+#[derive(Debug, Default, PartialEq)]
+pub struct HeaderSuperBox {
+    length: u64,
+    offset: u64,
+    pub image_header_box: ImageHeaderBox,
+    pub bits_per_component_box: Option<BitsPerComponentBox>,
+    pub colour_specification_boxes: Vec<ColourSpecificationBox>,
+    pub palette_box: Option<PaletteBox>,
+    pub component_mapping_box: Option<ComponentMappingBox>,
+    pub channel_definition_box: Option<ChannelDefinitionBox>,
+    pub resolution_box: Option<ResolutionSuperBox>,
+}
+
+impl JBox for HeaderSuperBox {
+    // The type of the JP2 Header box shall be ‘jp2h’ (0x6A70 3268)
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_HEADER
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        let BoxHeader { box_length, box_type, .. } = decode_box_header(reader).unwrap();
+
+        if box_type != self.image_header_box.identifier() {
+            panic!("BoxUnexpected: {box_type}");
+        }
+        self.image_header_box.length = box_length;
+        self.image_header_box.offset = reader.tell();
+        self.image_header_box.decode(reader);
+
+        loop {
+            let BoxHeader { box_length, box_type, header_length } =
+                decode_box_header(reader).unwrap();
+
+            match BoxTypes::new(box_type) {
+                BoxTypes::ImageHeader => {
+                    // Instances of Image Header box in other places in the file shall be ignored.
+                    // warn!("ImageHeaderBox found in other place, ignoring");
+                }
+                BoxTypes::ColourSpecification => {
+                    let mut colour_specification_box = ColourSpecificationBox {
+                        length: box_length,
+                        offset: reader.tell(),
+                        method: 0,
+                        precedence: 0,
+                        colourspace_approximation: 0,
+                        enumerated_colour_space: ENUMERATED_COLOUR_SPACE_UNKNOWN,
+                        restricted_icc_profile: vec![],
+                    };
+                    colour_specification_box.decode(reader);
+                    self.colour_specification_boxes.push(colour_specification_box);
+                }
+                BoxTypes::BitsPerComponent => {
+                    // There shall be one and only one Bits Per Component box inside a JP2 Header box.
+                    if self.bits_per_component_box.is_some() {
+                        panic!("BoxDuplicate - bits per component");
+                    }
+                    let components_num = self.image_header_box.components_num();
+                    let mut bits_per_component_box = BitsPerComponentBox {
+                        components_num,
+                        bits_per_component: vec![0; components_num as usize],
+                        length: box_length,
+                        offset: reader.tell(),
+                    };
+                    bits_per_component_box.decode(reader);
+                    self.bits_per_component_box = Some(bits_per_component_box);
+                }
+                BoxTypes::Palette => {
+                    // There shall be at most one Palette box inside a JP2 Header box.
+                    if self.palette_box.is_some() {
+                        panic!("BoxDuplicate - palette");
+                    }
+                    let mut palette_box = PaletteBox::default();
+                    palette_box.length = box_length;
+                    palette_box.offset = reader.tell();
+                    palette_box.decode(reader);
+                    self.palette_box = Some(palette_box);
+                }
+                BoxTypes::ComponentMapping => {
+                    // There shall be at most one Component Mapping box inside a JP2 Header box.
+                    if self.component_mapping_box.is_some() {
+                        panic!("BoxDuplicate - component mapping");
+                    }
+
+                    let mut component_mapping_box = ComponentMappingBox {
+                        length: box_length,
+                        offset: reader.tell(),
+                        mapping: vec![],
+                    };
+                    component_mapping_box.decode(reader);
+                    self.component_mapping_box = Some(component_mapping_box);
+                }
+                BoxTypes::ChannelDefinition => {
+                    // There shall be at most one Channel Definition box inside a JP2 Header box.
+                    if self.channel_definition_box.is_some() {
+                        panic!("BoxDuplicate - channel definition");
+                    }
+
+                    let mut channel_definition_box = ChannelDefinitionBox::default();
+                    channel_definition_box.length = box_length;
+                    channel_definition_box.offset = reader.tell();
+                    channel_definition_box.decode(reader);
+                    self.channel_definition_box = Some(channel_definition_box);
+                }
+                BoxTypes::Resolution => {
+                    // There shall be at most one Resolution box inside a JP2 Header box.
+                    if self.resolution_box.is_some() {
+                        panic!("BoxDuplicate - resolution");
+                    }
+
+                    let mut resolution_box = ResolutionSuperBox::default();
+                    resolution_box.length = box_length;
+                    resolution_box.offset = reader.tell();
+                    resolution_box.decode(reader);
+                    self.resolution_box = Some(resolution_box);
+                }
+
+                BoxTypes::Unknown => {
+                    // warn!("Unknown box type 2 {:?} {:?}", reader.tell(), box_type);
+                    break;
+                }
+
+                // End of header but recognised new box type
+                _ => {
+                    reader.seek(reader.tell() - header_length as u64);
+                    break;
+                }
+            }
+        }
+
+        // There shall be at least one Colour Specification box
+        // within the JP2 Header box.
+        if self.colour_specification_boxes.len() == 0 {
+            panic!("BoxMalformed - colour specification");
+        }
+
+        // TODO
+        // Check that all u16/i16 are correct / big endian is correct
+    }
+}
+
+// const COMPRESSION_TYPE_WAVELET: u8 = 7;
+
+// I.5.3.1
+//
+// Image Header box
+//
+// This box contains fixed length generic information about the image, such as
+// the image size and number of components.
+//
+// The contents of the JP2 Header box shall start with an Image Header box.
+//
+// The length of the Image Header box shall be 22 bytes, including the box
+// length and type fields.
+//
+// Much of the information within the Image Header box is redundant with
+// information stored in the codestream itself.
+//
+// All references to “the codestream” in the descriptions of fields in this
+// Image Header box apply to the codestream found in the first Contiguous
+// Codestream box in the file.
+//
+// Files that contain contradictory information between the Image Headerbox and
+// the first codestream are not conforming files. However, readers may choose
+// to attempt to read these files by usingthe values found within the
+// codestream.
+#[derive(Debug, Default, PartialEq)]
+pub struct ImageHeaderBox {
+    length: u64,
+    offset: u64,
+    height: u32,
+    width: u32,
+    components_num: u16,
+    components_bits: u8,
+    compression_type: u8,
+    colourspace_unknown: u8,
+    intellectual_property: u8,
+}
+
+impl ImageHeaderBox {
+    // Image area height.
+    //
+    // The value of this parameter indicates the height of the image area.
+    // This field is stored as a 4-byte big endian unsigned integer.
+    //
+    // The value of this field shall be Ysiz – YOsiz, where Ysiz and YOsiz are
+    // the values of the respective fields in the SIZ marker in the codestream.
+    //
+    // However, reference grid points are not necessarily square; the aspect
+    // ratio of a reference grid point is specified by the Resolution box.
+    //
+    // If the Resolution box is not present, then a reader shall assume that
+    // reference grid points are square.
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    // Image area width.
+    //
+    // The value of this parameter indicates the width of the image area.
+    // This field is stored as a 4-byte big endian unsigned integer.
+    //
+    // The value of this field shall be Xsiz – XOsiz, where Xsiz and XOsiz are
+    // the values of the respective fields in the SIZ marker in the codestream.
+    //
+    // However, reference grid points are not necessarily square; theaspect
+    // ratio of a reference grid point is specified by the Resolution box.
+    //
+    // If the Resolution box is not present, then a reader shall assume that
+    // reference grid points are square
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    // Number of components.
+    //
+    // This parameter specifies the number of components in the codestream and
+    // is stored as a 2-byte big endian unsigned integer.
+    //
+    // The value of this field shall be equal to the value of the Csiz field in
+    // the SIZ marker in the codestream.
+    pub fn components_num(&self) -> u16 {
+        self.components_num
+    }
+
+    // Bits per component.
+    //
+    // This parameter specifies the bit depth of the components in the
+    // codestream, minus 1, and is stored as a 1-byte field.
+    //
+    // If the bit depth is the same for all components, then this parameter
+    // specifies that bit depth and shall be equivalent to the values of the
+    // Ssizi fields in the SIZ marker in the codestream (which shall all be
+    // equal).
+    //
+    // If the components vary in bit depth, then the value of this field shall
+    // be 255 and the JP2 Header box shall also contain a Bits Per Component
+    // box defining the bit depth of each component.
+    //
+    // The low 7-bits of the value indicate the bit depth of the components.
+    // The high-bit indicates whether the components are signed or unsigned.
+    // If the high-bit is 1, then the components contain signed values.
+    // If the high-bit is 0, then the components contain unsigned values
+    pub fn components_bits(&self) -> u8 {
+        // 1111 1111 (255) Components vary in bit depth
+        // 1xxx xxxx (128 - 254) Components are signed values
+        // 0xxx xxxx (37 - 127) Components are unsigned values
+        if self.components_bits == 255 {
+            self.components_bits
+        }
+        // x000 0000 — x010 0101 Component bit depth = value + 1. From 1 bit
+        // deep through 38 bits deep respectively (counting the sign bit, if
+        // appropriate)
+        //
+        else if self.components_bits <= 37 {
+            self.components_bits + 1
+        }
+        // All other values reserved for ISO use.
+        else {
+            todo!("reserved");
+        }
+    }
+
+    // Compression type.
+    //
+    // This parameter specifies the compression algorithm used to compress the
+    // image data.
+    //
+    // The value of this field shall be 7.
+    // It is encoded as a 1-byte unsigned integer.
+    // Other values are reserved for ISO use.
+    pub fn compression_type(&self) -> u8 {
+        self.compression_type
+    }
+
+    // Colourspace Unknown.
+    //
+    // This field specifies if the actual colourspace of the image data in the
+    // codestream is known.
+    //
+    // This field is encoded as a 1-byte unsigned integer.
+    //
+    // Legal values for this field are 0, if the colourspace of the image is
+    // known and correctly specified in the Colourspace Specification boxes
+    // within the file, or 1, if the colourspace of the image is not known.
+    //
+    // A value of 1 will be used in cases such as the transcoding of legacy
+    // images where the actual colourspace of the image data is not known.
+    //
+    // In those cases, while the colourspace interpretation methods specified
+    // in the file may not accurately reproduce the image with respect to some
+    // original, the image should be treated as if the methods do accurately
+    // reproduce the image.
+    //
+    // Values other than 0 and 1 are reserved for ISO use.
+    pub fn colourspace_unknown(&self) -> u8 {
+        self.colourspace_unknown
+    }
+
+    // Intellectual Property.
+    //
+    // This parameter indicates whether this JP2 file contains intellectual
+    // property rights information.
+    //
+    // If the value of this field is 0, this file does not contain rights
+    // information, and thus the file does not contain an IPR box.
+    //
+    // If the value is 1, then the file does contain rights information and
+    // thus does contain an IPR box.
+    //
+    // Other values are reserved for ISO use.
+    pub fn intellectual_property(&self) -> u8 {
+        self.intellectual_property
+    }
+}
+
+impl JBox for ImageHeaderBox {
+    // The type of the Image Header box shall be ‘ihdr’ (0x6968 6472)
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_IMAGE_HEADER
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        // reader.read_exact(&mut self.height)?;
+        self.height = reader.uint32_be(None);
+        // reader.read_exact(&mut self.width)?;
+        self.width = reader.uint32_be(None);
+        // reader.read_exact(&mut self.components_num)?;
+        self.components_num = reader.uint16_be(None);
+        // reader.read_exact(&mut self.components_bits)?;
+        self.components_bits = reader.uint8(None);
+        // reader.read_exact(&mut self.compression_type)?;
+        self.compression_type = reader.uint8(None);
+        // reader.read_exact(&mut self.colourspace_unknown)?;
+        self.colourspace_unknown = reader.uint8(None);
+        // reader.read_exact(&mut self.intellectual_property)?;
+        self.intellectual_property = reader.uint8(None);
+    }
+}
+
+// I.5.3.6
+//
+// Channel Definition Box
+//
+// The Channel Definition box specifies the meaning of the samples in each
+// channel in the image. The exact location of this box within the JP2 Header
+// box may vary provided that it follows the Image Header box.
+//
+// The mapping between actual components from the codestream to channels is
+// specified in the Component Mapping box.
+//
+// If the JP2 Header box does not contain a Component Mapping box, then a
+// reader shall map component i to channel i, for all components in
+// the codestream.
+//
+// This box contains an array of channel descriptions. For each description,
+// three values are specified:
+// - the index of the channel described by that association
+// - the type of that channel
+// - and the association of that channel with particular colours.
+//
+// This box may specify multiple descriptions for a single channel; however,
+// the type value in each description for the same channel shall be the same in
+// all descriptions.
+//
+// If a multiple component transform is specified within the codestream, the
+// image must be in an RGB colourspace and the red, green and blue colours as
+// channels 0, 1 and 2 in the codestream, respectively.
+#[derive(Debug, Default, PartialEq)]
+pub struct ChannelDefinitionBox {
+    length: u64,
+    offset: u64,
+    channels: Vec<Channel>,
+}
+
+impl ChannelDefinitionBox {
+    pub fn channels(&self) -> &Vec<Channel> {
+        &self.channels
+    }
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub struct Channel {
+    // Channel index
+    //
+    // This field specifies the index of the channel for this description.
+    //
+    // The value of this field represents the index of the channel as defined
+    // within the Component Mapping box (or the actual component from the
+    // codestream if the file does not contain a Component Mapping box).
+    //
+    // This field isencoded as a 2-byte big endian unsigned integer.
+    channel_index: u16,
+
+    // Channel type
+    //
+    // This field specifies the type of the channel for this description.
+    // The value of this field specifies the meaning of the decompressed
+    // samples in this channel.
+    //
+    // This field is encoded as a 2-byte bigendian unsigned integer.
+    channel_type: u16,
+
+    // Channel association
+    //
+    // This field specifies the index of the colour for which this channel is
+    // directly associated (or a special value to indicate the whole image or
+    // the lack of an association).
+    //
+    // For example, if this channel is an opacity channel for the red channel
+    // in an RGB colourspace, this field would specify the index of the colour
+    // red.
+    channel_association: u16,
+}
+
+impl Channel {
+    pub fn channel_index(&self) -> u16 {
+        self.channel_index
+    }
+
+    pub fn channel_type(&self) -> ChannelTypes {
+        ChannelTypes::new(self.channel_type)
+    }
+
+    pub fn channel_type_u16(&self) -> u16 {
+        self.channel_type
+    }
+
+    // TODO: Map channel association based on colourspace (Table I-18)
+    pub fn channel_association(&self) -> u16 {
+        self.channel_association
+    }
+}
+
+// TODO: There shall not be more than one channel in a JP2 file with a the same
+// Typ^i and Asoc^i value pair, with the exception of Typ^i and Asoc^i values of
+// 2^16 – 1 (not specified)
+
+// const CHANNEL_TYPE_COLOUR_IMAGE_DATA: u16 = 0;
+// const CHANNEL_TYPE_OPACITY_DATA: u16 = 1;
+// const CHANNEL_TYPE_PREMULTIPLIED_OPACITY: u16 = 3;
+
+#[derive(Debug)]
+pub enum ChannelTypes {
+    ColourImageData,
+    Opacity,
+    PremultipliedOpacity,
+    Reserved { value: u16 },
+    Unspecified { value: u16 },
+}
+
+impl ChannelTypes {
+    fn new(value: u16) -> ChannelTypes {
+        let channel_type = value;
+
+        if channel_type == 0 {
+            ChannelTypes::ColourImageData
+        } else if channel_type == 1 {
+            ChannelTypes::Opacity
+        } else if channel_type == 2 {
+            ChannelTypes::PremultipliedOpacity
+        } else if channel_type <= 2u16.pow(16) - 2 {
+            ChannelTypes::Reserved { value: channel_type }
+        } else {
+            ChannelTypes::Unspecified { value: channel_type }
+        }
+    }
+}
+
+impl JBox for ChannelDefinitionBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_CHANNEL_DEFINITION
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        // Number of channel descriptions. This field specifies the number of
+        // channel descriptions in this box. This field is encoded as a 2-byte
+        // big endian unsigned integer.
+        let mut size = reader.uint16_be(None);
+
+        let mut channels: Vec<Channel> = Vec::with_capacity(size as usize);
+
+        while size > 0 {
+            let mut channel = Channel::default();
+            channel.channel_index = reader.uint16_be(None);
+            channel.channel_type = reader.uint16_be(None);
+            channel.channel_association = reader.uint16_be(None);
+
+            channels.push(channel);
+
+            size -= 1;
+        }
+
+        self.channels = channels;
+    }
+}
+
+const COMPONENT_MAP_TYPE_DIRECT: u8 = 1;
+const COMPONENT_MAP_TYPE_PALETTE: u8 = 2;
+
+#[derive(Debug, PartialEq)]
+pub enum ComponentMapType {
+    // Direct use.
+    //
+    // This channel is created directly from an actual component in the
+    // codestream.
+    // The index of the component mapped to this channel is specified in the
+    // CMPi field for this channel.
+    Direct,
+
+    // Palette mapping.
+    //
+    // This channel is created by applying the palette to an actual component
+    // in the codestream.
+    //
+    // The index of the component mapped into the palette is specified in the
+    // CMPi field for this channel.
+    // The column from the palette to use is specified in the PCOLi field for
+    // this channel
+    Palette,
+
+    // Reserved for ISO use
+    Reserved { value: u8 },
+}
+
+impl ComponentMapType {
+    fn new(value: u8) -> ComponentMapType {
+        match value {
+            COMPONENT_MAP_TYPE_DIRECT => ComponentMapType::Direct,
+            COMPONENT_MAP_TYPE_PALETTE => ComponentMapType::Palette,
+            value => ComponentMapType::Reserved { value },
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ComponentMap {
+    // This field specifies the index of component from the codestream that is
+    // mapped to this channel (either directly or through a palette).
+    //
+    // This field is encoded as a 2-byte big endian unsigned integer.
+    component: u16,
+
+    // This field specifies how this channel is generated from the actual
+    // components in the file. This field is encoded as a 1-byte unsigned
+    // integer.
+    mapping_type: ComponentMapType,
+
+    // This field specifies the index component from the palette that is used
+    // to map the actual component from the codestream.
+    // This field is encoded as a 1-byte unsigned integer.
+    //
+    // If the value of the MTYPi field for this channel is 0, then the value of
+    // this field shall be 0.
+    palette: u8,
+}
+
+impl ComponentMap {
+    pub fn component(&self) -> u16 {
+        self.component
+    }
+    pub fn mapping_type(&self) -> u8 {
+        match self.mapping_type {
+            ComponentMapType::Direct => COMPONENT_MAP_TYPE_DIRECT,
+            ComponentMapType::Palette => COMPONENT_MAP_TYPE_PALETTE,
+            ComponentMapType::Reserved { value } => value,
+        }
+    }
+    pub fn palette(&self) -> u8 {
+        self.palette
+    }
+}
+
+// I.5.3.5
+//
+// The Component Mapping box defines how image channels are identified from the
+// actual components decoded from the codestream.
+//
+// This abstraction allows a single structure (the Channel Definition box) to
+// specify the colour or type of both palettized images and non-palettized
+// images.
+//
+// This box contains an array of CMPi, MTYPi and PCOLi fields.
+//
+// Each group of these fields represents the definition of one channel in the
+// image.
+//
+// The channels are numbered in order starting with zero, and the number of
+// channels specified in the Component Mapping box is determined by the length
+// of the box.
+//
+// If the JP2 Header box contains a Palette box, then the JP2 Header box shall
+// also contain a Component Mapping box.
+// If the JP2 Header box does not contain a Palette box, then the JP2 Header box
+// shall not contain a Component Mapping box.
+// In this case, the components shall be mapped directly to channels, such that
+// component i is mapped to channel i.
+#[derive(Debug, Default, PartialEq)]
+pub struct ComponentMappingBox {
+    length: u64,
+    offset: u64,
+    mapping: Vec<ComponentMap>,
+}
+
+impl ComponentMappingBox {
+    pub fn component_map(&self) -> &Vec<ComponentMap> {
+        &self.mapping
+    }
+}
+
+impl JBox for ComponentMappingBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_COMPONENT_MAPPING
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        let mut index = 0;
+        while index < self.length {
+            let mut component_map =
+                ComponentMap { component: 0, palette: 0, mapping_type: ComponentMapType::new(255) };
+            component_map.component = reader.uint16_be(None);
+
+            let mapping_type = reader.uint8(None);
+            component_map.mapping_type = ComponentMapType::new(mapping_type);
+
+            component_map.palette = reader.uint8(None);
+
+            self.mapping.push(component_map);
+            index = index + 4;
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct GeneratedComponent {
+    // This parameter specifies the bit depth of generated component i,
+    // encoded as a 1-byte big endian integer.
+    //
+    // The low 7-bits of the value indicate the bit depth of this component.
+    // The high-bit indicates whether the component is signed or unsigned.
+    //
+    // If the high-bit is 1, then the component contains signed values.
+    // If the high-bit is 0, then the component contains unsigned values.
+    //
+    // The number of Bi values shall be the same as the value of the NPC field.
+    bit_depth: u8,
+
+    // The generated component value for entry j for component i.
+    //
+    // Cji values are organized in component major order; all of the component
+    // values for entry j are grouped together, followed by all of the entries
+    // for component j+1.
+    //
+    // The size of Cji is the value specified by field Bi.
+    //
+    // The number of components shall be the same as the NPC field.
+    //
+    // The number of Cji values shall be the number of created components
+    // (the NPC field) times the number of entries in the palette (NE).
+    //
+    // If the value of Bi is not a multiple of 8, then each Cji value is padded
+    // with zeros to a multiple of 8 bits and the actual value shall be stored
+    // in the low-order bits of the padded value.
+    //
+    // For example, if the value of Bi is 10 bits, then the individual Cji
+    // values shall be stored in the low 10 bits of a 16 bit field.
+    values: Vec<u8>,
+}
+
+pub enum BitDepth {
+    Signed { value: u8 },
+    Unsigned { value: u8 },
+    Reserved { value: u8 },
+}
+
+impl BitDepth {
+    fn new(byte: u8) -> BitDepth {
+        // The low 7-bits of the value indicate the bit depth of this component.
+        let value = u8::from_be_bytes([byte << 1 >> 1]) + 1;
+
+        // The high-bit indicates whether the component is signed or unsigned.
+        let signedness = byte >> 7;
+        match signedness {
+            //  If the high-bit is 1, then the component contains signed values
+            1 => BitDepth::Unsigned { value },
+            //  If the high-bit is 0, then the component contains unsigned values.
+            0 => BitDepth::Signed { value },
+            _ => BitDepth::Reserved { value },
+        }
+    }
+
+    pub fn value(&self) -> u8 {
+        match &self {
+            Self::Signed { value } => *value,
+            Self::Unsigned { value } => *value,
+            Self::Reserved { value } => *value,
+        }
+    }
+}
+
+impl GeneratedComponent {
+    pub fn bit_depth(&self) -> BitDepth {
+        BitDepth::new(self.bit_depth)
+    }
+
+    pub fn values(&self) -> &Vec<u8> {
+        &self.values
+    }
+}
+
+// I.5.3.4
+//
+// The palette specified in this box is applied to a single component to
+// convert it into multiple components.
+//
+// The colourspace of the components generated by the palette is then
+// interpreted based on the values of the Colour Specification boxes in the JP2
+// Header box in the file.
+//
+// The mapping of an actual component from the codestream through the palette
+// is specified inthe Component Mapping box.
+//
+// If the JP2 Header box contains a Palette box, then it shall also contain a
+// Component Mapping box.
+//
+// If the JP2 Header box does not contain a Palette box, then it shall not
+// contain a Component Mapping box
+#[derive(Debug, Default, PartialEq)]
+pub struct PaletteBox {
+    length: u64,
+    offset: u64,
+
+    // Number of entries in the table.
+    //
+    // This value shall be in the range 1 to 1024 and is encoded as a 2-byte
+    // big endian unsigned integer.
+    num_entries: u16,
+
+    // Number of components created by the application of the palette.
+    //
+    // For example, if the palette turns a single index component into a
+    // three-component RGB image, then the value of this field shall be 3.
+    //
+    // This field is encoded as a 1-byte unsigned integer
+    num_components: u8,
+
+    generated_components: Vec<GeneratedComponent>,
+}
+
+impl PaletteBox {
+    pub fn num_entries(&self) -> u16 {
+        self.num_entries
+    }
+
+    pub fn num_components(&self) -> u8 {
+        self.num_components
+    }
+
+    pub fn generated_components(&self) -> &Vec<GeneratedComponent> {
+        &self.generated_components
+    }
+}
+
+impl JBox for PaletteBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_PALETTE
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.num_entries = reader.uint16_be(None);
+        self.num_components = reader.uint8(None);
+
+        let num_entries = self.num_entries() as usize;
+        self.generated_components =
+            vec![
+                GeneratedComponent { bit_depth: 0, values: Vec::with_capacity(num_entries) };
+                self.num_components() as usize
+            ];
+        for generated_component in &mut self.generated_components {
+            generated_component.bit_depth = reader.uint8(None);
+        }
+
+        for generated_component in &mut self.generated_components {
+            let mut j = 0;
+            while j < num_entries {
+                let entry = reader.uint8(None);
+                generated_component.values.push(entry);
+                j = j + 1;
+            }
+        }
+    }
+}
+
+// I.5.3.2
+//
+// The Bits Per Component box specifies the bit depth of each component.
+//
+// If the bit depth of all components in the codestream is the same (in both
+// sign and precision), then this box shall not be found. Otherwise, this box
+// specifies the bit depth of each individual component.
+//
+// The order of bit depth values in this box is the actual order in which those
+// components are enumerated within the codestream.
+//
+// The exact location of this box within the JP2 Header box may vary provided
+// that it follows the Image Header box.
+#[derive(Debug, Default, PartialEq)]
+pub struct BitsPerComponentBox {
+    length: u64,
+    offset: u64,
+    components_num: u16,
+
+    // Bits per component.
+    //
+    // This parameter specifies the bit depth of component i, minus 1, encoded
+    // as a 1-byte value.
+    //
+    // The ordering of the components within the Bits Per Component Box shall
+    // be the same as the ordering of the components within the codestream.
+    //
+    // The number of BP_Ci fields shall be the same as the value of the NC
+    // field from the Image Header box.
+    //
+    // The value of this field shall be equivalent to the respective Ssiz_i
+    // field in the SIZ marker in the codestream.
+    bits_per_component: Vec<u8>,
+}
+impl BitsPerComponentBox {
+    pub fn bits_per_component(&self) -> Vec<BitDepth> {
+        self.bits_per_component.iter().map(|byte| BitDepth::new(*byte)).collect()
+    }
+}
+
+impl JBox for BitsPerComponentBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_BITS_PER_COMPONENT
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.bits_per_component = reader.seek_slice(self.length as usize);
+    }
+}
+
+type Method = u8;
+
+const METHOD_ENUMERATED_COLOUR_SPACE: Method = 1;
+const METHOD_ENUMERATED_RESTRICTED_ICC_PROFILE: Method = 2;
+
+#[derive(Debug)]
+pub enum Methods {
+    EnumeratedColourSpace,
+    RestrictedICCProfile,
+    Reserved { value: Method },
+}
+
+impl fmt::Display for Methods {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Methods::EnumeratedColourSpace => write!(f, "{}", METHOD_ENUMERATED_COLOUR_SPACE),
+            Methods::RestrictedICCProfile => {
+                write!(f, "{}", METHOD_ENUMERATED_RESTRICTED_ICC_PROFILE)
+            }
+            Methods::Reserved { value } => write!(f, "{}", value),
+        }
+    }
+}
+
+impl Methods {
+    fn new(value: u8) -> Methods {
+        match value {
+            METHOD_ENUMERATED_COLOUR_SPACE => Methods::EnumeratedColourSpace,
+            METHOD_ENUMERATED_RESTRICTED_ICC_PROFILE => Methods::RestrictedICCProfile,
+            value => Methods::Reserved { value },
+        }
+    }
+}
+
+type EnumeratedColourSpace = u32;
+
+const ENUMERATED_COLOUR_SPACE_UNKNOWN: EnumeratedColourSpace = 0;
+const ENUMERATED_COLOUR_SPACE_SRGB: EnumeratedColourSpace = 16;
+const ENUMERATED_COLOUR_SPACE_GREYSCALE: EnumeratedColourSpace = 17;
+
+#[derive(Debug)]
+pub enum EnumeratedColourSpaces {
+    #[allow(non_camel_case_types)]
+    sRGB,
+    Greyscale,
+    Reserved,
+}
+
+impl EnumeratedColourSpaces {
+    /// Returns a new EnumeratedColourSpaces
+    pub fn new(value: u32) -> EnumeratedColourSpaces {
+        match value {
+            ENUMERATED_COLOUR_SPACE_SRGB => EnumeratedColourSpaces::sRGB,
+            ENUMERATED_COLOUR_SPACE_GREYSCALE => EnumeratedColourSpaces::Greyscale,
+            _ => EnumeratedColourSpaces::Reserved,
+        }
+    }
+}
+
+// I.5.3.3
+//
+// Colour Specification box
+//
+// Each Colour Specification box defines one method by which an application can
+// interpret the colourspace of the decompressed image data. This colour
+// specification is to be applied to the image data after it has been
+// decompressed and after any reverse decorrelating component transform has been
+// applied to the image data.
+//
+// A JP2 file may contain multiple Colour Specification boxes, but must contain
+// at least one, specifying different methods for achieving “equivalent” results.
+// A conforming JP2 reader shall ignore all Colour Specification boxes after the
+// first. However, readers conforming to other standards may use those boxes as
+// defined in those other standards
+#[derive(Debug, Default, PartialEq)]
+pub struct ColourSpecificationBox {
+    length: u64,
+    offset: u64,
+    method: u8,
+    precedence: i8,
+    colourspace_approximation: u8,
+    enumerated_colour_space: EnumeratedColourSpace,
+    restricted_icc_profile: Vec<u8>,
+}
+
+impl ColourSpecificationBox {
+    // Specification method.
+    //
+    // This field specifies the method used by this Colour Specification box to
+    // define the colourspace of the decompressed image.
+    //
+    // This field is encoded as a 1-byte unsigned integer.
+    // The value of this field shall be 1 or 2.
+    //
+    pub fn method(&self) -> Methods {
+        Methods::new(self.method)
+    }
+
+    // Precedence.
+    //
+    // This field is reserved for ISO use and the value shall be set to zero;
+    // however, conforming readers shall ignore the value of this field.
+    //
+    // This field is specified as a signed 1 byte integer
+    pub fn precedence(&self) -> i8 {
+        self.precedence
+    }
+
+    // Colourspace approximation.
+    //
+    // This field specifies the extent to which this colour specification method
+    // approximates the “correct” definition of the colourspace.
+    //
+    // The value of this field shall be set to zero; however, conforming readers
+    // shall ignore the value of this field.
+    //
+    // Other values are reserved forother ISO use.
+    // This field is specified as 1 byte unsigned integer.
+    pub fn colourspace_approximation(&self) -> u8 {
+        self.colourspace_approximation
+    }
+
+    // Enumerated colourspace.
+    //
+    // This field specifies the colourspace of the image using integer codes.
+    //
+    // To correctly interpret the colour of an image using an enumerated
+    // colourspace, the application must know the definition of that
+    // colourspace internally.
+    //
+    // This field contains a 4-byte big endian unsigned integer value
+    // indicating the colourspace of the image.
+    //
+    // If the value of the METH field is 2, then the EnumCSfield shall not exist.
+    pub fn enumerated_colour_space(&self) -> Option<u32> {
+        Some(self.enumerated_colour_space)
+    }
+}
+
+impl JBox for ColourSpecificationBox {
+    // The type of a Colour Specification box shall be ‘colr’ (0x636F 6C72).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_COLOUR_SPECIFICATION
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.method = reader.uint8(None);
+        self.precedence = reader.int8(None);
+        self.colourspace_approximation = reader.uint8(None);
+
+        // if self.precedence() != 0 {
+        //     warn!("Precedence {:?} Unexpected", self.precedence());
+        // }
+        // if self.colourspace_approximation() != 0 {
+        //     warn!("Colourspace Approximation {:?} unexpected", self.colourspace_approximation());
+        // }
+
+        match self.method() {
+            // 1 - Enumerated Colourspace.
+            //
+            // This colourspace specification box contains the enumerated value
+            // of the colourspace of this image.
+            //
+            // The enumerated value is found in the EnumCS field in this box.
+            // If the value of the METH field is 1, then the EnumCS shall exist
+            // in this box immediately following the APPROX field, and the
+            // EnumCS field shall be the last field in this box
+            Methods::EnumeratedColourSpace => {
+                // TODO: Validate this box exists if METH field is 1 and is
+                // immediately following the APPROX field and the last field.
+                self.enumerated_colour_space = reader.uint32_be(None);
+            }
+
+            // 2 - Restricted ICC profile.
+            // This Colour Specification box contains an ICC profile in the PROFILE field.
+            //
+            // This profile shall specify the transformation needed to convert the decompressed image data into the PCS_XYZ, and shall conform to either the Monochrome Input or Three-Component Matrix-Based Input profile class, and contain all the required tags specified therein, as defined in ICC.1:1998-09.
+            //
+            // As such, the value of the Profile Connection Space field in the profile header in the embedded profile shall be ‘XYZ\040’ (0x5859 5A20) indicating that the
+            // output colourspace of the profile is in the XYZ colourspace.
+            //
+            // Any private tags in the ICC profile shall not change the visual appearance of an image processed using this ICC profile.
+            //
+            // The components from the codestream may have a range greater than the input range of the tone reproduction curve (TRC) of the ICC profile.
+            //
+            // Any decoded values should be clipped to the limits of the TRC before processing the image through the ICC profile.
+            //
+            // For example,
+            // negative sample values of signed components may be clipped to zero before processing the image data through the profile.
+            //
+            // If the value of METH is 2, then the PROFILE field shall immediately follow the APPROX field and the PROFILE field shall be the last field in the box.
+            Methods::RestrictedICCProfile => {
+                self.restricted_icc_profile = reader.seek_slice(self.length as usize - 3);
+            }
+
+            // Reserved for other ISO use. If the value of METH is not 1 or 2, there may be fields in this box following the APPROX field, and a conforming JP2 reader shall ignore the
+            // entire Colour Specification box.
+            Methods::Reserved { value: _value } => {}
+        }
+    }
+}
+
+// I.5.3.7
+//
+// Resolution box (superbox)
+//
+// This box specifies the capture and default display grid resolutions of this
+// image.
+#[derive(Debug, Default, PartialEq)]
+pub struct ResolutionSuperBox {
+    length: u64,
+    offset: u64,
+
+    // Capture Resolution box.
+    //
+    // This box specifies the grid resolution at which this image was captured.
+    capture_resolution_box: Option<CaptureResolutionBox>,
+
+    // Default Display Resolution box.
+    //
+    // This box specifies the default grid resolution at which this image
+    // should be displayed.
+    default_display_resolution_box: Option<DefaultDisplayResolutionBox>,
+}
+impl ResolutionSuperBox {
+    pub fn capture_resolution_box(&self) -> &Option<CaptureResolutionBox> {
+        &self.capture_resolution_box
+    }
+
+    pub fn default_display_resolution_box(&self) -> &Option<DefaultDisplayResolutionBox> {
+        &self.default_display_resolution_box
+    }
+}
+
+impl JBox for ResolutionSuperBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_RESOLUTION
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    // The type of a Resolution box shall be ‘res\040’ (0x7265 7320).
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        loop {
+            let BoxHeader { box_length, box_type, header_length } =
+                decode_box_header(reader).unwrap();
+
+            match BoxTypes::new(box_type) {
+                BoxTypes::CaptureResolution => {
+                    if self.capture_resolution_box.is_some() {
+                        panic!("BoxUnexpected - CaptureResolution");
+                    }
+                    let mut capture_resolution_box = CaptureResolutionBox::default();
+                    capture_resolution_box.length = box_length;
+                    capture_resolution_box.offset = reader.tell();
+                    capture_resolution_box.decode(reader);
+                    self.capture_resolution_box = Some(capture_resolution_box);
+                }
+                BoxTypes::DefaultDisplayResolution => {
+                    if self.default_display_resolution_box.is_some() {
+                        panic!("BoxUnexpected - DefaultDisplayResolution");
+                    }
+
+                    let mut default_display_resolution_box = DefaultDisplayResolutionBox::default();
+                    default_display_resolution_box.length = box_length;
+                    default_display_resolution_box.offset = reader.tell();
+                    default_display_resolution_box.decode(reader);
+                    self.default_display_resolution_box = Some(default_display_resolution_box);
+                }
+
+                // End of capture resolution but recognised new box type
+                _ => {
+                    reader.seek(reader.tell() - header_length as u64);
+                    break;
+                }
+            }
+        }
+
+        // If this box exists, it shall contain either a Capture Resolution box,
+        // or a Default Display Resolution box, or both.
+        if self.capture_resolution_box.is_none() && self.default_display_resolution_box.is_none() {
+            panic!("BoxMalformed - CaptureResolutionBox");
+        }
+    }
+}
+
+// I.6
+//
+// Intellectual Property box
+//
+// A box type for a box which is devoted to carrying intellectual property
+// rights information within a JP2 file.
+//
+// Inclusion of this information in a JP2 file is optional for conforming files.
+// The definition of the format of the contents of this box is reserved for ISO.
+//
+// However, the type of this box is defined as a means to allow applications to
+// recognize the existence of IPR information.
+//
+// Use and interpretation of this information is beyond the scope of this.
+#[derive(Debug, Default, PartialEq)]
+struct IntellectualPropertyBox {
+    length: u64,
+    offset: u64,
+    data: Vec<u8>,
+}
+
+impl JBox for IntellectualPropertyBox {
+    // The type of the Intellectual Property Box shall be ‘jp2i’ (0x6A70 3269).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_INTELLECTUAL_PROPERTY
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.data = reader.seek_slice(self.length as usize);
+    }
+}
+
+// I.7.1
+//
+// XML box
+//
+// An XML box contains vendor specific information (in XML format) other than
+// the information contained within boxes defined.
+//
+// There may be multiple XML boxes within the file, and those boxes may be found
+// anywhere in the file except before the File Type box.
+#[derive(Debug, Default, PartialEq)]
+pub struct XMLBox {
+    length: u64,
+    offset: u64,
+    xml: Vec<u8>,
+}
+
+impl XMLBox {
+    pub fn format(&self) -> String {
+        format!("{:?}", str::from_utf8(&self.xml).unwrap())
+    }
+}
+
+impl JBox for XMLBox {
+    // The type of an XML box is ‘xml\040’ (0x786D 6C20).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_XML
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.xml = reader.seek_slice(self.length as usize);
+    }
+}
+
+// I.7.2
+//
+// UUID box
+//
+// A UUID box contains vendor specific information other than the information
+// contained within boxes defined.
+//
+// There may be multiple UUID boxes within the file, and those boxes may be
+// found anywhere in the file except before the File Type box.
+#[derive(Debug, Default, PartialEq)]
+pub struct UUIDBox {
+    length: u64,
+    offset: u64,
+    uuid: [u8; 16],
+    data: Vec<u8>,
+}
+
+impl UUIDBox {
+    pub fn uuid(&self) -> &[u8; 16] {
+        &self.uuid
+    }
+    pub fn data(&self) -> &Vec<u8> {
+        &self.data
+    }
+}
+
+impl JBox for UUIDBox {
+    // The type of a UUID box shall be ‘uuid’ (0x7575 6964).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_UUID
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.uuid = reader.seek_slice(16).try_into().unwrap();
+        self.data = reader.seek_slice(self.length as usize - 16);
+    }
+}
+
+// I.7.3
+//
+// UUID Info box (superbox)
+//
+// While it is useful to allow vendors to extend JP2 files by adding information
+// using UUID boxes, it is also useful to provide information in a standard form
+// which can be used by non-extended applications to get more information about
+// the extensions in the file. This information is contained in UUID Info boxes.
+//
+// A JP2 file may contain zero or more UUID Info boxes.
+//
+// These boxes may be found anywhere in the top level of the file (the superbox
+// of a UUID Info box shall be the JP2 file itself) except before the File Type
+// box.
+//
+// These boxes, if present, may not provide a complete index for the UUIDs in
+// the file, may reference UUIDs not used in the file, and possibly may provide
+// multiple references for the same UUID
+#[derive(Debug, Default, PartialEq)]
+pub struct UUIDInfoSuperBox {
+    length: u64,
+    offset: u64,
+    uuid_list: Vec<UUIDListBox>,
+    data_entry_url_box: Vec<DataEntryURLBox>,
+}
+
+impl JBox for UUIDInfoSuperBox {
+    // The type of a UUID Info box shall be 'uinf' (0x7569 6E66)
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_UUID_INFO
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, _reader: &mut R) {}
+}
+
+// I.7.3.1
+//
+// UUID List box
+//
+// This box contains a list of UUIDs.
+#[derive(Debug, Default, PartialEq)]
+pub struct UUIDListBox {
+    length: u64,
+    offset: u64,
+
+    // NU: Number of UUIDs.
+    //
+    // This field specifies the number of UUIDs found in this UUID List box.
+    //
+    // This field is encoded as a 2-byte big-endian unsigned integer.
+    number_of_uuids: i16,
+
+    // ID^i: ID
+    //
+    // This field specifies one UUID, as specified in ISO/IEC 11578, which
+    // shall be associated with the URL contained in the URL box within the
+    // same UUID Info box.
+    //
+    // The number of UUIDi fields shall be the same as the value of the NU
+    // field.
+    //
+    // The value of this field shall be a 16-byte UUID
+    ids: Vec<[u8; 16]>,
+}
+
+impl UUIDListBox {
+    /// Returns the IDs as strings
+    pub fn ids(&self) -> Vec<&str> {
+        self.ids.iter().map(|id| str::from_utf8(id).unwrap()).collect()
+    }
+    fn number_of_uuids(&self) -> i16 {
+        self.number_of_uuids
+    }
+}
+
+impl JBox for UUIDListBox {
+    // The type of a UUID List box shall be ‘ulst’ (0x756C 7374)
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_UUID_LIST
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        // reader.read_exact(&mut self.number_of_uuids)?;
+        self.number_of_uuids = reader.int16_be(None);
+
+        let mut size = self.number_of_uuids() as usize;
+
+        self.ids = Vec::with_capacity(size);
+
+        // let mut buffer: [u8; 16] = [0; 16];
+        while size > 0 {
+            let buffer = reader.seek_slice(16).try_into().unwrap();
+            self.ids.extend_from_slice(&[buffer]);
+            size -= 1;
+        }
+    }
+}
+
+// I.7.3.2
+//
+// Data Entry URL box
+//
+// This box contains a URL which can be used by an application to acquire more
+// information about the associated vendor-specific extensions.
+//
+// The format of the information acquired through the use of this URL is not
+// defined in this Recommendation | International Standard.
+//
+// The URL type should be of a service which delivers a file (e.g., URLs of
+// type file, http, ftp, etc.), which ideally also permits random access.
+//
+// Relative URLs are permissible and are relative to the file containing this
+// Data Entry URL box.
+#[derive(Debug, Default, PartialEq)]
+pub struct DataEntryURLBox {
+    length: u64,
+    offset: u64,
+
+    // VERS: Version number.
+    //
+    // This field specifies the version number of the format of this box and is
+    // encoded as a 1-byte unsigned integer.
+    //
+    // The value of this field shall be 0.
+    version: u8,
+
+    // FLAG: Flags.
+    //
+    // This field is reserved for other uses to flag particular attributes of
+    // this box and is encoded as a 3-byte unsigned integer.
+    //
+    // The value of this field shall be 0.
+    flags: [u8; 3],
+
+    // LOC: Location.
+    //
+    // This field specifies the URL of the additional information associated
+    // with the UUIDs contained in the UUID List box within the same UUID Info
+    // superbox.
+    //
+    // The URL is encoded as a null terminated string of UTF-8 characters.
+    location: Vec<u8>,
+}
+
+impl DataEntryURLBox {
+    /// Returns the location
+    pub fn location(&self) -> String {
+        String::from_utf8_lossy(&self.location).into()
+    }
+}
+
+impl JBox for DataEntryURLBox {
+    // The type of a Data Entry URL box shall be 'url\040' (0x7572 6C20).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_DATA_ENTRY_URL
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.version = reader.uint8(None);
+        self.flags = reader.seek_slice(3).try_into().unwrap();
+
+        // location
+        let mut size = self.length() - 4;
+
+        while size > 0 {
+            let buffer = reader.uint8(None);
+            self.location.push(buffer);
+            size -= 1;
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum CommentRegistrationValue {
+    // General use (binary values)
+    Binary,
+
+    // General use (IS 8859-15:1999 (Latin) values)
+    Latin,
+
+    // All other values reserved
+    Reserved,
+}
+
+// Comment (COM)
+//
+// Allows unstructured data in the main and tile-part header.
+#[derive(Debug, Default, PartialEq)]
+pub struct CommentMarkerSegment {
+    // RCom: Registration value of the marker segment
+    registration_value: i16,
+
+    // Ccomi: Byte of unstructured data
+    comment: Vec<u8>,
+}
+
+impl CommentMarkerSegment {
+    /// Returns the registration value
+    pub fn registration_value(&self) -> CommentRegistrationValue {
+        match self.registration_value {
+            1 => CommentRegistrationValue::Binary,
+            2 => CommentRegistrationValue::Latin,
+            _ => CommentRegistrationValue::Reserved,
+        }
+    }
+    /// Returns the comment
+    pub fn comment_utf8(&self) -> String {
+        String::from_utf8_lossy(&self.comment).into()
+    }
+}
+
+#[derive(Debug)]
+pub enum QuantizationStyle {
+    No,
+    ScalarDerived,
+    ScalarExpounded,
+    Reserved { value: u8 },
+}
+
+impl QuantizationStyle {
+    fn new(byte: u8) -> QuantizationStyle {
+        let value = byte << 3 >> 3;
+
+        match value {
+            // xxx0 0000
+            0b0000_0000 => QuantizationStyle::No,
+            // xxx0 0001
+            0b0000_0001 => QuantizationStyle::ScalarDerived,
+            // xxx0 0010
+            0b0000_0010 => QuantizationStyle::ScalarExpounded,
+            _ => QuantizationStyle::Reserved { value },
+        }
+    }
+}
+
+// Quantization default (QCD)
+//
+// Function: Describes the quantization default used for compressing all
+// components not defined by a QCC marker segment. The parameter values can be
+// overridden for an individual component by a QCC marker segment in either the
+// main or tile-part header.
+#[derive(Debug, Default, PartialEq)]
+pub struct QuantizationDefaultMarkerSegment {
+    // Length of marker segment in bytes (not including the marker).
+    length: u16,
+
+    // Sqcd: Quantization style for all components
+    style: u8,
+
+    // SPqcd^i: Quantization step size value for the ith subband in the defined
+    // order. The number of parameters is the same as the number of sub bands in
+    // the tile-component with the greatest number of decomposition levels.
+    step_size_values: Vec<u8>,
+}
+
+impl QuantizationDefaultMarkerSegment {
+    // no_quantization               = 4 + 3 · number_decomposition_levels
+    // scalar_quantization_derived   = 5
+    // scalar_quantization_expounded = 5 + 6 · scalar_quantization_expounded
+    //
+    // where number_decomposition_levels is defined in the COD and COC marker
+    // segments, and no_quantization, scalar_quantization_derived, or
+    // scalar_quantization_expounded is signalled in the Sqcd parameter.
+    pub fn length(&self) -> u16 {
+        todo!();
+    }
+
+    pub fn style(&self) -> QuantizationStyle {
+        QuantizationStyle::new(self.style)
+    }
+
+    pub fn step_size_values(&self) {
+        todo!();
+    }
+
+    pub fn no_guard_bits(&self) -> u8 {
+        self.style >> 5
+    }
+}
+
+// I.5.4
+//
+// Contiguous Codestream box
+//
+// The Contiguous Codestream box contains a valid and complete JPEG 2000
+// codestream. When displaying the image, a conforming reader shall ignore all
+// codestreams after the first codestream found in the file.
+//
+// Contiguous Codestream boxes may be found anywhere in the file
+// except before the JP2 Header box.
+#[derive(Debug, Default, PartialEq)]
+pub struct ContiguousCodestreamBox {
+    length: u64,
+    pub offset: u64,
+}
+
+impl JBox for ContiguousCodestreamBox {
+    // The type of a Contiguous Codestream box shall be ‘jp2c’
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_CONTIGUOUS_CODESTREAM
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        if self.length == 0 {
+            reader.seek(reader.len());
+            self.length = reader.len() - self.offset;
+        } else {
+            reader.seek(self.length);
+        }
+    }
+}
+
+// I.5.3.7.2
+//
+// Default Display Resolution box
+//
+// This box specifies a desired display grid resolution.
+//
+// For example, this may be used to determine the size of the image on a page
+// when the image is placed in a page-layout program.
+//
+// However, this value is only a default. Each application must determine an
+// appropriate display size for that application.
+#[derive(Debug, Default, PartialEq)]
+pub struct DefaultDisplayResolutionBox {
+    length: u64,
+    offset: u64,
+
+    // Vertical Display grid resolution numerator.
+    vertical_display_grid_resolution_numerator: u16,
+
+    // Vertical Display grid resolution denominator.
+    vertical_display_grid_resolution_denominator: u16,
+
+    // Horizontal Display grid resolution numerator.
+    horizontal_display_grid_resolution_numerator: u16,
+
+    // Horizontal Display grid resolution denominator.
+    horizontal_display_grid_resolution_denominator: u16,
+
+    // Vertical Display grid resolution exponent.
+    vertical_display_grid_resolution_exponent: u8,
+
+    // Horizontal Display grid resolution exponent.
+    horizontal_display_grid_resolution_exponent: u8,
+}
+
+impl DefaultDisplayResolutionBox {
+    pub fn vertical_display_grid_resolution_numerator(&self) -> u16 {
+        self.vertical_display_grid_resolution_numerator
+    }
+    pub fn vertical_display_grid_resolution_denominator(&self) -> u16 {
+        self.vertical_display_grid_resolution_denominator
+    }
+    pub fn horizontal_display_grid_resolution_numerator(&self) -> u16 {
+        self.horizontal_display_grid_resolution_numerator
+    }
+    pub fn horizontal_display_grid_resolution_denominator(&self) -> u16 {
+        self.horizontal_display_grid_resolution_denominator
+    }
+    pub fn vertical_display_grid_resolution_exponent(&self) -> i8 {
+        self.vertical_display_grid_resolution_exponent as i8
+    }
+    pub fn horizontal_display_grid_resolution_exponent(&self) -> i8 {
+        self.horizontal_display_grid_resolution_exponent as i8
+    }
+
+    // VRd = VRdN/VRdD * 10^VRdE
+    pub fn vertical_display_grid_resolution(&self) -> u64 {
+        self.vertical_display_grid_resolution_numerator() as u64
+            / self.vertical_display_grid_resolution_denominator() as u64
+            * (10 as u64).pow(self.vertical_display_grid_resolution_exponent() as u32)
+    }
+
+    // HRd = HRdN/HRdD * 10^HRdE
+    pub fn horizontal_display_grid_resolution(&self) -> u64 {
+        self.horizontal_display_grid_resolution_numerator() as u64
+            / self.horizontal_display_grid_resolution_denominator() as u64
+            * (10 as u64).pow(self.horizontal_display_grid_resolution_exponent() as u32)
+    }
+}
+
+impl JBox for DefaultDisplayResolutionBox {
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_DEFAULT_DISPLAY_RESOLUTION
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.vertical_display_grid_resolution_numerator = reader.uint16_be(None);
+        self.vertical_display_grid_resolution_denominator = reader.uint16_be(None);
+
+        self.horizontal_display_grid_resolution_numerator = reader.uint16_be(None);
+        self.horizontal_display_grid_resolution_denominator = reader.uint16_be(None);
+
+        self.vertical_display_grid_resolution_exponent = reader.uint8(None);
+        self.horizontal_display_grid_resolution_exponent = reader.uint8(None);
+    }
+}
+
+// I.5.3.7.1
+//
+// This box specifies the grid resolution at which the source was digitized to
+// create the image samples specified by thecodestream.
+//
+// For example, this may specify the resolution of the flatbed scanner that
+// captured a page from a book. The capture grid resolution could also specify
+// the resolution of an aerial digital camera or satellite camera.
+#[derive(Debug, Default, PartialEq)]
+pub struct CaptureResolutionBox {
+    length: u64,
+    offset: u64,
+
+    // VRcN: Vertical Capture grid resolution numerator.
+    //
+    // This parameter specifies the VRcN value in which is used to calculate
+    // the vertical capture grid resolution.
+    //
+    // This parameter is encoded as a 2-byte big endian unsigned integer.
+    vertical_capture_grid_resolution_numerator: u16,
+
+    // VRcD: Vertical Capture grid resolution denominator.
+    //
+    // This parameter specifies the VRcD value which is used to calculate the
+    // vertical capture grid resolution.
+    //
+    // This parameter is encoded as a 2-byte big endian unsigned integer.
+    vertical_capture_grid_resolution_denominator: u16,
+
+    // HRcN: Horizontal Capture grid resolution numerator.
+    //
+    // This parameter specifies the HRcN value  which is used to calculate the
+    // horizontal capture grid resolution.
+    //
+    // This parameter is encoded as a 2-byte big endian unsigned integer.
+    horizontal_capture_grid_resolution_numerator: u16,
+
+    // HRcD: Horizontal Capture grid resolution denominator.
+    //
+    // This parameter specifies the HRcD value in which is used to calculate
+    // the horizontal capture grid resolution.
+    //
+    // This parameter is encoded as a 2-byte big endian unsigned integer.
+    horizontal_capture_grid_resolution_denominator: u16,
+
+    // VRcE: Vertical Capture grid resolution exponent.
+    //
+    // This parameter specifies the VRcE value which is used to calculate the
+    // vertical capture grid resolution.
+    //
+    // This parameter is encoded as a twos-complement 1-byte signed integer.
+    vertical_capture_grid_resolution_exponent: u8,
+
+    // HRcE: Horizontal Capture grid resolution exponent.
+    //
+    // This parameter specifies the HRcE value in which is used to calculate
+    // the horizontal capture grid resolution.
+    //
+    // This parameter is encoded as a twos-complement 1-byte signed integer.
+    horizontal_capture_grid_resolution_exponent: u8,
+}
+
+impl CaptureResolutionBox {
+    pub fn vertical_capture_grid_resolution_numerator(&self) -> u16 {
+        self.vertical_capture_grid_resolution_numerator
+    }
+    pub fn vertical_capture_grid_resolution_denominator(&self) -> u16 {
+        self.vertical_capture_grid_resolution_denominator
+    }
+    pub fn horizontal_capture_grid_resolution_numerator(&self) -> u16 {
+        self.horizontal_capture_grid_resolution_numerator
+    }
+    pub fn horizontal_capture_grid_resolution_denominator(&self) -> u16 {
+        self.horizontal_capture_grid_resolution_denominator
+    }
+    pub fn vertical_capture_grid_resolution_exponent(&self) -> i8 {
+        self.vertical_capture_grid_resolution_exponent as i8
+    }
+    pub fn horizontal_capture_grid_resolution_exponent(&self) -> i8 {
+        self.horizontal_capture_grid_resolution_exponent as i8
+    }
+
+    /// VRc = (VRcN / VRcD) * 10^VRcE
+    /// The values VRc and HRc are always in reference grid points per meter.
+    pub fn vertical_resolution_capture(&self) -> f64 {
+        let mut vertical_resolution_capture: f64 = self.vertical_capture_grid_resolution_numerator()
+            as f64
+            / self.vertical_capture_grid_resolution_denominator() as f64;
+
+        vertical_resolution_capture *=
+            10_f64.powi(self.vertical_capture_grid_resolution_exponent() as i32);
+
+        vertical_resolution_capture
+    }
+
+    /// HRc = (HRcN / HRcD) * 10^HRcE
+    /// The values VRc and HRc are always in reference grid points per meter.
+    pub fn horizontal_resolution_capture(&self) -> f64 {
+        let mut horizontal_resolution_capture: f64 =
+            self.horizontal_capture_grid_resolution_numerator() as f64
+                / self.horizontal_capture_grid_resolution_denominator() as f64;
+
+        horizontal_resolution_capture *=
+            10_f64.powi(self.horizontal_capture_grid_resolution_exponent() as i32);
+
+        horizontal_resolution_capture
+    }
+}
+
+impl JBox for CaptureResolutionBox {
+    // The type of a Capture Resolution box shall be ‘resc’ (0x7265 7363).
+    fn identifier(&self) -> BoxType {
+        BOX_TYPE_DEFAULT_DISPLAY_RESOLUTION
+    }
+
+    fn length(&self) -> u64 {
+        self.length
+    }
+
+    fn offset(&self) -> u64 {
+        self.offset
+    }
+
+    fn decode<R: Reader>(&mut self, reader: &mut R) {
+        self.vertical_capture_grid_resolution_numerator = reader.uint16_be(None);
+        self.vertical_capture_grid_resolution_denominator = reader.uint16_be(None);
+        self.horizontal_capture_grid_resolution_numerator = reader.uint16_be(None);
+        self.horizontal_capture_grid_resolution_denominator = reader.uint16_be(None);
+        self.vertical_capture_grid_resolution_exponent = reader.uint8(None);
+        self.horizontal_capture_grid_resolution_exponent = reader.uint8(None);
+    }
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub struct JP2File {
+    /// JP2 File length
+    pub length: u64,
+    /// JP2 File signature
+    pub signature: SignatureBox,
+    /// JP2 File Type Box
+    pub file_type: FileTypeBox,
+    /// JP2 File Header Box
+    pub header: Option<HeaderSuperBox>,
+    /// JP2 File Content Boxes
+    pub contiguous_codestreams: Vec<ContiguousCodestreamBox>,
+    /// XML data
+    pub xml: Vec<XMLBox>,
+    /// UUID boxes
+    pub uuid: Vec<UUIDBox>,
+}
+
+struct BoxHeader {
+    // Box Length
+    //
+    // This field specifies the length of the box, stored as a 4-byte big
+    // endian unsigned integer.
+    //
+    // This value includes all of the fields of the box, including the length
+    // and type.
+    box_length: u64,
+
+    // Box Type
+    //
+    // This field specifies the type of information found in the DBox field.
+    //
+    // The value of this field is encoded as a 4-byte big endian unsigned
+    // integer. However, boxes are generally referred to by an ISO 646
+    // character string translation of the integer value.
+    //
+    // For all box types defined box types will be indicated as both character
+    // string (normative) and as 4-byte hexadecimal integers (informative).
+    //
+    // Also, a space character is shown in the character string translation of
+    // the box type as “\040”.
+    //
+    // All values of TBox not defined are reserved for ISO use.
+    box_type: u32,
+
+    header_length: u8,
+}
+
+fn decode_box_header<R: Reader>(reader: &mut R) -> Option<BoxHeader> {
+    let mut header_length = 8;
+    let box_type;
+
+    let mut box_length_value = reader.uint32_be(None) as u64;
+    if box_length_value == 0 {
+        // If the value of this field is 0, then the length of the box was not known when the LBox field was written. In this case, this box contains all bytes up to the end of the file. If a box of length 0 is contained with in another box (its superbox), then the length of that superbox shall also be 0. This means that this box is the last box in the file.
+        box_type = reader.uint32_be(None);
+    } else if box_length_value == 1 {
+        // If the value of this field is 1, then the XLBox field shall exist and the value of that field shall be the actual length of the box.
+        box_type = reader.uint32_be(None);
+        // This field specifies the actual length of the box if the value of the LBox field is 1.
+        // This field is stored as an 8-byte big endian unsigned integer. The value includes all of the fields of thebox, including the LBox, TBox and XLBox fields
+        // reader.read_exact(&mut xl_length)?;
+        let xl_length = reader.uint64_be(None);
+
+        box_length_value = xl_length - 16;
+        header_length = 16;
+    } else if box_length_value <= 7 {
+        // The values 2–7 are reserved for ISO use.
+        // panic!("unsupported reserved box length {:?}", box_length_value);
+        return None;
+    } else {
+        box_type = reader.uint32_be(None);
+
+        // Subtract LBox and TBox from length
+        box_length_value = box_length_value - 8;
+    }
+
+    Some(BoxHeader { box_length: box_length_value, box_type, header_length })
+}
+
+// TODO: Consider lazy parsing where possible
+/// Convert JPEG2000 raw data into a JP2File Struct
+pub fn decode_jp2<R: Reader>(reader: &mut R) -> JP2File {
+    let BoxHeader { box_length, box_type, .. } = decode_box_header(reader).unwrap();
+
+    // TODO: Enforce the following
+    // Check Image Headerbox (header, width) with codestream and allow user to read it otherwise
+    // If resolution box is not present, then a header shall assume that reference grid points are square.
+
+    let mut signature_box = SignatureBox::default();
+    // The Signature box shall be the first box
+    if box_type != signature_box.identifier() {
+        panic!("Box unexpected: {box_type}");
+    }
+    signature_box.length = box_length;
+    signature_box.offset = reader.tell();
+    signature_box.decode(reader);
+
+    let BoxHeader { box_length, box_type, .. } = decode_box_header(reader).unwrap();
+    // The File Type box shall immediately follow the Signature box
+    let mut file_type_box = FileTypeBox {
+        length: box_length,
+        offset: reader.tell(),
+        brand: "".into(),
+        min_version: 0,
+        compatibility_list: vec![],
+    };
+    if box_type != file_type_box.identifier() {
+        // return Err(JP2Error::BoxUnexpected { box_type, offset: reader.tell() }.into());
+        panic!("Box unexpected: {box_type}");
+    }
+    file_type_box.decode(reader);
+
+    let mut header_box_option: Option<HeaderSuperBox> = None;
+    let mut contiguous_codestreams: Vec<ContiguousCodestreamBox> = vec![];
+
+    let mut xml_boxes: Vec<XMLBox> = vec![];
+    let mut uuid_boxes: Vec<UUIDBox> = vec![];
+    let mut uuid_info_boxes: Vec<UUIDInfoSuperBox> = vec![];
+    let mut current_uuid_info_box: Option<UUIDInfoSuperBox> = None;
+
+    loop {
+        let BoxHeader { box_length, box_type, .. } = match decode_box_header(reader) {
+            Some(header) => header,
+            None => break,
+        };
+
+        match BoxTypes::new(box_type) {
+            BoxTypes::Header => {
+                // The header box must be at the same level as the Signature
+                // and File Type boxes it shall not be inside any other
+                // superbox within the file)
+                let mut header_box = HeaderSuperBox::default();
+                header_box.length = box_length;
+                header_box.offset = reader.tell();
+                header_box.decode(reader);
+                header_box_option = Some(header_box);
+            }
+            BoxTypes::IntellectualProperty => {
+                let mut intellectual_property_box = IntellectualPropertyBox {
+                    length: box_length,
+                    offset: reader.tell(),
+                    data: vec![0; box_length as usize],
+                };
+                intellectual_property_box.decode(reader);
+            }
+            BoxTypes::XML => {
+                let mut xml_box = XMLBox {
+                    length: box_length,
+                    offset: reader.tell(),
+                    xml: Vec::with_capacity(box_length as usize).to_owned(),
+                };
+                xml_box.decode(reader);
+                xml_boxes.push(xml_box);
+            }
+            BoxTypes::UUID => {
+                let mut uuid_box = UUIDBox::default();
+                uuid_box.length = box_length;
+                uuid_box.offset = reader.tell();
+                uuid_box.decode(reader);
+                uuid_boxes.push(uuid_box);
+            }
+            BoxTypes::UUIDInfo => {
+                let mut uuid_info_box = UUIDInfoSuperBox::default();
+                uuid_info_box.length = box_length;
+                uuid_info_box.offset = reader.tell();
+                uuid_info_box.decode(reader);
+
+                if current_uuid_info_box.is_some() {
+                    uuid_info_boxes.push(current_uuid_info_box.unwrap());
+                }
+                current_uuid_info_box = Some(uuid_info_box);
+            }
+            BoxTypes::UUIDList => {
+                let mut uuid_list_box = UUIDListBox::default();
+                uuid_list_box.length = box_length;
+                uuid_list_box.offset = reader.tell();
+                uuid_list_box.decode(reader);
+                match &mut current_uuid_info_box {
+                    Some(uuid_info_box) => {
+                        uuid_info_box.uuid_list.push(uuid_list_box);
+                    }
+                    None => {
+                        panic!("BoxMissing - UUIDInfo");
+                    }
+                }
+            }
+            BoxTypes::DataEntryURL => {
+                let mut data_entry_url_box = DataEntryURLBox {
+                    length: box_length,
+                    offset: reader.tell(),
+                    version: 0,
+                    flags: [0; 3],
+                    location: Vec::with_capacity(box_length as usize - 4).to_owned(),
+                };
+
+                data_entry_url_box.length = box_length;
+                data_entry_url_box.offset = reader.tell();
+                data_entry_url_box.decode(reader);
+                match &mut current_uuid_info_box {
+                    Some(uuid_info_box) => {
+                        uuid_info_box.data_entry_url_box.push(data_entry_url_box)
+                    }
+                    None => {
+                        panic!("BoxMissing - UUIDInfo");
+                    }
+                }
+            }
+            BoxTypes::ContiguousCodestream => {
+                // The Header box shall fall before the Contiguous Codestream box
+                if header_box_option.is_none() {
+                    // return Err(JP2Error::BoxUnexpected { box_type, offset: reader.tell() }.into());
+                    panic!("BoxUnexpected - ContiguousCodestream");
+                }
+
+                let mut continuous_codestream_box =
+                    ContiguousCodestreamBox { length: box_length, offset: reader.tell() };
+                continuous_codestream_box.decode(reader);
+                contiguous_codestreams.push(continuous_codestream_box);
+            }
+
+            _ => {
+                panic!("Unexpected box type {:?} {:?}", reader.tell(), box_type);
+            }
+        }
+    }
+
+    if current_uuid_info_box.is_some() {
+        uuid_info_boxes.push(current_uuid_info_box.unwrap());
+    }
+
+    JP2File {
+        length: reader.tell(),
+        signature: signature_box,
+        file_type: file_type_box,
+        header: header_box_option,
+        contiguous_codestreams,
+        xml: xml_boxes,
+        uuid: uuid_boxes,
+    }
+}

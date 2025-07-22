@@ -16,7 +16,7 @@ mod tests {
         VerticalExtent, VerticalReferenceFrame,
     };
 
-    // TODO: https://proj.org/en/stable/specifications/projjson.html#schema <- more examples to play with
+    // https://proj.org/en/stable/specifications/projjson.html#schema <- more examples to play with
 
     #[test]
     fn test_axis_direction_from_string() {
