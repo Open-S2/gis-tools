@@ -582,15 +582,52 @@ fn setup(proj: &mut Proj, e_alg: &mut TMercAlgo) -> (TmercData, TMercMode) {
 }
 
 /// Transverse Mercator
+///
+/// See [`TransverseMercatorBaseProjection`] for full documentation.
 pub type TransverseMercatorProjection = TransverseMercatorBaseProjection<TRANSVERSE_MERCATOR>;
 /// Transverse Mercator (South Oriented)
+///
+/// See [`TransverseMercatorBaseProjection`] for full documentation.
 pub type TransverseMercatorSouthOrientedProjection =
     TransverseMercatorBaseProjection<TRANSVERSE_MERCATOR_SOUTH_ORIENTATED>;
 
-/// Transverse Mercator
+/// # Transverse Mercator
 ///
-/// Note: exact transverse mercator only exists in ellipsoidal form,
-/// use approximate version if +a sphere is requested
+/// **Classification**: Transverse and oblique cylindrical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global, with full accuracy within 3900 km of the central meridian
+///
+/// **Alias**: tmerc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=tmerc
+/// ```
+///
+/// ## Required Parameters
+/// - `+lon_0`: Longitude of the central meridian.
+///
+/// ## Optional Parameters
+/// - `+approx`: Use the faster Evenden-Snyder algorithm, less accurate beyond 3°.
+/// - `+algo`: Select algorithm from "auto", "evenden_snyder", or "poder_engsager".
+/// - `+lat_0`: Latitude of origin.
+/// - `+k_0`: Scale factor on the central meridian.
+/// - `+x_0`: False easting.
+/// - `+y_0`: False northing.
+///
+/// ## Notes
+/// - exact transverse mercator only exists in ellipsoidal form,
+///   use approximate version if +a sphere is requested
+///
+/// ![Transverse Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransverseMercatorBaseProjection<const C: i64> {
     proj: Rc<RefCell<Proj>>,
@@ -651,7 +688,39 @@ impl<const C: i64> CoordinateStep for TransverseMercatorBaseProjection<C> {
     }
 }
 
-/// Extended Transverse Mercator
+/// # Extended Transverse Mercator
+///
+/// **Classification**: Transverse and oblique cylindrical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global, with full accuracy within 3900 km of the central meridian
+///
+/// **Alias**: etmerc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=etmerc
+/// ```
+///
+/// ## Required Parameters
+/// - `+lon_0`: Longitude of the central meridian.
+///
+/// ## Optional Parameters
+/// - `+approx`: Use the faster Evenden-Snyder algorithm, less accurate beyond 3°.
+/// - `+algo`: Select algorithm from "auto", "evenden_snyder", or "poder_engsager".
+/// - `+lat_0`: Latitude of origin.
+/// - `+k_0`: Scale factor on the central meridian.
+/// - `+x_0`: False easting.
+/// - `+y_0`: False northing.
+///
+/// ![ExtendedTransverseMercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/tmerc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtendedTransverseMercatorProjection {
     proj: Rc<RefCell<Proj>>,
@@ -710,9 +779,64 @@ impl CoordinateStep for ExtendedTransverseMercatorProjection {
     }
 }
 
-/// Universal Transverse Mercator
-/// UTM uses the Poder/Engsager implementation for the underlying projection
-/// UNLESS +approx is set in which case the Evenden/Snyder implementation is used.
+/// # Universal Transverse Mercator (UTM)
+///
+/// **Classification**: Transverse cylindrical, conformal
+///
+/// **Available forms**: Forward and inverse, ellipsoidal only
+///
+/// **Defined area**: Within the used zone, but transformations of coordinates in adjacent zones can be accurate
+///
+/// **Alias**: utm
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=utm
+/// ```
+///
+/// ## Required Parameters
+/// - `+zone=<value>`: Select which UTM zone to use. Can be a value between 1-60.
+///
+/// ## Optional Parameters
+/// - `+south`: Add this flag when using the UTM on the southern hemisphere.
+/// - `+approx`: Use a faster, less accurate algorithm for the Transverse Mercator. (added in PROJ 6.0.0)
+/// - `+algo=auto/evenden_snyder/poder_engsager`: Selects the algorithm to use. Defaults to `poder_engsager`. (added in PROJ 7.1)
+/// - `+ellps=<value>`
+///
+/// ## Usage Examples
+///
+/// Convert geodetic coordinates to UTM Zone 32 on the northern hemisphere:
+/// ```bash
+/// $ echo 12 56 | proj +proj=utm +zone=32
+/// 687071.44       6210141.33
+/// ```
+///
+/// Convert geodetic coordinates to UTM Zone 59 on the southern hemisphere:
+/// ```bash
+/// $ echo 174 -44 | proj +proj=utm +zone=59 +south
+/// 740526.32       5123750.87
+/// ```
+///
+/// Show the relationship of UTM to TM:
+/// ```bash
+/// $ echo 121 24 | proj +proj=utm +lon_0=123 | proj -I +proj=tmerc +lon_0=123 +x_0=500000 +k=0.9996
+/// 121dE 24dN
+/// ```
+///
+/// ## Notes
+/// - UTM uses the Poder/Engsager implementation for the underlying projection
+/// - UNLESS +approx is set in which case the Evenden/Snyder implementation is used
+///
+/// ## Further Reading
+/// - [Wikipedia](https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system)
+///
+/// ![Universal Transverse Mercator (UTM) zones](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/utm.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct UniversalTransverseMercatorProjection {
     proj: Rc<RefCell<Proj>>,

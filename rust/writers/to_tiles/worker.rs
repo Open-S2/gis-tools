@@ -86,6 +86,11 @@ impl TileWorker {
     }
 
     /// Store a feature to the appropriate store
+    ///
+    /// ## Parameters
+    /// - `feature`: The feature to store
+    /// - `source_name`: The name of the source to store the feature in
+    /// - `on_layer_feature`: An optional handler to update or filter the feature
     pub fn store_feature<M: Clone + HasLayer, P: MValueCompatible, D: MValueCompatible>(
         &mut self,
         mut feature: VectorFeature<M, P, D>,
@@ -137,6 +142,10 @@ impl TileWorker {
     }
 
     /// Store a vector feature across all appropriate zooms
+    ///
+    /// ## Parameters
+    /// - `feature`: The vector feature to store
+    /// - `layer`: The layer guide on how to shape for storage
     pub fn store_vector_feature(&mut self, feature: MVectorFeature, layer: VectorLayerGuide) {
         let BuildGuide { projection, .. } = &self.build_guide;
         // skip features who are not using the layer guide's
@@ -185,6 +194,12 @@ impl TileWorker {
     }
 
     /// Get vector/cluster features for a tile
+    ///
+    /// ## Parameters
+    /// - `id`: tile id
+    ///
+    /// ## Returns
+    /// The shaped vector tile for storage if applicable
     fn get_vector_tile(&mut self, id: S2CellId) -> Option<BaseVectorTile> {
         let BuildGuide { layer_guides, format, build_indices, .. } = &self.build_guide;
         if *format == FormatOutput::Raster {
@@ -346,8 +361,12 @@ impl Iterator for TileWorkerTileBuilder<'_> {
 
 //   /**
 //    * Get raster data for a tile
-//    * @param id - the tile id
-//    * @returns - a collection of GridInputs
+//    *
+//    * ## Parameters
+//    * - `id`: the tile id
+//    *
+//    * ## Returns
+//    * A collection of GridInputs
 //    */
 //   async #getRasterTile(id: S2CellId): Promise<ImageDataInput[] | undefined> {
 //     const res: ImageDataInput[] = [];
@@ -371,8 +390,12 @@ impl Iterator for TileWorkerTileBuilder<'_> {
 
 //   /**
 //    * Get gridded data for a tile
-//    * @param id - the tile id
-//    * @returns - a collection of ImageDataInputs
+//    *
+//    * ## Parameters
+//    * - `id`: the tile id
+//    *
+//    * ## Returns
+//    * A collection of ImageDataInputs
 //    */
 //   async #getGridTile(id: S2CellId): Promise<GridInput[] | undefined> {
 //     const res: GridInput[] = [];
@@ -396,7 +419,12 @@ impl Iterator for TileWorkerTileBuilder<'_> {
 //   }
 
 /// Get the absolute maxzoom from the layer guides
-/// returns the absolute maxzoom
+///
+/// ## Parameters
+/// - `layer_guides`: user defined guide on building/shaping specific layer data
+///
+/// ## Returns
+/// Tthe absolute maxzoom
 fn get_zooms(layer_guides: &[LayerGuide]) -> (u8, u8) {
     let mut min: u8 = 30;
     let mut max = 0;
@@ -415,6 +443,10 @@ fn get_zooms(layer_guides: &[LayerGuide]) -> (u8, u8) {
 }
 
 /// Pre-earclip polygons for faster processing of the tile client side
+///
+/// ## Parameters
+/// - `feature`: The feature to earclip. Only `Polygon` and `MultiPolygon` types are earclipped
+/// - `zoom`: The current zoom of the tile to ensure the tessellation is good for S2 projection
 pub fn earclip_polygons<M: Clone, P: MValueCompatible, D: MValueCompatible>(
     feature: &mut VectorFeature<M, P, D>,
     zoom: u8,

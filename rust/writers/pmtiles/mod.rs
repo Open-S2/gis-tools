@@ -5,6 +5,7 @@ use crate::{
         S2_PM_ROOT_SIZE, S2PMEntries, S2PMHeader,
     },
     util::CompressionFormat,
+    writers::TileWriter,
 };
 use alloc::{vec, vec::Vec};
 use s2_tilejson::Metadata;
@@ -84,7 +85,43 @@ pub trait DataWriter: core::fmt::Debug {
     fn take(&self) -> Vec<u8>;
 }
 
+/// # (S2) PM Tiles Writer
+///
+/// ## Description
 /// The File reader is to be used by the local filesystem.
+///
+/// Implements the [`TileWriter`] interface.
+///
+/// Takes a [`Writer`] input to write data to.
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`PMTilesWriter::new`]: Create a new PMTilesWriter
+/// - [`PMTilesWriter::take`]: Take ownership of the data (assuming local buffered data and not a filesystem writer)
+/// - [`PMTilesWriter::write_tile`]: Write a tile to the PMTiles file given its tile ID.
+/// - [`PMTilesWriter::write_tile_wm`]: Write a Web Mercator tile to the folder location given its (zoom, x, y) coordinates.
+/// - [`PMTilesWriter::write_tile_s2`]: Write a S2 tile to the folder location given its (face, zoom, x, y) coordinates.
+/// - [`PMTilesWriter::commit`]: Write the metadata to the folder location.
+///
+/// ```rust
+/// use gistools::{util::CompressionFormat, parsers::BufferWriter, writers::{TileWriter, PMTilesWriter}};
+/// use s2_tilejson::Metadata;
+/// use s2json::Face;
+///
+/// let local_writer = BufferWriter::default();
+/// let mut pmtiles_writer = PMTilesWriter::new(local_writer, CompressionFormat::None);
+///
+/// // setup data
+/// let tmp_str = "hello world";
+/// // write data in tile
+/// pmtiles_writer.write_tile_s2(Face::Face0, 0, 0, 0, tmp_str.as_bytes().to_vec());
+/// pmtiles_writer.write_tile_s2(Face::Face3, 2, 1, 1, tmp_str.as_bytes().to_vec());
+/// // finish (we don't need to specify the compression again)
+/// pmtiles_writer.commit(Metadata::default(), None);
+///
+/// let pmtiles_data = pmtiles_writer.take();
+/// ```
 #[derive(Debug)]
 pub struct PMTilesWriter<W: Writer> {
     tile_entries: PMDirectory,
@@ -119,18 +156,6 @@ impl<W: Writer> PMTilesWriter<W> {
         self.writer.take()
     }
 
-    /// Write a tile to the PMTiles file given its (face, zoom, x, y) coordinates.
-    pub fn write_tile_xyz(&mut self, zoom: u8, x: u64, y: u64, data: &[u8]) {
-        let tile_id = PMTilePos::new(zoom, x, y).to_id();
-        self.write_tile(tile_id, data, None);
-    }
-
-    /// Write a tile to the PMTiles file given its (face, zoom, x, y) coordinates.
-    pub fn write_tile_s2(&mut self, face: Face, zoom: u8, x: u64, y: u64, data: &[u8]) {
-        let tile_id = PMTilePos::new(zoom, x, y).to_id();
-        self.write_tile(tile_id, data, Some(face));
-    }
-
     /// Write a tile to the PMTiles file given its tile ID.
     pub fn write_tile(&mut self, tile_id: u64, data: &[u8], face: Option<Face>) {
         let length = data.len();
@@ -151,7 +176,7 @@ impl<W: Writer> PMTilesWriter<W> {
     }
 
     /// Finish writing by building the header with root and leaf directories
-    pub fn commit(&mut self, metadata: &Metadata) {
+    fn _commit(&mut self, metadata: &Metadata) {
         if !self.tile_entries.is_empty() {
             self.commit_wm(metadata);
         } else {
@@ -162,7 +187,7 @@ impl<W: Writer> PMTilesWriter<W> {
     }
 
     /// Finish writing by building the header with root and leaf directories
-    pub fn commit_wm(&mut self, metadata: &Metadata) {
+    fn commit_wm(&mut self, metadata: &Metadata) {
         // build metadata
         let meta_buffer = serde_json::to_vec(metadata).unwrap();
 
@@ -219,7 +244,7 @@ impl<W: Writer> PMTilesWriter<W> {
     }
 
     /// Finish writing by building the header with root and leaf directories
-    pub fn commit_s2(&mut self, metadata: &Metadata) {
+    fn commit_s2(&mut self, metadata: &Metadata) {
         // build metadata
         let meta_buffer = serde_json::to_vec(metadata).unwrap();
 
@@ -352,5 +377,24 @@ impl<W: Writer> PMTilesWriter<W> {
         self.writer.write(&root_bytes4, root_directory_offset4);
         self.writer.write(&root_bytes5, root_directory_offset5);
         self.writer.write(&meta_buffer, metadata_offset);
+    }
+}
+
+impl<W: Writer> TileWriter for PMTilesWriter<W> {
+    fn write_tile_wm(&mut self, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
+        let tile_id = PMTilePos::new(zoom, x as u64, y as u64).to_id();
+        self.write_tile(tile_id, &data, None);
+    }
+
+    fn write_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
+        let tile_id = PMTilePos::new(zoom, x as u64, y as u64).to_id();
+        self.write_tile(tile_id, &data, Some(face));
+    }
+
+    fn commit(&mut self, metadata: Metadata, tile_compression: Option<CompressionFormat>) {
+        if let Some(tile_compression) = tile_compression {
+            self.compression = tile_compression;
+        }
+        self._commit(&metadata);
     }
 }

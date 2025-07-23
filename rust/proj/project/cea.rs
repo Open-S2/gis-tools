@@ -15,7 +15,54 @@ pub struct CeaData {
 
 const EPS: f64 = 1e-10;
 
-/// Equal Area Cylindrical Projection
+/// # Equal Area Cylindrical Projection
+///
+/// **Classification**: Cylindrical
+///
+/// **Available forms**: Forward and Inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: `cea`
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=cea
+/// ```
+///
+/// ## Named Specializations
+///
+/// The Equal Area Cylindrical projection is sometimes known under other names when instantiated with particular values of the `lat_ts` parameter:
+///
+/// - **Lambert cylindrical equal-area**: `lat_ts = 0`
+/// - **Behrmann**: `lat_ts = 30`
+/// - **Gall-Peters**: `lat_ts = 45`
+///
+/// ## Optional Parameters
+/// - `lat_ts`: Latitude of true scale
+/// - `lon_0`: Longitude of origin
+/// - `ellps`: Ellipsoid
+/// - `R`: Radius of the sphere
+/// - `k_0`: Scaling factor
+/// - `x_0`: False easting
+/// - `y_0`: False northing
+///
+/// **Note**: `lat_ts` and `k_0` are mutually exclusive. If `lat_ts` is specified, it is equivalent to setting `k_0` to:
+///
+/// $$k_0 = \cos(lat_{ts}) / \sqrt{1 - e^2 \sin^2(lat_{ts})}$$
+///
+/// reference:
+/// "Cartographic Projection Procedures for the UNIX Environment-
+/// A User's Manual" by Gerald I. Evenden,
+/// USGS Open File Report 90-284and Release 4 Interim Reports (2003)
+///
+/// ![Equal Area Cylindrical Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/cae.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct EqualAreaCylindricalProjection {
     proj: Rc<RefCell<Proj>>,

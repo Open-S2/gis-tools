@@ -46,18 +46,25 @@ pub type WKTArray = Vec<WKTAValue>;
 ///
 /// ## Description
 /// Parse a collection of WKT geometries from a string
-/// implements the {@link FeatureIterator} interface
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// ## Usage
-/// ```ts
-/// import { WKTGeometryReader } from 'gis-tools-ts';
 ///
-/// const reader = new WKTGeometryReader('POINT(4 6) GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(3 4,5 6))');
+/// The methods you have access to:
+/// - [`WKTGeometryReader::new`]: Create a new WKTGeometryReader
 ///
-/// // read the features
-/// for await (const feature of reader) {
-///   console.log(feature);
-/// }
+/// ```rust
+/// use gistools::{parsers::FeatureReader, readers::WKTGeometryReader};
+///
+/// let collection_wkt = r#"POINT(4 6)
+/// GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(3 4,5 6))
+/// MULTIPOLYGON EMPTY
+/// TRIANGLE((0 0 0,0 1 0,1 1 0,0 0 0))"#;
+///
+/// let reader = WKTGeometryReader::new(collection_wkt.into());
+/// let features: Vec<_> = reader.iter().collect();
+/// assert_eq!(features.len(), 3);
 /// ```
 ///
 /// ## Links
@@ -115,17 +122,27 @@ impl FeatureReader<(), Properties, MValue> for WKTGeometryReader {
 /// Parse individual geometries from a WKT string into a VectorGeometry
 ///
 /// ## Usage
-/// ```ts
-/// import { parseWKTGeometry } from 'gis-tools-ts';
+/// ```rust
+/// use gistools::readers::parse_wkt_geometry;
+/// use s2json::{VectorPoint, VectorGeometry, BBox3D};
 ///
-/// const geometry = parseWKTGeometry('POINT (1 2)');
+/// let wkt_str = "POINT Z (5.4321 1.2345 2.3456)";
+/// let geo = parse_wkt_geometry(wkt_str.into());
+/// let expected = VectorPoint::from_xyz(5.4321, 1.2345, 2.3456);
+/// assert_eq!(
+///     geo,
+///     Some(VectorGeometry::new_point(expected.clone(), Some(BBox3D::from_point(&expected))))
+/// );
 /// ```
 ///
 /// ## Links
 /// - https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 ///
-/// @param wkt_str - WKT string
-/// @returns - VectorGeometry
+/// ## Parameters
+/// - `wkt_str`: WKT Geometry string
+///
+/// ## Returns
+/// A [`VectorGeometry`] if the WKT string is valid
 pub fn parse_wkt_geometry(wkt_str: String) -> Option<VectorGeometry> {
     if wkt_str.starts_with("POINT") {
         parse_wkt_point(wkt_str)
@@ -149,8 +166,11 @@ pub fn parse_wkt_geometry(wkt_str: String) -> Option<VectorGeometry> {
 /// Removes EMPTY geometries, flattens GEOMETRYCOLLECTIONs recursively,
 /// and returns a vector of individual WKT geometry strings.
 ///
-/// @param input - WKT string that is a collection of geometries
-/// @returns - Array of individual WKT geometries
+/// ## Parameters
+/// - `input`: WKT string that is a collection of geometries
+///
+/// ## Returns
+/// Array of individual WKT geometries still in string form
 pub fn split_wkt_geometry(mut input: String) -> Vec<String> {
     // Remove EMPTY geometries and their preceding type keyword
     let mut words: Vec<&str> = input.split_whitespace().collect();
@@ -212,8 +232,11 @@ pub fn split_wkt_geometry(mut input: String) -> Vec<String> {
 
 /// Parse a WKT point string to a VectorPoint
 ///
-/// @param wkt_str - WKT string
-/// @returns - VectorPoint
+/// ## Parameters
+/// - `wkt_str`: WKT string
+///
+/// ## Returns
+/// A [`VectorPoint`] in a [`VectorGeometry`] if the WKT string is valid
 fn parse_wkt_point(wkt_str: String) -> Option<VectorGeometry> {
     if let Some(WKTAValue::Point(point)) = parse_wkt_array(wkt_str).get_mut(0) {
         let bbox = BBox3D::from_point(point);
@@ -230,9 +253,13 @@ enum LineParseType {
 
 /// Parse a WKT array to a LineString or MultiPoint geometry
 ///
-/// @param wkt_str - WKT string
-/// @param type - 'MultiPoint' or 'LineString'
-/// @returns - VectorGeometry (LineString or MultiPoint)
+/// ## Parameters
+/// - `wkt_str`: WKT string
+/// - `type`: 'MultiPoint' or 'LineString'
+///
+/// ## Returns
+/// A [`VectorGeometry`] as either a [`s2json::VectorLineString`] or [`s2json::VectorMultiPoint`]
+/// if the WKT string is valid
 fn parse_wkt_line(wkt_str: String, r#type: LineParseType) -> Option<VectorGeometry> {
     let mut line = parse_wkt_array(wkt_str);
     let points: VectorLineString =
@@ -251,9 +278,13 @@ enum MultiLineParseType {
 
 /// Parse a WKT array to a MultiLineString or Polygon
 ///
-/// @param wkt_str - WKT string
-/// @param type - 'MultiLineString' or 'Polygon'
-/// @returns - VectorGeometry
+/// ## Parameters
+/// - `wkt_str`: WKT string
+/// - `type`: 'MultiLineString' or 'Polygon'
+///
+/// ## Returns
+/// A [`VectorGeometry`] as either a [`s2json::VectorMultiLineString`] or [`s2json::VectorPolygon`]
+/// if the WKT string is valid
 fn parse_wkt_multi_line(wkt_str: String, r#type: MultiLineParseType) -> Option<VectorGeometry> {
     let mut multiline = parse_wkt_array(wkt_str);
     let lines: VectorMultiLineString =
@@ -269,8 +300,11 @@ fn parse_wkt_multi_line(wkt_str: String, r#type: MultiLineParseType) -> Option<V
 
 /// Parse a WKT array to a MultiPolygon
 ///
-/// @param wkt_str - WKT string
-/// @returns - VectorGeometry
+/// ## Parameters
+/// - `wkt_str`: WKT string
+///
+/// ## Returns
+/// A [`VectorGeometry`] as a [`s2json::VectorMultiPolygon`] if the WKT string is valid
 fn parse_wkt_multi_polygon(wkt_str: String) -> Option<VectorGeometry> {
     let mut multipolygon = parse_wkt_array(wkt_str);
     let polygons: VectorMultiPolygon =
@@ -281,8 +315,11 @@ fn parse_wkt_multi_polygon(wkt_str: String) -> Option<VectorGeometry> {
 
 /// Parse a WKT array
 ///
-/// @param wkt_str - WKT string
-/// @returns - collection of points
+/// ## Parameters
+/// - `wkt_str`: WKT string
+///
+/// ## Returns
+/// Collection of points as [`WKTArray`]
 pub fn parse_wkt_array(wkt_str: String) -> WKTArray {
     let mut res = Vec::new();
     let _ = _parse_wkt_array(wkt_str, &mut res);
@@ -292,9 +329,12 @@ pub fn parse_wkt_array(wkt_str: String) -> WKTArray {
 /// Parse a WKT array.
 /// always return the endBracketIndex if we hit it
 ///
-/// @param wkt_str - WKT string
-/// @param res - collection to store the values
-/// @returns - a sliced WKT string with the parsed values
+/// ## Parameters
+/// - `wkt_str`: WKT string
+/// - `res`: collection to store the values
+///
+/// ## Returns
+/// A sliced WKT string with the parsed values
 fn _parse_wkt_array(mut wkt_str: String, res: &mut WKTArray) -> String {
     while !wkt_str.is_empty() {
         let comma_index = wkt_str.find(',').unwrap_or(usize::MAX);
@@ -330,8 +370,11 @@ fn _parse_wkt_array(mut wkt_str: String, res: &mut WKTArray) -> String {
 
 /// Build a point from a WKT string
 ///
-/// @param str - WKT string
-/// @returns - VectorPoint
+/// ## Parameters
+/// - `str`: WKT string
+///
+/// ## Returns
+/// A [`VectorPoint`]
 fn build_point(input: &str) -> VectorPoint {
     let binding = clean_string(input);
     let parts: Vec<&str> = binding.split_whitespace().collect();

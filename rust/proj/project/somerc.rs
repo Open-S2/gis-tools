@@ -20,7 +20,45 @@ pub struct SomercData {
 const EPS: f64 = 1.0e-10;
 const NITER: usize = 6;
 
-/// Swiss Oblique Cylindrical Projection
+/// # Swiss Oblique Mercator
+///
+/// **Classification**: Oblique Mercator
+///
+/// **Available forms**: Forward and inverse, ellipsoidal only
+///
+/// **Defined area**: Global
+///
+/// **Alias**: somerc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=somerc
+/// ```
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+ellps=<value>`: Ellipsoid used.
+/// - `+R=<value>`: Radius of the projection sphere.
+/// - `+k_0=<value>`: Scale factor.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ## References:
+/// Formules et constantes pour le Calcul pour la
+/// projection cylindrique conforme à axe oblique et pour la transformation entre
+/// des systèmes de référence.
+/// http://www.swisstopo.admin.ch/internet/swisstopo/fr/home/topics/survey/sys/refsys/switzerland.parsysrelated1.31216.downloadList.77004.DownloadFile.tmp/swissprojectionfr.pdf
+///
+/// ![Swiss Oblique Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/somerc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct SwissOblMercatorProjection {
     proj: Rc<RefCell<Proj>>,

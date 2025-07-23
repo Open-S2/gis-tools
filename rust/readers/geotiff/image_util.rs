@@ -29,9 +29,12 @@ pub enum GTiffDataType {
 impl GTiffDataType {
     /// Convert the data format and bits per sample to an array type
     ///
-    /// @param format - the data format
-    /// @param bits_per_sample - the bits per sample
-    /// @returns the array type constructor
+    /// ## Parameters
+    /// - `format`: the data format
+    /// - `bits_per_sample`: the bits per sample
+    ///
+    /// ## Returns
+    /// The array type constructor
     pub fn to_type(format: u16, bits_per_sample: u16) -> GTiffDataType {
         match format {
             1 => {
@@ -75,10 +78,15 @@ impl GTiffDataType {
     }
 }
 
-/// @param array - An array of numbers
-/// @param start - Start index
-/// @param end - End index
-/// @returns The sum
+/// Get the sum of a range of numbers
+///
+/// ## Parameters
+/// - `array`: An array of numbers
+/// - `start`: Start index
+/// - `end`: End index
+///
+/// ## Returns
+/// The sum
 pub fn sample_sum<T>(array: &[T], start: usize, end: usize) -> T
 where
     T: Copy + Sum<T>,
@@ -87,9 +95,13 @@ where
 }
 
 /// Check if the data needs normalization
-/// @param format - the data format
-/// @param bits_per_sample - the bits per sample
-/// @returns - true if the data needs normalization
+///
+/// ## Parameters
+/// - `format`: the data format
+/// - `bits_per_sample`: the bits per sample
+///
+/// ## Returns
+/// true if the data needs normalization
 pub fn needs_normalization(format: usize, bits_per_sample: usize) -> bool {
     if (format == 1 || format == 2) && bits_per_sample <= 32 && bits_per_sample % 8 == 0 {
         false
@@ -100,14 +112,17 @@ pub fn needs_normalization(format: usize, bits_per_sample: usize) -> bool {
 
 /// Normalize the array
 ///
-/// @param in_buffer - the input buffer
-/// @param format - the data format
-/// @param planar_configuration - the planar configuration
-/// @param samples_per_pixel - the number of samples per pixel
-/// @param bits_per_sample - the bits per sample
-/// @param tile_width - the tile width
-/// @param tile_height - the tile height
-/// @returns - the normalized array
+/// ## Parameters
+/// - `in_buffer`: the input buffer
+/// - `format`: the data format
+/// - `planar_configuration`: the planar configuration
+/// - `samples_per_pixel`: the number of samples per pixel
+/// - `bits_per_sample`: the bits per sample
+/// - `tile_width`: the tile width
+/// - `tile_height`: the tile height
+///
+/// ## Returns
+/// The normalized array
 pub fn normalize_array(
     in_buffer: Vec<u8>,
     format: usize,
@@ -221,8 +236,12 @@ pub fn normalize_array(
 
 /// Returns the reader for a sample
 ///
-/// @param sample_index - the index of the sample
-/// @returns - a function to read each sample value
+/// ## Parameters
+/// - `bits_per_sample`: the bits per sample
+/// - `format`: the format type
+///
+/// ## Returns
+/// A function to read each sample value
 pub fn get_reader_for_sample(
     bits_per_sample: u16,
     format: u16,

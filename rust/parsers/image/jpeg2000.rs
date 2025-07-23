@@ -96,45 +96,49 @@ impl BoxTypes {
 
 type BoxType = u32;
 
-// The building-block of the JP2 file format is called a box.
-//
-// All information contained within the JP2 file is encapsulated in boxes.
-//
-// This Recommendation | International Standard defines several types of boxes;
-// the definition of each specific box type defines the kinds of information
-// that may be found within a box of that type. Some boxes will be defined to
-// contain other boxes.
+/// The building-block of the JP2 file format is called a box.
+///
+/// All information contained within the JP2 file is encapsulated in boxes.
+///
+/// This Recommendation | International Standard defines several types of boxes;
+/// the definition of each specific box type defines the kinds of information
+/// that may be found within a box of that type. Some boxes will be defined to
+/// contain other boxes.
 pub trait JBox {
+    /// Returns the type of the box.
     fn identifier(&self) -> BoxType;
+    /// Returns the length of the box.
     fn length(&self) -> u64;
+    /// Returns the offset of the box.
     fn offset(&self) -> u64;
+    /// Decodes the box.
     fn decode<R: Reader>(&mut self, reader: &mut R);
 }
 
-// I.5.1
-//
-// JPEG 2000 Signature box
-//
-// The Signature box identifies that the format of this file was defined by the
-// JPEG 2000 Recommendation | International Standard, as well as provides a
-// small amount of information which can help determine the validity of the rest
-// of the file.
-//
-// The Signature box shall be the first box in the file, and all files shall
-// contain one and only one Signature box.
-
-// For file verification purposes, this box can be considered a fixed-length
-// 12-byte string which shall have the value: 0x0000 000C 6A50 2020 0D0A 870A.
-
-// The combination of the particular type and contents for this box enable an
-// application to detect a common set of file transmission errors.
-//
-// - The CR-LF sequence in the contents catches bad file transfers that alter
-// newline sequences.
-// - The control-Z character in the type stops file display under MS-DOS.
-// - The final linefeed checks for the inverse of the CR-LF translation problem.
-// - The third character of the box contents has its high-bit set to catch bad
-// file transfers that clear bit 7
+/// I.5.1
+///
+/// JPEG 2000 Signature box
+///
+/// The Signature box identifies that the format of this file was defined by the
+/// JPEG 2000 Recommendation | International Standard, as well as provides a
+/// small amount of information which can help determine the validity of the rest
+/// of the file.
+///
+/// The Signature box shall be the first box in the file, and all files shall
+/// contain one and only one Signature box.
+///
+/// For file verification purposes, this box can be considered a fixed-length
+/// 12-byte string which shall have the value: 0x0000 000C 6A50 2020 0D0A 870A.
+///
+/// The combination of the particular type and contents for this box enable an
+/// application to detect a common set of file transmission errors.
+///
+/// - The CR-LF sequence in the contents catches bad file transfers that alter
+/// newline sequences.
+/// - The control-Z character in the type stops file display under MS-DOS.
+/// - The final linefeed checks for the inverse of the CR-LF translation problem.
+/// - The third character of the box contents has its high-bit set to catch bad
+/// file transfers that clear bit 7
 #[derive(Debug, Default, PartialEq)]
 pub struct SignatureBox {
     length: u64,
@@ -294,53 +298,53 @@ impl JBox for FileTypeBox {
     }
 }
 
-// I.5.3
-//
-// JP2 Header Box
-//
-// The JP2 Header box contains generic information about the file, such as
-// number of components, colourspace, and grid resolution.
-//
-// This box is a superbox.
-// This box contains several boxes.
-//
-// Within a JP2 file, there shall be one and only one JP2 Header box.
-//
-// Other boxes may be defined in other standards and may be ignored by
-// conforming readers. Those boxes contained within the JP2 Header box that are
-// defined within this Recommendation | InternationalStandard are as follows:
-
-// - Image Header box - This box specifies information about the image, such
-// as its height and width.
-//
-// - Bits Per Component box - This box specifies the bit depth of each
-// component in the codestream after decompression. This box may be found
-// anywhere in the JP2 Header box provided that it comes after the Image Header
-// box.
-//
-// - Colour Specification boxes - These boxes specify the colourspace of the
-// decompressed image. The use of multiple Colour Specification boxes
-// provides the ability for a decoder to be given multiple optimization or
-// compatibility options for colour processing. These boxes may be found
-// anywhere in the JP2 Header box provided that they come after the Image Header
-// box. All Colour Specification boxes shall be contiguous within the JP2 Header
-// box.
-//
-// - Palette box - This box defines the palette to use to create multiple
-// components from a single component. This box may be found anywhere in the JP2
-// Header box provided that it comes after the Image Header box.
-//
-// - Component Mapping box - This box defines how image channels are identified
-// from the actual components in the codestream. This box may be found anywhere
-// in the JP2 Header box provided that it comes after the Image Header box.
-//
-// - Channel Definition box - This box defines the channels in the image. This
-// box may be found anywhere in the JP2 Header box provided that it comes after
-// the ImageHeader box.
-//
-// - Resolution box - This box specifies the capture and default display grid
-// resolutions of the image. This box may be found anywhere in the JP2 Header
-// box provided that it comes after the Image Header box.
+/// I.5.3
+///
+/// JP2 Header Box
+///
+/// The JP2 Header box contains generic information about the file, such as
+/// number of components, colourspace, and grid resolution.
+///
+/// This box is a superbox.
+/// This box contains several boxes.
+///
+/// Within a JP2 file, there shall be one and only one JP2 Header box.
+///
+/// Other boxes may be defined in other standards and may be ignored by
+/// conforming readers. Those boxes contained within the JP2 Header box that are
+/// defined within this Recommendation | InternationalStandard are as follows:
+///
+/// - Image Header box - This box specifies information about the image, such
+/// as its height and width.
+///
+/// - Bits Per Component box - This box specifies the bit depth of each
+/// component in the codestream after decompression. This box may be found
+/// anywhere in the JP2 Header box provided that it comes after the Image Header
+/// box.
+///
+/// - Colour Specification boxes - These boxes specify the colourspace of the
+/// decompressed image. The use of multiple Colour Specification boxes
+/// provides the ability for a decoder to be given multiple optimization or
+/// compatibility options for colour processing. These boxes may be found
+/// anywhere in the JP2 Header box provided that they come after the Image Header
+/// box. All Colour Specification boxes shall be contiguous within the JP2 Header
+/// box.
+///
+/// - Palette box - This box defines the palette to use to create multiple
+/// components from a single component. This box may be found anywhere in the JP2
+/// Header box provided that it comes after the Image Header box.
+///
+/// - Component Mapping box - This box defines how image channels are identified
+/// from the actual components in the codestream. This box may be found anywhere
+/// in the JP2 Header box provided that it comes after the Image Header box.
+///
+/// - Channel Definition box - This box defines the channels in the image. This
+/// box may be found anywhere in the JP2 Header box provided that it comes after
+/// the ImageHeader box.
+///
+/// - Resolution box - This box specifies the capture and default display grid
+/// resolutions of the image. This box may be found anywhere in the JP2 Header
+/// box provided that it comes after the Image Header box.
 #[derive(Debug, Default, PartialEq)]
 pub struct HeaderSuperBox {
     length: u64,

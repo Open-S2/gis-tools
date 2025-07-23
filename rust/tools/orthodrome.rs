@@ -1,13 +1,34 @@
+use crate::geometry::LonLat;
 use libm::{atan2, cos, sin, sqrt};
 use s2json::VectorPoint;
-
-use crate::geometry::LonLat;
 
 /// # Orthodrome
 ///
 /// ## Description
 /// Represents an orthodrome, which is the shortest path between two points on a sphere.
+///
 /// [Learn more here](http://www.movable-type.co.uk/scripts/latlong.html)
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`Orthodrome::new`]: Create a new Orthodrome
+/// - [`Orthodrome::from_points`]: Create an orthodrome from two points
+/// - [`Orthodrome::from_vector_points`]: Create an orthodrome from two vector points
+/// - [`Orthodrome::intermediate_point`]: input t 0->1. Find a point along the orthodrome.
+/// - [`Orthodrome::bearing`]: returns the bearing in degrees between the two points
+/// - [`Orthodrome::distance_to`]: Finds the distance between the two points in kilometers projected normalized (0->1)
+///
+/// ```rust
+/// use gistools::{geometry::LonLat, tools::Orthodrome};
+///
+/// let ortho = Orthodrome::new(-60., -40., 20., 10.);
+/// assert_eq!(ortho.intermediate_point(0.), LonLat::new(-59.99999999999999, -40., None));
+/// assert_eq!(
+///     ortho.intermediate_point(0.2),
+///     LonLat::new(-39.13793657428956, -33.728521975616516, None)
+/// );
+/// ```
 ///
 /// ## NOTE
 /// There is no reason to use this outside verbosity. You can create an S1Angle or use the utility functions in LonLat
@@ -50,7 +71,7 @@ impl Orthodrome {
         Orthodrome::new(p1.lon(), p1.lat(), p2.lon(), p2.lat())
     }
 
-    /// Create an orthodrome from two points
+    /// Create an orthodrome from two vector points
     pub fn from_vector_points<M1: Clone, M2: Clone>(
         p1: &VectorPoint<M1>,
         p2: &VectorPoint<M2>,
@@ -59,8 +80,12 @@ impl Orthodrome {
     }
 
     /// input t 0->1. Find a point along the orthodrome.
-    /// @param t - distance along the orthodrome to find
-    /// @returns [lon, lat]
+    ///
+    /// ## Parameters
+    /// - `t`: distance along the orthodrome to find
+    ///
+    /// ## Returns
+    /// Returns a [`LonLat`] point in degrees
     pub fn intermediate_point(&self, t: f64) -> LonLat {
         let Self { lon1, lon2, lat1, lat2, dist, .. } = self;
 
@@ -99,9 +124,10 @@ impl Orthodrome {
         (angle_rad.to_degrees() + 360.) % 360. // in degrees
     }
 
-    /// Finds the distance between the two points in kilometers
-    /// projected normalized (0->1)
-    /// returns the total distance between the two points
+    /// Finds the distance between the two points in kilometers projected normalized (0->1)
+    ///
+    /// ## Returns
+    /// The total distance between the two points
     pub fn distance_to(&self) -> f64 {
         2. * atan2(sqrt(self.a), sqrt(1. - self.a))
     }

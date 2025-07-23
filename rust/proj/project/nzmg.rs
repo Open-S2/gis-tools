@@ -47,7 +47,37 @@ const BF: [Complex; 6] = [
     Complex { r: -0.6870983, i: -1.1651967 },
 ];
 
-/// New Zealand Map Grid Projection
+/// # New Zealand Map Grid (EPSG:27200)
+///
+/// **Classification**: Custom grid-based projection
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: New Zealand
+///
+/// **Alias**: nzmg
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=nzmg
+/// ```
+///
+/// ## Required Parameters
+/// - None (all standard projection parameters are hard-coded for this projection)
+///
+/// ## Reference:
+/// - Department of Land and Survey Technical Circular 1973/32
+///   http://www.linz.govt.nz/docs/miscellaneous/nz-map-definition.pdf
+/// - OSG Technical Report 4.1
+///   http://www.linz.govt.nz/docs/miscellaneous/nzmg.pdf
+///
+/// ![New Zealand Map Grid (EPSG:27200)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/nzmg.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewZealandMapGridProjection {
     proj: Rc<RefCell<Proj>>,

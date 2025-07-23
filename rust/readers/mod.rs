@@ -117,7 +117,71 @@ impl From<&str> for ReaderType {
     }
 }
 
-/// The type of readers to choose from
+/// # GIS Reader
+///
+/// ## Description
+/// Parse all data types supported by this library
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// It is recommended to use this reader for testing or ease of access, but the better
+/// alternative is to use the file type readers directly. Here is the list of readers:
+/// - [`CSVReader`]: Parse (Geo|S2)JSON from a file that is in the CSV format
+/// - [`GeoTIFFReader`]: This class reads a GeoTIFF file and returns a list of GeoTIFF images.
+/// - [`GPXReader`]: The GPX Reader is an XML-based GPS Exchange Format (GPX) reader.
+/// - [`GRIB2Reader`]: This class reads a GRIB2 file and returns a list of GRIB2 products.
+/// - [`GTFSScheduleReader`]: Schedule class that pulls in all of the GTFS schedule files and parses them into a single object
+/// - [`JSONReader`]: Parse (Geo|S2)JSON. Can handle millions of features.
+/// - [`NewLineDelimitedJSONReader`]: Parse (Geo|S2)JSON from a file that is in a newline-delimited format
+/// - [`SequenceJSONReader`]: Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
+/// - [`LASReader`]: Reads LAS data. Supports up to the LAS 1.4 specification.
+/// - [`LAZReader`]: Reads LAS zipped data. Supports LAS 1.4 specification although missing some support.
+/// - [`NadGridReader`]: Loads/reads a binary NTv2 file (.gsb) implementing the {@link FeatureIterator} interface.
+/// - [`NetCDFReader`]: Read the NetCDF v3.x file format.
+/// - [`OSMLocalReader`]: OSM PBF Data. Direct use allows for the use of the [`OSMFileReader`] as well
+/// - [`ShapeFileReader`]: Reads data from a shapefile implementing the {@link FeatureIterator} interface
+/// - [`WKTGeometryReader`]: Parse a collection of WKT geometries from a string
+///
+/// ## Usage
+///
+/// ### Read from a file
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader},
+///     readers::{GISReader, ReaderType},
+/// };
+/// use s2json::{MValue, Properties, VectorFeature};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/csv/fixtures/basic.csv");
+///
+/// let reader = GISReader::from_path(path, None, None);
+/// assert_eq!(reader.get_type(), ReaderType::CSV);
+///
+/// let features: Vec<VectorFeature<(), Properties, MValue>> = reader.iter().collect();
+/// ```
+///
+/// ### Read from a buffer
+///
+/// It is recommended to use a Buffer Reader when the file is small because it is more efficient
+///
+/// ```rust
+/// use gistools::{
+///     parsers::{FeatureReader},
+///     readers::{GISReader, ReaderType},
+/// };
+/// use s2json::{MValue, Properties, VectorFeature};
+///
+/// // ignore the use of the filesystem, setup is just for the example
+/// use std::path::PathBuf;
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/csv/fixtures/basic.csv");
+/// let bytes = std::fs::read(path.clone()).unwrap();
+///
+/// let reader = GISReader::from_buffer(bytes, ReaderType::CSV, None);
+/// let features: Vec<VectorFeature<(), Properties, MValue>> = reader.iter().collect();
+/// ```
 #[derive(Debug)]
 pub enum GISReader<T: Reader + Debug> {
     /// CSV data
@@ -177,11 +241,17 @@ impl<T: Reader + Debug> GISReader<T> {
     }
 }
 impl GISReader<BufferReader> {
-    /// Given a file and a file type, return a reader
+    /// Given a raw data and a file type, return the appropriate reader
     ///
-    /// @param urlPath - The URL path to the file
-    /// @param type - The file type if specified, otherwise it will be inferred
-    /// @returns - The reader with {@link FeatureIterator} implemented
+    /// ## Parameters
+    ///
+    /// - `data`: The data to parse
+    /// - `file_type`: The file type to parse the data as
+    /// - `epsg_codes`: The EPSG codes to use. E.g. `{"4326": "...WKT STRING..."}`
+    ///
+    /// ## Returns
+    ///
+    /// The [`GISReader`] using a [`BufferReader`] for fast parsing
     pub fn from_buffer(
         data: Vec<u8>,
         file_type: ReaderType,
@@ -242,10 +312,17 @@ impl GISReader<BufferReader> {
     }
 }
 impl GISReader<FileReader> {
-    /// Given a file and a file type, return a reader
+    /// Given a file and a file type (or inferred if not provided), return a reader
     ///
-    /// @param file - The path to the file
-    /// @returns - The reader with {@link FeatureIterator} implemented
+    /// ## Parameters
+    ///
+    /// - `file`: The path to the file
+    /// - `file_type`: The file type if specified, otherwise it will be inferred. Useful for `zip` files
+    /// - `epsg_codes`: The EPSG codes to use. E.g. `{"4326": "...WKT STRING..."}`
+    ///
+    /// ## Returns
+    ///
+    /// The [`GISReader`] using a [`FileReader`]
     #[cfg(feature = "std")]
     pub fn from_path<P: AsRef<Path>>(
         file: P,

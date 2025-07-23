@@ -20,7 +20,41 @@ pub struct EqdcData {
     ellips: bool,
 }
 
-/// Equidistant Conic Projection
+/// # Equidistant Conic
+///
+/// **Classification**: Conic
+///
+/// **Available forms**: Forward and inverse, ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: eqdc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=eqdc +lat_1=55 +lat_2=60
+/// ```
+///
+/// ## Parameters
+///
+/// ### Required
+/// - `+lat_1` (Latitude of the first standard parallel)
+/// - `+lat_2` (Latitude of the second standard parallel)
+///
+/// ### Optional
+/// - `+lon_0` (Central meridian)
+/// - `+ellps` (Ellipsoid name)
+/// - `+R` (Radius of the sphere)
+/// - `+x_0` (False easting)
+/// - `+y_0` (False northing)
+///
+/// ![Equidistant Conic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/eqdc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct EquidistantConicProjection {
     proj: Rc<RefCell<Proj>>,

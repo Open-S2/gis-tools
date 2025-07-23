@@ -32,7 +32,40 @@ fn setup(proj: &mut Proj, p: f64) -> MollData {
     store
 }
 
-/// Mollweide Projection
+/// # Mollweide
+///
+/// **Classification**: Pseudocylindrical
+///
+/// **Available forms**: Forward and inverse, spherical projection
+///
+/// **Defined area**: Global
+///
+/// **Alias**: moll
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=moll
+/// ```
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lon_0`: Longitude of projection center. Defaults to `0`.
+/// - `+R`: Radius of the sphere.
+/// - `+x_0`: False easting. Defaults to `0`.
+/// - `+y_0`: False northing. Defaults to `0`.
+///
+/// ## Further reading
+/// - [Wikipedia on Mollweide Projection](https://en.wikipedia.org/wiki/Mollweide_projection)
+///
+/// ![Mollweide](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/moll.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct MollweideProjection {
     proj: Rc<RefCell<Proj>>,

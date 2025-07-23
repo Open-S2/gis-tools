@@ -78,7 +78,8 @@ pub fn mgrs_inverse(mgrs: &str) -> Option<BBox> {
 
 /// Convert MGRS to lat/lon given an MGRS string
 ///
-/// @returns the center of the MGRS bounding box
+/// ## Returns
+/// The center of the MGRS bounding box
 pub fn mgrs_to_point<P: TransformCoordinates>(mgrs: &str) -> Option<P> {
     let bbox = utm_to_ll(decode(mgrs.to_uppercase()));
     if let Some(bbox) = bbox {
@@ -93,11 +94,15 @@ pub fn mgrs_to_point<P: TransformCoordinates>(mgrs: &str) -> Option<P> {
 
 /// Converts a set of Longitude and Latitude co-ordinates to UTM
 /// using the WGS84 ellipsoid.
-/// @param ll Object literal with lat and lon properties
-///     representing the WGS84 coordinate to be converted.
-/// @returns Object literal containing the UTM value with easting,
-///     northing, zone_number and zone_letter properties, and an optional
-///     accuracy property in digits. Returns null if the conversion failed.
+///
+/// ## Parameters
+/// - `ll`: Object literal with lat and lon properties representing the WGS84 coordinate to be
+///   converted.
+///
+/// ## Returns
+/// An Object literal containing the UTM value with easting,
+/// northing, zone_number and zone_letter properties, and an optional
+/// accuracy property in digits. Returns null if the conversion failed.
 fn ll_to_utm<P: TransformCoordinates>(ll: &P) -> Utm {
     let lon = ll.x();
     let lat = ll.y();
@@ -207,14 +212,18 @@ struct Utm {
 /// Converts UTM coords to lat/long, using the WGS84 ellipsoid. This is a convenience
 /// class where the Zone can be specified as a single string eg."60N" which
 /// is then broken down into the Zone_number and Zone_letter.
-/// @param utm An object literal with northing, easting, zone_number
-///     and zone_letter properties. If an optional accuracy property is
-///     provided (in meters), a bounding box will be returned instead of
-///     latitude and longitude.
-/// @returns An object literal containing either lat and lon values
-///     (if no accuracy was provided), or top, right, bottom and left values
-///     for the bounding box calculated according to the provided accuracy.
-///     Returns null if the conversion failed.
+///
+/// ## Parameters
+/// - `utm`: An object literal with northing, easting, zone_number
+///   and zone_letter properties. If an optional accuracy property is
+///   provided (in meters), a bounding box will be returned instead of
+///   latitude and longitude.
+///
+/// ## Returns
+/// An object literal containing either lat and lon values
+/// (if no accuracy was provided), or top, right, bottom and left values
+/// for the bounding box calculated according to the provided accuracy.
+/// Returns null if the conversion failed.
 fn utm_to_ll(utm: Utm) -> Option<BBox> {
     let utm_northing = utm.northing;
     let utm_easting = utm.easting;
@@ -463,8 +472,12 @@ fn get_letter_100k_id(mut col: u32, mut row: u32, parm: usize) -> String {
 }
 
 /// Decode the UTM parameters from a MGRS string.
-/// @param mgrs_string - an UPPERCASE coordinate string is expected.
-/// @returns An object literal with easting, northing, zone_letter,
+///
+/// ## Parameters
+/// - `mgrs_string`: an UPPERCASE coordinate string is expected.
+///
+/// ## Returns
+/// An object literal with easting, northing, zone_letter,
 ///     zone_number and accuracy (in meters) properties.
 fn decode(mut mgrs_string: String) -> Utm {
     if mgrs_string.is_empty() {

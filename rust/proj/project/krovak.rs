@@ -178,16 +178,68 @@ fn krovak_setup(proj: &mut Proj, modified: bool) -> KrovakData {
 }
 
 /// Krovak Projection
+///
+/// See [`KrovakBaseProjection`] for full documentation
 pub type KrovakProjection = KrovakBaseProjection<KROVAK, false>;
 /// Krovak North Oriented Projection
+///
+/// See [`KrovakBaseProjection`] for full documentation
 pub type KrovakNorthOrientedProjection = KrovakBaseProjection<KROVAK_NORTH_ORIENTED, false>;
 /// Krovak Modified Projection
+///
+/// See [`KrovakBaseProjection`] for full documentation
 pub type KrovakModifiedProjection = KrovakBaseProjection<KROVAK_MODIFIED, true>;
 /// Krovak Modified North Oriented Projection
+///
+/// See [`KrovakBaseProjection`] for full documentation
 pub type KrovakModifiedNorthOrientedProjection =
     KrovakBaseProjection<KROVAK_MODIFIED_NORTH_ORIENTED, true>;
 
-/// Krovak Projection
+/// # Krovak
+///
+/// **Classification**: Conformal Conical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global, but more accurate around Czech Republic and Slovakia
+///
+/// **Alias**: krovak
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=krovak
+/// ```
+///
+/// By default, coordinates in the forward direction are output in easting, northing,
+/// and negative in the Czech Republic and Slovakia, with absolute value of
+/// easting/westing being smaller than absolute value of northing/southing.
+///
+/// See also `mod_krovak` for a variation of Krovak used with the S-JTSK/05 datum
+/// in the Czech Republic.
+///
+/// ## Required Parameters
+/// - None, all parameters are optional for this projection.
+///
+/// ## Optional Parameters
+/// - `+czech`: Reverses the sign of the output coordinates for use in the Czech Republic and Slovakia (positive values become westing and southing).
+/// - `+lon_0`: Longitude of projection center. Defaults to `24°50'` (24.8333).
+/// - `+lat_0`: Latitude of projection center. Defaults to `49.5`.
+/// - `+k_0`: Scale factor. Defaults to `0.9999`.
+/// - `+x_0`: False easting. Defaults to `0`.
+/// - `+y_0`: False northing. Defaults to `0`.
+///
+/// ## Notes
+/// - The latitude of the pseudo standard parallel is hardcoded to `78.5°`.
+/// - The ellipsoid used is Bessel by default.
+/// - Before PROJ 9.4, using custom `x_0` or `y_0` without the `+czech` switch resulted in incorrect values.
+///
+/// ![Krovak](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/krovak.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct KrovakBaseProjection<const C: i64, const E: bool> {
     proj: Rc<RefCell<Proj>>,

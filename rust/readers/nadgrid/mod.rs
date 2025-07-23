@@ -52,97 +52,6 @@ pub struct NadGridDefinition<'a, T: Reader> {
     pub is_null: bool,
 }
 
-// /**
-//  * # NAD Grid V2 Reader
-//  *
-//  * ## Description
-//  * Store Grids from a NTv2 file (.gsb)
-//  *
-//  * ## Usage
-//  * ```ts
-//  * // TODO
-//  * ```
-//  */
-// pub struct NadGridStore<T: Reader> {
-//     grids: BTreeMap<String, NadGridReader<T>>,
-// }
-// impl<T: Reader> NadGridStore<T> {
-//     /**
-//      * Insert a new NadGrid into the store
-//      * @param grid - a nadgrid class to store
-//      */
-//     pub fn add_grid(&mut self, grid: NadGridReader<T>) {
-//         self.grids.insert(grid.key.clone(), grid);
-//     }
-
-//     /**
-//      * Get a grid from the store given a key or name
-//      * @param key - the key or name of the grid
-//      * @returns - the grid
-//      */
-//     pub fn get_grid(&self, key: &str) -> Option<&NadGridReader<T>> {
-//         self.grids.get(key)
-//     }
-
-//     /**
-//      * Add a grid given a data input
-//      * @param key - the key or name of the grid
-//      * @param input - the input data to parse
-//      */
-//     pub fn add_grid_from_reader(&mut self, key: String, input: T) {
-//         self.add_grid(NadGridReader::new(key, input));
-//     }
-
-//     /**
-//      * Get grid definitions from a string name
-//      * @param keys - complex string of grid keys to test against
-//      * @returns - an array of grid definitions
-//      */
-//     pub fn get_grids_from_string(&self, keys: Option<String>) -> Vec<NadGridDefinition<T>> {
-//         let mut res = vec![];
-//         if keys.is_none() {
-//             return res;
-//         }
-//         for grid in
-//             keys.unwrap_or_default().split(',').map(|s| s.trim().into()).collect::<Vec<String>>()
-//         {
-//             if let Some(g) = self.get_grid_from_string(grid) {
-//                 res.push(g);
-//             }
-//         }
-//         res
-//     }
-
-//     /**
-//      * Get a grid definition from a string
-//      * @param name - a single grid name to test against
-//      * @returns - a grid definition
-//      */
-//     pub fn get_grid_from_string(&self, mut name: String) -> Option<NadGridDefinition<T>> {
-//         if name.is_empty() {
-//             return None;
-//         }
-//         let optional = name.chars().nth(0) == Some('@');
-//         if optional {
-//             name = (&name[1..]).into();
-//         }
-//         if &name == "null" {
-//             return Some(NadGridDefinition {
-//                 name: "null".into(),
-//                 mandatory: !optional,
-//                 grid: None,
-//                 is_null: true,
-//             });
-//         }
-//         Some(NadGridDefinition {
-//             name: name.clone(),
-//             mandatory: !optional,
-//             grid: self.grids.get(&name),
-//             is_null: false,
-//         })
-//     }
-// }
-
 /// The header of a NTv2 file
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct NadGridHeader {
@@ -216,15 +125,35 @@ pub struct NadGridMetadata {
 /// # NAD Grid Reader
 ///
 /// ## Description
-/// Loads/reads a binary NTv2 file (.gsb) implementing the {@link FeatureIterator} interface
+/// Loads/reads a binary NTv2 file (.gsb)
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// It should be noted that a proj4 Transformer usually uses this class internally. But if you want
 /// to manually parse a .gsb file, you can use this class directly.
 ///
 /// ## Usage
 ///
-/// ```ts
-/// // TODO
+/// The methods you have access to:
+/// - [`NadGridReader::new`]: Create a new NadGridReader
+/// - [`NadGridReader::len`]: Get the length of the feature count
+/// - [`NadGridReader::is_empty`]: Check if the reader is empty
+/// - [`NadGridReader::header`]: Read the header
+/// - [`NadGridReader::get_points`]: Read a subgrid into a Point
+/// - [`NadGridReader::get_feature`]: Read a subgrid into a Vector Feature
+/// - [`NadGridReader::iter`]: Create an iterator to collect the features
+/// - [`NadGridReader::par_iter`]: Create a parallel iterator to collect the features
+///
+/// ```rust
+/// use gistools::{parsers::{FeatureReader, FileReader}, readers::NadGridReader};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/proj4/fixtures/BETA2007.gsb");
+///
+/// let nadgrid_reader = NadGridReader::new("test".into(), FileReader::from(path.clone()));
+/// let features = nadgrid_reader.iter().collect::<Vec<_>>();
+/// assert_eq!(features.len(), 1);
 /// ```
 ///
 /// ## Links
@@ -375,8 +304,13 @@ impl<T: Reader> NadGridReader<T> {
         }
     }
 
-    /// @param offset - offset to read in the subgrid header
-    /// @returns - the subgrid header
+    /// Read a subgrid header
+    ///
+    /// ## Parameters
+    /// - `offset`: offset to read in the subgrid header
+    ///
+    /// ## Returns
+    /// The subgrid header
     fn read_sub_grid_header(&self, offset: u64) -> NadSubGridHeader {
         let NadGridReader { reader, is_little_endian, .. } = self;
         let le = *is_little_endian;
@@ -393,9 +327,14 @@ impl<T: Reader> NadGridReader<T> {
         }
     }
 
-    /// @param offset - offset of the grid
-    /// @param grid_header - header of the grid
-    /// @returns - an array of grid nodes
+    /// Read the grid nodes
+    ///
+    /// ## Parameters
+    /// - `offset`: offset of the grid
+    /// - `grid_header`: header of the grid
+    ///
+    /// ## Returns
+    /// An array of grid nodes
     fn read_grid_nodes(&self, offset: u64, grid_header: &NadSubGridHeader) -> Vec<NadGridNode> {
         let NadGridReader { reader, is_little_endian, .. } = self;
         let le = *is_little_endian;

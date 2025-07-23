@@ -15,7 +15,37 @@ const PISQ: f64 = 9.869_604_401_089_358; // pi^2
 const TPISQ: f64 = 19.739_208_802_178_716; // 2*pi^2
 const HPISQ: f64 = 4.934_802_200_544_679; // pi^2/2
 
-/// Van der Grinten (I) Projection
+/// # van der Grinten (I)
+///
+/// **Classification**: Miscellaneous
+///
+/// **Available forms**: Forward and inverse, spherical projection
+///
+/// **Defined area**: Global
+///
+/// **Alias**: vandg
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=vandg
+/// ```
+///
+/// ## Parameters
+///
+/// All parameters are optional.
+///
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+R=<value>`: Radius of the sphere.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ![van der Grinten (I)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/vandg.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct VanDerGrintenIProjection {
     proj: Rc<RefCell<Proj>>,

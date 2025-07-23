@@ -16,7 +16,53 @@ pub struct GnomData {
     g: GeodGeodesic,
 }
 
-/// Gnomonic Projection
+/// # Gnomonic (gnom)
+///
+/// For a sphere, the gnomonic projection is a projection from the center of
+/// the sphere onto a plane tangent to the center point of the projection.
+/// This projects great circles to straight lines.  For an ellipsoid, it is
+/// the limit of a doubly azimuthal projection, a projection where the
+/// azimuths from 2 points are preserved, as the two points merge into the
+/// center point.  In this case, geodesics project to approximately straight
+/// lines (these are exactly straight if the geodesic includes the center
+/// point).  For details, see Section 8 of :cite:`Karney2013`.
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Within a quarter circumference of the center point
+///
+/// **Alias**: gnom
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=gnom +lat_0=90 +lon_0=-50 +R=6.4e6
+/// ```
+///
+/// ## Required Parameters
+/// - None, all parameters are optional for this projection.
+///
+/// ## Optional Parameters
+/// - `+lon_0`: Longitude of origin (central meridian).
+/// - `+lat_0`: Latitude of origin.
+/// - `+x_0`: False easting.
+/// - `+y_0`: False northing.
+/// - `+ellps`: Ellipsoid.
+/// - `+R`: Earth radius.
+///
+/// Reference:
+/// Wolfram Mathworld "Gnomonic Projection"
+/// http://mathworld.wolfram.com/GnomonicProjection.html
+/// Accessed: 12th November 2009
+///
+/// ![Gnomonic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/gnom.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct GnomonicProjection {
     proj: Rc<RefCell<Proj>>,

@@ -53,10 +53,43 @@ pub struct AeqdData {
 
 const TOL: f64 = 1e-14;
 
-// TODO: https://epsg.org/coord-operation-method_9831/Guam-Projection.html?sessionkey=hb58otav5z
+// TODO: https://epsg.org/coord-operation-method_9831/Guam-Projection.html
 // Guam is an EPSG code, so we should add the code and also set the guam flag in the constructor or JSON parsing?
 
-/// Azimuthal Equidistant Projection
+/// # Azimuthal Equidistant Projection
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: `aeqd`
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=aeqd
+/// ```
+///
+/// ## Required Parameters
+/// None
+///
+/// ## Optional Parameters
+/// - `guam`: Use Guam ellipsoidal formulas (accurate near Guam: $λ ≈ 144.5°$, $φ ≈ 13.5°$)
+/// - `lat0`: Latitude of origin
+/// - `lon0`: Longitude of origin
+/// - `x0`: False easting
+/// - `y0`: False northing
+/// - `ellps`: Ellipsoid name
+/// - `R`: Radius of sphere
+///
+/// ![Azimuthal Equidistant Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aeqd.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct AzimuthalEquidistantProjection {
     proj: Rc<RefCell<Proj>>,

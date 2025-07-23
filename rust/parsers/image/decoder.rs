@@ -59,9 +59,12 @@ pub fn image_decoder(
 
 /// Image decoder
 ///
-/// @param buffer - the input buffer
-/// @param options - user defined options
-/// @returns - the decoded buffer
+/// ## Parameters
+/// - `buffer`: the input buffer
+/// - `options`: user defined options
+///
+/// ## Returns
+/// the decoded buffer
 #[cfg(feature = "std")]
 pub fn image_decoder_buffer(buffer: &Buffer, options: Option<DecodeOptions>) -> Buffer {
     image_decoder(buffer, options).unwrap().data

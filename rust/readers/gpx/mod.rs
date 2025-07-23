@@ -42,6 +42,12 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 ///
 /// ## Usage
 ///
+/// The methods you have access to:
+/// - [`GPXReader::new`]: Create a new GPXReader
+/// - [`GPXReader::metadata`]: Get the metadata
+/// - [`GPXReader::iter`]: Iterate over the features
+/// - [`GPXReader::par_iter`]: Iterate over the features
+///
 /// ```rust
 /// use gistools::{
 ///     parsers::{FeatureReader, FileReader},

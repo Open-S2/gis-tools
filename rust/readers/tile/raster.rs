@@ -25,6 +25,32 @@ use std::{
 ///
 /// Supports reading either RGB(A) data, RGB(A) encoded elevation data, or build your own structure.
 ///
+/// Implements the [`FeatureReader`] and [`TileFetcher`] traits
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`RasterTileFetcher::new`]: Create a new RasterTileFetcher
+/// - [`RasterTileFetcher::get_metadata`]: Get the metadata of the tileset
+/// - [`RasterTileFetcher::has_tile_wm`]: Check if it is WM tile
+/// - [`RasterTileFetcher::has_tile_s2`]: Check if it is S2 tile
+/// - [`RasterTileFetcher::get_tile_wm`]: Get an WM tile
+/// - [`RasterTileFetcher::get_tile_s2`]: Get an S2 tile
+/// - [`RasterTileFetcher::iter`]: Iterate over the tiles
+///
+/// ```rust
+/// use gistools::{parsers::{RGBA, FeatureReader}, readers::{TileFetcher, RasterTileFetcher}};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/tile/fixtures/wm/satellite");
+///
+/// // read the RGBA data of each tile. Each pixel is stored as a VectorPoint
+/// let reader = RasterTileFetcher::<RGBA>::new(path, Some(1));
+/// let tiles: Vec<_> = reader.iter().collect();
+/// assert_eq!(tiles.len(), 4);
+/// ```
+///
 /// ## Links
 /// - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
 /// - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/

@@ -6,9 +6,6 @@ use crate::{
 };
 
 /// Returns a template generator for the given template number
-///
-/// @param template Template number
-/// @returns Template generator
 #[derive(Debug, Clone, PartialEq)]
 pub enum Grib2Template5 {
     /// Data Representation Template 5.0 - Grid point data - simple packing
@@ -26,6 +23,12 @@ pub enum Grib2Template5 {
 }
 impl Grib2Template5 {
     /// Creates a new instance of Grib2Template50
+    ///
+    /// ## Parameters
+    /// - `template`: Template number
+    ///
+    /// ## Returns
+    /// Template generator
     pub fn new<T: Reader>(section: &T, template: u8) -> Self {
         match template {
             0 => Grib2Template5::Grib2Template50(Grib2Template50::new(section)),
@@ -53,7 +56,8 @@ impl Grib2Template5 {
 /// ## Notes
 /// - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
 ///
-/// @returns - description of how to decode simple unpacked data
+/// ## Returns
+/// Description of how to decode simple unpacked data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template50 {
     /// Reference value (R) (IEEE 32-bit floating-point value)
@@ -95,10 +99,9 @@ impl Grib2Template50 {
 /// Reads and parses the metadata fields defined by GRIB2 Template 5.2.
 /// For most templates, details of the packing process are described in Regulation 92.9.4.
 ///
-/// @see {@link https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-2.shtml Template 5.2 documentation}
-/// @see {@link https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-2.shtml Data template 7.2 for complementary info}
-/// @param section - Binary reader providing access to the section data.
-/// @returns Object containing the fields of Template 5.2.
+/// See also:
+/// - [Template 5.2 documentation](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-2.shtml)
+/// - [Data template 7.2 for complementary info](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-2.shtml)
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template52 {
     /// Reference value (R) (IEEE 32-bit floating-point). Octets 12–15 in the GRIB2 documentation.
@@ -144,6 +147,12 @@ pub struct Grib2Template52 {
 }
 impl Grib2Template52 {
     /// Creates a new instance of Grib2Template52
+    ///
+    /// ## Parameters
+    /// - `section`: Binary reader providing access to the section data.
+    ///
+    /// ## Returns
+    /// Object containing the fields of Template 5.2.
     pub fn new<T: Reader>(section: &T) -> Self {
         // Binary and decimal scale factors can be negative.
         // They are stored with the sign bit in the high-order bit (bit 15).
@@ -200,9 +209,6 @@ impl Grib2Template52 {
 /// - [GRIB2 Template 5.3 documentation](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-3.shtml)
 /// - [Data template 7.3 and associated notes](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-3.shtml)
 /// - Spatial differencing (Regulation 92.9.4).
-///
-/// @param section - Binary reader providing access to the section data
-/// @returns Object containing the fields of Template 5.3
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template53 {
     /// Reference value (R) (IEEE 32-bit floating-point).
@@ -256,6 +262,12 @@ pub struct Grib2Template53 {
 }
 impl Grib2Template53 {
     /// Create a new instance of Grib2Template53
+    ///
+    /// ## Parameters
+    /// - `section`: Binary reader providing access to the section data
+    ///
+    /// ## Returns
+    /// Object containing the fields of Template 5.3
     pub fn new<T: Reader>(section: &T) -> Self {
         // Binary and decimal scale factors can be negative.
         // They are stored with the sign bit in the high-order bit (bit 15).
@@ -309,9 +321,6 @@ impl Grib2Template53 {
 /// Data Representation Template 5.40
 ///  
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-40.shtml)
-///
-/// @param section - The raw section data to parse
-/// @returns - Parsed Data Representation Information
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template540 {
     /// Reference value (R) (IEEE 32-bit floating-point value) */
@@ -332,6 +341,12 @@ pub struct Grib2Template540 {
 }
 impl Grib2Template540 {
     /// Create a new instance of Grib2Template540
+    ///
+    /// ## Parameters
+    /// - `section`: The raw section data to parse
+    ///
+    /// ## Returns
+    /// Parsed Data Representation Information
     pub fn new<T: Reader>(section: &T) -> Self {
         let original_type_code = section.uint8(Some(20));
         let compression_type = section.uint8(Some(21));
@@ -360,7 +375,8 @@ impl Grib2Template540 {
 ///   parameter represented.
 /// - Negative values of E or D shall be represented according to Regulation [92.1.5](https://codes.ecmwf.int/grib/format/grib2/regulations/).
 ///
-/// @returns - description of how to decode simple unpacked data
+/// ## Returns
+/// Description of how to decode simple unpacked data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template550 {
     /// Reference value (R) (IEEE 32-bit floating-point value)
@@ -409,7 +425,8 @@ impl Grib2Template550 {
 /// - The retrieval formula for a coefficient of wave number n is then: `Y = (R+X x 2e ) x 10-d x (n x(n+1))-p`
 ///   where X is the packed scaled value associated with the coefficient.
 ///
-/// @returns - description of how to decode simple unpacked data
+/// ## Returns
+/// Description of how to decode simple unpacked data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template551 {
     /// Reference value (R) (IEEE 32-bit floating-point value)

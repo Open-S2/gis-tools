@@ -69,7 +69,8 @@ impl<T: Reader + Debug> LAZState<T> {
 /// ## Description
 /// Reads LAS zipped data. Supports LAS 1.4 specification although missing some support.
 /// [See specification](https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf)
-/// Implements the {@link FeatureIterator} interface
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// Data is stored like so:
 /// ```txt
@@ -81,8 +82,26 @@ impl<T: Reader + Debug> LAZState<T> {
 /// ```
 ///
 /// ## Usage
-/// ```ts
-/// // TODO
+///
+/// The methods you have access to:
+/// - [`LAZReader::new`]: Create a new LAZReader
+/// - [`LAZReader::len`]: Get the number of points stored
+/// - [`LAZReader::is_empty`]: Check if the reader is empty
+/// - [`LAZReader::get_point`]: Reads a point in at index
+/// - [`LAZReader::get_feature`]: Reads a feature in at index
+/// - [`LAZReader::iter`]: Create an iterator to collect the features
+/// - [`LAZReader::par_iter`]: Create a parallel iterator to collect the features
+///
+/// ```rust
+/// use gistools::{parsers::{FeatureReader, FileReader}, readers::LAZReader};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/las/fixtures/simple.laz");
+///
+/// let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
+/// let features = las_reader.iter().collect::<Vec<_>>();
+/// assert_eq!(features.len(), 1_065);
 /// ```
 ///
 /// ## Links
@@ -236,7 +255,9 @@ impl<T: Reader + Debug> LAZReader<T> {
     }
 
     /// If we are at the end of the chunk, we need to set up the next chunk.
-    /// @returns - true if we are starting a new chunk, false otherwise
+    ///
+    /// ## Returns
+    /// true if we are starting a new chunk, false otherwise
     fn set_next_chunk(&self) -> bool {
         if self.state.borrow().chunk_count == self.state.borrow().chunk_size {
             if self.state.borrow().point_start != 0 {
@@ -275,8 +296,11 @@ impl<T: Reader + Debug> LAZReader<T> {
         self.state.borrow_mut().point_start = self.reader.borrow().tell() as i64;
     }
 
-    /// @param context - current context
-    /// @param point_data - where to store the decompressed data
+    /// Read the first chunk
+    ///
+    /// ## Parameters
+    /// - `context`: current context
+    /// - `point_data`: where to store the decompressed data
     fn first_chunk_read(&self, context: &mut u32, point: &mut LASPoint) {
         let state = &mut self.state.borrow_mut();
         let LAZHeader { items, .. } = &self.laz_header;
@@ -313,7 +337,12 @@ impl<T: Reader + Debug> LAZReader<T> {
         }
     }
 
-    /// @param item - the item to build readers for
+    /// Get the compression reader for a point type
+    ///
+    /// ## Parameters
+    /// - `item`: the item to build readers for
+    ///
+    /// ## Returns
     /// returns the compression reader for the item
     fn get_point_compressed_reader(&self, item: &LAZHeaderItem) -> ItemReaders<T> {
         let LAZHeaderItem { r#type, size, version } = *item;
@@ -365,8 +394,11 @@ impl<T: Reader + Debug> LAZReader<T> {
         panic!("Unsupported compressed point type: {:?} & version: {}", r#type, version);
     }
 
-    /// @param point_data - where to store the decompressed data
-    /// @param context - the context
+    /// A pointwise compression read
+    ///
+    /// ## Parameters
+    /// - `point_data`: where to store the decompressed data
+    /// - `context`: the context
     fn pointwise_compress_read(&self, point: &mut LASPoint, context: &mut u32) {
         for reader in self.state.borrow_mut().readers.iter_mut() {
             reader.read(point, context);

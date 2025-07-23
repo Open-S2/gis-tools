@@ -93,8 +93,11 @@ impl<T: Reader> ArithmeticDecoder<T> {
     pub fn new(reader: Rc<RefCell<T>>) -> Self {
         Self { reader, value: 0, length: AC_MAX_LENGTH }
     }
+
     /// Initialize the decoder
-    /// @param reallyInit - if set to true, initializes the value
+    ///
+    /// ## Parameters
+    /// - `reallyInit`: If set to true, initializes the value
     pub fn init(&mut self, really_init: bool) {
         self.length = AC_MAX_LENGTH;
         if really_init {
@@ -102,8 +105,13 @@ impl<T: Reader> ArithmeticDecoder<T> {
         }
     }
 
-    /// @param bits - The number of bits
-    /// @returns - The decoded bits
+    /// Read bits
+    ///
+    /// ## Parameters
+    /// - `bits`: The number of bits
+    ///
+    /// ## Returns
+    /// The decoded bits
     pub fn read_bits(&mut self, mut bits: u32) -> u32 {
         assert!(bits != 0 && (bits <= 32));
 
@@ -128,8 +136,13 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /// @param m - The arithmetic bit model
-    /// @returns - The decoded bit
+    /// Decode a bit
+    ///
+    /// ## Parameters
+    /// - `m`: The arithmetic bit model
+    ///
+    /// ## Returns
+    /// The decoded bit
     pub fn decode_bit(&mut self, m: &mut ArithmeticBitModel) -> u32 {
         let x = m.bit0_prob * (self.length >> BM_LENGTH_SHIFT); // product l x p0
         let sym = if self.value >= x { 1 } else { 0 }; // decision
@@ -153,8 +166,13 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym // return data bit value
     }
 
-    /// @param m - The arithmetic model
-    /// @returns - The decoded symbol
+    /// Decode the symbol
+    ///
+    /// ## Parameters
+    /// - `m`: The arithmetic model
+    ///
+    /// ## Returns
+    /// The decoded symbol
     pub fn decode_symbol(&mut self, m: &mut ArithmeticModel) -> u32 {
         let mut sym;
         let mut x;
@@ -223,7 +241,8 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /// @returns - The decoded bit
+    /// ## Returns
+    /// The decoded bit
     pub fn read_bit(&mut self) -> u32 {
         self.length >>= 1;
         let sym = self.value / self.length; // decode symbol, change length
@@ -239,7 +258,8 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym
     }
 
-    /// @returns - The decoded byte
+    /// ## Returns
+    /// The decoded byte
     pub fn read_byte(&mut self) -> u8 {
         self.length >>= 8;
         let sym = self.value / self.length; // decode symbol, change length
@@ -255,7 +275,8 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym as u8
     }
 
-    /// @returns - The decoded short
+    /// ## Returns
+    /// The decoded short
     pub fn read_short(&mut self) -> u16 {
         self.length >>= 16;
         let sym = self.value / self.length; // decode symbol, change length
@@ -271,28 +292,32 @@ impl<T: Reader> ArithmeticDecoder<T> {
         sym as u16
     }
 
-    /// @returns - The decoded int
+    /// ## Returns
+    /// The decoded int
     pub fn read_int(&mut self) -> u32 {
         let lower_int = self.read_short() as u32;
         let upper_int = self.read_short() as u32;
         (upper_int << 16) | lower_int
     }
 
-    /// @returns - The decoded float
+    /// ## Returns
+    /// The decoded float
     pub fn read_float(&mut self) -> f32 {
         // danger in float reinterpretation
         let u32i32f32 = U32I32F32::new(self.read_int(), ValueType32::U32);
         u32i32f32.f32()
     }
 
-    /// @returns - The decoded int64
+    /// ## Returns
+    /// The decoded int64
     pub fn read_int64(&mut self) -> u64 {
         let lower_int = self.read_int() as u64;
         let upper_int = self.read_int() as u64;
         (upper_int << 32) | lower_int
     }
 
-    /// @returns - The decoded double
+    /// ## Returns
+    /// The decoded double
     pub fn read_double(&mut self) -> f64 {
         let u64i64f64 = U64I64F64::new(self.read_int64(), ValueType64::U64);
         u64i64f64.f64()

@@ -37,15 +37,70 @@ const TOL: f64 = 1e-7;
 const EPS: f64 = 1e-10;
 
 /// Hotine Oblique Mercator (variant A) Projection
+///
 /// EPSG Codes Used by Hotine Oblique Mercator (variant A): 8811, 8812, 8813, 8814, 8815, 8806, 8807
+///
+/// See [`ObliqueMercatorProjection`] for full documentation.
 pub type HotineObliqueMercatorVariantAProjection =
     ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_A>;
 /// Hotine Oblique Mercator (variant B) Projection
+///
 /// EPSG Codes Used by Hotine Oblique Mercator (variant B): 8811, 8812, 8813, 8814, 8815, 8816, 8817
+///
+/// See [`ObliqueMercatorProjection`] for full documentation.
 pub type HotineObliqueMercatorVariantBProjection =
     ObliqueMercatorProjection<HOTINE_OBLIQUE_MERCATOR_VARIANT_B>;
 
-/// Oblique Mercator Projection
+/// # Oblique Mercator
+///
+/// **Classification**: Conformal cylindrical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global, but reasonably accurate only within 15 degrees of the oblique central line
+///
+/// **Alias**: omerc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=omerc +lat_1=45 +lat_2=55
+/// ```
+///
+/// ## Required Parameters
+/// - `+lat_1=<value>`: Latitude of the first point on the central line.
+/// - `+lat_2=<value>`: Latitude of the second point on the central line.
+///
+/// ## Optional Parameters
+/// - `+alpha=<value>`: Azimuth of the centerline clockwise from north at the center point of the line.
+/// - `+gamma=<value>`: Azimuth of the centerline clockwise from north of the rectified bearing of the centerline.
+/// - `+lonc=<value>`: Longitude of the projection center (overrides `+lon_0`).
+/// - `+lat_0=<value>`: Latitude of the projection center.
+/// - `+no_rot`: Disables rectification (historical reason).
+/// - `+no_off`: Disables origin offset to the center of projection.
+/// - `+k_0=<value>`: Scale factor at the central line.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ## Usage Example
+/// ```bash
+/// echo 12 55 | proj +proj=omerc +alpha=90 +ellps=GRS80
+/// echo 12 55 | proj +proj=omerc +alpha=0 +R=6400000
+/// echo 12 55 | proj +proj=omerc +lon_1=0 +lat_1=-1 +lon_2=0 +lat_2=0 +R=6400000
+/// echo 12 55 | proj +proj=tmerc +R=6400000
+/// echo 12 55 | proj +proj=omerc +lon_1=-1 +lat_1=1 +lon_2=0 +lat_2=0 +ellps=GRS80
+/// echo 10.536498003 56.229892362 | cs2cs +proj=longlat +ellps=GRS80 +to +proj=omerc +axis=wnu +lonc=9.46 +lat_0=56.13333333 +x_0=-266906.229 +y_0=189617.957 +k=0.9999537 +alpha=-0.76324 +gamma=0 +ellps=GRS80
+/// ```
+///
+/// ## Caveats
+/// The two-point method with no rectification is probably only marginally useful.
+///
+/// ![Oblique Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/omerc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObliqueMercatorProjection<const C: i64> {
     proj: Rc<RefCell<Proj>>,

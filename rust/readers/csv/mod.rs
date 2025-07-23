@@ -122,8 +122,14 @@ pub struct CSVReader<T: Reader, P: MValueCompatible + DeserializeOwned = MValue>
     _phantom: PhantomData<VectorFeature<(), P, ()>>,
 }
 impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
-    /// @param input - the input data to parse from
-    /// @param options - user defined options on how to parse the CSV file
+    /// Create a new CSVReader
+    ///
+    /// ## Parameters
+    /// - `input`: the input data to parse from
+    /// - `options`: user defined options on how to parse the CSV file
+    ///
+    /// ## Returns
+    /// A new [`CSVReader`]
     pub fn new(reader: T, options: Option<CSVReaderOptions>) -> CSVReader<T, P> {
         let options = options.unwrap_or_default();
         CSVReader {

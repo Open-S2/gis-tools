@@ -86,7 +86,37 @@ const EPS: f64 = 1e-10;
 // Not sure at all of the appropriate number for MAX_ITER...
 const MAX_ITER: usize = 100;
 
-/// Robinson Projection
+/// # Robinson
+///
+/// **Classification**: Pseudocylindrical
+///
+/// **Available forms**: Forward and inverse, spherical projection
+///
+/// **Defined area**: Global
+///
+/// **Alias**: robin
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=robin
+/// ```
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+R=<value>`: Radius of the projection sphere.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ![Robinson](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/robin.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct RobinsonProjection {
     proj: Rc<RefCell<Proj>>,

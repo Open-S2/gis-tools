@@ -308,6 +308,12 @@ impl ProtoRead for Relation {
 
 /// Given a group of Members whose type is "way", build a multilinestring or multipolygon Feature.
 /// If the ways include an 'outer' or 'inner', then we know its an area, otherwise its a line.
+///
+/// ## Parameters
+/// - `ways`: a vector of ways that make up the relation
+///
+/// ## Returns
+/// [`RelationGeometry`] that is either Lines or Area if applicable
 fn build_geometry(ways: &mut [WayMember]) -> Option<RelationGeometry> {
     // prep variables
     let mut polygons: VectorMultiPolygon<MValue> = vec![];
@@ -369,7 +375,9 @@ fn build_geometry(ways: &mut [WayMember]) -> Option<RelationGeometry> {
 
 /// osm throws relation members out of order, so we need to not only sort them
 /// but also check if the first and last points of each way follow the same direction.
-/// @param members - the ways to be sorted
+///
+/// ## Parameters
+/// - `members`: the ways to be sorted
 fn sort_members(members: &mut [WayMember]) {
     let len = members.len();
     if len < 3 {

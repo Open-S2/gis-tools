@@ -38,7 +38,52 @@ pub struct EqEarth {
     apa: Vec<f64>,
 }
 
-/// Equal Earth Projection
+/// # Equal Earth
+///
+/// **Classification**: Pseudo cylindrical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal projection
+///
+/// **Defined area**: Global
+///
+/// **Alias**: eqearth
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=eqearth
+/// ```
+///
+/// ## Usage
+///
+/// The Equal Earth projection is designed for world maps and retains the relative size of areas. It was inspired by the Robinson projection.
+///
+/// Example:
+/// ```bash
+/// $ echo 122 47 | proj +proj=eqearth +R=1
+/// 1.55    0.89
+/// ```
+///
+/// ## Parameters
+///
+/// **Note**: All parameters for this projection are optional.
+///
+/// ### Optional
+/// - `+lon_0` (Central meridian)
+/// - `+ellps` (Ellipsoid name)
+/// - `+R` (Radius of the sphere)
+/// - `+x_0` (False easting)
+/// - `+y_0` (False northing)
+///
+/// ## Further Reading
+/// - [The Equal Earth map projection](https://www.researchgate.net/profile/Bojan_Savric2/publication/326879978_The_Equal_Earth_map_projection/links/5b69d0ae299bf14c6d951b77/The-Equal-Earth-map-projection.pdf) by Bojan Savric, Tom Patterson & Bernhard Jenny (2018)
+///
+/// ![Equal Earth](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/eqearth.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct EqualEarthProjection {
     proj: Rc<RefCell<Proj>>,

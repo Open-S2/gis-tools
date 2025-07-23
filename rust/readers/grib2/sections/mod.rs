@@ -56,8 +56,11 @@ pub struct Grib2Sections {
 
 /// Split the bytes of the GRIB file into individual GRIB chunks that represent sections
 ///
-/// @param grib_chunk Buffer containing individual GRIB definition
-/// @returns Array of Section Buffers where the index of the item corresponds to the section number. If a section is missing, it will be represented as null
+/// ## Parameters
+/// - `grib_chunk`: Buffer containing individual GRIB definition
+///
+/// ## Returns
+/// Array of Section Buffers where the index of the item corresponds to the section number. If a section is missing, it will be represented as null
 pub fn split_section_chunks(grib_chunk: BufferReader) -> Grib2Sections {
     let mut sections = Grib2Sections::default();
 
@@ -81,8 +84,9 @@ pub fn split_section_chunks(grib_chunk: BufferReader) -> Grib2Sections {
 
 /// Parse the given section
 ///
-/// @param reader - The section to parse
-/// @param sections - The result to write to
+/// ## Parameters
+/// - `reader`: The section to parse
+/// - `sections`: The result to write to
 fn parse_grib2_section(reader: &BufferReader, sections: &mut Grib2Sections) {
     let section_number = get_section_number(reader);
 
@@ -103,8 +107,12 @@ fn parse_grib2_section(reader: &BufferReader, sections: &mut Grib2Sections) {
 }
 
 /// Get the section number
-/// @param section Buffer containing GRIB Section data
-/// @returns Section number of the input GRIB Section data
+///
+/// ## Parameters
+/// - `section`: Buffer containing GRIB Section data
+///
+/// ## Returns
+/// Section number of the input GRIB Section data
 pub fn get_section_number(section: &BufferReader) -> u8 {
     let first4_byte_string = section.parse_string(Some(0), Some(4));
 

@@ -8,10 +8,13 @@ const LZW_MAX_BYTELENGTH: usize = 12;
 
 /// Get a byte from an array
 ///
-/// @param array - The array to read the byte from
-/// @param position - The position to read the byte from
-/// @param length - The length of the byte
-/// @returns - The byte
+/// ## Parameters
+/// - `array`: The array to read the byte from
+/// - `position`: The position to read the byte from
+/// - `length`: The length of the byte
+///
+/// ## Returns
+/// The byte
 fn lzw_get_byte(array: &[u8], position: usize, length: usize) -> usize {
     let d = position % 8;
     let a = position.div(8);
@@ -44,9 +47,12 @@ fn lzw_get_byte(array: &[u8], position: usize, length: usize) -> usize {
 
 /// Append an array in reverse
 ///
-/// @param dest - The array to append to
-/// @param source - The array to append
-/// @returns - The dest array
+/// ## Parameters
+/// - `dest`: The array to append to
+/// - `source`: The array to append
+///
+/// ## Returns
+/// The dest array
 fn append_reversed(dest: &mut Vec<u8>, source: &[u8]) {
     for i in (0..source.len()).rev() {
         dest.push(source[i]);
@@ -119,8 +125,11 @@ impl LZWDecoder {
 
 /// Decompress the LZW data
 ///
-/// @param input - The LZW data
-/// @returns - The decompressed data
+/// ## Parameters
+/// - `input`: The LZW data
+///
+/// ## Returns
+/// The decompressed data
 pub fn decompress_lzw(input: &[u8]) -> Vec<u8> {
     let mut entry = LZWDecoder::new();
 

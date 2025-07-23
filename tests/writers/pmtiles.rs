@@ -8,7 +8,7 @@ mod tests {
         parsers::{BufferReader, BufferWriter, FileReader, FileWriter},
         readers::{PMTileType, PMTilesReader, S2PMHeader},
         util::CompressionFormat,
-        writers::PMTilesWriter,
+        writers::{PMTilesWriter, TileWriter},
     };
     use s2_tilejson::Metadata;
     use s2json::Face;
@@ -26,9 +26,9 @@ mod tests {
         // setup data
         let tmp_str = "hello world";
         // write data in tile
-        pmtiles_writer.write_tile_xyz(0, 0, 0, tmp_str.as_bytes());
+        pmtiles_writer.write_tile_wm(0, 0, 0, tmp_str.as_bytes().to_vec());
         // finish
-        pmtiles_writer.commit(&Metadata::default());
+        pmtiles_writer.commit(Metadata::default(), None);
 
         let mut reader = PMTilesReader::new(FileReader::from(file_path), None);
 
@@ -71,10 +71,10 @@ mod tests {
         // setup data
         let tmp_str = "hello world";
         // write data in tile
-        pmtiles_writer.write_tile_s2(Face::Face0, 0, 0, 0, tmp_str.as_bytes());
-        pmtiles_writer.write_tile_s2(Face::Face3, 2, 1, 1, tmp_str.as_bytes());
+        pmtiles_writer.write_tile_s2(Face::Face0, 0, 0, 0, tmp_str.as_bytes().to_vec());
+        pmtiles_writer.write_tile_s2(Face::Face3, 2, 1, 1, tmp_str.as_bytes().to_vec());
         // finish
-        pmtiles_writer.commit(&Metadata::default());
+        pmtiles_writer.commit(Metadata::default(), None);
 
         let pmtiles_data = pmtiles_writer.take();
 
@@ -153,12 +153,12 @@ mod tests {
             for x in 0..(1 << zoom) {
                 for y in 0..(1 << zoom) {
                     let tmp_str = format!("{zoom}-{x}-{y}");
-                    pmtiles_writer.write_tile_xyz(zoom, x, y, tmp_str.as_bytes());
+                    pmtiles_writer.write_tile_wm(zoom, x, y, tmp_str.as_bytes().to_vec());
                 }
             }
         }
         // finish
-        pmtiles_writer.commit(&Metadata::default());
+        pmtiles_writer.commit(Metadata::default(), None);
 
         let pmtiles_data = pmtiles_writer.take();
 

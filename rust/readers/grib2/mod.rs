@@ -254,17 +254,21 @@ pub struct Grib2SectionLocations {
 ///
 /// An example of what variable data means can be found [here](https://www.nco.ncep.noaa.gov/pmb/products/wave/gfswave.t12z.arctic.9km.f003.grib2.shtml).
 ///
-/// @param source - The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
-/// @param product - which product to fetch. Use `Grib2AtmosGFSProduct` or `Grib2WaveGFSProduct`
-/// @param domain - The domain of the data, `atmos` or `wave`
-/// @param year - The year to fetch given a 4 digit year
-/// @param month - The month to fetch given a 2 digit month 01 is January and 12 is December
-/// @param day - The day to fetch given a 2 digit day, e.g. '01' or '31'
-/// @param hour - The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
-/// @param forecast - The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
-/// @param filters - The filters to apply by filtering lines in the .idx file
+/// ## Parameters
 ///
-/// @returns - A GRIB2Reader of the specific sections
+/// - `source`: The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
+/// - `product`: which product to fetch. Use `Grib2AtmosGFSProduct` or `Grib2WaveGFSProduct`
+/// - `domain`: The domain of the data, `atmos` or `wave`
+/// - `year`: The year to fetch given a 4 digit year
+/// - `month`: The month to fetch given a 2 digit month 01 is January and 12 is December
+/// - `day`: The day to fetch given a 2 digit day, e.g. '01' or '31'
+/// - `hour`: The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
+/// - `forecast`: The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
+/// - `filters`: The filters to apply by filtering lines in the .idx file
+///
+/// ## Returns
+///
+/// A [`GRIB2Reader`] of the specific sections
 #[allow(clippy::too_many_arguments)]
 pub fn fetch_gfs_data<T: Reader, P: Into<String>>(
     source: Grib2GFSSource,
@@ -304,15 +308,20 @@ fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<BufferRea
 
 /// Get the link to download GFS Atmos data
 ///
-/// @param source - The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
-/// @param product - which product to fetch
-/// @param domain - The domain of the data, either 'atmos' for atmospheric data or 'wave' for ocean wave data
-/// @param year - The year to fetch given a 4 digit year
-/// @param month - The month to fetch given a 2 digit month 01 is January and 12 is December
-/// @param day - The day to fetch given a 2 digit day, e.g. '01' or '31'
-/// @param hour - The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
-/// @param forecast - The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
-/// @returns - A GRIB2Reader of the specific sections
+/// ## Parameters
+///
+/// - `source`: The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
+/// - `product`: which product to fetch
+/// - `domain`: The domain of the data, either 'atmos' for atmospheric data or 'wave' for ocean wave data
+/// - `year`: The year to fetch given a 4 digit year
+/// - `month`: The month to fetch given a 2 digit month 01 is January and 12 is December
+/// - `day`: The day to fetch given a 2 digit day, e.g. '01' or '31'
+/// - `hour`: The forecast hour with 2 digits often in increments of 6 up to 18, e.g. '00' or '12'
+/// - `forecast`: The forecast hour with 3 digits often in increments of 3 up to 384, e.g. '000' or '003'
+///
+/// ## Returns
+///
+/// A [`String`] of the specific sections
 #[allow(clippy::too_many_arguments)]
 pub fn get_gfs_link<P: Into<String>>(
     source: Grib2GFSSource,
@@ -339,10 +348,14 @@ pub fn get_gfs_link<P: Into<String>>(
 }
 
 /// Parse the .idx file for GRIB2 section details using a URL
-/// @param url - The URL of the .idx file
-/// @param filters - The filters to apply
-/// @param offset_position - The position of the offset in the ":" sequence
-/// @returns - An array of Grib2SectionLocations
+///
+/// ## Parameters
+/// - `url`: The URL of the .idx file
+/// - `filters`: The filters to apply
+/// - `offset_position`: The position of the offset in the ":" sequence
+///
+/// ## Returns
+/// An array of Grib2SectionLocations
 pub fn parsed_idx_from_url(
     url: String,
     filters: Vec<String>,
@@ -354,10 +367,13 @@ pub fn parsed_idx_from_url(
 
 /// Parse the .idx file for GRIB2 section details
 ///
-/// @param data - The contents of the .idx file
-/// @param filters - The filters to apply
-/// @param offset_position - The position of the offset in the ":" sequence
-/// @returns - An array of Grib2SectionLocations
+/// ## Parameters
+/// - `data`: The contents of the .idx file
+/// - `filters`: The filters to apply
+/// - `offset_position`: The position of the offset in the ":" sequence
+///
+/// ## Returns
+/// An array of Grib2SectionLocations
 pub fn parse_idx(
     data: String,
     filters: Vec<String>,
@@ -426,26 +442,61 @@ impl<T: Reader> From<Vec<BufferReader>> for GRIB2ReaderInput<T> {
 /// ## Description
 ///
 /// This class reads a GRIB2 file and returns a list of GRIB2 products.
-/// Implements the {@link FeatureIterator} trait.
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// ## Usage
 ///
-/// ### The recommended way to parse grib files is to filter out what you want:
-/// ```ts
-/// // pull .idx file FIRST and filter the ones you want
-/// const filters = [':DZDT:0.01 mb:', ':TMP:0.4 mb:', ':ABSV:0.4 mb:anl:'];
-/// const idxs = await parsed_idx_from_url(`{link}.idx`, filters);
-/// // now bulid the reader
-/// const gribReader =  await GRIB2Reader.from_idx(link, idxs);
+/// The methods you have access to:
+/// - [`GRIB2Reader::new`]: Create a new GRIB2Reader
+/// - [`GRIB2Reader::from_idx`]: Create a GRIB2Reader with filtered .idx file data (see [`parse_idx`] and [`parsed_idx_from_url`])
+/// - [`GRIB2Reader::get_data`]: Get the Vector MultiPoint data
+/// - [`GRIB2Reader::get_feature`]: Get the VectorFeature data
 ///
-/// for await (const feature of gribReader) {
-///   console.log(feature);
-/// }
+/// Associated methods that are useful:
+/// - [`fetch_gfs_data`]: Fetch ATMOS or WAVE GFS data.
+/// - [`parsed_idx_from_url`]: Given an input URL pointing to an IDX file, parse the sections
+/// - [`parse_idx`]: Given an input string of an IDX file, parse the sections
+///
+/// ### The recommended way to parse grib files is to filter out what you want:
+/// ```rust
+/// use gistools::{parsers::{BufferReader, FeatureReader}, readers::{parse_idx, GRIB2Reader}};
+/// use std::{fs, path::PathBuf};
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/grib2/fixtures/ref_sec0.gdas.t12z.pgrb2.1p00.anl.75r.grib2.txt");
+///
+/// // parse the .idx file and apply a filter that we only need 3 sections
+/// let idx_data = fs::read_to_string(path).unwrap();
+/// let sections = parse_idx(
+///     idx_data,
+///     vec![":DZDT:0.01 mb:".into(), ":TMP:0.4 mb:".into(), ":ABSV:0.4 mb:anl:".into()],
+///     None,
+/// );
+///
+/// // grab the grib2 file itself building with the filtered IDX sections
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/grib2/fixtures/ref_sec0.gdas.t12z.pgrb2.1p00.anl.75r.grib2");
+/// let bytes = std::fs::read(path.clone()).unwrap();
+/// let grib2_reader = GRIB2Reader::from_idx(&BufferReader::from(bytes), sections);
+///
+/// let features: Vec<_> = grib2_reader.iter().collect();
+/// assert_eq!(features.len(), 1);
 /// ```
 ///
 /// ### Parsing the entire grib file:
-/// ```ts
-/// const gribReader = new GRIB2Reader(link);
+/// ```rust
+/// use gistools::{parsers::{BufferReader, FeatureReader}, readers::GRIB2Reader};
+/// use std::{fs, path::PathBuf};
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/grib2/fixtures/ref_simple_packing.grib2");
+///
+/// let bytes = fs::read(path.clone()).unwrap();
+/// let grib2_reader = GRIB2Reader::new(BufferReader::from(bytes).into(), vec![]);
+///
+/// let features: Vec<_> = grib2_reader.iter().collect();
+/// assert_eq!(features.len(), 1);
 /// ```
 ///
 /// ## Links
@@ -461,8 +512,12 @@ pub struct GRIB2Reader {
 impl GRIB2Reader {
     /// Create a GRIB2Reader
     ///
-    /// @param readers - Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file
-    /// @param idxs - The list of section locations we will be parsing
+    /// ## Parameters
+    /// - `readers`: Reader(s) for entire GRIB file. If array, its grib chunks, otherwise it will be the entire file
+    /// - `idxs`: The list of section locations we will be parsing
+    ///
+    /// ## Returns
+    /// A [`GRIB2Reader`]
     pub fn new<T: Reader>(readers: GRIB2ReaderInput<T>, idxs: Vec<Grib2SectionLocations>) -> Self {
         let this = GRIB2Reader { packets: vec![].into(), idxs };
         let grib_chunks = match readers {
@@ -478,9 +533,12 @@ impl GRIB2Reader {
 
     /// Create a GRIB2Reader from a .idx file
     ///
-    /// @param source - Either the http path to the .idx file or the entire GRIB file
-    /// @param idxs - The parsed .idx file with the locations of each section
-    /// @returns A GRIB2Reader of the specific sections
+    /// ## Parameters
+    /// - `source`: Either the http path to the .idx file or the entire GRIB file
+    /// - `idxs`: The parsed .idx file with the locations of each section
+    ///
+    /// ## Returns
+    /// A GRIB2Reader of the specific sections
     pub fn from_idx<T: Reader>(source: &T, idxs: Vec<Grib2SectionLocations>) -> GRIB2Reader {
         let mut readers: Vec<BufferReader> = vec![];
         for idx in &idxs {
@@ -575,8 +633,11 @@ impl FeatureReader<Vec<Grib2ProductDefinition>, Properties, MValue> for GRIB2Rea
 
 /// Split the bytes of the GRIB file into individual GRIB chunks that represent sections
 ///
-/// @param reader - Reader for entire GRIB file
-/// @returns Array of GRIB Chunk Buffers containing individual GRIB definitions in file
+/// ## Parameters
+/// - `reader`: Reader for entire GRIB file
+///
+/// ## Returns
+/// Array of GRIB Chunk Buffers containing individual GRIB definitions in file
 fn split_grib_chunks<T: Reader>(reader: &T) -> Vec<BufferReader> {
     if reader.len() == 0 {
         return vec![];

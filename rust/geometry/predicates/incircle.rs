@@ -4,9 +4,7 @@
 // const iccerrboundB = 4.440892098500632e-16; // (4 + 48 * epsilon) * epsilon;
 // const iccerrboundC = 5.423418723394464e-31; // (44 + 576 * epsilon) * epsilon * epsilon;
 
-// /**
-//  * Constants for incircle
-//  */
+// /** Constants for incircle */
 // export interface InCircleConstants {
 //   bc: Float64Array;
 //   ca: Float64Array;
@@ -1081,15 +1079,20 @@
 //   return incircleadapt(ax, ay, bx, by, cx, cy, dx, dy, permanent);
 // }
 
-/// @param ax - x coordinate of first point
-/// @param ay - y coordinate of first point
-/// @param bx - x coordinate of second point
-/// @param by - y coordinate of second point
-/// @param cx - x coordinate of third point
-/// @param cy - y coordinate of third point
-/// @param dx - x coordinate of comparison point
-/// @param dy - y coordinate of comparison point
-/// @returns - point d is in circle if the return value is less than 0, otherwise not in circle
+/// An in-circle test fast test, lacks the same accuract as incircle
+///
+/// ## Parameters
+/// - `ax`: x coordinate of first point
+/// - `ay`: y coordinate of first point
+/// - `bx`: x coordinate of second point
+/// - `by`: y coordinate of second point
+/// - `cx`: x coordinate of third point
+/// - `cy`: y coordinate of third point
+/// - `dx`: x coordinate of comparison point
+/// - `dy`: y coordinate of comparison point
+///
+/// ## Returns
+/// point d is in circle if the return value is less than 0, otherwise not in circle
 #[allow(clippy::too_many_arguments)]
 pub fn incirclefast(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, dy: f64) -> f64 {
     let adx = ax - dx;

@@ -42,7 +42,9 @@ impl StreamingMedian5 {
     }
 
     /// add a new value
-    /// @param v - the new value to add
+    ///
+    /// ## Parameters
+    /// - `v`: the new value to add
     pub fn add(&mut self, v: i32) {
         let Self { high, values } = self;
         if *high {
@@ -92,7 +94,8 @@ impl StreamingMedian5 {
         }
     }
 
-    /// @returns the median value
+    /// ## Returns
+    /// The median value
     pub fn get(&self) -> i32 {
         self.values[2]
     }

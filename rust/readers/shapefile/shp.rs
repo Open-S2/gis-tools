@@ -37,7 +37,50 @@ pub struct SHPRow {
 /// # The Shapefile Reader
 ///
 /// ## Description
-/// Reads data from a shapefile implementing the {@link FeatureIterator} interface
+/// Reads data from a shapefile
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+///
+/// NOTE: It's recommended to not parse the shapefile directly but instead:
+/// - [`gistools::readers::shapefile_from_url`]
+/// - [`gistools::readers::file::shapefile_from_path`]
+///
+/// This ensures the other files paired with the shapefile are loaded to properly handle the
+/// projection and properties data.
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`ShapeFileReader::new`]: Create a new ShapeFileReader
+/// - [`ShapeFileReader::get_header`]: Get the file header data
+/// - [`ShapeFileReader::iter`]: Iterate over the features in the shapefile
+///
+/// ### From Path (Recommended as it will ensure to pull in associated files):
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::{ShapeFileReader, file::shapefile_from_path}};
+/// use s2json::MValue;
+/// use std::{collections::BTreeMap, path::PathBuf};
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/shapefile/fixtures/utf.shp");
+/// let path_str = path.to_str().unwrap();
+///
+/// #[derive(Default, Debug, Clone, MValue, PartialEq)]
+/// struct Props {
+///     field: String,
+/// }
+///
+/// let shp: ShapeFileReader<FileReader, Props> =
+///     shapefile_from_path(path_str, BTreeMap::from([("a".into(), "b".into())]));
+///
+/// let features: Vec<_> = shp.iter().collect();
+/// assert_eq!(features.len(), 2);
+/// ```
+///
+/// ## Links
+/// - https://en.wikipedia.org/wiki/Shapefile
 #[derive(Debug, Clone)]
 pub struct ShapeFileReader<T: Reader, P: MValueCompatible = Properties> {
     /// The input reader

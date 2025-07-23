@@ -42,9 +42,10 @@ pub fn decode_row_acc_u32(row: &mut [u32], stride: usize) {
 
 /// Decode a floating point block using the specified predictor
 ///
-/// @param row - the row to decode
-/// @param stride - the number of bytes per row
-/// @param bytes_per_sample - the number of bytes per sample
+/// ## Parameters
+/// - `row`: the row to decode
+/// - `stride`: the number of bytes per row
+/// - `bytes_per_sample`: the number of bytes per sample
 pub fn decode_row_floating_point<T>(row: &mut [T], stride: usize, bytes_per_sample: usize)
 where
     T: AddAssign + Copy,
@@ -73,13 +74,16 @@ where
 
 /// Apply the specified predictor to a block
 ///
-/// @param block - the block to modify
-/// @param predictor - the predictor
-/// @param width - the block width
-/// @param height - the block height
-/// @param bits_per_sample - the number of bits per sample
-/// @param planar_configuration - the planar configuration
-/// @returns - the modified block
+/// ## Parameters
+/// - `block`: the block to modify
+/// - `predictor`: the predictor
+/// - `width`: the block width
+/// - `height`: the block height
+/// - `bits_per_sample`: the number of bits per sample
+/// - `planar_configuration`: the planar configuration
+///
+/// ## Returns
+/// The modified block
 pub fn apply_predictor(
     mut block: Vec<u8>,
     predictor: i16,

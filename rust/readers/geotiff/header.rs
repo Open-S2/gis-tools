@@ -132,7 +132,8 @@ impl GeoTIFFHeaderReader {
     /// this function must be called with caution (e.g only using the IFD offsets from
     /// the headers or other IFDs).
     ///
-    /// @param first_offset - the offset to begin parsing the IFDs (Image File Directory) at.
+    /// ## Parameters
+    /// - `first_offset`: the offset to begin parsing the IFDs (Image File Directory) at.
     fn get_image_metadata<T: Reader>(&mut self, first_offset: u64, reader: &T) {
         let GeoTIFFHeaderReader { big_tiff, little_endian, .. } = *self;
         let entry_size = if big_tiff { 20 } else { 12 };
@@ -197,8 +198,12 @@ impl GeoTIFFHeaderReader {
     }
 
     /// Reads the value of the tag at the given offset (16 bits if not big_tIFF)
-    /// @param offset - the offset to read the tag from
-    /// @returns - the value of the tag
+    ///
+    /// ## Parameters
+    /// - `offset`: the offset to read the tag from
+    ///
+    /// ## Returns
+    /// The value of the tag
     fn read_tag<T: Reader>(&mut self, offset: u64, reader: &T) -> u64 {
         let Self { big_tiff, little_endian, .. } = self;
         if *big_tiff {
@@ -209,8 +214,12 @@ impl GeoTIFFHeaderReader {
     }
 
     /// Reads the value of the tag at the given offset (32 bits if not big_tIFF)
-    /// @param offset - the offset to read the tag from
-    /// @returns - the value of the tag
+    ///
+    /// ## Parameters
+    /// - `offset`: the offset to read the tag from
+    ///
+    /// ## Returns
+    /// The value of the tag
     fn read_offset<T: Reader>(&mut self, offset: u64, reader: &T) -> u64 {
         let Self { big_tiff, little_endian, .. } = self;
         if *big_tiff {
@@ -221,8 +230,12 @@ impl GeoTIFFHeaderReader {
     }
 
     /// Get the pixel scale from the GeoKeyDirectory
-    /// @param offset - the offset to begin parsing the IFDs (GeoKeyDirectory) at.
-    /// @returns the parsed GeoKeyDirectory
+    ///
+    /// ## Parameters
+    /// - `offset`: the offset to begin parsing the IFDs (GeoKeyDirectory) at.
+    ///
+    /// ## Returns
+    /// The parsed GeoKeyDirectory
     fn get_pixel_scale<T: Reader>(&mut self, offset: u64, reader: &T) -> GeoPixelScale {
         let Self { little_endian, big_tiff, .. } = *self;
         let field_type = reader.uint16(Some(offset + 2), Some(little_endian));
@@ -242,10 +255,16 @@ impl GeoTIFFHeaderReader {
         }
     }
 
-    /// https://docs.ogc.org/is/19-008r4/19-008r4.html#_geokey_directory_test
-    /// @param offset - the offset to begin parsing the IFDs (GeoKeyDirectory) at.
-    /// @param file_dir - the parsed ImageFileDirectory thus far
-    /// @returns the parsed GeoKeyDirectory
+    /// Get the GeoKeyDirectory
+    ///
+    /// [Learn More...](https://docs.ogc.org/is/19-008r4/19-008r4.html#_geokey_directory_test)
+    ///
+    /// ## Parameters
+    /// - `offset`: the offset to begin parsing the IFDs (GeoKeyDirectory) at.
+    /// - `file_dir`: the parsed ImageFileDirectory thus far
+    ///
+    /// ## Returns
+    /// The parsed GeoKeyDirectory
     fn get_geo_key_directory<T: Reader>(
         &mut self,
         ifd: &mut ImageDirectory,
@@ -269,8 +288,13 @@ impl GeoTIFFHeaderReader {
         ifd.geo_key_directory = geo_key_directory;
     }
 
-    /// @param offset - the offset to begin parsing the IFDs (TiepointTag) at.
-    /// @returns the parsed Tiepoint
+    /// Get the tiepoint
+    ///
+    /// ## Parameters
+    /// - `offset`: the offset to begin parsing the IFDs (TiepointTag) at.
+    ///
+    /// ## Returns
+    /// The parsed Tiepoint
     fn get_tiepoint<T: Reader>(&mut self, offset: u64, reader: &T) -> GeoTiePoint {
         let Self { big_tiff, little_endian, .. } = *self;
         // Validate that Bytes 2-3 = 12 (Double)
@@ -299,9 +323,14 @@ impl GeoTIFFHeaderReader {
         tie_point
     }
 
-    /// @param field_tag - the tag to read
-    /// @param offset - the current offset in the IFD header data
-    /// @returns the parsed key value
+    /// Get the key-value of the tag at the given offset
+    ///
+    /// ## Parameters
+    /// - `field_tag`: the tag to read
+    /// - `offset`: the current offset in the IFD header data
+    ///
+    /// ## Returns
+    /// The parsed key value
     fn get_key_value<T: Reader>(&mut self, field_tag: u64, offset: u64, reader: &T) -> KeyValue {
         let field_type = reader.uint16(Some(offset + 2), Some(self.little_endian));
         let type_count = self.read_offset(offset + 4, reader);
@@ -325,11 +354,16 @@ impl GeoTIFFHeaderReader {
         KeyValue { key: field_tag as u16, value, field_type: field_type.into() }
     }
 
-    /// @param field_tag - the tag to read
-    /// @param field_type - the field type
-    /// @param type_count - the number of values
-    /// @param value_offset - the value offset
-    /// @returns - the parsed value
+    /// Get the value of the tag
+    ///
+    /// ## Parameters
+    /// - `field_tag`: the tag to read
+    /// - `field_type`: the field type
+    /// - `type_count`: the number of values
+    /// - `value_offset`: the value offset
+    ///
+    /// ## Returns
+    /// The parsed value
     fn get_value<T: Reader>(
         &self,
         _field_tag: usize,
@@ -363,9 +397,12 @@ impl GeoTIFFHeaderReader {
 
 /// Parse the raw geo keys
 ///
-/// @param raw_geokeys - the raw geo keys
-/// @param file_dir - the image file directory
-/// @returns - the parsed geo keys
+/// ## Parameters
+/// - `raw_geokeys`: the raw geo keys
+/// - `file_dir`: the image file directory
+///
+/// ## Returns
+/// The parsed geo keys
 pub fn parse_geotiff_raw_geokeys(raw_geokeys: &[u16], file_dir: &GeoStore) -> GeoStore {
     let mut geo_key_directory = GeoStore::default();
     let mut i = 4;

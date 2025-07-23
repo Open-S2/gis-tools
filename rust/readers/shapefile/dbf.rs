@@ -31,7 +31,30 @@ pub struct DBFRow {
     decimal: u64,
 }
 
+/// # Database File
+///
+/// ## Description
 /// A DBF data class to parse the data from a DBF
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::FileReader, readers::DataBaseFile};
+/// use s2json::MValue;
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/shapefile/fixtures/empty.dbf");
+///
+/// let reader = FileReader::new(path).unwrap();
+/// let dbf = DataBaseFile::new(reader, Some("utf-8".into()));
+///
+/// // Get the header data
+/// let header = dbf.get_header();
+///
+/// // grab individual properties
+/// let properties_0: MValue = dbf.get_properties(0).unwrap();
+/// let properties_1: MValue = dbf.get_properties(1).unwrap();
+/// ```
 #[derive(Debug, Clone)]
 pub struct DataBaseFile<T: Reader, M: MValueCompatible = MValue> {
     /// The input reader

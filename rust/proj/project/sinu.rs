@@ -26,7 +26,57 @@ fn sinu_setup(proj: &mut Proj, sinu: &mut SinuData) {
     sinu.c_x = sinu.c_y / (sinu.m + 1.);
 }
 
-/// Sinusoidal Projection
+/// # Sinusoidal (Sanson-Flamsteed)
+///
+/// **Classification**: Pseudocylindrical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: sinu
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=sinu
+/// ```
+///
+/// ## Parameters
+///
+/// All parameters are optional.
+///
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+R=<value>`: Radius of the sphere or semi-major axis of the ellipsoid.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ## Mathematical Definition
+///
+/// MacBryde and Thomas developed generalized formulas for several of the
+/// pseudocylindricals with sinusoidal meridians. The formulas describing the Sinusoidal
+/// projection are:
+///
+/// Forward projection:
+/// $$x = C\lambda(m+cos\theta) / ( m + 1)$$
+/// $$y = C\theta$$
+///
+/// Inverse projection:
+/// $$\lambda = x \cdot \frac{m + 1}{C \cdot (m + \cos(y / C))}$$
+/// $$\theta = y / C$$
+///
+/// Where:
+/// $$C = \sqrt { (m + 1 ) / n }$$
+///
+/// ## Further Reading
+/// - [Wikipedia](https://en.wikipedia.org/wiki/Sinusoidal_projection)
+///
+/// ![Sinusoidal (Sanson-Flamsteed)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/sinu.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct SinusoidalProjection {
     proj: Rc<RefCell<Proj>>,

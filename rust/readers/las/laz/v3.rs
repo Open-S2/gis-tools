@@ -590,8 +590,11 @@ impl<T: Reader> LAZPoint14v3Reader<T> {
         }
     }
 
-    /// @param context - the current context
-    /// @param item - the current item to be read from
+    /// Create all entropy models and last items (if needed)
+    ///
+    /// ## Parameters
+    /// - `context`: the current context
+    /// - `item`: the current item to be read from
     fn create_and_init_models_and_decompressors(&mut self, context: usize, item: &LASPoint) {
         // should only be called when context is unused
         assert!(self.contexts[context].unused);

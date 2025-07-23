@@ -14,10 +14,6 @@ pub use tables::*;
 ///
 /// ## Links
 /// - [Docs](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect0.shtml)
-///
-/// @param section - the 16 byte metadata section
-///
-/// @returns - a parsed explination of the file
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grib2IndicatorSection {
     /// Number of GRIB section
@@ -35,6 +31,12 @@ pub struct Grib2IndicatorSection {
 }
 impl Grib2IndicatorSection {
     /// Create a new Grib2IndicatorSection
+    ///
+    /// ## Parameters
+    /// - `section`: the 16 byte metadata section
+    ///
+    /// ## Returns
+    /// A parsed explination of the file
     pub fn new<T: Reader>(section: &T) -> Grib2IndicatorSection {
         Grib2IndicatorSection {
             section_number: 0,

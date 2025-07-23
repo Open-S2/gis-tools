@@ -95,17 +95,34 @@ pub struct GTFSLocationsProperties {
 ///
 /// ## Description
 /// Schedule class that pulls in all of the GTFS schedule files and parses them into a single object
-/// implements the {@link FeatureIterator} interface.
+///
+/// implements the [`FeatureReader`] trait
 ///
 /// ## Usage
-/// ```ts
-/// import { buildGTFSSchedule } from 'gis-tools-ts';
 ///
-/// const schedule = await buildGTFSSchedule(gzipData);
+/// The methods you have access to:
+/// - [`GTFSScheduleReader::new`]: Create a new GTFSScheduleReader
+/// - [`GTFSScheduleReader::from_folder`]: Create a new GTFSScheduleReader from a standard folder
+/// - [`GTFSScheduleReader::from_gzip`]: Create a new GTFSScheduleReader from a gzip file
+/// - [`GTFSScheduleReader::collect_vector_features`]: Collect vector features
+/// - [`GTFSScheduleReader::iter`]: Iterate over the features
+/// - [`GTFSScheduleReader::par_iter`]: Iterate over the features
 ///
-/// for await (const feature of schedule) {
-///   console.log(feature);
-/// }
+/// ```rust
+/// use gistools::{parsers::FeatureReader, readers::GTFSScheduleReader};
+/// use std::{fs, path::PathBuf};
+/// use s2json::VectorFeature;
+///  
+/// let gzip_data = fs::read(
+///     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+///         .join("tests/readers/gtfs/fixtures/caltrain_20160406.zip"),
+/// ).unwrap();
+///
+/// let reader = GTFSScheduleReader::from_gzip(&gzip_data);
+/// assert_eq!(reader.stops.len(), 95);
+///
+/// let features: Vec<VectorFeature> = reader.iter().collect();
+/// assert_eq!(features.len(), 103);
 /// ```
 ///
 /// ## Links
@@ -233,8 +250,11 @@ impl GTFSScheduleReader {
 
     /// Builds a GTFS Schedule Reader from a gzip folder
     ///
-    /// @param gzipData - the gzip folder to parse
-    /// @returns - a Schedule class
+    /// ## Parameters
+    /// - `gzip_data`: The gzip folder to parse
+    ///
+    /// ## Returns
+    /// A Schedule class
     pub fn from_gzip(gzip_data: &[u8]) -> Self {
         let mut pieces: Vec<Piece> = vec![];
 

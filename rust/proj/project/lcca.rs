@@ -5,8 +5,6 @@ use alloc::{rc::Rc, vec::Vec};
 use core::cell::RefCell;
 use libm::{atan2, cos, fabs, sin, sqrt, tan};
 
-// *************************************************************************
-//
 // Lambert Conformal Conic Alternative
 // -----------------------------------
 //
@@ -49,8 +47,6 @@ use libm::{atan2, cos, fabs, sin, sqrt, tan};
 // LSU Center for GeoInformatics
 // Dept. of Civil Engineering
 // LOUISIANA STATE UNIVERSITY
-//
-// **************************************************************************
 
 const MAX_ITER: usize = 10;
 const DEL_TOL: f64 = 1e-12;

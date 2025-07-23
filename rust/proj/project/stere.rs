@@ -85,7 +85,46 @@ fn stere_setup(proj: &mut Proj, store: &mut StereData) -> ProjMethod {
     }
 }
 
-/// Stereographic Projection
+/// # Stereographic
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: stere
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=stere +lat_0=90 +latTs=75
+/// ```
+///
+/// Note:
+/// This projection method gives different results than the :ref:`sterea`
+/// method in the non-polar cases (i.e. the oblique and equatorial case). The later
+/// projection method is the one referenced by EPSG as "Oblique Stereographic".
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lat_0=<value>`: Latitude of origin.
+/// - `+latTs=<value>`: Latitude where scale is not distorted.
+/// - `+k_0=<value>`: Scale factor.
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+ellps=<value>`: Ellipsoid used.
+/// - `+R=<value>`: Radius of the projection sphere.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ![Stereographic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/stere.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct StereographicProjection {
     proj: Rc<RefCell<Proj>>,

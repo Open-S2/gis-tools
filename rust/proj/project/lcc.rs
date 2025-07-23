@@ -22,13 +22,73 @@ pub struct LccData {
 }
 
 /// Lambert Conformal Conic projection
+///
+/// See [`LambertConformalConicProjection`] for full documentation.
 pub type LambertConformalConic1SPProjection =
     LambertConformalConicProjection<LAMBERT_CONFORMAL_CONIC_1SP>;
 /// Lambert Conic Conformal (2SP)
+///
+/// See [`LambertConformalConicProjection`] for full documentation.
 pub type LambertConformalConic2SPProjection =
     LambertConformalConicProjection<LAMBERT_CONFORMAL_CONIC_2SP>;
 
-/// Lambert Conformal Conic projection
+/// # Lambert Conformal Conic
+///
+///  Lambert Conformal Conic projection (LCC) is a conic map projection
+/// used for aeronautical charts, portions of the State Plane Coordinate
+/// System, and many national and regional mapping systems. It is one of
+/// seven projections introduced by Johann Heinrich Lambert in 1772.
+///
+/// It has several different forms: with one and two standard parallels
+/// (referred to as 1SP and 2SP in EPSG guidance notes). Additionally we
+/// provide "2SP Michigan" form which is very similar to normal 2SP, but
+/// with a scaling factor on the ellipsoid (given as `k_0` parameter).
+/// It is implemented as per EPSG Guidance Note 7-2 (version 54, August
+/// 2018, page 25). It is used in a few systems in the EPSG database which
+/// justifies adding this otherwise non-standard projection.
+///
+/// **Classification**: Conformal conic
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+/// - One or two standard parallels (1SP and 2SP).
+/// - "LCC 2SP Michigan" form can be used by setting the `+k_0` parameter to specify ellipsoid scale.
+///
+/// **Defined area**: Best for regions predominantly east-west in extent and located in the middle north or south latitudes.
+///
+/// **Alias**: lcc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=lcc +lon_0=-90 +lat_1=33 +lat_2=45
+/// ```
+///
+/// ## Required Parameters
+/// - `+lat_1`: Latitude of the first standard parallel.
+///
+/// ## Optional Parameters
+/// - `+lon_0`: Longitude of projection center. Defaults to `0`.
+/// - `+lat_0`: Latitude of projection center. Defaults to `0`.
+/// - `+lat_2`: Latitude of the second standard parallel.
+/// - `+ellps`: Ellipsoid. Defaults to `WGS84`.
+/// - `+R`: Radius of the sphere.
+/// - `+x_0`: False easting. Defaults to `0`.
+/// - `+y_0`: False northing. Defaults to `0`.
+/// - `+k_0`: Scale factor at natural origin (for LCC 1SP) or ellipsoid scale factor (for LCC 2SP Michigan). Defaults to `1.0`.
+///
+/// ## Further reading
+/// - [Wikipedia on Lambert Conformal Conic](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection)
+/// - [Wolfram Mathworld on Lambert Conformal Conic](http://mathworld.wolfram.com/LambertConformalConicProjection.html)
+/// - [John P. Snyder "Map projections: A working manual"](https://pubs.er.usgs.gov/publication/pp1395)
+/// - [ArcGIS documentation on "Lambert Conformal Conic"](http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/lambert-conformal-conic.htm)
+/// - [EPSG Guidance Note 7-2](http://www.epsg.org/Guidancenotes.aspx)
+///
+/// ![Lambert Conformal Conic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/lcc.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertConformalConicProjection<const C: i64> {
     proj: Rc<RefCell<Proj>>,

@@ -278,10 +278,15 @@ fn st_point_to_face<M: Clone + Default>(target_face: Face, stp: &mut STPoint<M>)
     }
 }
 
-/// @param rot - rotation
-/// @param s - input s
-/// @param t - input t
-/// @returns - new [s, t] after rotating
+/// Rotate a point
+///
+/// ## Parameters
+/// - `rot`: rotation
+/// - `s`: input s
+/// - `t`: input t
+///
+/// ## Returns
+/// new `(s, t)` after rotating
 fn rotate(rot: Rotation, s: f64, t: f64) -> (f64, f64) {
     match rot {
         Rotation::_0 => (s, t),

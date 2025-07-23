@@ -65,6 +65,21 @@ impl JSONParser {
 ///
 /// ## Description
 /// Parse (Geo|S2)JSON. Can handle millions of features.
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::JSONReader};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/writers/fixtures/points.geojson");
+///
+/// let reader: JSONReader<_> = JSONReader::new(FileReader::from(path));
+/// let features: Vec<_> = reader.iter().collect();
+/// assert_eq!(features.len(), 3);
+/// ```
 #[derive(Debug)]
 pub struct JSONReader<
     T: Reader,

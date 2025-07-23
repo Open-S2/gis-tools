@@ -132,8 +132,12 @@ impl S1ChordAngle {
     ///
     ///  S1ChordAngles are represented by the squared chord length, which can
     ///  range from 0 to 4.  Infinity() uses an infinite squared length.
-    ///  @param angle - An angle in radians.
-    ///  @returns The corresponding ChordAngle.
+    ///
+    /// ## Parameters
+    /// - `angle` An angle in radians.
+    ///
+    /// ## Returns
+    /// The corresponding ChordAngle.
     pub fn from_angle(angle: S1Angle) -> Self {
         let radians: f64 = angle.radians;
         if radians < 0. {
@@ -154,13 +158,13 @@ impl S1ChordAngle {
 
     /// Construct an S1ChordAngle from the squared chord length.  Note that the
     /// argument is automatically clamped to a maximum of 4.0 to handle possible
-    /// roundoff errors.  The argument must be non-negative.
+    /// roundoff errors. The argument must be non-negative.
     pub fn from_length2(length2_: f64) -> Self {
         f64::min(K_MAX_LENGTH_2, length2_).into()
     }
 
     /// Construct the S1ChordAngle corresponding to the distance between the two
-    /// given points.  The points must be unit length.
+    /// given points. The points must be unit length.
     pub fn from_s2_points(a: &S2Point, b: &S2Point) -> Self {
         // The squared distance may slightly exceed 4.0 due to roundoff errors.
         // The maximum error in the result is 2 * DBL_EPSILON * length2_.

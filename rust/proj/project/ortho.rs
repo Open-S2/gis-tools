@@ -22,7 +22,48 @@ pub struct OrthoData {
     cosalpha: f64,
 }
 
-/// Orthographic Projection
+/// # Orthographic
+///
+/// The orthographic projection is a perspective azimuthal projection centered
+/// around a given latitude and longitude.
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global, although only one hemisphere can be seen at a time
+///
+/// **Alias**: ortho
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=ortho
+/// ```
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+alpha=<value>`: Azimuth clockwise from north at the center of projection. *Defaults to 0.0.* (added in PROJ 9.5.0)
+/// - `+k_0=<value>`: Scale factor. Determines scale factor used in the projection. *Defaults to 1.0.* (added in PROJ 9.5.0)
+/// - `+lon_0=<value>`
+/// - `+lat_0=<value>`
+/// - `+ellps=<value>`
+/// - `+R=<value>`
+/// - `+x_0=<value>`
+/// - `+y_0=<value>`
+///
+/// ## Notes
+/// - Before PROJ 7.2, only the spherical formulation was implemented. To replicate PROJ < 7.2 results with newer versions, force the ellipsoid to a sphere using `+f=0`.
+/// - This projection method corresponds to `EPSG:9840` (or `EPSG:1130` with `k_0` or `alpha`).
+///
+/// ![Orthographic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/ortho.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct OrthographicProjection {
     proj: Rc<RefCell<Proj>>,

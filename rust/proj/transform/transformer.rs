@@ -19,10 +19,29 @@ use core::f64::consts::FRAC_PI_2;
 ///
 /// ## Usage
 ///
-/// ### Full Example
+/// Utilizes the [`TransformCoordinates`] trait
 ///
-/// ```ts
-/// // TODO
+/// ### Useful methods
+/// - [`Transformer::forward`]: Given a point in the source projection, return the point in the destination projection
+/// - [`Transformer::forward_mut`]: Given a point in the source projection, return the point in the destination projection
+/// - [`Transformer::inverse`]: Given a point in the destination projection, return the point in the source projection
+/// - [`Transformer::inverse_mut`]: Given a mutable point in the destination projection, return the point in the source projection
+/// - [`Transformer::set_source`]: Set the source projection
+/// - [`Transformer::set_destination`]: Set the destination projection
+/// - [`Transformer::insert_epsg_code`]: Insert an EPSG code definition
+///
+/// ### Example
+///
+/// ```rust
+/// use gistools::proj::{Coords, Transformer};
+///
+/// let mut transformer = Transformer::new();
+/// // Insert a source or destination as needed
+/// // transformer.set_source("WKT_STRING...".into());
+///
+/// let mut point = Coords::new_xy(0., 0.);
+/// transformer.forward_mut(&mut point);
+/// assert_eq!(point, Coords::new_xy(0., 0.));
 /// ```
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Transformer {
@@ -62,42 +81,59 @@ impl Transformer {
     }
 
     /// Insert an EPSG code definition
-    /// ```ts
-    /// // TODO
+    /// ```rust
+    /// use gistools::proj::Transformer;
+    ///
+    /// let mut transformer = Transformer::new();
+    /// transformer.insert_epsg_code("4326".to_string(), "WKT_STRING".to_string());
     /// ```
-    /// @param code - EPSG code to insert e.g. "4326": "WKT_STRING"
-    /// @param value - the EPSG definition which is either a WKT string object or proj4 encoded string
+    ///
+    /// ## Parameters
+    /// - `code`: EPSG code to insert e.g. "4326": "WKT_STRING"
+    /// - `value`: the EPSG definition which is either a WKT string object or proj4 encoded string
     pub fn insert_epsg_code(&mut self, code: String, value: String) {
         self.epsgs.insert(code, value);
     }
 
     /// Set the source projection
-    /// @param code - can be a name or a json/wkt coded definition
+    ///
+    /// ## Parameters
+    /// - `code`: can be a name or a json/wkt coded definition
     pub fn set_source(&mut self, code: String) {
         self.src = self.build_transformer(code);
     }
 
     /// Set the source projection
-    /// @param def - transform definition
+    ///
+    /// ## Parameters
+    /// - `def`: transform definition
     pub fn set_source_def(&mut self, def: ProjectionTransform) {
         self.src = def;
     }
 
     /// Set the destination projection
-    /// @param code - can be a name or a coded definition
+    ///
+    /// ## Parameters
+    /// - `code`: can be a name or a coded definition
     pub fn set_destination(&mut self, code: String) {
         self.dest = self.build_transformer(code);
     }
 
     /// Set the source projection
-    /// @param def - transform definition
+    ///
+    /// ## Parameters
+    /// - `def`: transform definition
     pub fn set_destination_def(&mut self, def: ProjectionTransform) {
         self.dest = def;
     }
 
     /// Build a ProjectionTransform
-    /// @param code - can be a WKT object or proj4 encoded string
-    /// @returns - A ready to use ProjectionTransform
+    ///
+    /// ## Parameters
+    /// - `code`: can be a WKT object or proj4 encoded string
+    ///
+    /// ## Returns
+    /// A ready to use ProjectionTransform
     fn build_transformer(&mut self, mut code: String) -> ProjectionTransform {
         if let Some(epsg) = self.epsgs.get(&code) {
             code = epsg.clone();
@@ -117,9 +153,11 @@ impl Transformer {
 }
 
 /// Transforms a point from one projection to another
-/// @param src - source projection
-/// @param dest - destination projection
-/// @param point - point to mutate
+///
+/// ## Parameters
+/// - `src`: source projection
+/// - `dest`: destination projection
+/// - `point`: point to mutate
 pub fn transform_point<P: TransformCoordinates + Debug>(
     src: &ProjectionTransform,
     dest: &ProjectionTransform,

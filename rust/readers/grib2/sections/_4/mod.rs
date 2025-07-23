@@ -3,19 +3,15 @@ mod tables2;
 mod tables3;
 mod templates;
 
+use crate::{parsers::Reader, readers::Grib2Sections};
 pub use tables::*;
 pub use tables2::*;
 pub use tables3::*;
 pub use templates::*;
 
-use crate::{parsers::Reader, readers::Grib2Sections};
-
 ///  Product Definition Section
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect4.shtml)
-/// @param reader - The section to parse
-/// @param sections - The other sections that have been parsed (1-3)
-/// @returns - Parsed Product Definition Information
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2ProductDefinitionSection {
     /// Number of GRIB section
@@ -31,6 +27,13 @@ pub struct Grib2ProductDefinitionSection {
 }
 impl Grib2ProductDefinitionSection {
     /// Create a new instance of Grib2ProductDefinitionSection
+    ///
+    /// ## Parameters
+    /// - `reader`: The section to parse
+    /// - `sections`: The other sections that have been parsed (1-3)
+    ///
+    /// ## Returns
+    /// Parsed Product Definition Information
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let product_definition_template = reader.uint16_be(Some(7));
 

@@ -7,10 +7,13 @@ use libm::{fmax, fmin, pow};
 
 /// Converts photometric interpretation to samples
 ///
-/// @param pi - photometric interpretation
-/// @param bitsPerSample - bits per sample
-/// @param extraSamples - extra samples
-/// @returns - sample output
+/// ## Parameters
+/// - `pi`: photometric interpretation
+/// - `bitsPerSample`: bits per sample
+/// - `extraSamples`: extra samples
+///
+/// ## Returns
+/// Sample output
 pub fn build_samples(
     pi: PhotometricInterpretations,
     bits_per_sample: Option<Vec<u16>>,
@@ -53,10 +56,11 @@ pub fn build_samples(
 /// Convert color space raster to RGB
 /// TODO: ICCLAB, ITULAB
 ///
-/// @param pi - photometric interpretation
-/// @param raster_data - raster data
-/// @param max - maximum value if needed
-/// @param color_map - color map if needed
+/// ## Parameters
+/// - `pi`: photometric interpretation
+/// - `raster_data`: raster data
+/// - `max`: maximum value if needed
+/// - `color_map`: color map if needed
 pub fn convert_color_space(
     pi: PhotometricInterpretations,
     raster: &mut Raster,
@@ -82,8 +86,10 @@ pub fn convert_color_space(
 }
 
 /// Converts raster with white is zero and max is one to RGB
-/// @param raster - raster
-/// @param max - maximum value
+///
+/// ## Parameters
+/// - `raster`: raster
+/// - `max`: maximum value
 pub fn from_white_is_zero(raster: &mut Raster, max: f64) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;
@@ -103,8 +109,9 @@ pub fn from_white_is_zero(raster: &mut Raster, max: f64) {
 
 /// Converts raster with black is zero and max is one to RGB
 ///
-/// @param raster - raster
-/// @param max - maximum value
+/// ## Parameters
+/// - `raster`: raster
+/// - `max`: maximum value
 pub fn from_black_is_zero(raster: &mut Raster, max: f64) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;
@@ -124,8 +131,9 @@ pub fn from_black_is_zero(raster: &mut Raster, max: f64) {
 
 /// Converts raster with a color map to RGB
 ///
-/// @param raster - raster
-/// @param color_map - color map
+/// ## Parameters
+/// - `raster`: raster
+/// - `color_map`: color map
 pub fn from_palette(raster: &mut Raster, color_map: Option<Vec<u16>>) {
     let color_map = color_map.unwrap_or_default();
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
@@ -148,7 +156,8 @@ pub fn from_palette(raster: &mut Raster, color_map: Option<Vec<u16>>) {
 
 /// Converts CMYK to RGB
 ///
-/// @param raster - CMYK raster
+/// ## Parameters
+/// - `raster`: CMYK raster
 pub fn from_cmyk(raster: &mut Raster) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;
@@ -172,7 +181,8 @@ pub fn from_cmyk(raster: &mut Raster) {
 
 /// Converts YCbCr to RGB
 ///
-/// @param raster - YCbCr raster
+/// ## Parameters
+/// - `raster`: YCbCr raster
 pub fn from_ycb_cr(raster: &mut Raster) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;
@@ -199,7 +209,8 @@ const ZN: f64 = 1.08883;
 /// Converts CIELab to RGB
 /// https://github.com/antimatter15/rgb-lab/blob/master/color.js
 ///
-/// @param raster - CIELab raster
+/// ## Parameters
+/// - `raster`: CIELab raster
 pub fn from_cei_lab(raster: &mut Raster) {
     let mut rbgdata = vec![0_f64; raster.width * raster.height * 3];
     let data = &raster.data;

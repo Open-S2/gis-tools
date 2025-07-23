@@ -18,9 +18,6 @@ pub use templates::*;
 ///  Data Representation Section
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect5.shtml)
-///
-/// @param section - The raw section data to parse
-/// @returns - Parsed Data Representation Information
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2DataRepresentationSection {
     /// Number of GRIB section
@@ -36,6 +33,12 @@ pub struct Grib2DataRepresentationSection {
 }
 impl Grib2DataRepresentationSection {
     /// Create a new instance of Grib2DataRepresentationSection
+    ///
+    /// ## Parameters
+    /// - `section`: The raw section data to parse
+    ///
+    /// ## Returns
+    /// Parsed Data Representation Information
     pub fn new<T: Reader>(section: &T) -> Self {
         Grib2DataRepresentationSection {
             section_number: section.uint8(Some(4)),

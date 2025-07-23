@@ -3,7 +3,43 @@ use alloc::rc::Rc;
 use core::cell::RefCell;
 use libm::{asin, atan, cos, cosh, exp, log, pow, sin, sinh, sqrt};
 
-/// Gauss-Schreiber Transverse Mercator Variables
+/// # Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
+///
+/// **Classification**: Conformal
+///
+/// **Available forms**: Forward and inverse, spherical projection
+///
+/// **Defined area**: Global
+///
+/// **Alias**: gstmerc
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=gstmerc
+/// ```
+///
+/// ## Optional Parameters
+/// - `+k_0=<value>`: Scale factor at the central meridian.
+/// - `+lon_0=<value>`: Longitude of the central meridian.
+/// - `+lat_0=<value>`: Latitude of origin.
+/// - `+ellps=<value>`: Ellipsoid name (e.g., GRS80, WGS84).
+/// - `+R=<value>`: Radius of the sphere (used in spherical projections).
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ## Usage Example
+/// ```bash
+/// echo 12 55 | proj +proj=gstmerc +ellps=WGS84
+/// echo 12 55 | proj +proj=gstmerc +k_0=1 +lon_0=0 +x_0=500000 +y_0=0
+/// ```
+///
+/// ![Gauss-Schreiber Transverse Mercator](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/gstmerc.png?raw=true)
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct GstmercData {
     lamc: f64,

@@ -88,10 +88,14 @@ impl OSMTagFilter {
     }
 
     /// Check if a filter has been found
-    /// @param filter_type - The filter type
-    /// @param key - The key
-    /// @param value - The value (optional)
-    /// @returns - True if the filter has been found
+    ///
+    /// ## Parameters
+    /// - `filter_type`: The filter type
+    /// - `key`: The key
+    /// - `value`: The value (optional)
+    ///
+    /// ## Returns
+    /// True if the filter has been found
     pub fn match_found(&mut self, filter_type: OSMTagFilterType, key: &str, value: &str) -> bool {
         // check all filters first
         if self.check_filter(OSMTagFilterType::All, key, value) {

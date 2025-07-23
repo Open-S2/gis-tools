@@ -729,8 +729,12 @@ impl S2CellId {
     /// Check if the tile is not a real world tile that fits inside a WM quad tree
     /// Out of bounds tiles exist if the map has `duplicateHorizontally` set to true.
     /// This is useful for filling in the canvas on the x axis instead of leaving it blank.
-    /// @param id - a tile ID
-    /// @returns - true if the id is out of bounds for WM
+    ///
+    /// ## Parameters
+    /// - `id`: a tile ID
+    ///
+    /// ## Returns
+    /// true if the id is out of bounds for WM
     pub fn is_out_of_bounds_wm(&self) -> bool {
         self.face() != 0
     }

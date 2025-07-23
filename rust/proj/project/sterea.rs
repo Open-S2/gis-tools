@@ -30,7 +30,46 @@ pub struct StereaData {
 const MAX_ITER: usize = 20;
 const DEL_TOL: f64 = 1e-14;
 
-/// Oblique Stereographic Alternative Projection
+/// # Oblique Stereographic Alternative
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: sterea
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=sterea +lat_0=52.1561605555556 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel
+/// ```
+///
+/// ## Note
+/// This projection method, referenced by EPSG as "Oblique Stereographic", is
+/// for example used for the Netherlands "Amersfoort / RD New" projected CRS.
+/// It gives different results than the :ref:`stere` method in the non-polar cases
+/// (i.e. the oblique and equatorial case).
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lat_0=<value>`: Latitude of origin.
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+k=<value>`: Scale factor.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+/// - `+ellps=<value>`: Ellipsoid used.
+/// - `+R=<value>`: Radius of the projection sphere.
+///
+/// ![Oblique Stereographic Alternative](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/sterea.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObliqueStereographicAlternativeProjection {
     proj: Rc<RefCell<Proj>>,

@@ -90,7 +90,39 @@ pub struct SampleFormat {
     pub sample_readers: Vec<SampleReader>,
 }
 
+/// # GeoTIFF Image Container
+///
+/// ## Description
 /// A Container for a GeoTIFF image
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`GeoTIFFImage::new`]: Create a new GeoTIFFImage
+/// - [`GeoTIFFImage::width`]: Get the image width
+/// - [`GeoTIFFImage::height`]: Get the image height
+/// - [`GeoTIFFImage::tile_width`]: Get the tile width
+/// - [`GeoTIFFImage::tile_height`]: Get the tile height
+/// - [`GeoTIFFImage::block_width`]: Get the block width
+/// - [`GeoTIFFImage::block_height`]: Get the block height
+/// - [`GeoTIFFImage::bytes_per_pixel`]: Calculates the number of bytes for each pixel across all samples.
+/// - [`GeoTIFFImage::samples_per_pixel`]: The number of samples per pixel
+/// - [`GeoTIFFImage::get_sample_format`]: Returns the sample format
+/// - [`GeoTIFFImage::get_bits_per_sample`]: Returns the number of bits per sample
+/// - [`GeoTIFFImage::raster_array_type`]: Convert the data format and bits per sample to the appropriate array type
+/// - [`GeoTIFFImage::get_tie_point`]: Returns an array of tiepoints.
+/// - [`GeoTIFFImage::origin`]: Returns the image origin as a XYZ-vector.
+/// - [`GeoTIFFImage::origin_ll`]: Returns the image origin as a XYZ-vector in lon-lat space.
+/// - [`GeoTIFFImage::resolution`]: Returns the image resolution as a XYZ-vector.
+/// - [`GeoTIFFImage::resolution_ll`]: Returns the image resolution as a XYZ-vector in lon-lat space.
+/// - [`GeoTIFFImage::pixel_is_area`]: Returns whether or not the pixels of the image depict an area (or point).
+/// - [`GeoTIFFImage::get_bbox`]: Returns the image bounding box as an array of 4 values: min-x, min-y, max-x and max-y.
+/// - [`GeoTIFFImage::raster_data`]: Returns the raster data of the image.
+/// - [`GeoTIFFImage::get_rgba`]: Returns the RGBA raster data of the image.
+/// - [`GeoTIFFImage::get_multi_point_vector`]: Build a vector feature from the image
+///
+/// The methods you probably care about are `get_bbox`, `raster_data`, `get_rgba`,
+/// and `get_multi_point_vector`
 #[derive(Debug, Clone, Default)]
 pub struct GeoTIFFImage<T: Reader> {
     reader: Rc<RefCell<T>>,
@@ -190,7 +222,8 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// Calculates the number of bytes for each pixel across all samples. Only full
     /// bytes are supported, an exception is thrown when this is not the case.
     ///
-    /// @returns the bytes per pixel
+    /// ## Returns
+    /// the bytes per pixel
     pub fn bytes_per_pixel(&self) -> usize {
         let bits_per_sample = self
             .image_directory
@@ -204,9 +237,8 @@ impl<T: Reader> GeoTIFFImage<T> {
         bytes
     }
 
-    /// Returns the number of samples per pixel.
-    ///
-    /// @returns the number of samples per pixel
+    /// ## Returns
+    /// The number of samples per pixel
     pub fn samples_per_pixel(&self) -> usize {
         self.image_directory.variables.get_short(FieldTagNames::SamplesPerPixel as u16).unwrap_or(1)
             as usize
@@ -214,8 +246,11 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Returns the sample format
     ///
-    /// @param sample_index - the sample index to start at
-    /// @returns the sample format code
+    /// ## Parameters
+    /// - `sample_index`: the sample index to start at
+    ///
+    /// ## Returns
+    /// The sample format code
     pub fn get_sample_format(&self, sample_index: Option<usize>) -> u16 {
         let sample_index = sample_index.unwrap_or(0);
         *self
@@ -229,8 +264,11 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Returns the number of bits per sample
     ///
-    /// @param sample_index - the sample index to start at
-    /// @returns the number of bits per sample at the sample index
+    /// ## Parameters
+    /// - `sample_index`: the sample index to start at
+    ///
+    /// ## Returns
+    /// The number of bits per sample at the sample index
     pub fn get_bits_per_sample(&self, sample_index: Option<usize>) -> u16 {
         let sample_index = sample_index.unwrap_or(0);
         *self
@@ -244,8 +282,11 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Convert the data format and bits per sample to the appropriate array type
     ///
-    /// @param raster - the data
-    /// @returns - the array
+    /// ## Parameters
+    /// - `raster`: the data
+    ///
+    /// ## Returns
+    /// The array
     pub fn raster_array_type(&self) -> GTiffDataType {
         let format = self.get_sample_format(None);
         let bits_per_sample = self.get_bits_per_sample(None);
@@ -260,7 +301,8 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// Returns the image origin as a XYZ-vector. When the image has no affine
     /// transformation, then an exception is thrown.
     ///
-    /// @returns The origin as a vector
+    /// ## Returns
+    /// The origin as a vector
     pub fn origin(&self) -> VectorPoint<()> {
         // const { tiepoint, ModelTransformation: transform } = self.#imageDirectory;
         // if (Array.isArray(tiepoint) && tiepoint.length === 6) {
@@ -277,7 +319,8 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// Returns the image origin as a XYZ-vector in lon-lat space. When the image has no affine
     /// transformation, then an exception is thrown.
     ///
-    /// @returns The origin as a lon-lat vector
+    /// ## Returns
+    /// The origin as a lon-lat vector
     pub fn origin_ll(&self) -> VectorPoint<()> {
         let mut origin = self.origin();
         self.transformer.borrow_mut().forward_mut(&mut origin);
@@ -288,7 +331,8 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// transformation, then an exception is thrown. in cases when the current image does
     /// not have the required tags on its own.
     ///
-    /// @returns The resolution as a vector
+    /// ## Returns
+    /// The resolution as a vector
     pub fn resolution(&self) -> VectorPoint<()> {
         // try pixel scale first
         let pixel_scale = self.image_directory.pixel_scale;
@@ -315,7 +359,8 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// transformation, then an exception is thrown. in cases when the current image does not
     /// have the required tags on its own.
     ///
-    /// @returns The resolution as a lon-lat vector
+    /// ## Returns
+    /// The resolution as a lon-lat vector
     pub fn resolution_ll(&self) -> VectorPoint<()> {
         let mut resolution = self.resolution();
         self.transformer.borrow_mut().forward_mut(&mut resolution);
@@ -324,7 +369,8 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Returns whether or not the pixels of the image depict an area (or point).
     ///
-    /// @returns Whether the pixels are a point
+    /// ## Returns
+    /// Whether the pixels are a point
     pub fn pixel_is_area(&self) -> bool {
         self.image_directory
             .geo_key_directory
@@ -337,8 +383,11 @@ impl<T: Reader> GeoTIFFImage<T> {
     /// max-x and max-y. When the image has no affine transformation, then an
     /// exception is thrown.
     ///
-    /// @param transform - apply affine transformation or proj4 transformation
-    /// @returns The bounding box
+    /// ## Parameters
+    /// - `transform`: apply affine transformation or proj4 transformation
+    ///
+    /// ## Returns
+    /// The bounding box
     pub fn get_bbox(&mut self, transform: bool) -> BBox {
         let height = self.height() as f64;
         let width = self.width() as f64;
@@ -383,8 +432,11 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Returns the raster data of the image.
     ///
-    /// @param samples - Samples to read from the image
-    /// @returns - The raster data
+    /// ## Parameters
+    /// - `samples`: Samples to read from the image
+    ///
+    /// ## Returns
+    /// The raster data
     pub fn raster_data(&mut self, samples: Option<Vec<u16>>) -> Raster {
         let samples =
             samples.unwrap_or_else(|| (0..self.samples_per_pixel()).map(|v| v as u16).collect());
@@ -474,7 +526,8 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Returns the RGBA raster data of the image.
     ///
-    /// @returns - The RGBA raster data
+    /// ## Returns
+    /// The RGBA raster data
     pub fn get_rgba(&mut self) -> Raster {
         let bits_per_sample =
             self.image_directory.variables.get_u16s(FieldTagNames::BitsPerSample as u16);
@@ -505,7 +558,9 @@ impl<T: Reader> GeoTIFFImage<T> {
     }
 
     /// Build a vector feature from the image
-    /// @returns - The vector feature with rgba values incoded into the points
+    ///
+    /// ## Returns
+    /// The vector feature with rgba values incoded into the points
     pub fn get_multi_point_vector(&mut self) -> GeoTIFFVectorFeature {
         let Raster { width, height, alpha, data, .. } = self.get_rgba();
         let bbox = self.get_bbox(false);
@@ -556,10 +611,13 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Get the data for a tile or strip
     ///
-    /// @param x - the tile or strip x coordinate
-    /// @param y - the tile or strip y coordinate
-    /// @param sample - the sample
-    /// @returns - the data as a buffer
+    /// ## Parameters
+    /// - `x`: the tile or strip x coordinate
+    /// - `y`: the tile or strip y coordinate
+    /// - `sample`: the sample
+    ///
+    /// ## Returns
+    /// The data as a buffer
     fn get_tile_or_strip(&mut self, x: usize, y: usize, sample: usize) -> Vec<u8> {
         let num_tiles_per_row = self.width().div_ceil(self.tile_width());
         let num_tiles_per_col = self.height().div_ceil(self.tile_height());
@@ -635,8 +693,11 @@ impl<T: Reader> GeoTIFFImage<T> {
 
     /// Apply the predictor if necessary
     ///
-    /// @param data - the raw data
-    /// @returns - the data with the predictor applied
+    /// ## Parameters
+    /// - `data`: the raw data
+    ///
+    /// ## Returns
+    /// The data with the predictor applied
     fn maybe_apply_predictor(&mut self, data: Vec<u8>) -> Vec<u8> {
         let predictor =
             self.image_directory.variables.get_short(FieldTagNames::Predictor as u16).unwrap_or(1);
@@ -671,9 +732,13 @@ impl<T: Reader> GeoTIFFImage<T> {
     }
 
     /// Get the sample format. If first time than build it
-    /// @param bits_per_sample - the bits per sample
-    /// @param samples - the samples
-    /// @returns - the sample format
+    ///
+    /// ## Parameters
+    /// - `bits_per_sample`: the bits per sample
+    /// - `samples`: the samples
+    ///
+    /// ## Returns
+    /// The sample format
     fn get_sample_offsets_and_readers(
         &mut self,
         bits_per_sample: &[u16],
@@ -707,12 +772,16 @@ impl<T: Reader> GeoTIFFImage<T> {
     }
 }
 
-//   /// Get a value in the image
-//   /// @param x - the x coordinate
-//   /// @param y - the y coordinate
-//   /// @param inv_y - if true, the y coordinate is inverted
-//   /// @param samples - Samples to read from the image
-//   /// @returns - the sample
+//  /// Get a value in the image
+//  ///
+//  /// ## Parameters
+//  /// - `x`: the x coordinate
+//  /// - `y`: the y coordinate
+//  /// - `inv_y`: if true, the y coordinate is inverted
+//  /// - `samples`: Samples to read from the image
+//  ///
+//  /// ## Returns
+//  /// The sample
 //   pub fn get_value(
 //     x: number,
 //     y: number,

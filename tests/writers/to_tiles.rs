@@ -4,12 +4,13 @@
 mod tests {
     use gistools::{
         data_structures::TileStoreOptions,
-        parsers::FileReader,
+        parsers::{BufferWriter, FileReader},
         readers::json::JSONReader,
+        util::CompressionFormat,
         writers::{
             BaseLayer, BuildGuide, ClusterLayerGuide, FormatOutput, GridLayerGuide, JSONBuildGuide,
-            LayerGuide, LayerHandler, LocalTileWriter, OnFeature, RasterLayerGuide, TileBuilder,
-            VectorLayerGuide, WhichTileWriting,
+            LayerGuide, LayerHandler, LocalTileWriter, OnFeature, PMTilesWriter, RasterLayerGuide,
+            TileBuilder, VectorLayerGuide, WhichTileWriting,
         },
     };
     use open_vector_tile::Extent;
@@ -199,7 +200,8 @@ mod tests {
 
     #[test]
     fn wm_build_with_cluster() {
-        let local_tile_writer = LocalTileWriter::new();
+        let tmp_buffer_writer = BufferWriter::new(vec![]);
+        let pm_writer = PMTilesWriter::new(tmp_buffer_writer, CompressionFormat::None);
         let build_guide = BuildGuide {
             projection: Projection::WG,
             build_indices: true,
@@ -247,7 +249,7 @@ mod tests {
             ],
             ..Default::default()
         };
-        let mut tile_builder = TileBuilder::new(local_tile_writer, build_guide);
+        let mut tile_builder = TileBuilder::new(pm_writer, build_guide);
 
         // add json features
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

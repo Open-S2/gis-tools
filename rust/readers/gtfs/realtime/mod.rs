@@ -38,14 +38,21 @@ pub use vehicle_position::*;
 ///
 /// ## Usage
 ///
-/// ```ts
-/// import { GTFSRealtimeReader } from 'gis-tools-ts';
+/// The methods you have access to:
+/// - [`GTFSRealtimeReader::new`]: Create a new GTFSRealtimeReader
 ///
-/// const gtfsRealtimeReader = new GTFSRealtimeReader(data);
-/// const { header, entities } = gtfsRealtimeReader;
-/// for (const entity of entities) {
-///   console.log(entity);
-/// }
+/// ```rust
+/// use gistools::readers::GTFSRealtimeReader;
+/// use std::path::PathBuf;
+///  
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/gtfs/fixtures/vehicle_position.pb");
+///
+/// let data = std::fs::read(path).unwrap();
+/// let reader = GTFSRealtimeReader::new(data, None);
+///
+/// let entities = &reader.entities;
+/// assert_eq!(entities.len(), 1);
 /// ```
 ///
 /// ## Links

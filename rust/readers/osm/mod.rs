@@ -68,6 +68,8 @@ impl Default for OSMReaderOptions {
 }
 
 /// OSM File Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
+///
+/// See [`OSMReader`] for full documentation.
 pub type OSMFileReader<T> = OSMReader<
     T,
     FileKV<u64, VectorPoint<MValue>>,
@@ -88,6 +90,8 @@ pub type OSMFileReaderIter<'a, T> = OsmReaderIter<
 >;
 
 /// OSM Buffer Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
+///
+/// See [`OSMReader`] for full documentation.
 pub type OSMLocalReader<T> = OSMReader<
     T,
     KV<u64, VectorPoint<MValue>>,
@@ -111,6 +115,39 @@ pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
 ///
 /// ## Description
 /// Parses OSM PBF files
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`OSMReader::new`]: Create a new OSMReader
+/// - [`OSMReader::cleanup`]: Cleans up the reader's temp data
+/// - [`OSMReader::get_header`]: Get the OSM Header
+/// - [`OSMReader::parse_blocks`]: Parse all blocks to prepare for reads
+/// - [`OSMReader::next_block`]: Get the next block (if you want to iteratively use blocks yourself)
+/// - [`OSMReader::par_parse_node_blocks`]: If you are only interested in nodes, parse all of them quicker using threads
+/// - [`OSMReader::parse_node_blocks`]: If you are only interested in nodes, parse all of them quicker
+/// - [`OSMReader::iter`]: Create a new OSMReader Iterator
+///
+/// ### Local Reader
+/// All data is stored locally in memory and will be cleaned up on drop
+///
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::OSMLocalReader};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/osm/fixtures/test.pbf");
+/// let path_str = path.to_str().unwrap();
+/// let reader = FileReader::from(path_str);
+///
+/// let mut osm = OSMLocalReader::new(reader, None);
+/// osm.parse_blocks();
+///
+/// let features: Vec<_> = osm.iter().collect();
+/// assert_eq!(features.len(), 8);
+/// ```
 #[derive(Debug, Clone)]
 pub struct OSMReader<
     T: Reader,
@@ -231,7 +268,9 @@ impl<
     }
 
     /// Read the next blob
-    /// @returns - the next blob if it exists
+    ///
+    /// ## Returns
+    /// The next blob if it exists
     fn next(&mut self) -> Option<Vec<u8>> {
         if let Some(blob_header) = self.next_blob() {
             // STEP 2: Get blob data

@@ -49,6 +49,14 @@ pub struct GeoTIFFOptions {
 ///
 /// ## Usage
 ///
+/// The methods you have access to:
+/// - [`GeoTIFFReader::new`]: Create a new GeoTIFFReader
+/// - [`GeoTIFFReader::len`]: Get the length (number of features)
+/// - [`GeoTIFFReader::is_empty`]: Check if the reader is empty
+/// - [`GeoTIFFReader::get_image`]: Get an image at index
+/// - [`GeoTIFFReader::iter`]: Iterate over the features
+/// - [`GeoTIFFReader::par_iter`]: Iterate over the features
+///
 /// ### File Reader
 /// ```rust
 /// use gistools::{
@@ -88,7 +96,7 @@ pub struct GeoTIFFOptions {
 /// path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
 /// let bytes: Vec<u8> = std::fs::read(path).unwrap();
 ///
-/// // read in teh data and build the grid
+/// // read in the data and build the grid
 /// let geotiff = GeoTIFFReader::new(BufferReader::from(bytes), None);
 /// let grid: Vec<_> = geotiff.iter().collect();
 /// assert_eq!(grid.len(), 1);
@@ -134,8 +142,11 @@ impl<T: Reader> GeoTIFFReader<T> {
 
     /// Get the nth internal subfile of an image. By default, the first is returned.
     ///
-    /// @param index - the index of the image to get [Default=0]
-    /// @returns - the image at the given index
+    /// ## Parameters
+    /// - `index`: the index of the image to get [Default=0]
+    ///
+    /// ## Returns
+    /// The image at the given index
     pub fn get_image(&self, index: Option<usize>) -> Option<GeoTIFFImage<T>> {
         let index = index.unwrap_or(0);
         if index >= self.len() {

@@ -37,8 +37,27 @@ pub struct PolyLabelCell {
 /// ## Description
 /// Find the labels for a collection of vector polygons
 ///
+/// ## Usage
+///
+/// ```rust
+/// use gistools::tools::{PolyLabelMetadata, polylabels};
+/// use s2json::VectorPoint;
+///
+/// let data: Vec<Vec<Vec<VectorPoint<()>>>> = vec![vec![vec![]]];
+/// let emp = polylabels(&data, None);
+///
+/// assert_eq!(emp, vec![VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.)))]);
+/// ```
+///
 /// ## Links
 /// - https://sites.google.com/site/polesofinaccessibility/
+///
+/// ## Parameters
+/// - `polygons`: the vector multi-polygon to find the label for
+/// - `precision`: the precision of the label
+///
+/// ## Returns
+/// The collection of label positions and the distances to the labels
 pub fn polylabels<M: Clone>(
     polygons: &VectorMultiPolygon<M>,
     precision: Option<f64>,
@@ -52,18 +71,26 @@ pub fn polylabels<M: Clone>(
 /// Find the label for a vector polygon
 ///
 /// ## Usage
-/// ```ts
-/// import { polylabel } from 'gis-tools-ts'
-/// import type { VectorPolygon } from 'gis-tools-ts'
 ///
-/// const vectorGeometry: VectorPolygon = [];
-/// const polylabel_high_precision = polylabel(vectorGeometry, 1);
+/// ```rust
+/// use gistools::tools::{PolyLabelMetadata, polylabel};
+/// use s2json::VectorPoint;
+///
+/// let data: Vec<Vec<VectorPoint<()>>> = vec![vec![]];
+/// let emp = polylabel(&data, None);
+///
+/// assert_eq!(emp, VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.))));
 /// ```
 ///
 /// ## Links
 /// - https://sites.google.com/site/polesofinaccessibility/
 ///
-/// returns the label position and the distance to the label
+/// ## Parameters
+/// - `polygon`: the vector polygon to find the label for
+/// - `precision`: the precision of the label
+///
+/// ## Returns
+/// The label position and the distance to the label
 pub fn polylabel<M: Clone>(
     polygon: &VectorPolygon<M>,
     precision: Option<f64>,
@@ -171,21 +198,29 @@ pub fn polylabel<M: Clone>(
 }
 
 /// build a cell
-/// @param x - the cell x coordinate
-/// @param y - the cell y coordinate
-/// @param h - half the cell size
-/// @param polygon - the vector polygon
-/// @returns - the cell
+///
+/// ## Parameters
+/// - `x`: the cell x coordinate
+/// - `y`: the cell y coordinate
+/// - `h`: half the cell size
+/// - `polygon`: the vector polygon
+///
+/// ## Returns
+/// The cell
 fn build_cell<M: Clone>(x: f64, y: f64, h: f64, polygon: &VectorPolygon<M>) -> PolyLabelCell {
     let d = point_to_polygon_dist(x, y, polygon);
     PolyLabelCell { x, y, h, d, max: d + h * SQRT_2 }
 }
 
 /// signed distance from point to polygon outline (negative if point is outside)
-/// @param x - the point x coordinate
-/// @param y - the point y coordinate
-/// @param polygon - the vector polygon to check
-/// @returns - the signed distance
+///
+/// ## Parameters
+/// - `x`: the point x coordinate
+/// - `y`: the point y coordinate
+/// - `polygon`: the vector polygon to check
+///
+/// ## Returns
+/// The signed distance
 fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -> f64 {
     let mut inside = false;
     let mut min_dist_sq = f64::MAX;

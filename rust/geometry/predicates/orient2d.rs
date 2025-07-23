@@ -5,8 +5,10 @@ use libm::fabs;
 
 /// a negative value if the points a, b, and c occur in counterclockwise order
 /// (c lies to the left of the directed line defined by points a and b).
-/// - Returns a positive value if they occur in clockwise order (c lies to the right of the directed line ab).
-/// - Returns zero if they are collinear.
+///
+/// ## Returns
+/// - a positive value if they occur in clockwise order (c lies to the right of the directed line ab).
+/// - zero if they are collinear.
 pub fn orient2dadapt(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, detsum: f64) -> f64 {
     let mut b: [f64; 4] = [0.0; 4];
     let mut c1: [f64; 8] = [0.0; 8];
@@ -186,8 +188,10 @@ pub fn orient2dadapt(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, detsu
 
 /// returns a positive value if the points a, b, and c occur in counterclockwise order
 /// (c lies to the left of the directed line defined by points a and b).
-/// - Returns a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
-/// - Returns zero if they are collinear.
+///
+/// ## Returns
+/// - a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
+/// - zero if they are collinear.
 pub fn orient2d(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
     let detleft = (ay - cy) * (bx - cx);
     let detright = (ax - cx) * (by - cy);
@@ -203,8 +207,10 @@ pub fn orient2d(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
 
 /// returns a positive value if the points a, b, and c occur in counterclockwise order
 /// (c lies to the left of the directed line defined by points a and b).
-/// - Returns a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
-/// - Returns zero if they are collinear.
+///
+/// ## Returns
+/// - a negative value if they occur in clockwise order (c lies to the right of the directed line ab).
+/// - zero if they are collinear.
 pub fn orient2dfast(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
     (ay - cy) * (bx - cx) - (ax - cx) * (by - cy)
 }

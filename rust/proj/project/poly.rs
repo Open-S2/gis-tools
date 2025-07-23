@@ -19,7 +19,38 @@ const N_ITER: usize = 10;
 const I_ITER: usize = 20;
 const ITOL: f64 = 1e-12;
 
-/// Polyconic (American) Projection
+/// # Polyconic (American)
+///
+/// **Classification**: Pseudoconical
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: poly
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=poly
+/// ```
+///
+/// ## Required Parameters
+/// - None
+///
+/// ## Optional Parameters
+/// - `+lon_0=<value>`: Central meridian.
+/// - `+ellps=<value>`: Ellipsoid used.
+/// - `+R=<value>`: Radius of the projection sphere.
+/// - `+x_0=<value>`: False easting.
+/// - `+y_0=<value>`: False northing.
+///
+/// ![Polyconic (American)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/poly.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct PolyconicProjection {
     proj: Rc<RefCell<Proj>>,

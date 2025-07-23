@@ -26,13 +26,53 @@ pub struct LaeaData {
 }
 
 /// Lambert Azimuthal Equal Area Projection
+///
+/// See [`LambertAzimuthalEqualAreaBase`] for full documentation.
 pub type LambertAzimuthalEqualAreaProjection =
     LambertAzimuthalEqualAreaBase<LAMBERT_AZIMUTHAL_EQUAL_AREA>;
 /// Lambert Azimuthal Equal Area (Spherical) Projection
+///
+/// See [`LambertAzimuthalEqualAreaBase`] for full documentation.
 pub type LambertAzimuthalEqualAreaSphericalProjection =
     LambertAzimuthalEqualAreaBase<LAMBERT_AZIMUTHAL_EQUAL_AREA_SPHERICAL>;
 
-/// Lambert Azimuthal Equal Area Projection
+/// # Lambert Azimuthal Equal Area
+///
+/// **Classification**: Azimuthal
+///
+/// **Available forms**: Forward and inverse, spherical and ellipsoidal
+///
+/// **Defined area**: Global
+///
+/// **Alias**: laea
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=laea
+/// ```
+///
+/// ## Required Parameters
+/// - None, all parameters are optional for this projection.
+///
+/// ## Optional Parameters
+/// - `+lon_0`: Longitude of projection center. Defaults to `0`.
+/// - `+lat_0`: Latitude of projection center. Defaults to `0`.
+/// - `+ellps`: Ellipsoid. Defaults to `WGS84`.
+/// - `+R`: Radius of the sphere.
+/// - `+x_0`: False easting. Defaults to `0`.
+/// - `+y_0`: False northing. Defaults to `0`.
+///
+/// Reference
+/// "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder,
+/// The American Cartographer, Vol 15, No. 4, October 1988, pp. 341-355.
+///
+/// ![Lambert Azimuthal Equal Area](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/laea.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct LambertAzimuthalEqualAreaBase<const C: i64> {
     proj: Rc<RefCell<Proj>>,

@@ -11,17 +11,42 @@ const DAYS_IN_MONTH: [[u16; 12]; 2] = [
     [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], // Leap year
 ];
 
+/// # Date Structure
+///
+/// ## Description
 /// Convenience Date structure to model like a Javascript Date object.
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`Date::new`]: Create a new Date
+/// - [`Date::new_full`]: Creates a full Date
+/// - [`Date::from_time`]: Create date given number of milliseconds since 1970-01-01T00:00:00Z (UTC)
+/// - [`Date::set_time`]: Set the date fields from milliseconds since 1970-01-01T00:00:00Z
+/// - [`Date::get_time`]: Returns the number of milliseconds since 1970-01-01T00:00:00Z (UTC)
+/// - [`Date::to_iso_string`]: Returns a string representing the Date in ISO 8601 extended format.
+///
+/// ```rust
+/// use gistools::util::Date;
+///
+/// let date = Date::new(2022, 1, 1);
+/// assert_eq!(date.to_iso_string(), "2022-01-01T00:00:00.000Z");
+/// ```
 #[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Clone, Default)]
 pub struct Date {
-    year: u16,
-    month: u8,
-    day: u8,
-    hour: u8,
-    minute: u8,
-    second: u8,
+    /// Year
+    pub year: u16,
+    /// Month
+    pub month: u8,
+    /// Day
+    pub day: u8,
+    /// Hour
+    pub hour: u8,
+    /// Minute
+    pub minute: u8,
+    /// Second
+    pub second: u8,
 }
-
 impl Date {
     /// Creates a new Date
     pub fn new(year: u16, month: u8, day: u8) -> Date {

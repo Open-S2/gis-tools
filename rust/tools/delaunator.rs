@@ -12,6 +12,39 @@ pub static NO_REF: usize = usize::MAX;
 /// ## Description
 /// An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points.
 ///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`Delaunator::new`]: Create a new Delaunator
+/// - [`Delaunator::from_points`]: Given a flattened array of x,y points. e.g. [[x1, y1], [x2, y2], ...]
+/// - [`Delaunator::from_vector_points`]: Create a new Delaunator from a collection of VectorPoints
+/// - [`Delaunator::update`]: Updates the triangulation if you modified delaunay.
+///
+/// The properties you have access to:
+/// - [`Delaunator::coords`]: coordinates of each point
+/// - [`Delaunator::triangles`]: indexes to each triangle. (triangle[i * 3], triangle[(i * 3) + 1], triangle[(i * 3) + 2])
+/// - [`Delaunator::halfedges`]: indexes to each half edge. (halfedge[i], halfedge[(i + 1) % 3], halfedge[(i + 2) % 3])
+/// - [`Delaunator::hull`]: indexes to each point on the convex hull
+/// - [`Delaunator::triangles_len`]: length of the triangles array
+///
+/// ```rust
+/// use gistools::tools::Delaunator;
+/// use s2json::Point;
+///
+/// let points = vec![
+///     Point(382., 302.),
+///     Point(382., 328.),
+///     Point(382., 205.),
+///     Point(623., 175.),
+///     Point(382., 188.),
+///     Point(382., 284.),
+///     Point(623., 87.),
+///     Point(623., 341.),
+///     Point(141., 227.),
+/// ];
+/// let del = Delaunator::from_points(&points);
+/// ```
+///
 /// ## Links
 /// - https://en.wikipedia.org/wiki/Delaunay_triangulation
 #[derive(Debug)]
@@ -42,7 +75,12 @@ pub struct Delaunator {
 impl Delaunator {
     /// Constructs a delaunay triangulation object given an array of point coordinates of the form:
     /// [x0, y0, x1, y1, ...] (use a typed array for best performance).
-    /// @param coords - flattened array of x,y points. e.g. [x1, y1, x2, y2, ...]
+    ///
+    /// ## Parameters
+    /// - `coords`: flattened array of x,y points. e.g. [x1, y1, x2, y2, ...]
+    ///
+    /// ## Returns
+    /// A new [`Delaunator`] object
     pub fn new(coords: Vec<f64>) -> Delaunator {
         let n = coords.len() >> 1;
         let max_triangles: usize = if n < 3 { 0 } else { usize::max(2 * n - 5, 0) };
@@ -77,7 +115,9 @@ impl Delaunator {
     }
 
     /// Given a flattened array of x,y points. e.g. [[x1, y1], [x2, y2], ...]
-    /// return a Delaunator class to do Delaunay triangulation
+    ///
+    /// ## Returns
+    /// A Delaunator class to do Delaunay triangulation
     pub fn from_points(points: &[Point]) -> Delaunator {
         let n = points.len();
         let mut coords = vec![0.; n * 2];
@@ -91,8 +131,13 @@ impl Delaunator {
         Delaunator::new(coords)
     }
 
-    /// @param points - flattened array of x,y vector points. e.g. [{ x1, y1 }, { x2, y2 }, ...]
-    /// @returns - a Delaunator class to do Delaunay triangulation
+    /// Create a new Delaunator from a collection of VectorPoints
+    ///
+    /// ## Parameters
+    /// - `points`: flattened array of x,y vector points. e.g. [{ x1, y1 }, { x2, y2 }, ...]
+    ///
+    /// ## Returns
+    /// A new [`Delaunator`] object
     pub fn from_vector_points<M: Clone>(points: &[VectorPoint<M>]) -> Delaunator {
         let n = points.len();
         let mut coords = vec![0.; n * 2];
@@ -106,7 +151,7 @@ impl Delaunator {
         Delaunator::new(coords)
     }
 
-    /// Updates the triangulation if you modified delaunay.coords values in place, avoiding expensive
+    /// Updates the triangulation if you modified delaunay. Coords values in place, avoiding expensive
     /// memory allocations. Useful for iterative relaxation algorithms such as
     /// [Lloyd's](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm).
     pub fn update(&mut self) {
@@ -395,9 +440,14 @@ impl Delaunator {
         self.halfedges = self.halfedges[0..self.triangles_len].to_vec();
     }
 
-    /// @param x - x coordinate
-    /// @param y - y coordinate
-    /// @returns - a hash value corresponding to the point (x, y)
+    /// Check if a point is inside the circumcircle of a triangle
+    ///
+    /// ## Parameters
+    /// - `x`: x coordinate
+    /// - `y`: y coordinate
+    ///
+    /// ## Returns
+    /// A hash value corresponding to the point (x, y)
     fn hash_key(&self, x: f64, y: f64) -> usize {
         let hash_size = self.hash_size as f64;
         (floor(pseudo_angle(x - self.cx, y - self.cy) * hash_size) % hash_size) as usize
@@ -500,8 +550,11 @@ impl Delaunator {
         }
     }
 
-    /// @param a - index of triangle vertex
-    /// @param b - index of next triangle vertex
+    /// Link half-edges
+    ///
+    /// ## Parameters
+    /// - `a`: index of triangle vertex
+    /// - `b`: index of next triangle vertex
     fn link(&mut self, a: usize, b: usize) {
         self.halfedges[a] = b;
         if b != NO_REF {
@@ -510,13 +563,17 @@ impl Delaunator {
     }
 
     /// add a new triangle given vertex indices and adjacent half-edge ids
-    /// @param i0 - index of triangle vertex
-    /// @param i1 - index of next triangle vertex
-    /// @param i2 - index of previous triangle vertex
-    /// @param a - adjacent half-edge id
-    /// @param b - adjacent half-edge id
-    /// @param c - adjacent half-edge id
-    /// @returns - index of new triangle
+    ///
+    /// ## Parameters
+    /// - `i0`: index of triangle vertex
+    /// - `i1`: index of next triangle vertex
+    /// - `i2`: index of previous triangle vertex
+    /// - `a`: adjacent half-edge id
+    /// - `b`: adjacent half-edge id
+    /// - `c`: adjacent half-edge id
+    ///
+    /// ## Returns
+    /// Index of new triangle
     fn add_triangle(
         &mut self,
         i0: usize,

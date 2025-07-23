@@ -114,9 +114,14 @@ impl<T: Reader> IntegerCompressor<T> {
         }
     }
 
-    /// @param pred - the predicted value
-    /// @param context - the context DEFAULTS TO 0 IF NOT GIVEN
-    /// @returns - the decompressed value
+    /// Decompress
+    ///
+    /// ## Parameters
+    /// - `pred`: the predicted value
+    /// - `context`: the context DEFAULTS TO 0 IF NOT GIVEN
+    ///
+    /// ## Returns
+    /// The decompressed value
     pub fn decompress(&mut self, pred: i32, context: u32) -> i32 {
         let mut real = pred + self.read_corrector(context);
         if real < 0 {
@@ -127,8 +132,13 @@ impl<T: Reader> IntegerCompressor<T> {
         real
     }
 
-    /// @param m_bits - the arithmetic model
-    /// @returns - the corrector
+    /// Read in the corrector
+    ///
+    /// ## Parameters
+    /// - `m_bits`: the arithmetic model
+    ///
+    /// ## Returns
+    /// The corrector value
     fn read_corrector(&mut self, context: u32) -> i32 {
         let mut c: i32 = 0; // I32
         let mut dec = self.dec.borrow_mut();

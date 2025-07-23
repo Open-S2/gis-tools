@@ -11,10 +11,13 @@ use alloc::string::String;
 
 /// Returns a template generator for the given template number
 ///
-/// @param template - the template number to generate
-/// @param reader - the byte data to read
-/// @param sections - the sections of the GRIB2 message that have been parsed so far
-/// @returns - generated template data
+/// ## Parameters
+/// - `template`: the template number to generate
+/// - `reader`: the byte data to read
+/// - sections`: the sections of the GRIB2 message that have been parsed so far
+///
+/// ## Returns
+/// Generated template data
 #[derive(Debug, Clone, PartialEq)]
 pub enum Grib2ProductDefinition {
     /// Analysis or forecast at a horizontal level or in a horizontal layer at a point in time.
@@ -36,6 +39,15 @@ impl Grib2ProductDefinition {
             _ => panic!("Template 4.{template} not defined"),
         }
     }
+
+    /// Get the values
+    pub fn values(&self) -> &TableCategory {
+        match self {
+            Grib2ProductDefinition::Grib2Template40(template) => &template.values,
+            Grib2ProductDefinition::Grib2Template41(template) => &template.values,
+            Grib2ProductDefinition::Grib2Template42(template) => &template.values,
+        }
+    }
 }
 
 /// PRODUCT DEFINITION TEMPLATE 4.0
@@ -44,53 +56,56 @@ impl Grib2ProductDefinition {
 /// a horizontal layer at a point in time.
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp4-0.shtml)
-///
-/// @param section - the byte data to read
-/// @param sections - the sections of the GRIB2 message that have been parsed so far
-/// @returns - the parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template40 {
     /// table accessed category
-    category: String,
+    pub category: String,
     /// Paramater
-    values: TableCategory,
+    pub values: TableCategory,
     /// Parameter category (see Code [Table 4.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml))
-    parameter_category: u8,
+    pub parameter_category: u8,
     /// Parameter number (see Code [Table 4.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml))
-    parameter_number: u8,
+    pub parameter_number: u8,
     /// Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml))
-    gen_process_type: Grib2Table4_3,
+    pub gen_process_type: Grib2Table4_3,
     /// Background generating process identifier (defined by originating centre)
-    background_gen_process: u8,
+    pub background_gen_process: u8,
     /// Analysis or forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html))
-    forecast_gen_process: Grib2TableA,
+    pub forecast_gen_process: Grib2TableA,
     /// Hours after reference time data cutoff (see Notes)
-    hours_after_ref_time: u16,
+    pub hours_after_ref_time: u16,
     /// Minutes after reference time data cutoff (see Notes)
-    min_after_ref_time: u8,
+    pub min_after_ref_time: u8,
     /// Indicator of unit of time range (see Code [Table 4.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-4.shtml))
-    unit_of_time_range_indicator: Grib2Table4_4,
+    pub unit_of_time_range_indicator: Grib2Table4_4,
     /// Forecast time in units defined by octet 18
-    forecast_time: Date,
+    pub forecast_time: Date,
     /// First fixed surface
-    surface1: TypeAndUnit, // grib2_lookup_table4_5
+    pub surface1: TypeAndUnit, // grib2_lookup_table4_5
     /// Type of first fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml))
-    surface1_type: u8,
+    pub surface1_type: u8,
     /// Scale factor of first fixed surface
-    surface1_scale: u8,
+    pub surface1_scale: u8,
     /// Scaled value of first fixed surface
-    surface1_value: u32,
+    pub surface1_value: u32,
     /// Second fixed surface
-    surface2: TypeAndUnit, // grib2_lookup_table4_5
+    pub surface2: TypeAndUnit, // grib2_lookup_table4_5
     /// Type of second fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml))
-    surface2_type: u8,
+    pub surface2_type: u8,
     /// Scale factor of second fixed surface
-    surface2_scale: u8,
+    pub surface2_scale: u8,
     /// Scaled value of second fixed surface
-    surface2_value: u32,
+    pub surface2_value: u32,
 }
 impl Grib2Template40 {
     /// Create a new instance of Grib2ProductDefinition
+    ///
+    /// ## Parameters
+    /// - `section`: the byte data to read
+    /// - `sections`: the sections of the GRIB2 message that have been parsed so far
+    ///
+    /// ## Returns
+    /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
         let ref_time =
@@ -149,59 +164,62 @@ impl Grib2Template40 {
 /// level or in a horizontal layer at a point in time.
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp4-1.shtml)
-///
-/// @param section - the byte data to read
-/// @param sections - the sections of the GRIB2 message that have been parsed so far
-/// @returns - the parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template41 {
     /// table accessed category
-    category: String,
+    pub category: String,
     /// Paramater
-    values: TableCategory,
+    pub values: TableCategory,
     /// Parameter category (see Code [Table 4.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml))
-    parameter_category: u8,
+    pub parameter_category: u8,
     /// Parameter number (see Code [Table 4.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml))
-    parameter_number: u8,
+    pub parameter_number: u8,
     /// Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml))
-    gen_process_type: Grib2Table4_3,
+    pub gen_process_type: Grib2Table4_3,
     /// Background generating process identifier (defined by originating centre)
-    background_gen_process: u8,
+    pub background_gen_process: u8,
     /// Forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html))
-    forecast_gen_process: Grib2TableA,
+    pub forecast_gen_process: Grib2TableA,
     /// Hours after reference time data cutoff (see Notes)
-    hours_after_ref_time: u16,
+    pub hours_after_ref_time: u16,
     /// Minutes after reference time data cutoff (see Notes)
-    min_after_ref_time: u8,
+    pub min_after_ref_time: u8,
     /// Indicator of unit of time range (see Code [Table 4.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-4.shtml))
-    unit_of_time_range_indicator: Grib2Table4_4,
+    pub unit_of_time_range_indicator: Grib2Table4_4,
     /// Forecast time in units defined by octet 18
-    forecast_time: Date,
+    pub forecast_time: Date,
     /// First fixed surface
-    surface1: TypeAndUnit,
+    pub surface1: TypeAndUnit,
     /// Type of first fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml), result stored in `surface1`)
-    surface1_type: u8,
+    pub surface1_type: u8,
     /// Scale factor of first fixed surface
-    surface1_scale: u8,
+    pub surface1_scale: u8,
     /// Scaled value of first fixed surface
-    surface1_value: u32,
+    pub surface1_value: u32,
     /// Second fixed surface
-    surface2: TypeAndUnit,
+    pub surface2: TypeAndUnit,
     /// Type of second fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml) result stored in `surface2`)
-    surface2_type: u8,
+    pub surface2_type: u8,
     /// Scale factor of second fixed surface
-    surface2_scale: u8,
+    pub surface2_scale: u8,
     /// Scaled value of second fixed surface
-    surface2_value: u32,
+    pub surface2_value: u32,
     /// Type of ensemble forecast (see Code [Table 4.6](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-6.shtml))
-    ensemble_forecast_type: Grib2Table4_6,
+    pub ensemble_forecast_type: Grib2Table4_6,
     /// Perturbation number
-    perturbation_number: u8,
+    pub perturbation_number: u8,
     /// Number of forecasts in ensemble
-    num_forecasts_in_ensemble: u8,
+    pub num_forecasts_in_ensemble: u8,
 }
 impl Grib2Template41 {
     /// Create a new instance of Grib2ProductDefinition
+    ///
+    /// ## Parameters
+    /// - `section`: the byte data to read
+    /// - `sections`: the sections of the GRIB2 message that have been parsed so far
+    ///
+    /// ## Returns
+    /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
         let ref_time =
@@ -267,57 +285,60 @@ impl Grib2Template41 {
 /// level or in a horizontal layer at a point in time.
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp4-2.shtml)
-///
-/// @param section - the byte data to read
-/// @param sections - the sections of the GRIB2 message that have been parsed so far
-/// @returns - the parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2Template42 {
     /// table accessed category
-    category: String,
+    pub category: String,
     /// Paramater
-    values: TableCategory,
+    pub values: TableCategory,
     /// Parameter category (see Code [Table 4.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml)) */
-    parameter_category: u8,
+    pub parameter_category: u8,
     /// Parameter number (see Code [Table 4.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml)) */
-    parameter_number: u8,
+    pub parameter_number: u8,
     /// Type of generating process (see Code [Table 4.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-3.shtml)) */
-    gen_process_type: Grib2Table4_3,
+    pub gen_process_type: Grib2Table4_3,
     /// Background generating process identifier (defined by originating centre) */
-    background_gen_process: u8,
+    pub background_gen_process: u8,
     /// Forecast generating process identifier (see Code [ON388 Table A](https://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html)) */
-    forecast_gen_process: Grib2TableA,
+    pub forecast_gen_process: Grib2TableA,
     /// Hours after reference time data cutoff (see Notes) */
-    hours_after_ref_time: u16,
+    pub hours_after_ref_time: u16,
     /// Minutes after reference time data cutoff */
-    min_after_ref_time: u8,
+    pub min_after_ref_time: u8,
     /// Indicator of unit of time range (see Code [Table 4.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-4.shtml)) */
-    unit_of_time_range_indicator: Grib2Table4_4,
+    pub unit_of_time_range_indicator: Grib2Table4_4,
     /// Forecast time in units defined by octet 18 */
-    forecast_time: Date,
+    pub forecast_time: Date,
     /// First fixed surface */
-    surface1: TypeAndUnit,
+    pub surface1: TypeAndUnit,
     /// Type of first fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml)) */
-    surface1_type: u8,
+    pub surface1_type: u8,
     /// Scale factor of first fixed surface */
-    surface1_scale: u8,
+    pub surface1_scale: u8,
     /// Scaled value of first fixed surface */
-    surface1_value: u32,
+    pub surface1_value: u32,
     /// Second fixed surface */
-    surface2: TypeAndUnit,
+    pub surface2: TypeAndUnit,
     /// Type of second fixed surface (see Code [Table 4.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-5.shtml)) */
-    surface2_type: u8,
+    pub surface2_type: u8,
     /// Scale factor of second fixed surface */
-    surface2_scale: u8,
+    pub surface2_scale: u8,
     /// Scaled value of second fixed surface */
-    surface2_value: u32,
+    pub surface2_value: u32,
     /// Derived forecast type (see Code [Table 4.7](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-7.shtml)) */
-    derived_forecast_type: Grib2Table4_7,
+    pub derived_forecast_type: Grib2Table4_7,
     /// Number of forecasts in the ensemble */
-    num_forecasts_in_ensemble: u8,
+    pub num_forecasts_in_ensemble: u8,
 }
 impl Grib2Template42 {
     /// Create a new instance of Grib2ProductDefinition
+    ///
+    /// ## Parameters
+    /// - `section`: the byte data to read
+    /// - `sections`: the sections of the GRIB2 message that have been parsed so far
+    ///
+    /// ## Returns
+    /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
         let ref_time =
@@ -377,10 +398,13 @@ impl Grib2Template42 {
 
 /// Calculate Forecast Time
 ///
-/// @param ref_time Reference time of GRIB Packet
-/// @param offset Number of units to offset the ref time by
-/// @param unit_of_time unit of time of offset
-/// @returns - the forecast time
+/// ## Parameters
+/// - `ref_time`: Reference time of GRIB Packet
+/// - `offset`: Number of units to offset the ref time by
+/// - `unit_of_time`: unit of time of offset
+///
+/// ## Returns
+/// The forecast time
 pub fn calculate_forecast_time(ref_time: &Date, offset: i64, unit_of_time: &Grib2Table4_4) -> Date {
     match unit_of_time {
         Grib2Table4_4::Hour => Date::from_time(ref_time.get_time() + offset * 1000 * 60 * 60),

@@ -145,10 +145,14 @@ pub fn xml_find_tag_by_path(
 }
 
 /// Find all tags with the given name
-/// @param xml - the xml string
-/// @param tag_name - the tag name
-/// @param options - user defined options
-/// @returns all tags with the given name
+///
+/// ## Parameters
+/// - `xml`: the xml string
+/// - `tag_name`: the tag name
+/// - `options`: user defined options
+///
+/// ## Returns
+/// All tags with the given name
 pub fn xml_find_tags_by_name(
     xml: &str,
     tag_name: &str,
@@ -287,10 +291,14 @@ pub fn xml_index_of_match_end(xml: &str, pattern: &str, start_index: usize) -> u
 }
 
 /// Find the index of the first match
-/// @param xml - the xml string
-/// @param pattern - the pattern
-/// @param start_index - the start index
-/// @returns the index of the first match
+///
+/// ## Parameters
+/// - `xml`: the xml string
+/// - `pattern`: the pattern
+/// - `start_index`: the start index
+///
+/// ## Returns
+/// The index of the first match
 pub fn xml_index_of_match(xml: &str, pattern: &str, start_index: usize) -> usize {
     // let mtch: Vec<(usize, &str)> = xml[start_index..].match_indices(pattern).collect();
     let re = Regex::new(pattern).unwrap();

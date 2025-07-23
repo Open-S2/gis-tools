@@ -27,7 +27,8 @@ pub type LASVectorFeature = VectorFeature<(), Properties, LASPoint>;
 /// ## Description
 /// Reads LAS data. Supports up to the LAS 1.4 specification.
 /// [See specification](https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf)
-/// Implements the {@link FeatureIterator} interface
+///
+/// Implements the [`FeatureReader`] trait
 ///
 /// Data is stored like so:
 /// ```txt
@@ -38,8 +39,25 @@ pub type LASVectorFeature = VectorFeature<(), Properties, LASPoint>;
 ///
 /// ## Usage
 ///
-/// ```ts
-/// // TODO
+/// The methods you have access to:
+/// - [`LASReader::new`]: Create a new LASReader
+/// - [`LASReader::len`]: Get the number of points stored
+/// - [`LASReader::is_empty`]: Check if the reader is empty
+/// - [`LASReader::get_feature`]: Reads a point in at index as a feature
+/// - [`LASReader::get_point`]: Reads a point in at index
+/// - [`LASReader::iter`]: Create an iterator to collect the features
+/// - [`LASReader::par_iter`]: Create a parallel iterator to collect the features
+///
+/// ```rust
+/// use gistools::{parsers::{FeatureReader, FileReader}, readers::LASReader};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/las/fixtures/simple1_1.las");
+///
+/// let las_reader = LASReader::new(FileReader::from(path.clone()), None);
+/// let features = las_reader.iter().collect::<Vec<_>>();
+/// assert_eq!(features.len(), 1_065);
 /// ```
 ///
 /// ## Links
@@ -242,7 +260,8 @@ pub fn las_parse_variable_length_records<T: Reader>(
 ///
 /// NOTE: It is required to use WKT if the point type is 6-10
 ///
-/// @returns - the WKT string if it exists
+/// ## Returns
+/// The WKT string if it exists
 pub fn build_wkt(
     header: &LASHeader,
     variable_length_records: &BTreeMap<u32, LASExtendedVariableLengthRecord>,
@@ -279,7 +298,8 @@ pub fn build_wkt(
 /// The `GeoKeyDirectoryTag` is defined as just an array of unsigned short values. But,
 /// programmatically, the data can be seen as something like this:
 ///
-/// @returns - The parsed GeoKeyDirectory
+/// ## Returns
+/// The parsed GeoKeyDirectory
 pub fn build_geo_key_directory(
     variable_length_records: &BTreeMap<u32, LASExtendedVariableLengthRecord>,
     transformer: &mut Transformer,

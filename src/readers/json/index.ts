@@ -82,7 +82,9 @@ export class BufferJSONReader<
  * # NewLine Delimited JSON Reader
  *
  * ## Description
+ *
  * Parse (Geo|S2)JSON from a file that is in a newline-delimited format
+ *
  * Implements the {@link FeatureIterator} interface
  *
  * ## Usage
@@ -157,6 +159,7 @@ export class NewLineDelimitedJSONReader<
  *
  * ## Description
  * Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
+ *
  * Implements the {@link FeatureIterator} interface.
  *
  * ## Usage

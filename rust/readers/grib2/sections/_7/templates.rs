@@ -12,9 +12,12 @@ use libm::pow;
 /// Decode GRIB2 Template 7.X
 /// Converts data Buffer according to data representation section
 ///
-/// @param reader - The raw data to convert
-/// @param sections - The sections of the GRIB2 message that have been parsed so far
-/// @returns Converted data
+/// ## Parameters
+/// - `reader`: The raw data to convert
+/// - `sections`: The sections of the GRIB2 message that have been parsed so far
+///
+/// ## Returns
+/// Converted data
 pub fn grib2_template_7_decoder(data: &BufferReader, sections: &Grib2Sections) -> Vec<f64> {
     let drs = sections.data_representation.as_ref().unwrap_or_else(|| {
         panic!("Data Representation Section is not defined");
@@ -48,9 +51,12 @@ pub fn grib2_template_7_decoder(data: &BufferReader, sections: &Grib2Sections) -
 ///
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-0.shtml)
 ///
-/// @param reader - The raw data to convert
-/// @param drs - The data representation section
-/// @returns - The converted data
+/// ## Parameters
+/// - `reader`: The raw data to convert
+/// - `drs`: The data representation section
+///
+/// ## Returns
+///  The converted data
 pub fn simple_unpacking(reader: &BufferReader, drs: &Grib2DataRepresentationSection) -> Vec<f64> {
     let Grib2Template50 {
         decimal_scale_factor,
@@ -94,15 +100,17 @@ pub fn simple_unpacking(reader: &BufferReader, drs: &Grib2DataRepresentationSect
     values
 }
 
-// /**
-//  * # Data Template 7.40 - Grid point data - JPEG 2000 code stream format
-//  *
-//  * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-40.shtml)
-//  * @param reader - The raw data to convert
-//  * @param drs - The data representation section
-//  * @param bms - The bit map section
-//  * @returns - The converted data
-//  */
+// /// # Data Template 7.40 - Grid point data - JPEG 2000 code stream format
+// ///
+// /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp7-40.shtml)
+// ///
+// /// ## Parameters
+// /// - `reader`: The raw data to convert
+// /// - `drs`: The data representation section
+// /// - `bms`: The bit map section
+// ///
+// /// ## Returns
+// /// The converted data
 // export function jpeg2000Unpacking(
 //   reader: Reader,
 //   drs: Grib2DataRepresentationSection,

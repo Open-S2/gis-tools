@@ -19,6 +19,26 @@ struct NewLineDelimitedJSONParser {
 }
 
 /// # NewLine Delimited JSON Reader
+///
+/// ## Description
+///
+/// Parse (Geo|S2)JSON from a file that is in a newline-delimited format
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::NewLineDelimitedJSONReader};
+/// use s2json::{Properties, MValue};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/readers/json/fixtures/points.geojsonld");
+///
+/// let reader: NewLineDelimitedJSONReader<_> = NewLineDelimitedJSONReader::new(FileReader::from(path), None);
+/// let features: Vec<_> = reader.iter().collect();
+/// assert_eq!(features.len(), 3);
+/// ```
 #[derive(Debug)]
 pub struct NewLineDelimitedJSONReader<
     T: Reader,
@@ -184,6 +204,31 @@ impl<
 }
 
 /// # Text Sequence JSON Reader
+///
+/// ## Description
+///
+/// Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::SequenceJSONReader};
+/// use s2json::{Properties, MValue};
+/// use std::path::PathBuf;
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/readers/json/fixtures/features.geojsonseq");
+///
+/// let reader: SequenceJSONReader<_> = SequenceJSONReader::new(FileReader::from(path));
+/// let features: Vec<_> = reader.iter().collect();
+/// assert_eq!(features.len(), 3);
+/// ```
+///
+/// ## Links
+/// - https://datatracker.ietf.org/doc/html/rfc7464
+/// - https://datatracker.ietf.org/doc/html/rfc8142
+/// - https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file
 #[derive(Debug)]
 pub struct SequenceJSONReader<
     T: Reader,

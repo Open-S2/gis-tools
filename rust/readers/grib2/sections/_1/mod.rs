@@ -22,10 +22,6 @@ use tables::{
 ///
 /// ## Links
 /// - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect1.shtml)
-///
-/// @param section - The byte block to pull ideintification information
-///
-/// @returns - The parsed identification section
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grib2IdentificationSection {
     /// Number of GRIB section
@@ -51,6 +47,12 @@ pub struct Grib2IdentificationSection {
 }
 impl Grib2IdentificationSection {
     /// Create a new Grib2IdentificationSection
+    ///
+    /// ## Parameters
+    /// - `section`: The byte block to pull ideintification information
+    ///
+    /// ## Returns
+    /// The parsed identification section
     pub fn new<T: Reader>(section: &T) -> Grib2IdentificationSection {
         let center = section.uint16_be(Some(5)) as u8;
         let subcenter = section.uint16_be(Some(7)) as u8;

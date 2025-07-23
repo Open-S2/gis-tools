@@ -9,7 +9,7 @@ mod tests {
         parsers::{Buffer, BufferReader, FeatureReader},
         readers::{
             GISReader, GRIB2Reader, Grib2LocalUseSection, Grib2SectionLocations, ReaderType,
-            parse_idx,
+            TableCategory, parse_idx,
         },
     };
     use s2json::VectorPoint;
@@ -146,6 +146,55 @@ mod tests {
                 length: 10,
                 contents: BufferReader::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
             }
+        );
+    }
+
+    #[test]
+    fn test_grib2_filter_sections() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/ref_sec0.gdas.t12z.pgrb2.1p00.anl.75r.grib2.txt");
+
+        let idx_data = std::fs::read_to_string(path).unwrap();
+        let sections = parse_idx(
+            idx_data,
+            vec![":DZDT:0.01 mb:".into(), ":TMP:0.4 mb:".into(), ":ABSV:0.4 mb:anl:".into()],
+            None,
+        );
+
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/ref_sec0.gdas.t12z.pgrb2.1p00.anl.75r.grib2");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let grib2_reader = GRIB2Reader::from_idx(&BufferReader::from(bytes), sections);
+
+        let packet_products: Vec<_> = grib2_reader
+            .packets
+            .borrow()
+            .iter()
+            .map(|p| {
+                let product_definition = p.product_definition.as_ref().unwrap();
+                product_definition.values.values().clone()
+            })
+            .collect();
+
+        assert_eq!(
+            packet_products,
+            vec![
+                TableCategory {
+                    parameter: "Vertical Velocity (Geometric)".into(),
+                    units: "m s-1".into(),
+                    abbrev: "DZDT".into()
+                },
+                TableCategory {
+                    parameter: "Temperature".into(),
+                    units: "K".into(),
+                    abbrev: "TMP".into()
+                },
+                TableCategory {
+                    parameter: "Absolute Vorticity".into(),
+                    units: "s-1".into(),
+                    abbrev: "ABSV".into()
+                }
+            ]
         );
     }
 

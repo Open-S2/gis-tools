@@ -1,20 +1,32 @@
 /// Fold a number between 0 and 255
-/// @param n - the number to fold
-/// @returns - the folded number
+///
+/// ## Parameters
+/// - `n`: the number to fold
+///
+/// ## Returns
+/// The folded number
 pub fn u8_fold(n: u32) -> u8 {
     if n > 255 { (n - 256) as u8 } else { n as u8 }
 }
 
 /// Clamp a number between 0 and 255
-/// @param n - the number to clamp
-/// @returns - the clamped number
+///
+/// ## Parameters
+/// - `n`: the number to clamp
+///
+/// ## Returns
+/// The clamped number
 pub fn u8_clamp(n: u32) -> u8 {
     if n > 255 { 255 } else { n as u8 }
 }
 
 /// Clamp a number between -128 and 127
-/// @param n - the number to clamp
-/// @returns - the clamped number
+///
+/// ## Parameters
+/// - `n`: the number to clamp
+///
+/// ## Returns
+/// The clamped number
 pub fn i8_clamp(n: i32) -> i8 {
     if n <= -128 {
         -128
@@ -26,15 +38,23 @@ pub fn i8_clamp(n: i32) -> i8 {
 }
 
 /// zero the least significant bit
-/// @param n - the number to zero
-/// @returns - the zeroed number
+///
+/// ## Parameters
+/// - `n`: the number to zero
+///
+/// ## Returns
+/// The zeroed number
 pub fn u32_zero_bit0(n: u32) -> u32 {
     n & 0xfffffffe
 }
 
 /// Quantize a signed 16-bit number
-/// @param n - the number to quantize
-/// @returns - the quantized number
+///
+/// ## Parameters
+/// - `n`: the number to quantize
+///
+/// ## Returns
+/// The quantized number
 pub fn i16_quantize(n: f64) -> i16 {
     if (n) >= 0. { ((n) + 0.5) as i16 } else { ((n) - 0.5) as i16 }
 }

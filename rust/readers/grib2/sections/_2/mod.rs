@@ -9,10 +9,6 @@ use crate::parsers::{BufferReader, Reader};
 ///
 /// ## Links
 /// - [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect2.shtml)
-///
-/// @param section - The byte block to pull basic local information
-///
-/// @returns - a parsed explaination of local use.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Grib2LocalUseSection {
     /// Number of GRIB section
@@ -24,6 +20,12 @@ pub struct Grib2LocalUseSection {
 }
 impl Grib2LocalUseSection {
     /// Create a new Grib2LocalUseSection
+    ///
+    /// ## Parameters
+    /// - `section`: The byte block to pull basic local information
+    ///
+    /// ## Returns
+    /// A parsed explaination of local use.
     pub fn new<T: Reader>(section: &T) -> Grib2LocalUseSection {
         Grib2LocalUseSection {
             section_number: section.uint8(Some(4)),

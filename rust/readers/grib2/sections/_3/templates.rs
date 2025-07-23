@@ -20,10 +20,6 @@ pub enum Grib2GridUnits {
 
 /// Returns a template generator for the given template number
 /// All templates are listed [here](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-1.shtml)
-///
-/// @param template - template number parse block
-/// @param section - byte block
-/// @returns Template generator
 #[derive(Debug, Clone, PartialEq)]
 pub enum Grib2Template3 {
     /// Latitude/Longitude (or equidistant cylindrical, or Plate Carree)
@@ -33,6 +29,12 @@ pub enum Grib2Template3 {
 }
 impl Grib2Template3 {
     /// Create a new instance of Grib2Template3
+    ///
+    /// - `template`: template number parse block
+    /// - `section`: byte block
+    ///
+    /// ## Returns
+    /// Template generator
     pub fn new<T: Reader>(template: Grib2Table3_1, section: &T) -> Self {
         // TODO: Addd all Grib2Table3_1 options and set correct transform
         match template {
@@ -91,54 +93,57 @@ impl Grib2Template3 {
 /// - In most cases, multiplying Ni (octets 31-34) by Nj (octets 35-38) yields the total number of
 ///   points in the grid. However, this may not be true if bit 8 of the scanning mode flags (octet 72)
 ///   is set to 1.
-///
-/// @param section - byte block for template 3.0
-/// @returns - The parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct EquatorialTemplate {
     /// Shape of Earth [Table 3.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-2.shtml)
-    shape: Grib2Table3_2,
+    pub shape: Grib2Table3_2,
     /// Scale Factor of radius of spherical Earth
-    radius_scale_factor: u8,
+    pub radius_scale_factor: u8,
     /// Scale value of radius of spherical Earth
-    radius_scale_value: u32,
+    pub radius_scale_value: u32,
     /// Scale factor of major axis of oblate spheroid Earth
-    major_axis_scale_factor: u8,
+    pub major_axis_scale_factor: u8,
     /// Scale value of major axis of oblate spheroid Earth
-    major_axis_scale_value: u32,
+    pub major_axis_scale_value: u32,
     /// Scale factor of minor axis of oblate spheroid Earth
-    minor_axis_scale_factor: u8,
+    pub minor_axis_scale_factor: u8,
     /// Scale value of minor axis of oblate spheroid Earth
-    minor_axis_scale_value: u32,
+    pub minor_axis_scale_value: u32,
     /// Number of points along a parallel (W-E)
-    nx: u32,
+    pub nx: u32,
     /// Number of points along a meridian (N-S)
-    ny: u32,
+    pub ny: u32,
     /// Basic angle of the initial production domain
-    basic_angle: f64,
+    pub basic_angle: f64,
     /// Subdivisions of basic angle used to define extreme longitudes and latitudes, and direction increments
-    subdivisions: f64,
+    pub subdivisions: f64,
     /// Latitude of first grid point
-    lat1: f64,
+    pub lat1: f64,
     /// Longitude of first grid point
-    lon1: f64,
+    pub lon1: f64,
     /// Resolution and component flags [Table 3.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-3.shtml)
-    resolution: Grib2Table3_3,
+    pub resolution: Grib2Table3_3,
     /// Latitude of last grid point
-    lat2: f64,
+    pub lat2: f64,
     /// Longitude of last grid point
-    lon2: f64,
+    pub lon2: f64,
     /// i direction increment
-    dx: f64,
+    pub dx: f64,
     /// j direction increment
-    dy: f64,
+    pub dy: f64,
     /// Scanning mode [Table 3.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-4.shtml)
-    scan_mode: Grib2Table3_4,
+    pub scan_mode: Grib2Table3_4,
     /// Grid Units
-    grid_units: Grib2GridUnits,
+    pub grid_units: Grib2GridUnits,
 }
 impl EquatorialTemplate {
     /// Create a new instance of EquatorialTemplate
+    ///
+    /// ## Parameters
+    /// - `section`: byte block for template 3.0
+    ///
+    /// ## Returns
+    /// The parsed template
     pub fn new<T: Reader>(section: &T) -> Self {
         let shape = section.uint8(Some(14));
         let basic_angle = section.uint32_be(Some(38)) as f64;
@@ -215,53 +220,55 @@ impl EquatorialTemplate {
 /// - Grid lengths Dx and Dy are in meters at the latitude LaD.
 /// - Bit 3 of the resolution and component flags should be set to 1 to indicate that Dx and Dy
 ///   are given in meters.
-///
-/// @param section - byte block for template 3.20
-///
-/// @returns - The parsed template
 #[derive(Debug, Clone, PartialEq)]
 pub struct PolarTemplate {
     /// Shape of Earth [Table 3.2](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-2.shtml)
-    shape: Grib2Table3_2,
+    pub shape: Grib2Table3_2,
     /// Scale Factor of radius of spherical Earth
-    radius_scale_factor: u8,
+    pub radius_scale_factor: u8,
     /// Scale value of radius of spherical Earth
-    radius_scale_value: u32,
+    pub radius_scale_value: u32,
     /// Scale factor of major axis of oblate spheroid Earth
-    major_axis_scale_factor: u8,
+    pub major_axis_scale_factor: u8,
     /// Scale value of major axis of oblate spheroid Earth
-    major_axis_scale_value: u32,
+    pub major_axis_scale_value: u32,
     /// Scale factor of minor axis of oblate spheroid Earth
-    minor_axis_scale_factor: u8,
+    pub minor_axis_scale_factor: u8,
     /// Scale value of minor axis of oblate spheroid Earth
-    minor_axis_scale_value: u32,
+    pub minor_axis_scale_value: u32,
     /// Number of points along the x-axis
-    nx: u32,
+    pub nx: u32,
     /// Number of points along the y-axis
-    ny: u32,
+    pub ny: u32,
     /// Latitude of first grid point
-    lat1: f64,
+    pub lat1: f64,
     /// Longitude of first grid point
-    lon1: f64,
+    pub lon1: f64,
     /// Latitude where Dx and Dy are specified
-    lat_d: f64,
+    pub lat_d: f64,
     /// Orientation of the grid (LoV)
-    lon_v: f64,
+    pub lon_v: f64,
     /// Resolution and component flags [Table 3.3](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-3.shtml)
-    resolution: Grib2Table3_3,
+    pub resolution: Grib2Table3_3,
     /// x-direction grid length (meters at LaD)
-    dx: f64,
+    pub dx: f64,
     /// y-direction grid length (meters at LaD)
-    dy: f64,
+    pub dy: f64,
     /// Projection center flag [Table 3.5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-5.shtml)
-    proj_center: Grib2Table3_5,
+    pub proj_center: Grib2Table3_5,
     /// Scanning mode [Table 3.4](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table3-4.shtml)
-    scan_mode: Grib2Table3_4,
+    pub scan_mode: Grib2Table3_4,
     /// Grid Units
-    grid_units: Grib2GridUnits,
+    pub grid_units: Grib2GridUnits,
 }
 impl PolarTemplate {
     /// Create a new instance of PolarTemplate
+    ///
+    /// ## Parameters
+    /// - `section`: byte block for template 3.20
+    ///
+    /// ## Returns
+    /// The parsed template
     pub fn new<T: Reader>(section: &T) -> Self {
         let shape = section.uint8(Some(14));
         let lat1 = section.int32_be(Some(38)) as f64;

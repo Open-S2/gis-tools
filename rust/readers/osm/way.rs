@@ -149,7 +149,9 @@ impl Way {
     }
 
     /// Converts the way to an intermediate vector feature (way's nodes have not been parsed)
-    /// @returns - the way as an intermediate vector feature
+    ///
+    /// ## Returns
+    /// The way as an intermediate vector feature
     pub fn to_intermediate_feature<
         T: Reader,
         _N: KVStore<u64, VectorPoint<MValue>>,

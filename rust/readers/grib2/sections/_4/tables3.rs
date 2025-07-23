@@ -27,8 +27,10 @@ use alloc::string::String;
 /// Type and Unit categorizing
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeAndUnit {
-    r#type: String,
-    unit: String,
+    /// Type
+    pub r#type: String,
+    /// Unit
+    pub unit: String,
 }
 impl core::fmt::Display for TypeAndUnit {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {

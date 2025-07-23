@@ -231,10 +231,13 @@ impl<'a> InputReader<'a> {
 
 /// Decodes a JPEG image
 ///
-/// @param jpeg_data - The JPEG data
-/// @param user_opts - The user provided options
-/// @param jpeg_tables - The JPEG tables (if provided)
-/// @returns - The decoded image
+/// ## Parameters
+/// - `jpeg_data`: The JPEG data
+/// - `user_opts`: The user provided options
+/// - `jpeg_tables`: The JPEG tables (if provided)
+///
+/// ## Returns
+/// The decoded image
 pub fn decode_jpeg_data(
     jpeg_data: &[u8],
     user_opts: Option<JPEGOptions>,
@@ -254,9 +257,12 @@ pub fn decode_jpeg_data(
 
 /// Decodes a JPEG image
 ///
-/// @param buffer - The JPEG data
-/// @param jpeg_tables - The JPEG tables (if provided)
-/// @returns - The decoded image as a buffer
+/// ## Parameters
+/// - `buffer`: The JPEG data
+/// - `jpeg_tables`: The JPEG tables (if provided)
+///
+/// ## Returns
+/// The decoded image as a buffer
 pub fn jpeg_decoder(buffer: &[u8], jpeg_tables: Option<&[u8]>) -> Vec<u8> {
     decode_jpeg_data(
         buffer,
@@ -331,7 +337,8 @@ impl JpegStreamReader {
 
     /// Reset the max memory usage
     ///
-    /// @param max_memory_usage_bytes - The new max memory usage
+    /// ## Parameters
+    /// - `max_memory_usage_bytes`: The new max memory usage
     pub fn reset_max_memory_usage(&mut self, max_memory_usage_bytes: usize) {
         self.total_bytes_allocated = 0.into();
         self.max_memory_usage_bytes = max_memory_usage_bytes;
@@ -339,7 +346,8 @@ impl JpegStreamReader {
 
     /// Get the complete image data
     ///
-    /// @returns - The image data
+    /// ## Returns
+    /// The image data
     pub fn get_image_data(&mut self) -> Image {
         let channels = if self.format_as_rgba { 4 } else { 3 };
         let ParseResult { data, out_components, ready } = self.get_result();
@@ -448,7 +456,8 @@ impl JpegStreamReader {
 
     /// Parse the data into the frames
     ///
-    /// @param data - The individual block of JPEG data to parse
+    /// ## Parameters
+    /// - `data`: The individual block of JPEG data to parse
     pub fn parse(&mut self, data: &[u8]) {
         let max_resolution_in_pixels = self.max_resolution_in_mp * 1000 * 1000;
         let mut reader = InputReader { data, offset: 0 };
@@ -754,7 +763,8 @@ impl JpegStreamReader {
 
     /// Increase the max memory usage
     ///
-    /// @param increase_amount - The amount to increase the max memory usage
+    /// ## Parameters
+    /// - `increase_amount`: The amount to increase the max memory usage
     fn request_memory_allocation(&self, increase_amount: usize) {
         let total_memory_impact_bytes = *self.total_bytes_allocated.borrow() + increase_amount;
         if total_memory_impact_bytes > self.max_memory_usage_bytes {
@@ -769,7 +779,8 @@ impl JpegStreamReader {
 
     /// Get a result of the frame decoding
     ///
-    /// @returns - The result of the frame decoding
+    /// ## Returns
+    /// The result of the frame decoding
     fn get_result(&mut self) -> ParseResult {
         if self.frames.is_empty() {
             panic!("no frames were decoded");
@@ -968,9 +979,12 @@ impl JpegStreamReader {
 
     /// Build the component data
     ///
-    /// @param component - the component
-    /// @param reader - the jpeg stream reader
-    /// @returns - the component data
+    /// ## Parameters
+    /// - `component`: the component
+    /// - `reader`: the jpeg stream reader
+    ///
+    /// ## Returns
+    /// The component data
     fn build_component_data(&self, component: &JPEGComponent) -> Vec<Vec<u8>> {
         let mut lines = vec![];
         let blocks_per_line = component.blocks_per_line;
@@ -1011,7 +1025,9 @@ impl JpegStreamReader {
     }
 
     /// Prepares the components of the frame
-    /// @param frame - The frame to parse
+    ///
+    /// ## Parameters
+    /// - `frame`: The frame to parse
     fn prepare_components(&self, frame: &mut JPEGFrame) {
         // According to the JPEG standard, the sampling factor must be between 1 and 4
         // See https://github.com/libjpeg-turbo/libjpeg-turbo/blob/9abeff46d87bd201a952e276f3e4339556a403a3/libjpeg.txt#L1138-L1146
@@ -1061,9 +1077,12 @@ impl JpegStreamReader {
 
 /// Builds a Huffman table from the input data
 ///
-/// @param code_lengths - array of code lengths
-/// @param values - array of values
-/// @returns - the Huffman table
+/// ## Parameters
+/// - `code_lengths`: array of code lengths
+/// - `values`: array of values
+///
+/// ## Returns
+/// The Huffman table
 fn build_huffman_table(code_lengths: &[u8], values: &[u8]) -> Vec<HuffmanNode> {
     let mut k = 0;
     let mut code: Vec<Code> = vec![];
@@ -1124,7 +1143,8 @@ fn build_huffman_table(code_lengths: &[u8], values: &[u8]) -> Vec<HuffmanNode> {
     root.children.borrow_mut().clone()
 }
 
-/// @returns The next bit
+/// ## Returns
+/// The next bit
 fn read_bit(decode_scan: &mut DecodeScan) -> usize {
     if decode_scan.bits_count > 0 {
         decode_scan.bits_count -= 1;
@@ -1146,8 +1166,12 @@ fn read_bit(decode_scan: &mut DecodeScan) -> usize {
 
 /// Decodes a Huffman Node tree
 ///
-/// @param tree - the huffman tree
-/// @returns - The next Huffman code
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `tree`: the tree to decode with
+///
+/// ## Returns
+/// The decoded value
 fn decode_huffman(decode_scan: &mut DecodeScan, tree: Rc<RefCell<Vec<HuffmanNode>>>) -> u8 {
     let mut node = tree;
     loop {
@@ -1168,8 +1192,12 @@ fn decode_huffman(decode_scan: &mut DecodeScan, tree: Rc<RefCell<Vec<HuffmanNode
 
 /// Receives a number
 ///
-/// @param length - the number of bits
-/// @returns - the number
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `length`: the number of bits
+///
+/// ## Returns
+/// The number
 fn receive(decode_scan: &mut DecodeScan, mut length: usize) -> usize {
     let mut n: usize = 0;
     while length > 0 {
@@ -1183,8 +1211,12 @@ fn receive(decode_scan: &mut DecodeScan, mut length: usize) -> usize {
 
 /// Recieves and extends a number
 ///
-/// @param length - the number of bits
-/// @returns - the number
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `length`: the number of bits
+///
+/// ## Returns
+/// The extended number
 fn receive_and_extend(decode_scan: &mut DecodeScan, length: usize) -> isize {
     let n = receive(decode_scan, length) as isize;
     if n >= 1 << (length - 1) { n } else { n + (-1 << length) + 1 }
@@ -1192,8 +1224,11 @@ fn receive_and_extend(decode_scan: &mut DecodeScan, length: usize) -> isize {
 
 /// Decodes a baseline block
 ///
-/// @param component - the component
-/// @param zz - the block
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `component`: the component
+/// - `block_row`: the block row
+/// - `block_col`: the block column
 fn decode_baseline(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1226,8 +1261,11 @@ fn decode_baseline(
 
 /// Decodes a DC coefficient first pass
 ///
-/// @param component - the component
-/// @param zz - the block
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `component`: the component
+/// - `block_row`: the block row
+/// - `block_col`: the block column
 fn decode_dc_first(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1246,8 +1284,11 @@ fn decode_dc_first(
 
 /// Decodes a successive approximation block
 ///
-/// @param _component - the component
-/// @param zz - the block
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `component`: the component
+/// - `block_row`: the block row
+/// - `block_col`: the block column
 fn decode_dc_successive(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1259,8 +1300,12 @@ fn decode_dc_successive(
 }
 
 /// Decodes an AC block first pass
-/// @param component - the component
-/// @param zz - the block
+///
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `component`: the component
+/// - `block_row`: the block row
+/// - `block_col`: the block column
 fn decode_ac_first(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1294,8 +1339,12 @@ fn decode_ac_first(
 }
 
 /// Decodes a successive approximation block
-/// @param component - the component
-/// @param zz - the block
+///
+/// ## Parameters
+/// - `decode_scan`: the decoder
+/// - `component`: the component
+/// - `block_row`: the block row
+/// - `block_col`: the block column
 fn decode_ac_successive(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1375,11 +1424,13 @@ fn decode_ac_successive(
     }
 }
 /// Decodes an MCU
-/// @param component - The component
-/// @param decode - The decoder
-/// @param mcu - The mcu
-/// @param row - The row
-/// @param col - The column
+///
+/// ## Parameters
+/// - `component`: The component
+/// - `decode`: The decoder
+/// - `mcu`: The mcu
+/// - `row`: The row
+/// - `col`: The column
 fn decode_mcu(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1401,9 +1452,11 @@ fn decode_mcu(
 }
 
 /// Decodes a block
-/// @param component - The component
-/// @param decode - The decoder
-/// @param mcu - The mcu value
+///
+/// ## Parameters
+/// - `component`: The component
+/// - `decode`: The decoder
+/// - `mcu`: The mcu value
 fn decode_block(
     decode_scan: &mut DecodeScan,
     component: &mut JPEGComponent,
@@ -1436,17 +1489,21 @@ struct DecodeScan<'a> {
 }
 
 /// Decodes a JPEG scan
-/// @param data - the JPEG data
-/// @param offset - the offset in the JPEG data
-/// @param frame - the frame
-/// @param components - the components of the frame
-/// @param reset_interval - the reset interval
-/// @param spectral_start - the spectral start
-/// @param spectral_end - the spectral end
-/// @param successive_prev - the successive prev
-/// @param successive - the successive number
-/// @param opts - the options passed to the reader
-/// @returns - the decoded scan size
+///
+/// ## Parameters
+/// - `data`: the JPEG data
+/// - `offset`: the offset in the JPEG data
+/// - `frame`: the frame
+/// - `components`: the components of the frame
+/// - `reset_interval`: the reset interval
+/// - `spectral_start`: the spectral start
+/// - `spectral_end`: the spectral end
+/// - `successive_prev`: the successive prev
+/// - `successive`: the successive number
+/// - `opts`: the options passed to the reader
+///
+/// ## Returns
+/// The decoded scan size
 #[allow(clippy::too_many_arguments)]
 fn decode_scan(
     data: &[u8],
@@ -1585,9 +1642,10 @@ fn decode_scan(
 /// "Practical Fast 1-D DCT Algorithms with 11 Multiplications",
 /// IEEE Intl. Conf. on Acoustics, Speech & Signal Processing, 1989,988-991.
 ///
-/// @param zz - the 8x8 block
-/// @param data_out - the 8x8 block
-/// @param data_in - the 8x8 block
+/// ## Parameters
+/// - `zz`: the 8x8 block
+/// - `data_out`: the 8x8 block
+/// - `data_in`: the 8x8 block
 fn quantize_and_inverse(
     component: &JPEGComponent,
     zz: &[i32],
@@ -1779,8 +1837,11 @@ fn ensure_len<T: Clone>(vec: &mut Vec<T>, index: usize, default: T) {
 
 /// Clamp a number to a uint8 [0-255]
 ///
-/// @param a - the number
-/// @returns - the clamped number
+/// ## Parameters
+/// - `a`: the number
+///
+/// ## Returns
+/// The clamped number
 fn clamp_to_8bit(a: f64) -> i32 {
     a.clamp(0., 255.) as i32
 }

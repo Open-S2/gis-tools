@@ -13,9 +13,6 @@ use crate::parsers::Reader;
 ///
 /// ## Links
 /// - [Docs](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect3.shtml)
-///
-/// @param section - byte block for section 3
-/// @returns - parsed grid definition
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridDefinitionSection {
     /// Number of GRIB section
@@ -37,6 +34,12 @@ pub struct GridDefinitionSection {
 }
 impl GridDefinitionSection {
     /// Create a new instance of GridDefinitionSection
+    ///
+    /// ## Parameters
+    /// - `section`: byte block for section 3
+    ///
+    /// ## Returns
+    /// Parsed grid definition
     pub fn new<T: Reader>(section: &T) -> Self {
         let grid_definition_template: Grib2Table3_1 = section.uint16_be(Some(12)).into();
         Self {

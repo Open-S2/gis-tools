@@ -246,8 +246,11 @@ impl<
 
     /// Build the parent cells. We simply search for the children of the cell and merge/downsample.
     ///
-    /// @param zoom - the current zoom we are upscaling to
-    /// @param cells - the cells to build grids for
+    /// ## Parameters
+    /// - `zoom`: the current zoom we are upscaling to
+    /// - `cells`: the cells to build grids for
+    ///
+    /// ## Returns
     /// returns the parent cells for the next round of upscaling
     fn custer_zoom(&mut self, zoom: u8, cells: &BTreeSet<S2CellId>) -> BTreeSet<S2CellId> {
         let mut parents = BTreeSet::<S2CellId>::new();

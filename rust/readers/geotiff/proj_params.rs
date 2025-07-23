@@ -30,9 +30,12 @@ use alloc::string::{String, ToString};
 
 /// Builds the projection transformer for a GeoTIFF image
 ///
-/// @param transformer - the transformer to update on the source projection data
-/// @param geo_keys - the geo-keys pulled from the image metadata
-/// @returns - the projection parameters. If nothing is returned a lon-lat system is already in place
+/// ## Parameters
+/// - `transformer`: the transformer to update on the source projection data
+/// - `geo_keys`: the geo-keys pulled from the image metadata
+///
+/// ## Returns
+/// The projection parameters. If nothing is returned a lon-lat system is already in place
 pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoStore) {
     // http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.1
     let gtmodel_type_geo_key = store.get_short(GKD::GTModelTypeGeoKey as u16).unwrap_or_default();
@@ -226,8 +229,11 @@ fn set_angle(proj: &mut Proj, store: &GeoStore, geo_key: u16, proj_key: i64) {
 /// http://geotiff.maptools.org/spec/geotiff6.html#6.3.2.1
 /// http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
 ///
-/// @param id - the EPSG code
-/// @returns - the proj4 string
+/// ## Parameters
+/// - `id`: the EPSG code
+///
+/// ## Returns
+/// The proj4 string
 fn from_epsg_key(id: Option<i16>) -> Option<String> {
     // 32767 is a user-defined code
     if let Some(id) = id {
@@ -243,9 +249,12 @@ fn from_epsg_key(id: Option<i16>) -> Option<String> {
 /// Convert angle to Radians
 /// http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.4
 ///
-/// @param angle - the angle
-/// @param units - the unit type of the angle
-/// @returns - the angle in radians
+/// ## Parameters
+/// - `angle`: the angle
+/// - `units`: the unit type of the angle
+///
+/// ## Returns
+/// The angle in radians
 #[cfg_attr(feature = "nightly", coverage(off))]
 fn get_angle(angle: Option<f64>, units: Option<i16>) -> Option<f64> {
     match units.unwrap_or_default() {
@@ -270,8 +279,11 @@ fn get_angle(angle: Option<f64>, units: Option<i16>) -> Option<f64> {
 /// Convert geotiff key to proj4 name
 /// http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.3
 ///
-/// @param key - the geotiff key
-/// @returns - the proj4 name
+/// ## Parameters
+/// - `key`: the geotiff key
+///
+/// ## Returns
+/// The proj4 name
 #[cfg_attr(feature = "nightly", coverage(off))]
 fn build_proj_name(key: Option<i16>) -> Option<String> {
     match key.unwrap_or_default() {
@@ -308,8 +320,11 @@ fn build_proj_name(key: Option<i16>) -> Option<String> {
 
 /// Convert geotiff key to proj4 ellipsoid
 ///
-/// @param key - the geotiff key
-/// @returns - the proj4 ellipsoid
+/// ## Parameters
+/// - `key`: the geotiff key
+///
+/// ## Returns
+/// The proj4 ellipsoid
 #[cfg_attr(feature = "nightly", coverage(off))]
 fn build_ellps(key: Option<i16>) -> String {
     match key.unwrap_or_default() {
@@ -355,8 +370,11 @@ fn build_ellps(key: Option<i16>) -> String {
 /// Convert geotiff meter key to proj4 to_meter format
 /// http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.3
 ///
-/// @param key - the geotiff key
-/// @returns - the proj4 to_meter
+/// ## Parameters
+/// - `key`: the geotiff key
+///
+/// ## Returns
+/// The proj4 to_meter
 #[cfg_attr(feature = "nightly", coverage(off))]
 pub fn geotiff_to_meter(key: Option<i16>) -> f64 {
     match key.unwrap_or_default() {

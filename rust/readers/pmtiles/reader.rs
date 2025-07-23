@@ -11,7 +11,54 @@ use alloc::{string::String, vec::Vec};
 use s2_tilejson::{Metadata, UnknownMetadata};
 use s2json::Face;
 
-/// The File reader is to be used by the local filesystem.
+/// # (S2) PMTiles Reader
+///
+/// ## Description
+/// A V3.0 PMTiles reader for reading standard WebMercator Tile data and V1.0 S2 Tile data.
+///
+/// A Modified implementation of the PMTiles library. It is backwards compatible but
+/// offers support for the S2 Projection.
+///
+/// You can learn more about the [S2PMTiles Specification here](https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md).
+///
+/// ## Usage
+///
+/// The methods you have access to:
+/// - [`PMTilesReader::new`]: Create a new PMTilesReader
+/// - [`PMTilesReader::get_header`]: Get the PMTiles header
+/// - [`PMTilesReader::get_s2_metadata`]: Get the S2 PMTiles metadata
+/// - [`PMTilesReader::get_metadata`]: Get the PMTiles metadata
+/// - [`PMTilesReader::get_tile_s2`]: Get an S2 Tile
+/// - [`PMTilesReader::get_tile_zxy`]: Get an WM Tile
+/// - [`PMTilesReader::get_tile`]: Get a Tile irregardless of the projection type
+///
+/// ```rust
+/// use gistools::{parsers::FileReader, readers::PMTilesReader};
+/// use std::path::PathBuf;
+///
+/// let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+///     .join("tests/readers/pmtiles/fixtures/test_fixture_1.pmtiles");
+/// let file_reader = FileReader::new(path).unwrap();
+/// let mut reader = PMTilesReader::new(file_reader, None);
+///
+/// // pull out the header
+/// let header = reader.get_header();
+///
+/// // get the metadata
+/// let metadata = reader.get_metadata();
+///
+/// // S2 specific functions
+/// let tile = reader.get_tile_s2(0.into(), 0, 0, 0);
+///
+/// // WM functions
+/// let tile = reader.get_tile_zxy(0, 0, 0).unwrap();
+/// ```
+///
+/// ## Links
+/// - https://github.com/Open-S2/s2-pmtiles
+/// - https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md
+/// - https://github.com/protomaps/PMTiles
+/// - https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md
 #[derive(Debug)]
 pub struct PMTilesReader<R: Reader> {
     header: Option<S2PMHeader>,

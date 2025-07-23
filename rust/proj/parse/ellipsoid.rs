@@ -2,7 +2,9 @@ use crate::proj::{Proj, RA4, RA6, SIXTH};
 use libm::{asin, cos, sin, sqrt, tan};
 
 /// Derives an ellipsoid's eccentricity for an object
-/// @param el - ellipsoid object to modify
+///
+/// ## Parameters
+/// - `el`: ellipsoid object to modify
 pub fn derive_eccentricity(proj: &mut Proj) {
     let mut a = proj.a;
     let b = proj.b;
@@ -62,7 +64,9 @@ pub fn derive_eccentricity(proj: &mut Proj) {
 }
 
 /// Builds a sphere with ellipsoid parameters
-/// @param proj - an object with/wihtout sphere properties and builds the sphere
+///
+/// ## Parameters
+/// - `proj`: an object with/wihtout sphere properties and builds the sphere
 pub fn derive_sphere(proj: &mut Proj) {
     if proj.a == 0.0 {
         // do we have an ellipsoid? Then update the ellipsoid

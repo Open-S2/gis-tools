@@ -17,7 +17,29 @@ use std::{
 /// # Build a Shapefile from an input path
 ///
 /// ## Description
-/// Given a path to where all the shapefile relevant files exist, build a Shapefile
+/// Given a path to where all the shapefile relevant files exist, build a [`ShapeFileReader`]
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::{FileReader, FeatureReader}, readers::{ShapeFileReader, file::shapefile_from_path}};
+/// use s2json::MValue;
+/// use std::{collections::BTreeMap, path::PathBuf};
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path.push("tests/readers/shapefile/fixtures/utf.shp");
+/// let path_str = path.to_str().unwrap();
+///
+/// #[derive(Default, Debug, Clone, MValue, PartialEq)]
+/// struct Props {
+///     field: String,
+/// }
+///
+/// let shp: ShapeFileReader<FileReader, Props> =
+///     shapefile_from_path(path_str, BTreeMap::from([("a".into(), "b".into())]));
+///
+/// let features: Vec<_> = shp.iter().collect();
+/// assert_eq!(features.len(), 2);
+/// ```
 pub fn shapefile_from_path<I: AsRef<Path>, P: MValueCompatible>(
     input: I,
     epsg_codes: BTreeMap<String, String>,

@@ -20,7 +20,43 @@ pub struct CassData {
     hyperbolic: bool,
 }
 
-/// Cassini Projection
+/// # Cassini (Cassini-Soldner) Projection
+///
+/// Although the Cassini projection has been largely replaced by the Transverse Mercator, it is
+/// still in limited use outside the United States and was one of the major topographic mapping
+/// projections until the early 20th century.
+///
+/// **Classification**: Transverse and oblique cylindrical
+///
+/// **Available forms**: Forward and Inverse, Spherical and ellipsoidal
+///
+/// **Defined area**: Global, but best used near the central meridian with long, narrow areas
+///
+/// **Alias**: `cass`
+///
+/// **Domain**: 2D
+///
+/// **Input type**: Geodetic coordinates
+///
+/// **Output type**: Projected coordinates
+///
+/// ## Projection String
+/// ```ini
+/// +proj=cass
+/// ```
+///
+/// ## Required Parameters
+/// - `lat_0`
+///
+/// ## Optional Parameters
+/// - `lon_0`
+/// - `x_0`
+/// - `y_0`
+/// - `ellps`
+/// - `R`
+/// - `+hyperbolic`: Use modified form of the standard Cassini-Soldner projection known as the Hyperbolic Cassini-Soldner (used in EPSG:3139).
+///
+/// ![Cassini (Cassini-Soldner)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/cass.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
 pub struct CassiniProjection {
     proj: Rc<RefCell<Proj>>,
