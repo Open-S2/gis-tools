@@ -8,15 +8,15 @@ use serde::{Deserialize, Serialize};
 /// This record type allows data to be much larger in size.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct LASExtendedVariableLengthRecord {
-    /// Reserved unsigned short 2 bytes
+    /// Reserved `unsigned short 2 bytes`
     pub reserved: u16,
-    /// User ID char[16] 16 bytes
+    /// User ID `char[16] 16 bytes`
     pub user_id: String,
-    /// Record ID unsigned short 2 bytes
+    /// Record ID `unsigned short 2 bytes`
     pub record_id: u16,
-    /// Record Length After Header unsigned short 2 bytes (8 bytes for EVLR)
+    /// Record Length After Header `unsigned short 2 bytes` (8 bytes for EVLR)
     pub record_length: u64,
-    /// Description char[32] 32 bytes
+    /// Description `char[32] 32 bytes`
     pub description: String,
     /// The data of the record
     pub data: Option<Vec<u8>>,
@@ -60,12 +60,12 @@ impl LASExtendedVariableLengthRecord {
 /// Any field in the Public Header Block that is not required and is not used must be zero filled.
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct LASHeader {
-    /// File Signature ("LASF") char[4] 4 bytes
+    /// File Signature ("LASF") `char[4] 4 bytes`
     /// The file signature must contain the four characters "LASF", and it is required by the LAS
     /// specification. These four characters can be checked by user software as a quick look initial
     /// determination of file type.
     pub signature: String,
-    /// File Source ID unsigned short 2 bytes
+    /// File Source ID `unsigned short 2 bytes`
     ///
     /// File Source ID (Flight Line Number if this file was derived from an original flight line):
     /// This field should be set to a value between 1 and 65,535, inclusive. A value of zero (0)
@@ -73,7 +73,7 @@ pub struct LASHeader {
     /// free to assign any LAS 1.2 3 valid number. Note that this scheme allows a LIDAR project to
     /// contain up to 65,535 unique sources. A source can
     pub source_id: u16,
-    /// Global Encoding unsigned short 2 bytes.
+    /// Global Encoding `unsigned short 2 bytes`.
     ///
     /// The meaning of GPS Time in the Point Records
     /// - 0 (not set) -> GPS time in the point record fields is GPS Week Time (the same as previous
@@ -81,32 +81,32 @@ pub struct LASHeader {
     /// - 1 (set) -> GPS Time is standard GPS Time (satellite GPS Time) minus 1 x 109. The offset
     ///   moves the time back to near zero to improve floating point resolution.
     pub encoding: u16,
-    /// Project ID - GUID data 1 unsigned long 4 bytes. 0 means no project ID
+    /// Project ID - GUID data 1 `unsigned long 4 bytes`. 0 means no project ID
     pub project_id1: u32,
     /// Project ID - GUID data 2 unsigned short 2 byte. 0 means no project ID
     pub project_id2: u16,
-    /// Project ID - GUID data 3 unsigned short 2 byte. 0 means no project ID
+    /// Project ID - GUID data 3 `unsigned short 2 byte`. 0 means no project ID
     pub project_id3: u16,
-    /// Project ID - GUID data 4 unsigned char[8] 8 bytes. 0 means no project ID
+    /// Project ID - GUID data 4 `unsigned char[8] 8 bytes`. 0 means no project ID
     pub project_id4: String,
-    /// Version Major unsigned char 1 byte
+    /// Version Major `unsigned char 1 byte`
     pub major_version: u8,
-    /// Version Minor unsigned char 1 byte
+    /// Version Minor `unsigned char 1 byte`
     pub minor_version: u8,
-    /// System Identifier char[32] 32 bytes
+    /// System Identifier `char[32] 32 bytes`
     pub system_identifier: String,
-    /// Generating Software char[32] 32 bytes
+    /// Generating Software `char[32] 32 bytes`
     pub generating_software: String,
-    /// File Creation Day Year unsigned short 2 bytes. 0 means no creation date
+    /// File Creation Day Year `unsigned short 2 bytes`. 0 means no creation date
     ///
     /// Day, expressed as an unsigned short, on which this file was created. Day is computed as the
     /// Greenwich Mean Time (GMT) day. January 1 is considered day 1.
     pub file_creation_day: u16,
-    /// File Creation Day Year unsigned short 2 bytes. 0 means no creation date
+    /// File Creation Day Year `unsigned short 2 bytes`. 0 means no creation date
     ///
     /// The year, expressed as a four digit number, in which the file was created.
     pub file_creation_year: u16,
-    /// Header Size unsigned short 2 bytes
+    /// Header Size `unsigned short 2 bytes`
     ///
     /// The size, in bytes, of the Public Header Block itself. In the event that the header is extended
     /// by a software application through the addition of data at the end of the header, the Header
@@ -116,58 +116,58 @@ pub struct LASHeader {
     /// data must be placed at the end of the structure and the Header Size must be updated to reflect
     /// the new size.
     pub header_size: u16,
-    /// Offset to Point Data unsigned int 4 bytes
+    /// Offset to Point Data `unsigned int 4 bytes`
     ///
     /// The actual number of bytes from the beginning of the file to the first field of the first point
     /// record data field. This data offset must be updated if any software adds data from the Public
     /// Header Block or adds/removes data to/from the Variable Length Records.
     pub offset_to_points: u32,
-    /// Number of Variable Length Records unsigned int 4 bytes
+    /// Number of Variable Length Records `unsigned int 4 bytes`
     /// This field contains the current number of Variable Length Records. This number must be updated
     /// if the number of Variable Length Records changes at any time.
     pub num_variable_length_records: u32,
-    /// Point Data Format ID unsigned short 1 byte
+    /// Point Data Format ID `unsigned short 1 byte`
     ///
     /// The point data format ID corresponds to the point data record format type.
     /// LAS 1.4 defines types 0-10.
     pub point_data_format_id: u8,
-    /// Point Data Record Length unsigned short 2 bytes
+    /// Point Data Record Length `unsigned short 2 bytes`
     pub point_data_record_length: u16,
-    /// Number of point records unsigned long 4 bytes
+    /// Number of point records `unsigned long 4 bytes`
     pub num_points: u32,
-    /// Number of points by return unsigned long[5] 20 bytes
+    /// Number of points by return `unsigned long[5] 20 bytes`
     pub num_points_by_return: [u32; 5],
-    /// X scale factor double 8 bytes
+    /// X scale factor `double 8 bytes`
     pub x_scale_factor: f64,
-    /// Y scale factor double 8 bytes
+    /// Y scale factor `double 8 bytes`
     pub y_scale_factor: f64,
-    /// Z scale factor double 8 bytes
+    /// Z scale factor `double 8 bytes`
     pub z_scale_factor: f64,
-    /// X offset double 8 bytes
+    /// X offset `double 8 bytes`
     pub x_offset: f64,
-    /// Y offset double 8 bytes
+    /// Y offset `double 8 bytes`
     pub y_offset: f64,
-    /// Z offset double 8 bytes
+    /// Z offset `double 8 bytes`
     pub z_offset: f64,
-    /// Max X double 8 bytes
+    /// Max X `double 8 bytes`
     pub max_x: f64,
-    /// Min X double 8 bytes
+    /// Min X `double 8 bytes`
     pub min_x: f64,
-    /// Max Y double 8 bytes
+    /// Max Y `double 8 bytes`
     pub max_y: f64,
-    /// Min Y double 8 bytes
+    /// Min Y `double 8 bytes`
     pub min_y: f64,
-    /// Max Z double 8 bytes
+    /// Max Z `double 8 bytes`
     pub max_z: f64,
-    /// Min Z double 8 bytes
+    /// Min Z `double 8 bytes`
     pub min_z: f64,
-    /// Start of Waveform Data Packet Record - Unsigned long long 8 bytes
+    /// Start of Waveform Data Packet Record - `Unsigned long long 8 bytes`
     pub waveform_data_packet_offset: u64,
-    /// Start of first Extended Variable Length Record - unsigned long long 8 bytes
+    /// Start of first Extended Variable Length Record - `unsigned long long 8 bytes`
     pub extended_variable_length_record_offset: u64,
-    /// Number of Extended Variable Length Records - unsigned long 4 bytes
+    /// Number of Extended Variable Length Records - `unsigned long 4 bytes`
     pub extended_variable_length_size: u32,
-    /// Number of points by return unsigned long long [15] 120 bytes *
+    /// Number of points by return `unsigned long long [15] 120 bytes *`
     pub num_points_by_return_ll: [u64; 15],
 }
 impl LASHeader {

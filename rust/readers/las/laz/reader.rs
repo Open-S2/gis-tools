@@ -67,7 +67,7 @@ impl<T: Reader + Debug> LAZState<T> {
 /// # LASzip Reader
 ///
 /// ## Description
-/// Reads LAS zipped data. Supports LAS 1.4 specification although missing some support.
+/// Reads LAS zipped data. Supports LAS 1.4 specification.
 /// [See specification](https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf)
 ///
 /// Implements the [`FeatureReader`] trait
@@ -105,13 +105,13 @@ impl<T: Reader + Debug> LAZState<T> {
 /// ```
 ///
 /// ## Links
-/// - https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online
-/// - https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf
-/// - https://liblas.org/development/index.html
-/// - https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf
-/// - https://github.com/PDAL/PDAL
-/// - https://github.com/libLAS/libLAS (deprecated for PDAL)
-/// - https://github.com/LASzip
+/// - <https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online>
+/// - <https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf>
+/// - <https://liblas.org/development/index.html>
+/// - <https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf>
+/// - <https://github.com/PDAL/PDAL>
+/// - <https://github.com/libLAS/libLAS> (deprecated for PDAL)
+/// - <https://github.com/LASzip>
 #[derive(Debug)]
 pub struct LAZReader<T: Reader + Debug> {
     reader: Rc<RefCell<T>>,

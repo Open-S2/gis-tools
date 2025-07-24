@@ -74,8 +74,10 @@ pub trait ToProjJSON {
 }
 
 /// # Schema for PROJJSON (v0.7)
-/// @see https://proj.org/schemas/v0.7/projjson.schema.json
-/// @see https://docs.ogc.org/is/18-010r7/18-010r7.html#1
+///
+/// ## References
+/// - `https://proj.org/schemas/v0.7/projjson.schema.json`
+/// - `https://docs.ogc.org/is/18-010r7/18-010r7.html#1`
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum ProjJSON {
@@ -294,6 +296,7 @@ impl ToProjJSON for Datum {
 /// longitude will be greater than the lower left longitude. However when the area crosses the
 /// 180° meridian, the value of the lower left longitude will be greater than the value of the
 /// upper right longitude.
+///
 /// The geographic bounding box is an approximate description of location. For most purposes a
 /// coordinate precision of two decimal places of a degree is sufficient. At this resolution the
 /// identification of the geodetic CRS to which the bounding box coordinates are referenced is not
@@ -510,10 +513,10 @@ pub type Ids = Vec<Id>;
 ///
 /// The map projection parameters required are specific to the map projection method and will be listed sequentially. The order within the sequence is not significant but should be logical.
 ///
-/// <map projection parameter unit> is an optional attribute, for reasons of backward compatibility. Best practice is that it is included explicitly in WKT strings.
+/// `<map projection parameter unit>` is an optional attribute, for reasons of backward compatibility. Best practice is that it is included explicitly in WKT strings.
 ///
 /// ## Requirements
-/// If <map projection parameter unit> is omitted from <map projection parameter> then:
+/// If `<map projection parameter unit>` is omitted from `<map projection parameter>` then:
 /// - Map parameter values that are lengths shall be given in metres.
 /// - Map projection parameter values that are angles shall be given in decimal degrees.
 /// - Map projection parameters that are unitless (for example scale factor) shall be given as a number which is close to or is unity (1.0).
@@ -2311,9 +2314,13 @@ impl ToProjJSON for DatumEnsembleMember {
 /// # DatumEnsemble Interface
 ///
 /// Represents a datum ensemble, which is a collection of datums.
+///
 /// Geodetic and vertical CRSs are associated with either a reference frame (datum) or a datum ensemble. The members of a datum ensemble are given as a list of reference frames. The list may contain reference frame name and/or identifier. All members of a datum ensemble are realizations of one shared terrestrial or vertical reference system.
+///
 /// For an ensemble of geodetic reference frames (datums), the WKT string includes the description of the ellipsoid used by the members. This information is available from any and all of the definitions of each member. It is included in the ensemble WKT to facilitate direct access to the information. The WKT string for a datum ensemble may also include the description of the prime meridian applying to all members of the ensemble.
+///
 /// For both geodetic and vertical datum ensembles, the ensemble description includes its 'accuracy', an indication of the difference in coordinate values of a point between different members of the datum ensemble. It may be regarded as a measure of the inaccuracy introduced through the assumption that ensemble members are approximately equivalent.
+///
 /// Use of the datum ensemble concept comes with a health warning. If data is associated with a CRS having a datum ensemble, it will not be possible to identify which of the datum ensemble members the data might more accurately be referenced to. In high accuracy applications, datum ensembles should not be used; individual reference frames should be identified.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
@@ -2377,7 +2384,7 @@ impl DatumEnsemble {
 /// ISO 19111 allows an oblate ellipsoid to be defined through semi-major axis (a) and either
 /// semi-minor axis (b) or inverse flattening (1/f). If semi-minor axis is used as the second
 /// defining parameter the value for inverse flattening to be shown in the WKT string should be
-/// calculated from 1/f  =  a / (a – b).
+/// calculated from $1/f  =  a / (a – b)$.
 ///
 /// ISO 19111 also allows for the earth model to be a sphere, for which 1/f is infinite.
 /// In this document if the earth model is a sphere `<inverse flattening>` shall be given an
@@ -2474,8 +2481,8 @@ impl Ellipsoid {
 /// # Prime meridian
 /// The WKT for prime meridian is defined in 8.2.2.
 /// In this document the following definition from both ISO 19125-1:2004 and OGC 01-009 has been deprecated but is included here for the purposes of documenting backward compatibility:
-/// - <irm longitude> is the longitude of the prime meridian measured from the international reference meridian, positive eastward.
-/// - <angle unit> is an optional attribute, optional for reasons of backward compatibility, but best practice is that it is included in WKT strings. If it is omitted then the value for <irm longitude> shall be given in the CRS's <cs unit> where this is angular, else in decimal degrees. If the subtype of the geodetic CRS to which the prime meridian is an attribute is geographic, the prime meridian's <irm longitude> value shall be given in the same angular units as those for the horizontal axes of the geographic CRS; if the geodetic CRS subtype is geocentric the prime meridian's <irm longitude> value shall be given in degrees. Its <conversion factor> shall be to radians and is the number of radians per unit. <angle unit> is described in 7.4.
+/// - `<irm longitude>` is the longitude of the prime meridian measured from the international reference meridian, positive eastward.
+/// - `<angle unit>` is an optional attribute, optional for reasons of backward compatibility, but best practice is that it is included in WKT strings. If it is omitted then the value for `<irm longitude>` shall be given in the CRS's `<cs unit>` where this is angular, else in decimal degrees. If the subtype of the geodetic CRS to which the prime meridian is an attribute is geographic, the prime meridian's `<irm longitude>` value shall be given in the same angular units as those for the horizontal axes of the geographic CRS; if the geodetic CRS subtype is geocentric the prime meridian's `<irm longitude>` value shall be given in degrees. Its `<conversion factor>` shall be to radians and is the number of radians per unit. `<angle unit>` is described in 7.4.
 ///
 /// Examples of WKT describing a prime meridian:
 /// - `PRIMEM["Paris",2.5969213,ANGLEUNIT["grad",0.015707963267949]]`
@@ -3225,8 +3232,8 @@ pub struct GeoidModel {
 ///
 /// ## Description
 /// Usage is an optional attribute which if included in a WKT string shall include both
-/// <scope> and <extent>. Multiple pairs of scope/extent may be used to describe the usage for
-/// different purposes over different extents. In this document the <scope> and <extent> elements
+/// `<scope>` and `<extent>`. Multiple pairs of scope/extent may be used to describe the usage for
+/// different purposes over different extents. In this document the `<scope>` and `<extent>` elements
 /// may not be given alone but only as a pairing. Within each pairing, extent may consist of one or
 /// more of area textual description, area bounding box, vertical extent and/or temporal extent,
 /// see 7.3.2.3.

@@ -27,12 +27,33 @@ use core::f64::consts::TAU;
 /// Here are some useful relationships between the cap height (h), the cap
 /// radius (r), the maximum chord length from the cap's center (d), and the
 /// radius of cap's base (a).
-/// ```latex
-///     h = 1 - cos(r)
-///       = 2 * sin^2(r/2)
-///   d^2 = 2 * h
-///       = a^2 + h^2
-/// ```
+///
+/// $$    h = 1 - cos(r) $$
+/// $$      = 2 * sin^2(r/2) $$
+/// $$  d^2 = 2 * h $$
+/// $$      = a^2 + h^2 $$
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`S2Cap::new`]: Create a new S2Cap
+/// - [`S2Cap::empty`]: Return an empty cap, i.e. a cap that contains no points.
+/// - [`S2Cap::full`]: Return a full cap, i.e. a cap that contains all points.
+/// - [`S2Cap::area`]: Return the area of the cap.
+/// - [`S2Cap::is_empty`]: Return true if the cap is empty, i.e. it contains no points.
+/// - [`S2Cap::is_full`]: Return true if the cap is full, i.e. it contains all points.
+/// - [`S2Cap::height`]: Return the cap height.
+/// - [`S2Cap::from_s1_angle`]: Convenience function that creates a cap where the angle is expressed as an S1Angle.
+/// - [`S2Cap::from_s1_chord_angle`]: Convenience function that creates a cap where the angle is expressed as an S1ChordAngle.
+/// - [`S2Cap::from_s2_point`]: Convenience function that creates a cap containing a single point.
+/// - [`S2Cap::radius`]: Return the cap radius as an S1Angle.
+/// - [`S2Cap::contains_s2_point`]: Returns true if the cap contains the given point.
+/// - [`S2Cap::complement`]: Return the complement of the interior of the cap.
+/// - [`S2Cap::contains_s2_cell_vertex_count`]: Return count of vertices the cap contains for the given cell.
+/// - [`S2Cap::contains_s2_cell`]: Return true if the cap contains the given cell.
+/// - [`S2Cap::intersects_s2_cell_fast`]: Return true if the cap intersects "cell", given that the cap does contain any of the cell vertices.
+/// - [`S2Cap::intersects_s2_cell`]: Return true if the cap intersects "cell", given that the cap does contain any of the cell vertices (supplied in "vertices", an array of length 4).
+/// - [`S2Cap::get_intersecting_cells`]: Return the cells that intersect the cap.
 #[derive(Debug, Copy, Clone)]
 pub struct S2Cap<T = ()> {
     /// the center of the cap
@@ -101,7 +122,7 @@ where
         S2Cap::new(center, S1ChordAngle::zero(), data)
     }
 
-    /// Return the cap radius as an S1Angle.  (Note that the cap angle is stored
+    /// Return the cap radius as an S1Angle. (Note that the cap angle is stored
     /// internally as an S1ChordAngle, so this method requires a trigonometric
     /// operation and may yield a slightly different result than the value passed
     /// to the (S2Point, S1Angle) constructor.)
@@ -110,12 +131,13 @@ where
     }
 
     /// Returns true if the cap contains the given point.
+    ///
     /// NOTE: The point "p" should be a unit-length vector.
     pub fn contains_s2_point(&self, p: &S2Point) -> bool {
         S1ChordAngle::from_s2_points(&self.center, p) <= self.radius
     }
 
-    /// Return the complement of the interior of the cap.  A cap and its
+    /// Return the complement of the interior of the cap. A cap and its
     /// complement have the same boundary but do not share any interior points.
     /// The complement operator is not a bijection because the complement of a
     /// singleton cap (containing a single point) is the same as the complement

@@ -20,7 +20,7 @@ use libm::{atan, atan2, cos, fabs, sin, sqrt};
 /// and
 ///
 /// Wikipedia: Geographic Coordinate Conversion,
-/// https://en.wikipedia.org/wiki/Geographic_coordinate_conversion
+/// <https://en.wikipedia.org/wiki/Geographic_coordinate_conversion>
 ///
 /// (WP, below).
 ///
@@ -49,8 +49,8 @@ use libm::{atan, atan2, cos, fabs, sin, sqrt};
 /// formula given in:
 ///
 /// Wikipedia: Earth Radius
-/// https://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude
-/// (Derivation and commentary at https://gis.stackexchange.com/q/20200)
+/// <https://en.wikipedia.org/wiki/Earth_radius#Radius_at_a_given_geodetic_latitude>
+/// (Derivation and commentary at <https://gis.stackexchange.com/q/20200>)
 ///
 /// (WP2, below)
 ///

@@ -50,7 +50,7 @@ pub struct PolyLabelCell {
 /// ```
 ///
 /// ## Links
-/// - https://sites.google.com/site/polesofinaccessibility/
+/// - <https://sites.google.com/site/polesofinaccessibility/>
 ///
 /// ## Parameters
 /// - `polygons`: the vector multi-polygon to find the label for
@@ -83,7 +83,7 @@ pub fn polylabels<M: Clone>(
 /// ```
 ///
 /// ## Links
-/// - https://sites.google.com/site/polesofinaccessibility/
+/// - <https://sites.google.com/site/polesofinaccessibility/>
 ///
 /// ## Parameters
 /// - `polygon`: the vector polygon to find the label for

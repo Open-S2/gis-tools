@@ -13,7 +13,7 @@ pub const K_SWAP_MASK: u8 = 0x01;
 /// the axis directions are reversed).
 pub const K_INVERT_MASK: u8 = 0x02;
 
-/// kIJtoPos[orientation][ij] -> pos
+/// `kIJtoPos[orientation][ij]` -> pos
 ///
 /// Given a cell orientation and the (i,j)-index of a subcell (0=(0,0),
 /// 1=(0,1), 2=(1,0), 3=(1,1)), return the order in which this subcell is
@@ -26,13 +26,13 @@ pub const K_IJTO_POS: [[usize; 4]; 4] = [
     [2, 1, 3, 0], // swapped & inverted
 ];
 
-/// kPosToIJ[orientation][pos] -> ij
+/// `kPosToIJ[orientation][pos]` -> ij
 ///
 /// Return the (i,j) index of the subcell at the given position 'pos' in the
 /// Hilbert curve traversal order with the given orientation.  This is the
 /// inverse of the previous table:
 ///
-///   kPosToIJ[r][kIJtoPos[r][ij]] == ij
+///   `kPosToIJ[r][kIJtoPos[r][ij]] == ij`
 pub const K_POS_TO_IJ: [[usize; 4]; 4] = [
     // 0  1  2  3
     [0, 1, 3, 2], // canonical order:    (0,0), (0,1), (1,1), (1,0)
@@ -41,7 +41,7 @@ pub const K_POS_TO_IJ: [[usize; 4]; 4] = [
     [3, 1, 0, 2], // swapped & inverted: (1,1), (0,1), (0,0), (1,0)
 ];
 
-/// K_POS_TO_ORIENTATION[pos] -> orientation_modifier
+/// `K_POS_TO_ORIENTATION[pos]` -> orientation_modifier
 ///
 /// Return a modifier indicating how the orientation of the child subcell
 /// with the given traversal position [0..3] is related to the orientation
@@ -129,7 +129,7 @@ pub const K_FACE_UVW_AXES: [[[f64; 3]; 3]; 6] = [
     ],
 ];
 
-/// [1 << (2 * kLookupBits + 2)]u16;
+/// `[1 << (2 * kLookupBits + 2)]u16;`
 pub const LOOKUP_POS: [u16; 1024] = [
     0, 1, 682, 683, 14, 4, 685, 679, 17, 58, 688, 667, 20, 61, 702, 663, 234, 64, 705, 619, 237,
     78, 708, 615, 240, 81, 762, 603, 254, 84, 765, 599, 257, 938, 768, 427, 260, 941, 782, 423,
@@ -187,7 +187,7 @@ pub const LOOKUP_POS: [u16; 1024] = [
     19, 56, 687, 677, 12, 6, 680, 681, 2, 3,
 ];
 
-/// [1 << (2 * kLookupBits + 2)]u16;
+/// `[1 << (2 * kLookupBits + 2)]u16;`
 pub const LOOKUP_IJ: [u16; 1024] = [
     0, 1, 1022, 1023, 65, 4, 959, 1018, 69, 68, 955, 954, 6, 67, 1016, 957, 9, 128, 1015, 894, 12,
     193, 1010, 831, 76, 197, 946, 827, 75, 134, 949, 888, 137, 136, 887, 886, 140, 201, 882, 823,

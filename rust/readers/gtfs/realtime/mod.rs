@@ -24,7 +24,7 @@ pub use vehicle_position::*;
 ///
 /// ## Description
 /// The input is a Uint8Array that has encoded protobuffer messages.
-/// See {@link https://open-s2.github.io/pbf/classes/PbfReader.html}.
+/// See <https://open-s2.github.io/pbf/classes/PbfReader.html>.
 ///
 /// The contents of a feed message.
 /// A feed is a continuous stream of feed messages. Each message in the stream is
@@ -33,7 +33,7 @@ pub use vehicle_position::*;
 /// All the entity ids are resolved with respect to the GTFS feed.
 /// Note that "required" and "optional" as stated in this file refer to Protocol
 /// Buffer cardinality, not semantic cardinality.  See reference.md at
-/// https://github.com/google/transit/tree/master/gtfs-realtime for field
+/// <https://github.com/google/transit/tree/master/gtfs-realtime> for field
 /// semantic cardinality.
 ///
 /// ## Usage
@@ -56,10 +56,10 @@ pub use vehicle_position::*;
 /// ```
 ///
 /// ## Links
-/// - https://mobilitydatabase.org
-/// - https://developers.google.com/transit/gtfs/examples/overview
-/// - https://mobilitydata.github.io/
-/// - https://www.transit.land
+/// - <https://mobilitydatabase.org>
+/// - <https://developers.google.com/transit/gtfs/examples/overview>
+/// - <https://mobilitydata.github.io/>
+/// - <https://www.transit.land>
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct GTFSRealtimeReader {
     /// The header of the message

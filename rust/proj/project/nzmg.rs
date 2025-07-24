@@ -73,9 +73,9 @@ const BF: [Complex; 6] = [
 ///
 /// ## Reference:
 /// - Department of Land and Survey Technical Circular 1973/32
-///   http://www.linz.govt.nz/docs/miscellaneous/nz-map-definition.pdf
+///   <http://www.linz.govt.nz/docs/miscellaneous/nz-map-definition.pdf>
 /// - OSG Technical Report 4.1
-///   http://www.linz.govt.nz/docs/miscellaneous/nzmg.pdf
+///   <http://www.linz.govt.nz/docs/miscellaneous/nzmg.pdf>
 ///
 /// ![New Zealand Map Grid (EPSG:27200)](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/nzmg.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]

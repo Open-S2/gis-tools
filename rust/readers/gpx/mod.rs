@@ -66,7 +66,7 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 /// ```
 ///
 /// ## Links
-/// https://www.topografix.com/gpx.asp
+/// - <https://www.topografix.com/gpx.asp>
 #[derive(Debug)]
 pub struct GPXReader {
     /// GPX object

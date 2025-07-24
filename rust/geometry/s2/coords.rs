@@ -156,13 +156,13 @@ pub enum S2Projection {
 }
 
 /// Convert an s- or t-value to the corresponding u- or v-value.  This is
-/// a non-linear transformation from [0,1] to [-1,1] that attempts to
+/// a non-linear transformation from `[0,1]` to `[-1,1]` that attempts to
 /// make the cell sizes more uniform.
 pub fn st_to_uvlinear(s: f64) -> f64 {
     2. * s - 1.
 }
 /// Convert an s- or t-value to the corresponding u- or v-value.  This is
-/// a non-linear transformation from [0,1] to [-1,1] that attempts to
+/// a non-linear transformation from `[0,1]` to `[-1,1]` that attempts to
 /// make the cell sizes more uniform.
 pub fn st_to_uvquadratic(s: f64) -> f64 {
     if s >= 0.5 {
@@ -172,7 +172,7 @@ pub fn st_to_uvquadratic(s: f64) -> f64 {
     }
 }
 /// Convert an s- or t-value to the corresponding u- or v-value.  This is
-/// a non-linear transformation from [0,1] to [-1,1] that attempts to
+/// a non-linear transformation from `[0,1]` to `[-1,1]` that attempts to
 /// make the cell sizes more uniform.
 pub fn st_to_uvtan(s_: f64) -> f64 {
     use core::f64::consts::PI;

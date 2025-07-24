@@ -19,6 +19,14 @@ use s2json::VectorPoint;
 /// - [`Orthodrome::bearing`]: returns the bearing in degrees between the two points
 /// - [`Orthodrome::distance_to`]: Finds the distance between the two points in kilometers projected normalized (0->1)
 ///
+/// The properties you have access to:
+/// - [`Orthodrome::lon1`]: start longitude in radians
+/// - [`Orthodrome::lat1`]: start latitude in radians
+/// - [`Orthodrome::lon2`]: end longitude in radians
+/// - [`Orthodrome::lat2`]: end latitude in radians
+/// - [`Orthodrome::a`]: distance property
+/// - [`Orthodrome::dist`]: distance property
+///
 /// ```rust
 /// use gistools::{geometry::LonLat, tools::Orthodrome};
 ///
@@ -34,7 +42,7 @@ use s2json::VectorPoint;
 /// There is no reason to use this outside verbosity. You can create an S1Angle or use the utility functions in LonLat
 ///
 /// ## Links
-/// - http://www.movable-type.co.uk/scripts/latlong.html
+/// - <http://www.movable-type.co.uk/scripts/latlong.html>
 #[derive(Debug, Clone, Default)]
 pub struct Orthodrome {
     /// start longitude in radians

@@ -177,13 +177,13 @@ impl<const C: i64> CoordinateStep for MercatorBaseProjection<C> {
 /// # Web Mercator / Pseudo Mercator Projection
 ///
 /// The Web Mercator / Pseudo Mercator projection is a cylindrical map projection.
-/// This is a variant of the regular [Mercator](crate::projections::mercator) projection,
+/// This is a variant of the regular [Mercator](crate::proj::MercatorBaseProjection) projection,
 /// except that the computation is done on a sphere, using the semi-major axis of the ellipsoid.
 ///
 /// From [Wikipedia](https://en.wikipedia.org/wiki/Web_Mercator):
 ///
-/// > This projection is widely used by the Web Mercator, Google Web Mercator,
-/// > Spheroidal Mercator, WGS 84 Web Mercator[1] or WGS 84/Pseudo-Mercator is a
+/// > This projection is widely used by the `Web Mercator`, `Google Web Mercator`,
+/// > `Spheroidal Mercator`, `WGS 84 Web Mercator[1]` or `WGS 84/Pseudo-Mercator` is a
 /// > variant of the Mercator projection and is the de facto standard for Web
 /// > mapping applications. [...]
 /// > It is used by virtually all major online map providers [...]
@@ -227,16 +227,16 @@ impl<const C: i64> CoordinateStep for MercatorBaseProjection<C> {
 /// The formulas describing the Mercator projection are adapted from G. Evenden's libproj manuals.
 ///
 /// **Forward Projection**:
-/// ```latex
-/// x = λ
-/// y = ln(tan(π/4 + φ/2))
-/// ```
+///
+/// $$ x = λ $$
+/// $$ y = ln(tan(π/4 + φ/2)) $$
+///
 ///
 /// **Inverse Projection**:
-/// ```latex
-/// λ = x
-/// φ = π/2 - 2 * atan(exp(-y))
-/// ```
+///
+/// $$ λ = x $$
+/// $$ φ = π/2 - 2 * atan(exp(-y)) $$
+///
 ///
 /// ## Further Reading
 ///

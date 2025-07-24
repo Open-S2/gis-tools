@@ -16,14 +16,14 @@ pub static NO_REF: usize = usize::MAX;
 ///
 /// The methods you have access to:
 /// - [`Delaunator::new`]: Create a new Delaunator
-/// - [`Delaunator::from_points`]: Given a flattened array of x,y points. e.g. [[x1, y1], [x2, y2], ...]
+/// - [`Delaunator::from_points`]: Given a flattened array of x,y points. e.g. `[[x1, y1], [x2, y2], ...]`
 /// - [`Delaunator::from_vector_points`]: Create a new Delaunator from a collection of VectorPoints
 /// - [`Delaunator::update`]: Updates the triangulation if you modified delaunay.
 ///
 /// The properties you have access to:
 /// - [`Delaunator::coords`]: coordinates of each point
-/// - [`Delaunator::triangles`]: indexes to each triangle. (triangle[i * 3], triangle[(i * 3) + 1], triangle[(i * 3) + 2])
-/// - [`Delaunator::halfedges`]: indexes to each half edge. (halfedge[i], halfedge[(i + 1) % 3], halfedge[(i + 2) % 3])
+/// - [`Delaunator::triangles`]: indexes to each triangle. `(triangle[i * 3], triangle[(i * 3) + 1], triangle[(i * 3) + 2])`
+/// - [`Delaunator::halfedges`]: indexes to each half edge. `(halfedge[i], halfedge[(i + 1) % 3], halfedge[(i + 2) % 3])`
 /// - [`Delaunator::hull`]: indexes to each point on the convex hull
 /// - [`Delaunator::triangles_len`]: length of the triangles array
 ///
@@ -46,16 +46,16 @@ pub static NO_REF: usize = usize::MAX;
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/Delaunay_triangulation
+/// - <https://en.wikipedia.org/wiki/Delaunay_triangulation>
 #[derive(Debug)]
 pub struct Delaunator {
     edge_stack: Vec<usize>,
     /// coordinates of each point
     pub coords: Vec<f64>,
-    /// indexes to each triangle. (triangle[i * 3], triangle[(i * 3) + 1], triangle[(i * 3) + 2])
+    /// indexes to each triangle. `(triangle[i * 3], triangle[(i * 3) + 1], triangle[(i * 3) + 2])`
     /// makes a triangle
     pub triangles: Vec<usize>,
-    /// indexes to each half edge. (halfedge[i], halfedge[(i + 1) % 3], halfedge[(i + 2) % 3])
+    /// indexes to each half edge. `(halfedge[i], halfedge[(i + 1) % 3], halfedge[(i + 2) % 3])`
     pub halfedges: Vec<usize>,
     hash_size: usize,
     hull_prev: Vec<usize>,
@@ -74,10 +74,10 @@ pub struct Delaunator {
 }
 impl Delaunator {
     /// Constructs a delaunay triangulation object given an array of point coordinates of the form:
-    /// [x0, y0, x1, y1, ...] (use a typed array for best performance).
+    /// `[x0, y0, x1, y1, ...]` (use a typed array for best performance).
     ///
     /// ## Parameters
-    /// - `coords`: flattened array of x,y points. e.g. [x1, y1, x2, y2, ...]
+    /// - `coords`: flattened array of x,y points. e.g. `[x1, y1, x2, y2, ...]`
     ///
     /// ## Returns
     /// A new [`Delaunator`] object

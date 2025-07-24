@@ -55,10 +55,10 @@ use s2json::Face;
 /// ```
 ///
 /// ## Links
-/// - https://github.com/Open-S2/s2-pmtiles
-/// - https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md
-/// - https://github.com/protomaps/PMTiles
-/// - https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md
+/// - <https://github.com/Open-S2/s2-pmtiles>
+/// - <https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md>
+/// - <https://github.com/protomaps/PMTiles>
+/// - <https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md>
 #[derive(Debug)]
 pub struct PMTilesReader<R: Reader> {
     header: Option<S2PMHeader>,

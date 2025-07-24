@@ -117,7 +117,7 @@ pub struct GTFSRealtimeAlert {
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
     pub image: Option<GTFSRealtimeTranslatedString>, // 15 [message]
     /// Text describing the appearance of the linked image in the `image` field (e.g., in case the image can't be displayed
-    /// or the user can't see the image for accessibility reasons). See the HTML spec for alt image text - https://html.spec.whatwg.org/#alt.
+    /// or the user can't see the image for accessibility reasons). See the HTML spec for alt image text - <https://html.spec.whatwg.org/#alt>.
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future
     pub image_alternative_text: Option<GTFSRealtimeTranslatedString>, // 16 [message]
     /// Description of the cause of the alert that allows for agency-specific language, more specific than the Cause. If cause_detail is included, then Cause must also be included.

@@ -507,7 +507,5 @@ export const LICENSES = [
   'ZPL-2.1',
 ] as const;
 
-/**
- * List of licenses
- */
+/** List of licenses */
 export type Licenses = (typeof LICENSES)[number];

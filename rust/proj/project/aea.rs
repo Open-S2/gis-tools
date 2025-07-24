@@ -124,7 +124,7 @@ impl AeaData {
 /// - `y0`: False northing (coordinate offset in the y-direction).
 ///
 /// ## References
-/// - https://en.wikipedia.org/wiki/Albers_projection
+/// - <https://en.wikipedia.org/wiki/Albers_projection>
 ///
 /// ![Albers Conic Equal Area Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/aea.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]
@@ -193,7 +193,7 @@ impl CoordinateStep for AlbersConicEqualAreaProjection {
 /// - `y0`: False northing (coordinate offset in the y-direction).
 ///
 /// ## References
-/// - https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection (Note: While the name is similar, this link describes the conformal variant. A specific link for the equal-area conic might be needed)
+/// - <https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection> (Note: While the name is similar, this link describes the conformal variant. A specific link for the equal-area conic might be needed)
 ///
 /// ![Lambert Equal Area Conic Projection](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/leac.png?raw=true)
 #[derive(Debug, Clone, PartialEq)]

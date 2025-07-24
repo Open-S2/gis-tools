@@ -29,37 +29,37 @@ pub const K_MAX_LENGTH_2: f64 = 4.0;
 /// the most important in practice), let the angle between A and B be (Pi - x)
 /// radians, i.e. A and B are within "x" radians of being antipodal.  The
 /// corresponding chord length is
-/// ```latex
-///    r = 2 * sin((Pi - x) / 2) = 2 * cos(x / 2) .
-/// ```
+///
+/// $$    r = 2 * sin((Pi - x) / 2) = 2 * cos(x / 2) . $$
+///
 /// For values of x not close to Pi the relative error in the squared chord
 /// length is at most 4.5 * DBL_EPSILON (see GetS2PointConstructorMaxError).
 /// The relative error in "r" is thus at most 2.25 * DBL_EPSILON ~= 5e-16.  To
 /// convert this error into an equivalent angle, we have
-/// ```latex
-///    |dr / dx| = sin(x / 2)
-/// ```
+///
+/// $$   |dr / dx| = sin(x / 2) $$
+///
 /// and therefore
-/// ```latex
-///    |dx| = dr / sin(x / 2)
-///         = 5e-16 * (2 * cos(x / 2)) / sin(x / 2)
-///         = 1e-15 / tan(x / 2)
-/// ```
+///
+/// $$   |dx| = dr / sin(x / 2) $$
+/// $$        = 5e-16 * (2 * cos(x / 2)) / sin(x / 2) $$
+/// $$        = 1e-15 / tan(x / 2) $$
+///
 /// The maximum error is attained when
-/// ```latext
-///    x  = |dx|
-///       = 1e-15 / tan(x / 2)
-///      ~= 1e-15 / (x / 2)
-///      ~= sqrt(2e-15)
-/// ```
+///
+/// $$   x  = |dx| $$
+/// $$      = 1e-15 / tan(x / 2) $$
+/// $$     ~= 1e-15 / (x / 2) $$
+/// $$     ~= sqrt(2e-15) $$
+///
 /// In summary, the measurement error for an angle (Pi - x) is at most
-/// ```latex
-///    dx  = min(1e-15 / tan(x / 2), sqrt(2e-15))
-///      (~= min(2e-15 / x, sqrt(2e-15)) when x is small).
-/// ```
+///
+/// $$   dx  = min(1e-15 / tan(x / 2), sqrt(2e-15)) $$
+/// $$     (~= min(2e-15 / x, sqrt(2e-15)) when x is small). $$
+///
 /// On the Earth's surface (assuming a radius of 6371km), this corresponds to
 /// the following worst-case measurement errors:
-/// ```latex
+/// ```ini
 ///     Accuracy:             Unless antipodal to within:
 ///     ---------             ---------------------------
 ///     6.4 nanometers        10,000 km (90 degrees)
@@ -74,30 +74,56 @@ pub const K_MAX_LENGTH_2: f64 = 4.0;
 /// see this, observe that the closest representable value to r^2 = 4 is
 /// r^2 =  4 * (1 - DBL_EPSILON / 2).  Thus r = 2 * (1 - DBL_EPSILON / 4) and
 /// the angle between these two representable values is
-/// ```latex
-///    x  = 2 * acos(r / 2)
-///       = 2 * acos(1 - DBL_EPSILON / 4)
-///      ~= 2 * asin(sqrt(DBL_EPSILON / 2)
-///      ~= sqrt(2 * DBL_EPSILON)
-///      ~= 2.1e-8
-/// ```
+///
+/// $$   x  = 2 * acos(r / 2) $$
+/// $$      = 2 * acos(1 - DBL_EPSILON / 4) $$
+/// $$     ~= 2 * asin(sqrt(DBL_EPSILON / 2) $$
+/// $$     ~= sqrt(2 * DBL_EPSILON) $$
+/// $$     ~= 2.1e-8 $$
+///
 /// which is 13.5 cm on the Earth's surface.
 ///
 /// The worst case rounding error occurs when the value halfway between these
 /// two representable values is rounded up to 4.  This halfway value is
 /// r^2 = (4 * (1 - DBL_EPSILON / 4)), thus r = 2 * (1 - DBL_EPSILON / 8) and
 /// the worst case rounding error is
-/// ```latex
-///    x  = 2 * acos(r / 2)
-///       = 2 * acos(1 - DBL_EPSILON / 8)
-///      ~= 2 * asin(sqrt(DBL_EPSILON / 4)
-///      ~= sqrt(DBL_EPSILON)
-///      ~= 1.5e-8
-/// ```
+///
+/// $$   x  = 2 * acos(r / 2) $$
+/// $$      = 2 * acos(1 - DBL_EPSILON / 8) $$
+/// $$     ~= 2 * asin(sqrt(DBL_EPSILON / 4) $$
+/// $$     ~= sqrt(DBL_EPSILON) $$
+/// $$     ~= 1.5e-8 $$
+///
 /// which is 9.5 cm on the Earth's surface.
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`S1ChordAngle::new`]: Create a new S1ChordAngle
+/// - [`S1ChordAngle::zero`]: Returns the zero S1ChordAngle
+/// - [`S1ChordAngle::infinity`]: Returns the infinite S1ChordAngle
+/// - [`S1ChordAngle::from_angle`]: Conversion from an S1Angle
+/// - [`S1ChordAngle::from_degrees`]: Construct an S1ChordAngle from an angle in degrees
+/// - [`S1ChordAngle::from_length2`]: Construct the S1ChordAngle corresponding to the given length
+/// - [`S1ChordAngle::from_s2_points`]: Construct the S1ChordAngle corresponding to the distance between the two given points
+/// - [`S1ChordAngle::right_angle`]: Return a right angle
+/// - [`S1ChordAngle::straight_angle`]: Return a chord angle of 180 degrees (a "straight angle")
+/// - [`S1ChordAngle::negative_angle`]: Construct an S1ChordAngle that is a lower bound on the given S1Angle
+/// - [`S1ChordAngle::fast_upper_bound_from`]: Construct an S1ChordAngle that is an upper bound on the given S1Angle
+/// - [`S1ChordAngle::is_special`]: Returns true if the angle is special
+/// - [`S1ChordAngle::to_angle`]: Convert to an S1Angle
+/// - [`S1ChordAngle::to_meters`]: Convert to meters. If no radius is specified, the Earth's radius is used.
+/// - [`S1ChordAngle::from_meters`]: Convert from meters. If no radius is specified, the Earth's radius is used.
+/// - [`S1ChordAngle::to_km`]: Convert to kilometers. If no radius is specified, the Earth's radius is used.
+/// - [`S1ChordAngle::from_km`]: Convert from kilometers. If no radius is specified, the Earth's radius is used.
+/// - [`S1ChordAngle::chord_angle_sin`]: apply a sine function on a ChordAngle
+/// - [`S1ChordAngle::chord_angle_cos`]: apply a cosine function on a ChordAngle
+/// - [`S1ChordAngle::chord_angle_tan`]: apply a tangent function on a ChordAngle
+/// - [`S1ChordAngle::chord_angle_sin2`]: Returns sin(a)^2
+/// - [`S1ChordAngle::modulo`]: Returns the remainder when dividing by modulus
 #[derive(Copy, Clone, Default, Debug)]
 #[repr(C)]
 pub struct S1ChordAngle {

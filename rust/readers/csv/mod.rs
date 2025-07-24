@@ -108,8 +108,8 @@ impl CSVParser {
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/Comma-separated_values
-/// - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
+/// - <https://en.wikipedia.org/wiki/Comma-separated_values>
+/// - <https://cesium.com/blog/2015/04/07/quadtree-cheatseet/>
 #[derive(Debug)]
 pub struct CSVReader<T: Reader, P: MValueCompatible + DeserializeOwned = MValue> {
     reader: T,

@@ -15,6 +15,31 @@ use serde::{Deserialize, Serialize};
 /// things, there are overloaded operators that make it convenient to write
 /// arithmetic expressions (e.g. (1-x)*p1 + x*p2).
 /// NOTE: asumes only f64 or greater is used.
+///
+/// Uses the [`GetXY`] and [`GetZ`] traits
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`S2Point::new`]: Create a new S2Point
+/// - [`S2Point::is_empty`]: Check if the S2Point is empty
+/// - [`S2Point::face`]: Returns the S2 face assocated with this point
+/// - [`S2Point::angle`]: Returns the angle between this point and another
+/// - [`S2Point::cross`]: Get the cross product of two XYZ Points
+/// - [`S2Point::to_face_st`]: Convert an S2Point to an S2Point in normalized vector coordinates
+/// - [`S2Point::get_face`]: Returns the S2 face assocated with this point
+/// - [`S2Point::dot`]: Get the dot product of two XYZ Points
+/// - [`S2Point::abs`]: Returns the absolute value of the point
+/// - [`S2Point::invert`]: Inverts the point
+/// - [`S2Point::len`]: Returns the length of the point
+/// - [`S2Point::norm`]: Returns the vector's squared norm.
+/// - [`S2Point::norm2`]: The dot product of the point with itself
+/// - [`S2Point::normalize`]: Normalizes the point
+/// - [`S2Point::distance`]: return the distance from this point to the other point
+/// - [`S2Point::largest_abs_component`]: Returns the largest absolute component of the point
+/// - [`S2Point::intermediate`]: Returns the intermediate point between this and the other point
+/// - [`S2Point::from_face_uv`]: Convert an Face-U-V coordinate to an S2Point
+/// - [`S2Point::from_face_st`]: Convert an Face-S-T coordinate to an S2Point
 #[derive(Debug, Copy, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[repr(C)]
 pub struct S2Point {
@@ -107,12 +132,12 @@ impl S2Point {
         self.norm()
     }
 
-    /// norm returns the vector's norm.
+    /// Returns the vector's squared norm.
     pub fn norm(&self) -> f64 {
         sqrt(self.norm2())
     }
 
-    /// norm2 returns the vector's squared norm.
+    /// The dot product of the point with itself
     pub fn norm2(&self) -> f64 {
         self.dot(self)
     }

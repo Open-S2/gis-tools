@@ -2,7 +2,7 @@ use alloc::{collections::BTreeMap, rc::Rc, string::String, vec, vec::Vec};
 use core::cell::RefCell;
 use libm::ceil;
 
-// TODO: Use https://gitlab.com/libtiff/libtiff/-/blob/master/libtiff/tif_jpeg.c?ref_type=heads
+// TODO: Instead we should use https://gitlab.com/libtiff/libtiff/-/blob/master/libtiff/tif_jpeg.c?ref_type=heads
 
 // /* -*- tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 // vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab:

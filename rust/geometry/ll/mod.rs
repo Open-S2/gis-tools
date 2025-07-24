@@ -6,11 +6,34 @@ use core::{
 use libm::{asin, atan2, cos, sin, sqrt};
 use s2json::{GetM, GetXY, MValue, VectorPoint};
 
+/// # Longitude-Latitude Point container
+///
+/// ## Description
 /// This class represents a point on the unit sphere as a pair
 /// of latitude-longitude coordinates.  Like the rest of the "geometry"
 /// package, the intent is to represent spherical geometry as a mathematical
 /// abstraction, so functions that are specifically related to the Earth's
 /// geometry (e.g. easting/northing conversions) should be put elsewhere.
+///
+/// This struct implements the [`GetXY`] and [`GetM`] traits.
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`LonLat::new`]: Create a new LonLat
+/// - [`LonLat::take`]: Take ownership of the underlying VectorPoint
+/// - [`LonLat::lon`]: Return the longitude in degrees
+/// - [`LonLat::lat`]: Return the latitude in degrees
+/// - [`LonLat::from_s2cellid`]: Convert a [`S2CellId`] to an LonLat
+/// - [`LonLat::from_s2_point`]: Convert a [`S2Point`] to an LonLat
+/// - [`LonLat::normalize`]: Normalize the coordinates to the range [-180, 180] and [-90, 90] deg.
+/// - [`LonLat::coords`]: Return the latitude or longitude coordinates in degrees.
+/// - [`LonLat::to_angles`]: Return the latitude and longitude coordinates in radians.
+/// - [`LonLat::is_valid`]: Return true if the latitude is between -90 and 90 degrees inclusive and the longitude is between -180 and 180 degrees inclusive.
+/// - [`LonLat::to_point`]: Converts an LonLat to the equivalent unit-length vector.
+/// - [`LonLat::to_point_gl`]: An alternative to [`LonLat::to_point`] that returns a GPU compatible vector.
+/// - [`LonLat::get_distance`]:Returns the distance (measured along the surface of the sphere) to the given LonLat.
+/// - [`LonLat::get_bearing`]: Returns the bearing from the first point to the second point.
 #[derive(Clone, PartialEq, Debug)]
 pub struct LonLat<M: Clone + Default = MValue>(pub VectorPoint<M>);
 impl GetXY for LonLat {
@@ -99,7 +122,7 @@ impl<M: Clone + Default> LonLat<M> {
         (-90.0..=90.0).contains(&lat) && (-180.0..=180.0).contains(&lon)
     }
 
-    /// Converts an LonLat to the equivalent unit-length vector.  Unnormalized
+    /// Converts an LonLat to the equivalent unit-length vector. Unnormalized
     /// values (see Normalize()) are wrapped around the sphere as would be expected
     /// based on their definition as spherical angles.  So for example the
     /// following pairs yield equivalent points (modulo numerical error):

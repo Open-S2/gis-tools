@@ -100,10 +100,10 @@ pub const ARRAY_FIELDS: [u16; 9] = [
 /// All GeoTIFF keys and their u16 representations
 ///
 /// Geo Key Directory:
-/// https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_methods
-/// https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_parameters
-/// https://docs.ogc.org/is/19-008r4/19-008r4.html#section-D-3
-/// https://docs.ogc.org/is/19-008r4/19-008r4.html#_summary_of_geokey_ids_and_names
+/// - <https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_methods>
+/// - <https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_parameters>
+/// - <https://docs.ogc.org/is/19-008r4/19-008r4.html#section-D-3>
+/// - <https://docs.ogc.org/is/19-008r4/19-008r4.html#_summary_of_geokey_ids_and_names>
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(u16)]
 pub enum GeoKeyDirectoryKeys {
@@ -259,7 +259,7 @@ pub enum GeoTIFFTypes {
     FLOAT = 0x000b,
     /// Double
     DOUBLE = 0x000c,
-    /// IFD offset, suggested by https://owl.phy.queensu.ca/~phil/exiftool/standards.html
+    /// IFD offset, suggested by <https://owl.phy.queensu.ca/~phil/exiftool/standards.html>
     IFD = 0x000d,
     // introduced by BigTIFF
     /// Long

@@ -1079,7 +1079,7 @@
 //   return incircleadapt(ax, ay, bx, by, cx, cy, dx, dy, permanent);
 // }
 
-/// An in-circle test fast test, lacks the same accuract as incircle
+/// An in-circle test fast test, lacks the same accuracy as incircle
 ///
 /// ## Parameters
 /// - `ax`: x coordinate of first point

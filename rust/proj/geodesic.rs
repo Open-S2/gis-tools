@@ -475,7 +475,7 @@ fn c4coeff(g: &mut GeodGeodesic) {
     }
 }
 
-/// Evaluation sum(p[i] * x^i, i, 0, N) via Horner's method.
+/// Evaluation `sum(p[i] * x^i, i, 0, N)` via Horner's method.
 pub fn polyvalx(n: usize, p: &[f64], x: f64) -> f64 {
     if n == 0 {
         return 0.0;
@@ -581,10 +581,13 @@ pub fn norm2(sinx: &mut f64, cosx: &mut f64) {
 }
 
 /// Evaluate
-/// y = sinp ? sum(c[i] * sin( 2*i    * x), i, 1, n) :
-///            sum(c[i] * cos((2*i+1) * x), i, 0, n-1)
-/// using Clenshaw summation.  N.B. c[0] is unused for sin series
-/// Approx operation count = (n + 5) mult and (2 * n + 2) add */
+/// ```cpp
+/// y = sinp
+///     ? sum(c[i] * sin( 2*i    * x), i, 1, n)
+///     : sum(c[i] * cos((2*i+1) * x), i, 0, n-1)
+/// ```
+/// using Clenshaw summation.  N.B. `c[0]` is unused for sin series
+/// Approx operation count = (n + 5) mult and (2 * n + 2) add
 pub fn sin_cos_series(sinp: bool, sinx: f64, cosx: f64, c: &[f64], mut n: usize) -> f64 {
     // Point to one beyond last element
     let mut c_index = if sinp { 1 } else { 0 } + n - 1;

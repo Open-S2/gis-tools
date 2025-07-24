@@ -21,20 +21,20 @@ use s2json::MValueCompatible;
 /// from E6(3100000) or E7(310000000).  However, the following properties are
 /// guaranteed for any integer "n", provided that "n" is in the input range of
 /// both functions:
-/// ```latext
-///     Degrees(n) == E6(1000000 * n)
-///     Degrees(n) == E7(10000000 * n)
-///          E6(n) == E7(10 * n)
-/// ```
+///
+/// $$     Degrees(n) == E6(1000000 * n) $$
+/// $$     Degrees(n) == E7(10000000 * n) $$
+/// $$          E6(n) == E7(10 * n) $$
+///
 /// The corresponding properties are *not* true for E5, so if you use E5 then
 /// don't test for exact equality when comparing to other formats such as
 /// Degrees or E7.
 ///
 /// The following conversions between degrees and radians are exact:
-/// ```latext
-///          Degrees(180) == Radians(M_PI);
-///       Degrees(45 * k) == Radians(k * M_PI / 4)  for k == 0..8
-/// ```
+///
+///          Degrees(180) == Radians(M_PI); $$
+///       Degrees(45 * k) == Radians(k * M_PI / 4)  for k == 0..8 $$
+///
 /// These identities also hold when the arguments are scaled up or down by any
 /// power of 2.  Some similar identities are also true, for example,
 /// Degrees(60) == Radians(M_PI / 3), but be aware that this type of identity
@@ -42,10 +42,11 @@ use s2json::MValueCompatible;
 ///
 /// Similarly, the conversion to radians means that Angle::Degrees(x).degrees()
 /// does not always equal "x".  For example,
-/// ```latext
-///         S1Angle::Degrees(45 * k).degrees() == 45 * k      for k == 0..8
-///   but       S1Angle::Degrees(60).degrees() != 60.
-/// ```
+///
+/// $$       S1Angle::Degrees(45 * k).degrees() == 45 * k      for k == 0..8 $$
+///   but
+/// $$       S1Angle::Degrees(60).degrees() != 60. $$
+///
 /// This means that when testing for equality, you should allow for numerical
 /// errors (EXPECT_DOUBLE_EQ) or convert to discrete E5/E6/E7 values first.
 ///
@@ -54,6 +55,28 @@ use s2json::MValueCompatible;
 ///
 /// This class is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`S1Angle::new`]: Create an angle
+/// - [`S1Angle::infinity`]: Return an angle representing infinity
+/// - [`S1Angle::from_degrees`]: Convert an angle in degrees to an angle in radians
+/// - [`S1Angle::to_degrees`]: Convert an angle in radians to an angle in degrees
+/// - [`S1Angle::to_e5`]: Convert an angle in radians to an angle in degrees
+/// - [`S1Angle::to_e6`]: Convert an angle in radians to an angle in degrees
+/// - [`S1Angle::to_e7`]: Convert an angle in radians to an angle in degrees
+/// - [`S1Angle::from_s2points`]: Convert two S2Point points to an angle
+/// - [`S1Angle::from_lon_lat`]: Convert two S2LatLng points to an angle
+/// - [`S1Angle::to_meters`]: Convert an angle in radians to an angle in meters
+/// - [`S1Angle::from_meters`]: Convert an angle in meters to an angle in radians
+/// - [`S1Angle::to_km`]: Convert an angle in radians to an angle in kilometers
+/// - [`S1Angle::from_km`]: Convert an angle in kilometers to an angle in radians
+/// - [`S1Angle::e5`]: Build an angle in E5 format.
+/// - [`S1Angle::e6`]: Build an angle in E6 format.
+/// - [`S1Angle::e7`]: Build an angle in E7 format.
+/// - [`S1Angle::normalize`]: Normalize this angle to the range (-180, 180] degrees.
+/// - [`S1Angle::modulo`]: Returns the remainder when dividing by `modulus`
 #[derive(Copy, Clone, Default, Debug)]
 #[repr(C)]
 pub struct S1Angle {

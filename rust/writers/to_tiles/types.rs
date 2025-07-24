@@ -332,7 +332,7 @@ pub struct JSONBuildGuide {
     pub format: FormatOutput,
     /// The vector sources that the tile is built from and how the layers are to be stored.
     /// Created using `{ [source_name: string]: Source }`
-    /// See: [`gistools::parsers::FeatureReader`]
+    /// See: [`crate::parsers::FeatureReader`]
     #[serde(rename = "vectorSources")]
     pub vector_sources: Vec<Source>,
     /// The raster sources that will be conjoined into a single rgba pixel index for tile extraction

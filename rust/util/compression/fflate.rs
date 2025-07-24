@@ -1,12 +1,12 @@
 // Ported from https://github.com/101arrowz/fflate
 
 // DEFLATE is a complex format; to read this code, you should probably check the RFC first:
-// https://tools.ietf.org/html/rfc1951
+// <https://tools.ietf.org/html/rfc1951>
 // You may also wish to take a look at the guide I made about this program:
-// https://gist.github.com/101arrowz/253f31eb5abc3d9275ab943003ffecad
+// <https://gist.github.com/101arrowz/253f31eb5abc3d9275ab943003ffecad>
 
 // Some of the following code is similar to that of UZIP.js:
-// https://github.com/photopea/UZIP.js
+// <https://github.com/photopea/UZIP.js>
 // However, the vast majority of the codebase has diverged from UZIP.js to increase performance
 // and reduce bundle size.
 

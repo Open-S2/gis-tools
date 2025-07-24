@@ -60,7 +60,7 @@ pub const K_WRAP_OFFSET: u64 = (K_NUM_FACES as u64) << K_POS_BITS;
 /// An S2CellId is a 64-bit unsigned integer that uniquely identifies a
 /// cell in the S2 cell decomposition.  It has the following format:
 ///
-///   id = [face][face_pos]
+///   `id = [face][face_pos]`
 ///
 ///   face:     a 3-bit number (range 0..5) encoding the cube face.
 ///
@@ -76,18 +76,73 @@ pub const K_WRAP_OFFSET: u64 = (K_NUM_FACES as u64) << K_POS_BITS;
 ///    each cell.  The next bit is always 1, and all other bits are 0.
 ///    Therefore, the level of a cell is determined by the position of its
 ///    lowest-numbered bit that is turned on (for a cell at level k, this
-///    position is 2 * (K_MAX_LEVEL - k).)
+///    position is `2 * (K_MAX_LEVEL - k).)`
 ///
 ///  - The id of a parent cell is at the midpoint of the range of ids spanned
 ///    by its children (or by its descendants at any level).
 ///
 /// Leaf cells are often used to represent points on the unit sphere, and
-/// this class provides methods for converting directly between these two
+/// this struct provides methods for converting directly between these two
 /// representations.  For cells that represent 2D regions rather than
-/// discrete point, it is better to use the S2Cell class.
+/// discrete point, it is better to use the S2Cell struct.
 ///
-/// This class is intended to be copied by value as desired.  It uses
+/// This struct is intended to be copied by value as desired.  It uses
 /// the default copy constructor and assignment operator.
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`S2CellId::new`]: Create a new S2CellId
+/// - [`S2CellId::none`]: Returns an empty cell id.
+/// - [`S2CellId::sentinel`]: Returns an invalid cell id guaranteed to be larger than any valid cell id.  Useful for creating indexes.
+/// - [`S2CellId::from_face`]: Return the cell corresponding to a given S2 cube face.
+/// - [`S2CellId::from_lon_lat`]: Construct a leaf cell containing the given normalized S2LatLng.
+/// - [`S2CellId::from_s2_point`]: Construct a leaf cell containing the given point "p".
+/// - [`S2CellId::from_face_uv`]: Construct a leaf cell given its face and (u,v) coordinates.
+/// - [`S2CellId::from_face_st`]: Construct a leaf cell given its face and (s,t) coordinates.
+/// - [`S2CellId::from_face_ij`]: Return a leaf cell given its cube face (range 0..5) and i- and j-coordinates (see s2coords.h).
+/// - [`S2CellId::from_distance`]: Given a distance and optional zoom level, construct a cell ID at that distance
+/// - [`S2CellId::to_face_ij`]: convert an id to the appropriate face-zoom-i-j of the cell ID
+/// - [`S2CellId::to_face_ij_orientation`]: Return the (face, i, j) coordinates for the leaf cell corresponding to this cell id.
+/// - [`S2CellId::get_edges`]: Returns the four edges of the cell.
+/// - [`S2CellId::get_edges_raw`]: Returns the inward-facing normal of the great circle passing through the edge from vertex k to vertex k+1 (mod 4).
+/// - [`S2CellId::get_vertices`]: Returns the four vertices of the cell.
+/// - [`S2CellId::get_vertices_raw`]: Returns the k-th vertex of the cell (k = 0,1,2,3).
+/// - [`S2CellId::get_bound_uv`]: Return the bounds of this cell in (u,v)-space.
+/// - [`S2CellId::get_size_ij`]: Return the size of a cell at the given level.
+/// - [`S2CellId::child_position`]: Return the child position (0..3) of this cell's ancestor at the given level within its parent.
+/// - [`S2CellId::from_string`]: Converts a string in the format returned by ToString() to an S2CellId.
+/// - [`S2CellId::child`]: Return the immediate child of this cell at the given traversal order position (in the range 0 to 3).
+/// - [`S2CellId::face`]: Which cube face this cell belongs to, in the range 0..5.
+/// - [`S2CellId::pos`]: The position of the cell center along the Hilbert curve over this face, in the range 0..(2**K_POS_BITS-1).
+/// - [`S2CellId::level`]: Return the subdivision level of the cell (range 0..K_MAX_LEVEL).
+/// - [`S2CellId::is_valid`]: Return true if id represents a valid cell.
+/// - [`S2CellId::is_leaf`]: Return true if this is a leaf cell (more efficient than checking whether level() == K_MAX_LEVEL).
+/// - [`S2CellId::to_point_raw`]: Convert an S2CellID to an S2Point in normalized vector coordinates
+/// - [`S2CellId::to_point`]: Convert an S2CellID to an S2Point in normalized vector coordinates
+/// - [`S2CellId::to_st`]: Convert an S2CellID to an Face-S-T coordinate
+/// - [`S2CellId::to_uv`]: Convert an S2CellID to an Face-U-V coordinate
+/// - [`S2CellId::is_face`]: Given an S2CellID, check if it is a Face Cell.
+/// - [`S2CellId::distance`]: Given an S2CellID, get the distance it spans (or length it covers)
+/// - [`S2CellId::children`]: Given an S2CellID, get all the quad children tiles
+/// - [`S2CellId::children_ij`]: Given an S2CellID, get the quad children tiles using a face-zoom-ij input
+/// - [`S2CellId::parent`]: Given an S2CellID, get the parent quad tile
+/// - [`S2CellId::range`]: Given an S2CellID, get the hilbert range it spans returns (min, max)
+/// - [`S2CellId::contains`]: Check if the first S2CellID contains the second.
+/// - [`S2CellId::contains_s2point`]: Check if an S2CellID contains an S2Point
+/// - [`S2CellId::intersects`]: Check if an S2CellID intersects another. This includes edges touching.
+/// - [`S2CellId::lsb`]: Return the lowest-numbered bit that is on for this cell id
+/// - [`S2CellId::next`]: Get the next S2CellID in the hilbert space
+/// - [`S2CellId::prev`]: Get the previous S2CellID in the hilbert space
+/// - [`S2CellId::center_st`]: Given an S2CellID and level (zoom), get the center point of that cell in S-T space returns (face, s, t)
+/// - [`S2CellId::bounds_st`]: Given an S2CellID and level (zoom), get the S-T bounding range of that cell returns (s_min, t_min, s_max, t_max)
+/// - [`S2CellId::neighbors`]: Given an S2CellID, find the edge neighboring S2CellIDs returns neighbors: [up, right, down, left]
+/// - [`S2CellId::neighbors_ij`]: Given a Face-I-J and a desired level (zoom), find the neighboring S2CellIDs return neighbors: [down, right, up, left]
+/// - [`S2CellId::from_ij_same`]: Build an S2CellID given a Face-I-J, but ensure the face is the same if desired
+/// - [`S2CellId::from_face_ij_wrap`]: Build an S2CellID given a Face-I-J, but ensure it's a legal value, otherwise wrap before creation
+/// - [`S2CellId::vertex_neighbors`]: Given an S2CellID, find it's nearest neighbors associated with it
+/// - [`S2CellId::low_bits`]: Return the low 32 bits of the cell id
+/// - [`S2CellId::high_bits`]: Return the high 32 bits of the cell id
 #[derive(
     Debug, Default, Copy, Clone, PartialEq, PartialOrd, Ord, Eq, Hash, Serialize, Deserialize,
 )]
@@ -225,9 +280,9 @@ impl S2CellId {
     }
 
     /// Return the (face, i, j) coordinates for the leaf cell corresponding to
-    /// this cell id.  Since cells are represented by the Hilbert curve position
+    /// this cell id. Since cells are represented by the Hilbert curve position
     /// at the center of the cell, the returned (i,j) for non-leaf cells will be
-    /// a leaf cell adjacent to the cell center.  If "orientation" is non-nullptr,
+    /// a leaf cell adjacent to the cell center. If "orientation" is non-nullptr,
     /// also return the Hilbert curve orientation for the current cell.
     /// Returns (face, i, j, orientation)
     pub fn to_face_ij_orientation(&self, level: Option<u8>) -> (u8, u32, u32, u8) {
@@ -270,7 +325,7 @@ impl S2CellId {
         (face, i, j, bits as u8)
     }
 
-    /// Returns the four edges of the cell.  Edges are returned in CCW order
+    /// Returns the four edges of the cell. Edges are returned in CCW order
     /// (lower left, lower right, upper right, upper left in the UV plane).
     pub fn get_edges(&self) -> [S2Point; 4] {
         let mut edges = self.get_edges_raw();
@@ -294,9 +349,9 @@ impl S2CellId {
         ]
     }
 
-    /// Returns the four vertices of the cell.  Vertices are returned
+    /// Returns the four vertices of the cell. Vertices are returned
     /// in CCW order (lower left, lower right, upper right, upper left in the UV
-    /// plane).  The points returned by getVerticesRaw are not normalized.
+    /// plane). The points returned by getVerticesRaw are not normalized.
     pub fn get_vertices(&self) -> [S2Point; 4] {
         self.get_vertices_raw().map(|mut v| {
             v.normalize();
@@ -304,9 +359,9 @@ impl S2CellId {
         })
     }
 
-    /// Returns the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
+    /// Returns the k-th vertex of the cell (k = 0,1,2,3). Vertices are returned
     /// in CCW order (lower left, lower right, upper right, upper left in the UV
-    /// plane).  The points returned by getVerticesRaw are not normalized.
+    /// plane). The points returned by getVerticesRaw are not normalized.
     pub fn get_vertices_raw(&self) -> [S2Point; 4] {
         let f = self.face();
         let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
@@ -330,7 +385,7 @@ impl S2CellId {
     }
 
     /// Return the child position (0..3) of this cell's ancestor at the given
-    /// level within its parent.  For example, childPosition(1) returns the
+    /// level within its parent. For example, childPosition(1) returns the
     /// position of this cell's level-1 ancestor within its top-level face cell.
     /// REQUIRES: 1 <= level <= this->level().
     pub fn child_position(&self, level: u8) -> u8 {
@@ -502,8 +557,7 @@ impl S2CellId {
         ((self.id & (!new_lsb + 1)) | new_lsb).into()
     }
 
-    /// Given an S2CellID, get the hilbert range it spans
-    /// returns (min, max)
+    /// Given an S2CellID, get the hilbert range it spans returns (min, max)
     pub fn range(&self) -> (Self, Self) {
         let id = self.id;
         let lsb = id & (!id + 1);
@@ -530,7 +584,7 @@ impl S2CellId {
     }
 
     /// Return the lowest-numbered bit that is on for this cell id, which is
-    /// equal to (uint64_t{1} << (2 * (kMaxLevel - level))).  So for example,
+    /// equal to (uint64_t{1} << (2 * (kMaxLevel - level))). So for example,
     /// a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
     /// first test is more efficient.
     fn lsb(&self) -> u64 {
@@ -578,8 +632,8 @@ impl S2CellId {
         BBox::new(s - half_size, t - half_size, s + half_size, t + half_size)
     }
 
-    /// Given an S2CellID, find the edge neighboring S2CellIDs
-    /// returns neighbors: [up, right, down, left]
+    /// Given an S2CellID, find the edge neighboring S2CellIDs returns neighbors:
+    /// [up, right, down, left]
     pub fn neighbors(&self) -> [S2CellId; 4] {
         let level = self.level();
         let size = size_ij(level) as i32;
@@ -600,8 +654,8 @@ impl S2CellId {
         ]
     }
 
-    /// Given a Face-I-J and a desired level (zoom), find the neighboring S2CellIDs
-    /// return neighbors: [down, right, up, left]
+    /// Given a Face-I-J and a desired level (zoom), find the neighboring S2CellIDs return
+    /// neighbors: [down, right, up, left]
     pub fn neighbors_ij(face: u8, i: u32, j: u32, level: u8) -> [S2CellId; 4] {
         let size = size_ij(level) as i32;
         let i = i as i32;
@@ -628,7 +682,8 @@ impl S2CellId {
         }
     }
 
-    /// Build an S2CellID given a Face-I-J, but ensure it's a legal value, otherwise wrap before creation
+    /// Build an S2CellID given a Face-I-J, but ensure it's a legal value, otherwise wrap before
+    /// creation
     pub fn from_face_ij_wrap(face: u8, i: i32, j: i32) -> S2CellId {
         // Convert i and j to the coordinates of a leaf cell just beyond the
         // boundary of this face.  This prevents 32-bit overflow in the case

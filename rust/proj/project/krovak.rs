@@ -95,8 +95,9 @@ const C10: f64 = -3.689471323E-24;
 /// Correction terms to be applied to regular Krovak to obtain Modified Krovak.
 /// Note that x_r is a Southing in metres and y_r a Westing in metres,
 /// and output (d_x, d_y) is a corrective term in (Southing, Westing) in metres
+///
 /// Reference:
-/// https://www.cuzk.cz/Zememerictvi/Geodeticke-zaklady-na-uzemi-CR/GNSS/Nova-realizace-systemu-ETRS89-v-CR/Metodika-prevodu-ETRF2000-vs-S-JTSK-var2(101208).aspx
+/// <https://www.cuzk.cz/Zememerictvi/Geodeticke-zaklady-na-uzemi-CR/GNSS/Nova-realizace-systemu-ETRS89-v-CR/Metodika-prevodu-ETRF2000-vs-S-JTSK-var2(101208).aspx>
 fn mod_krovak_compute_dx_dy(xr: f64, yr: f64) -> (f64, f64) {
     let x_r2 = xr * xr;
     let y_r2 = yr * yr;

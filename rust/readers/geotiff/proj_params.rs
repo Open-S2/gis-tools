@@ -368,7 +368,7 @@ fn build_ellps(key: Option<i16>) -> String {
 }
 
 /// Convert geotiff meter key to proj4 to_meter format
-/// http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.3
+/// <http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.3>
 ///
 /// ## Parameters
 /// - `key`: the geotiff key

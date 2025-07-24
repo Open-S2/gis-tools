@@ -106,223 +106,176 @@ pub struct Ellipsoidal {
     pub rf: Option<f64>,
 }
 
-/// CGCS2000 - 1024
-/// https://epsg.org/ellipsoid_1024/CGCS2000.html
+/// [CGCS2000 - 1024](https://epsg.org/ellipsoid_1024/CGCS2000.html)
 pub const CGCS2000: Ellipsoidal = Ellipsoidal { a: 6_378_137.0, b: None, rf: Some(298.257222101) };
 
-/// GSK-2011 - 1025
-/// https://epsg.org/ellipsoid_1025/GSK-2011.html
+/// [GSK-2011 - 1025](https://epsg.org/ellipsoid_1025/GSK-2011.html)
 pub const GSK_2011: Ellipsoidal = Ellipsoidal { a: 6_378_136.5, b: None, rf: Some(298.2564151) };
 
-/// Zach 1812 - 1026
-/// https://epsg.org/ellipsoid_1026/Zach-1812.html
+/// [Zach 1812 - 1026](https://epsg.org/ellipsoid_1026/Zach-1812.html)
 pub const ZACH: Ellipsoidal = Ellipsoidal { a: 6_376_045.0, b: None, rf: Some(310.0) };
 
-/// Airy 1830 - 7001
-/// https://epsg.org/ellipsoid_7001/Airy-1830.html
+/// [Airy 1830 - 7001](https://epsg.org/ellipsoid_7001/Airy-1830.html)
 pub const AIRY: Ellipsoidal = Ellipsoidal { a: 6_377_563.396, b: None, rf: Some(299.3249646) };
 
-/// Airy Modified 1849 - 7002
-/// https://epsg.org/ellipsoid_7002/Airy-Modified-1849.html
+/// [Airy Modified 1849 - 7002](https://epsg.org/ellipsoid_7002/Airy-Modified-1849.html)
 pub const MOD_AIRY: Ellipsoidal = Ellipsoidal { a: 6_377_340.189, b: None, rf: Some(299.3249646) };
 
-/// Australian National Spheroid (Australian Natl & S. Amer. 1969) - 7003
-/// https://epsg.org/ellipsoid_7003/Australian-National-Spheroid.html
+/// [Australian National Spheroid (Australian Natl & S. Amer. 1969) - 7003](https://epsg.org/ellipsoid_7003/Australian-National-Spheroid.html)
 pub const AUST_SA: Ellipsoidal = Ellipsoidal { a: 6_378_160.0, b: None, rf: Some(298.25) };
 
-/// Bessel 1841 - 7004
-/// https://epsg.org/ellipsoid_7004/Bessel-1841.html
+/// [Bessel 1841 - 7004](https://epsg.org/ellipsoid_7004/Bessel-1841.html)
 pub const BESSEL: Ellipsoidal = Ellipsoidal { a: 6_377_397.155, b: None, rf: Some(299.1528128) };
 
-/// Bessel 1841 (Modified) - 7005
-/// https://epsg.org/ellipsoid_7005/Bessel-Modified.html
+/// [Bessel 1841 (Modified) - 7005](https://epsg.org/ellipsoid_7005/Bessel-Modified.html)
 pub const MOD_BESSEL: Ellipsoidal = Ellipsoidal { a: 6_377_390.0, b: None, rf: Some(299.1528128) };
 
-/// Clarke 1858 - 7007
-/// https://epsg.org/ellipsoid_7007/Clarke-1858.html
+/// [Clarke 1858 - 7007](https://epsg.org/ellipsoid_7007/Clarke-1858.html)
 pub const CLRK58: Ellipsoidal =
     Ellipsoidal { a: 6_378_293.645_208_759, b: Some(6_356_617.987_679_838), rf: None };
 
-/// Clarke 1866 - 7008
-/// https://epsg.org/ellipsoid_7008/Clarke-1866.html
+/// [Clarke 1866 - 7008](https://epsg.org/ellipsoid_7008/Clarke-1866.html)
 pub const CLRK66: Ellipsoidal = Ellipsoidal { a: 6_378_206.4, b: Some(6_356_583.8), rf: None };
 
-/// Clarke 1880 (Benoit) - 7010
-/// https://epsg.org/ellipsoid_7010/Clarke-1880-Benoit.html
+/// [Clarke 1880 (Benoit) - 7010](https://epsg.org/ellipsoid_7010/Clarke-1880-Benoit.html)
 pub const CLRK80BEN: Ellipsoidal =
     Ellipsoidal { a: 6_378_300.789, b: Some(6_356_566.435), rf: None };
 
-/// Clarke 1880 (IGN) - 7011
-/// https://epsg.org/ellipsoid_7011/Clarke-1880-IGN.html
+/// [Clarke 1880 (IGN) - 7011](https://epsg.org/ellipsoid_7011/Clarke-1880-IGN.html)
 pub const CLRK80IGN: Ellipsoidal = Ellipsoidal { a: 6378249.2, b: Some(6356515.0), rf: None };
 
-/// Clarke 1880 (RGS) - 7012
-/// https://epsg.org/ellipsoid_7012/Clarke-1880-RGS.html
+/// [Clarke 1880 (RGS) - 7012](https://epsg.org/ellipsoid_7012/Clarke-1880-RGS.html)
 pub const CLRK80RGS: Ellipsoidal = Ellipsoidal { a: 6_378_249.145, b: None, rf: Some(293.465) };
 
-/// Clarke 1880 (Arc) - 7013
-/// https://epsg.org/ellipsoid_7013/Clarke-1880-Arc.html
+/// [Clarke 1880 (Arc) - 7013](https://epsg.org/ellipsoid_7013/Clarke-1880-Arc.html)
 pub const CLRK80ARC: Ellipsoidal = Ellipsoidal { a: 6_378_249.145, b: None, rf: Some(293.4663077) };
 
-/// Clarke 1880 (SGA) - 7014
-/// https://epsg.org/ellipsoid_7014/Clarke-1880-SGA-1922.html
+/// [Clarke 1880 (SGA) - 7014](https://epsg.org/ellipsoid_7014/Clarke-1880-SGA-1922.html)
 pub const CLRK80SGA: Ellipsoidal = Ellipsoidal { a: 6_378_249.2, b: None, rf: Some(293.46598) };
 
-/// Everest 1830 (1937 Adjustment) - 7015
-/// https://epsg.org/ellipsoid_7015/Everest-1830-1937-Adjustment.html
+/// [Everest 1830 (1937 Adjustment) - 7015](https://epsg.org/ellipsoid_7015/Everest-1830-1937-Adjustment.html)
 pub const EVRST30: Ellipsoidal = Ellipsoidal { a: 6_377_276.345, b: None, rf: Some(300.8017) };
 
 /// Everest (Sabah & Sarawak)
 pub const EVRSTSS: Ellipsoidal = Ellipsoidal { a: 6_377_298.556, b: None, rf: Some(300.8017) };
 
-/// Everest 1830 (1967 Definition) - 7016
-/// https://epsg.org/ellipsoid_7016/Everest-1830-1967-Definition.html
+/// [Everest 1830 (1967 Definition) - 7016](https://epsg.org/ellipsoid_7016/Everest-1830-1967-Definition.html)
 pub const EVRST67: Ellipsoidal = EVRSTSS;
 
 /// Everest 1948
 pub const EVRST48: Ellipsoidal = Ellipsoidal { a: 6_377_304.063, b: None, rf: Some(300.8017) };
 
-/// Everest 1830 Modified - 7018
-/// https://epsg.org/ellipsoid_7018/Everest-1830-Modified.html
+/// [Everest 1830 Modified - 7018](https://epsg.org/ellipsoid_7018/Everest-1830-Modified.html)
 pub const EVRST30_MOD: Ellipsoidal = EVRST48;
 
-/// GRS 1980 (IUGG, 1980) - 7019
-/// https://epsg.org/ellipsoid_7019/GRS-1980.html
+/// [GRS 1980 (IUGG, 1980) - 7019](https://epsg.org/ellipsoid_7019/GRS-1980.html)
 pub const GRS80: Ellipsoidal = Ellipsoidal { a: 6_378_137.0, b: None, rf: Some(298.257222101) };
 
-/// Helmert 1906 - 7020
-/// https://epsg.org/ellipsoid_7020/Helmert-1906.html
+/// [Helmert 1906 - 7020](https://epsg.org/ellipsoid_7020/Helmert-1906.html)
 pub const HELMERT: Ellipsoidal = Ellipsoidal { a: 6_378_200.0, b: None, rf: Some(298.3) };
 
-/// Indonesian National Spheroid - 7021
-/// https://epsg.org/ellipsoid_7021/Indonesian-National-Spheroid.html
+/// [Indonesian National Spheroid - 7021](https://epsg.org/ellipsoid_7021/Indonesian-National-Spheroid.html)
 pub const INDONESIAN: Ellipsoidal = Ellipsoidal { a: 6_378_160.0, b: None, rf: Some(298.247) };
 
-/// International 1924 - 7022
-/// https://epsg.org/ellipsoid_7022/International-1924.html
+/// [International 1924 - 7022](https://epsg.org/ellipsoid_7022/International-1924.html)
 pub const INTL24: Ellipsoidal = Ellipsoidal { a: 6_378_388.0, b: None, rf: Some(297.0) };
 
-/// Krassowsky 1940 - 7024
-/// https://epsg.org/ellipsoid_7024/Krassowsky-1940.html
+/// [Krassowsky 1940 - 7024](https://epsg.org/ellipsoid_7024/Krassowsky-1940.html)
 pub const KRASS: Ellipsoidal = Ellipsoidal { a: 6_378_245.0, b: None, rf: Some(298.3) };
 
-/// Naval Weapons Lab., 1965 (NWL 9D) - 7025
-/// https://epsg.org/ellipsoid_7025/NWL-9D.html
+/// [Naval Weapons Lab., 1965 (NWL 9D) - 7025](https://epsg.org/ellipsoid_7025/NWL-9D.html)
 pub const NWL9D: Ellipsoidal = Ellipsoidal { a: 6_378_145.0, b: None, rf: Some(298.25) };
 
 /// Naval Weapons Lab., 1965
 pub const NWL10D: Ellipsoidal = NWL9D;
 
-/// Plessis 1817 (France) - 7027
-/// https://epsg.org/ellipsoid_7027/Plessis-1817.html
+/// [Plessis 1817 (France) - 7027](https://epsg.org/ellipsoid_7027/Plessis-1817.html)
 pub const PLESSIS: Ellipsoidal = Ellipsoidal { a: 6_376_523.0, b: None, rf: Some(308.64) };
 
-/// Struve 1860 - 7028
-/// https://epsg.org/ellipsoid_7028/Struve-1860.html
+/// [Struve 1860 - 7028](https://epsg.org/ellipsoid_7028/Struve-1860.html)
 pub const STRUVE: Ellipsoidal = Ellipsoidal { a: 6_378_298.3, b: None, rf: Some(294.73) };
 
-/// War Office - 7029
-/// https://epsg.org/ellipsoid_7029/War-Office.html
+/// [War Office - 7029](https://epsg.org/ellipsoid_7029/War-Office.html)
 pub const WARO: Ellipsoidal = Ellipsoidal { a: 6_378_300.0, b: None, rf: Some(296.0) };
 
-/// WGS 84 - 7030
-/// https://epsg.org/ellipsoid_7030/WGS-84.html
+/// [WGS 84 - 7030](https://epsg.org/ellipsoid_7030/WGS-84.html)
 pub const WGS84: Ellipsoidal = Ellipsoidal { a: 6_378_137.0, b: None, rf: Some(298.257223563) };
 
-/// GEM 10C - 7031
-/// https://epsg.org/ellipsoid_7031/GEM-10C.html
+/// [GEM 10C - 7031](https://epsg.org/ellipsoid_7031/GEM-10C.html)
 pub const GEM10C: Ellipsoidal = WGS84;
 
-/// OSU86F - 7032
-/// https://epsg.org/ellipsoid_7032/OSU86F.html
+/// [OSU86F - 7032](https://epsg.org/ellipsoid_7032/OSU86F.html)
 pub const OSU86F: Ellipsoidal = Ellipsoidal { a: 6_378_136.2, b: None, rf: Some(298.257223563) };
 
-/// OSU91A - 7033
-/// https://epsg.org/ellipsoid_7033/OSU91A.html
+/// [OSU91A - 7033](https://epsg.org/ellipsoid_7033/OSU91A.html)
 pub const OSU91A: Ellipsoidal = Ellipsoidal { a: 6_378_136.3, b: None, rf: Some(298.257223563) };
 
-/// Clarke 1880 - 7034
-/// https://epsg.org/ellipsoid_7034/Clarke-1880.html
+/// [Clarke 1880 - 7034](https://epsg.org/ellipsoid_7034/Clarke-1880.html)
 pub const CLRK80: Ellipsoidal =
     Ellipsoidal { a: 6_378_249.144_808_011, b: Some(6_356_514.966204133), rf: None };
 
-/// GRS 1967 (IUGG 1967) - 7036
-/// https://epsg.org/ellipsoid_7036/GRS-1967.html
+/// [GRS 1967 (IUGG 1967) - 7036](https://epsg.org/ellipsoid_7036/GRS-1967.html)
 pub const GRS67: Ellipsoidal = Ellipsoidal { a: 6_378_160.0, b: None, rf: Some(298.247167427) };
 
-/// Average Terrestrial System 1977 - 7041
-/// https://epsg.org/ellipsoid_7041/Average-Terrestrial-System-1977.html
+/// [Average Terrestrial System 1977 - 7041](https://epsg.org/ellipsoid_7041/Average-Terrestrial-System-1977.html)
 pub const ATS77: Ellipsoidal = Ellipsoidal { a: 6_378_135.0, b: None, rf: Some(298.257) };
 
-/// Everest 1830 (1830 Definition) - 7042
-/// https://epsg.org/ellipsoid_7042/Everest-1830-Definition.html
+/// [Everest 1830 (1830 Definition) - 7042](https://epsg.org/ellipsoid_7042/Everest-1830-Definition.html)
 pub const EVRST1830: Ellipsoidal =
     Ellipsoidal { a: 6_377_299.365_595_443, b: Some(6_356_098.359_005_22), rf: None };
 
-/// WGS 72 - 7043
-/// https://epsg.org/ellipsoid_7043/WGS-72.html
+/// [WGS 72 - 7043](https://epsg.org/ellipsoid_7043/WGS-72.html)
 pub const WGS7: Ellipsoidal = Ellipsoidal { a: 6_378_135.0, b: None, rf: Some(298.26) };
 
-/// Everest 1830 (1962 Definition) - 7044
-/// https://epsg.org/ellipsoid_7044/Everest-1830-1962-Definition.html
+/// [Everest 1830 (1962 Definition) - 7044](https://epsg.org/ellipsoid_7044/Everest-1830-1962-Definition.html)
 pub const EVRST62: Ellipsoidal = Ellipsoidal { a: 6_377_301.243, b: None, rf: Some(300.8017255) };
 
-/// Everest 1830 (1975 Definition) - 7045
-/// https://epsg.org/ellipsoid_7045/Everest-1830-1975-Definition.html
+/// [Everest 1830 (1975 Definition) - 7045](https://epsg.org/ellipsoid_7045/Everest-1830-1975-Definition.html)
 pub const EVRST75: Ellipsoidal = Ellipsoidal { a: 6_377_299.151, b: None, rf: Some(300.8017255) };
 
-/// Bessel 1841 (Namibia GLM) - 7046
-/// https://epsg.org/ellipsoid_7046/Bessel-Namibia-GLM.html
+/// [Bessel 1841 (Namibia GLM) - 7046](https://epsg.org/ellipsoid_7046/Bessel-Namibia-GLM.html)
 pub const BESS_NAM: Ellipsoidal =
     Ellipsoidal { a: 6_377_483.865280418, b: None, rf: Some(299.1528128) };
 
-/// GRS 1980 Authalic Sphere - 7048
-/// https://epsg.org/ellipsoid_7048/GRS-1980-Authalic-Sphere.html
+/// [GRS 1980 Authalic Sphere - 7048](https://epsg.org/ellipsoid_7048/GRS-1980-Authalic-Sphere.html)
+///
 /// NOTE: Not an ellipse why does this exist?
 pub const GRS80_AUTH: Ellipsoidal = Ellipsoidal { a: 6_371_007.0, b: Some(6_371_007.0), rf: None };
 
-/// IAG 1975 - 7049
-/// https://epsg.org/ellipsoid_7049/IAG-1975.html
+/// [IAG 1975 - 7049](https://epsg.org/ellipsoid_7049/IAG-1975.html)
 pub const IAG75: Ellipsoidal = Ellipsoidal { a: 6_378_140.0, b: None, rf: Some(298.257) };
 
-/// GRS 1967 Modified - 7050
-/// https://epsg.org/ellipsoid_7050/GRS-1967-Modified.html
+/// [GRS 1967 Modified - 7050](https://epsg.org/ellipsoid_7050/GRS-1967-Modified.html)
 pub const GRS_MOD: Ellipsoidal = Ellipsoidal { a: 6_378_160.0, b: None, rf: Some(298.25) };
 
-/// Danish 1876 - 7051
-/// https://epsg.org/ellipsoid_7051/Danish-1876.html
+/// [Danish 1876 - 7051](https://epsg.org/ellipsoid_7051/Danish-1876.html)
 pub const DANISH: Ellipsoidal = Ellipsoidal { a: 6_377_019.27, b: None, rf: Some(300.0) };
 
-/// Clarke 1866 Authalic Sphere - 7052
-/// https://epsg.org/ellipsoid_7052/Clarke-1866-Authalic-Sphere.html
+/// [Clarke 1866 Authalic Sphere - 7052](https://epsg.org/ellipsoid_7052/Clarke-1866-Authalic-Sphere.html)
+///
 /// NOTE: Not an ellipse why does this exist?
 pub const CLRK_AUTH: Ellipsoidal = Ellipsoidal { a: 6_370_997.0, b: Some(6_370_997.0), rf: None };
 
-/// Hough 1960 - 7053
-/// https://epsg.org/ellipsoid_7053/Hough-1960.html
+/// [Hough 1960 - 7053](https://epsg.org/ellipsoid_7053/Hough-1960.html)
 pub const HOUGH: Ellipsoidal = Ellipsoidal { a: 6_378_270.0, b: None, rf: Some(297.0) };
 
-/// PZ-90 - 7054
-/// https://epsg.org/ellipsoid_7054/PZ-90.html
+/// [PZ-90 - 7054](https://epsg.org/ellipsoid_7054/PZ-90.html)
 pub const PZ90: Ellipsoidal = Ellipsoidal { a: 6_378_136.0, b: None, rf: Some(298.257839303) };
 
-/// Clarke 1880 (international foot) - 7055
-/// https://epsg.org/ellipsoid_7055/Clarke-1880-international-foot.html
+/// [Clarke 1880 (international foot) - 7055](https://epsg.org/ellipsoid_7055/Clarke-1880-international-foot.html)
 pub const CLRK80FOOT: Ellipsoidal =
     Ellipsoidal { a: 6_378_306.369_6, b: Some(6_356_571.996), rf: None };
 
-/// Everest 1830 (RSO 1969) - 7056
-/// https://epsg.org/ellipsoid_7056/Everest-1830-RSO-1969.html
+/// [Everest 1830 (RSO 1969) - 7056](https://epsg.org/ellipsoid_7056/Everest-1830-RSO-1969.html)
 pub const EVRST_RSO: Ellipsoidal = Ellipsoidal { a: 6_377_295.664, b: None, rf: Some(300.8017) };
 
-/// International 1924 Authalic Sphere - 7057
-/// https://epsg.org/ellipsoid_7057/International-1924-Authalic-Sphere.html
+/// [International 1924 Authalic Sphere - 7057](https://epsg.org/ellipsoid_7057/International-1924-Authalic-Sphere.html)
+///
 /// NOTE: Not an ellipse why does this exist?
 pub const INTL1924_AUTH: Ellipsoidal =
     Ellipsoidal { a: 6_371_228.0, b: Some(6_371_228.0), rf: None };
 
-/// Hughes 1980 - 7058
-/// https://epsg.org/ellipsoid_7058/Hughes-1980.html
+/// [Hughes 1980 - 7058](https://epsg.org/ellipsoid_7058/Hughes-1980.html)
 pub const HUGHES: Ellipsoidal = Ellipsoidal { a: 6_378_273.0, b: Some(6_356_889.449), rf: None };
 
 // Everything after this I have no clue if they are accurate

@@ -39,7 +39,7 @@ pub enum GTFSRealtimeScheduleRelationship {
     /// the matching value from TripUpdate.TripProperties.trip_id and VehiclePosition.TripDescriptor.ScheduleRelationship
     /// must also be set to DUPLICATED.
     /// Existing producers and consumers that were using the ADDED enumeration to represent duplicated trips must follow
-    /// the migration guide (https://github.com/google/transit/tree/master/gtfs-realtime/spec/en/examples/migration-duplicated.md)
+    /// the migration guide <https://github.com/google/transit/tree/master/gtfs-realtime/spec/en/examples/migration-duplicated.md>
     /// to transition to the DUPLICATED enumeration.
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
     Duplicated = 6,

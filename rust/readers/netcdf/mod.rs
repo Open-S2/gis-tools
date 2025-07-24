@@ -226,7 +226,7 @@ pub struct NetCDFReaderOptions {
 /// ```
 ///
 /// ## Links
-/// - https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html
+/// - <https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html>
 #[derive(Debug)]
 pub struct NetCDFReader<T: Reader> {
     reader: T,

@@ -226,9 +226,9 @@ impl<
 /// ```
 ///
 /// ## Links
-/// - https://datatracker.ietf.org/doc/html/rfc7464
-/// - https://datatracker.ietf.org/doc/html/rfc8142
-/// - https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file
+/// - <https://datatracker.ietf.org/doc/html/rfc7464>
+/// - <https://datatracker.ietf.org/doc/html/rfc8142>
+/// - <https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file>
 #[derive(Debug)]
 pub struct SequenceJSONReader<
     T: Reader,

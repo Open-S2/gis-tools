@@ -103,10 +103,10 @@ pub struct GeoTIFFOptions {
 /// ```
 ///
 /// ## Links
-/// - https://www.ogc.org/publications/standard/geotiff/
-/// - https://download.osgeo.org/geotiff/spec/tiff6.pdf
-/// - https://geospatialworld.net/article/geotiff-a-standard-image-file-format-for-gis-applications/
-/// - https://docs.ogc.org/is/19-008r4/19-008r4.html
+/// - <https://www.ogc.org/publications/standard/geotiff/>
+/// - <https://download.osgeo.org/geotiff/spec/tiff6.pdf>
+/// - <https://geospatialworld.net/article/geotiff-a-standard-image-file-format-for-gis-applications/>
+/// - <https://docs.ogc.org/is/19-008r4/19-008r4.html>
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct GeoTIFFReader<T: Reader> {
     reader: Rc<RefCell<T>>,

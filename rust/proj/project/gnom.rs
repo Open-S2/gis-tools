@@ -59,7 +59,7 @@ pub struct GnomData {
 ///
 /// Reference:
 /// Wolfram Mathworld "Gnomonic Projection"
-/// http://mathworld.wolfram.com/GnomonicProjection.html
+/// <http://mathworld.wolfram.com/GnomonicProjection.html>
 /// Accessed: 12th November 2009
 ///
 /// ![Gnomonic](https://github.com/Open-S2/gis-tools/blob/master/assets/proj4/projections/images/gnom.png?raw=true)

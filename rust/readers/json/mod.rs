@@ -20,7 +20,20 @@ pub enum ToGISJSONError {
     InvalidJSON,
 }
 
-/// Converts a String to a JSONCollection. Supports S2 and WGS84 JSON
+/// # Convert strings to (Geo|S2)JSON
+///
+/// ## Description
+/// Converts a String or &str to a JSONCollection, FeatureCollection or Feature. Supports S2 and WGS84 JSON
+///
+/// ## Usage
+///
+/// This trait allows for a lot of flexibility in how you can parse your data.
+/// - [`ToGisJSON::to_gis_json`]: Converts an input into a [`JSONCollection`]
+/// - [`ToGisJSON::to_feature_collection`]: Converts an input into a [`FeatureCollection`]
+/// - [`ToGisJSON::to_s2_feature_collection`]: Converts an input into a [`S2FeatureCollection`]
+/// - [`ToGisJSON::to_feature`]: Converts an input into a [`Feature`]
+/// - [`ToGisJSON::to_vector_feature`]: Converts an input into a [`VectorFeature`]
+/// - [`ToGisJSON::to_features`]: Converts an input into a [`Features`]
 pub trait ToGisJSON {
     /// Converts a String to a JSONCollection. Supports S2 and WGS84 JSON
     fn to_gis_json<
@@ -134,7 +147,42 @@ impl ToGisJSON for &str {
     }
 }
 
-/// JSON Collection Reader
+/// # JSON Collection Reader
+///
+/// ## Description
+/// Parse (Geo|S2)JSON.
+///
+/// Data parsed using the [`ToGisJSON`] trait can be coerced into this struct
+///
+/// Implements the [`FeatureReader`] trait
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{parsers::FeatureReader, readers::{ToGisJSON, JSONCollectionReader}};
+/// use s2json::{MValue, MValueCompatible, Feature};
+/// use serde::{Deserialize, Serialize};
+///
+/// #[derive(Debug, Default, Clone, PartialEq, MValueCompatible, Serialize, Deserialize)]
+/// struct Test {
+///     name: String,
+/// }
+///
+/// let json_str = r#"{
+///     "type": "Feature",
+///     "geometry": {
+///         "type": "Point",
+///         "coordinates": [100.0, 0.0]
+///     },
+///     "properties": {
+///         "name": "Tokyo"
+///     }
+/// }"#;
+/// let mut json: Feature<(), Test, MValue> = json_str.to_feature().unwrap();
+///
+/// let collection = JSONCollectionReader::from(&mut json);
+/// let features: Vec<_> = collection.iter().collect();
+/// assert_eq!(features.len(), 1);
+/// ```
 #[derive(Debug, Clone)]
 pub struct JSONCollectionReader<
     M: Clone = (),

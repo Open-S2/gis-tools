@@ -18,7 +18,7 @@ pub enum NetError {
 }
 
 /// STD fetch for raw data
-/// ex. fetch_url("http://example.com/file.bin")
+/// ex. `fetch_url("http://example.com/file.bin", &[("header", "value")])`
 #[cfg(feature = "std")]
 pub fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
     use std::{

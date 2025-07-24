@@ -46,7 +46,7 @@ pub fn lanczos_interpolation<
 }
 
 /// Lanczos kernel function - returns the weight based on the distance from the target point
-/// https://en.wikipedia.org/wiki/Lanczos_resampling
+/// <https://en.wikipedia.org/wiki/Lanczos_resampling>
 pub fn lanczos_kernel(x: f64, a: f64) -> f64 {
     if x == 0. {
         return 1.; // sinc(0) = 1

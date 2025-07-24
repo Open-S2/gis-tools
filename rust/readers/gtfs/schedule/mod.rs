@@ -126,11 +126,11 @@ pub struct GTFSLocationsProperties {
 /// ```
 ///
 /// ## Links
-/// - https://mobilitydatabase.org
-/// - https://developers.google.com/transit/gtfs/examples/overview
-/// - https://gtfs.org/documentation/schedule/reference/#tripstxt
-/// - https://mobilitydata.github.io/
-/// - https://www.transit.land
+/// - <https://mobilitydatabase.org>
+/// - <https://developers.google.com/transit/gtfs/examples/overview>
+/// - <https://gtfs.org/documentation/schedule/reference/#tripstxt>
+/// - <https://mobilitydata.github.io/>
+/// - <https://www.transit.land>
 #[derive(Debug, Default, Clone)]
 pub struct GTFSScheduleReader {
     /// Agencies

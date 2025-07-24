@@ -207,7 +207,7 @@ const YN: f64 = 1.0;
 const ZN: f64 = 1.08883;
 
 /// Converts CIELab to RGB
-/// https://github.com/antimatter15/rgb-lab/blob/master/color.js
+/// <https://github.com/antimatter15/rgb-lab/blob/master/color.js>
 ///
 /// ## Parameters
 /// - `raster`: CIELab raster

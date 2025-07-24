@@ -52,8 +52,8 @@ use std::{
 /// ```
 ///
 /// ## Links
-/// - https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html
-/// - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
+/// - <https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html>
+/// - <https://cesium.com/blog/2015/04/07/quadtree-cheatseet/>
 #[derive(Debug)]
 pub struct RasterTileFetcher<D: Clone + Default + GetRasterTileValue> {
     path: PathBuf,

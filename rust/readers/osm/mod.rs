@@ -120,6 +120,8 @@ pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
 ///
 /// ## Usage
 ///
+/// For Simplicity, you can use the [`OSMFileReader`] or [`OSMLocalReader`] wrappers.
+///
 /// The methods you have access to:
 /// - [`OSMReader::new`]: Create a new OSMReader
 /// - [`OSMReader::cleanup`]: Cleans up the reader's temp data

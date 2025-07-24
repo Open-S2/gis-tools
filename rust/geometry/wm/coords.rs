@@ -274,8 +274,7 @@ pub fn altitude_from_mercator_z(z: f64, y: f64, circumference: Option<f64>) -> f
     z * circumference_at_latitude(lat_from_mercator_y(y), circumference)
 }
 
-/// Determine the Mercator scale factor for a given latitude, see
-/// https://en.wikipedia.org/wiki/Mercator_projection#Scale_factor
+/// Determine the Mercator scale factor for a given latitude, [See more](https://en.wikipedia.org/wiki/Mercator_projection#Scale_factor)
 ///
 /// At the equator the scale factor will be 1, which increases at higher latitudes.
 /// returns the scale factor

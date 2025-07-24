@@ -14,13 +14,13 @@ use pbf::{ProtoRead, Protobuf};
 pub struct GTFSRealtimeShape {
     /// Identifier of the shape. Must be different than any shape_id defined in the (CSV) GTFS.
     /// This field is required as per reference.md, but needs to be specified here optional because "Required is Forever"
-    /// See https://developers.google.com/protocol-buffers/docs/proto#specifying_field_rules
+    /// See <https://developers.google.com/protocol-buffers/docs/proto#specifying_field_rules>
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
     pub shape_id: Option<String>, // 1 [string]
     /// Encoded polyline representation of the shape. This polyline must contain at least two points.
-    /// For more information about encoded polylines, see https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+    /// For more information about encoded polylines, see <https://developers.google.com/maps/documentation/utilities/polylinealgorithm>
     /// This field is required as per reference.md, but needs to be specified here optional because "Required is Forever"
-    /// See https://developers.google.com/protocol-buffers/docs/proto#specifying_field_rules
+    /// See <https://developers.google.com/protocol-buffers/docs/proto#specifying_field_rules>
     /// NOTE: This field is still experimental, and subject to change. It may be formally adopted in the future.
     pub encoded_polyline: Option<String>, // 2 [string]
 }

@@ -72,7 +72,7 @@ impl<T> Interpolatable for T where
 /// - average
 /// - nearest
 /// - idw
-/// - lanczos [Best]
+/// - lanczos (Best)
 pub fn get_interpolation<
     M: Clone,
     P: GetXY + GetZ,

@@ -9,8 +9,8 @@ pub const EARTH_CIRCUMFERENCE: f64 = 2.0 * core::f64::consts::PI * EARTH_RADIUS;
 /// Returns the altitude of the lowest known point on Earth in meters. The lowest known
 /// point on Earth is the Challenger Deep with an altitude of 10898 meters
 /// below the surface of the spherical earth.
-pub const LOWEST_ALTITUDE: f64 = -10_898.0;
+pub const EARTH_LOWEST_ALTITUDE: f64 = -10_898.0;
 /// Returns the altitude of the highest known point on Earth in meters. The highest
 /// known point on Earth is Mount Everest with an altitude of 8846 meters
 /// above the surface of the spherical earth.
-pub const HIGHEST_ALTITUDE: f64 = 8_846.0;
+pub const EARTH_HIGHEST_ALTITUDE: f64 = 8_846.0;

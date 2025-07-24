@@ -78,7 +78,7 @@ impl From<ArithmeticBitModel> for Corrector {
     }
 }
 
-/// https://github.com/LASzip/LASzip/blob/master/src/arithmeticdecoder.cpp
+/// <https://github.com/LASzip/LASzip/blob/master/src/arithmeticdecoder.cpp>
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ArithmeticDecoder<T: Reader> {
     /// The data to read from

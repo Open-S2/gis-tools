@@ -49,7 +49,7 @@ pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 /// The Tile Writers this library supports:
 /// - [`LocalTileWriter`]
 /// - [`FileTileWriter`]
-/// - [`PMTilesWriter`]
+/// - [`crate::writers::PMTilesWriter`]
 ///
 /// ### Writing WM projection tiles as Mapbox Vector Tiles to a PMTiles file
 ///
@@ -152,9 +152,9 @@ pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 /// ```
 ///
 /// ## Links
-/// - https://github.com/Open-S2/s2-pmtiles
-/// - https://github.com/protomaps/PMTiles
-/// - https://github.com/mapbox/vector-tile-spec
+/// - <https://github.com/Open-S2/s2-pmtiles>
+/// - <https://github.com/protomaps/PMTiles>
+/// - <https://github.com/mapbox/vector-tile-spec>
 #[derive(Debug)]
 pub struct TileBuilder<W: TileWriter = LocalTileWriter> {
     /// The data created will be stored in either a folder structure or a pmtiles file

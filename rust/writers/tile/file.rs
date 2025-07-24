@@ -8,8 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// A Local Memory Tile Write Store
-/// Useful for testing
+/// A Folder-File tile writer
 #[derive(Debug)]
 pub struct FileTileWriter {
     /// The tiles

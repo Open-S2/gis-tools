@@ -44,8 +44,8 @@ pub struct SHPRow {
 /// ## Usage
 ///
 /// NOTE: It's recommended to not parse the shapefile directly but instead:
-/// - [`gistools::readers::shapefile_from_url`]
-/// - [`gistools::readers::file::shapefile_from_path`]
+/// - [`crate::readers::file::shapefile_from_path`]
+/// - [`crate::readers::mmap::shapefile_from_path`]
 ///
 /// This ensures the other files paired with the shapefile are loaded to properly handle the
 /// projection and properties data.
@@ -80,7 +80,7 @@ pub struct SHPRow {
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/Shapefile
+/// - <https://en.wikipedia.org/wiki/Shapefile>
 #[derive(Debug, Clone)]
 pub struct ShapeFileReader<T: Reader, P: MValueCompatible = Properties> {
     /// The input reader

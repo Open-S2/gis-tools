@@ -8,6 +8,8 @@ pub type CacheDeleteFunction<K, V> = fn(&K, &V);
 /// ## Description
 /// A cache of values with a max size to ensure that too much old data is not stored.
 ///
+/// Uses the [`CacheDeleteFunction`] type
+///
 /// ## Usage
 ///
 /// ```rust

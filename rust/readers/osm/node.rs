@@ -160,7 +160,8 @@ impl ProtoRead for Node {
 /// We encode keys & vals for all nodes as a single array of integers
 /// containing key-stringid and val-stringid, using a stringid of 0 as a
 /// delimiter between nodes.
-///    ( (<keyid> <valid>)* '0' )*
+///
+/// `( (<keyid> <valid>)* '0' )*`
 #[derive(Debug, Default, PartialEq)]
 pub struct DenseNodes {
     ids: Vec<i64>, // DELTA coded

@@ -61,13 +61,13 @@ pub type LASVectorFeature = VectorFeature<(), Properties, LASPoint>;
 /// ```
 ///
 /// ## Links
-/// - https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online
-/// - https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf
-/// - https://liblas.org/development/index.html
-/// - https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf
-/// - https://github.com/PDAL/PDAL
-/// - https://github.com/libLAS/libLAS (deprecated for PDAL)
-/// - https://github.com/LASzip
+/// - <https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-online>
+/// - <https://www.asprs.org/wp-content/uploads/2010/12/LAS_1_4_r13.pdf>
+/// - <https://liblas.org/development/index.html>
+/// - <https://downloads.rapidlasso.de/doc/LAZ_Specification_1.4_R1.pdf>
+/// - <https://github.com/PDAL/PDAL>
+/// - <https://github.com/libLAS/libLAS> (deprecated for PDAL)
+/// - <https://github.com/LASzip>
 #[derive(Debug)]
 pub struct LASReader<T: Reader> {
     reader: T,
@@ -223,11 +223,11 @@ impl<T: Reader> FeatureReader<(), Properties, LASPoint> for LASReader<T> {
 /// is 54 bytes in length.
 ///
 /// Each record is as follows:
-/// - Reserved unsigned short 2 bytes
-/// - User ID char[16] 16 bytes
-/// - Record ID unsigned short 2 bytes
-/// - Record Length After Header unsigned short 2 bytes
-/// - Description char[32] 32 bytes
+/// - Reserved `unsigned short 2 bytes`
+/// - User ID `char[16] 16 bytes`
+/// - Record ID `unsigned short 2 bytes`
+/// - Record Length After Header `unsigned short 2 bytes`
+/// - Description `char[32] 32 bytes`
 /// - optional data: variable size
 pub fn las_parse_variable_length_records<T: Reader>(
     header: &LASHeader,

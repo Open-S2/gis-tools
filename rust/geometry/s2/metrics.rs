@@ -319,7 +319,7 @@ pub const K_AVG_AREA: AreaMetric = AreaMetric { deriv: 4. * PI / 6. };
 ///
 /// - linear ->    sqrt(2)
 /// - tan ->       sqrt(2)
-/// - quadratic -> 1.4426 [default]
+/// - quadratic -> 1.4426 (default)
 #[cfg(feature = "quadratic")]
 pub const K_MAX_EDGE_ASPECT: f64 = SQRT_2; // 1.414
 #[cfg(feature = "tan")]

@@ -310,7 +310,7 @@ pub enum Rotation {
 /// While this this set includes opposite side faces, without axis mirroring,
 /// it is not technically accurate and shouldn't be used. Instead, data should let two points travel
 /// further than a full face width.
-/// FACE_RULE_SET[target_face][currentFace] = [rot, x, y]
+/// `FACE_RULE_SET[target_face][currentFace] = [rot, x, y]`
 pub const FACE_RULE_SET: [[(Rotation, i8, i8); 6]; 6] = [
     // Target Face 0
     [

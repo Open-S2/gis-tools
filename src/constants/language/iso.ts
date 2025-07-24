@@ -248,7 +248,5 @@ export const ISO_3166_1_ALPHA_2 = {
   ZW: 'Zimbabwe',
 };
 
-/**
- * [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1)
- */
+/** [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1) */
 export type ISO3166 = keyof typeof ISO_3166_1_ALPHA_2;

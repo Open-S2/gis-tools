@@ -500,8 +500,8 @@ impl<T: Reader> From<Vec<BufferReader>> for GRIB2ReaderInput<T> {
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/GRIB
-/// - https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/
+/// - <https://en.wikipedia.org/wiki/GRIB>
+/// - <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/>
 #[derive(Debug)]
 pub struct GRIB2Reader {
     /// The GRIB2 packets

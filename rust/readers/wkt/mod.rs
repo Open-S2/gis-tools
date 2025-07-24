@@ -68,7 +68,7 @@ pub type WKTArray = Vec<WKTAValue>;
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+/// - <https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry>
 #[derive(Debug)]
 pub struct WKTGeometryReader {
     /// The parsed WKT geometries
@@ -136,7 +136,7 @@ impl FeatureReader<(), Properties, MValue> for WKTGeometryReader {
 /// ```
 ///
 /// ## Links
-/// - https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+/// - <https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry>
 ///
 /// ## Parameters
 /// - `wkt_str`: WKT Geometry string

@@ -7,10 +7,10 @@ pub const MOON_RADIUS_POLAR: f64 = 1_736_000.0;
 /// The average circumference of the Moon in meters.
 pub const MOON_CIRCUMFERENCE: f64 = 2.0 * core::f64::consts::PI * MOON_RADIUS; // 10_916_406.152693814; // 2.0 * Math.PI * MOON_RADIUS;
 /// The altitude of the highest known point on the Moon in meters.
-/// https://www.lroc.asu.edu/images/249
+/// <https://www.lroc.asu.edu/images/249>
 pub const MOON_HIGHEST_ALTITUDE: f64 = 10_786.0;
 /// The altitude of the lowest known point on the Moon in meters.
-/// https://en.wikipedia.org/wiki/Antoniadi_%28lunar_crater%29
+/// <https://en.wikipedia.org/wiki/Antoniadi_%28lunar_crater%29>
 pub const MOON_LOWEST_ALTITUDE: f64 = -9_178.0;
 
 // Sources:

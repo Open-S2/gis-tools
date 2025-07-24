@@ -222,7 +222,7 @@ pub struct TileStoreOptions {
     pub buffer: Option<f64>,
 }
 
-/// TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request */
+/// TileStore Class is a tile-lookup system that splits and simplifies as needed for each tile request
 #[derive(Debug, Clone, PartialEq)]
 pub struct TileStore<
     M: HasLayer + Clone = (),
