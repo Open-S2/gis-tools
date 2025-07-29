@@ -27,7 +27,46 @@ impl<M: Clone, P: Clone + Default + Serialize, D: Clone + Default + Serialize> D
     }
 }
 
+/// # To JSON
+///
+/// ## Description
 /// Given a writer and an array of readers, write the input features to the writer as a JSON object
+///
+/// ## Parameters
+/// - `writer`: the buffer or file to write to. See [`Writer`] for what writers are available
+/// - `readers`: Any reader that implements the [`FeatureReader`] trait can be used
+/// - `opts`: user defined options on how to write the features
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{readers::JSONReader, parsers::{BufferWriter, FileReader}, writers::{to_json, ToJSONOptions}};
+/// use s2json::{MValueCompatible, Projection};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
+///
+/// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+/// #[serde(default)]
+/// struct Props {
+///     name: String,
+/// }
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/writers/fixtures/points.geojson");
+///
+/// let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
+/// let mut writer = BufferWriter::default();
+///
+/// // write
+/// to_json(
+///     &mut writer,
+///     vec![&reader],
+///     Some(ToJSONOptions {
+///         projection: Some(Projection::WG),
+///         geojson: Some(true),
+///         ..Default::default()
+///     }),
+/// );
+/// ```
 pub fn to_json<
     T: Writer,
     M: Clone + Serialize,
@@ -99,7 +138,45 @@ pub fn to_json<
     writer.append_string("\n}");
 }
 
+/// # To JSON Line Delimited
+///
 /// Given a writer and an array of readers, write the input features to the writer as JSON-LD
+///
+/// ## Parameters
+/// - `writer`: the buffer or file to write to. See [`Writer`] for what writers are available
+/// - `readers`: Any reader that implements the [`FeatureReader`] trait can be used
+/// - `opts`: user defined options on how to write the features
+///
+/// ## Usage
+/// ```rust
+/// use gistools::{readers::JSONReader, parsers::{BufferWriter, FileReader}, writers::{to_jsonld, ToJSONOptions}};
+/// use s2json::{MValueCompatible, Projection};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
+///
+/// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+/// #[serde(default)]
+/// struct Props {
+///     name: String,
+/// }
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/writers/fixtures/points.geojson");
+///
+/// let reader: JSONReader<FileReader, (), Props, ()> = JSONReader::new(FileReader::from(path));
+/// let mut writer = BufferWriter::default();
+///
+/// // write
+/// to_jsonld(
+///     &mut writer,
+///     vec![&reader],
+///     Some(ToJSONOptions {
+///         projection: Some(Projection::WG),
+///         geojson: Some(true),
+///         ..Default::default()
+///     }),
+/// );
+/// ```
 pub fn to_jsonld<
     T: Writer,
     M: Clone + Serialize,

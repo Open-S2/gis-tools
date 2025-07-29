@@ -101,6 +101,7 @@ pub enum TileKey {
 }
 
 /// A Local Memory Tile Write Store
+///
 /// Useful for testing
 #[derive(Default, Debug, Clone)]
 pub struct LocalTileWriter {

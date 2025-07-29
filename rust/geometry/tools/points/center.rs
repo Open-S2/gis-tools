@@ -38,7 +38,7 @@ pub trait CenterOfPoints {
 
 // Feature and below
 
-impl<M: Clone + Default> CenterOfPoints for Feature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> CenterOfPoints for Feature<M, P, D> {
     fn center_of_points(&self) -> VectorPoint {
         self.geometry.center_of_points()
     }
@@ -183,7 +183,7 @@ impl CenterOfPoints for MultiPolygon3D {
 
 // Vector Feature and below
 
-impl<M: Clone + Default> CenterOfPoints for VectorFeature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> CenterOfPoints for VectorFeature<M, P, D> {
     fn center_of_points(&self) -> VectorPoint {
         self.geometry.center_of_points()
     }

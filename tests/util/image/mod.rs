@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn test_rgba_to_from_u32() {
         let rgba = RGBA::from_u8s(1, 2, 3, 4);
-        assert_eq!(rgba.to_u32(), 0x01020304);
+        assert_eq!(rgba.to_u32s(), 0x01020304);
 
         let rgba = RGBA::from_u32(0x01020304);
         let (r, g, b, a) = rgba.to_u8s();
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn test_rgba_to_from_u64() {
         let rgba = RGBA::from_u16s(1, 2, 3, 4);
-        assert_eq!(rgba.to_u64(), 0x0001000200030004);
+        assert_eq!(rgba.to_u64s(), 0x0001000200030004);
 
         let rgba = RGBA::from_u64(0x0001000200030004);
         let (r, g, b, a) = rgba.to_u16s();

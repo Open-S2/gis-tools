@@ -65,6 +65,8 @@ impl ProjectionTransform {
 }
 
 /// Projection trait to modify a Point's values
+///
+/// You only need to implement `x`, `y`, `z`, and `t`. The rest is for internal use
 pub trait TransformCoordinates: Clone + Default {
     /// Get Geodetic X coordinates
     fn x(&self) -> f64;

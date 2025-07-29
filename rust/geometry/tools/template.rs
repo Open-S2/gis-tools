@@ -38,7 +38,7 @@ pub trait AverageOfPoints {
 
 // Feature and below
 
-impl<M: Clone + Default> AverageOfPoints for Feature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> AverageOfPoints for Feature<M, P, D> {
     fn average_of_points(&self) -> VectorPoint {
         self.geometry.average_of_points()
     }
@@ -147,7 +147,7 @@ impl AverageOfPoints for MultiPolygon3D {
 
 // Vector Feature and below
 
-impl<M: Clone + Default> AverageOfPoints for VectorFeature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> AverageOfPoints for VectorFeature<M, P, D> {
     fn average_of_points(&self) -> VectorPoint {
         self.geometry.average_of_points()
     }

@@ -38,7 +38,7 @@ pub trait AverageOfPoints {
 
 // Feature and below
 
-impl<M: Clone + Default> AverageOfPoints for Feature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> AverageOfPoints for Feature<M, P, D> {
     fn average_of_points(&self) -> VectorPoint {
         self.geometry.average_of_points()
     }
@@ -123,28 +123,32 @@ impl AverageOfPoints for MultiPoint {
 impl AverageOfPoints for MultiLineString {
     fn average_of_points(&self) -> VectorPoint {
         let mut res = VectorPoint::new_xy(0., 0., None);
+        let mut total = 0;
         for line in self {
             for p in line {
                 res.x += p.0;
                 res.y += p.1;
             }
+            total += line.len();
         }
-        res /= self.len() as f64;
+        res /= total as f64;
         res
     }
 }
 impl AverageOfPoints for MultiPolygon {
     fn average_of_points(&self) -> VectorPoint {
         let mut res = VectorPoint::new_xy(0., 0., None);
+        let mut total = 0;
         for poly in self {
             for line in poly {
                 for p in line {
                     res.x += p.0;
                     res.y += p.1;
                 }
+                total += line.len();
             }
         }
-        res /= self.len() as f64;
+        res /= total as f64;
         res
     }
 }
@@ -168,20 +172,23 @@ impl AverageOfPoints for MultiPoint3D {
 impl AverageOfPoints for MultiLineString3D {
     fn average_of_points(&self) -> VectorPoint {
         let mut res = VectorPoint::new_xyz(0., 0., 0., None);
+        let mut total = 0;
         for line in self {
             for p in line {
                 res.x += p.0;
                 res.y += p.1;
                 res.z = res.z.map(|z| z + p.2);
             }
+            total += line.len();
         }
-        res /= self.len() as f64;
+        res /= total as f64;
         res
     }
 }
 impl AverageOfPoints for MultiPolygon3D {
     fn average_of_points(&self) -> VectorPoint {
         let mut res = VectorPoint::new_xyz(0., 0., 0., None);
+        let mut total = 0;
         for poly in self {
             for line in poly {
                 for p in line {
@@ -189,16 +196,17 @@ impl AverageOfPoints for MultiPolygon3D {
                     res.y += p.1;
                     res.z = res.z.map(|z| z + p.2);
                 }
+                total += line.len();
             }
         }
-        res /= self.len() as f64;
+        res /= total as f64;
         res
     }
 }
 
 // Vector Feature and below
 
-impl<M: Clone + Default> AverageOfPoints for VectorFeature<M> {
+impl<M, P: Clone + Default, D: Clone + Default> AverageOfPoints for VectorFeature<M, P, D> {
     fn average_of_points(&self) -> VectorPoint {
         self.geometry.average_of_points()
     }
@@ -261,8 +269,8 @@ impl<M: Clone + Default> AverageOfPoints for VectorMultiLineString<M> {
         for line in self {
             for point in line {
                 res += point;
-                total += 1;
             }
+            total += line.len();
         }
         res /= total as f64;
 
@@ -278,8 +286,8 @@ impl<M: Clone + Default> AverageOfPoints for VectorMultiPolygon<M> {
             for line in poly {
                 for point in line {
                     res += point;
-                    total += 1;
                 }
+                total += line.len();
             }
         }
         res /= total as f64;

@@ -1,21 +1,26 @@
 mod clip;
 mod convert;
+mod lines;
 mod points;
+mod polys;
 mod simplify;
 
 pub use clip::*;
 pub use convert::*;
+pub use lines::*;
 pub use points::*;
+pub use polys::*;
 pub use simplify::*;
 
 // TODO:
-// - [ ] Nearest Point
-// - [ ] Area
-// - [ ] Poly Boolean
-// - [ ] Point inside: points check if equal, line if on line, polygon if inside
-// - [ ] Dekink: remove kinks from a polygon
-// - [ ] Length: length of item
-// - [ ] along: (given linestring find the point at distance provided)
-// - [ ] clean: remove redundant points, (multi)linestring and/or (multi)polygon, fixes kinks, etc.
 
+// Line
 // - [ ] point to line distance
+
+// Poly
+// - [ ] Poly Boolean
+
+// Clean
+// - [ ] Dekink: remove kinks from a polygon
+// - [ ] Reduce: Remove redundant points
+// - [ ] clean: remove redundant points, (multi)linestring and/or (multi)polygon, fixes kinks, merges with poly bool. Put all under flags with all turned on by default

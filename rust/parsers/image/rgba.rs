@@ -18,9 +18,32 @@ pub fn linear_to_gamma(n: f64) -> f64 {
     pow(n, GAMMA) * 255.
 }
 
+/// # Red Green Blue Alpha container
+///
+/// ## Description
 /// RGBA data in 0->1 range floats
+///
 /// These values remove gamma-corrected values so that you can apply maths on them
+///
 /// This means the RGBA values are in linear space
+///
+/// ## Usage
+///
+/// Methods that are available:
+/// - [`RGBA::default`]: returns a new RGBA value with RGB set to 0.0 and alpha set to 1.0
+/// - [`RGBA::new`]: returns a new RGBA value
+/// - [`RGBA::from_gamma`]: Create a new RGBA value from gamma-corrected values
+/// - [`RGBA::to_gamma`]: Convert RGBA to gamma-corrected values
+/// - [`RGBA::from_reader`]: returns a new RGBA value from a reader
+/// - [`RGBA::from_u8s`]: returns a new RGBA value from 4 u8 values
+/// - [`RGBA::to_u8s`]: returns a new RGBA value from 4 u8 values
+/// - [`RGBA::from_u16s`]: returns a new RGBA value from 4 u16 values
+/// - [`RGBA::to_u16s`]: returns a new RGBA value from 4 u16 values
+/// - [`RGBA::from_u32`]: returns a new RGBA value from 4 u32 values
+/// - [`RGBA::to_u32s`]: returns a new RGBA value from 4 u32 values
+/// - [`RGBA::from_u64`]: returns a new RGBA value from 4 u64 values
+/// - [`RGBA::to_u64s`]: returns a new RGBA value from 4 u64 values
+/// - [`RGBA::from_hex`]: Create an RGBA color from a hex string
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, ValuePrimitive)]
 pub struct RGBA {
     /// Gamma corrected Red between 0 and 1
@@ -118,7 +141,7 @@ impl RGBA {
 
     /// Convert RGBA to a 32-bit integer (Big-endian: 0xRRGGBBAA)
     /// big-endian is more common in graphics formats like BMP, PNG, etc.
-    pub fn to_u32(&self) -> u32 {
+    pub fn to_u32s(&self) -> u32 {
         let max_u8 = u8::MAX as f64;
         let (r, g, b, a) = self.to_gamma();
         ((r * max_u8).round() as u32) << 24
@@ -137,7 +160,7 @@ impl RGBA {
     }
 
     /// Convert RGBA to an unsigned 64-bit integer
-    pub fn to_u64(&self) -> u64 {
+    pub fn to_u64s(&self) -> u64 {
         let max_u16 = u16::MAX as f64;
         let (r, g, b, a) = self.to_gamma();
         ((r * max_u16).round() as u64) << 48

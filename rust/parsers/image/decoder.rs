@@ -20,7 +20,14 @@ pub struct DecodeOptions {
     pub modulo: Option<u32>,
 }
 
-/// Image decoder method
+/// Decode any image
+///
+/// ## Parameters
+/// - `buffer`: the input buffer
+/// - `options`: the decode options
+///
+/// ## Returns
+/// the raw decoded buffer
 #[cfg(feature = "std")]
 pub fn image_decoder(
     buffer: &Buffer,

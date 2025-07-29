@@ -587,7 +587,7 @@ impl S2CellId {
     /// equal to (uint64_t{1} << (2 * (kMaxLevel - level))). So for example,
     /// a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
     /// first test is more efficient.
-    fn lsb(&self) -> u64 {
+    pub fn lsb(&self) -> u64 {
         self.id & (!(self.id) + 1)
     }
 

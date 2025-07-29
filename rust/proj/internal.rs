@@ -6,6 +6,7 @@ use crate::proj::{
     SCALE_FACTOR_AT_NATURAL_ORIGIN, name_to_param_id,
 };
 use alloc::{collections::BTreeMap, string::String};
+use s2json::{GetXY, GetZ};
 
 /// A generic 4-dimensional point/vector
 #[repr(C)]
@@ -19,6 +20,19 @@ impl Coords {
     /// Create a new Coords from xy
     pub fn new_xy(x: f64, y: f64) -> Coords {
         Coords(x, y, 0.0, 0.0)
+    }
+}
+impl GetXY for Coords {
+    fn x(&self) -> f64 {
+        self.0
+    }
+    fn y(&self) -> f64 {
+        self.1
+    }
+}
+impl GetZ for Coords {
+    fn z(&self) -> Option<f64> {
+        Some(self.2)
     }
 }
 

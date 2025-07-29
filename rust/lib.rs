@@ -99,16 +99,22 @@
 //! Points
 //!
 //! - [`crate::geometry::AverageOfPoints`]: Get the average of a collection of [`s2json::VectorPoint`].
+//! - [`crate::geometry::bearing()`]: Get the bearing in degrees between two points
 //! - [`crate::geometry::CenterOfPoints`]: Get the center of a bounding box from a collection of [`s2json::VectorPoint`]
+//! - [`crate::geometry::destination()`]: Get the destination given a start point, bearing, and distance
+//! - [`crate::geometry::NearestPoint`]: Get the nearest of a collection of [`s2json::VectorPoint`].
 //! - [`crate::geometry::ToPoints`]: Convert any geometry shape to a [`s2json::VectorMultiPoint`]
 //!
 //! Lines
 //!
-//! TODO
+//! - [`crate::geometry::along_line`]: Given a linestring in degrees and a distance, create a [`s2json::VectorPoint`] along the line
+//! - [`crate::geometry::LengthOfLines`]: Get the total distance of a line or lines
+//! - [`crate::geometry::ToLines`]: Given a Geometry, attempt to Return a VectorLineString.
 //!
 //! Polygons
 //!
-//! TODO
+//! - [`crate::geometry::Area`]: Get the area of the polygon. Lines return 0 if not closed. Other geometries return 0.
+//! - [`crate::geometry::Inside`]: Check if a point is inside a geometry.
 //!
 //! Clip
 //!
