@@ -32,8 +32,8 @@ use s2json::MValueCompatible;
 ///
 /// The following conversions between degrees and radians are exact:
 ///
-///          Degrees(180) == Radians(M_PI); $$
-///       Degrees(45 * k) == Radians(k * M_PI / 4)  for k == 0..8 $$
+/// $$         Degrees(180) == Radians(M_PI); $$
+/// $$      Degrees(45 * k) == Radians(k * M_PI / 4)  for k == 0..8 $$
 ///
 /// These identities also hold when the arguments are scaled up or down by any
 /// power of 2.  Some similar identities are also true, for example,
