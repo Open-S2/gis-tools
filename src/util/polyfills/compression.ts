@@ -39,7 +39,7 @@ const make = (ctx: CompressionStream | DecompressionStream, handle: Duplex) =>
        * @param ctrl - the controller
        */
       start(ctrl: ReadableByteStreamController): void {
-        handle.on('data', (chunk: Uint8Array): void => ctrl.enqueue(chunk));
+        handle.on('data', (chunk: Uint8Array<ArrayBuffer>): void => ctrl.enqueue(chunk));
         handle.once('end', () => ctrl.close());
       },
     }),

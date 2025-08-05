@@ -68,9 +68,7 @@ export enum PJ_TYPE {
   PJ_TYPE_COORDINATE_METADATA,
 }
 
-/**
- *
- */
+/** PJ Datum */
 export interface PJ_DATUMS {
   /** datum keyword */
   id: string;
@@ -82,9 +80,7 @@ export interface PJ_DATUMS {
   comments: string;
 }
 
-/**
- *
- */
+/** Drivatives */
 export interface DERIVS {
   /** (F64) derivatives of x for lambda-phi */
   x_l: number;
@@ -96,9 +92,7 @@ export interface DERIVS {
   y_p: number;
 }
 
-/**
- *
- */
+/** Factors */
 export interface FACTORS {
   der: DERIVS;
   /** (F64) meridional */

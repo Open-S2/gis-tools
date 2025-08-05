@@ -140,7 +140,7 @@ export class S2TilesWriter implements TileWriter {
     data.setUint8(4, this.maxzoom);
     data.setUint8(5, tileCompression ?? this.compression);
     // store the metadata's length then actual data
-    let metaBuffer = this.encoder.encode(JSON.stringify(metadata));
+    let metaBuffer: Uint8Array = this.encoder.encode(JSON.stringify(metadata));
     metaBuffer = await compress(metaBuffer, this.compression);
     if (metaBuffer.byteLength > METADATA_SIZE - 10) {
       throw new Error('Metadata too large for S2Tiles');

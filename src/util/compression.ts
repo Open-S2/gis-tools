@@ -10,9 +10,14 @@ import type { Format } from '../index.js';
  */
 export async function compressStream(bytes: Uint8Array, format?: Format): Promise<Uint8Array> {
   // Convert the string to a byte stream.
-  const stream = new Blob([bytes]).stream();
+  const stream = new Blob([bytes] as BlobPart[]).stream();
   // Create a compressed stream.
-  const compressedStream = stream.pipeThrough(new CompressionStream((format ?? 'gzip') as 'gzip'));
+  const compressedStream = stream.pipeThrough(
+    new CompressionStream((format ?? 'gzip') as 'gzip') as ReadableWritablePair<
+      Uint8Array<ArrayBufferLike>,
+      Uint8Array<ArrayBufferLike>
+    >,
+  );
   // Read all the bytes from this stream.
   const chunks = [];
   for await (const chunk of compressedStream) chunks.push(chunk);
@@ -34,10 +39,15 @@ export async function decompressStream(bytes: Uint8Array, format?: Format): Prom
 
   if (format === undefined) format = bytes[0] === 0x1f && bytes[1] === 0x8b ? 'gzip' : 'deflate';
   // Convert the bytes to a stream.
-  const stream = new Blob([bytes]).stream();
+  const stream = new Blob([bytes] as BlobPart[]).stream();
 
   // Create a decompressed stream.
-  const decompressedStream = stream.pipeThrough(new DecompressionStream(format as 'gzip'));
+  const decompressedStream = stream.pipeThrough(
+    new DecompressionStream(format as 'gzip') as ReadableWritablePair<
+      Uint8Array<ArrayBufferLike>,
+      Uint8Array<ArrayBufferLike>
+    >,
+  );
   // Read all the bytes from this stream.
   const chunks = [];
   for await (const chunk of decompressedStream) chunks.push(chunk);

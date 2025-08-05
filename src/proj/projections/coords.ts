@@ -1,7 +1,5 @@
 import type { ProjectionTransform } from './index.js';
-/**
- *
- */
+/** Region structure */
 export interface PJ_REGION_S {
   /* lower left corner coordinates (radians) */
   ll_long: number; // F64
@@ -31,9 +29,7 @@ export class PJ_AREA {
   ) {}
 }
 
-/**
- *
- */
+/** Coordinate operation structure */
 export class CoordOperation {
   // idxInOriginalList: number; // I32
 
@@ -77,22 +73,22 @@ export class CoordOperation {
 
   // TODO:
   /**
-   * @param idxInOriginalList
-   * @param minxSrc
-   * @param minySrc
-   * @param maxxSrc
-   * @param maxySrc
-   * @param minxDst
-   * @param minyDst
-   * @param maxxDst
-   * @param maxyDst
-   * @param pj
-   * @param name
-   * @param accuracy
-   * @param pseudoArea
-   * @param areaName
-   * @param pjSrcGeocentricToLonLat
-   * @param pjDstGeocentricToLonLat
+   * @param idxInOriginalList - I32
+   * @param minxSrc - F64
+   * @param minySrc - F64
+   * @param maxxSrc - F64
+   * @param maxySrc - F64
+   * @param minxDst - F64
+   * @param minyDst - F64
+   * @param maxxDst - F64
+   * @param maxyDst - F64
+   * @param pj - ProjectionTransform
+   * @param name - String
+   * @param accuracy - F64
+   * @param pseudoArea - F64
+   * @param areaName - String
+   * @param pjSrcGeocentricToLonLat - ProjectionTransform
+   * @param pjDstGeocentricToLonLat - ProjectionTransform
    */
   constructor(
     public idxInOriginalList: number, // I32
