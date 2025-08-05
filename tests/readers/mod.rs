@@ -1,4 +1,5 @@
 mod csv;
+mod gbfs;
 mod geotiff;
 mod gpx;
 mod grib2;

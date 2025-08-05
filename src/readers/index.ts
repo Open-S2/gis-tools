@@ -25,6 +25,7 @@ export * from './las/index.js';
 export * from './netcdf/index.js';
 export * from './osm/index.js';
 export * from './pmtiles/index.js';
+export * from './s2tiles/index.js';
 export * from 'pbf-ts';
 export * from './shapefile/index.js';
 export * from './wkt/index.js';

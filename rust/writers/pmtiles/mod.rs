@@ -88,7 +88,7 @@ pub trait DataWriter: core::fmt::Debug {
 /// # (S2) PM Tiles Writer
 ///
 /// ## Description
-/// The File reader is to be used by the local filesystem.
+/// A PM or S2PM Tile Writer to store tile and metadata in a cloud optimized format
 ///
 /// Implements the [`TileWriter`] interface.
 ///
@@ -137,7 +137,6 @@ impl<W: Writer> PMTilesWriter<W> {
     /// and metadata.
     /// Compression will only describle how tiles are stored, nothing more.
     pub fn new(writer: W, compression: CompressionFormat) -> Self {
-        let root_data = vec![0u8; S2_PM_ROOT_SIZE];
         let mut writer = PMTilesWriter {
             tile_entries: PMDirectory::default(),
             s2tile_entries: S2PMEntries::default(),
@@ -147,7 +146,7 @@ impl<W: Writer> PMTilesWriter<W> {
             compression,
             writer,
         };
-        writer.writer.append(&root_data);
+        writer.writer.append(&vec![0u8; S2_PM_ROOT_SIZE]);
         writer
     }
 

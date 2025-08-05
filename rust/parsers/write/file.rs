@@ -1,5 +1,5 @@
 use super::Writer;
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Seek, SeekFrom, Write},
@@ -19,6 +19,16 @@ impl FileWriter {
         let file =
             OpenOptions::new().read(true).write(true).create(true).truncate(true).open(path)?;
         Ok(Self { path: path_buf, file })
+    }
+
+    /// Get the length of the file
+    pub fn len(&self) -> u64 {
+        self.file.metadata().unwrap().len()
+    }
+
+    /// Check if the file is empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 }
 impl Clone for FileWriter {
@@ -54,6 +64,14 @@ impl Writer for FileWriter {
         self.file.seek(SeekFrom::Start(0)).expect("Seek failed");
         let mut buffer = Vec::new();
         self.file.read_to_end(&mut buffer).expect("Read failed");
+        buffer
+    }
+
+    fn slice(&mut self, start: u64, end: u64) -> Vec<u8> {
+        let len = end - start;
+        let mut buffer = vec![0u8; len as usize];
+        self.file.seek(SeekFrom::Start(start)).expect("Seek failed");
+        self.file.read_exact(&mut buffer).expect("Read failed");
         buffer
     }
 

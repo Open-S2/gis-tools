@@ -11,6 +11,7 @@ use s2json::{
     VectorPoint,
 };
 use serde::de::DeserializeOwned;
+use std::collections::BTreeMap;
 
 /// User defined options on how to parse the CSV file
 #[derive(Debug, Default)]
@@ -336,6 +337,41 @@ pub fn parse_csv_as_record<T: MValueCompatible>(
         }
 
         res.push(record.into());
+    }
+
+    res
+}
+
+/// Parse CSV data into a BTreeMap record where both the keys and values are strings
+pub fn parse_csv_as_btree(
+    source: &str,
+    delimiter: Option<char>,
+    line_delimiter: Option<char>,
+) -> Vec<BTreeMap<String, String>> {
+    let delimiter = delimiter.unwrap_or(',');
+    let line_delimiter = line_delimiter.unwrap_or('\n');
+    let mut res = vec![];
+    let lines: Vec<&str> = source.split(line_delimiter).collect();
+    let header = parse_csv_line(lines[0], delimiter);
+
+    for raw_line in lines.iter().skip(1) {
+        let line = raw_line.trim();
+        if line.is_empty() {
+            continue;
+        }
+
+        let mut record = BTreeMap::new();
+        let values = parse_csv_line(line, delimiter);
+
+        for (value, header) in values.iter().take(header.len()).zip(header.iter()) {
+            let val = value.trim();
+            if val.is_empty() {
+                continue;
+            }
+            record.insert(header.clone(), val.to_string());
+        }
+
+        res.push(record);
     }
 
     res

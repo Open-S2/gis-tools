@@ -66,6 +66,24 @@ export class FileWriter implements Writer {
     this.appendSync(this.#textEncoder.encode(string));
   }
 
+  /**
+   * Slice the buffer
+   * @param start - the start of the slice
+   * @param end - the end of the slice
+   * @returns - the sliced buffer
+   */
+  async slice(start: number, end: number): Promise<Uint8Array> {
+    const length = end - start;
+    const buffer = Buffer.alloc(length);
+    const fd = await open(this.file, 'r');
+    try {
+      await fd.read(buffer, 0, length, start);
+      return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    } finally {
+      await fd.close();
+    }
+  }
+
   /** Close the file */
   close(): void {
     this.#stream.end();

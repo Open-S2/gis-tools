@@ -23,13 +23,15 @@ use s2json::Face;
 ///
 /// ## Usage
 ///
+/// PMTilesReader utilizes any struc that implements the [`Reader`] trait.
+///
 /// The methods you have access to:
 /// - [`PMTilesReader::new`]: Create a new PMTilesReader
 /// - [`PMTilesReader::get_header`]: Get the PMTiles header
 /// - [`PMTilesReader::get_s2_metadata`]: Get the S2 PMTiles metadata
 /// - [`PMTilesReader::get_metadata`]: Get the PMTiles metadata
 /// - [`PMTilesReader::get_tile_s2`]: Get an S2 Tile
-/// - [`PMTilesReader::get_tile_zxy`]: Get an WM Tile
+/// - [`PMTilesReader::get_tile_wm`]: Get an WM Tile
 /// - [`PMTilesReader::get_tile`]: Get a Tile irregardless of the projection type
 ///
 /// ```rust
@@ -51,7 +53,7 @@ use s2json::Face;
 /// let tile = reader.get_tile_s2(0.into(), 0, 0, 0);
 ///
 /// // WM functions
-/// let tile = reader.get_tile_zxy(0, 0, 0).unwrap();
+/// let tile = reader.get_tile_wm(0, 0, 0).unwrap();
 /// ```
 ///
 /// ## Links
@@ -152,7 +154,7 @@ impl<R: Reader> PMTilesReader<R> {
     }
 
     /// get an WM tile
-    pub fn get_tile_zxy(&mut self, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
+    pub fn get_tile_wm(&mut self, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
         self.get_tile(None, zoom, x, y)
     }
 

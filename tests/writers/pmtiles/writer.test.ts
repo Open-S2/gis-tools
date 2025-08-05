@@ -18,7 +18,7 @@ tmp.setGracefulCleanup();
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 
-test('File Writer WM', async () => {
+test('S2PMTiles - File Writer - WM', async () => {
   const bufWriter = new BufferWriter();
   const writer = new S2PMTilesWriter(bufWriter, TileType.Pbf);
   // setup data
@@ -72,7 +72,7 @@ test('File Writer WM', async () => {
   expect(tile3).toEqual(uint8_2);
 });
 
-test('File Writer S2', async () => {
+test('S2PMTiles - File Writer - S2', async () => {
   const tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
   const writer = new S2PMTilesWriter(new FileWriter(tmpFile1), TileType.Pbf);
   // setup data
@@ -158,7 +158,7 @@ test('File Writer S2', async () => {
 });
 
 testFunc(
-  'File Writer WM Large',
+  'S2PMTiles - File Writer - WM Large',
   async () => {
     const tmpFile2 = tmp.tmpNameSync({ prefix: 'S2-big-2' });
     const writer = new S2PMTilesWriter(new FileWriter(tmpFile2), TileType.Pbf);

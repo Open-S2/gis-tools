@@ -15,7 +15,7 @@ import type { TileWriter, Writer } from '../index.js';
 /**
  * # S2 PMTiles Writer
  *
- * ## About
+ * ## Description
  * Writes data via the [S2-PMTiles specification](https://github.com/Open-S2/s2-pmtiles/blob/master/s2-pmtiles-spec/1.0.0/README.md).
  *
  * A Modified TypeScript implementation of the [PMTiles](https://github.com/protomaps/PMTiles) library. It is backwards compatible but

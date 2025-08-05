@@ -2,6 +2,8 @@
 pub mod json;
 /// The (S2)PMTiles Writer
 pub mod pmtiles;
+/// S2 Tiles Writer
+pub mod s2tiles;
 /// Tile based writers
 pub mod tile;
 /// To Tiles Writer
@@ -10,6 +12,7 @@ pub mod to_tiles;
 pub use json::*;
 pub use pmtiles::*;
 use s2json::VectorFeature;
+pub use s2tiles::*;
 pub use tile::*;
 pub use to_tiles::*;
 

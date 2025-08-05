@@ -57,7 +57,7 @@ mod tests {
         let metadata = reader.get_metadata();
         assert_eq!(*metadata, Metadata::default());
 
-        let tile = reader.get_tile_zxy(0, 0, 0).unwrap();
+        let tile = reader.get_tile_wm(0, 0, 0).unwrap();
         assert_eq!(tile, tmp_str.as_bytes());
 
         temp_file.close().unwrap();
@@ -144,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn test_file_writer_wm_large() {
+    fn test_file_writer_s2pm_wm_large() {
         let local_writer = BufferWriter::default();
         let mut pmtiles_writer = PMTilesWriter::new(local_writer, CompressionFormat::None);
 
@@ -168,7 +168,7 @@ mod tests {
         let x = 12;
         let y = 30;
 
-        let tile = reader.get_tile_zxy(zoom, x, y).unwrap();
+        let tile = reader.get_tile_wm(zoom, x, y).unwrap();
         let tmp_str = format!("{zoom}-{x}-{y}");
         assert_eq!(tile, tmp_str.as_bytes());
     }

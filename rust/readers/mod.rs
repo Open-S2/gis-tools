@@ -1,5 +1,7 @@
 /// CSV Reader
 pub mod csv;
+/// GBFS Readers
+pub mod gbfs;
 /// GeoTIFF Reader
 pub mod geotiff;
 /// GPX Reader
@@ -20,6 +22,8 @@ pub mod netcdf;
 pub mod osm;
 /// (S2)PMTiles Reader
 pub mod pmtiles;
+/// S2 Tiles Reader
+pub mod s2tiles;
 /// Shapefile Reader
 pub mod shapefile;
 /// Tile-based Readers
@@ -33,6 +37,7 @@ use crate::parsers::{BufferReader, FeatureReader, Reader};
 use alloc::{boxed::Box, collections::BTreeMap, string::String, vec, vec::Vec};
 use core::fmt::Debug;
 pub use csv::*;
+pub use gbfs::*;
 pub use geotiff::*;
 pub use gpx::*;
 pub use grib2::*;
@@ -45,6 +50,7 @@ pub use netcdf::*;
 pub use osm::*;
 pub use pmtiles::*;
 use s2json::{MValue, Properties, VectorFeature};
+pub use s2tiles::*;
 use serde::{Deserialize, Serialize};
 pub use shapefile::*;
 #[cfg(feature = "std")]

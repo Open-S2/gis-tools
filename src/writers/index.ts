@@ -3,11 +3,13 @@ import type { Face, Metadata } from 's2-tilejson';
 
 export * from './json/index.js';
 export * from './pmtiles/index.js';
+export * from './s2tiles/index.js';
 export * from './tiles/index.js';
 
 /** The defacto interface for all writers. */
 export interface Writer {
   write(data: Uint8Array, offset: number): Promise<void>;
+  slice(start: number, end: number): Promise<Uint8Array>;
   append(data: Uint8Array): Promise<void>;
   appendSync(data: Uint8Array): void;
   appendString(string: string): Promise<void>;
@@ -174,6 +176,16 @@ export class BufferWriter implements Writer {
       this.#buffer[offset + i] = data[i];
     }
     await true;
+  }
+
+  /**
+   * Slice the buffer
+   * @param start - the start of the slice
+   * @param end - the end of the slice
+   * @returns - the sliced buffer
+   */
+  async slice(start: number, end: number): Promise<Uint8Array> {
+    return await new Uint8Array(this.#buffer.slice(start, end));
   }
 
   /** @returns - the buffer */
