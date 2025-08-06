@@ -327,7 +327,7 @@ function _buildDirSize(depth: number, maxzoom: number): number {
  * @param zoom - the zoom
  * @param x - the x
  * @param y - the y
- * @returns - the path
+ * @returns - The path as a collection of offsets pointing to the tile Node in the directory
  */
 function getPath(zoom: number, x: number, y: number): number[] {
   const { max, pow } = Math;

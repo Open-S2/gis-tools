@@ -266,7 +266,7 @@ function _readUInt48LE(buffer: DataView, offset = 0): number {
  * @param zoom - the zoom
  * @param x - the x
  * @param y - the y
- * @returns - the path
+ * @returns - The path as a collection of offsets pointing to the tile Node in the directory
  */
 export function getS2TilePath(zoom: number, x: number, y: number): number[] {
   const { max, pow } = Math;

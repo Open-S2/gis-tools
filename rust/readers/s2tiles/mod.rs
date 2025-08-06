@@ -314,7 +314,7 @@ fn read_uint_48le(buffer: &mut Buffer, offset: Option<usize>) -> u64 {
 /// - `y`: the y
 ///
 /// ## Returns
-/// The path
+/// The path as a collection of offsets pointing to the tile Node in the directory
 pub fn get_s2_tile_path(mut zoom: u8, mut x: u32, mut y: u32) -> Vec<u64> {
     let mut path = vec![];
 

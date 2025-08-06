@@ -81,6 +81,7 @@
 //! - [`crate::readers::NetCDFReader`]: Read the NetCDF v3.x file format
 //! - [`crate::readers::OSMReader`]: Parses OSM PBF files
 //! - [`crate::readers::PMTilesReader`]: A V3.0 PMTiles reader for reading standard WebMercator Tile data and V1.0 S2 Tile data.
+//! - [`crate::readers::S2TilesReader`]: An S2 Tile Reader to store tile and metadata in a cloud optimized format.
 //! - [`crate::readers::ShapeFileReader`]: Reads data from a shapefile
 //! - [`crate::readers::RasterTileFetcher`]: Read an entire archive of raster tiles, where the max zoom data is iterated upon
 //! - [`crate::readers::WKTGeometryReader`]: Parse a collection of WKT geometries from a string
@@ -143,6 +144,7 @@
 //! - [`crate::writers::to_json`]: Given a writer and an array of readers, write the input features to the writer as a JSON object
 //! - [`crate::writers::to_jsonld`]: Given a writer and an array of readers, write the input features to the writer as JSON-LD
 //! - [`crate::writers::PMTilesWriter`]: The File reader is to be used by the local filesystem.
+//! - [`crate::writers::S2TilesWriter`]: An S2 Tile Writer to store tile and metadata in a cloud optimized format.
 //! - [`crate::writers::FileTileWriter`]: A Folder-File tile writer
 //! - [`crate::writers::LocalTileWriter`]: A Local Memory Tile Write Store
 //! - [`crate::writers::TileBuilder`]: Create vector tiles, raster tiles, or gridded tiles.
