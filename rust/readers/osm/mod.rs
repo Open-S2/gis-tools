@@ -333,20 +333,20 @@ impl<
             }
             if !skip_wr {
                 for way in &group.ways {
-                    if !way.is_filterable(&block, self) {
-                        if let Some(i_way) = way.to_intermediate_feature(&block, self) {
-                            self.ways.set(way.id, i_way);
-                        }
+                    if !way.is_filterable(&block, self)
+                        && let Some(i_way) = way.to_intermediate_feature(&block, self)
+                    {
+                        self.ways.set(way.id, i_way);
                     }
                     if !self.skip_ways {
                         self.way_geometry.set(way.id, way.node_refs());
                     }
                 }
                 for relation in &group.relations {
-                    if !relation.is_filterable(&block, self) {
-                        if let Some(i_relation) = relation.to_intermediate_feature(&block) {
-                            self.relations.set(relation.id, i_relation);
-                        }
+                    if !relation.is_filterable(&block, self)
+                        && let Some(i_relation) = relation.to_intermediate_feature(&block)
+                    {
+                        self.relations.set(relation.id, i_relation);
                     }
                 }
             }

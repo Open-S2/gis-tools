@@ -103,7 +103,7 @@ where
 /// ## Returns
 /// true if the data needs normalization
 pub fn needs_normalization(format: usize, bits_per_sample: usize) -> bool {
-    if (format == 1 || format == 2) && bits_per_sample <= 32 && bits_per_sample % 8 == 0 {
+    if (format == 1 || format == 2) && bits_per_sample <= 32 && bits_per_sample.is_multiple_of(8) {
         false
     } else {
         !(format == 3 && (bits_per_sample == 16 || bits_per_sample == 32 || bits_per_sample == 64))

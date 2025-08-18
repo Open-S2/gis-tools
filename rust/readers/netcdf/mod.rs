@@ -666,7 +666,7 @@ impl<T: Reader> NetCDFReader<T> {
     /// Apply padding as data is mapped to 4-byte alignment
     fn padding(&self) {
         let cursor = *self.cursor.borrow();
-        if cursor % 4 != 0 {
+        if !cursor.is_multiple_of(4) {
             *self.cursor.borrow_mut() += 4 - (cursor % 4);
         }
     }

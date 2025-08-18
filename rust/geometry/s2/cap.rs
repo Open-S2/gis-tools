@@ -297,10 +297,9 @@ where
                 } else {
                     continue;
                 };
+            } else if max_level {
+                continue;
             } else {
-                if max_level {
-                    continue;
-                };
                 for child in cell.children(None) {
                     queue.push(child);
                 }

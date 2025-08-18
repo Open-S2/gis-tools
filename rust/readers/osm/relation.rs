@@ -247,10 +247,10 @@ impl Relation {
     pub fn get_node_relation_pairs(members: &[IntermediateMember]) -> Vec<IntermediateNodeMember> {
         let mut res = vec![];
         for member in members {
-            if let IntermediateMember::Node(member) = member {
-                if member.role == "label" || member.role == "admin_centre" {
-                    res.push(member.clone());
-                }
+            if let IntermediateMember::Node(member) = member
+                && (member.role == "label" || member.role == "admin_centre")
+            {
+                res.push(member.clone());
             }
         }
         res

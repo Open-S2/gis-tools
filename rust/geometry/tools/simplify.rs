@@ -100,15 +100,15 @@ fn _build_sq_dist<M: Clone + Default>(
         i += 1;
     }
 
-    if max_sq_dist > sq_tolerance {
-        if let Some(index) = index {
-            if index - first > 1 {
-                _build_sq_dist(coords, first, index, sq_tolerance);
-            }
-            coords[index].t = Some(max_sq_dist);
-            if last - index > 1 {
-                _build_sq_dist(coords, index, last, sq_tolerance);
-            }
+    if max_sq_dist > sq_tolerance
+        && let Some(index) = index
+    {
+        if index - first > 1 {
+            _build_sq_dist(coords, first, index, sq_tolerance);
+        }
+        coords[index].t = Some(max_sq_dist);
+        if last - index > 1 {
+            _build_sq_dist(coords, index, last, sq_tolerance);
         }
     }
 }

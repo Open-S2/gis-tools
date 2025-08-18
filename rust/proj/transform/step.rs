@@ -259,10 +259,10 @@ impl Step {
     /// Create a Step from JSON Method
     pub fn from_method(method: &Method, proj: Rc<RefCell<Proj>>) -> Option<Step> {
         // first try ID
-        if let Some(id) = method.id.as_ref() {
-            if let Some(step) = Step::from_id(id.code.i64(), proj.clone()) {
-                return Some(step);
-            }
+        if let Some(id) = method.id.as_ref()
+            && let Some(step) = Step::from_id(id.code.i64(), proj.clone())
+        {
+            return Some(step);
         }
         // second try IDs
         for id in method.ids.iter() {

@@ -97,7 +97,7 @@ pub fn apply_predictor(
     }
 
     for i in 0..bits_per_sample.len() {
-        if bits_per_sample[i] % 8 != 0 {
+        if !bits_per_sample[i].is_multiple_of(8) {
             panic!("When decoding with predictor, only multiple of 8 bits are supported.");
         }
         if bits_per_sample[i] != bits_per_sample[0] {

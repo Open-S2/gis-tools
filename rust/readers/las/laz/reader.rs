@@ -185,11 +185,11 @@ impl<T: Reader + Debug> LAZReader<T> {
     fn build_laz(&mut self) {
         if self.header.point_data_format_id >= 127 {
             let laz_data_record = self.variable_length_records.get(&22204);
-            if let Some(laz_data_record) = laz_data_record {
-                if let Some(laz_data) = &laz_data_record.data {
-                    self.laz_header = LAZHeader::from_bytes(laz_data.to_vec());
-                    return;
-                }
+            if let Some(laz_data_record) = laz_data_record
+                && let Some(laz_data) = &laz_data_record.data
+            {
+                self.laz_header = LAZHeader::from_bytes(laz_data.to_vec());
+                return;
             }
         }
         panic!("LAZ data, but LAZ record not found.");

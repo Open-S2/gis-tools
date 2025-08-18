@@ -210,10 +210,10 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
     }
 
     // lastly handle injecting projection if it exists
-    if let Some(proj_name) = &proj_name {
-        if let Some(step) = Step::from_name(proj_name, proj_definition.proj.clone()) {
-            proj_definition.method = step;
-        }
+    if let Some(proj_name) = &proj_name
+        && let Some(step) = Step::from_name(proj_name, proj_definition.proj.clone())
+    {
+        proj_definition.method = step;
     }
 
     transformer.set_source_def(proj_definition);

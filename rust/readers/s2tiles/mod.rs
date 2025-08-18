@@ -226,7 +226,10 @@ impl<R: Reader> S2TilesReader<R> {
             // if we are still walking, grab the new directory
             if !path.is_empty() {
                 // corner case: if maxzoom matches the zoom and is divisible by 5, the leaf is actually a node
-                if self.maxzoom % 5 == 0 && zoom == self.maxzoom && path.len() == 1 && path[0] == 0
+                if self.maxzoom.is_multiple_of(5)
+                    && zoom == self.maxzoom
+                    && path.len() == 1
+                    && path[0] == 0
                 {
                     return Some(Directory { offset, length });
                 }

@@ -354,6 +354,22 @@ cargo test
 bacon test
 ```
 
+### Running Linters and Coverage
+
+```bash
+# TYPESCRIPT LINT
+bun run lint
+#TYPESCRIPT COVERAGE
+bun run test:coverage
+
+# RUST LINT
+# bun run rust:test:coverage
+RUSTC_BOOTSTRAP=1 cargo +nightly clippy -- -D warnings
+# RUST COVERAGE
+# bun run rust:test:coverage
+RUSTC_BOOTSTRAP=1 cargo +nightly llvm-cov --lcov --output-path coverage/lcov.info --workspace --features nightly
+```
+
 ### Generating Coverage Report
 
 To generate the coverage report, use the following command:

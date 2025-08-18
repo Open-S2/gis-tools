@@ -125,15 +125,15 @@ impl<
     }
 
     fn parse_line(&self, line: &str) -> Option<VectorFeature<M, P, D>> {
-        if line.len() > 1 {
-            if let Ok(feature) = line.to_features() {
-                match feature {
-                    Features::Feature(feature) => {
-                        return Some(feature.to_vector(Some(true)));
-                    }
-                    Features::VectorFeature(vf) => {
-                        return Some(vf);
-                    }
+        if line.len() > 1
+            && let Ok(feature) = line.to_features()
+        {
+            match feature {
+                Features::Feature(feature) => {
+                    return Some(feature.to_vector(Some(true)));
+                }
+                Features::VectorFeature(vf) => {
+                    return Some(vf);
                 }
             }
         }

@@ -108,14 +108,12 @@ impl TileWorker {
         // iterate through each layer and store the feature
         for layer_guide in layer_guides {
             // find the layer handler that matches layer_guide's layer_name and mutate if needed
-            if let Some(on_layer_feature) = &on_layer_feature {
-                if let Some(layer_handler) =
+            if let Some(on_layer_feature) = &on_layer_feature
+                && let Some(layer_handler) =
                     on_layer_feature.iter().find(|lh| lh.layer_name == layer_guide.layer_name())
-                {
-                    if let Some(new_feature) = (layer_handler.on_feature)(take(&mut feature)) {
-                        feature = new_feature;
-                    }
-                }
+                && let Some(new_feature) = (layer_handler.on_feature)(take(&mut feature))
+            {
+                feature = new_feature;
             }
             match layer_guide {
                 LayerGuide::Vector(vlg) => {
@@ -178,17 +176,17 @@ impl TileWorker {
             if zoom < minzoom {
                 // if we haven't reached the data yet, we store children
                 tile_cache.extend(id.children(None));
-            } else if let Some(tile) = tile {
-                if !tile.is_empty() {
-                    // store feature with the associated layername
-                    for layer in tile.layers.values() {
-                        for feature in &layer.features {
-                            self.vector_store.set(id, feature.clone());
-                        }
+            } else if let Some(tile) = tile
+                && !tile.is_empty()
+            {
+                // store feature with the associated layername
+                for layer in tile.layers.values() {
+                    for feature in &layer.features {
+                        self.vector_store.set(id, feature.clone());
                     }
-                    // store 4 children tiles to ask for
-                    tile_cache.extend(id.children(None));
                 }
+                // store 4 children tiles to ask for
+                tile_cache.extend(id.children(None));
             }
         }
     }

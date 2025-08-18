@@ -524,10 +524,10 @@ impl S2CellId {
     pub fn children(&self, orientation: Option<u8>) -> [S2CellId; 4] {
         let mut childs = [self.child(0), self.child(3), self.child(2), self.child(1)];
 
-        if let Some(orientation) = orientation {
-            if orientation == 0 {
-                childs.swap(1, 3);
-            }
+        if let Some(orientation) = orientation
+            && orientation == 0
+        {
+            childs.swap(1, 3);
         }
 
         childs

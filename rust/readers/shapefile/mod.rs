@@ -54,15 +54,15 @@ pub fn shapefile_from_gzip<P: MValueCompatible>(
             if let Ok(data) = (item.read)() {
                 shp_data = Some(data);
             }
-        } else if item.filename.ends_with("prj") {
-            if let Ok(data) = (item.read)() {
-                let mut transformer = Transformer::new();
-                for (code, value) in epsg_codes.iter() {
-                    transformer.insert_epsg_code(code.clone(), value.clone());
-                }
-                transformer.set_source(String::from_utf8_lossy(&data).into());
-                transform = Some(transformer);
+        } else if item.filename.ends_with("prj")
+            && let Ok(data) = (item.read)()
+        {
+            let mut transformer = Transformer::new();
+            for (code, value) in epsg_codes.iter() {
+                transformer.insert_epsg_code(code.clone(), value.clone());
             }
+            transformer.set_source(String::from_utf8_lossy(&data).into());
+            transform = Some(transformer);
         }
     }
     if let Some(shp_data) = shp_data {

@@ -17,10 +17,11 @@ impl WKTParser for ObjectUsage {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut usage = ObjectUsage::default();
         if let WKTValue::Array(arr) = val {
-            if !arr.is_empty() && arr[0].to_string() == "SCOPE" {
-                if let WKTValue::Array(arr) = &arr[1] {
-                    usage.scope = arr.first().map(|s| s.to_string()).unwrap_or_default();
-                }
+            if !arr.is_empty()
+                && arr[0].to_string() == "SCOPE"
+                && let WKTValue::Array(arr) = &arr[1]
+            {
+                usage.scope = arr.first().map(|s| s.to_string()).unwrap_or_default();
             }
             if arr.len() >= 2 {
                 handle_common_fields(&mut usage, arr, 2);
@@ -33,13 +34,13 @@ impl WKTParser for ObjectUsage {
 impl WKTParser for ProjBBox {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut bbox = ProjBBox::default();
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 4 {
-                bbox.south_latitude = arr[0].to_float();
-                bbox.west_longitude = arr[1].to_float();
-                bbox.north_latitude = arr[2].to_float();
-                bbox.east_longitude = arr[3].to_float();
-            }
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 4
+        {
+            bbox.south_latitude = arr[0].to_float();
+            bbox.west_longitude = arr[1].to_float();
+            bbox.north_latitude = arr[2].to_float();
+            bbox.east_longitude = arr[3].to_float();
         }
         bbox
     }
@@ -48,14 +49,14 @@ impl WKTParser for ProjBBox {
 impl WKTParser for VerticalExtent {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut ve = VerticalExtent::default();
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 2 {
-                ve.minimum = arr[0].to_float();
-                ve.maximum = arr[1].to_float();
-                if arr.len() >= 4 && arr[2].to_string() == "LENGTHUNIT" {
-                    ve.unit = Unit::from_wkt(&arr[3]);
-                    ve.unit.set_unit_type(UnitType::LinearUnit);
-                }
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 2
+        {
+            ve.minimum = arr[0].to_float();
+            ve.maximum = arr[1].to_float();
+            if arr.len() >= 4 && arr[2].to_string() == "LENGTHUNIT" {
+                ve.unit = Unit::from_wkt(&arr[3]);
+                ve.unit.set_unit_type(UnitType::LinearUnit);
             }
         }
         ve
@@ -82,11 +83,11 @@ impl WKTParser for Unit {
 impl WKTParser for TemporalExtent {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut te = TemporalExtent::default();
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 2 {
-                te.start = arr.first().map(|v| v.to_string()).unwrap_or_default();
-                te.end = arr.get(1).map(|v| v.to_string()).unwrap_or_default();
-            }
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 2
+        {
+            te.start = arr.first().map(|v| v.to_string()).unwrap_or_default();
+            te.end = arr.get(1).map(|v| v.to_string()).unwrap_or_default();
         }
         te
     }
@@ -95,32 +96,31 @@ impl WKTParser for TemporalExtent {
 impl WKTParser for Id {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut id = Id::default();
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 2 {
-                id.authority = arr[0].to_string();
-                id.code = arr[1].to_string().into();
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 2
+        {
+            id.authority = arr[0].to_string();
+            id.code = arr[1].to_string().into();
 
-                let mut i = 2;
-                while i < arr.len() {
-                    match arr[i].to_string().as_str() {
-                        "CITATION" => {
-                            if let WKTValue::Array(arr) = &arr[i + 1] {
-                                id.authority_citation =
-                                    Some(arr.first().map(|s| s.to_string()).unwrap_or_default());
-                            }
-                            i += 2;
+            let mut i = 2;
+            while i < arr.len() {
+                match arr[i].to_string().as_str() {
+                    "CITATION" => {
+                        if let WKTValue::Array(arr) = &arr[i + 1] {
+                            id.authority_citation =
+                                Some(arr.first().map(|s| s.to_string()).unwrap_or_default());
                         }
-                        "URI" => {
-                            if let WKTValue::Array(arr) = &arr[i + 1] {
-                                id.uri =
-                                    Some(arr.first().map(|s| s.to_string()).unwrap_or_default());
-                            }
-                            i += 2;
+                        i += 2;
+                    }
+                    "URI" => {
+                        if let WKTValue::Array(arr) = &arr[i + 1] {
+                            id.uri = Some(arr.first().map(|s| s.to_string()).unwrap_or_default());
                         }
-                        other => {
-                            id.version = Some(other.into());
-                            i += 1;
-                        }
+                        i += 2;
+                    }
+                    other => {
+                        id.version = Some(other.into());
+                        i += 1;
                     }
                 }
             }
@@ -136,17 +136,17 @@ impl WKTParser for Ellipsoid {
         let mut semi_major_axis = 0.0;
         let mut inverse_flattening = 0.0;
 
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 3 {
-                ellipsoid.name = arr[0].to_string();
-                semi_major_axis = arr[1].to_float();
-                inverse_flattening = arr[2].to_float();
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 3
+        {
+            ellipsoid.name = arr[0].to_string();
+            semi_major_axis = arr[1].to_float();
+            inverse_flattening = arr[2].to_float();
 
-                // get unit
-                handle_common_fields(&mut unit, arr, 3);
-                // get ID
-                handle_common_fields(&mut ellipsoid, arr, 3);
-            }
+            // get unit
+            handle_common_fields(&mut unit, arr, 3);
+            // get ID
+            handle_common_fields(&mut ellipsoid, arr, 3);
         }
         // update semi-major axis and inverse-flattening, but if unit exists, build it correctly
         if let Unit::UnitObject(_) = unit {
@@ -185,11 +185,11 @@ impl WKTParser for ParameterValue {
 impl WKTParser for CoordinateSystem {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut cs = CoordinateSystem::default();
-        if let WKTValue::Array(arr) = val {
-            if !arr.is_empty() {
-                cs.subtype = serde_json::from_str(&format!("\"{}\"", arr[0].to_string()))
-                    .unwrap_or_default();
-            }
+        if let WKTValue::Array(arr) = val
+            && !arr.is_empty()
+        {
+            cs.subtype =
+                serde_json::from_str(&format!("\"{}\"", arr[0].to_string())).unwrap_or_default();
         }
         cs
     }
@@ -198,13 +198,13 @@ impl WKTParser for CoordinateSystem {
 impl WKTParser for Axis {
     fn from_wkt(val: &WKTValue) -> Self {
         let mut axis = Axis::default();
-        if let WKTValue::Array(arr) = val {
-            if arr.len() >= 2 {
-                axis.abbreviation = arr[0].to_string();
-                axis.name = axis.abbreviation.clone();
-                axis.direction = AxisDirection::from(arr[1].to_string());
-                handle_common_fields(&mut axis, arr, 2);
-            }
+        if let WKTValue::Array(arr) = val
+            && arr.len() >= 2
+        {
+            axis.abbreviation = arr[0].to_string();
+            axis.name = axis.abbreviation.clone();
+            axis.direction = AxisDirection::from(arr[1].to_string());
+            handle_common_fields(&mut axis, arr, 2);
             // NOTE: BEARING, ORDER, and ANGLEUNIT exist, but add no value in modern WKT
         }
         axis.adjust_if_needed();

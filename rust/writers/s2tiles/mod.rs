@@ -202,7 +202,10 @@ impl<W: Writer> S2TilesWriter<W> {
             if !path.is_empty() {
                 // if we hit a leaf, adjust nodePos position and move cursor to new directory
                 // if we are at the max zoom, we are already in the correct position (the "leaf" is actually a node instead)
-                if self.maxzoom % 5 == 0 && path.len() == 1 && level == self.maxzoom && path[0] == 0
+                if self.maxzoom.is_multiple_of(5)
+                    && path.len() == 1
+                    && level == self.maxzoom
+                    && path[0] == 0
                 {
                     return cursor;
                 }

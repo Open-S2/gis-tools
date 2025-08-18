@@ -394,8 +394,7 @@ impl<T: Reader> GeoTIFFImage<T> {
         let model_transformation =
             self.image_directory.variables.getf64s(FieldTagNames::ModelTransformation as u16);
 
-        if transform && model_transformation.is_some() {
-            let model_transformation = model_transformation.unwrap();
+        if transform && let Some(model_transformation) = model_transformation {
             let [a, b, _c, d, e, f, _g, h] = model_transformation[..8].try_into().unwrap();
             let corners = [[0., 0.], [0., height], [width, 0.], [width, height]];
             let projected = corners.map(|[_i, _j]| [d + a * _i + b * _j, h + e * _i + f * _j]);

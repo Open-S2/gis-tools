@@ -124,7 +124,8 @@ pub fn decompress_fflate(data: &[u8], dict: Option<&[u8]>) -> Result<Vec<u8>, FF
     let data_2 = data[2] as usize;
     if data_0 == 31 && data_1 == 139 && data_2 == 8 {
         gunzip_sync(data, dict)
-    } else if (data_0 & 15) != 8 || data_0 >> 4 > 7 || ((data_0 << 8) | data_1) % 31 != 0 {
+    } else if (data_0 & 15) != 8 || data_0 >> 4 > 7 || !((data_0 << 8) | data_1).is_multiple_of(31)
+    {
         inflate_sync(data, dict)
     } else {
         unzlib_sync(data, dict)
@@ -514,7 +515,10 @@ fn gzl(d: &[u8]) -> usize {
 
 /// zlib start
 fn zls(d: &[u8], dict: Option<&[u8]>) -> Result<usize, FFlateError> {
-    if (d[0] & 15) != 8 || d[0] >> 4 > 7 || (((d[0] as u32) << 8_u32) | d[1] as u32) % 31 != 0 {
+    if (d[0] & 15) != 8
+        || d[0] >> 4 > 7
+        || !(((d[0] as u32) << 8_u32) | d[1] as u32).is_multiple_of(31)
+    {
         return Err(FFlateError::NoCallback);
     }
     if ((d[1] >> 5) & 1) == 0 && dict.is_some() {

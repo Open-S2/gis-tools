@@ -167,10 +167,10 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         let geometry = self.parse_geometry(_type, &data);
         geometry.as_ref()?;
         let mut properties: P = P::default();
-        if let Some(dbf) = &self.dbf {
-            if let Some(props) = dbf.get_properties(index as u64) {
-                properties = props;
-            }
+        if let Some(dbf) = &self.dbf
+            && let Some(props) = dbf.get_properties(index as u64)
+        {
+            properties = props;
         }
 
         Some(VectorFeature {

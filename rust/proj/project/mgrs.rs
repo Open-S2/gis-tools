@@ -545,7 +545,7 @@ fn decode(mut mgrs_string: String) -> Utm {
     // calculate the char index for easting/northing separator
     let remainder = length - i;
 
-    if remainder % 2 != 0 {
+    if !remainder.is_multiple_of(2) {
         panic!(
             "MGRSPoint has to have an even number of digits after the zone letter and two 100km \
              letters - front half for easting meters, second half for northing meters {}",

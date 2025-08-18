@@ -108,10 +108,8 @@ pub fn to_json<
                 }
                 let user_feature = user_feature.unwrap();
                 faces.insert(user_feature.face.into());
-                if build_bbox {
-                    if let Some(feature_bbox) = user_feature.geometry.bbox() {
-                        bbox.merge_in_place(feature_bbox);
-                    }
+                if build_bbox && let Some(feature_bbox) = user_feature.geometry.bbox() {
+                    bbox.merge_in_place(feature_bbox);
                 }
                 if !first {
                     writer.append_string(",\n");
