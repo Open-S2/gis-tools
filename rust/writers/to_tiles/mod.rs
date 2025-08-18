@@ -50,6 +50,7 @@ pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 /// - [`LocalTileWriter`]
 /// - [`FileTileWriter`]
 /// - [`crate::writers::PMTilesWriter`]
+/// - [`crate::writers::S2TilesWriter`]
 ///
 /// ### Writing WM projection tiles as Mapbox Vector Tiles to a PMTiles file
 ///

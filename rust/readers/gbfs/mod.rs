@@ -11,13 +11,13 @@ use serde::{Deserialize, Deserializer, Serialize};
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GBFSRentalUri {
     /// URI that can be passed to an Android app with an intent (added in v1.1).
-    /// **Format**: uri
+    /// **Format**: URI
     pub android: Option<String>,
     /// URI that can be used on iOS to launch the rental app for this vehicle (added in v1.1).
-    /// **Format**: uri
+    /// **Format**: URI
     pub ios: Option<String>,
     /// URL that can be used by a web browser to show more information about renting this vehicle (added in v1.1).
-    /// **Format**: uri
+    /// **Format**: URI
     pub web: Option<String>,
 }
 
@@ -27,17 +27,17 @@ pub struct GBFSSystem {
     /// [**Required**] ISO 3166-1 alpha-2 code designating the country where the system is located.
     #[serde(rename = "countryCode")]
     pub country_code: String,
-    /// [**Required**] Name of the mobility system. This MUST match the name field in system_information.json
+    /// [**Required**] Name of the mobility system. This MUST match the name field in `system_information.json`
     pub name: String,
     /// [**Required**] Primary city in which the system is located, followed by the 2-letter state code
     /// for US systems. The location name SHOULD be in English if the location has an English name
-    /// (eg: Brussels).
+    /// (e.g.: Brussels).
     pub location: String,
-    /// [**Required**] ID for the system. This MUST match the system_id field in system_information.json.
+    /// [**Required**] ID for the system. This MUST match the system_id field in `system_information.json`.
     #[serde(rename = "systemId")]
     pub system_id: String,
-    /// [**Required**] URL for the system from the url field in system_information.json.
-    /// If the url field is not included in system_information.json this SHOULD be the primary URL
+    /// [**Required**] URL for the system from the url field in `system_information.json`.
+    /// If the url field is not included in `system_information.json` this SHOULD be the primary URL
     /// for the system operator.
     pub url: String,
     /// [**Required**] URL for the system's gbfs.json auto-discovery file.

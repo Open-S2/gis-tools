@@ -4,7 +4,30 @@
 #![warn(clippy::collapsible_if)]
 // NOTE: Once coverage stabilizes, we can simplify this https://github.com/rust-lang/rust/issues/84605
 #![cfg_attr(feature = "nightly", feature(coverage_attribute))]
-//! # GIS Tools
+//! # GIS Tools 🌎 🗺️
+//!
+//!                           ___                       ___                          
+//!                          /\  \          ___        /\  \
+//!                         /::\  \        /\  \      /::\  \
+//!                        /:/\:\  \       \:\  \    /:/\ \  \
+//!                       /:/  \:\  \      /::\__\  _\:\~\ \  \
+//!                      /:/__/_\:\__\  __/:/\/__/ /\ \:\ \ \__\
+//!                      \:\  /\ \/__/ /\/:/  /    \:\ \:\ \/__/
+//!                       \:\ \:\__\   \::/__/      \:\ \:\__\
+//!                        \:\/:/  /    \:\__\       \:\/:/  /
+//!                         \::/  /      \/__/        \::/  /
+//!                          \/__/                     \/__/
+//!              ___           ___           ___           ___       ___
+//!             /\  \         /\  \         /\  \         /\__\     /\  \
+//!             \:\  \       /::\  \       /::\  \       /:/  /    /::\  \
+//!              \:\  \     /:/\:\  \     /:/\:\  \     /:/  /    /:/\ \  \
+//!              /::\  \   /:/  \:\  \   /:/  \:\  \   /:/  /    _\:\~\ \  \
+//!             /:/\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /:/__/    /\ \:\ \ \__\
+//!            /:/  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\  \    \:\ \:\ \/__/
+//!           /:/  /       \:\  /:/  /   \:\  /:/  /   \:\  \    \:\ \:\__\
+//!           \/__/         \:\/:/  /     \:\/:/  /     \:\  \    \:\/:/  /
+//!                          \::/  /       \::/  /       \:\__\    \::/  /
+//!                           \/__/         \/__/         \/__/     \/__/
 //!
 //! ## Install
 //!
@@ -46,13 +69,14 @@
 //! half baked, deprecated, or partially parse results that may also need to be transformed one more
 //! time to use them.
 //!
-//! This tool exists to make GIS tools simple to use, various data fast to parse, initial projections
-//! will be handled to be either WGS84 or S2 Projections so you don't have to worry about those
+//! This library exists to make GIS tools simple to use, various data types are fast to parse,
+//! and a gaurentee that the parsed data is compatible with said tools. Stored geometry projections
+//! will be transformed to be either WGS84 or S2 Projections so you don't have to worry about those
 //! complexities.
 //!
 //! Lastly the goal is for all code to be accessible to both the browser and locally. An example is
-//! the Shapefile reader where it can pull from online data or handle extremely large file in
-//! parallel locally as well.
+//! the Shapefile reader where it can pull from online data or handle extremely large file locally
+//! in parallel locally as well.
 //!
 //! ## Usage
 //!
@@ -61,8 +85,8 @@
 //!
 //! ### Readers
 //!
-//! All of the following readers implement the [`crate::parsers::FeatureReader`] trait. This is
-//! usefull because each tool and writer use this trait to work with any reader to ensure consistency
+//! All the following readers implement the [`crate::parsers::FeatureReader`] trait. This is
+//! useful because each tool and writer use this trait to work with any reader to ensure consistency
 //! of the projection and structure without needing you to worry about the setup. It also allows you
 //! to directly read in [`s2json::VectorFeature`] data using the `iter` or `par_iter` functions.
 //!
@@ -82,7 +106,7 @@
 //! - [`crate::readers::OSMReader`]: Parses OSM PBF files
 //! - [`crate::readers::PMTilesReader`]: A V3.0 PMTiles reader for reading standard WebMercator Tile data and V1.0 S2 Tile data.
 //! - [`crate::readers::S2TilesReader`]: An S2 Tile Reader to store tile and metadata in a cloud optimized format.
-//! - [`crate::readers::ShapeFileReader`]: Reads data from a shapefile
+//! - [`crate::readers::ShapeFileReader`]: Reads data from a Shapefile
 //! - [`crate::readers::RasterTileFetcher`]: Read an entire archive of raster tiles, where the max zoom data is iterated upon
 //! - [`crate::readers::WKTGeometryReader`]: Parse a collection of WKT geometries from a string
 //!
@@ -91,7 +115,7 @@
 //! #### Data Tools
 //!
 //! - [`crate::tools::Delaunator`]: An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points.
-//! - [`crate::tools::Orthodrome`]: Represents an orthodrome, which is the shortest path between two points on a sphere.
+//! - [`crate::tools::Orthodrome`]: Represents an Orthodrome, which is the shortest path between two points on a sphere.
 //! - [`crate::tools::polylabels()`]: Find the labels for a collection of vector polygons
 //! - [`crate::tools::polylabel()`]: Find the label for a vector polygon
 //!
@@ -128,7 +152,7 @@
 //!
 //! #### Interpolation Tools
 //!
-//! - [`crate::util::average_interpolation`]: Finds the avarage point in the reference data to the given point and returns its value.
+//! - [`crate::util::average_interpolation`]: Finds the average point in the reference data to the given point and returns its value.
 //! - [`crate::util::idw_interpolation`]: Given a reference of data, interpolate a point using inverse distance weighting
 //! - [`crate::util::lanczos_interpolation`]: Perform interpolation using the Lanczos filter. This method uses a kernel-based approach to weigh contributions from nearby points, providing a balance between smoothing and sharpness.
 //! - [`crate::util::nearest_interpolation`]: Finds the nearest point in the reference data to the given point and returns its value.
@@ -157,7 +181,7 @@
 //!
 //! #### Predicates
 //!
-//! - [`crate::geometry::orient2d()`]: Highly accuracate returns a negative value if the points a, b, and c occur in counterclockwise order (c lies to the left of the directed line defined by points a and b).
+//! - [`crate::geometry::orient2d()`]: Highly accurate returns a negative value if the points a, b, and c occur in counterclockwise order (c lies to the left of the directed line defined by points a and b).
 //! - [`crate::geometry::orient2dfast()`]: Returns a positive value if the points a, b, and c occur in counterclockwise order (c lies to the left of the directed line defined by points a and b).
 //! - [`crate::geometry::incirclefast()`]: An in-circle test fast test, lacks the same accuracy as incircle
 //!
