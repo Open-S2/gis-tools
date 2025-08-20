@@ -227,7 +227,7 @@ pub struct NetCDFReaderOptions {
 ///
 /// ## Links
 /// - <https://www.unidata.ucar.edu/software/netcdf/docs/file_format_specifications.html>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NetCDFReader<T: Reader> {
     reader: T,
     /// Record dimension
@@ -677,13 +677,16 @@ impl<T: Reader> NetCDFReader<T> {
 pub struct CDFIterator<'a, T: Reader> {
     reader: &'a NetCDFReader<T>,
     index: u64,
+    len: u64,
 }
 impl<T: Reader> Iterator for CDFIterator<'_, T> {
     type Item = CDFVectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
         let cdf_reader = &self.reader;
-        if let Some(point) = cdf_reader.get_feature(self.index) {
+        if self.index >= self.len {
+            None
+        } else if let Some(point) = cdf_reader.get_feature(self.index) {
             self.index += 1;
             Some(point)
         } else {
@@ -699,11 +702,15 @@ impl<T: Reader> FeatureReader<(), Properties, MValue> for NetCDFReader<T> {
         T: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        CDFIterator { reader: self, index: 0 }
+        CDFIterator { reader: self, index: 0, len: self.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        CDFIterator { reader: self, index: 0 }
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let pool_size = pool_size as u64;
+        let thread_id = thread_id as u64;
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        CDFIterator { reader: self, index: start, len: end }
     }
 }

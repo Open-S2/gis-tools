@@ -493,6 +493,7 @@ impl<
     }
 
     fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+        // TODO: Unimplemented
         self.iter()
     }
 }

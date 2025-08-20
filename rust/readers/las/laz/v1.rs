@@ -13,7 +13,7 @@ use core::cell::RefCell;
 const LASZIP_GPSTIME_MULTIMAX: u32 = 512;
 
 /// Parse LAZ Point 10.1
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZPoint10v1Reader<T: Reader> {
     last_item: LASPoint,
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
@@ -200,7 +200,7 @@ impl<T: Reader> ItemReader for LAZPoint10v1Reader<T> {
 }
 
 /// Parse LAZ GPS Time 1.1v1
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZGpsTime11v1Reader<T: Reader> {
     last_item: U64I64F64,
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
@@ -298,7 +298,7 @@ impl<T: Reader> ItemReader for LAZGpsTime11v1Reader<T> {
 }
 
 /// Parse LAZ RGB 1.2v1
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZrgb12v1Reader<T: Reader> {
     /// The arithmetic decoder
     last_item: [u16; 3],
@@ -375,7 +375,7 @@ impl<T: Reader> ItemReader for LAZrgb12v1Reader<T> {
 }
 
 /// Parse LAZ wavepacket 1.3v1
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZwavepacket13v1Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     index: u32,
@@ -471,7 +471,7 @@ impl<T: Reader> ItemReader for LAZwavepacket13v1Reader<T> {
 }
 
 /// Parse LAZ byte 1.0v1
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZbyte10v1Reader<T: Reader> {
     size: u32,
     last_item: Vec<u8>,

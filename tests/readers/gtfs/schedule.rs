@@ -1458,7 +1458,14 @@ mod tests {
         let folder = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/readers/gtfs/fixtures");
         let schedule = GTFSScheduleReader::from_folder(folder.to_str().unwrap());
 
-        let features: Vec<VectorFeature> = schedule.par_iter(1, 1).collect();
+        let features: Vec<VectorFeature> = (0..2usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = schedule.clone();
+                let res: Vec<_> = reader.par_iter(2, thread_id).collect();
+                res
+            })
+            .collect();
         assert_eq!(features.len(), 3);
     }
 

@@ -11,9 +11,10 @@ use core::{cell::RefCell, marker::PhantomData};
 use s2json::{Features, MValue, VectorFeature};
 use serde::de::DeserializeOwned;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct NewLineDelimitedJSONParser {
     offset: u64,
+    end: u64,
     tmp_chunks: VecDeque<String>,
     partial_line: String,
 }
@@ -39,7 +40,7 @@ struct NewLineDelimitedJSONParser {
 /// let features: Vec<_> = reader.iter().collect();
 /// assert_eq!(features.len(), 3);
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NewLineDelimitedJSONReader<
     T: Reader,
     M: Clone + DeserializeOwned = (),
@@ -60,12 +61,14 @@ impl<
 {
     /// Create a Newline-Delimited JSON Reader
     pub fn new(reader: T, seperator: Option<char>) -> NewLineDelimitedJSONReader<T, M, P, D> {
+        let end = reader.len();
         NewLineDelimitedJSONReader {
             reader,
             _phantom: PhantomData,
             seperator: seperator.unwrap_or('\n'),
             parser: RefCell::new(NewLineDelimitedJSONParser {
                 offset: 0,
+                end,
                 tmp_chunks: VecDeque::new(),
                 partial_line: String::new(),
             }),
@@ -80,17 +83,39 @@ impl<
         parser.partial_line.clear();
     }
 
+    /// Set a new position in the file for parallel processing
+    pub fn par_seek(&self, pool_size: u64, thread_id: u64) {
+        self.reset();
+        // setup chunk size, start and end
+        let len = self.reader.len();
+        let chunk_size = len.div_ceil(pool_size);
+        let mut start = thread_id.saturating_mul(chunk_size);
+        let mut end = u64::min(start + chunk_size, len);
+        // align to separators
+        if thread_id > 0 {
+            start = align_to_separator(&self.reader, start, end, self.seperator);
+        }
+        if thread_id < pool_size - 1 {
+            end = align_to_separator(&self.reader, end, len, self.seperator);
+        }
+        // update parser
+        let mut parser = self.parser.borrow_mut();
+        parser.offset = start;
+        parser.end = end;
+    }
+
     /// Get the next feature
     pub fn next_feature(&self) -> Option<VectorFeature<M, P, D>> {
         let mut parser = self.parser.borrow_mut();
+
         // 1) Serve from buffer if available
         if let Some(line) = parser.tmp_chunks.pop_front() {
             return self.parse_line(&line);
         }
 
         // 2) Refill buffer from reader
-        if parser.offset < self.reader.len() {
-            let length = u64::min(65_536, self.reader.len() - parser.offset);
+        if parser.offset < parser.end {
+            let length = u64::min(65_536, parser.end - parser.offset);
             let chunk = self.reader.parse_string(Some(parser.offset), Some(length));
             // Prepend any leftover partial line
             let combined = core::mem::take(&mut parser.partial_line) + &chunk;
@@ -198,8 +223,9 @@ impl<
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.par_seek(pool_size as u64, thread_id as u64);
+        NewLineDelimitedJSONIterator { reader: self }
     }
 }
 
@@ -229,7 +255,7 @@ impl<
 /// - <https://datatracker.ietf.org/doc/html/rfc7464>
 /// - <https://datatracker.ietf.org/doc/html/rfc8142>
 /// - <https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SequenceJSONReader<
     T: Reader,
     M: Clone + DeserializeOwned = (),
@@ -250,12 +276,14 @@ impl<
         SequenceJSONReader { newline: NewLineDelimitedJSONReader::new(reader, Some('␞')) }
     }
 
+    /// Set a new position in the file for parallel processing
+    pub fn par_seek(&self, pool_size: u64, thread_id: u64) {
+        self.newline.par_seek(pool_size, thread_id);
+    }
+
     /// Reset to the beginning
     pub fn reset(&self) {
-        let mut parser = self.newline.parser.borrow_mut();
-        parser.offset = 0;
-        parser.tmp_chunks.clear();
-        parser.partial_line.clear();
+        self.newline.reset();
     }
 }
 impl<
@@ -317,7 +345,23 @@ impl<
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.par_seek(pool_size as u64, thread_id as u64);
         self.iter()
     }
+}
+
+// Helper function to align to separators if using parallel processing
+fn align_to_separator<R: Reader>(reader: &R, mut pos: u64, end: u64, sep: char) -> u64 {
+    let sep_u8 = sep as u8;
+
+    while pos < end {
+        let len = u64::min(65_536, end - pos);
+        let chunk = reader.parse_string(Some(pos), Some(len));
+        if let Some(rel) = chunk.as_bytes().iter().position(|&b| b == sep_u8) {
+            return pos + rel as u64 + 1; // move past separator
+        }
+        pos += len;
+    }
+    end
 }

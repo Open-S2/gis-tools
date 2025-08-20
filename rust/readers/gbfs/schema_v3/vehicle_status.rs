@@ -8,7 +8,7 @@
 //  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.1-RC/gbfs.md#vehicle_statusjson)
 //  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.0/gbfs.md#vehicle_statusjson)
 //  */
-// export type GBFSVehicleStatusV3 = GBFSVehicleStatusV31RC | GBFSVehicleStatusV30;
+// export type GBFSVehicleStatusV3 = GBFSVehicleStatusV30;
 
 // /**
 //  * GBFS Vehicle V3
@@ -101,44 +101,6 @@
 //    * **Pattern**: `^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(([+-]([0-9]{2}):([0-9]{2}))|Z)$`
 //    */
 //   available_until?: string;
-// }
-
-// /**
-//  * # GBFS Vehicle Status Schema V3.1-RC
-//  * Describes the vehicles that are available for rent (as of v3.0, formerly free_bike_status).
-//  *
-//  * ## Links
-//  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.1-RC/gbfs.md#vehicle_statusjson)
-//  */
-// export interface GBFSVehicleStatusV31RC {
-//   /**
-//    * Last time the data in the feed was updated in RFC3339 format.
-//    * **Format**: date-time
-//    */
-//   last_updated: string;
-
-//   /**
-//    * Number of seconds before the data in the feed will be updated again
-//    * (0 if the data should always be refreshed).
-//    * **Minimum**: 0
-//    */
-//   ttl: number;
-
-//   /**
-//    * GBFS version number to which the feed conforms, according to the versioning framework (added in v1.1).
-//    * **Const**: 3.1-RC
-//    */
-//   version: '3.1-RC';
-
-//   /**
-//    * Contains the vehicle data.
-//    */
-//   data: {
-//     /**
-//      * Array of vehicles available for rent.
-//      */
-//     vehicles: GBFSVehicleV3[];
-//   };
 // }
 
 // /**

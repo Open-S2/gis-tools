@@ -102,7 +102,7 @@ impl StreamingMedian5 {
 }
 
 /// LAZ Point10 2.0 Reader
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZPoint10v2Reader<T: Reader> {
     /// The arithmetic decoder
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
@@ -303,7 +303,7 @@ impl<T: Reader> ItemReader for LAZPoint10v2Reader<T> {
 }
 
 /// Parse LAZ GPS Time 1.1v2
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZGpsTime11v2Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     m_gpstime_multi: ArithmeticModel,
@@ -479,7 +479,7 @@ impl<T: Reader> ItemReader for LAZGpsTime11v2Reader<T> {
 }
 
 /// Parse LAZ RGB 1.2v2
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZrgb12v2Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     last_item: [u16; 3],
@@ -598,7 +598,7 @@ impl<T: Reader> ItemReader for LAZrgb12v2Reader<T> {
 }
 
 /// LAZ byte reader V2
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZbyte10v2Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     size: u32,

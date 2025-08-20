@@ -193,6 +193,16 @@ pub struct JSONCollectionReader<
     pub features: Vec<VectorFeature<M, P, D>>,
 }
 impl<M: Clone, P: Clone + Default, D: Clone + Default> JSONCollectionReader<M, P, D> {
+    /// Get the length of the collection
+    pub fn len(&self) -> usize {
+        self.features.len()
+    }
+
+    /// Check if the collection is empty
+    pub fn is_empty(&self) -> bool {
+        self.features.is_empty()
+    }
+
     /// Mutable iterator
     pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, VectorFeature<M, P, D>> {
         self.features.iter_mut()
@@ -319,7 +329,9 @@ impl<
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        JSONCollectionIterator { reader: self, offset: start, size: end }
     }
 }

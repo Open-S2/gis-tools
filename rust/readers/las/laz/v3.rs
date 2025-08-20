@@ -30,7 +30,7 @@ const LASZIP_GPSTIME_MULTI_CODE_FULL: i32 = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIM
 const LASZIP_GPSTIME_MULTI_TOTAL: i32 = LASZIP_GPSTIME_MULTI - LASZIP_GPSTIME_MULTI_MINUS + 5;
 
 /// LAS Point 1.4 context
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LASContextPoint14 {
     /// contexts last point
     pub last_item: LASPoint,
@@ -132,7 +132,7 @@ impl Default for LASContextPoint14 {
 }
 
 /// LAS RGB 1.4 context
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LAZContextRGB14 {
     /// true if unused
     pub unused: bool,
@@ -156,7 +156,7 @@ pub struct LAZContextRGB14 {
 }
 
 /// LAS RGB & NIR 1.4 context
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LASContextRGBNir14 {
     /// true if unused
     pub unused: bool,
@@ -186,7 +186,7 @@ pub struct LASContextRGBNir14 {
 }
 
 /// LAS WAVEPACKET 1.4 context
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LASContextWavePacket14<T: Reader> {
     /// true if unused
     pub unused: bool,
@@ -212,7 +212,7 @@ pub struct LASContextWavePacket14<T: Reader> {
 }
 
 /// LAS BYTE 1.4 context
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LAZContextByte14 {
     /// true if unused
     pub unused: bool,
@@ -223,7 +223,7 @@ pub struct LAZContextByte14 {
 }
 
 /// Parse LAZ Point 1.4v3
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZPoint14v3Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     // streams
@@ -1338,7 +1338,7 @@ impl<T: Reader> ItemReader for LAZPoint14v3Reader<T> {
 }
 
 /// Parse LAZ RGB 1.4v3
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZrgb14v3Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     instream_rgb: Option<Rc<RefCell<BufferReader>>>,
@@ -1554,7 +1554,7 @@ impl<T: Reader> ItemReader for LAZrgb14v3Reader<T> {
 }
 
 /// Parse LAZ RGB NIR 1.4v3
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZrgbNir14v3Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     instream_rgb: Option<Rc<RefCell<BufferReader>>>,
@@ -1878,7 +1878,7 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
 }
 
 /// Parse LAZ wavepacket 1.4v3
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZwavepacket14v3Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     instream_wavepacket: Option<BufferReader>,
@@ -2127,7 +2127,7 @@ impl<T: Reader> ItemReader for LAZwavepacket14v3Reader<T> {
 }
 
 /// Parse LAZ RGB 1.4v3
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZbyte14v3Reader<T: Reader> {
     dec: Rc<RefCell<ArithmeticDecoder<T>>>,
     size: u32,

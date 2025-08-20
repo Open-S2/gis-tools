@@ -166,7 +166,14 @@ mod tests {
             ]
         );
 
-        let features: Vec<_> = reader.par_iter(1, 1).collect();
+        let features: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
 
         let metadata = reader.metadata();
         assert_eq!(metadata, GPXMetadata::default());

@@ -100,6 +100,7 @@
 //! - [`crate::readers::GTFSScheduleReader`]: Schedule class that pulls in all of the GTFS schedule files and parses them into a single object
 //! - [`crate::readers::JSONReader`]: Parse (Geo|S2)JSON. Can handle millions of features.
 //! - [`crate::readers::NewLineDelimitedJSONReader`]: Parse (Geo|S2)JSON from a file that is in a newline-delimited format
+//! - [`crate::readers::SequenceJSONReader`]: Parse GeoJSON from a file that is in the `geojson-text-sequences` format.
 //! - [`crate::readers::JSONCollectionReader`]: Data parsed using the [`crate::readers::ToGisJSON`] trait can be coerced into this struct
 //! - [`crate::readers::LASReader`]: Reads LAS data. Supports up to the LAS 1.4 specification.
 //! - [`crate::readers::LAZReader`]: Reads LAS zipped data. Supports LAS 1.4 specification.

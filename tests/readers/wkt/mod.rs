@@ -135,6 +135,8 @@ mod tests {
         assert_eq!(splitted, expected);
 
         let reader = WKTGeometryReader::new(collection_wkt.into());
+        assert_eq!(reader.len(), 6);
+        assert!(!reader.is_empty());
         let features: Vec<_> = reader.iter().collect();
         assert_eq!(features.len(), 6);
     }
@@ -785,7 +787,14 @@ TRIANGLE((0 0 0,0 1 0,1 1 0,0 0 0))"#;
         // buffer
         let bytes = std::fs::read(path.clone()).unwrap();
         let gis_reader = GISReader::from_buffer(bytes, ReaderType::WKT, None);
-        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        let features: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = gis_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
         assert_eq!(features.len(), 6);
     }
 }

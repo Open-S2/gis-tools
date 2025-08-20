@@ -159,7 +159,7 @@ pub struct NadGridMetadata {
 /// ## Links
 /// - <https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf>
 /// - <http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NadGridReader<T: Reader> {
     /// The name of the grid
     pub key: String,
@@ -361,13 +361,16 @@ impl<T: Reader> NadGridReader<T> {
 pub struct NadGridIterator<'a, T: Reader> {
     reader: &'a NadGridReader<T>,
     index: u64,
+    len: u64,
 }
 impl<T: Reader> Iterator for NadGridIterator<'_, T> {
     type Item = NadVectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
         let cdf_reader = &self.reader;
-        if let Some(point) = cdf_reader.get_feature(self.index) {
+        if self.index >= self.len {
+            None
+        } else if let Some(point) = cdf_reader.get_feature(self.index) {
             self.index += 1;
             Some(point)
         } else {
@@ -383,11 +386,15 @@ impl<T: Reader> FeatureReader<NadMetadata, Properties, MValue> for NadGridReader
         T: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        NadGridIterator { reader: self, index: 0 }
+        NadGridIterator { reader: self, index: 0, len: self.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let pool_size = pool_size as u64;
+        let thread_id = thread_id as u64;
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        NadGridIterator { reader: self, index: start, len: end }
     }
 }

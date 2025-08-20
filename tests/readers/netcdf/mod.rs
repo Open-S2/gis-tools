@@ -140,7 +140,15 @@ mod tests {
         );
 
         // par iter
-        let features: Vec<_> = netcdf_reader.par_iter(1, 0).collect();
+        // let features: Vec<_> = netcdf_reader.par_iter(1, 0).collect();
+        let features: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = netcdf_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
         assert_eq!(features.len(), 49);
 
         let geo = features[0].geometry.point().unwrap();

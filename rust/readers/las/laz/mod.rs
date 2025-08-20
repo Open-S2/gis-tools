@@ -22,7 +22,7 @@ use alloc::boxed::Box;
 pub use reader::*;
 
 /// LAZ Item Reader
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ItemReaders<T: Reader> {
     /// LAZ Version 10.1 Point10
     V1Point10(Box<v1::LAZPoint10v1Reader<T>>),

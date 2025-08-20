@@ -676,6 +676,16 @@ mod tests {
         let las_reader = LAZReader::new(FileReader::from(path.clone()), None);
         let features = las_reader.iter().collect::<Vec<_>>();
         assert_eq!(features.len(), 1_065);
+
+        let features: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = las_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
+        assert_eq!(features.len(), 1_065);
     }
 
     #[test]

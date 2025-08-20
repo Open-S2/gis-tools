@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use std::ops::AddAssign;
+use core::ops::AddAssign;
 
 /// Decode a block using the specified predictor (u8 version)
 pub fn decode_row_acc_u8(row: &mut [u8], stride: usize) {

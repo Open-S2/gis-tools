@@ -68,7 +68,7 @@ pub type LASVectorFeature = VectorFeature<(), Properties, LASPoint>;
 /// - <https://github.com/PDAL/PDAL>
 /// - <https://github.com/libLAS/libLAS> (deprecated for PDAL)
 /// - <https://github.com/LASzip>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LASReader<T: Reader> {
     reader: T,
     /// Public Header Block
@@ -184,13 +184,16 @@ impl<T: Reader> LASReader<T> {
 pub struct LASIterator<'a, T: Reader> {
     reader: &'a LASReader<T>,
     index: u64,
+    len: u64,
 }
 impl<T: Reader> Iterator for LASIterator<'_, T> {
     type Item = LASVectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
         let las = &self.reader;
-        if let Some(point) = las.get_feature(self.index) {
+        if self.index >= self.len {
+            None
+        } else if let Some(point) = las.get_feature(self.index) {
             self.index += 1;
             Some(point)
         } else {
@@ -206,12 +209,16 @@ impl<T: Reader> FeatureReader<(), Properties, LASPoint> for LASReader<T> {
         T: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        LASIterator { reader: self, index: 0 }
+        LASIterator { reader: self, index: 0, len: self.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let pool_size = pool_size as u64;
+        let thread_id = thread_id as u64;
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        LASIterator { reader: self, index: start, len: end }
     }
 }
 

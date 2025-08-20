@@ -1,6 +1,6 @@
 use crate::parsers::{FeatureReader, Reader};
 use alloc::{
-    collections::VecDeque,
+    collections::{BTreeMap, VecDeque},
     string::{String, ToString},
     vec,
     vec::Vec,
@@ -11,7 +11,6 @@ use s2json::{
     VectorPoint,
 };
 use serde::de::DeserializeOwned;
-use std::collections::BTreeMap;
 
 /// User defined options on how to parse the CSV file
 #[derive(Debug, Default)]
@@ -28,21 +27,23 @@ pub struct CSVReaderOptions {
     pub height_key: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct CSVParser {
     first_line: bool,
     fields: Vec<String>,
     offset: u64,
+    end: u64,
     partial_line: String,
     parsed_lines: VecDeque<String>,
 }
 impl CSVParser {
     /// Create a new CSVParser
-    pub fn new() -> Self {
+    pub fn new(end: u64) -> Self {
         Self {
             first_line: true,
             fields: vec![],
             offset: 0,
+            end,
             partial_line: String::new(),
             parsed_lines: VecDeque::new(),
         }
@@ -111,7 +112,7 @@ impl CSVParser {
 /// ## Links
 /// - <https://en.wikipedia.org/wiki/Comma-separated_values>
 /// - <https://cesium.com/blog/2015/04/07/quadtree-cheatseet/>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CSVReader<T: Reader, P: MValueCompatible + DeserializeOwned = MValue> {
     reader: T,
     delimiter: char,
@@ -133,6 +134,7 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
     /// A new [`CSVReader`]
     pub fn new(reader: T, options: Option<CSVReaderOptions>) -> CSVReader<T, P> {
         let options = options.unwrap_or_default();
+        let len = reader.len();
         CSVReader {
             reader,
             delimiter: options.delimiter.unwrap_or(','),
@@ -140,9 +142,40 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
             lon_key: options.lon_key.unwrap_or("lon".into()),
             lat_key: options.lat_key.unwrap_or("lat".into()),
             height_key: options.height_key,
-            parser: RefCell::new(CSVParser::new()),
+            parser: RefCell::new(CSVParser::new(len)),
             _phantom: PhantomData,
         }
+    }
+
+    /// Set a new position in the file for parallel processing
+    pub fn par_seek(&self, pool_size: u64, thread_id: u64) {
+        // FIRST we run next_feature just to set the contents of the parser (specifically the fields)
+        {
+            *self.parser.borrow_mut() = CSVParser::new(self.reader.len());
+            self.next_feature();
+        }
+        // setup chunk size, start and end
+        let len = self.reader.len();
+        let chunk_size = len.div_ceil(pool_size);
+        let mut start = thread_id.saturating_mul(chunk_size);
+        let mut end = u64::min(start + chunk_size, len);
+        // align to separators
+        if thread_id > 0 {
+            start = align_to_line_delimiter(&self.reader, start, end, self.line_delimiter);
+        }
+        if thread_id < pool_size - 1 {
+            end = align_to_line_delimiter(&self.reader, end, len, self.line_delimiter);
+        }
+        // update parser
+        let mut parser = self.parser.borrow_mut();
+        if thread_id == 0 {
+            *parser = CSVParser::new(end);
+        } else {
+            parser.partial_line.clear();
+            parser.parsed_lines.clear();
+        }
+        parser.offset = start;
+        parser.end = end;
     }
 
     /// Grab the next feature if it exists
@@ -163,8 +196,8 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
         }
 
         // Read more if we're not done
-        if parser.offset < self.reader.len() {
-            let length = u64::min(65_536, self.reader.len() - parser.offset);
+        if parser.offset < parser.end {
+            let length = u64::min(65_536, parser.end - parser.offset);
             let chunk = parser.partial_line.clone()
                 + &self.reader.parse_string(Some(parser.offset), Some(length));
             parser.offset += length;
@@ -271,14 +304,15 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, MVa
         P: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        *self.parser.borrow_mut() = CSVParser::new();
+        *self.parser.borrow_mut() = CSVParser::new(self.reader.len());
         CSVIterator { reader: self }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        *self.parser.borrow_mut() = CSVParser::new();
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        *self.parser.borrow_mut() = CSVParser::new(self.reader.len());
+        self.par_seek(pool_size as u64, thread_id as u64);
+        CSVIterator { reader: self }
     }
 }
 
@@ -418,4 +452,19 @@ pub fn parse_csv_line(line: &str, delimiter: char) -> Vec<String> {
     }
 
     result
+}
+
+// Helper function to align to delimiters if using parallel processing
+fn align_to_line_delimiter<R: Reader>(reader: &R, mut pos: u64, end: u64, sep: char) -> u64 {
+    let sep_u8 = sep as u8;
+
+    while pos < end {
+        let len = u64::min(65_536, end - pos);
+        let chunk = reader.parse_string(Some(pos), Some(len));
+        if let Some(rel) = chunk.as_bytes().iter().position(|&b| b == sep_u8) {
+            return pos + rel as u64 + 1; // move past delimiter
+        }
+        pos += len;
+    }
+    end
 }

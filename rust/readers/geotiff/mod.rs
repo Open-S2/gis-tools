@@ -107,6 +107,7 @@ pub struct GeoTIFFOptions {
 /// - <https://download.osgeo.org/geotiff/spec/tiff6.pdf>
 /// - <https://geospatialworld.net/article/geotiff-a-standard-image-file-format-for-gis-applications/>
 /// - <https://docs.ogc.org/is/19-008r4/19-008r4.html>
+/// - <https://gitlab.com/libtiff/libtiff>
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct GeoTIFFReader<T: Reader> {
     reader: Rc<RefCell<T>>,
@@ -167,12 +168,15 @@ impl<T: Reader> GeoTIFFReader<T> {
 pub struct GeoTIFFIterator<'a, T: Reader> {
     reader: &'a GeoTIFFReader<T>,
     index: usize,
+    end: usize,
 }
 impl<T: Reader> Iterator for GeoTIFFIterator<'_, T> {
     type Item = GeoTIFFVectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(mut point) = self.reader.get_image(Some(self.index)) {
+        if self.index >= self.end {
+            None
+        } else if let Some(mut point) = self.reader.get_image(Some(self.index)) {
             self.index += 1;
             Some(point.get_multi_point_vector())
         } else {
@@ -188,11 +192,13 @@ impl<T: Reader> FeatureReader<GeoTIFFMetadata, Properties, RGBA> for GeoTIFFRead
         T: 'a;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        GeoTIFFIterator { reader: self, index: 0 }
+        GeoTIFFIterator { reader: self, index: 0, end: self.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        GeoTIFFIterator { reader: self, index: start, end }
     }
 }

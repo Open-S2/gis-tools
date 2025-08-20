@@ -525,7 +525,16 @@ mod tests {
         path.push("tests/readers/geotiff/fixtures/ycbcr.tif");
         let bytes = std::fs::read(path.clone()).unwrap();
         let geotiff = GISReader::from_buffer(bytes, ReaderType::GeoTIFF, None);
-        let grid: Vec<_> = geotiff.par_iter(1, 0).collect();
+
+        let grid: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = geotiff.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
+
         assert_eq!(grid.len(), 1);
     }
 

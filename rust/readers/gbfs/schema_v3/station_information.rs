@@ -8,7 +8,7 @@
 //  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.1-RC/gbfs.md#station_informationjson)
 //  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.0/gbfs.md#station_informationjson)
 //  */
-// export type GBFSStationInformationV3 = GBFSStationInformationV31RC | GBFSStationInformationV30;
+// export type GBFSStationInformationV3 = GBFSStationInformationV30;
 
 // /**
 //  * Information about a single station.
@@ -181,44 +181,6 @@
 //      * **Format**: uri
 //      */
 //     web?: string;
-//   };
-// }
-
-// /**
-//  * # GBFS Station Information Schema V3.1-RC
-//  * List of all stations, their capacities, and locations. REQUIRED for systems utilizing docks.
-//  *
-//  * ## Links
-//  * - [GBFS Specification](https://github.com/MobilityData/gbfs/blob/v3.1-RC/gbfs.md#station_informationjson)
-//  */
-// export interface GBFSStationInformationV31RC {
-//   /**
-//    * Last time the data in the feed was updated in RFC3339 format.
-//    * **Format**: date-time
-//    */
-//   last_updated: string;
-
-//   /**
-//    * Number of seconds before the data in the feed will be updated again
-//    * (0 if the data should always be refreshed).
-//    * **Minimum**: 0
-//    */
-//   ttl: number;
-
-//   /**
-//    * GBFS version number to which the feed conforms, according to the versioning framework (added in v1.1).
-//    * **Const**: 3.1-RC
-//    */
-//   version: '3.1-RC';
-
-//   /**
-//    * Contains station data for the system.
-//    */
-//   data: {
-//     /**
-//      * Array of stations, each containing location, capacity, and other metadata.
-//      */
-//     stations: GBFSStationV3[];
 //   };
 // }
 

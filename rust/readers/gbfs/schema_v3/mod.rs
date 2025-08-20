@@ -1,3 +1,7 @@
+mod gbfs_versions;
+
+pub use gbfs_versions::*;
+
 // import { toVector } from '../../../index.js';
 
 // import type {

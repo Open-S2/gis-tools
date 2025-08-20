@@ -116,6 +116,16 @@ mod tests {
 
         let tiles: Vec<_> = reader.iter().collect();
         assert_eq!(tiles.len(), 4);
+
+        let tiles: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let read = reader.clone();
+                let res: Vec<_> = read.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
+        assert_eq!(tiles.len(), 4);
     }
 
     #[test]

@@ -23,7 +23,7 @@ use core::{cell::RefCell, fmt::Debug};
 use s2json::{Properties, VectorFeature, VectorGeometry, VectorPoint};
 
 /// A state for the decompression
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZState<T: Reader + Debug> {
     chunk_size: u32,
     chunk_count: u32,
@@ -112,7 +112,7 @@ impl<T: Reader + Debug> LAZState<T> {
 /// - <https://github.com/PDAL/PDAL>
 /// - <https://github.com/libLAS/libLAS> (deprecated for PDAL)
 /// - <https://github.com/LASzip>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LAZReader<T: Reader + Debug> {
     reader: Rc<RefCell<T>>,
     /// LAS Header Block
@@ -472,12 +472,16 @@ impl<T: Reader + Debug> LAZReader<T> {
 pub struct LAZIterator<'a, T: Reader + Debug> {
     reader: &'a LAZReader<T>,
     index: u64,
+    len: u64,
 }
 impl<T: Reader + Debug> Iterator for LAZIterator<'_, T> {
     type Item = LASVectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
         let las = &self.reader;
+        if self.index >= self.len {
+            return None;
+        }
         self.index += 1;
         if self.index > las.len() {
             return None;
@@ -495,13 +499,22 @@ impl<T: Reader + Debug> FeatureReader<(), Properties, LASPoint> for LAZReader<T>
     fn iter(&self) -> Self::FeatureIterator<'_> {
         self.reader.borrow().seek(self.header.offset_to_points as u64);
         self.state.borrow_mut().setup(&self.laz_header);
-        LAZIterator { reader: self, index: 0 }
+        LAZIterator { reader: self, index: 0, len: self.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         self.reader.borrow().seek(self.header.offset_to_points as u64);
         self.state.borrow_mut().setup(&self.laz_header);
-        self.iter()
+
+        let pool_size = pool_size as u64;
+        let thread_id = thread_id as u64;
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        // run get_point as many times as it takes to start at the correct position
+        for _ in 0..start {
+            self.get_point();
+        }
+        LAZIterator { reader: self, index: start, len: end }
     }
 }

@@ -29,7 +29,7 @@ pub const DM_LENGTH_SHIFT: u32 = 15;
 pub const DM_MAX_COUNT: u32 = 1 << DM_LENGTH_SHIFT;
 
 /// A "Corrector" wrapper that handles two type of arithmetic models
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Corrector {
     /// ArithmeticModel
     ArithmeticModel(ArithmeticModel),

@@ -84,9 +84,9 @@ mod tests {
             name: String,
         }
 
-        let reader = CSVReader::new(FileReader::from(path), None);
+        let csv_reader = CSVReader::new(FileReader::from(path), None);
 
-        let features: Vec<VectorFeature<(), Test, MValue>> = reader.iter().collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = csv_reader.iter().collect();
 
         assert_eq!(
             features,
@@ -128,7 +128,15 @@ mod tests {
             ]
         );
 
-        let features: Vec<VectorFeature<(), Test, MValue>> = reader.par_iter(1, 1).collect();
+        // let features: Vec<VectorFeature<(), Test, MValue>> = csv_reader.par_iter(1, 0).collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = csv_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
 
         assert_eq!(
             features,

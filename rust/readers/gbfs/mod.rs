@@ -1,10 +1,12 @@
 mod schema_v1;
 mod schema_v2;
+mod schema_v3;
 
 use crate::readers::parse_csv_as_btree;
 use alloc::{format, string::String, vec, vec::Vec};
 pub use schema_v1::*;
 pub use schema_v2::*;
+pub use schema_v3::*;
 use serde::{Deserialize, Deserializer, Serialize};
 
 /// Contains rental URIs for Android, iOS, and web (added in v1.1).

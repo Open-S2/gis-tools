@@ -46,7 +46,7 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 /// - [`GPXReader::new`]: Create a new GPXReader
 /// - [`GPXReader::metadata`]: Get the metadata
 /// - [`GPXReader::iter`]: Iterate over the features
-/// - [`GPXReader::par_iter`]: Iterate over the features
+/// - [`GPXReader::par_iter`]: Iterate over the features in parallel
 ///
 /// ```rust
 /// use gistools::{
@@ -67,7 +67,7 @@ pub type GPXVectorFeature = VectorFeature<(), GPXProperties, GPXWaypoint>;
 ///
 /// ## Links
 /// - <https://www.topografix.com/gpx.asp>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GPXReader {
     /// GPX object
     pub gpx: GPX,
@@ -129,8 +129,26 @@ impl FeatureReader<(), GPXProperties, GPXWaypoint> for GPXReader {
         }
     }
 
+    // GPX is so simple that there is no reason to make paralle work
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let mut wpt_count = self.gpx.wpt.as_ref().map(|w| w.len()).unwrap_or_default();
+        let mut rte_count = self.gpx.rte.as_ref().map(|r| r.len()).unwrap_or_default();
+        let mut trk_count = self.gpx.trk.as_ref().map(|t| t.len()).unwrap_or_default();
+        let wpt_offset = wpt_count * thread_id / pool_size;
+        wpt_count = wpt_count * (thread_id + 1) / pool_size;
+        let rte_offset = rte_count * thread_id / pool_size;
+        rte_count = rte_count * (thread_id + 1) / pool_size;
+        let trk_offset = trk_count * thread_id / pool_size;
+        trk_count = trk_count * (thread_id + 1) / pool_size;
+        GPXIterator {
+            reader: self,
+            wpt_offset,
+            wpt_count,
+            rte_offset,
+            rte_count,
+            trk_offset,
+            trk_count,
+        }
     }
 }

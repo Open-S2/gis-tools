@@ -188,7 +188,7 @@ impl From<&str> for ReaderType {
 /// let reader = GISReader::from_buffer(bytes, ReaderType::CSV, None);
 /// let features: Vec<VectorFeature<(), Properties, MValue>> = reader.iter().collect();
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum GISReader<T: Reader + Debug> {
     /// CSV data
     CSV(Box<CSVReader<T, Properties>>),

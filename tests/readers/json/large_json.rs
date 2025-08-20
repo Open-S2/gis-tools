@@ -14,7 +14,7 @@ mod tests {
     use std::{path::PathBuf, vec, vec::Vec};
 
     #[test]
-    fn test_json_line() {
+    fn test_json_large() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/json/fixtures/points.geojson");
 
@@ -23,8 +23,8 @@ mod tests {
             name: String,
         }
 
-        let line_del_reader = JSONReader::new(FileReader::from(path.clone()));
-        let features: Vec<VectorFeature<(), Test, MValue>> = line_del_reader.collect();
+        let large_json_reader = JSONReader::new(FileReader::from(path.clone()));
+        let features: Vec<VectorFeature<(), Test, MValue>> = large_json_reader.collect();
 
         assert_eq!(
             features,
@@ -122,8 +122,8 @@ mod tests {
             ]
         );
 
-        let line_del_reader = JSONReader::new(FileReader::from(path));
-        let features: Vec<VectorFeature<(), Test, MValue>> = line_del_reader.iter().collect();
+        let large_json_reader = JSONReader::new(FileReader::from(path));
+        let features: Vec<VectorFeature<(), Test, MValue>> = large_json_reader.iter().collect();
 
         assert_eq!(
             features,
@@ -221,8 +221,16 @@ mod tests {
             ]
         );
 
-        let features: Vec<VectorFeature<(), Test, MValue>> =
-            line_del_reader.par_iter(1, 0).collect();
+        // let features: Vec<VectorFeature<(), Test, MValue>> =
+        //     large_json_reader.par_iter(1, 0).collect();
+        let features: Vec<VectorFeature<(), Test, MValue>> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = large_json_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
 
         assert_eq!(
             features,
@@ -326,8 +334,8 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/json/fixtures/larger.geojson");
 
-        let line_del_reader = JSONReader::new(FileReader::from(path.clone()));
-        let features: Vec<VectorFeature<(), Properties, MValue>> = line_del_reader.collect();
+        let large_json_reader = JSONReader::new(FileReader::from(path.clone()));
+        let features: Vec<VectorFeature<(), Properties, MValue>> = large_json_reader.collect();
 
         assert_eq!(features.len(), 1_064);
     }

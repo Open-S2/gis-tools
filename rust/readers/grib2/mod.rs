@@ -502,7 +502,7 @@ impl<T: Reader> From<Vec<BufferReader>> for GRIB2ReaderInput<T> {
 /// ## Links
 /// - <https://en.wikipedia.org/wiki/GRIB>
 /// - <https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GRIB2Reader {
     /// The GRIB2 packets
     pub packets: RefCell<Vec<Grib2Sections>>,
@@ -626,8 +626,8 @@ impl FeatureReader<Vec<Grib2ProductDefinition>, Properties, MValue> for GRIB2Rea
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, _pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        if thread_id == 0 { self.iter() } else { GRIB2Iterator { reader: self, done: true } }
     }
 }
 

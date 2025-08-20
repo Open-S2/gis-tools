@@ -69,7 +69,7 @@ pub type WKTArray = Vec<WKTAValue>;
 ///
 /// ## Links
 /// - <https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WKTGeometryReader {
     /// The parsed WKT geometries
     pub features: Vec<VectorFeature>,
@@ -87,17 +87,31 @@ impl WKTGeometryReader {
         }
         WKTGeometryReader { features }
     }
+
+    /// Get the number of features
+    pub fn len(&self) -> usize {
+        self.features.len()
+    }
+
+    /// Check if the reader is empty
+    pub fn is_empty(&self) -> bool {
+        self.features.is_empty()
+    }
 }
 /// The WKT Iterator tool
 #[derive(Debug)]
 pub struct WKTIterator<'a> {
     reader: &'a WKTGeometryReader,
     index: usize,
+    len: usize,
 }
 impl Iterator for WKTIterator<'_> {
     type Item = VectorFeature;
 
     fn next(&mut self) -> Option<Self::Item> {
+        if self.index >= self.len {
+            return None;
+        }
         self.index += 1;
         self.reader.features.get(self.index - 1).cloned()
     }
@@ -107,12 +121,14 @@ impl FeatureReader<(), Properties, MValue> for WKTGeometryReader {
     type FeatureIterator<'a> = WKTIterator<'a>;
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
-        WKTIterator { reader: self, index: 0 }
+        WKTIterator { reader: self, index: 0, len: self.features.len() }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let start = self.len() * thread_id / pool_size;
+        let end = self.len() * (thread_id + 1) / pool_size;
+        WKTIterator { reader: self, index: start, len: end }
     }
 }
 

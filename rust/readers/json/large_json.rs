@@ -12,12 +12,15 @@ use core::{cell::RefCell, marker::PhantomData};
 use s2json::{Features, MValue, VectorFeature};
 use serde::de::DeserializeOwned;
 
+// TODO: Currently a mediocre solution for multi-threading, but it works for now.
+// Ideally, we find a position in the file at `(length / pool_size) * thread_id` and read from there.
+
 const LEFT_BRACE: u8 = 0x7b;
 const RIGHT_BRACE: u8 = 0x7d;
 const BACKSLASH: u8 = 0x5c;
 const STRING: u8 = 0x22;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct JSONParser {
     buffer: Vec<u8>,
     chunk_size: u64,
@@ -80,7 +83,7 @@ impl JSONParser {
 /// let features: Vec<_> = reader.iter().collect();
 /// assert_eq!(features.len(), 3);
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JSONReader<
     T: Reader,
     M: Clone + DeserializeOwned = (),
@@ -232,9 +235,6 @@ impl<
             parser.offset += parser.chunk_size;
             if parser.offset < self.length {
                 parser.pos = if increment_space > 0 { increment_space } else { 0 };
-                if parser.offset + parser.chunk_size > self.length {
-                    parser.chunk_size = self.length - parser.offset;
-                }
                 parser.chunk_size = u64::min(65_536, self.length - parser.offset);
                 parser.buffer =
                     self.reader.slice(Some(parser.offset), Some(parser.offset + parser.chunk_size));
@@ -268,6 +268,9 @@ pub struct JSONIterator<
     D: Clone + Default + DeserializeOwned,
 > {
     reader: &'a JSONReader<T, M, P, D>,
+    index: u64,
+    pool_size: u64,
+    thread_id: u64,
 }
 impl<
     T: Reader,
@@ -279,6 +282,13 @@ impl<
     type Item = VectorFeature<M, P, D>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        while self.pool_size > 1 && self.index % self.pool_size != self.thread_id {
+            // skip, belongs to another thread
+            self.index += 1;
+            self.reader.next_feature();
+            continue;
+        }
+        self.index += 1;
         self.reader.next_feature()
     }
 }
@@ -300,11 +310,17 @@ impl<
 
     fn iter(&self) -> Self::FeatureIterator<'_> {
         self.reset();
-        JSONIterator { reader: self }
+        JSONIterator { reader: self, index: 0, pool_size: 1, thread_id: 0 }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        self.reset();
+        JSONIterator {
+            reader: self,
+            index: 0,
+            pool_size: pool_size as u64,
+            thread_id: thread_id as u64,
+        }
     }
 }

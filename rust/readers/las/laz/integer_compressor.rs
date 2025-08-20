@@ -9,7 +9,7 @@ const I32_MIN: i32 = 0x80000000u32 as i32;
 const I32_MAX: i32 = 0x7fffffffu32 as i32;
 
 /// <https://github.com/LASzip/LASzip/blob/master/src/integercompressor.cpp>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IntegerCompressor<T: Reader> {
     /// Arithmetic decoder
     pub dec: Rc<RefCell<ArithmeticDecoder<T>>>,

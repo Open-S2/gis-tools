@@ -13,7 +13,7 @@ pub type GBFSVersionsV2 = GBFSVersionsV23;
 
 /// GBFS Versions Version scheme
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSVersionsVersion {
+pub struct GBFSVersionsVersion20 {
     /// The semantic version of the feed in the form X.Y.
     /// **Enum**: "1.0", "1.1", "2.0", "2.1", "2.2", "2.3", "3.0"
     pub version: String,
@@ -24,10 +24,10 @@ pub struct GBFSVersionsVersion {
 
 /// Response data in the form of name:value pairs.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSVersionsData {
+pub struct GBFSVersionsData20 {
     /// Contains one object for each of the available versions of a feed.
     /// The array must be sorted by increasing MAJOR and MINOR version number.
-    pub versions: Vec<GBFSVersionsVersion>,
+    pub versions: Vec<GBFSVersionsVersion20>,
 }
 
 /// # GBFS Versions V2.3
@@ -47,7 +47,7 @@ pub struct GBFSVersionsV23 {
     /// **Const**: 2.3
     pub version: String,
     /// Response data in the form of name:value pairs.
-    pub data: GBFSVersionsData,
+    pub data: GBFSVersionsData20,
 }
 
 /// # GBFS Versions V2.2
@@ -67,7 +67,7 @@ pub struct GBFSVersionsV22 {
     /// **Const**: 2.2
     pub version: String,
     /// Response data in the form of name:value pairs.
-    pub data: GBFSVersionsData,
+    pub data: GBFSVersionsData20,
 }
 
 /// # GBFS Versions V2.1
@@ -87,7 +87,7 @@ pub struct GBFSVersionsV21 {
     /// **Const**: 2.1
     pub version: String,
     /// Response data in the form of name:value pairs.
-    pub data: GBFSVersionsData,
+    pub data: GBFSVersionsData20,
 }
 
 /// # GBFS Versions V2.0
@@ -107,5 +107,5 @@ pub struct GBFSVersionsV20 {
     /// **Const**: 2.0
     pub version: String,
     /// Response data in the form of name:value pairs.
-    pub data: GBFSVersionsData,
+    pub data: GBFSVersionsData20,
 }

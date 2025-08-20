@@ -54,7 +54,7 @@ use std::{
 /// ## Links
 /// - <https://satakagi.github.io/mapsForWebWS2020-docs/QuadTreeCompositeTilingAndVectorTileStandard.html>
 /// - <https://cesium.com/blog/2015/04/07/quadtree-cheatseet/>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RasterTileFetcher<D: Clone + Default + GetRasterTileValue> {
     path: PathBuf,
     threshold: Option<u8>,
@@ -121,12 +121,36 @@ impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, D, D>
             }
         }
         let threshold = self.threshold.unwrap_or(*maxzoom);
-        RasterIterator { container: self, stack, minzoom: *minzoom, threshold }
+        RasterIterator {
+            container: self,
+            stack,
+            minzoom: *minzoom,
+            threshold,
+            pool_size: 1,
+            thread_id: 0,
+            index: 0,
+        }
     }
 
     #[cfg(feature = "std")]
-    fn par_iter(&self, _pool_size: usize, _thread_id: usize) -> Self::FeatureIterator<'_> {
-        self.iter()
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let Metadata { minzoom, maxzoom, .. } = self.get_metadata();
+        let mut stack = vec![(0.into(), 0, 0, 0)];
+        if self.is_s2() {
+            for face in [Face::Face1, Face::Face2, Face::Face3, Face::Face4, Face::Face5] {
+                stack.push((face, 0, 0, 0));
+            }
+        }
+        let threshold = self.threshold.unwrap_or(*maxzoom);
+        RasterIterator {
+            container: self,
+            stack,
+            minzoom: *minzoom,
+            threshold,
+            pool_size: pool_size as u64,
+            thread_id: thread_id as u64,
+            index: 0,
+        }
     }
 }
 
@@ -137,6 +161,9 @@ pub struct RasterIterator<'a, D: Clone + Default + GetRasterTileValue> {
     stack: Vec<(Face, u8, u32, u32)>,
     minzoom: u8,
     threshold: u8,
+    pool_size: u64,
+    thread_id: u64,
+    index: u64,
 }
 impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D> {
     type Item = VectorFeature<TileMetadata, D, D>;
@@ -158,6 +185,11 @@ impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D>
                 ]);
                 continue;
             } else if zoom == self.threshold && has_tile {
+                let idx = self.index;
+                self.index += 1;
+                if self.pool_size > 1 && idx % self.pool_size != self.thread_id {
+                    continue; // skip, belongs to another thread
+                }
                 let tile = if is_s2 {
                     self.container.get_tile_s2(face, zoom, x, y)
                 } else {

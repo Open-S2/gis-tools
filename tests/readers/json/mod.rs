@@ -125,7 +125,8 @@ mod tests {
         );
 
         let mut collection = JSONCollectionReader::from(&mut json);
-        assert_eq!(collection.features.len(), 1);
+        assert_eq!(collection.len(), 1);
+        assert!(!collection.is_empty());
 
         let data: Vec<VectorFeature<(), Test, MValue>> = collection.iter().collect();
 

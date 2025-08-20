@@ -623,6 +623,26 @@ mod tests {
     }
 
     #[test]
+    fn test_json_line_delimited_larger_parallel() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/json/fixtures/larger.jsonld");
+
+        let line_del_reader: NewLineDelimitedJSONReader<FileReader, (), Properties, MValue> =
+            NewLineDelimitedJSONReader::new(FileReader::from(path.clone()), None);
+
+        let features: Vec<VectorFeature<(), Properties, MValue>> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = line_del_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
+
+        assert_eq!(features.len(), 1_064);
+    }
+
+    #[test]
     fn test_jsonld_gis_reader() {
         // file
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

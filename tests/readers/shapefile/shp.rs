@@ -256,7 +256,15 @@ mod tests {
         path.push("tests/readers/shapefile/fixtures/utf.zip");
         let bytes = std::fs::read(path).unwrap();
         let gis_reader = GISReader::from_buffer(bytes, ReaderType::Shapefile, None);
-        let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        // let features: Vec<_> = gis_reader.par_iter(1, 0).collect();
+        let features: Vec<_> = (0..3usize)
+            .into_iter()
+            .flat_map(|thread_id| {
+                let reader = gis_reader.clone();
+                let res: Vec<_> = reader.par_iter(3, thread_id).collect();
+                res
+            })
+            .collect();
         assert_eq!(features.len(), 2);
     }
 }
