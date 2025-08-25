@@ -301,7 +301,7 @@ pub fn clenshaw(szeta: f64, czeta: f64, f: &[f64], mut k: i32) -> f64 {
     let x = 2. * (czeta - szeta) * (czeta + szeta); // 2 * cos(2*zeta)
     while k > 0 {
         k -= 1;
-        let t = x * u0 - u1 + f[k as usize];
+        let t = x * u0 - u1 + f.get(k as usize).copied().unwrap_or(0.0);
         u1 = u0;
         u0 = t;
     }

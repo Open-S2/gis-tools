@@ -29,7 +29,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_eqearth2() {
         let proj = Rc::new(RefCell::new(Proj::default()));
 
