@@ -6,7 +6,7 @@ mod tests {
 
     use gistools::proj::{
         CoordinateStep, Coords, EQUAL_EARTH, EqualEarthProjection, Proj, ProjectCoordinates,
-        derive_eccentricity, derive_sphere,
+        derive_sphere,
     };
 
     #[test]
@@ -39,7 +39,6 @@ mod tests {
             let proj = &mut proj.borrow_mut();
             proj.ellps = "GRS80".to_string();
             derive_sphere(proj);
-            derive_eccentricity(proj);
         }
 
         let mut coords = Coords::new_xy(0., 0.);

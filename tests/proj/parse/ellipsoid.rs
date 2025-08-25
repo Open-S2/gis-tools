@@ -68,8 +68,7 @@ mod tests {
         let mut proj = Proj { a: 0.0, ellps: "WGS84".to_string(), ..Default::default() };
         derive_sphere(&mut proj);
         assert_eq!(proj.a, WGS84.a);
-        // assert_eq!(proj.b, WGS84.b.unwrap());
-        assert_eq!(proj.rf, WGS84.rf.unwrap());
+        assert_eq!(proj.rf, 298.25722356300156);
     }
 
     #[test]
@@ -83,7 +82,7 @@ mod tests {
     fn test_derive_sphere_computes_rf_from_b() {
         let mut proj = Proj { a: 6378137.0, b: 6356752.314245, ..Default::default() };
         derive_sphere(&mut proj);
-        assert!((proj.rf - 0.003352810664747).abs() < 1e-12);
+        assert_eq!(proj.rf, 298.257223560493);
     }
 
     #[test]

@@ -8,7 +8,7 @@ use crate::{
         LONGITUDE_OF_FALSE_ORIGIN, LONGITUDE_OF_NATURAL_ORIGIN, LONGITUDE_OF_ORIGIN,
         LONGITUDE_OF_PROJECTION_CENTRE, MIN2R, Proj, ProjJSON, ProjectionTransform,
         SCALE_FACTOR_AT_NATURAL_ORIGIN, SEC2R, Step, Transformer, US_FT_TO_M, US_MOD_FT_TO_M,
-        derive_eccentricity, derive_sphere,
+        derive_sphere,
     },
     readers::{GeoKeyDirectoryKeys as GKD, GeoStore},
 };
@@ -103,7 +103,6 @@ pub fn build_transform_from_geo_keys(transformer: &mut Transformer, store: &GeoS
             proj.rf = rf;
         }
         derive_sphere(proj);
-        derive_eccentricity(proj);
         // to meter
         let proj_linear_units_geo_key = store.get_short(GKD::ProjLinearUnitsGeoKey as u16);
         let vertical_units_geo_key = store.get_short(GKD::VerticalUnitsGeoKey as u16);

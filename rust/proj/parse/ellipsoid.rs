@@ -1,6 +1,40 @@
 use crate::proj::{Proj, RA4, RA6, SIXTH};
 use libm::{asin, cos, sin, sqrt, tan};
 
+/// Builds a sphere with ellipsoid parameters
+///
+/// ## Parameters
+/// - `proj`: an object with/wihtout sphere properties and builds the sphere
+pub fn derive_sphere(proj: &mut Proj) {
+    if proj.a == 0.0 {
+        // do we have an ellipsoid? Then update the ellipsoid
+        let ellipse = get_ellipsoid(&proj.ellps).unwrap_or(WGS84);
+        proj.a = ellipse.a;
+        if let Some(b) = ellipse.b {
+            proj.b = b;
+        }
+        if let Some(rf) = ellipse.rf {
+            proj.rf = rf;
+        }
+    }
+    if proj.b == 0.0 && proj.rf != 0.0 {
+        proj.b = (1. - 1. / proj.rf) * proj.a;
+    }
+    if proj.b != 0.0 && proj.rf == 0.0 {
+        let a = proj.a;
+        let b = proj.b;
+        proj.rf = (a - b) / a;
+    }
+    let rf = proj.rf;
+    let a = proj.a;
+    if rf == 0.0 || (proj.b != 0.0 && (a - proj.b).abs() < f64::EPSILON) {
+        proj.sphere = true;
+        proj.b = proj.a;
+    }
+
+    derive_eccentricity(proj);
+}
+
 /// Derives an ellipsoid's eccentricity for an object
 ///
 /// ## Parameters
@@ -61,38 +95,6 @@ pub fn derive_eccentricity(proj: &mut Proj) {
 
     // Second eccentricity squared
     proj.e2 = (a2 - b2) / b2;
-}
-
-/// Builds a sphere with ellipsoid parameters
-///
-/// ## Parameters
-/// - `proj`: an object with/wihtout sphere properties and builds the sphere
-pub fn derive_sphere(proj: &mut Proj) {
-    if proj.a == 0.0 {
-        // do we have an ellipsoid? Then update the ellipsoid
-        let ellipse = get_ellipsoid(&proj.ellps).unwrap_or(WGS84);
-        proj.a = ellipse.a;
-        if let Some(b) = ellipse.b {
-            proj.b = b;
-        }
-        if let Some(rf) = ellipse.rf {
-            proj.rf = rf;
-        }
-    }
-    if proj.b == 0.0 && proj.rf != 0.0 {
-        proj.b = (1. - 1. / proj.rf) * proj.a;
-    }
-    if proj.b != 0.0 && proj.rf == 0.0 {
-        let a = proj.a;
-        let b = proj.b;
-        proj.rf = (a - b) / a;
-    }
-    let rf = proj.rf;
-    let a = proj.a;
-    if rf == 0.0 || (proj.b != 0.0 && (a - proj.b).abs() < f64::EPSILON) {
-        proj.sphere = true;
-        proj.b = proj.a;
-    }
 }
 
 /// ellipsoid constants

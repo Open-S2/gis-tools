@@ -1,7 +1,7 @@
 // https://docs.ogc.org/is/18-010r7/18-010r7.html
 use crate::proj::{
-    AxisSwapConverter, CoordinateStep, Proj, ProjectionTransform, Step, derive_eccentricity,
-    derive_sphere, name_to_unit, to_camel_case,
+    AxisSwapConverter, CoordinateStep, Proj, ProjectionTransform, Step, derive_sphere,
+    name_to_unit, to_camel_case,
 };
 use alloc::{
     boxed::Box,
@@ -2474,7 +2474,6 @@ impl Ellipsoid {
             proj.rf = 0.0;
         }
         derive_sphere(proj);
-        derive_eccentricity(proj);
     }
 }
 
