@@ -1,6 +1,7 @@
 #[cfg(test)]
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
+#[rustfmt::skip]
 mod tests {
     extern crate alloc;
 
