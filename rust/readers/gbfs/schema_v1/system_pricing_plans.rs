@@ -12,7 +12,7 @@ pub type GBFSSystemPricingPlansV1 = GBFSSystemPricingPlansV11;
 
 /// GBFS System Pricing Plan
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemPricingPlan {
+pub struct GBFSSystemPricingPlanV11 {
     /// Plan ID
     pub plan_id: String,
     /// URL
@@ -32,12 +32,12 @@ pub struct GBFSSystemPricingPlan {
 
 /// GBFS System Pricing Plans Data
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemPricingPlansData {
+pub struct GBFSSystemPricingPlansDataV11 {
     /// GBFS System Pricing Plan List
-    pub plans: Vec<GBFSSystemPricingPlan>,
+    pub plans: Vec<GBFSSystemPricingPlanV11>,
 }
 
-///GBFS System Pricing Plans Schema V1.1 Interface
+/// GBFS System Pricing Plans Schema V1.1 Interface
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GBFSSystemPricingPlansV11 {
     /// Last time the data in the feed was updated in POSIX time.
@@ -47,7 +47,7 @@ pub struct GBFSSystemPricingPlansV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data containing pricing plans of the system.
-    pub data: GBFSSystemPricingPlansData,
+    pub data: GBFSSystemPricingPlansDataV11,
 }
 
 /// GBFS System Pricing Plans Schema V1.0 Interface
@@ -58,5 +58,5 @@ pub struct GBFSSystemPricingPlansV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data containing pricing plans of the system.
-    pub data: GBFSSystemPricingPlansData,
+    pub data: GBFSSystemPricingPlansDataV11,
 }

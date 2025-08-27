@@ -11,7 +11,7 @@ pub type GBFSSystemHoursV1 = GBFSSystemHoursV11;
 
 /// GBFS System Hours User Type
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub enum GBFSSystemHourType {
+pub enum GBFSSystemHourTypeV1 {
     /// GBFS System Hours User Type
     #[serde(rename = "member")]
     #[default]
@@ -23,7 +23,7 @@ pub enum GBFSSystemHourType {
 
 /// GBFS System Hours Day
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub enum GBFSSystemHourDay {
+pub enum GBFSSystemHourDayV1 {
     /// Sunday
     #[serde(rename = "sun")]
     #[default]
@@ -50,11 +50,11 @@ pub enum GBFSSystemHourDay {
 
 /// GBFS System Hour
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemHour {
+pub struct GBFSSystemHourV1 {
     /// GBFS System Hours User Type
-    pub user_types: Vec<GBFSSystemHourType>,
+    pub user_types: Vec<GBFSSystemHourTypeV1>,
     /// GBFS System Hours Day
-    pub days: Vec<GBFSSystemHourDay>,
+    pub days: Vec<GBFSSystemHourDayV1>,
     /// Start time
     pub start_time: String,
     /// End time
@@ -63,9 +63,9 @@ pub struct GBFSSystemHour {
 
 /// GBFS System Hours Data
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemHoursData {
+pub struct GBFSSystemHoursDataV1 {
     /// Rental hours
-    pub rental_hours: Vec<GBFSSystemHour>,
+    pub rental_hours: Vec<GBFSSystemHourV1>,
 }
 
 /// GBFS System Hours Schema V1.1 Interface
@@ -78,7 +78,7 @@ pub struct GBFSSystemHoursV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data containing system hours of operations.
-    pub data: GBFSSystemHoursData,
+    pub data: GBFSSystemHoursDataV1,
 }
 
 /// GBFS System Hours Schema V1.0 Interface
@@ -89,5 +89,5 @@ pub struct GBFSSystemHoursV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data containing system hours of operations.
-    pub data: GBFSSystemHoursData,
+    pub data: GBFSSystemHoursDataV1,
 }

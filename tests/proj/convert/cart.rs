@@ -1,13 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use core::cell::RefCell;
-    use core::f64::consts::PI;
+    use core::{cell::RefCell, f64::consts::PI};
     use gistools::proj::{
-        CartesianConverter, CoordinateStep, IoUnits, Proj, ProjectCoordinates, ProjectionTransform,
-        derive_sphere,
+        CartesianConverter, CoordinateStep, Coords, IoUnits, Proj, ProjectCoordinates,
+        ProjectionTransform, derive_sphere, geocentric_radius, geodetic,
+        normal_radius_of_curvature,
     };
-    use gistools::proj::{Coords, geocentric_radius};
-    use gistools::proj::{geodetic, normal_radius_of_curvature};
     use std::rc::Rc;
 
     // ---- CartesianConverter ----

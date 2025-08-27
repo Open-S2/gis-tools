@@ -257,7 +257,7 @@ pub struct Grib2SectionLocations {
 /// ## Parameters
 ///
 /// - `source`: The source of the data, `aws` | `ftpprd` | `nomads` | `google` | `azure` | or a user provided url
-/// - `product`: which product to fetch. Use `Grib2AtmosGFSProduct` or `Grib2WaveGFSProduct`
+/// - `product`: which product to fetch. Use [`Grib2AtmosGFSProduct`] or [`Grib2WaveGFSProduct`]
 /// - `domain`: The domain of the data, `atmos` or `wave`
 /// - `year`: The year to fetch given a 4 digit year
 /// - `month`: The month to fetch given a 2 digit month 01 is January and 12 is December
@@ -269,8 +269,26 @@ pub struct Grib2SectionLocations {
 /// ## Returns
 ///
 /// A [`GRIB2Reader`] of the specific sections
+///
+/// ## Example
+///
+/// ```rust
+/// let grib2_reader = fetch_gfs_data(
+///     Grib2GFSSource::Aws,
+///     Grib2AtmosGFSProduct::Pgrb2b1p00,
+///     Grib2GFSDomain::Atmos,
+///     "2024".into(),
+///     "12".into(),
+///     "14".into(),
+///     "12".into(),
+///     Some("003".into()),
+///     Some(vec!["TMP:2 m".into()]),
+///  )
+/// .await ;
+/// assert_eq!(grib2_reader.len(), 1);
+/// ```
 #[allow(clippy::too_many_arguments)]
-pub fn fetch_gfs_data<T: Reader, P: Into<String>>(
+pub async fn fetch_gfs_data<P: Into<String>>(
     source: Grib2GFSSource,
     product: P,
     domain: Grib2GFSDomain,
@@ -288,18 +306,18 @@ pub fn fetch_gfs_data<T: Reader, P: Into<String>>(
     }
     let link = get_gfs_link(source, product, domain, year, month, day, hour, forecast);
     // pull .idx file FIRST
-    let idxs = parsed_idx_from_url(format!("{link}.idx"), filters.unwrap_or_default(), None);
-    let source_data = link_to_chunks(link, &idxs);
+    let idxs = parsed_idx_from_url(format!("{link}.idx"), filters.unwrap_or_default(), None).await;
+    let source_data = link_to_chunks(link, &idxs).await;
 
-    GRIB2Reader::new::<T>(source_data.into(), idxs)
+    GRIB2Reader::new::<BufferReader>(source_data.into(), idxs)
 }
 
 /// Get the link to download GFS Atmos data relative to IDXs
-fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<BufferReader> {
+async fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<BufferReader> {
     let mut readers: Vec<BufferReader> = vec![];
     for Grib2SectionLocations { start, end, .. } in idxs {
         let end = end.map_or(String::new(), |e| e.to_string());
-        let chunk = fetch_url(&link, &[("Range", &format!("bytes={start}-{end}"))]).unwrap();
+        let chunk = fetch_url(&link, &[("Range", &format!("bytes={start}-{end}"))]).await.unwrap();
         readers.push(BufferReader::new(chunk));
     }
 
@@ -356,12 +374,12 @@ pub fn get_gfs_link<P: Into<String>>(
 ///
 /// ## Returns
 /// An array of Grib2SectionLocations
-pub fn parsed_idx_from_url(
+pub async fn parsed_idx_from_url(
     url: String,
     filters: Vec<String>,
     offset_position: Option<usize>,
 ) -> Vec<Grib2SectionLocations> {
-    let data = fetch_url(&url, &[]).unwrap();
+    let data = fetch_url(&url, &[]).await.unwrap();
     parse_idx(String::from_utf8_lossy(&data).into(), filters, offset_position)
 }
 

@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use core::cell::RefCell;
-    use core::f64::consts::{FRAC_PI_2, PI};
+    use core::{
+        cell::RefCell,
+        f64::consts::{FRAC_PI_2, PI},
+    };
     use gistools::proj::{
         CoordinateStep, Coords, Direction, GeocentricLatitudeConverter, IoUnits, Proj,
         ProjectCoordinates, derive_sphere, geocentric_latitude,

@@ -967,8 +967,8 @@ mod tests {
             prior_notice_start_time: None,
             prior_notice_service_id: None,
             message: Some(
-                "Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 \
-                             und 24:00 möglich, oder online rund um die Uhr"
+                "Anmeldung mind. 60min vorher erforderlich, per Anruf zwischen 08:00 und 24:00 \
+                 möglich, oder online rund um die Uhr"
                     .into(),
             ),
             pickup_message: None,

@@ -1,6 +1,28 @@
+mod gbfs;
 mod gbfs_versions;
+mod geofencing_zones;
+mod manifest;
+mod station_information;
+mod station_status;
+mod system_alerts;
+mod system_information;
+mod system_pricing_plans;
+mod system_regions;
+mod vehicle_status;
+mod vehicle_types;
 
+pub use gbfs::*;
 pub use gbfs_versions::*;
+pub use geofencing_zones::*;
+pub use manifest::*;
+pub use station_information::*;
+pub use station_status::*;
+pub use system_alerts::*;
+pub use system_information::*;
+pub use system_pricing_plans::*;
+pub use system_regions::*;
+pub use vehicle_status::*;
+pub use vehicle_types::*;
 
 // import { toVector } from '../../../index.js';
 

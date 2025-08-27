@@ -12,7 +12,7 @@ pub type GBFSStationInformationV1 = GBFSStationInformationV11;
 
 /// GBFS Station Information Rental Methods
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub enum GBFSStationInformationRentalMethods {
+pub enum GBFSStationInformationRentalMethodsV1 {
     /// Key
     #[default]
     KEY,
@@ -54,7 +54,7 @@ pub struct GBFSStationInformationV11Station {
     /// Postal Code
     pub post_code: Option<String>,
     /// Rental Methods
-    pub rental_methods: Option<Vec<GBFSStationInformationRentalMethods>>,
+    pub rental_methods: Option<Vec<GBFSStationInformationRentalMethodsV1>>,
     /// Capacity
     pub capacity: Option<u64>,
     /// Rental URIs
@@ -103,7 +103,7 @@ pub struct GBFSStationInformationV10Station {
     /// Postal Code
     pub post_code: Option<String>,
     /// Rental Methods
-    pub rental_methods: Option<Vec<GBFSStationInformationRentalMethods>>,
+    pub rental_methods: Option<Vec<GBFSStationInformationRentalMethodsV1>>,
     /// Capacity
     pub capacity: Option<u64>,
 }

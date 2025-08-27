@@ -18,13 +18,9 @@ use flate2::{
     write::{DeflateEncoder, GzEncoder, ZlibEncoder},
 };
 pub use lzw::*;
-#[cfg(feature = "std")]
-use ruzstd::io::Read;
 use s2_tilejson::Encoding;
 #[cfg(feature = "std")]
-use std::io::Write;
-// #[cfg(feature = "std")]
-// use ruzstd::decoding::StreamingDecoder;
+use std::io::{Read, Write};
 
 /// Handles compression errors
 #[derive(Debug, PartialEq)]

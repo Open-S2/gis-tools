@@ -11,7 +11,7 @@ pub type GBFSSystemAlertsV1 = GBFSSystemAlertsV11;
 
 /// GBFS System Alerts Alert Type
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub enum GBFSSystemAlertsAlertType {
+pub enum GBFSSystemAlertsAlertTypeV11 {
     /// System Closure
     #[serde(rename = "SYSTEM_CLOSURE")]
     SystemClosure,
@@ -29,7 +29,7 @@ pub enum GBFSSystemAlertsAlertType {
 
 /// GBFS System Alerts Alert Times
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemAlertsAlertTimes {
+pub struct GBFSSystemAlertsAlertTimesV11 {
     /// Start time in POSIX time
     pub start: u64,
     /// End time in POSIX time
@@ -38,13 +38,13 @@ pub struct GBFSSystemAlertsAlertTimes {
 
 /// GBFS System Alerts Alert
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemAlertsAlert {
+pub struct GBFSSystemAlertsAlertV1 {
     /// Alert ID
     pub alert_id: String,
     /// Alert type
-    pub r#type: GBFSSystemAlertsAlertType,
+    pub r#type: GBFSSystemAlertsAlertTypeV11,
     /// List of times when the alert is active
-    pub times: Option<Vec<GBFSSystemAlertsAlertTimes>>,
+    pub times: Option<Vec<GBFSSystemAlertsAlertTimesV11>>,
     /// List of affected stations
     pub station_ids: Option<Vec<String>>,
     /// List of affected regions
@@ -61,9 +61,9 @@ pub struct GBFSSystemAlertsAlert {
 
 /// GBFS System Alerts Alerts
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemAlertsAlerts {
+pub struct GBFSSystemAlertsAlertsV1 {
     /// Data containing ad-hoc alerts for the system.
-    pub alerts: Vec<GBFSSystemAlertsAlert>,
+    pub alerts: Vec<GBFSSystemAlertsAlertV1>,
 }
 
 /// GBFS System Alerts Schema V1.1 Interface
@@ -76,7 +76,7 @@ pub struct GBFSSystemAlertsV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data containing ad-hoc alerts for the system.
-    pub data: GBFSSystemAlertsAlerts,
+    pub data: GBFSSystemAlertsAlertsV1,
 }
 
 /// GBFS System Alerts Schema V1.0 Interface
@@ -87,5 +87,5 @@ pub struct GBFSSystemAlertsV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data containing ad-hoc alerts for the system.
-    pub data: GBFSSystemAlertsAlerts,
+    pub data: GBFSSystemAlertsAlertsV1,
 }

@@ -2749,15 +2749,15 @@ impl CoordinateSystemSubtype {
                 // let cart = CartesianConverter::new(Rc::new(RefCell::new(Proj::default())));
                 // proj_transform.cart = Some(Box::new(cart.into()));
             }
-            _ => todo!(), // CoordinateSystemSubtype::Spherical => {}
-                          // CoordinateSystemSubtype::Ellipsoidal => {}
-                          // CoordinateSystemSubtype::Vertical => {}
-                          // CoordinateSystemSubtype::Ordinal => {}
-                          // CoordinateSystemSubtype::Parametric => {}
-                          // CoordinateSystemSubtype::Affine => {}
-                          // CoordinateSystemSubtype::TemporalDateTime => {}
-                          // CoordinateSystemSubtype::TemporalCount => {}
-                          // CoordinateSystemSubtype::TemporalMeasure => {}
+            _ => todo!(), /* CoordinateSystemSubtype::Spherical => {}
+                           * CoordinateSystemSubtype::Ellipsoidal => {}
+                           * CoordinateSystemSubtype::Vertical => {}
+                           * CoordinateSystemSubtype::Ordinal => {}
+                           * CoordinateSystemSubtype::Parametric => {}
+                           * CoordinateSystemSubtype::Affine => {}
+                           * CoordinateSystemSubtype::TemporalDateTime => {}
+                           * CoordinateSystemSubtype::TemporalCount => {}
+                           * CoordinateSystemSubtype::TemporalMeasure => {} */
         }
     }
 }

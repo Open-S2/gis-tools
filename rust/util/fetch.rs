@@ -1,60 +1,52 @@
-use alloc::{format, vec::Vec};
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
 
 /// Net fetch error
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum NetError {
-    /// Invalid URL
-    InvalidUrl,
-    /// Connection failed
-    ConnectionFailed,
-    /// Write failed
-    WriteFailed,
-    /// Read failed
-    ReadFailed,
-    /// Header parse failed
-    HeaderParseFailed,
-    /// Unsupported
-    Unsupported,
+    /// Network error
+    Network(String),
+    /// HTTP error
+    Http(u16),
+    /// Other
+    Other(String),
 }
 
 /// STD fetch for raw data
 /// ex. `fetch_url("http://example.com/file.bin", &[("header", "value")])`
 #[cfg(feature = "std")]
-pub fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
-    use std::{
-        io::{Read, Write},
-        net::TcpStream,
-    };
+pub async fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
+    let client = surf::client();
 
-    // Very crude parsing — expects "http://host/path"
-    let url = url.strip_prefix("http://").ok_or(NetError::InvalidUrl)?;
-    let parts: Vec<&str> = url.splitn(2, '/').collect();
-
-    let host = parts.first().ok_or(NetError::InvalidUrl)?;
-    let path = parts.get(1).copied().unwrap_or("");
-
-    let addr = format!("{host}:80");
-    // let request = format!("GET /{} HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n\r\n", path, host);
-    let mut request = format!("GET /{path} HTTP/1.0\r\nHost: {host}\r\nConnection: close\r\n");
+    let mut req = surf::get(url);
     for (k, v) in headers {
-        request.push_str(&format!("{k}: {v}\r\n"));
+        req = req.header(*k, *v);
     }
-    request.push_str("\r\n");
 
-    let mut stream = TcpStream::connect(addr).map_err(|_| NetError::ConnectionFailed)?;
-    stream.write_all(request.as_bytes()).map_err(|_| NetError::WriteFailed)?;
+    let mut res = client.send(req).await.map_err(|e| NetError::Network(e.to_string()))?;
 
-    let mut response = Vec::new();
-    stream.read_to_end(&mut response).map_err(|_| NetError::ReadFailed)?;
+    if !res.status().is_success() {
+        return Err(NetError::Http(res.status().into()));
+    }
 
-    // Skip headers
-    let body_start =
-        response.windows(4).position(|w| w == b"\r\n\r\n").ok_or(NetError::HeaderParseFailed)?;
-
-    Ok(response[(body_start + 4)..].to_vec())
+    res.body_bytes().await.map_err(|e| NetError::Other(e.to_string()))
 }
 
-#[cfg(not(feature = "std"))]
-pub fn fetch_url(_url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
-    Err(NetError::Unsupported)
+/// WASM fetch for raw data
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+pub async fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
+    let mut req = surf::get(url);
+    for (k, v) in headers {
+        req = req.set_header(*k, *v);
+    }
+
+    let mut res = req.await.map_err(|e| NetError::Network(e.to_string()))?;
+
+    if !res.status().is_success() {
+        return Err(NetError::Http(res.status().into()));
+    }
+
+    res.body_bytes().await.map_err(|e| NetError::Other(e.to_string()))
 }

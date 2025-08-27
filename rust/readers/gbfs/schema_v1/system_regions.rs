@@ -11,7 +11,7 @@ pub type GBFSSystemRegionsV1 = GBFSSystemRegionsV11;
 
 /// GBFS System Region
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemRegion {
+pub struct GBFSSystemRegionV1 {
     /// Region ID
     pub region_id: String,
     /// Region name
@@ -20,9 +20,9 @@ pub struct GBFSSystemRegion {
 
 /// GBFS System Regions Data
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemRegionsData {
+pub struct GBFSSystemRegionsDataV1 {
     /// List of regions
-    pub regions: Vec<GBFSSystemRegion>,
+    pub regions: Vec<GBFSSystemRegionV1>,
 }
 
 /// GBFS System Regions Schema V1.1 Interface
@@ -35,7 +35,7 @@ pub struct GBFSSystemRegionsV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data describing regions for a system.
-    pub data: GBFSSystemRegionsData,
+    pub data: GBFSSystemRegionsDataV1,
 }
 
 /// GBFS System Regions Schema V1.0 Interface
@@ -46,5 +46,5 @@ pub struct GBFSSystemRegionsV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data describing regions for a system.
-    pub data: GBFSSystemRegionsData,
+    pub data: GBFSSystemRegionsDataV1,
 }

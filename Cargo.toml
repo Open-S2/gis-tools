@@ -1,6 +1,6 @@
 [package]
 name = "gis-tools"
-version = "1.2.0"
+version = "1.3.0"
 rust-version = "1.88.0"
 edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
@@ -40,14 +40,17 @@ serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
 brotli = { version = "8", optional = true }
-ruzstd = { version = "0.8", optional = true }
 image = { version = "0.25", optional = true }
+# Optional std/wasm dependencies
+surf = { version = "2", default-features = false }
 
 [dev-dependencies]
 tempfile = "3"
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.7", features = ["html_reports"] }
 rand = "0.9"
-tiff = "0.10.0"
+tiff = "0.10.2"
+tiny_http = "0.12"
+smol = "2"
 
 [features]
 default = ["std", "quadratic"] # Default feature
@@ -56,7 +59,9 @@ tan = []                       # Feature for tangential projection
 linear = []                    # Feature for linear projection
 nightly = []                   # Nightly system for improving coverage accuracy reporting
 # Conditional std feature enabling quadratic or other projection features
-std = ["memmap2", "flate2", "brotli", "ruzstd", "image"]
+std = ["memmap2", "flate2", "brotli", "image", "surf/h1-client"]
+# Conditional wasm feature for browser tools like fetching
+wasm = ["surf/wasm-client"]
 
 [[bench]]
 name = "s2_cells"

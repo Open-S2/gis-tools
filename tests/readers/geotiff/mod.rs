@@ -299,7 +299,10 @@ mod tests {
     #[test]
     fn test_initial_geotiff_8441_oblique_mercator_laborde() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("tests/readers/geotiff/fixtures/projections/ProjectedCSTypeGeoKey_8441_oblique_mercator_laborde.tif");
+        path.push(
+            "tests/readers/geotiff/fixtures/projections/\
+             ProjectedCSTypeGeoKey_8441_oblique_mercator_laborde.tif",
+        );
         let bytes = std::fs::read(path.clone()).unwrap();
         let geotiff = GeoTIFFReader::new(
             BufferReader::from(bytes),

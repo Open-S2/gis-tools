@@ -5,10 +5,9 @@ mod v1_1;
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::readers::{GBFSSystem, gbfs_bool_or_int, parse_gtfs_systems};
-    use serde::de::Error as _;
     use serde::{
         Deserialize, Deserializer,
-        de::{Unexpected, Visitor},
+        de::{Error as _, Unexpected, Visitor},
         forward_to_deserialize_any,
     };
     use serde_json::{from_value, json};

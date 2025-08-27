@@ -12,7 +12,7 @@ pub type GBFSStationStatusV1 = GBFSStationStatusV11;
 
 /// GBFS Station Status Station
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSStationStatusStation {
+pub struct GBFSStationStatusStationV11 {
     /// The ID of the station
     pub station_id: String,
     /// The number of bikes available
@@ -38,9 +38,9 @@ pub struct GBFSStationStatusStation {
 
 /// GBFS Station Status Data
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSStationStatusData {
+pub struct GBFSStationStatusDataV11 {
     /// Data containing an array of station statuses.
-    pub stations: Vec<GBFSStationStatusStation>,
+    pub stations: Vec<GBFSStationStatusStationV11>,
 }
 
 /// GBFS Station Status Schema V1.1 Interface
@@ -53,7 +53,7 @@ pub struct GBFSStationStatusV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data containing an array of station statuses.
-    pub data: GBFSStationStatusData,
+    pub data: GBFSStationStatusDataV11,
 }
 
 /// GBFS Station Status Schema V1.0 Interface
@@ -64,5 +64,5 @@ pub struct GBFSStationStatusV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data containing an array of station statuses.
-    pub data: GBFSStationStatusData,
+    pub data: GBFSStationStatusDataV11,
 }

@@ -806,7 +806,27 @@ mod tests {
     fn test_oblique_mercator_laborde_tif() {
         let mut transformer = Transformer::new();
         transformer.set_source(
-            "PROJCRS[\"Tananarive / Laborde Grid\",BASEGEOGCRS[\"Tananarive\",DATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388,297,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7022]],ID[\"EPSG\",6297]],ID[\"EPSG\",4297]],CONVERSION[\"Laborde Grid (Greenwich)\",METHOD[\"Laborde Oblique Mercator\",ID[\"EPSG\",9813]],PARAMETER[\"Latitude of projection centre\",-18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8811]],PARAMETER[\"Longitude of projection centre\",46.4372291666669,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8812]],PARAMETER[\"Azimuth at projection centre\",18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8813]],PARAMETER[\"Scale factor at projection centre\",0.9995,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8815]],PARAMETER[\"False easting\",400000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",800000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",8440]],CS[Cartesian,2,ID[\"EPSG\",4530]],AXIS[\"Northing (X)\",north],AXIS[\"Easting (Y)\",east],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8441]]".into()
+            "PROJCRS[\"Tananarive / Laborde Grid\",BASEGEOGCRS[\"Tananarive\",DATUM[\"Tananarive \
+             1925\",ELLIPSOID[\"International \
+             1924\",6378388,297,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7022]],ID[\"\
+             EPSG\",6297]],ID[\"EPSG\",4297]],CONVERSION[\"Laborde Grid \
+             (Greenwich)\",METHOD[\"Laborde Oblique \
+             Mercator\",ID[\"EPSG\",9813]],PARAMETER[\"Latitude of projection \
+             centre\",-18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",\
+             9102]],ID[\"EPSG\",8811]],PARAMETER[\"Longitude of projection \
+             centre\",46.4372291666669,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],\
+             ID[\"EPSG\",8812]],PARAMETER[\"Azimuth at projection \
+             centre\",18.9000000000003,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],\
+             ID[\"EPSG\",8813]],PARAMETER[\"Scale factor at projection \
+             centre\",0.9995,SCALEUNIT[\"unity\",1,ID[\"EPSG\",9201]],ID[\"EPSG\",8815]],\
+             PARAMETER[\"False \
+             easting\",400000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],\
+             PARAMETER[\"False \
+             northing\",800000,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"\
+             EPSG\",8440]],CS[Cartesian,2,ID[\"EPSG\",4530]],AXIS[\"Northing \
+             (X)\",north],AXIS[\"Easting \
+             (Y)\",east],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8441]]"
+                .into(),
         );
         let mut point = Coords::new_xy(440720.0, 3751260.0);
         transformer.forward_mut(&mut point);
@@ -822,7 +842,11 @@ mod tests {
     #[test]
     fn test_should_not_touch() {
         let mut transformer = Transformer::new();
-        transformer.set_source("GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]".into());
+        transformer.set_source(
+            "GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.\
+             257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(0.0, 0.0);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(0.0, 0.0));
@@ -853,7 +877,29 @@ mod tests {
     #[test]
     fn test_equal_earth() {
         let mut transformer = Transformer::new();
-        transformer.set_source("PROJCRS[\"WGS 84 / Equal Earth Greenwich\",BASEGEOGCRS[\"WGS 84\",ENSEMBLE[\"World Geodetic System 1984 ensemble\", MEMBER[\"World Geodetic System 1984 (Transit)\", ID[\"EPSG\",1166]], MEMBER[\"World Geodetic System 1984 (G730)\", ID[\"EPSG\",1152]], MEMBER[\"World Geodetic System 1984 (G873)\", ID[\"EPSG\",1153]], MEMBER[\"World Geodetic System 1984 (G1150)\", ID[\"EPSG\",1154]], MEMBER[\"World Geodetic System 1984 (G1674)\", ID[\"EPSG\",1155]], MEMBER[\"World Geodetic System 1984 (G1762)\", ID[\"EPSG\",1156]], MEMBER[\"World Geodetic System 1984 (G2139)\", ID[\"EPSG\",1309]], MEMBER[\"World Geodetic System 1984 (G2296)\", ID[\"EPSG\",1383]], ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",7030]], ENSEMBLEACCURACY[2],ID[\"EPSG\",6326]],ID[\"EPSG\",4326]],CONVERSION[\"Equal Earth Greenwich\",METHOD[\"Equal Earth\",ID[\"EPSG\",1078]],PARAMETER[\"Longitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"EPSG\",8854]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting (E)\",east],AXIS[\"Northing (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8857]]".into());
+        transformer.set_source(
+            "PROJCRS[\"WGS 84 / Equal Earth Greenwich\",BASEGEOGCRS[\"WGS 84\",ENSEMBLE[\"World \
+             Geodetic System 1984 ensemble\", MEMBER[\"World Geodetic System 1984 (Transit)\", \
+             ID[\"EPSG\",1166]], MEMBER[\"World Geodetic System 1984 (G730)\", \
+             ID[\"EPSG\",1152]], MEMBER[\"World Geodetic System 1984 (G873)\", \
+             ID[\"EPSG\",1153]], MEMBER[\"World Geodetic System 1984 (G1150)\", \
+             ID[\"EPSG\",1154]], MEMBER[\"World Geodetic System 1984 (G1674)\", \
+             ID[\"EPSG\",1155]], MEMBER[\"World Geodetic System 1984 (G1762)\", \
+             ID[\"EPSG\",1156]], MEMBER[\"World Geodetic System 1984 (G2139)\", \
+             ID[\"EPSG\",1309]], MEMBER[\"World Geodetic System 1984 (G2296)\", \
+             ID[\"EPSG\",1383]], ELLIPSOID[\"WGS \
+             84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",\
+             7030]], ENSEMBLEACCURACY[2],ID[\"EPSG\",6326]],ID[\"EPSG\",4326]],CONVERSION[\"Equal \
+             Earth Greenwich\",METHOD[\"Equal Earth\",ID[\"EPSG\",1078]],PARAMETER[\"Longitude of \
+             natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433,ID[\"EPSG\",9102]],ID[\"\
+             EPSG\",8802]],PARAMETER[\"False \
+             easting\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8806]],PARAMETER[\"\
+             False northing\",0,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8807]],ID[\"\
+             EPSG\",8854]],CS[Cartesian,2,ID[\"EPSG\",4400]],AXIS[\"Easting \
+             (E)\",east],AXIS[\"Northing \
+             (N)\",north],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]],ID[\"EPSG\",8857]]"
+                .into(),
+        );
         let mut point = Coords::new_xy(0.0, 0.0);
         transformer.forward_mut(&mut point);
         assert_eq!(point, Coords::new_xy(0.0, 0.0));

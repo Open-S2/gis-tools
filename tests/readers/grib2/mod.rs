@@ -8,17 +8,96 @@ mod tests {
     use gistools::{
         parsers::{Buffer, BufferReader, FeatureReader},
         readers::{
-            GISReader, GRIB2Reader, Grib2LocalUseSection, Grib2SectionLocations, ReaderType,
-            TableCategory, parse_idx,
+            GISReader, GRIB2Reader, Grib2AtmosGFSProduct, Grib2GFSDomain, Grib2GFSHour,
+            Grib2GFSSource, Grib2LocalUseSection, Grib2SectionLocations, Grib2WaveGFSProduct,
+            ReaderType, TableCategory, fetch_gfs_data, parse_idx,
         },
     };
     use s2json::VectorPoint;
+    use std::thread;
     use std::{
         cmp::Ordering,
+        fs,
         fs::File,
         io::{BufRead, BufReader},
         path::PathBuf,
     };
+    use tiny_http::{Header, Response, Server};
+
+    pub fn spawn_test_server(root: &str) -> String {
+        let server = Server::http("0.0.0.0:0").unwrap();
+        let addr = server.server_addr();
+        let root = root.to_string();
+
+        thread::spawn(move || {
+            for req in server.incoming_requests() {
+                let url_path = req.url();
+                let path = format!("{}{}", root, url_path);
+                let data = fs::read(&path);
+
+                match data {
+                    Ok(bytes) => {
+                        // Check for Range header
+                        let range_opt = req
+                            .headers()
+                            .iter()
+                            .find(|h| h.field.equiv("Range"))
+                            .map(|h| h.value.as_str());
+
+                        if let Some(range_header) = range_opt {
+                            // Only handle "bytes=start-end" format
+                            if let Some(range_str) = range_header.strip_prefix("bytes=") {
+                                let mut parts = range_str.split('-');
+                                let start: usize = parts.next().unwrap_or("0").parse().unwrap_or(0);
+                                let end: usize = parts
+                                    .next()
+                                    .and_then(|s| s.parse().ok())
+                                    .unwrap_or(bytes.len() - 1);
+
+                                // Clamp to valid file size
+                                let start = start.min(bytes.len());
+                                let end = end.min(bytes.len() - 1);
+
+                                let chunk = &bytes[start..=end];
+
+                                let resp = Response::from_data(chunk.to_vec())
+                                    .with_status_code(206)
+                                    .with_header(
+                                        Header::from_bytes(
+                                            &b"Content-Range"[..],
+                                            format!("bytes {}-{}/{}", start, end, bytes.len()),
+                                        )
+                                        .unwrap(),
+                                    )
+                                    .with_header(
+                                        Header::from_bytes(&b"Accept-Ranges"[..], &b"bytes"[..])
+                                            .unwrap(),
+                                    )
+                                    .with_header(
+                                        Header::from_bytes(
+                                            &b"Content-Length"[..],
+                                            chunk.len().to_string(),
+                                        )
+                                        .unwrap(),
+                                    );
+
+                                req.respond(resp).unwrap();
+                                continue;
+                            }
+                        }
+
+                        // No range requested, serve whole file
+                        req.respond(Response::from_data(bytes)).unwrap();
+                    }
+                    Err(_) => {
+                        req.respond(Response::empty(404)).unwrap();
+                    }
+                }
+            }
+        });
+
+        format!("http://{}", addr)
+    }
 
     #[test]
     fn grib2_parsed_idx() {
@@ -198,6 +277,47 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_fetch_gfs_atmos() {
+        smol::block_on(async {
+            let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            path.push("tests/readers/grib2/fixtures/");
+            let path_str: String = path.to_str().unwrap().into();
+            let server = spawn_test_server(&path_str);
+            let grib2_reader = fetch_gfs_data(
+                Grib2GFSSource::Other(format!("{server}/")),
+                Grib2AtmosGFSProduct::Pgrb2b1p00,
+                Grib2GFSDomain::Atmos,
+                "2024".into(),
+                "12".into(),
+                "14".into(),
+                "12".into(),
+                Some("003".into()),
+                Some(vec!["TMP:2 m".into()]),
+            )
+            .await;
+
+            let packet_products: Vec<_> = grib2_reader
+                .packets
+                .borrow()
+                .iter()
+                .map(|p| {
+                    let product_definition = p.product_definition.as_ref().unwrap();
+                    product_definition.values.values().clone()
+                })
+                .collect();
+
+            assert_eq!(
+                packet_products,
+                vec![TableCategory {
+                    parameter: "Temperature".into(),
+                    units: "K".into(),
+                    abbrev: "TMP".into()
+                }]
+            );
+        });
+    }
+
     // #[test]
     // fn grib2_waves() {
     //     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -255,4 +375,99 @@ mod tests {
     //         // assert_eq!(m_value, expected_points[i].m.unwrap());
     //     }
     // }
+
+    #[test]
+    fn test_grib2_gfs_source() {
+        let variants = [
+            ("aws", Grib2GFSSource::Aws),
+            ("ftpprd", Grib2GFSSource::Ftpprd),
+            ("nomads", Grib2GFSSource::Nomads),
+            ("google", Grib2GFSSource::Google),
+            ("azure", Grib2GFSSource::Azure),
+            ("custom", Grib2GFSSource::Other("custom".into())),
+        ];
+
+        for (s, expected) in variants {
+            let conv: Grib2GFSSource = s.into();
+            assert_eq!(conv, expected);
+            if let Grib2GFSSource::Other(v) = conv {
+                assert_eq!(v, s);
+            } else {
+                assert!(conv.to_url().starts_with("http"));
+            }
+        }
+    }
+
+    #[test]
+    fn test_grib2_atmos_gfs_product() {
+        let variants = [
+            ("pgrb2.0p25", Grib2AtmosGFSProduct::Pgrb20p25),
+            ("pgrb2.0p50", Grib2AtmosGFSProduct::Pgrb20p50),
+            ("pgrb2.1p00", Grib2AtmosGFSProduct::Pgrb21p00),
+            ("pgrb2b.0p25", Grib2AtmosGFSProduct::Pgrb2b0p25),
+            ("pgrb2b.0p50", Grib2AtmosGFSProduct::Pgrb2b0p50),
+            ("pgrb2b.1p00", Grib2AtmosGFSProduct::Pgrb2b1p00),
+            ("pgrb2full.0p50", Grib2AtmosGFSProduct::Pgrb2full0p50),
+            ("sfluxgrb", Grib2AtmosGFSProduct::Sfluxgrb),
+            ("goesimpgrb2.0p25", Grib2AtmosGFSProduct::Goesimpgrb20p25),
+            ("custom", Grib2AtmosGFSProduct::Other("custom".into())),
+        ];
+
+        for (s, expected) in variants {
+            let conv: Grib2AtmosGFSProduct = s.into();
+            assert_eq!(conv, expected);
+            let back: String = conv.clone().into();
+            match expected {
+                Grib2AtmosGFSProduct::Other(_) => assert_eq!(back, s),
+                _ => assert_eq!(back, s),
+            }
+        }
+    }
+
+    #[test]
+    fn test_grib2_wave_gfs_product() {
+        let variants = [
+            ("arctic.9km", Grib2WaveGFSProduct::Arctic9km),
+            ("atlocn.0p16", Grib2WaveGFSProduct::Atlocn0p16),
+            ("epacif.0p16", Grib2WaveGFSProduct::Epacif0p16),
+            ("global.0p16", Grib2WaveGFSProduct::Global0p16),
+            ("global.0p25", Grib2WaveGFSProduct::Global0p25),
+            ("gsouth.0p25", Grib2WaveGFSProduct::Gsouth0p25),
+            ("wcoast.0p16", Grib2WaveGFSProduct::Wcoast0p16),
+            ("custom", Grib2WaveGFSProduct::Other("custom".into())),
+        ];
+
+        for (s, expected) in variants {
+            let conv: Grib2WaveGFSProduct = s.into();
+            assert_eq!(conv, expected);
+            let back: String = conv.clone().into();
+            match expected {
+                Grib2WaveGFSProduct::Other(_) => assert_eq!(back, s),
+                _ => assert_eq!(back, s),
+            }
+        }
+    }
+
+    #[test]
+    fn test_grib2_gfs_hour() {
+        let variants = [
+            ("00", Grib2GFSHour::Hour0),
+            ("06", Grib2GFSHour::Hour6),
+            ("12", Grib2GFSHour::Hour12),
+            ("18", Grib2GFSHour::Hour18),
+        ];
+
+        for (s, expected) in variants {
+            let conv: Grib2GFSHour = s.into();
+            assert_eq!(conv, expected);
+            let back: String = conv.into();
+            assert_eq!(back, s);
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_hour_panics() {
+        let _: Grib2GFSHour = "03".into();
+    }
 }

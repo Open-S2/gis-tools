@@ -278,12 +278,10 @@ impl<M: Clone + Default> Inside for VectorMultiPolygon<M> {
     }
 }
 
-/**
- * A Robust point in polygon test
- * @param point - the point
- * @param polygon - the polygon
- * @returns - true if the point is in the polygon, 0 if on the boundary, false otherwise
- */
+/// A Robust point in polygon test
+/// @param point - the point
+/// @param polygon - the polygon
+/// @returns - true if the point is in the polygon, 0 if on the boundary, false otherwise
 pub fn point_in_polygon<P1: GetXY, P2: GetXY>(point: &P1, polygon: &Vec<Vec<P2>>) -> InsideResult {
     let mut k = 0;
     let mut f;

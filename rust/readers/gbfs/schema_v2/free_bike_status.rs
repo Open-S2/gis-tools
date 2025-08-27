@@ -14,7 +14,7 @@ pub type GBFSFreeBikeStatusV2 = GBFSFreeBikeStatusV23;
 
 /// Vehicle Equipment Type
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub enum GBFSFreeBikeStatusVehicleEquipment {
+pub enum GBFSFreeBikeStatusVehicleEquipmentV2 {
     /// Child Seat A
     #[serde(rename = "child_seat_a")]
     #[default]
@@ -73,7 +73,7 @@ pub struct GBFSFreeBikeStatusBikeV23 {
     /// The plan_id of the pricing plan this vehicle is eligible for (added in v2.2).
     pub pricing_plan_id: Option<String>,
     /// List of vehicle equipment provided by the operator in addition to the accessories already provided in the vehicle. Added in v2.3.
-    pub vehicle_equipment: Option<Vec<GBFSFreeBikeStatusVehicleEquipment>>,
+    pub vehicle_equipment: Option<Vec<GBFSFreeBikeStatusVehicleEquipmentV2>>,
     /// The date and time when any rental of the vehicle must be completed. Added in v2.3.
     /// **Pattern**: `^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(([+-]([0-9]{2}):([0-9]{2}))|Z)$`
     pub available_until: Option<String>,

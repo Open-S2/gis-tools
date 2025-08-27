@@ -5,16 +5,16 @@ mod tests {
     use gistools::readers::{
         GBFSFreeBikeDataV11, GBFSFreeBikeStatusV1, GBFSFreeBikeStatusV11, GBFSFreeBikeV11,
         GBFSRentalUri, GBFSStationInformationDataV11, GBFSStationInformationV1,
-        GBFSStationInformationV11, GBFSStationStatusData, GBFSStationStatusV1,
-        GBFSStationStatusV11, GBFSSystemAlertsAlerts, GBFSSystemAlertsV1, GBFSSystemAlertsV11,
-        GBFSSystemCalendarData, GBFSSystemCalendarV1, GBFSSystemCalendarV11, GBFSSystemHour,
-        GBFSSystemHourDay, GBFSSystemHourType, GBFSSystemHoursData, GBFSSystemHoursV1,
-        GBFSSystemHoursV11, GBFSSystemInformationDataV11, GBFSSystemInformationRentalApp,
-        GBFSSystemInformationRentalApps, GBFSSystemInformationV1, GBFSSystemInformationV11,
-        GBFSSystemPricingPlan, GBFSSystemPricingPlansData, GBFSSystemPricingPlansV1,
-        GBFSSystemPricingPlansV11, GBFSSystemRegionsData, GBFSSystemRegionsV1,
+        GBFSStationInformationV11, GBFSStationStatusDataV11, GBFSStationStatusV1,
+        GBFSStationStatusV11, GBFSSystemAlertsAlertsV1, GBFSSystemAlertsV1, GBFSSystemAlertsV11,
+        GBFSSystemCalendarDataV1, GBFSSystemCalendarV1, GBFSSystemCalendarV11, GBFSSystemHourDayV1,
+        GBFSSystemHourTypeV1, GBFSSystemHourV1, GBFSSystemHoursDataV1, GBFSSystemHoursV1,
+        GBFSSystemHoursV11, GBFSSystemInformationDataV11, GBFSSystemInformationRentalAppV11,
+        GBFSSystemInformationRentalAppsV11, GBFSSystemInformationV1, GBFSSystemInformationV11,
+        GBFSSystemPricingPlanV11, GBFSSystemPricingPlansDataV11, GBFSSystemPricingPlansV1,
+        GBFSSystemPricingPlansV11, GBFSSystemRegionsDataV1, GBFSSystemRegionsV1,
         GBFSSystemRegionsV11, GBFSV1, GBFSV11, GBFSV11Feeds, GBFSV11FeedsData, GBFSV11FeedsName,
-        GBFSVersionsDataV11, GBFSVersionsV1, GBFSVersionsV11, GBFSVersionsVersionV11,
+        GBFSVersion, GBFSVersionsDataV11, GBFSVersionsV1, GBFSVersionsV11,
     };
     use std::{collections::BTreeMap, fs, path::PathBuf};
 
@@ -84,23 +84,23 @@ mod tests {
                 version: "1.1".into(),
                 data: GBFSVersionsDataV11 {
                     versions: vec![
-                        GBFSVersionsVersionV11 {
+                        GBFSVersion {
                             version: "1.1".into(),
                             url: "https://gbfs.helbiz.com/v1.1/durham/gbfs.json".into()
                         },
-                        GBFSVersionsVersionV11 {
+                        GBFSVersion {
                             version: "2.0".into(),
                             url: "https://gbfs.helbiz.com/v2.0/durham/gbfs.json".into()
                         },
-                        GBFSVersionsVersionV11 {
+                        GBFSVersion {
                             version: "2.1".into(),
                             url: "https://gbfs.helbiz.com/v2.1/durham/gbfs.json".into()
                         },
-                        GBFSVersionsVersionV11 {
+                        GBFSVersion {
                             version: "2.2".into(),
                             url: "https://gbfs.helbiz.com/v2.2/durham/gbfs.json".into()
                         },
-                        GBFSVersionsVersionV11 {
+                        GBFSVersion {
                             version: "2.2-google".into(),
                             url: "https://gbfs.helbiz.com/v2.2-google/durham/gbfs.json".into()
                         }
@@ -213,7 +213,7 @@ mod tests {
                 last_updated: 1735301974,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSStationStatusData { stations: vec![] }
+                data: GBFSStationStatusDataV11 { stations: vec![] }
             }
         );
     }
@@ -230,7 +230,7 @@ mod tests {
                 last_updated: 1735302061,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSSystemAlertsAlerts { alerts: vec![] }
+                data: GBFSSystemAlertsAlertsV1 { alerts: vec![] }
             }
         );
     }
@@ -247,7 +247,7 @@ mod tests {
                 last_updated: 1735302014,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSSystemCalendarData { calendars: vec![] }
+                data: GBFSSystemCalendarDataV1 { calendars: vec![] }
             }
         );
     }
@@ -264,17 +264,17 @@ mod tests {
                 last_updated: 1735301997,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSSystemHoursData {
-                    rental_hours: vec![GBFSSystemHour {
-                        user_types: vec![GBFSSystemHourType::Member],
+                data: GBFSSystemHoursDataV1 {
+                    rental_hours: vec![GBFSSystemHourV1 {
+                        user_types: vec![GBFSSystemHourTypeV1::Member],
                         days: vec![
-                            GBFSSystemHourDay::Mon,
-                            GBFSSystemHourDay::Tue,
-                            GBFSSystemHourDay::Wed,
-                            GBFSSystemHourDay::Thu,
-                            GBFSSystemHourDay::Fri,
-                            GBFSSystemHourDay::Sat,
-                            GBFSSystemHourDay::Sun
+                            GBFSSystemHourDayV1::Mon,
+                            GBFSSystemHourDayV1::Tue,
+                            GBFSSystemHourDayV1::Wed,
+                            GBFSSystemHourDayV1::Thu,
+                            GBFSSystemHourDayV1::Fri,
+                            GBFSSystemHourDayV1::Sat,
+                            GBFSSystemHourDayV1::Sun
                         ],
                         start_time: "00:00:00".into(),
                         end_time: "23:59:59".into()
@@ -310,14 +310,14 @@ mod tests {
                     feed_contact_email: Some("support@helbiz.com".into()),
                     timezone: "-5".into(),
                     license_url: Some("https://helbiz.com/terms".into()),
-                    rental_apps: Some(GBFSSystemInformationRentalApps {
-                        android: Some(GBFSSystemInformationRentalApp {
+                    rental_apps: Some(GBFSSystemInformationRentalAppsV11 {
+                        android: Some(GBFSSystemInformationRentalAppV11 {
                             store_uri:
                                 "https://play.google.com/store/apps/details?id=com.helbiz.android"
                                     .into(),
                             discovery_uri: "helbiz://com.helbiz.android/scanQr".into()
                         }),
-                        ios: Some(GBFSSystemInformationRentalApp {
+                        ios: Some(GBFSSystemInformationRentalAppV11 {
                             store_uri: "https://apps.apple.com/us/app/helbiz-live/id1570423369"
                                 .into(),
                             discovery_uri: "com.fabrika.helbiz.ios://scanQr".into()
@@ -341,8 +341,8 @@ mod tests {
                 last_updated: 1735302051,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSSystemPricingPlansData {
-                    plans: vec![GBFSSystemPricingPlan {
+                data: GBFSSystemPricingPlansDataV11 {
+                    plans: vec![GBFSSystemPricingPlanV11 {
                         plan_id: "scooter-unlock".into(),
                         url: None,
                         name: "Unlock".into(),
@@ -368,7 +368,7 @@ mod tests {
                 last_updated: 1735302039,
                 ttl: 0,
                 version: "1.1".into(),
-                data: GBFSSystemRegionsData { regions: vec![] }
+                data: GBFSSystemRegionsDataV1 { regions: vec![] }
             }
         );
     }

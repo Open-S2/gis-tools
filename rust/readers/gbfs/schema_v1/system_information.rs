@@ -11,7 +11,7 @@ pub type GBFSSystemInformationV1 = GBFSSystemInformationV11;
 
 /// GBFS System Information Rental App Container
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemInformationRentalApp {
+pub struct GBFSSystemInformationRentalAppV11 {
     /// Store URI
     pub store_uri: String,
     /// Discovery URI
@@ -20,11 +20,11 @@ pub struct GBFSSystemInformationRentalApp {
 
 /// GBFS System Information Rental Apps
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemInformationRentalApps {
+pub struct GBFSSystemInformationRentalAppsV11 {
     /// Android
-    pub android: Option<GBFSSystemInformationRentalApp>,
+    pub android: Option<GBFSSystemInformationRentalAppV11>,
     /// iOS
-    pub ios: Option<GBFSSystemInformationRentalApp>,
+    pub ios: Option<GBFSSystemInformationRentalAppV11>,
 }
 
 /// GBFS System Information Data
@@ -57,7 +57,7 @@ pub struct GBFSSystemInformationDataV11 {
     /// License URL
     pub license_url: Option<String>,
     /// Rental Apps
-    pub rental_apps: Option<GBFSSystemInformationRentalApps>,
+    pub rental_apps: Option<GBFSSystemInformationRentalAppsV11>,
 }
 
 /// GBFS System Information Schema V1.1 Interface

@@ -11,7 +11,7 @@ pub type GBFSSystemCalendarV1 = GBFSSystemCalendarV11;
 
 /// GBFS System Calendar Calendar
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemCalendarCalendar {
+pub struct GBFSSystemCalendarCalendarV1 {
     /// Start month of the calendar.
     pub start_month: u64,
     /// Start day of the calendar.
@@ -28,9 +28,9 @@ pub struct GBFSSystemCalendarCalendar {
 
 /// GBFS System Calendar Data
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct GBFSSystemCalendarData {
+pub struct GBFSSystemCalendarDataV1 {
     /// List of all the system's operating calendars.
-    pub calendars: Vec<GBFSSystemCalendarCalendar>,
+    pub calendars: Vec<GBFSSystemCalendarCalendarV1>,
 }
 
 /// GBFS System Calendar Schema V1.1 Interface
@@ -43,7 +43,7 @@ pub struct GBFSSystemCalendarV11 {
     /// GBFS version number (1.1).
     pub version: String,
     /// Data containing the system's operations calendar.
-    pub data: GBFSSystemCalendarData,
+    pub data: GBFSSystemCalendarDataV1,
 }
 
 /// GBFS System Calendar Schema V1.0 Interface
@@ -53,5 +53,5 @@ pub struct GBFSSystemCalendarV10 {
     /// Number of seconds before the data in the feed will be updated again.
     pub ttl: u64,
     /// Data containing the system's operations calendar.
-    pub data: GBFSSystemCalendarData,
+    pub data: GBFSSystemCalendarDataV1,
 }

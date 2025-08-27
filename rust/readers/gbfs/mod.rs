@@ -4,13 +4,14 @@ mod schema_v3;
 
 use crate::readers::parse_csv_as_btree;
 use alloc::{format, string::String, vec, vec::Vec};
+use s2json::{MValue, ValuePrimitive};
 pub use schema_v1::*;
 pub use schema_v2::*;
 pub use schema_v3::*;
 use serde::{Deserialize, Deserializer, Serialize};
 
 /// Contains rental URIs for Android, iOS, and web (added in v1.1).
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue, ValuePrimitive)]
 pub struct GBFSRentalUri {
     /// URI that can be passed to an Android app with an intent (added in v1.1).
     /// **Format**: URI
@@ -21,6 +22,27 @@ pub struct GBFSRentalUri {
     /// URL that can be used by a web browser to show more information about renting this vehicle (added in v1.1).
     /// **Format**: URI
     pub web: Option<String>,
+}
+
+/// GBFS name
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue, ValuePrimitive)]
+pub struct GBFSName {
+    /// The translated text.
+    pub text: String,
+    /// IETF BCP 47 language code.
+    /// **pattern** ^[a-z]{2,3}(-[A-Z]{2})?$
+    pub language: String,
+}
+
+/// GBFS Versions
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GBFSVersion {
+    /// The semantic version of the feed in the form X.Y.
+    /// **Enum**: "1.0", "1.1", "2.0", "2.1", "2.2", "2.3", "3.0"
+    pub version: String,
+    /// URL of the corresponding gbfs.json endpoint.
+    /// **Format**: uri
+    pub url: String,
 }
 
 /// System Definition that is returned from the github CSV file.
