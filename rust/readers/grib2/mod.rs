@@ -242,6 +242,7 @@ pub struct Grib2SectionLocations {
     pub name: String,
 }
 
+#[doc(hidden)]
 /// # Fetch ATMOS or WAVE GFS data.
 ///
 /// ## ATMOS
@@ -273,19 +274,23 @@ pub struct Grib2SectionLocations {
 /// ## Example
 ///
 /// ```rust
-/// let grib2_reader = fetch_gfs_data(
-///     Grib2GFSSource::Aws,
-///     Grib2AtmosGFSProduct::Pgrb2b1p00,
-///     Grib2GFSDomain::Atmos,
-///     "2024".into(),
-///     "12".into(),
-///     "14".into(),
-///     "12".into(),
-///     Some("003".into()),
-///     Some(vec!["TMP:2 m".into()]),
-///  )
-/// .await ;
-/// assert_eq!(grib2_reader.len(), 1);
+/// use gistools::readers::{fetch_gfs_data, Grib2GFSSource, Grib2AtmosGFSProduct, Grib2GFSDomain};
+///
+/// async fn example() {
+///     let grib2_reader = fetch_gfs_data(
+///         Grib2GFSSource::Aws,
+///         Grib2AtmosGFSProduct::Pgrb2b1p00,
+///         Grib2GFSDomain::Atmos,
+///         "2024".into(),
+///         "12".into(),
+///         "14".into(),
+///         "12".into(),
+///         Some("003".into()),
+///         Some(vec!["TMP:2 m".into()]),
+///      )
+///     .await;
+///     assert_eq!(grib2_reader.idxs.len(), 1);
+/// }
 /// ```
 #[allow(clippy::too_many_arguments)]
 pub async fn fetch_gfs_data<P: Into<String>>(
