@@ -34,6 +34,7 @@ pub struct GBFSGeofencingZonesV2PropertiesRule {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue)]
 pub struct GBFSGeofencingZonesV2Properties {
     /// Public name of the geofencing zone.
+    #[serde(default)]
     pub name: String,
     /// Start time of the geofencing zone in RFC3339 format.
     /// **format** date-time

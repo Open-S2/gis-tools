@@ -2,9 +2,12 @@ mod schema_v1;
 mod schema_v2;
 mod schema_v3;
 
-use crate::readers::parse_csv_as_btree;
-use alloc::{format, string::String, vec, vec::Vec};
-use s2json::{MValue, ValuePrimitive};
+use crate::{
+    readers::{FeatureReader, parse_csv_as_btree},
+    util::fetch_url,
+};
+use alloc::{boxed::Box, format, string::String, vec, vec::Vec};
+use s2json::{MValue, Properties, ValuePrimitive, VectorFeature};
 pub use schema_v1::*;
 pub use schema_v2::*;
 pub use schema_v3::*;
@@ -45,6 +48,149 @@ pub struct GBFSVersion {
     pub url: String,
 }
 
+/// # General Bikeshare Feed Specification (GBFS) Reader
+///
+/// ## Description
+/// The versions of GBFS reader classes this data could be (1, 2, or 3)
+///
+/// Implements the [`FeatureReader`] interface.
+///
+/// ## Usage
+///
+/// If you want to know what datasets are available to you, you can get started with
+/// [`parse_gtfs_systems_from_url`].
+///
+/// If you want to build from a URL,
+/// See [`build_gbfs_reader`] to build a GBFSReader or use [`GBFSReader::from_url`]
+///
+/// ```rust
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://github.com/MobilityData/gbfs
+/// - https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.0
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum GBFSReader {
+    /// GBFS V1 Reader
+    V1(Box<GBFSReaderV1>),
+    /// GBFS V2 Reader
+    V2(Box<GBFSReaderV2>),
+    /// GBFS V3 Reader
+    V3(Box<GBFSReaderV3>),
+}
+impl GBFSReader {
+    /// Build a GBFSReader from a URL. See [`build_gbfs_reader`]
+    pub async fn from_url(url: &str, locale: Option<String>) -> GBFSReader {
+        build_gbfs_reader(url, locale).await
+    }
+}
+/// A feature reader trait with a callback-based approach
+/// The GBFS V1 Iterator tool
+#[derive(Debug)]
+pub struct GBFSIterator {
+    features: Vec<VectorFeature>,
+    index: usize,
+    len: usize,
+}
+impl Iterator for GBFSIterator {
+    type Item = VectorFeature;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index >= self.len {
+            return None;
+        }
+        self.index += 1;
+        self.features.get(self.index - 1).cloned()
+    }
+}
+/// A feature reader trait with a callback-based approach
+impl FeatureReader<(), Properties, MValue> for GBFSReader {
+    type FeatureIterator<'a> = GBFSIterator;
+
+    fn iter(&self) -> Self::FeatureIterator<'_> {
+        let features: Vec<VectorFeature> = match self {
+            GBFSReader::V1(reader) => reader.features(),
+            GBFSReader::V2(reader) => reader.features(),
+            GBFSReader::V3(reader) => reader.features(),
+        };
+        let len = features.len();
+        GBFSIterator { features, index: 0, len }
+    }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let features: Vec<VectorFeature> = match self {
+            GBFSReader::V1(reader) => reader.features(),
+            GBFSReader::V2(reader) => reader.features(),
+            GBFSReader::V3(reader) => reader.features(),
+        };
+        let start = features.len() * thread_id / pool_size;
+        let end = features.len() * (thread_id + 1) / pool_size;
+        GBFSIterator { features, index: start, len: end }
+    }
+}
+
+/// # General Bikeshare Feed Specification (GBFS) Schema
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum GBFSSchema {
+    /// GBFS V1
+    V1(GBFSV1),
+    /// GBFS V2
+    V2(GBFSV2),
+    /// GBFS V3
+    V3(GBFSV3),
+}
+
+/// # General Bikeshare Feed Specification (GBFS) Reader
+///
+/// ## Description
+/// Given a link to a GBFS feed, build the appropriate reader for the feed.
+/// The versions of GBFS reader classes this data could be (1, 2, or 3).
+///
+/// Implements the [`FeatureReader`] interface.
+///
+/// ## Usage
+///
+/// You can read more about the spec and reader from the [`GBFSReader`] struct.
+///
+/// ```rust
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://github.com/MobilityData/gbfs
+/// - https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.0
+/// - v3 example data: https://backend.citiz.fr/public/provider/9/gbfs/v3.0/gbfs.json
+/// - v2 example data: https://gbfs.helbiz.com/v2.2/durham/gbfs.json
+/// - v1 example data: https://gbfs.urbansharing.com/gbfs/gbfs.json
+///
+/// ## Parameters
+/// - `url`: The link to the GBFS feed
+/// - `locale`: The locale to use if provided, otherwise default to "en" (e.g., "en", "en-US").
+///
+/// ## Returns
+/// A GBFSReader of the appropriate version
+pub async fn build_gbfs_reader(url: &str, locale: Option<String>) -> GBFSReader {
+    let data = fetch_url(url, &[]).await.unwrap();
+    let schema = serde_json::from_slice::<GBFSSchema>(&data).unwrap();
+
+    let mut path = None;
+    if url.contains("localhost") || url.contains("0.0.0.0") || url.contains("127.0.0.1") {
+        let mut parts: Vec<&str> = url.split('/').collect();
+        parts.pop();
+        path = Some(parts.join("/"));
+    }
+
+    match schema {
+        GBFSSchema::V1(v1) => GBFSReader::V1(build_gbfs_reader_v1(&v1, locale, path).await.into()),
+        GBFSSchema::V2(v2) => GBFSReader::V2(build_gbfs_reader_v2(&v2, locale, path).await.into()),
+        GBFSSchema::V3(v3) => GBFSReader::V3(build_gbfs_reader_v3(&v3, locale, path).await.into()),
+    }
+}
+
 /// System Definition that is returned from the github CSV file.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GBFSSystem {
@@ -76,6 +222,37 @@ pub struct GBFSSystem {
     /// can be created, or directly contain the public key-value pair to append to the feed URLs.
     #[serde(rename = "authInfo")]
     pub auth_info: Option<String>,
+}
+
+/// # General Bikeshare Feed Specification (GBFS) Reader
+///
+/// ## Description
+/// Fetches the list of GBFS systems from the github CSV file
+///
+/// If you don't provide a url, it will default to
+/// <https://raw.githubusercontent.com/MobilityData/gbfs/refs/heads/master/systems.csv>
+/// which the spec managers keep updated with the latest systems
+///
+/// ## Usage
+///
+/// ```rust
+/// // TODO
+/// ```
+///
+/// ## Links
+/// - https://github.com/MobilityData/gbfs/blob/master/systems.csv
+///
+/// ## Parameters
+/// - `url`: The link to the GBFS feed.
+///
+/// ## Returns
+/// An array of systems
+pub async fn parse_gtfs_systems_from_url(url: Option<String>) -> Vec<GBFSSystem> {
+    let url = url.unwrap_or(
+        "https://raw.githubusercontent.com/MobilityData/gbfs/refs/heads/master/systems.csv".into(),
+    );
+    let data = fetch_url(&url, &[]).await.unwrap();
+    parse_gtfs_systems(String::from_utf8_lossy(&data).as_ref())
 }
 
 /// # General Bikeshare Feed Specification (GBFS) Reader

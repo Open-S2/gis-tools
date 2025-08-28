@@ -16,7 +16,36 @@
           "rental_uris": {
             "web": "https://capcotentin.ecovelo.mobi//#/station/stn_XLN88vWNhaeHAMXa8jgxer"
           },
-          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer"
+          "station_id": "stn_XLN88vWNhaeHAMXa8jgxer",
+          "station_area": {
+            "type": "MultiPolygon",
+            "coordinates": [
+              [
+                [
+                  [
+                    -122.655775,
+                    45.516445
+                  ],
+                  [
+                    -122.655705,
+                    45.516445
+                  ],
+                  [
+                    -122.655705,
+                    45.516495
+                  ],
+                  [
+                    -122.655775,
+                    45.516495
+                  ],
+                  [
+                    -122.655775,
+                    45.516445
+                  ]
+                ]
+              ]
+            ]
+          }
         },
         {
           "capacity": 10,

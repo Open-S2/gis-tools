@@ -1,6 +1,6 @@
 use crate::readers::GBFSRentalUri;
 use alloc::{collections::BTreeMap, string::String, vec::Vec};
-use s2json::MultiPolygonGeometry;
+use s2json::Geometry;
 use serde::{Deserialize, Serialize};
 
 /// # GBFS Station Information Schema V2.3, V2.2, V2.1, OR V2.0
@@ -60,7 +60,7 @@ pub struct GBFSStationInformationStationV23 {
     /// Is Virtual Station
     pub is_virtual_station: Option<bool>,
     /// Station Area
-    pub station_area: Option<MultiPolygonGeometry>,
+    pub station_area: Option<Geometry>, // MultiPolygonGeometry
     /// Parking Type
     pub parking_type: Option<GBFSStationInformationParkingTypeV23>,
     /// Parking Hoop
@@ -134,7 +134,7 @@ pub struct GBFSStationInformationStationV22 {
     /// Is Virtual Station
     pub is_virtual_station: Option<bool>,
     /// Station Area
-    pub station_area: Option<MultiPolygonGeometry>,
+    pub station_area: Option<Geometry>,
     /// Parking Type
     pub capacity: Option<u64>,
     /// Vehicle Capacity
@@ -230,7 +230,7 @@ pub struct GBFSStationInformationStationV21 {
     /// Is Virtual Station
     pub is_virtual_station: Option<bool>,
     /// Station Area
-    pub station_area: Option<MultiPolygonGeometry>,
+    pub station_area: Option<Geometry>,
     /// Capacity
     pub capacity: Option<u64>,
     /// Vehicle Capacity

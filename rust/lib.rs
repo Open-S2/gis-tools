@@ -94,6 +94,7 @@
 //!
 //! - [`crate::readers::GISReader`]: Read in any GIS file type supported by this library.
 //! - [`crate::readers::CSVReader`]: Parse (Geo|S2)JSON from a file that is in the CSV format
+//! - [`crate::readers::GBFSReader`]: Parse General Bikeshare Feed Specification (GBFS) data
 //! - [`crate::readers::GeoTIFFReader`]: This class reads a GeoTIFF file and returns a list of GeoTIFF images.
 //! - [`crate::readers::GPXReader`]: The GPX Reader is an XML-based GPS Exchange Format (GPX) reader.
 //! - [`crate::readers::GRIB2Reader`]: This class reads a GRIB2 file and returns a list of GRIB2 products.

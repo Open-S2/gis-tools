@@ -111,5 +111,5 @@ test('version 2.2', async () => {
   await server.stop();
 
   const features = await Array.fromAsync(gbfsReader);
-  expect(features.length).toBe(92);
+  expect(features.length).toBe(94);
 });

@@ -26,7 +26,7 @@ pub struct GBFSSystemRegionsV23 {
     /// GBFS version number
     pub version: String,
     /// Region data
-    pub data: GBFSSystemRegionsRegionV20,
+    pub data: GBFSSystemRegionsDataV20,
 }
 
 /// # GBFS System Regions Schema V2.2
@@ -44,7 +44,7 @@ pub struct GBFSSystemRegionsV22 {
     /// GBFS version number
     pub version: String,
     /// Region data
-    pub data: GBFSSystemRegionsRegionV20,
+    pub data: GBFSSystemRegionsDataV20,
 }
 
 /// # GBFS System Regions Schema V2.1

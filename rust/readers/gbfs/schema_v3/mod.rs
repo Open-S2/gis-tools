@@ -11,10 +11,18 @@ mod system_regions;
 mod vehicle_status;
 mod vehicle_types;
 
+use crate::{
+    geometry::{ConvertFeature, convert_geometry_to_vector},
+    parsers::FeatureReader,
+    util::fetch_url,
+};
+use alloc::{format, string::String, vec, vec::Vec};
 pub use gbfs::*;
 pub use gbfs_versions::*;
 pub use geofencing_zones::*;
 pub use manifest::*;
+use s2json::{Features, MValue, Properties, VectorFeature, VectorGeometry, VectorPoint};
+use serde::{Deserialize, Serialize};
 pub use station_information::*;
 pub use station_status::*;
 pub use system_alerts::*;
@@ -24,348 +32,306 @@ pub use system_regions::*;
 pub use vehicle_status::*;
 pub use vehicle_types::*;
 
-// import { toVector } from '../../../index.js';
+/// Geofencing Feature
+pub type GBFSGeofencingFeatureV3 = VectorFeature<(), GBFSGeofencingZonesV3Properties, MValue>;
 
-// import type {
-//   FeatureIterator,
-//   Properties,
-//   VectorFeature,
-//   VectorMultiPolygonGeometry,
-//   VectorPointGeometry,
-// } from '../../../index.js';
-// import type {
-//   GBFSGeofencingZonesV3,
-//   GBFSGeofencingZonesV3Properties,
-//   GBFSManifestV3,
-//   GBFSStationInformationV3,
-//   GBFSStationStatusV3,
-//   GBFSSystemAlertsV3,
-//   GBFSSystemInformationV3,
-//   GBFSSystemPricingPlansV3,
-//   GBFSSystemRegionsV3,
-//   GBFSV3,
-//   GBFSVehicleStatusV3,
-//   GBFSVehicleTypesV3,
-//   GBFSVehicleV3,
-//   GBFSVersionsV3,
-// } from './index.js';
+/// Station Information feature properties
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue)]
+pub struct GBFSStationV3FeaturesProperties {
+    /// Station ID
+    pub station_id: String,
+    /// Name
+    pub name: String,
+    /// Short name
+    pub short_name: Option<String>,
+    /// Address
+    pub address: Option<String>,
+    /// Cross Street
+    pub cross_street: Option<String>,
+    /// Region ID
+    pub region_id: Option<String>,
+    /// Post Code
+    pub post_code: Option<String>,
+    /// Station Opening Hours
+    pub station_opening_hours: Option<String>,
+    /// Is Virtual Station
+    pub is_virtual_station: Option<bool>,
+    /// Parking Type
+    pub parking_type: Option<String>,
+    /// Parking Hoop
+    pub parking_hoop: Option<bool>,
+    /// Contact Phone
+    pub contact_phone: Option<String>,
+    /// Capacity
+    pub capacity: Option<u64>,
+    /// Is Valet Station
+    pub is_valet_station: Option<bool>,
+    /// Is Charging Station
+    pub is_charging_station: Option<bool>,
+}
+impl GBFSStationV3FeaturesProperties {
+    /// Create a new GBFSStationV3FeaturesProperties
+    pub fn new(station: &GBFSStationV3, locale: &str) -> Self {
+        // station.name is an array of objects with `language` and `text` params. Filter by language == locale and return `text`
+        let name = &station
+            .name
+            .iter()
+            .find(|n| n.language == locale)
+            .or_else(|| station.name.first())
+            .map_or(String::new(), |n| n.text.clone());
+        let short_name = station.short_name.as_ref().and_then(|s| {
+            s.iter().find(|name| name.language == locale).map(|name| name.text.clone())
+        });
+        GBFSStationV3FeaturesProperties {
+            station_id: station.station_id.clone(),
+            name: name.clone(),
+            short_name,
+            address: station.address.clone(),
+            cross_street: station.cross_street.clone(),
+            region_id: station.region_id.clone(),
+            post_code: station.post_code.clone(),
+            station_opening_hours: station.station_opening_hours.clone(),
+            is_virtual_station: station.is_virtual_station,
+            parking_type: station.parking_type.clone().map(|s| serde_json::to_string(&s).unwrap()),
+            parking_hoop: station.parking_hoop,
+            contact_phone: station.contact_phone.clone(),
+            capacity: station.capacity,
+            is_valet_station: station.is_valet_station,
+            is_charging_station: station.is_charging_station,
+        }
+    }
+}
 
-// export * from './gbfs.js';
-// export * from './gbfsVersions.js';
-// export * from './geofencingZones.js';
-// export * from './manifest.js';
-// export * from './stationInformation.js';
-// export * from './stationStatus.js';
-// export * from './systemAlerts.js';
-// export * from './systemInformation.js';
-// export * from './systemPricingPlans.js';
-// export * from './systemRegions.js';
-// export * from './vehicleStatus.js';
-// export * from './vehicleTypes.js';
+/// Station Information Point Feature
+pub type GBFSStationFeatureV3 = VectorFeature<(), GBFSStationV3FeaturesProperties, MValue>;
 
-// /** Geofencing Feature */
-// export type GBFSGeofencingFeatureV3 = VectorFeature<
-//   undefined,
-//   Properties,
-//   GBFSGeofencingZonesV3Properties,
-//   VectorMultiPolygonGeometry<Properties>
-// >;
+/// Vehicle Point Feature
+pub type GBFSVehicleFeatureV3 = VectorFeature<(), GBFSVehicleV3, MValue>;
 
-// /** Station Information feature properties */
-// export interface GBFSStationV3FeaturesV3Properties extends Properties {
-//   station_id: string;
-//   name: Array<{
-//     text: string;
-//     language: string;
-//   }>;
-//   short_name?: Array<{
-//     text: string;
-//     language: string;
-//   }>;
-//   address?: string;
-//   cross_street?: string;
-//   region_id?: string;
-//   post_code?: string;
-//   station_opening_hours?: string;
-//   rental_methods?: Array<
-//     | 'key'
-//     | 'creditcard'
-//     | 'paypass'
-//     | 'applepay'
-//     | 'androidpay'
-//     | 'transitcard'
-//     | 'accountnumber'
-//     | 'phone'
-//   >;
-//   is_virtual_station?: boolean;
-//   parking_type?:
-//     | 'parking_lot'
-//     | 'street_parking'
-//     | 'underground_parking'
-//     | 'sidewalk_parking'
-//     | 'other';
-//   parking_hoop?: boolean;
-//   contact_phone?: string;
-//   capacity?: number;
-//   is_valet_station?: boolean;
-//   is_charging_station?: boolean;
-//   rental_uris?: {
-//     android?: string;
-//     ios?: string;
-//     web?: string;
-//   };
-// }
+/// GBFS Version 3 Reader
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GBFSReaderV3 {
+    /// User defined locale (defaults to "en")
+    pub locale: String,
+    /// The GBFS information
+    pub gbfs: GBFSV3,
+    /// The feeds for the GBFS
+    pub gbfs_versions: Option<GBFSVersionsV3>,
+    /// The system information
+    pub system_information: GBFSSystemInformationV3,
+    /// The station information
+    pub station_information: Option<GBFSStationInformationV3>,
+    /// The station status
+    pub station_status: Option<GBFSStationStatusV3>,
+    /// The vehicle status
+    pub vehicle_status: Option<GBFSVehicleStatusV3>,
+    /// The vehicle types
+    pub vehicle_types: Option<GBFSVehicleTypesV3>,
+    /// The system alerts
+    pub system_alerts: Option<GBFSSystemAlertsV3>,
+    /// The system regions
+    pub system_regions: Option<GBFSSystemRegionsV3>,
+    /// The system pricing plans
+    pub system_pricing_plans: Option<GBFSSystemPricingPlansV3>,
+    /// The geofencing zones
+    pub geofencing_zones: Option<GBFSGeofencingZonesV3>,
+    /// The manifest
+    pub manifest: Option<GBFSManifestV3>,
+}
+impl GBFSReaderV3 {
+    /// Get all features from the GBFS V3 data
+    pub fn features(&self) -> Vec<VectorFeature> {
+        let mut res = vec![];
 
-// /** Station Information Point Feature */
-// export type GBFSStationPointFeatureV3 = VectorFeature<
-//   undefined,
-//   Properties,
-//   GBFSStationV3FeaturesV3Properties,
-//   VectorPointGeometry<Properties>
-// >;
+        res.extend(self.station_features().iter().map(|f| f.to_m_vector_feature(|_| None)));
+        res.extend(self.geofencing_features().iter().map(|f| f.to_m_vector_feature(|_| None)));
+        res.extend(self.vehicle_features().iter().map(|f| f.to_m_vector_feature(|_| None)));
 
-// /** Station Information Area Feature */
-// export type GBFSStationAreaFeatureV3 = VectorFeature<
-//   undefined,
-//   Properties,
-//   GBFSStationV3FeaturesV3Properties,
-//   VectorMultiPolygonGeometry
-// >;
+        res
+    }
 
-// /** Vehicle Point Feature */
-// export type GBFSVehiclePointFeatureV3 = VectorFeature<
-//   undefined,
-//   Properties,
-//   GBFSVehicleV3,
-//   VectorPointGeometry
-// >;
+    /// Get all station features from the GBFS V3 data
+    pub fn station_features(&self) -> Vec<GBFSStationFeatureV3> {
+        let mut res = vec![];
 
-// /** Metadata Database Properties */
-// export interface GBFSDatasetAreaPropertiesV3 extends Properties {
-//   system_id: string;
-//   versions?: {
-//     version: '1.0' | '1.1' | '2.0' | '2.1' | '2.2' | '2.3' | '3.0' | '3.1-RC';
-//     url: string;
-//   }[];
-//   country_code?: string;
-// }
+        if let Some(station_information) = &self.station_information {
+            for station in &station_information.data.stations {
+                let properties = GBFSStationV3FeaturesProperties::new(station, &self.locale);
+                res.push(VectorFeature::new_wm(
+                    None,
+                    properties.clone(),
+                    VectorGeometry::new_point(VectorPoint::from_xy(station.lon, station.lat), None),
+                    None,
+                ));
+                if let Some(station_area) = &station.station_area {
+                    res.push(VectorFeature::new_wm(
+                        None,
+                        properties,
+                        convert_geometry_to_vector(station_area, true),
+                        None,
+                    ));
+                }
+            }
+        }
 
-// /** Metadata Database Feature */
-// export type GBFSDatasetAreaFeatureV3 = VectorFeature<
-//   undefined,
-//   Properties,
-//   GBFSDatasetAreaPropertiesV3,
-//   VectorMultiPolygonGeometry
-// >;
+        res
+    }
 
-// /** All potential feature types in a GBFS V3 specification */
-// export type GBFSFeaturesV3 =
-//   | GBFSGeofencingFeatureV3
-//   | GBFSStationPointFeatureV3
-//   | GBFSVehiclePointFeatureV3
-//   | GBFSDatasetAreaFeatureV3;
+    /// Get Geofencing features from the GBFS V3 data
+    pub fn geofencing_features(&self) -> Vec<GBFSGeofencingFeatureV3> {
+        let mut res = vec![];
 
-// /** All potential feature property types in a GBFS V3 specification */
-// export type GBFSFeaturePropertiesV3 =
-//   | GBFSGeofencingZonesV3Properties
-//   | GBFSStationV3FeaturesV3Properties
-//   | GBFSVehicleV3
-//   | GBFSDatasetAreaPropertiesV3;
+        if let Some(geofencing_zones) = &self.geofencing_zones {
+            for feature in &geofencing_zones.data.geofencing_zones.features {
+                match feature {
+                    Features::Feature(f) => {
+                        res.push(f.to_vector(Some(true)));
+                    }
+                    Features::VectorFeature(vf) => res.push(vf.clone()),
+                }
+            }
+        }
 
-// /**
-//  * GBFS Version 3 Reader
-//  */
-// export class GBFSReaderV3
-//   implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV3>
-// {
-//   version = 3;
-//   gbfs: GBFSV3;
-//   gbfsVersions?: GBFSVersionsV3;
-//   systemInformation!: GBFSSystemInformationV3;
-//   stationInformation?: GBFSStationInformationV3;
-//   stationStatus?: GBFSStationStatusV3;
-//   vehicleStatus?: GBFSVehicleStatusV3;
-//   systemAlerts?: GBFSSystemAlertsV3;
-//   systemRegions?: GBFSSystemRegionsV3;
-//   systemPricingPlans?: GBFSSystemPricingPlansV3;
-//   geofencingZones?: GBFSGeofencingZonesV3;
-//   manifest?: GBFSManifestV3;
+        res
+    }
 
-//   /**
-//    * @param gbfs - the GBFS schema
-//    * @param feeds - the feeds for the GBFS
-//    */
-//   constructor(gbfs: GBFSV3, feeds?: FeedResV3) {
-//     this.gbfs = gbfs;
-//     this.gbfsVersions = feeds?.gbfs_versions;
-//     this.systemInformation = feeds?.system_information as GBFSSystemInformationV3;
-//     this.stationInformation = feeds?.station_information;
-//     this.stationStatus = feeds?.station_status;
-//     this.vehicleStatus = feeds?.vehicle_status;
-//     this.systemAlerts = feeds?.system_alerts;
-//     this.systemRegions = feeds?.system_regions;
-//     this.systemPricingPlans = feeds?.system_pricing_plans;
-//     this.geofencingZones = feeds?.geofencing_zones;
-//     this.manifest = feeds?.manifest;
-//   }
+    /// Get vehicle features for the GBFS V3 data
+    pub fn vehicle_features(&self) -> Vec<GBFSVehicleFeatureV3> {
+        let mut res = vec![];
 
-//   /**
-//    * Yields all of the shapes
-//    * @yields an iterator that contains shapes, stops, location data, and routes
-//    */
-//   async *[Symbol.asyncIterator](): AsyncGenerator<GBFSFeaturesV3> {
-//     const { geofencingZones, stationInformation, vehicleStatus, manifest } = this;
-//     if (geofencingZones !== undefined) {
-//       const {
-//         data: { geofencing_zones },
-//       } = geofencingZones;
-//       for (const feature of geofencing_zones.features)
-//         yield toVector(feature) as GBFSGeofencingFeatureV3;
-//     }
-//     if (stationInformation !== undefined) {
-//       const {
-//         data: { stations },
-//       } = stationInformation;
-//       for (const station of stations) {
-//         const {
-//           lat,
-//           lon,
-//           station_area,
-//           station_id,
-//           name,
-//           short_name,
-//           address,
-//           cross_street,
-//           region_id,
-//           post_code,
-//           station_opening_hours,
-//           rental_methods,
-//           is_virtual_station,
-//           parking_type,
-//           parking_hoop,
-//           contact_phone,
-//           capacity,
-//           is_valet_station,
-//           is_charging_station,
-//           rental_uris,
-//         } = station;
-//         const stationProperties = {
-//           station_id,
-//           name,
-//           short_name,
-//           address,
-//           cross_street,
-//           region_id,
-//           post_code,
-//           station_opening_hours,
-//           rental_methods,
-//           is_virtual_station,
-//           parking_type,
-//           parking_hoop,
-//           contact_phone,
-//           capacity,
-//           is_valet_station,
-//           is_charging_station,
-//           rental_uris,
-//         };
-//         const stationPoint: GBFSStationPointFeatureV3 = {
-//           type: 'VectorFeature',
-//           properties: stationProperties,
-//           geometry: {
-//             type: 'Point',
-//             is3D: false,
-//             coordinates: { x: lon, y: lat },
-//           },
-//         };
-//         yield stationPoint;
-//         if (station_area !== undefined) {
-//           const stationArea = toVector({
-//             type: 'Feature',
-//             properties: stationProperties,
-//             geometry: station_area,
-//           }) as GBFSStationAreaFeatureV3;
-//           yield stationArea;
-//         }
-//       }
-//     }
-//     if (vehicleStatus !== undefined) {
-//       const {
-//         data: { vehicles },
-//       } = vehicleStatus;
-//       for (const vehicle of vehicles) {
-//         const { lat, lon } = vehicle;
-//         if (lat === undefined || lon === undefined) continue;
-//         const vehiclePoint: GBFSVehiclePointFeatureV3 = {
-//           type: 'VectorFeature',
-//           properties: { ...vehicle },
-//           geometry: {
-//             type: 'Point',
-//             is3D: false,
-//             coordinates: { x: lon, y: lat },
-//           },
-//         };
-//         yield vehiclePoint;
-//       }
-//     }
-//     if (manifest !== undefined) {
-//       const datasets = manifest.data.datasets;
-//       for (const dataset of datasets) {
-//         if ('area' in dataset && dataset.area !== undefined) {
-//           const { system_id, versions, area, country_code } = dataset;
-//           const areaFeature = toVector({
-//             type: 'Feature',
-//             properties: { system_id, versions, country_code },
-//             geometry: area,
-//           }) as GBFSDatasetAreaFeatureV3;
-//           yield areaFeature;
-//         }
-//       }
-//     }
-//   }
-// }
+        if let Some(vehicle_status) = &self.vehicle_status {
+            for vehicle in &vehicle_status.data.vehicles {
+                if let (Some(lat), Some(lon)) = (vehicle.lat, vehicle.lon) {
+                    res.push(VectorFeature::new_wm(
+                        None,
+                        vehicle.clone(),
+                        VectorGeometry::new_point(VectorPoint::from_xy(lon, lat), None),
+                        None,
+                    ));
+                }
+            }
+        }
 
-// /** Parsing all the available feeds */
-// export interface FeedResV3 {
-//   gbfs_versions?: GBFSVersionsV3;
-//   system_information?: GBFSSystemInformationV3;
-//   vehicle_types?: GBFSVehicleTypesV3;
-//   station_information?: GBFSStationInformationV3;
-//   station_status?: GBFSStationStatusV3;
-//   vehicle_status?: GBFSVehicleStatusV3;
-//   system_alerts?: GBFSSystemAlertsV3;
-//   system_regions?: GBFSSystemRegionsV3;
-//   system_pricing_plans?: GBFSSystemPricingPlansV3;
-//   geofencing_zones?: GBFSGeofencingZonesV3;
-//   manifest?: GBFSManifestV3;
-// }
+        res
+    }
+}
 
-// /**
-//  * @param gbfs - the GBFS schema to parse
-//  * @param path - if provided, will use this path instead of the url (for testing)
-//  * @returns - the GBFS reader
-//  */
-// export async function buildGBFSReaderV3(gbfs: GBFSV3, path?: string): Promise<GBFSReaderV3> {
-//   const {
-//     data: { feeds },
-//   } = gbfs;
-//   const feedData: FeedResV3 = {};
-//   await Promise.allSettled(
-//     feeds.map(async (feed) => {
-//       if (feed.name === 'gbfs') return;
-//       const url = path !== undefined ? `${path}/${feed.name}.json` : feed.url;
-//       const json = await fetch(url).then(async (res) => await res.json());
-//       feedData[feed.name] = json;
-//     }),
-//   );
+/// The GBFS V1 Iterator tool
+#[derive(Debug)]
+pub struct GBFSIteratorV3 {
+    features: Vec<VectorFeature>,
+    index: usize,
+    len: usize,
+}
+impl Iterator for GBFSIteratorV3 {
+    type Item = VectorFeature;
 
-//   // If there is a manifest.json, lets get it
-//   if (feedData.system_information?.data.manifest_url !== undefined) {
-//     const manifestURL =
-//       path !== undefined ? `${path}/manifest.json` : feedData.system_information.data.manifest_url;
-//     feedData.manifest = await fetch(manifestURL).then(
-//       async (res) => (await res.json()) as GBFSManifestV3,
-//     );
-//   }
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index >= self.len {
+            return None;
+        }
+        self.index += 1;
+        self.features.get(self.index - 1).cloned()
+    }
+}
+/// A feature reader trait with a callback-based approach
+impl FeatureReader<(), Properties, MValue> for GBFSReaderV3 {
+    type FeatureIterator<'a> = GBFSIteratorV3;
 
-//   return new GBFSReaderV3(gbfs, feedData);
-// }
+    fn iter(&self) -> Self::FeatureIterator<'_> {
+        let features = self.features();
+        let len = features.len();
+        GBFSIteratorV3 { features, index: 0, len }
+    }
+
+    #[cfg(feature = "std")]
+    fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
+        let features = self.features();
+        let start = features.len() * thread_id / pool_size;
+        let end = features.len() * (thread_id + 1) / pool_size;
+        GBFSIteratorV3 { features, index: start, len: end }
+    }
+}
+
+/// Parse a GBFS V3 schema and build a V3 GBFS reader
+///
+/// ## Parameters
+/// - `gbfs`: the GBFS schema to parse
+/// - `locale`: the locale to use if provided, otherwise default to en
+/// - `path`: if provided, will use this path instead of the url (for testing)
+///
+/// ## Returns
+/// The GBFS reader
+pub async fn build_gbfs_reader_v3(
+    gbfs: &GBFSV3,
+    locale: Option<String>,
+    path: Option<String>,
+) -> GBFSReaderV3 {
+    let feeds = gbfs.data.feeds.clone();
+
+    let mut reader = GBFSReaderV3 {
+        locale: locale.unwrap_or("en".into()),
+        gbfs: gbfs.clone(),
+        ..Default::default()
+    };
+
+    for feed in feeds {
+        let name = serde_json::to_string(&feed.name).unwrap();
+        if &name == "gbfs" {
+            continue;
+        }
+        let url = if let Some(ref path) = path {
+            format!("{}/{}.json", path, name.trim_matches('"'))
+        } else {
+            feed.url
+        };
+
+        if let Ok(url_data) = fetch_url(&url, &[]).await {
+            match feed.name {
+                GBFSV30FeedsName::Gbfs => {}
+                GBFSV30FeedsName::GbfsVersions => {
+                    reader.gbfs_versions = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::StationInformation => {
+                    reader.station_information = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::StationStatus => {
+                    reader.station_status = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::SystemAlerts => {
+                    reader.system_alerts = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::SystemInformation => {
+                    reader.system_information = serde_json::from_slice(&url_data).unwrap();
+                }
+                GBFSV30FeedsName::SystemPricingPlans => {
+                    reader.system_pricing_plans = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::SystemRegions => {
+                    reader.system_regions = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::VehicleStatus => {
+                    reader.vehicle_status = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::VehicleTypes => {
+                    reader.vehicle_types = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+                GBFSV30FeedsName::GeofencingZones => {
+                    reader.geofencing_zones = Some(serde_json::from_slice(&url_data).unwrap());
+                }
+            }
+        }
+    }
+
+    if let Some(manifest_url) = reader.system_information.data.manifest_url.clone() {
+        let manifest_url = if let Some(ref path) = path {
+            format!("{}/manifest.json", path)
+        } else {
+            manifest_url
+        };
+        let manifest_data = fetch_url(&manifest_url, &[]).await.unwrap();
+        reader.manifest = serde_json::from_slice(&manifest_data).unwrap_or(None);
+    }
+
+    reader
+}

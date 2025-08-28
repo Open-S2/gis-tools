@@ -1,6 +1,6 @@
 use crate::readers::{GBFSName, GBFSRentalUri};
 use alloc::{string::String, vec::Vec};
-use s2json::MultiPolygonGeometry;
+use s2json::Geometry;
 use serde::{Deserialize, Serialize};
 
 /// # GBFS Station Information Schema V3.1-RC & V3.0
@@ -104,7 +104,7 @@ pub struct GBFSStationV3 {
     /// Is this station a location with or without physical infrastructure? (added in v2.1-RC)
     pub is_virtual_station: Option<bool>,
     /// A multipolygon describing the area of a virtual station. (added in v2.1-RC)
-    pub station_area: Option<MultiPolygonGeometry>,
+    pub station_area: Option<Geometry>,
     /// Type of parking station. (added in v2.3)
     /// **Enum**: ['parking_lot', 'street_parking', 'underground_parking', 'sidewalk_parking', 'other']
     pub parking_type: Option<GBFSStationInformationParkingTypeV30>,

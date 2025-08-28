@@ -1,10 +1,15 @@
 mod v1_1;
+mod v2_2;
+mod v3_0;
 
 #[cfg(test)]
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use gistools::readers::{GBFSSystem, gbfs_bool_or_int, parse_gtfs_systems};
+    use crate::spawn_test_server;
+    use gistools::readers::{
+        GBFSSystem, gbfs_bool_or_int, parse_gtfs_systems, parse_gtfs_systems_from_url,
+    };
     use serde::{
         Deserialize, Deserializer,
         de::{Error as _, Unexpected, Visitor},
@@ -80,6 +85,87 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn test_parse_gtfs_systems_async() {
+        // http://localhost:${server.port}/readers/gbfs/fixtures/systems.csv
+        smol::block_on(async {
+            let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let path_str: String = path.to_str().unwrap().into();
+            let server = spawn_test_server(&path_str);
+
+            let systems = parse_gtfs_systems_from_url(Some(format!(
+                "{}/tests/readers/gbfs/fixtures/systems.csv",
+                server
+            )))
+            .await;
+
+            assert_eq!(systems.len(), 960);
+
+            assert_eq!(
+                systems[0..5],
+                vec![
+                    GBFSSystem {
+                        country_code: "AE".into(),
+                        name: "Careem BIKE".into(),
+                        location: "Dubai".into(),
+                        system_id: "careem_bike".into(),
+                        url: "https://www.careem.com/en-ae/careem-bike/".into(),
+                        auto_discovery_url:
+                            "https://dubai.publicbikesystem.net/customer/gbfs/v2/gbfs.json".into(),
+                        supported_versions: vec!["1.1".into(), "2.3".into()],
+                        auth_info: None
+                    },
+                    GBFSSystem {
+                        country_code: "AR".into(),
+                        name: "Bike Nordelta".into(),
+                        location: "Buenos Aires".into(),
+                        system_id: "bike_nordelta".into(),
+                        url: "https://bikeitau.com.br/nordelta/".into(),
+                        auto_discovery_url:
+                            "https://nordelta.publicbikesystem.net/customer/gbfs/v2/gbfs.json"
+                                .into(),
+                        supported_versions: vec!["1.1".into(), "2.3".into()],
+                        auth_info: None
+                    },
+                    GBFSSystem {
+                        country_code: "AR".into(),
+                        name: "Ecobici".into(),
+                        location: "Buenos Aires".into(),
+                        system_id: "bike_buenosaires".into(),
+                        url: "https://www.buenosaires.gob.ar/ecobici".into(),
+                        auto_discovery_url:
+                            "https://buenosaires.publicbikesystem.net/customer/gbfs/v2/gbfs.json"
+                                .into(),
+                        supported_versions: vec!["1.1".into(), "2.3".into()],
+                        auth_info: None
+                    },
+                    GBFSSystem {
+                        country_code: "AR".into(),
+                        name: "MiBiciTuBici".into(),
+                        location: "Rosario".into(),
+                        system_id: "biketobike".into(),
+                        url: "https://www.mibicitubici.gob.ar/".into(),
+                        auto_discovery_url: "https://www.mibicitubici.gob.ar/opendata/gbfs.json"
+                            .into(),
+                        supported_versions: vec!["1.0".into()],
+                        auth_info: None
+                    },
+                    GBFSSystem {
+                        country_code: "AT".into(),
+                        name: "city bike Linz".into(),
+                        location: "Linz".into(),
+                        system_id: "nextbike_al".into(),
+                        url: "https://citybikelinz.at/".into(),
+                        auto_discovery_url:
+                            "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_al/gbfs.json".into(),
+                        supported_versions: vec!["2.3".into()],
+                        auth_info: None
+                    }
+                ]
+            );
+        });
     }
 
     #[test]

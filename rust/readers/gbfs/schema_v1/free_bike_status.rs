@@ -1,5 +1,6 @@
 use crate::readers::{GBFSRentalUri, gbfs_bool_or_int};
 use alloc::{string::String, vec::Vec};
+use s2json::MValue;
 use serde::{Deserialize, Serialize};
 
 /// # Free Bike Status Schema V1.1 OR Free Bike Status Schema V1.0
@@ -11,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub type GBFSFreeBikeStatusV1 = GBFSFreeBikeStatusV11;
 
 /// Free Bike Status Schema V1.1 Interface
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue)]
 pub struct GBFSFreeBikeV11 {
     /// Bike ID
     pub bike_id: String,
