@@ -144,7 +144,7 @@ pub fn lcca_e_inverse<P: TransformCoordinates>(lcca: &mut LccaData, proj: &Proj,
         }
         i -= 1;
     }
-    if i != 0 {
+    if i == 0 {
         panic!("Coordinate outside projection domain");
     }
     p.set_phi(inv_mlfn(s + lcca.m0, &lcca.en));

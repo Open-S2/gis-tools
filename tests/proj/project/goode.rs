@@ -2,11 +2,10 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use std::{cell::RefCell, rc::Rc};
-
     use gistools::proj::{
         CoordinateStep, Coords, GoodeHomolosineProjection, Proj, ProjectCoordinates,
     };
+    use std::{cell::RefCell, rc::Rc};
 
     #[test]
     fn test_goode() {

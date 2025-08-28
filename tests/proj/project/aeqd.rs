@@ -2,21 +2,25 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use gistools::proj::{
-        CoordinateStep, Coords, EQUAL_EARTH, EqualEarthProjection, Proj, ProjectCoordinates,
-        derive_sphere,
-    };
     use std::{cell::RefCell, rc::Rc};
 
+    use gistools::proj::{
+        AZIMUTHAL_EQUIDISTANT, AzimuthalEquidistantProjection, CoordinateStep, Coords, GUAM, Proj,
+        ProjectCoordinates, derive_sphere,
+    };
+
     #[test]
-    fn test_eqearth() {
+    fn test_aeqd() {
         let proj = Rc::new(RefCell::new(Proj::default()));
 
-        let projection = EqualEarthProjection::new(proj);
+        let projection = AzimuthalEquidistantProjection::new(proj);
 
-        assert_eq!(projection.code(), EQUAL_EARTH);
-        assert_eq!(projection.name(), "Equal Earth");
-        assert_eq!(EqualEarthProjection::names(), &["Equal Earth", "EqualEarth", "eqearth"]);
+        assert_eq!(projection.code(), AZIMUTHAL_EQUIDISTANT);
+        assert_eq!(projection.name(), "Azimuthal Equidistant");
+        assert_eq!(
+            AzimuthalEquidistantProjection::names(),
+            &["Azimuthal Equidistant", "Azimuthal_Equidistant", "aeqd", "guam"]
+        );
 
         let mut coords = Coords::new_xy(0., 0.);
         projection.forward(&mut coords);
@@ -28,20 +32,19 @@ mod tests {
     }
 
     #[test]
-    fn test_eqearth2() {
+    fn test_aeqd2() {
         let proj = Rc::new(RefCell::new(Proj::default()));
-
-        let projection = EqualEarthProjection::new(proj.clone());
-
         {
             let proj = &mut proj.borrow_mut();
+            proj.set_f64(GUAM, 1.);
             proj.ellps = "GRS80".to_string();
             derive_sphere(proj);
         }
+        let projection = AzimuthalEquidistantProjection::new(proj.clone());
 
         let mut coords = Coords::new_xy(0., 0.);
         projection.forward(&mut coords);
-        // assert_eq!(coords, Coords::new_xy(0., 0.));
+        assert_eq!(coords, Coords::new_xy(0., 0.));
 
         let mut coords = Coords::new_xy(0., 0.);
         projection.inverse(&mut coords);

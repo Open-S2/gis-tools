@@ -2,9 +2,8 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use std::{cell::RefCell, rc::Rc};
-
     use gistools::proj::{CoordinateStep, Coords, Proj, ProjectCoordinates, RobinsonProjection};
+    use std::{cell::RefCell, rc::Rc};
 
     #[test]
     fn test_robin() {

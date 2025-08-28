@@ -196,7 +196,7 @@ fn inv_gauss<P: TransformCoordinates>(p: &mut P, en: &Gauss) {
         i -= 1;
     }
     // convergence failed
-    if i != 0 {
+    if i == 0 {
         panic!("Coordinate outside projection domain");
     }
 }

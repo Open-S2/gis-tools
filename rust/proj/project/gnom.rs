@@ -224,12 +224,6 @@ pub fn gnom_s_inverse<P: TransformCoordinates>(gnom: &mut GnomData, proj: &Proj,
 
 /// Gnomonic Ellipsoidal Forward
 pub fn gnom_e_forward<P: TransformCoordinates>(gnom: &mut GnomData, proj: &Proj, p: &mut P) {
-    // static PJ_XY gnom_e_forward(PJ_LP lp, PJ *P) { /* Ellipsoidal, forward */
-    //     PJ_XY xy = {0.0, 0.0};
-    //     struct pj_gnom_data *Q = static_cast<struct pj_gnom_data *>(proj.opaque);
-
-    // let lat0 = proj.phi0 / DEG_TO_RAD, lon0 = 0, lat1 = lp.phi / DEG_TO_RAD,
-    //        lon1 = lp.lam / DEG_TO_RAD, azi0, m, M;
     let lat0 = proj.phi0.to_degrees();
     let lon0 = 0.;
     let lat1 = p.phi().to_degrees();
@@ -253,14 +247,13 @@ pub fn gnom_e_forward<P: TransformCoordinates>(gnom: &mut GnomData, proj: &Proj,
         &mut 0.,
     );
     if _m <= 0. {
-        panic!("Coordinate outside projection domain");
+        panic!("Coordinate outside projection domain {_m}");
     } else {
         let rho = m / _m;
         azi0 = azi0.to_radians();
         p.set_x(rho * sin(azi0));
         p.set_y(rho * cos(azi0));
     }
-    //     return xy;
 }
 
 /// Gnomonic Ellipsoidal inverse

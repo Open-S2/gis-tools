@@ -2,12 +2,11 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use std::{cell::RefCell, rc::Rc};
-
     use gistools::proj::{
         AZIMUTH_PROJECTION_CENTRE, CoordinateStep, Coords, LABORDE, LabordeProjection, Proj,
         ProjectCoordinates,
     };
+    use std::{cell::RefCell, rc::Rc};
 
     #[test]
     fn test_labrd() {
@@ -23,6 +22,7 @@ mod tests {
 
         assert_eq!(projection.code(), LABORDE);
         assert_eq!(projection.name(), "Laborde");
+        assert_eq!(LabordeProjection::names(), &["Laborde", "Laborde Oblique Mercator", "labrd"]);
 
         let mut coords = Coords::new_xy(0., 0.);
         projection.forward(&mut coords);
