@@ -20,6 +20,10 @@ rustdoc-args = [ "--html-in-header", "katex-header.html" ]
 name = "gistools"
 path = "rust/lib.rs"
 
+[[bin]]
+name = "gis-tools"
+path = "rust/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -43,12 +47,16 @@ brotli = { version = "8", optional = true }
 image = { version = "0.25", optional = true }
 # Optional std/wasm dependencies
 surf = { version = "2", default-features = false }
+# CLI dependencies
+clap = { version = "4.5", features = ["derive"] }
 
 [dev-dependencies]
 tempfile = "3"
+assert_cmd = "2"
+predicates = "3"
 criterion = { version = "0.7", features = ["html_reports"] }
 rand = "0.9"
-tiff = "0.10.2"
+tiff = "0.10.3"
 tiny_http = "0.12"
 smol = "2"
 
