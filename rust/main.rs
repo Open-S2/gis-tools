@@ -89,10 +89,7 @@ fn main() {
 
             println!(
                 "Input: {:?} ({:?}), Output: {} ({})",
-                args.input,
-                args.input_format,
-                args.output,
-                out_type.to_string()
+                args.input, args.input_format, args.output, out_type
             );
 
             match out_type {
