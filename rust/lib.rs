@@ -137,6 +137,8 @@
 //! Lines
 //!
 //! - [`crate::geometry::along_line`]: Given a linestring in degrees and a distance, create a [`s2json::VectorPoint`] along the line
+//! - [`crate::geometry::intersection_of_segments`]: Find the intersection of two line segments
+//! - [`crate::geometry::intersection_of_segments_robust`]: Find the intersection of two linestrings using a robust algorithm
 //! - [`crate::geometry::LengthOfLines`]: Get the total distance of a line or lines
 //! - [`crate::geometry::ToLines`]: Given a Geometry, attempt to Return a VectorLineString.
 //!
@@ -144,6 +146,7 @@
 //!
 //! - [`crate::geometry::Area`]: Get the area of the polygon. Lines return 0 if not closed. Other geometries return 0.
 //! - [`crate::geometry::Inside`]: Check if a point is inside a geometry.
+//! - [`crate::geometry::polygons_intersections`]: Find all intersections within a collection of polygons using a robust algorithm
 //!
 //! Clip
 //!
@@ -297,6 +300,8 @@
 //! ### Data Structures
 //!
 //! - [`crate::data_structures::Cache`]: A cache of values with a max size to ensure that too much old data is not stored.
+//! - [`crate::data_structures::BoxIndex`]: A BoxIndex is a 2D spatial data structure that can be used to quickly find objects within a bounding box.
+//! - [`crate::data_structures::FlatQueue`]: A priority queue implemented using a binary heap.
 //! - [`crate::data_structures::PointCluster`]: A cluster store to index points at each zoom level
 //! - [`crate::data_structures::PointGrid`]: A cluster store to build grid data of grid_size x grid_size. The resultant tiles are filled. Useful for building raster tiles or other grid like data (temperature, precipitation, wind, etc).
 //! - [`crate::data_structures::PointIndex`]: An index of cells with radius queries Assumes the data is compatible with S2JSON MValues with serde_json serialization

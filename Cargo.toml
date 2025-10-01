@@ -45,9 +45,9 @@ memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
 brotli = { version = "8", optional = true }
 image = { version = "0.25", optional = true }
-# Optional std/wasm dependencies
+# Optional std/wasm fetch dependency
 surf = { version = "2", default-features = false }
-# CLI dependencies
+# CLI dependency
 clap = { version = "4.5", features = ["derive"] }
 
 [dev-dependencies]
@@ -84,7 +84,6 @@ inherits = "release"
 opt-level = 3
 # un-comment these when using flamegraph.
 # debug = true
-
 # [profile.release]
 # debug = true
 

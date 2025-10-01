@@ -4,7 +4,10 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
-        geometry::{LengthOfLines, ToLines, along_line},
+        geometry::{
+            LengthOfLines, ToLines, along_line, intersection_of_segments,
+            intersection_of_segments_robust,
+        },
         proj::Coords,
     };
     use s2json::{
@@ -507,5 +510,115 @@ mod tests {
             feature.to_lines(),
             vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
         );
+    }
+
+    #[test]
+    fn intersection_of_segments_for_crossing_segments() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 2.0));
+        let b = (&VectorPoint::from_xy(0.0, 2.0), &VectorPoint::from_xy(2.0, 0.0));
+        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+    }
+
+    #[test]
+    fn intersection_of_segments_undefined_when_parallel() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
+        let b = (&VectorPoint::from_xy(0.0, 1.0), &VectorPoint::from_xy(2.0, 1.0));
+        assert_eq!(intersection_of_segments(a, b), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_undefined_when_lies_outside_bounds() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
+        let b = (&VectorPoint::from_xy(2.0, 2.0), &VectorPoint::from_xy(3.0, 3.0));
+        assert_eq!(intersection_of_segments(a, b), None);
+    }
+
+    #[test]
+    fn interesciton_of_segments_endpoint_when_only_endpoints_touch() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
+        let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
+        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+    }
+
+    #[test]
+    fn interesction_of_segments_undefined_when_parallel_overlap() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
+        let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
+        assert_eq!(intersection_of_segments(a, b), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_correct_intersection_inside_segment_ranges() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(4.0, 0.0));
+        let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
+        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(2.0, 0.0)));
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_for_crossing_segments() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 2.0));
+        let b = (&VectorPoint::from_xy(0.0, 2.0), &VectorPoint::from_xy(2.0, 0.0));
+        assert_eq!(
+            intersection_of_segments_robust(a, b, None, None),
+            Some(VectorPoint::from_xy(1.0, 1.0))
+        );
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_undefined_for_parallel_non_intersecting_segments() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
+        let b = (&VectorPoint::from_xy(0.0, 1.0), &VectorPoint::from_xy(2.0, 1.0));
+        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_undefined_for_collinear_overlapping_segments() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
+        let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
+        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_endpoint_intersection_if_segments_touch_and_ring_ids_differ()
+    {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
+        let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
+        assert_eq!(
+            intersection_of_segments_robust(a, b, Some(1), Some(2)),
+            Some(VectorPoint::from_xy(1.0, 1.0))
+        );
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_undefined_if_segments_touch_at_endpoints_and_ring_ids_are_the_same()
+     {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
+        let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
+        assert_eq!(intersection_of_segments_robust(a, b, Some(1), Some(1)), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_returns_intersections_inside_segment_ranges() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(4.0, 0.0));
+        let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
+        assert_eq!(
+            intersection_of_segments_robust(a, b, None, None),
+            Some(VectorPoint::from_xy(2.0, 0.0))
+        );
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_undefined_when_intersection_point_is_outside_of_segment_ranges()
+     {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 0.0));
+        let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
+        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+    }
+
+    #[test]
+    fn intersection_of_segments_robust_undefined_when_parallel_overlap() {
+        let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
+        let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
+        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
     }
 }

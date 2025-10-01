@@ -4,11 +4,11 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
-        geometry::{Area, Inside, InsideResult},
+        geometry::{Area, Inside, InsideResult, Intersection, Segment, polygons_intersections},
         proj::Coords,
     };
     use s2json::{
-        Feature, FeatureType, Geometry, LineString3DGeometry, LineStringGeometry, MValue,
+        BBox, Feature, FeatureType, Geometry, LineString3DGeometry, LineStringGeometry, MValue,
         MultiLineString3DGeometry, MultiLineStringGeometry, MultiPoint3DGeometry,
         MultiPointGeometry, MultiPolygon3DGeometry, MultiPolygonGeometry, Point, Point3D,
         Point3DGeometry, PointGeometry, Polygon3DGeometry, PolygonGeometry, Properties,
@@ -687,5 +687,113 @@ mod tests {
         };
         assert_eq!(feature.area(Some(1.0)), -0.0001522545850103477);
         assert_eq!(feature.area(None), -6179976018.4314995);
+    }
+
+    #[test]
+    fn polygons_intersections_simple_no_overlap() {
+        let a = vec![vec![
+            VectorPoint::from_xy(-57.29250824839444, 39.309204530727754),
+            VectorPoint::from_xy(-58.742162935523396, 35.86408152890863),
+            VectorPoint::from_xy(-53.43642678063297, 37.560632581866784),
+            VectorPoint::from_xy(-57.29250824839444, 39.309204530727754),
+        ]];
+        let b = vec![vec![
+            VectorPoint::from_xy(-47.66680112586184, 39.08451444040281),
+            VectorPoint::from_xy(-51.377917124910766, 37.76719296237772),
+            VectorPoint::from_xy(-47.4058632821789, 35.274503072379716),
+            VectorPoint::from_xy(-47.66680112586184, 39.08451444040281),
+        ]];
+        assert_eq!(polygons_intersections(&vec![a, b]), vec![]);
+    }
+
+    #[test]
+    fn polygons_intersections_simple_simple_overlap() {
+        let a = vec![vec![
+            VectorPoint::from_xy(-57.29250824839444, 39.309204530727754),
+            VectorPoint::from_xy(-58.742162935523396, 35.86408152890863),
+            VectorPoint::from_xy(-53.43642678063297, 37.560632581866784),
+            VectorPoint::from_xy(-57.29250824839444, 39.309204530727754),
+        ]];
+        let b = vec![vec![
+            VectorPoint::from_xy(-51.29093784368342, 39.08451444040281),
+            VectorPoint::from_xy(-55.118026217701825, 37.72134033908044),
+            VectorPoint::from_xy(-50.79805525005969, 35.53445202830912),
+            VectorPoint::from_xy(-51.29093784368342, 39.08451444040281),
+        ]];
+        assert_eq!(
+            polygons_intersections(&vec![a, b]),
+            vec![
+                Intersection {
+                    segment1: Segment {
+                        id: 1,
+                        poly_index: 0,
+                        ring_index: 0,
+                        from: 1,
+                        to: 2,
+                        bbox: BBox {
+                            left: -58.742162935523396,
+                            bottom: 35.86408152890863,
+                            right: -53.43642678063297,
+                            top: 37.560632581866784
+                        }
+                    },
+                    segment2: Segment {
+                        id: 4,
+                        poly_index: 1,
+                        ring_index: 0,
+                        from: 1,
+                        to: 2,
+                        bbox: BBox {
+                            left: -55.118026217701825,
+                            bottom: 35.53445202830912,
+                            right: -50.79805525005969,
+                            top: 37.72134033908044
+                        }
+                    },
+                    point: VectorPoint {
+                        x: -54.27247565285823,
+                        y: 37.293299349853186,
+                        z: None,
+                        m: None,
+                        t: None
+                    }
+                },
+                Intersection {
+                    segment1: Segment {
+                        id: 2,
+                        poly_index: 0,
+                        ring_index: 0,
+                        from: 2,
+                        to: 3,
+                        bbox: BBox {
+                            left: -57.29250824839444,
+                            bottom: 37.560632581866784,
+                            right: -53.43642678063297,
+                            top: 39.309204530727754
+                        }
+                    },
+                    segment2: Segment {
+                        id: 3,
+                        poly_index: 1,
+                        ring_index: 0,
+                        from: 0,
+                        to: 1,
+                        bbox: BBox {
+                            left: -55.118026217701825,
+                            bottom: 37.72134033908044,
+                            right: -51.29093784368342,
+                            top: 39.08451444040281
+                        }
+                    },
+                    point: VectorPoint {
+                        x: -54.37470749761522,
+                        y: 37.98610371249223,
+                        z: None,
+                        m: None,
+                        t: None
+                    }
+                }
+            ]
+        );
     }
 }

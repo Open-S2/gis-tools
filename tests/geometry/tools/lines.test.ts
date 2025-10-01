@@ -1,6 +1,12 @@
-import { lineArea, toLines } from '../../../src';
+import { describe, expect, it, test } from 'bun:test';
+import {
+  intersectionOfSegments,
+  intersectionOfSegmentsRobust,
+  lineArea,
+  toLines,
+} from '../../../src';
 
-import { expect, test } from 'bun:test';
+import type { VectorPoint } from '../../../src';
 
 test('toLines', () => {
   expect(
@@ -190,4 +196,177 @@ test('lineArea', () => {
   };
   const area2 = lineArea(line2);
   expect(area2).toEqual(-1);
+});
+
+describe('intersectionOfSegments', () => {
+  it('returns intersection for crossing segments', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 2 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 2 },
+      { x: 2, y: 0 },
+    ];
+    const result = intersectionOfSegments(a, b);
+    expect(result).toEqual({ x: 1, y: 1 });
+  });
+
+  it('returns undefined when segments are parallel', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 1 },
+      { x: 2, y: 1 },
+    ];
+    expect(intersectionOfSegments(a, b)).toBeUndefined();
+  });
+
+  it('returns undefined when intersection lies outside the segment bounds', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 2, y: 2 },
+      { x: 3, y: 3 },
+    ];
+    expect(intersectionOfSegments(a, b)).toBeUndefined();
+  });
+
+  it('returns endpoint when only endpoints touch', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 0 },
+    ];
+    expect(intersectionOfSegments(a, b)).toEqual({ x: 1, y: 1 });
+  });
+
+  it('returns nothing when parallel overlap', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 0 },
+      { x: 3, y: 0 },
+    ];
+    expect(intersectionOfSegments(a, b)).toBeUndefined();
+  });
+
+  it('returns correct intersection inside segment ranges', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 4, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 2, y: -1 },
+      { x: 2, y: 1 },
+    ];
+    expect(intersectionOfSegments(a, b)).toEqual({ x: 2, y: 0 });
+  });
+});
+
+describe('intersectionOfSegmentsRobust', () => {
+  it('returns intersection for crossing segments', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 2 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 2 },
+      { x: 2, y: 0 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toEqual({ x: 1, y: 1 });
+  });
+
+  it('returns undefined for parallel non-intersecting segments', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 1 },
+      { x: 2, y: 1 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toBeUndefined();
+  });
+
+  it('returns undefined for collinear overlapping segments', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 0 },
+      { x: 3, y: 0 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toBeUndefined();
+  });
+
+  it('returns endpoint intersection if segments touch and ringIDs differ', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 0 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, 1, 2)).toEqual({ x: 1, y: 1 });
+  });
+
+  it('returns undefined if segments touch at endpoints and ringIDs are the same', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 0 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, 1, 1)).toBeUndefined();
+  });
+
+  it('returns intersection inside segment ranges', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 4, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 2, y: -1 },
+      { x: 2, y: 1 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toEqual({ x: 2, y: 0 });
+  });
+
+  it('returns undefined when intersection point is outside of segment ranges', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 2, y: -1 },
+      { x: 2, y: 1 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toBeUndefined();
+  });
+
+  it('returns nothing when parallel overlap', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 1, y: 0 },
+      { x: 3, y: 0 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b)).toBeUndefined();
+  });
 });

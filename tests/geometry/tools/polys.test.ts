@@ -4,6 +4,7 @@ import {
   pointInPolygons,
   polygonArea,
   polygonsArea,
+  polygonsIntersections,
 } from '../../../src/geometry/tools/polys';
 
 import type { VectorPolygon, VectorPolygonGeometry } from 's2json-spec';
@@ -249,5 +250,66 @@ describe('pointInPolygon (Geometry Inputs)', () => {
       // Test point technically in hole, should fail
       expect(pointInPolygon({ x: 5, y: 5 }, polygonWithUnclosedHoleGeom)).toBe(true);
     });
+  });
+});
+
+describe('polygonsIntersections', () => {
+  test('polygonsIntersections - simple no overlap', () => {
+    const a: VectorPolygon = [
+      [
+        { x: -57.29250824839444, y: 39.309204530727754 },
+        { x: -58.742162935523396, y: 35.86408152890863 },
+        { x: -53.43642678063297, y: 37.560632581866784 },
+        { x: -57.29250824839444, y: 39.309204530727754 },
+      ],
+    ];
+
+    const b: VectorPolygon = [
+      [
+        { x: -47.66680112586184, y: 39.08451444040281 },
+        { x: -51.377917124910766, y: 37.76719296237772 },
+        { x: -47.4058632821789, y: 35.274503072379716 },
+        { x: -47.66680112586184, y: 39.08451444040281 },
+      ],
+    ];
+
+    const intersections = polygonsIntersections([a, b]);
+
+    expect(intersections).toEqual([]);
+  });
+
+  test('polygonsIntersections - simple overlap', () => {
+    const a: VectorPolygon = [
+      [
+        { x: -57.29250824839444, y: 39.309204530727754 },
+        { x: -58.742162935523396, y: 35.86408152890863 },
+        { x: -53.43642678063297, y: 37.560632581866784 },
+        { x: -57.29250824839444, y: 39.309204530727754 },
+      ],
+    ];
+
+    const b: VectorPolygon = [
+      [
+        { x: -51.29093784368342, y: 39.08451444040281 },
+        { x: -55.118026217701825, y: 37.72134033908044 },
+        { x: -50.79805525005969, y: 35.53445202830912 },
+        { x: -51.29093784368342, y: 39.08451444040281 },
+      ],
+    ];
+
+    const intersections = polygonsIntersections([a, b]);
+
+    expect(intersections).toEqual([
+      {
+        point: { x: -54.27247565285823, y: 37.293299349853186 },
+        segment1: { from: 1, id: 1, polyIndex: 0, ringIndex: 0, to: 2 },
+        segment2: { from: 1, id: 4, polyIndex: 1, ringIndex: 0, to: 2 },
+      },
+      {
+        point: { x: -54.37470749761522, y: 37.98610371249223 },
+        segment1: { from: 2, id: 2, polyIndex: 0, ringIndex: 0, to: 3 },
+        segment2: { from: 0, id: 3, polyIndex: 1, ringIndex: 0, to: 1 },
+      },
+    ]);
   });
 });

@@ -1,4 +1,6 @@
+mod box_index;
 mod cache;
+mod flatqueue;
 mod point_cluster;
 mod point_grid;
 mod point_index;

@@ -7,6 +7,8 @@ export type PriorityCompare<T> = (a: T, b: T) => number;
  * ## Description
  * A priority queue is a data structure that stores elements in a specific order.
  *
+ * A Typescript port of the [tinyqueue](https://github.com/mourner/tinyqueue) code.
+ *
  * ## Usage
  *
  * ```ts
@@ -24,6 +26,9 @@ export type PriorityCompare<T> = (a: T, b: T) => number;
  * next = queue.pop(); // 2
  * console.log(queue.length); // 0
  * ```
+ *
+ * ## Links
+ * - <https://github.com/mourner/tinyqueue>
  */
 export class PriorityQueue<T = number> {
   #length: number = 0;

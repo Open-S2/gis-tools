@@ -4,6 +4,7 @@ use gistools::{
     readers::{GISReader, ReaderType},
     writers::{ToJSONOptions, to_json, to_jsonld},
 };
+use s2json::Projection;
 
 /// GIS Tools CLI
 #[derive(Parser)]
@@ -96,12 +97,32 @@ fn main() {
                 OutFileType::Json | OutFileType::Geojson | OutFileType::S2json => to_json(
                     &mut writer,
                     readers.iter().collect(),
-                    Some(ToJSONOptions { ..Default::default() }),
+                    Some(ToJSONOptions {
+                        projection: Some(if out_type == OutFileType::S2json {
+                            Projection::S2
+                        } else {
+                            Projection::WG
+                        }),
+                        geojson: Some(
+                            out_type == OutFileType::Json || out_type == OutFileType::Geojson,
+                        ),
+                        ..Default::default()
+                    }),
                 ),
                 OutFileType::JsonLd | OutFileType::GeojsonLd | OutFileType::S2jsonLd => to_jsonld(
                     &mut writer,
                     readers.iter().collect(),
-                    Some(ToJSONOptions { ..Default::default() }),
+                    Some(ToJSONOptions {
+                        projection: Some(if out_type == OutFileType::S2jsonLd {
+                            Projection::S2
+                        } else {
+                            Projection::WG
+                        }),
+                        geojson: Some(
+                            out_type == OutFileType::JsonLd || out_type == OutFileType::GeojsonLd,
+                        ),
+                        ..Default::default()
+                    }),
                 ),
             }
 

@@ -1,4 +1,6 @@
+export * from './boxIndex.js';
 export * from './cache.js';
+export * from './flatqueue.js';
 export * from './pointCluster.js';
 export * from './pointGrid.js';
 export * from './pointIndex.js';

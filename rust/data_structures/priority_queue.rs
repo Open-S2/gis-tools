@@ -8,6 +8,8 @@ pub type PriorityCompare<T> = fn(&T, &T) -> core::cmp::Ordering;
 /// ## Description
 /// A priority queue is a data structure that stores elements in a specific order.
 ///
+/// A Rust port of the [tinyqueue](https://github.com/mourner/tinyqueue) code.
+///
 /// ## Usage
 /// ```rust
 /// use gistools::data_structures::PriorityQueue;
@@ -22,6 +24,9 @@ pub type PriorityCompare<T> = fn(&T, &T) -> core::cmp::Ordering;
 /// assert_eq!(queue.pop(), Some(1));
 /// assert_eq!(queue.len(), 2);
 /// ```
+///
+/// ## Links
+/// - <https://github.com/mourner/tinyqueue>
 #[derive(Debug)]
 pub struct PriorityQueue<T> {
     data: Vec<T>,
