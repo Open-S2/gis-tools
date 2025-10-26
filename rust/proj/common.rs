@@ -2,7 +2,7 @@ use super::Proj;
 use crate::proj::{Complex, CoordinateStep, Coords, TransformCoordinates};
 use alloc::{vec, vec::Vec};
 use core::f64::consts::{FRAC_PI_2, PI, TAU};
-use libm::{acos, asin, atan, atan2, atanh, cos, exp, fabs, floor, sin, sinh, sqrt};
+use libm::{acos, asin, atan, atan2, atanh, cos, exp, fabs, floor, fmax, sin, sinh, sqrt};
 
 const ONE_TOL: f64 = 1.00000000000001;
 const ATOL: f64 = 1e-50;
@@ -116,7 +116,7 @@ pub fn sinhpsi2tanphi(taup: f64, e: f64) -> f64 {
     let tol: f64 = rooteps / 10.; // the criterion for Newton's method
     let tmax: f64 = 2. / rooteps; // threshold for large arg limit exact
     let e2m: f64 = 1. - e * e;
-    let stol: f64 = tol * f64::max(1.0, fabs(taup));
+    let stol: f64 = tol * fmax(1.0, fabs(taup));
     // The initial guess.  70 corresponds to chi = 89.18 deg (see above)
     let mut tau: f64 = if fabs(taup) > 70. { taup * exp(e * atanh(e)) } else { taup / e2m };
     // handles +/-inf and nan and e = 1

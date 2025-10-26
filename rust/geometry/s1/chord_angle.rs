@@ -4,7 +4,7 @@ use core::{
     f64::consts::PI,
     ops::{Add, Deref, Div, Mul, Neg, Rem, RemAssign, Sub},
 };
-use libm::{asin, fabs, fmod, sin, sqrt};
+use libm::{asin, fabs, fmin, fmod, sin, sqrt};
 
 /// The Maximum allowed squared chord length.
 pub const K_MAX_LENGTH_2: f64 = 4.0;
@@ -172,7 +172,7 @@ impl S1ChordAngle {
             f64::INFINITY.into()
         } else {
             // The chord length is 2 * sin(angle / 2).
-            let length = 2.0 * sin(0.5 * f64::min(PI, radians));
+            let length = 2.0 * sin(0.5 * fmin(PI, radians));
             (length * length).into()
         }
     }
@@ -186,7 +186,7 @@ impl S1ChordAngle {
     /// argument is automatically clamped to a maximum of 4.0 to handle possible
     /// roundoff errors. The argument must be non-negative.
     pub fn from_length2(length2_: f64) -> Self {
-        f64::min(K_MAX_LENGTH_2, length2_).into()
+        fmin(K_MAX_LENGTH_2, length2_).into()
     }
 
     /// Construct the S1ChordAngle corresponding to the distance between the two
@@ -194,7 +194,7 @@ impl S1ChordAngle {
     pub fn from_s2_points(a: &S2Point, b: &S2Point) -> Self {
         // The squared distance may slightly exceed 4.0 due to roundoff errors.
         // The maximum error in the result is 2 * DBL_EPSILON * length2_.
-        f64::min(K_MAX_LENGTH_2, (*a - *b).norm2()).into()
+        fmin(K_MAX_LENGTH_2, (*a - *b).norm2()).into()
     }
 
     /// Return a chord angle of 90 degrees (a "right angle").

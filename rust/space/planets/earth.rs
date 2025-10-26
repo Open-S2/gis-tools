@@ -1,5 +1,7 @@
 /// Earth's radius in meters
 pub const EARTH_RADIUS: f64 = 6_371_008.8;
+/// Earth's radius in kilo-meters
+pub const EARTH_RADIUS_KM: f64 = 6_371.0088;
 /// Earth's equatorial radius in meters
 pub const EARTH_RADIUS_EQUATORIAL: f64 = 6_378_137.0;
 /// Earth's polar radius in meters

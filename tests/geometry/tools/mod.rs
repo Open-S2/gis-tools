@@ -1,3 +1,4 @@
+mod boolean;
 mod clip;
 mod lines;
 mod points;

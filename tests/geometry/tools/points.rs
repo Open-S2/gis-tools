@@ -30,7 +30,7 @@ mod tests {
         let bearing = 44.99563645534488;
         let distance = 1.0;
         assert_eq!(
-            destination(&start, bearing, distance, Some(1.)),
+            destination::<Coords, VectorPoint>(&start, bearing, distance, Some(1.)),
             VectorPoint::from_xy(47.756618381104495, 36.51656390940706)
         );
 
@@ -38,7 +38,7 @@ mod tests {
         let bearing = 44.99563645534488;
         let distance = 1.0;
         assert_eq!(
-            destination(&start, bearing, distance, None),
+            destination::<Coords, VectorPoint>(&start, bearing, distance, None),
             VectorPoint::from_xy(6.358670956091678e-6, 6.359639560000226e-6)
         );
     }

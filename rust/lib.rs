@@ -137,14 +137,24 @@
 //! Lines
 //!
 //! - [`crate::geometry::along_line`]: Given a linestring in degrees and a distance, create a [`s2json::VectorPoint`] along the line
+//! - [`crate::geometry::clean_linestrings`]: Removes superfluous/collinear points from a collection of linestrings
+//! - [`crate::geometry::clean_linestring`]: Removes superfluous/collinear points from a linestring
 //! - [`crate::geometry::intersection_of_segments`]: Find the intersection of two line segments
 //! - [`crate::geometry::intersection_of_segments_robust`]: Find the intersection of two linestrings using a robust algorithm
-//! - [`crate::geometry::LengthOfLines`]: Get the total distance of a line or lines
+//! - [`crate::geometry::LengthOfLines`]: Get the total euclidean distance of a line or lines. Feel free to use [`euclidean_distance`] or [`haversine_distance`] directly for segments.
+//! - [`crate::geometry::euclidean_distance`]: Get the euclidean distance between two points. Requires the points to implement [`s2json::GetXY`] and [`s2json::GetZ`] traits
+//! - [`crate::geometry::haversine_distance`]: Get the haversine distance between two points. Requires the points to implement [`s2json::GetXY`] trait
+//! - [`crate::geometry::point_on_line`]: Check to see if a point is on a line. Uses predicates to ensure the point is truly on the line
+//! - [`crate::geometry::point_to_line_distance`]: Check to see how far away the point is from the line. Supports both Euclidean and Haversine methods
 //! - [`crate::geometry::ToLines`]: Given a Geometry, attempt to Return a VectorLineString.
 //!
 //! Polygons
 //!
 //! - [`crate::geometry::Area`]: Get the area of the polygon. Lines return 0 if not closed. Other geometries return 0.
+//! - [`crate::geometry::clean_polygons`]: Ensures the collection of polygon ring order is correct, removes duplicate points, and runs a dekink to be thorough.
+//! - [`crate::geometry::clean_polygon`]: Ensures the polygon ring order is correct, removes duplicate points, and runs a dekink to be thorough.
+//! - [`crate::geometry::dekink_polygons`]: Given a collection of polygons, if any of the polygons are kinked, dekink them
+//! - [`crate::geometry::dekink_polygon`]: Given a polygon, if it is kinked, dekink it
 //! - [`crate::geometry::Inside`]: Check if a point is inside a geometry.
 //! - [`crate::geometry::polygons_intersections`]: Find all intersections within a collection of polygons using a robust algorithm
 //!

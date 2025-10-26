@@ -1,4 +1,6 @@
 export * from './area.js';
-export * from './pointInPoly.js';
-// export * from './boolean/index.js';
+export * from './clean.js';
+export * from './dekink.js';
 export * from './intersections.js';
+export * from './pointInPoly.js';
+export * from './union.js';

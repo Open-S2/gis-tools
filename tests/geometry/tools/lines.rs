@@ -5,8 +5,9 @@
 mod tests {
     use gistools::{
         geometry::{
-            LengthOfLines, ToLines, along_line, intersection_of_segments,
-            intersection_of_segments_robust,
+            DistanceMethod, IntersectionOfSegments, LengthOfLines, ToLines, along_line,
+            clean_linestring, clean_linestrings, intersection_of_segments,
+            intersection_of_segments_robust, point_on_line, point_to_line_distance,
         },
         proj::Coords,
     };
@@ -16,21 +17,21 @@ mod tests {
         MultiPointGeometry, MultiPolygon3DGeometry, MultiPolygonGeometry, Point, Point3D,
         Point3DGeometry, PointGeometry, Polygon3DGeometry, PolygonGeometry, Properties,
         VectorFeature, VectorFeatureType, VectorGeometry, VectorLineStringGeometry,
-        VectorMultiLineStringGeometry, VectorMultiPointGeometry, VectorMultiPolygonGeometry,
-        VectorPoint, VectorPointGeometry, VectorPolygonGeometry,
+        VectorMultiLineString, VectorMultiLineStringGeometry, VectorMultiPointGeometry,
+        VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry, VectorPolygonGeometry,
     };
 
     #[test]
     fn test_lines_along_line() {
         let line = vec![Coords::new_xy(0.0, 0.0), Coords::new_xy(1.0, 1.0)];
         assert_eq!(
-            along_line(&line, 0.5, Some(1.)),
+            along_line::<Coords, VectorPoint>(&line, 0.5, Some(1.)),
             VectorPoint::from_xy(-0.5391218665305646, 59.547812487066544)
         );
 
         let line = vec![Coords::new_xy(0.0, 0.0), Coords::new_xy(1.0, 1.0)];
         assert_eq!(
-            along_line(&line, 0.5, None),
+            along_line::<Coords, VectorPoint>(&line, 0.5, None),
             VectorPoint::from_xy(0.9999935413484524, 1.0004046818854357)
         );
     }
@@ -262,7 +263,7 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.to_lines(), vec![]);
+        assert_eq!(feature.to_lines(), vec![] as VectorMultiLineString<MValue>);
 
         // Feature -> Geometry -> MultiPoint
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -275,7 +276,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]
+            vec![vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> LineString
@@ -289,7 +290,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]
+            vec![vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> MultiLineString
@@ -303,7 +304,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]
+            vec![vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> Polygon
@@ -317,7 +318,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]
+            vec![vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> MultiPolygon
@@ -331,7 +332,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]
+            vec![vec![VectorPoint::from_xy(1.0, 1.0), VectorPoint::from_xy(2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> Point3D
@@ -343,7 +344,7 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.to_lines(), vec![]);
+        assert_eq!(feature.to_lines(), vec![] as VectorMultiLineString<MValue>);
 
         // Feature -> Geometry -> MultiPoint3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -356,7 +357,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> LineString3D
@@ -370,7 +371,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> MultiLineString3D
@@ -384,7 +385,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> Polygon3D
@@ -398,7 +399,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // Feature -> Geometry -> MultiPolygon3D
@@ -412,7 +413,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // VectorFeature -> VectorGeometry -> Point
@@ -424,7 +425,7 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.to_lines(), vec![]);
+        assert_eq!(feature.to_lines(), vec![] as VectorMultiLineString<MValue>);
 
         // VectorFeature -> VectorGeometry -> MultiPoint
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -440,7 +441,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // VectorFeature -> VectorGeometry -> LineString
@@ -457,7 +458,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // VectorFeature -> VectorGeometry -> MultiLineString
@@ -474,7 +475,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // VectorFeature -> VectorGeometry -> Polygon
@@ -491,7 +492,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
 
         // VectorFeature -> VectorGeometry -> MultiPolygon
@@ -508,7 +509,7 @@ mod tests {
         };
         assert_eq!(
             feature.to_lines(),
-            vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]
+            vec![vec![VectorPoint::from_xyz(1.0, 1.0, 1.0), VectorPoint::from_xyz(2.0, 2.0, 2.0)]]
         );
     }
 
@@ -516,51 +517,67 @@ mod tests {
     fn intersection_of_segments_for_crossing_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 2.0));
         let b = (&VectorPoint::from_xy(0.0, 2.0), &VectorPoint::from_xy(2.0, 0.0));
-        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+        // assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+        assert_eq!(
+            intersection_of_segments(a, b),
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 0.5, t: 0.5 })
+        );
     }
 
     #[test]
     fn intersection_of_segments_undefined_when_parallel() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(0.0, 1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(intersection_of_segments(a, b), None);
+        assert_eq!(intersection_of_segments::<VectorPoint, VectorPoint>(a, b), None);
     }
 
     #[test]
     fn intersection_of_segments_undefined_when_lies_outside_bounds() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(2.0, 2.0), &VectorPoint::from_xy(3.0, 3.0));
-        assert_eq!(intersection_of_segments(a, b), None);
+        assert_eq!(intersection_of_segments::<VectorPoint, VectorPoint>(a, b), None);
     }
 
     #[test]
     fn interesciton_of_segments_endpoint_when_only_endpoints_touch() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
-        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+        // assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(1.0, 1.0)));
+        assert_eq!(
+            intersection_of_segments(a, b),
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 1.0, t: 0.0 })
+        );
     }
 
     #[test]
     fn interesction_of_segments_undefined_when_parallel_overlap() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
-        assert_eq!(intersection_of_segments(a, b), None);
+        assert_eq!(intersection_of_segments::<VectorPoint, VectorPoint>(a, b), None);
     }
 
     #[test]
     fn intersection_of_segments_correct_intersection_inside_segment_ranges() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(4.0, 0.0));
         let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(2.0, 0.0)));
+        // assert_eq!(intersection_of_segments(a, b), Some(VectorPoint::from_xy(2.0, 0.0)));
+        assert_eq!(
+            intersection_of_segments(a, b),
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(2.0, 0.0), u: 0.5, t: 0.5 })
+        );
     }
 
     #[test]
     fn intersection_of_segments_robust_for_crossing_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 2.0));
         let b = (&VectorPoint::from_xy(0.0, 2.0), &VectorPoint::from_xy(2.0, 0.0));
+        // assert_eq!(
+        //     intersection_of_segments_robust(a, b, None, None),
+        //     Some(VectorPoint::from_xy(1.0, 1.0))
+        // );
         assert_eq!(
             intersection_of_segments_robust(a, b, None, None),
-            Some(VectorPoint::from_xy(1.0, 1.0))
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 0.5, t: 0.5 })
         );
     }
 
@@ -568,14 +585,20 @@ mod tests {
     fn intersection_of_segments_robust_undefined_for_parallel_non_intersecting_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(0.0, 1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+        assert_eq!(
+            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
+            None
+        );
     }
 
     #[test]
     fn intersection_of_segments_robust_undefined_for_collinear_overlapping_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
-        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+        assert_eq!(
+            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
+            None
+        );
     }
 
     #[test]
@@ -583,9 +606,13 @@ mod tests {
     {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
+        // assert_eq!(
+        //     intersection_of_segments_robust(a, b, Some(1), Some(2)),
+        //     Some(VectorPoint::from_xy(1.0, 1.0))
+        // );
         assert_eq!(
             intersection_of_segments_robust(a, b, Some(1), Some(2)),
-            Some(VectorPoint::from_xy(1.0, 1.0))
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 1.0, t: 0.0 })
         );
     }
 
@@ -594,16 +621,23 @@ mod tests {
      {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
-        assert_eq!(intersection_of_segments_robust(a, b, Some(1), Some(1)), None);
+        assert_eq!(
+            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, Some(1), Some(1)),
+            None
+        );
     }
 
     #[test]
     fn intersection_of_segments_robust_returns_intersections_inside_segment_ranges() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(4.0, 0.0));
         let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
+        // assert_eq!(
+        //     intersection_of_segments_robust(a, b, None, None),
+        //     Some(VectorPoint::from_xy(2.0, 0.0))
+        // );
         assert_eq!(
             intersection_of_segments_robust(a, b, None, None),
-            Some(VectorPoint::from_xy(2.0, 0.0))
+            Some(IntersectionOfSegments { point: VectorPoint::from_xy(2.0, 0.0), u: 0.5, t: 0.5 })
         );
     }
 
@@ -612,13 +646,268 @@ mod tests {
      {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 0.0));
         let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+        assert_eq!(
+            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
+            None
+        );
     }
 
     #[test]
     fn intersection_of_segments_robust_undefined_when_parallel_overlap() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
-        assert_eq!(intersection_of_segments_robust(a, b, None, None), None);
+        assert_eq!(
+            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
+            None
+        );
+    }
+
+    #[test]
+    fn point_on_line_returns_true_for_point_exactly_on_the_segment() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(5.0, 5.0);
+        assert!(point_on_line(&line, &point, None));
+    }
+
+    #[test]
+    fn point_on_line_returns_true_for_point_exactly_on_a_line_point_of_the_line() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(10.0, 10.0);
+        assert!(point_on_line(&line, &point, None));
+    }
+
+    #[test]
+    fn point_on_line_returns_false_for_point_not_on_the_line() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(5.0, 6.0);
+        assert!(!point_on_line(&line, &point, None));
+    }
+
+    #[test]
+    fn point_on_line_returns_true_when_within_epsilon_tolerance() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(5.0, 5.00001);
+        assert!(point_on_line(&line, &point, Some(0.001)));
+    }
+
+    #[test]
+    fn point_on_line_returns_false_when_outside_bounding_box_even_if_collinear() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(15.0, 15.0);
+        assert!(!point_on_line(&line, &point, None));
+    }
+
+    #[test]
+    fn point_on_line_handles_degenerate_line_single_coordinate() {
+        let line = vec![VectorPoint::from_xy(1.0, 1.0)];
+        let point = VectorPoint::from_xy(1.0, 1.0);
+        assert!(!point_on_line(&line, &point, None));
+    }
+
+    #[test]
+    fn point_to_line_distance_returns_0_when_point_exactly_on_line_vertex() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 10.0)];
+        let point = VectorPoint::from_xy(0.0, 0.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 0.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_returns_neg_1_for_empty_line() {
+        let line: Vec<VectorPoint> = vec![];
+        let point = VectorPoint::from_xy(0.0, 0.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), -1.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_returns_correct_euclidean_distance_for_midpoint_perpendicular() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 0.0)];
+        let point = VectorPoint::from_xy(5.0, 5.0);
+        assert_eq!(point_to_line_distance(&line, &point, Some(DistanceMethod::Euclidean)), 5.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_returns_correct_haversine_distance_for_midpoint_perpendicular() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 0.0)];
+        let point = VectorPoint::from_xy(5.0, 5.0);
+        assert_eq!(point_to_line_distance(&line, &point, Some(DistanceMethod::Haversine)), 5.);
+    }
+
+    #[test]
+    fn point_to_line_distance_handles_degenerate_line_one_vertex_only() {
+        let line = vec![VectorPoint::from_xy(2.0, 3.0)];
+        let point = VectorPoint::from_xy(5.0, 3.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 3.);
+    }
+
+    #[test]
+    fn point_to_line_distance_handles_line_with_three_vertices_point_closest_to_middle_segment() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(10.0, 0.0),
+            VectorPoint::from_xy(20.0, 0.0),
+        ];
+        let point = VectorPoint::from_xy(9.0, 3.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 3.);
+    }
+
+    #[test]
+    fn point_to_line_distance_returns_0_when_point_lies_exactly_on_segment() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 0.0)];
+        let point = VectorPoint::from_xy(3.0, 0.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 0.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_uses_haversine_method_internally() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(20.0, 20.0)];
+        let point = VectorPoint::from_xy(10.0, 10.0);
+        assert_eq!(point_to_line_distance(&line, &point, Some(DistanceMethod::Haversine)), 0.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_handles_closest_vertex_at_start_of_line() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(10.0, 0.0),
+            VectorPoint::from_xy(20.0, 0.0),
+        ];
+        let point = VectorPoint::from_xy(-5.0, 0.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 5.0);
+    }
+
+    #[test]
+    fn point_to_line_distance_handles_closest_vertex_at_end_of_line() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(10.0, 0.0)];
+        let point = VectorPoint::from_xy(15.0, 0.0);
+        assert_eq!(point_to_line_distance(&line, &point, None), 5.0);
+    }
+
+    #[test]
+    fn clean_linestring_remove_collinear_and_duplicate_points() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 2.0),
+            VectorPoint::from_xy(3.0, 3.0),
+            VectorPoint::from_xy(3.0, 3.0),
+            VectorPoint::from_xy(3.0, 3.0),
+            VectorPoint::from_xy(3.0, 3.0),
+        ];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
+    }
+
+    #[test]
+    fn clean_linestring_remove_collinear_and_duplicate_points_2() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 2.0),
+            VectorPoint::from_xy(3.0, 3.0),
+        ];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
+    }
+
+    #[test]
+    fn clean_linestring_remove_collinear_and_duplicate_points_3() {
+        let line = vec![
+            VectorPoint::from_xy(0., 0.),
+            VectorPoint::from_xy(2., 0.),
+            VectorPoint::from_xy(0., 2.),
+            VectorPoint::from_xy(1., 2.),
+            VectorPoint::from_xy(2., 2.),
+            VectorPoint::from_xy(2., 2.),
+            VectorPoint::from_xy(0., 0.),
+            VectorPoint::from_xy(0., 0.),
+        ];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(
+            result,
+            vec![
+                VectorPoint::from_xy(0.0, 0.0),
+                VectorPoint::from_xy(2.0, 0.0),
+                VectorPoint::from_xy(0.0, 2.0),
+                VectorPoint::from_xy(2.0, 2.0),
+                VectorPoint::from_xy(0.0, 0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn clean_linestring_remove_collinear_points_along_a_straight_line() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 2.0),
+            VectorPoint::from_xy(3.0, 3.0),
+        ];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
+    }
+
+    #[test]
+    fn clean_linestring_retains_non_collinear_points() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 0.0),
+            VectorPoint::from_xy(3.0, 1.0),
+        ];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(result, line);
+    }
+
+    #[test]
+    fn clean_linestring_returns_original_when_too_few_points() {
+        let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(2.0, 2.0)];
+        let result = clean_linestring(&line, false, None);
+        assert_eq!(result, line);
+    }
+
+    #[test]
+    fn clean_linestring_returns_original_when_too_few_points_in_poly() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 2.0),
+            VectorPoint::from_xy(0.0, 0.0),
+        ];
+        let result = clean_linestring(&line, true, None);
+        assert_eq!(result, line);
+    }
+
+    #[test]
+    fn clean_linestring_respects_tolerance_for_nearly_collinear_points() {
+        let line = vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.000000000001), // tiny deviation
+            VectorPoint::from_xy(2.0, 2.0),
+        ];
+        // high tolerance
+        let result = clean_linestring(&line, false, Some(1e-15));
+        assert_eq!(result, line);
+        // low tolerance
+        let result = clean_linestring(&line, false, Some(1e-3));
+        assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(2.0, 2.0)]);
+    }
+
+    #[test]
+    fn clean_linestrings_basic() {
+        let lines = vec![vec![
+            VectorPoint::from_xy(0.0, 0.0),
+            VectorPoint::from_xy(1.0, 1.0),
+            VectorPoint::from_xy(2.0, 2.0),
+            VectorPoint::from_xy(3.0, 3.0),
+        ]];
+        let result = clean_linestrings(&lines, false, None);
+        assert_eq!(
+            result,
+            vec![vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]]
+        );
     }
 }

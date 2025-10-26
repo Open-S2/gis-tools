@@ -94,99 +94,6 @@ deno install -g gis-tools-ts
 
 > 💡 **NOTE:** The sizes are estimates and can change based on how you use them. Click the module link for documentation and more precise guides on file cost.
 
-### Data Stores
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
-| [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
-| [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
-| [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
-
-[externalSort]: /docs-ts/dataStore/externalSort.md
-[esBadge]: /assets/badges/externalSort-gzip-cover.svg
-[kv]: /docs-ts/dataStore/kv.md
-[kvBadge]: /assets/badges/kv-gzip-cover.svg
-[multiMap]: /docs-ts/dataStore/multiMap.md
-[mmBadge]: /assets/badges/multimap-gzip-cover.svg
-[vector]: /docs-ts/dataStore/vector.md
-[vecBadge]: /assets/badges/vector-gzip-cover.svg
-
-### Data Structures
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
-| [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |
-| [pointCluster]           | ![PC Badge][pcBadge]          | Point cluster tool with indexing.                                |
-| [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
-| [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
-| [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
-| [splayTree]              | ![ST Badge][stBadge]          | Self balancing binary tree with O(log n) access                  |
-| [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
-
-[cache]: /docs-ts/dataStructures/cache.md
-[cacheBadge]: /assets/badges/cache-gzip-cover.svg
-[pointGrid]: /docs-ts/dataStructures/pointGrid.md
-[pgBadge]: /assets/badges/pointGrid-gzip-cover.svg
-[pointCluster]: /docs-ts/dataStructures/pointCluster.md
-[pcBadge]: /assets/badges/pointCluster-gzip-cover.svg
-[pointIndex]: /docs-ts/dataStructures/pointIndex.md
-[piBadge]: /assets/badges/pointIndex-gzip-cover.svg
-[pointIndexFast]: /docs-ts/dataStructures/pointIndexFast.md
-[pifBadge]: /assets/badges/pointIndexFast-gzip-cover.svg
-[priorityQueue]: /docs-ts/dataStructures/priorityQueue.md
-[pqBadge]: /assets/badges/priorityQueue-gzip-cover.svg
-[splayTree]: /docs-ts/dataStructures/splayTree.md
-[stBadge]: /assets/badges/splayTree-gzip-cover.svg
-[tile]: /docs-ts/dataStructures/tile.md
-[tileBadge]: /assets/badges/dataTile-gzip-cover.svg
-
-### Geometry
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [angles]                 | ![Angle Badge][anglesBadge]   | Spherical geodetic angle methods.                                |
-| [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
-| [id]                     | ![ID Badge][idBadge]          | ID tools for S2 and WM.                                          |
-| [lonlat]                 | ![LonLat Badge][lonlanBadge]  | Longitude/Latitude convienience methods.                         |
-| [predicates]             | ![Pred Badge][predBadge]      | Reliability predicates for 2D and 3D orientation geometry.       |
-| [s2]                     | ![S2 Badge][s2Badge]          | S2 geometry convienience methods.                                |
-| [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
-| [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
-
-[angles]: /docs-ts/geometry/angles.md
-[anglesBadge]: /assets/badges/angles-gzip-cover.svg
-[bbox]: /docs-ts/geometry/bbox.md
-[bboxBadge]: /assets/badges/bbox-gzip-cover.svg
-[id]: /docs-ts/geometry/id.md
-[idBadge]: /assets/badges/id-gzip-cover.svg
-[lonlat]: /docs-ts/geometry/lonlat.md
-[lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
-[predicates]: /docs-ts/geometry/predicates.md
-[predBadge]: /assets/badges/predicates-gzip-cover.svg
-[s2]: /docs-ts/geometry/s2.md
-[s2Badge]: /assets/badges/s2-gzip-cover.svg
-[tools]: /docs-ts/geometry/tools.md
-[toolsBadge]: /assets/badges/tools-gzip-cover.svg
-[wm]: /docs-ts/geometry/wm.md
-[wmBadge]: /assets/badges/wm-gzip-cover.svg
-
-### PROJ4
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
-| [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
-| [transformer]            | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
-
-[mgrs]: /docs-ts/proj4/mgrs.md
-[mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
-[projections]: /docs-ts/proj4/projections.md
-[projBadge]: /assets/badges/projections-gzip-cover.svg
-[transformer]: /docs-ts/proj4/transformer.md
-[transBadge]: /assets/badges/transformer-gzip-cover.svg
-
 ### Readers
 
 Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/docs-ts/readers/reader.md).
@@ -258,6 +165,117 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 [xml]: /docs-ts/readers/xml.md
 [xmlBadge]: /assets/badges/xml-gzip-cover.svg
 
+### Writers
+
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
+| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
+| [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
+| [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
+| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
+| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
+
+[pmtilesWriter]: /docs-ts/writers/pmtiles.md
+[pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
+[tileWriter]: /docs-ts/writers/tile.md
+[twBadge]: /assets/badges/tileWriter-gzip-cover.svg
+[toJSON]: /docs-ts/writers/toJSON.md
+[toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
+[toTiles]: /docs-ts/writers/toTiles.md
+[toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
+
+### Geometry
+
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
+| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
+| [angles]                 | ![Angle Badge][anglesBadge]   | Spherical geodetic angle methods.                                |
+| [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
+| [id]                     | ![ID Badge][idBadge]          | ID tools for S2 and WM.                                          |
+| [lonlat]                 | ![LonLat Badge][lonlanBadge]  | Longitude/Latitude convienience methods.                         |
+| [predicates]             | ![Pred Badge][predBadge]      | Reliability predicates for 2D and 3D orientation geometry.       |
+| [s2]                     | ![S2 Badge][s2Badge]          | S2 geometry convienience methods.                                |
+| [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
+| [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
+
+[angles]: /docs-ts/geometry/angles.md
+[anglesBadge]: /assets/badges/angles-gzip-cover.svg
+[bbox]: /docs-ts/geometry/bbox.md
+[bboxBadge]: /assets/badges/bbox-gzip-cover.svg
+[id]: /docs-ts/geometry/id.md
+[idBadge]: /assets/badges/id-gzip-cover.svg
+[lonlat]: /docs-ts/geometry/lonlat.md
+[lonlanBadge]: /assets/badges/lonlat-gzip-cover.svg
+[predicates]: /docs-ts/geometry/predicates.md
+[predBadge]: /assets/badges/predicates-gzip-cover.svg
+[s2]: /docs-ts/geometry/s2.md
+[s2Badge]: /assets/badges/s2-gzip-cover.svg
+[tools]: /docs-ts/geometry/tools.md
+[toolsBadge]: /assets/badges/tools-gzip-cover.svg
+[wm]: /docs-ts/geometry/wm.md
+[wmBadge]: /assets/badges/wm-gzip-cover.svg
+
+### PROJ4
+
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
+| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
+| [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
+| [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
+| [transformer]            | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
+
+[mgrs]: /docs-ts/proj4/mgrs.md
+[mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
+[projections]: /docs-ts/proj4/projections.md
+[projBadge]: /assets/badges/projections-gzip-cover.svg
+[transformer]: /docs-ts/proj4/transformer.md
+[transBadge]: /assets/badges/transformer-gzip-cover.svg
+
+### Data Stores
+
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
+| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
+| [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
+| [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
+| [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
+| [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
+
+[externalSort]: /docs-ts/dataStore/externalSort.md
+[esBadge]: /assets/badges/externalSort-gzip-cover.svg
+[kv]: /docs-ts/dataStore/kv.md
+[kvBadge]: /assets/badges/kv-gzip-cover.svg
+[multiMap]: /docs-ts/dataStore/multiMap.md
+[mmBadge]: /assets/badges/multimap-gzip-cover.svg
+[vector]: /docs-ts/dataStore/vector.md
+[vecBadge]: /assets/badges/vector-gzip-cover.svg
+
+### Data Structures
+
+| Module                   | Size                          | <img width="550" height="0"> Description                         |
+| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
+| [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
+| [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |
+| [pointCluster]           | ![PC Badge][pcBadge]          | Point cluster tool with indexing.                                |
+| [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
+| [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
+| [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
+| [splayTree]              | ![ST Badge][stBadge]          | Self balancing binary tree with O(log n) access                  |
+| [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
+
+[cache]: /docs-ts/dataStructures/cache.md
+[cacheBadge]: /assets/badges/cache-gzip-cover.svg
+[pointGrid]: /docs-ts/dataStructures/pointGrid.md
+[pgBadge]: /assets/badges/pointGrid-gzip-cover.svg
+[pointCluster]: /docs-ts/dataStructures/pointCluster.md
+[pcBadge]: /assets/badges/pointCluster-gzip-cover.svg
+[pointIndex]: /docs-ts/dataStructures/pointIndex.md
+[piBadge]: /assets/badges/pointIndex-gzip-cover.svg
+[pointIndexFast]: /docs-ts/dataStructures/pointIndexFast.md
+[pifBadge]: /assets/badges/pointIndexFast-gzip-cover.svg
+[priorityQueue]: /docs-ts/dataStructures/priorityQueue.md
+[pqBadge]: /assets/badges/priorityQueue-gzip-cover.svg
+[splayTree]: /docs-ts/dataStructures/splayTree.md
+[stBadge]: /assets/badges/splayTree-gzip-cover.svg
+[tile]: /docs-ts/dataStructures/tile.md
+[tileBadge]: /assets/badges/dataTile-gzip-cover.svg
+
 ### Space
 
 | Module                   | Size                          | <img width="550" height="0"> Description                         |
@@ -287,24 +305,6 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 [orthBadge]: /assets/badges/orthodrome-gzip-cover.svg
 [polylabel]: /docs-ts/tools/polylabel.md
 [polBadge]: /assets/badges/polylabel-gzip-cover.svg
-
-### Writers
-
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
-| [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
-| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
-| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
-
-[pmtilesWriter]: /docs-ts/writers/pmtiles.md
-[pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
-[tileWriter]: /docs-ts/writers/tile.md
-[twBadge]: /assets/badges/tileWriter-gzip-cover.svg
-[toJSON]: /docs-ts/writers/toJSON.md
-[toJSONBadge]: /assets/badges/toJSON-gzip-cover.svg
-[toTiles]: /docs-ts/writers/toTiles.md
-[toTilesBadge]: /assets/badges/toTiles-gzip-cover.svg
 
 ### Utils
 

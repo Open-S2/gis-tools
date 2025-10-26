@@ -1,6 +1,6 @@
-use libm::{pow, sqrt};
+use libm::{asin, cos, fmin, pow, sin, sqrt};
 use s2json::{
-    Feature, Geometry, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
+    Feature, Geometry, GetXY, GetZ, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
     MultiLineStringGeometry, MultiPoint, MultiPoint3D, MultiPoint3DGeometry, MultiPointGeometry,
     MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry, MultiPolygonGeometry, Point, Point3D,
     Point3DGeometry, PointGeometry, VectorFeature, VectorGeometry, VectorMultiLineString,
@@ -8,7 +8,7 @@ use s2json::{
     VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
 };
 
-/// Get the total distance of a line or lines
+/// Get the total euclidean distance of a line or lines
 ///
 /// This trait is implemented for:
 /// - [`Feature`]
@@ -30,14 +30,29 @@ use s2json::{
 /// - [`VectorMultiPoint`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - `&[P]` where P implements [`GetXY`] and [`GetZ`]
 ///
 /// And all specific geometries of the above enums
 pub trait LengthOfLines {
-    /// Get the total distance of a line or lines
+    /// Get the total euclidean distance of a line or lines
     fn line_length(&self) -> f64;
 }
 
 // Feature and below
+
+impl<P: GetXY + GetZ> LengthOfLines for &[P] {
+    fn line_length(&self) -> f64 {
+        let mut res = 0.;
+        let mut prev: Option<&P> = None;
+        for p in self.iter() {
+            if let Some(prev) = prev {
+                res += euclidean_distance(p, prev);
+            }
+            prev = Some(p);
+        }
+        res
+    }
+}
 
 impl<M, P: Clone + Default, D: Clone + Default> LengthOfLines for Feature<M, P, D> {
     fn line_length(&self) -> f64 {
@@ -116,7 +131,7 @@ impl LengthOfLines for MultiPoint {
         let mut prev: Option<&Point> = None;
         for p in self {
             if let Some(prev) = prev {
-                res += sqrt(pow(p.0 - prev.0, 2.) + pow(p.1 - prev.1, 2.));
+                res += euclidean_distance(p, prev);
             }
             prev = Some(p);
         }
@@ -152,7 +167,7 @@ impl LengthOfLines for MultiPoint3D {
         let mut prev: Option<&Point3D> = None;
         for p in self {
             if let Some(prev) = prev {
-                res += sqrt(pow(p.0 - prev.0, 2.) + pow(p.1 - prev.1, 2.) + pow(p.2 - prev.2, 2.));
+                res += euclidean_distance(p, prev);
             }
             prev = Some(p);
         }
@@ -255,4 +270,43 @@ impl<M: Clone + Default> LengthOfLines for VectorMultiPolygon<M> {
         }
         res
     }
+}
+
+/// Assuming two points are on the surface of the earth as Lon-Lat coordinates, find the distance
+/// between them using the haversine formula.  Returns the distance in degrees.
+///
+/// # Parameters
+/// Both points require the [`GetXY`] trait to be implemented
+/// - `a`: The first point
+/// - `b`: The second point
+///
+/// # Returns
+/// - `f64`: The distance between the two points
+pub fn haversine_distance<P: GetXY, Q: GetXY>(a: &P, b: &Q) -> f64 {
+    let lat1 = a.y().to_radians();
+    let lat2 = b.y().to_radians();
+    let lon1 = a.x().to_radians();
+    let lon2 = b.x().to_radians();
+    let dlat = sin(0.5 * (lat2 - lat1));
+    let dlon = sin(0.5 * (lon2 - lon1));
+    let x = dlat * dlat + dlon * dlon * cos(lat1) * cos(lat2);
+    (2. * asin(sqrt(fmin(1., x)))).to_degrees()
+}
+
+/// Find the euclidean distance between two points
+///
+/// # Parameters
+/// Both points require the [`GetXY`] trait to be implemented
+/// - `a`: The first point
+/// - `b`: The second point
+///
+/// # Returns
+/// - `f64`: The distance between the two points
+pub fn euclidean_distance<P: GetXY + GetZ, Q: GetXY + GetZ>(a: &P, b: &Q) -> f64 {
+    if let Some(z1) = a.z()
+        && let Some(z2) = b.z()
+    {
+        return sqrt(pow(b.x() - a.x(), 2.) + pow(b.y() - a.y(), 2.) + pow(z2 - z1, 2.));
+    }
+    sqrt(pow(b.x() - a.x(), 2.) + pow(b.y() - a.y(), 2.))
 }

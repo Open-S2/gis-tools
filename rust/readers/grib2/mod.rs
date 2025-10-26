@@ -405,7 +405,7 @@ pub fn parse_idx(
     let offset_position = offset_position.unwrap_or(1);
     let mut res = vec![];
     // split lines, parse information, and add to array
-    for line in data.split('\n') {
+    for line in data.lines() {
         if line.is_empty() {
             continue;
         }

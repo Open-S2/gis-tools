@@ -1,3 +1,5 @@
+import { EARTH_RADIUS, degToRad, radToDeg } from '../../index.js';
+
 import type {
   MValue,
   Properties,
@@ -134,5 +136,55 @@ export function toPoints<
     type: 'MultiPoint',
     is3D,
     coordinates: res,
+  };
+}
+
+/**
+ * Get the bearing in degrees between two points
+ * @param start - starting point
+ * @param end - ending point
+ * @returns - the bearing
+ */
+export function pointBearing<A extends MValue = Properties, B extends MValue = Properties>(
+  start: VectorPoint<A>,
+  end: VectorPoint<B>,
+): number {
+  const { atan2, cos, sin } = Math;
+  const lat1 = degToRad(start.y);
+  const lat2 = degToRad(end.y);
+  const lon1 = degToRad(start.x);
+  const lon2 = degToRad(end.x);
+  const y = sin(lon2 - lon1) * cos(lat2);
+  const x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1);
+
+  return (radToDeg(atan2(y, x)) + 360) % 360;
+}
+
+/**
+ * Get the destination given a start point, bearing, and distance
+ * @param start - starting point (in Lon-Lat degrees)
+ * @param bearing - the bearing (in degrees)
+ * @param distance - the distance (in meters)
+ * @param radius - the radius of the sphere. Defaults to the Earth's radius in meters.
+ * @returns - the destination point in Lon-Lat degrees
+ */
+export function pointDestination<D extends MValue = Properties>(
+  start: VectorPoint<D>,
+  bearing: number,
+  distance: number,
+  radius: number = EARTH_RADIUS,
+): VectorPoint {
+  const { atan2, cos, sin, asin } = Math;
+  const s_lon = degToRad(start.x);
+  const s_lat = degToRad(start.y);
+  bearing = degToRad(bearing);
+  const radians = distance / radius;
+  const e_lat = asin(sin(s_lat) * cos(radians) + cos(s_lat) * sin(radians) * cos(bearing));
+  const e_lon =
+    s_lon + atan2(sin(bearing) * sin(radians) * cos(s_lat), cos(radians) - sin(s_lat) * sin(e_lat));
+
+  return {
+    x: radToDeg(e_lon),
+    y: radToDeg(e_lat),
   };
 }

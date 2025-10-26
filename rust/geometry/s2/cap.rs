@@ -1,6 +1,7 @@
 use crate::geometry::{K_MAX_EDGE, K_MAX_LENGTH_2, S1Angle, S1ChordAngle, S2CellId, S2Point};
 use alloc::{vec, vec::Vec};
 use core::f64::consts::TAU;
+use libm::fmax;
 
 /// S2Cap represents a disc-shaped region defined by a center and radius.
 /// Technically this shape is called a "spherical cap" (rather than disc)
@@ -84,7 +85,7 @@ where
 
     /// Return the area of the cap.
     pub fn area(&self) -> f64 {
-        TAU * f64::max(0., self.height())
+        TAU * fmax(0., self.height())
     }
 
     /// Return true if the cap is empty, i.e. it contains no points.

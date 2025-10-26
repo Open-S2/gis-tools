@@ -69,17 +69,17 @@ export function polygonArea<
         : polygon;
 
   // grab the area of the outer ring
-  let area = _ringArea(vectorPolygon[0], planetRadius);
+  let area = polygonRingArea(vectorPolygon[0], planetRadius);
   // subtract the area of the inner rings (holes)
   for (let i = 1; i < vectorPolygon.length; i++) {
-    area -= _ringArea(vectorPolygon[i], planetRadius);
+    area -= polygonRingArea(vectorPolygon[i], planetRadius);
   }
 
   return area;
 }
 
 /**
- * Calculate the approximate area of the polygon were it projected onto the planet.
+ * Calculate the approximate area of the polygon ring if were it projected onto the planet.
  * Note that this area will be positive if ring is oriented counter-clockwise,
  * otherwise it will be negative.
  *
@@ -91,7 +91,7 @@ export function polygonArea<
  * @param planetRadius - the radius of the planet (Earth by default)
  * @returns - The approximate signed geodesic area of the polygon in square meters.
  */
-function _ringArea<M extends MValue = Properties>(
+export function polygonRingArea<M extends MValue = Properties>(
   coords: VectorLineString<M>,
   planetRadius: number,
 ): number {

@@ -1,4 +1,5 @@
 use crate::space::EARTH_RADIUS;
+use alloc::vec::Vec;
 use libm::sin;
 use s2json::{
     Feature, Geometry, GetXY, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
@@ -35,6 +36,7 @@ use s2json::{
 /// - [`VectorMultiPoint`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - `&Vec<P>` or `&[P]` where P implements [`GetXY`]
 ///
 /// And all specific geometries of the above enums
 pub trait Area {
@@ -47,6 +49,17 @@ pub trait Area {
 }
 
 // Feature and below
+
+impl<P: GetXY> Area for &Vec<P> {
+    fn area(&self, radius: Option<f64>) -> f64 {
+        ring_area(self, radius.unwrap_or(EARTH_RADIUS))
+    }
+}
+impl<P: GetXY> Area for &[P] {
+    fn area(&self, radius: Option<f64>) -> f64 {
+        ring_area(self, radius.unwrap_or(EARTH_RADIUS))
+    }
+}
 
 impl<M, P: Clone + Default, D: Clone + Default> Area for Feature<M, P, D> {
     fn area(&self, radius: Option<f64>) -> f64 {

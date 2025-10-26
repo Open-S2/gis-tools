@@ -1,4 +1,5 @@
 use alloc::{fmt, format, string::String};
+use serde::{Deserialize, Serialize};
 
 /// Helper function to check if a year is a leap year
 const fn is_leap_year(year: u16) -> bool {
@@ -32,7 +33,7 @@ const DAYS_IN_MONTH: [[u16; 12]; 2] = [
 /// let date = Date::new(2022, 1, 1);
 /// assert_eq!(date.to_iso_string(), "2022-01-01T00:00:00.000Z");
 /// ```
-#[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Clone, Default)]
+#[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Date {
     /// Year
     pub year: u16,
@@ -135,6 +136,41 @@ impl Date {
             "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.000Z",
             self.year, self.month, self.day, self.hour, self.minute, self.second
         )
+    }
+}
+impl From<&str> for Date {
+    fn from(s: &str) -> Date {
+        // Try parse as milliseconds
+        if let Ok(ms) = s.parse::<i64>() {
+            return Date::from_time(ms);
+        }
+
+        // Otherwise, parse as ISO8601-like string
+        // Expected form: "YYYY-MM-DDTHH:MM:SSZ" or shorter like "YYYY-MM-DD"
+        let mut date = Date::default();
+
+        let year = s[0..4].parse().unwrap();
+        let month = s[5..7].parse().unwrap();
+        let day = s[8..10].parse().unwrap();
+
+        let mut hour = 0;
+        let mut minute = 0;
+        let mut second = 0;
+
+        if s.len() >= 19 {
+            hour = s[11..13].parse().unwrap();
+            minute = s[14..16].parse().unwrap();
+            second = s[17..19].parse().unwrap();
+        }
+
+        date.year = year;
+        date.month = month;
+        date.day = day;
+        date.hour = hour;
+        date.minute = minute;
+        date.second = second;
+
+        date
     }
 }
 impl fmt::Display for Date {

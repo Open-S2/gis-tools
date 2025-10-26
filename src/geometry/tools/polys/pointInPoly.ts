@@ -4,8 +4,7 @@ import { pointOverlap } from '../../bbox.js';
 import type {
   MValue,
   Properties,
-  S2Feature,
-  VectorFeature,
+  VectorFeatures,
   VectorMultiPolygon,
   VectorMultiPolygonGeometry,
   VectorPoint,
@@ -30,8 +29,7 @@ export function pointInPolygons<
   polygons:
     | VectorMultiPolygon<D>
     | VectorMultiPolygonGeometry<D>
-    | VectorFeature<M, D, P, VectorMultiPolygonGeometry<D>>
-    | S2Feature<M, D, P, VectorMultiPolygonGeometry<D>>,
+    | VectorFeatures<M, D, P, VectorMultiPolygonGeometry<D>>,
   ignoreBoundary = false,
 ): boolean {
   const vectorPolygons: VectorMultiPolygon =
@@ -62,8 +60,7 @@ export function pointInPolygon<
   polygon:
     | VectorPolygon<D>
     | VectorPolygonGeometry<D>
-    | VectorFeature<M, D, P, VectorPolygonGeometry<D>>
-    | S2Feature<M, D, P, VectorPolygonGeometry<D>>,
+    | VectorFeatures<M, D, P, VectorPolygonGeometry<D>>,
   ignoreBoundary = false,
 ): boolean {
   // bbox test case - if it doesn't even fit within the bbox, we know it's not in the polygon

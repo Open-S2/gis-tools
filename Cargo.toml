@@ -31,11 +31,11 @@ path = "rust/main.rs"
 earclip = "1.7"
 open-vector-tile = "1.9"
 pbf = "1.22"
-s2json = "1.36"
+s2json = "1.41"
 s2-tilejson = "1.10"
 # External shared dependencies
 libm = "0.2"
-half = "2.6"
+half = "2.7"
 regex = { version = "1", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
@@ -77,6 +77,18 @@ harness = false
 
 [[bench]]
 name = "delaunator"
+harness = false
+
+[[bench]]
+name = "dekink"
+harness = false
+
+[[bench]]
+name = "clean"
+harness = false
+
+[[bench]]
+name = "union"
 harness = false
 
 [profile.bench]

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use alloc::{collections::BTreeSet, fmt::Debug, string::String, vec, vec::Vec};
-use libm::{floor, log2};
+use libm::{floor, fmin, log2};
 use s2json::{BBox, Face, GetXY, JSONCollection, Projection};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
@@ -179,7 +179,7 @@ impl<
         // if the grid is 512 x 512, log2 is 9, meaning the quadtree must split 9 times to analyze
         // each individual pixel. Make sure we don't dive past 30 levels as that's the limit of the spec.
         let zoom_grid_level =
-            f64::min(self.maxzoom as f64 + floor(log2(grid_size_f64)) - 1., 30.) as u8;
+            fmin(self.maxzoom as f64 + floor(log2(grid_size_f64)) - 1., 30.) as u8;
 
         self.point_index.sort();
         for (cell, _) in self.point_index.iter() {

@@ -108,8 +108,7 @@ impl Grib2Template40 {
     /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
-        let ref_time =
-            sections.identification.as_ref().map(|i| i.ref_time.clone()).unwrap_or_default();
+        let ref_time = sections.identification.as_ref().map(|i| i.ref_time).unwrap_or_default();
         let parameter_category = reader.uint8(Some(9));
         let parameter_number = reader.uint8(Some(10));
         let gen_process_type = reader.uint8(Some(11));
@@ -222,8 +221,7 @@ impl Grib2Template41 {
     /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
-        let ref_time =
-            sections.identification.as_ref().map(|i| i.ref_time.clone()).unwrap_or_default();
+        let ref_time = sections.identification.as_ref().map(|i| i.ref_time).unwrap_or_default();
         let parameter_category = reader.uint8(Some(9));
         let parameter_number = reader.uint8(Some(10));
         let gen_process_type = reader.uint8(Some(11));
@@ -341,8 +339,7 @@ impl Grib2Template42 {
     /// The parsed template
     pub fn new<T: Reader>(reader: &T, sections: &Grib2Sections) -> Self {
         let discipline = sections.indicator.as_ref().map(|d| u8::from(d.discipline)).unwrap_or(0);
-        let ref_time =
-            sections.identification.as_ref().map(|i| i.ref_time.clone()).unwrap_or_default();
+        let ref_time = sections.identification.as_ref().map(|i| i.ref_time).unwrap_or_default();
         let parameter_category = reader.uint8(Some(9));
         let parameter_number = reader.uint8(Some(10));
         let gen_process_type = reader.uint8(Some(11));

@@ -214,8 +214,7 @@ pub fn bbox_to_xyz_bounds(
     let x = (floor(px_bl.0 / tile_size_f), floor((px_tr.0 - 1.0) / tile_size_f));
     let y = (floor(px_tr.1 / tile_size_f), floor((px_bl.1 - 1.0) / tile_size_f));
 
-    let mut bounds =
-        (f64::min(x.0, x.1), f64::min(y.0, y.1), f64::max(x.0, x.1), f64::max(y.0, y.1));
+    let mut bounds = (fmin(x.0, x.1), fmin(y.0, y.1), fmax(x.0, x.1), fmax(y.0, y.1));
 
     if tms_style {
         let zoom_diff = pow(2., zoom as f64) - 1.;

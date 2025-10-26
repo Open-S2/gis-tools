@@ -1,7 +1,7 @@
 use crate::data_structures::PriorityQueue;
 use alloc::vec::Vec;
 use core::f64::consts::SQRT_2;
-use libm::sqrt;
+use libm::{fmax, fmin, sqrt};
 use s2json::{MValueCompatible, VectorMultiPolygon, VectorPoint, VectorPolygon};
 
 /// The metadata inserted into the Vector Feature
@@ -123,7 +123,7 @@ pub fn polylabel<M: Clone>(
 
     let width = max_x - min_x;
     let height = max_y - min_y;
-    let cell_size = f64::max(precision, f64::min(width, height));
+    let cell_size = fmax(precision, fmin(width, height));
 
     if cell_size == precision {
         return VectorPoint::new_xy(min_x, min_y, Some(PolyLabelMetadata::default()));
@@ -236,7 +236,7 @@ fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -
                 inside = !inside;
             }
 
-            min_dist_sq = f64::min(min_dist_sq, get_seg_dist_sq(x, y, a, b));
+            min_dist_sq = fmin(min_dist_sq, get_seg_dist_sq(x, y, a, b));
             j = i; // Update j to the previous i (j = i++)
         }
     }

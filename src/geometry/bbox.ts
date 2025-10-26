@@ -120,6 +120,26 @@ export function extendBBox(bbox: BBOX | undefined, point: VectorPoint): BBOX {
 }
 
 /**
+ * Checks if one bounding box is inside another
+ * @param a - the bounding box to check
+ * @param b - the bounding box to check against
+ * @returns - true if a is inside b
+ */
+export function bboxInside(a: BBOX, b: BBOX): boolean {
+  const is3D = a.length === 6 && b.length === 6;
+
+  if (is3D) {
+    const [al, ab, ar, at, af, abk] = a as BBox3D;
+    const [bl, bb, br, bt, bf, bbk] = b as BBox3D;
+    return al >= bl && ar <= br && ab >= bb && at <= bt && af >= bf && abk <= bbk;
+  } else {
+    const [al, ab, ar, at] = a as BBox;
+    const [bl, bb, br, bt] = b as BBox;
+    return al >= bl && ar <= br && ab >= bb && at <= bt;
+  }
+}
+
+/**
  * Merges two bounding boxes into the first and returns the result
  * @param b1 - the first bounding box
  * @param b2 - the second bounding box

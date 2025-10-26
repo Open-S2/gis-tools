@@ -7,6 +7,7 @@ mod parsers;
 mod proj;
 mod readers;
 // mod space;
+mod space;
 mod tools;
 mod util;
 mod writers;

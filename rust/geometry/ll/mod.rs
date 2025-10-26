@@ -3,7 +3,7 @@ use core::{
     cmp::Ordering,
     ops::{Add, Div, Mul, Neg, Sub},
 };
-use libm::{asin, atan2, cos, sin, sqrt};
+use libm::{asin, atan2, cos, fmin, sin, sqrt};
 use s2json::{GetM, GetXY, MValue, VectorPoint};
 
 /// # Longitude-Latitude Point container
@@ -186,7 +186,7 @@ impl<M: Clone + Default> LonLat<M> {
         let dlat = sin(0.5 * (lat2 - lat1));
         let dlon = sin(0.5 * (lon2 - lon1));
         let x = dlat * dlat + dlon * dlon * cos(lat1) * cos(lat2);
-        2. * asin(sqrt(f64::min(1., x)))
+        2. * asin(sqrt(fmin(1., x)))
     }
 
     /// Returns the bearing from the first point to the second point.

@@ -1,4 +1,11 @@
-import { averageOfPoints, centerOfPoints, equalPoints, toPoints } from '../../../src';
+import {
+  averageOfPoints,
+  centerOfPoints,
+  equalPoints,
+  pointBearing,
+  pointDestination,
+  toPoints,
+} from '../../../src';
 import { expect, test } from 'bun:test';
 
 test('equalPoints', () => {
@@ -210,5 +217,21 @@ test('toPoints', () => {
       { x: 3, y: 3, z: 3 },
       { x: 4, y: 4, z: 4 },
     ],
+  });
+});
+
+test('pointBearing', () => {
+  expect(pointBearing({ x: 0, y: 0 }, { x: 1, y: 1 })).toEqual(44.99563645534488);
+});
+
+test('pointDestination', () => {
+  expect(pointDestination({ x: 0, y: 0 }, 44.99563645534488, 1, 1)).toEqual({
+    x: 47.75661838110449,
+    y: 36.51656390940706,
+  });
+
+  expect(pointDestination({ x: 0, y: 0 }, 44.99563645534488, 1)).toEqual({
+    x: 0.0000063586709560916785,
+    y: 0.000006359639560000226,
   });
 });

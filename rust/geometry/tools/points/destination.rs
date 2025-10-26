@@ -1,6 +1,6 @@
 use crate::space::EARTH_RADIUS;
 use libm::{asin, atan2, cos, sin};
-use s2json::{GetXY, VectorPoint};
+use s2json::{GetXY, NewXY};
 
 /// Get the destination given a start point, bearing, and distance
 ///
@@ -11,12 +11,12 @@ use s2json::{GetXY, VectorPoint};
 /// Assumes the distance is in meters
 ///
 /// If no radius is provided, defaults to the Earth's radius
-pub fn destination<P: GetXY>(
+pub fn destination<P: GetXY, Q: NewXY>(
     start: &P,
     bearing: f64,
     distance: f64,
     radius: Option<f64>,
-) -> VectorPoint {
+) -> Q {
     let s_lon = start.x().to_radians();
     let s_lat = start.y().to_radians();
     let bearing = bearing.to_radians();
@@ -27,5 +27,5 @@ pub fn destination<P: GetXY>(
     let e_lon = s_lon
         + atan2(sin(bearing) * sin(radians) * cos(s_lat), cos(radians) - sin(s_lat) * sin(e_lat));
 
-    VectorPoint::from_xy(e_lon.to_degrees(), e_lat.to_degrees())
+    Q::new_xy(e_lon.to_degrees(), e_lat.to_degrees())
 }

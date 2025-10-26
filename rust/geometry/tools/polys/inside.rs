@@ -69,6 +69,7 @@ impl InsideResult {
 /// - [`VectorMultiPoint`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - `&Vec<Vec<P>>` or `&[Vec<P>]` where P implements [`GetXY`]
 ///
 /// And all specific geometries of the above enums
 pub trait Inside {
@@ -83,6 +84,17 @@ pub trait Inside {
 }
 
 // Feature and below
+
+impl<P: GetXY> Inside for &Vec<Vec<P>> {
+    fn inside<B: GetXY>(&self, b: &B) -> InsideResult {
+        point_in_polygon(b, self)
+    }
+}
+impl<P: GetXY> Inside for &[Vec<P>] {
+    fn inside<B: GetXY>(&self, b: &B) -> InsideResult {
+        point_in_polygon(b, self)
+    }
+}
 
 impl<M, P: Clone + Default, D: Clone + Default> Inside for Feature<M, P, D> {
     fn inside<B: GetXY>(&self, b: &B) -> InsideResult {
@@ -282,7 +294,7 @@ impl<M: Clone + Default> Inside for VectorMultiPolygon<M> {
 /// @param point - the point
 /// @param polygon - the polygon
 /// @returns - true if the point is in the polygon, 0 if on the boundary, false otherwise
-pub fn point_in_polygon<P1: GetXY, P2: GetXY>(point: &P1, polygon: &Vec<Vec<P2>>) -> InsideResult {
+pub fn point_in_polygon<P1: GetXY, P2: GetXY>(point: &P1, polygon: &[Vec<P2>]) -> InsideResult {
     let mut k = 0;
     let mut f;
     let mut u1;
