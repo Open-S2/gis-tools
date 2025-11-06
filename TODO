@@ -1,6 +1,5 @@
 # LIST OF TODOs
 
-[ ] - geometry tools (lookup readme in geometry folder)
 [ ] - support missing projections in proj4 found in c++ implementation
 [ ] - Grib2 has missing templates
 
@@ -24,3 +23,5 @@
 [ ] - In Typescript, fix point_index to work the same as rust (it fixed Projection WG)
 
 [ ] - expand pointGrid store to mutate the points to polygons and lines (like raster/vector hillshade or contour-lines / elevation-lines) [Use my hull algo]
+[ ] - - Isobands (marching squares / contour-lines)
+[ ] - - hillshade

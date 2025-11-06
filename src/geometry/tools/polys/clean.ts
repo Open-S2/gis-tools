@@ -1,4 +1,11 @@
-import { cleanLineString, deKinkPolygon, equalPoints, polygonRingArea } from '../index.js';
+import {
+  clampWGS84Point,
+  cleanLineString,
+  dekinkPolygon,
+  equalPoints,
+  mergeBBoxes,
+  polygonRingArea,
+} from '../../../index.js';
 
 import type {
   MValue,
@@ -23,6 +30,7 @@ import type {
  * in true to `removeCollinearPoints`
  * @param polygons - the collection of polygon as either a VectorFeature, VectorMultiPolygonGeometry, or raw VectorMultiPolygon
  * @param removeCollinearPoints - if true, remove superfluous points
+ * @param cleanWGS84 - if true, clean WGS84 points to be in bounds
  * @returns - the cleaned polygon
  */
 export function cleanPolygons<
@@ -35,14 +43,25 @@ export function cleanPolygons<
     | VectorMultiPolygonGeometry<D>
     | VectorFeatures<M, D, P, VectorMultiPolygonGeometry<D>>,
   removeCollinearPoints = false,
-): VectorMultiPolygon<D> {
+  cleanWGS84 = false,
+): VectorMultiPolygonGeometry<D> | undefined {
   const vectorPolygons: VectorMultiPolygon<D> =
     'geometry' in polygons
       ? polygons.geometry.coordinates
       : 'coordinates' in polygons
         ? polygons.coordinates
         : polygons;
-  return vectorPolygons.flatMap((p) => cleanPolygon(p, removeCollinearPoints));
+
+  const res: VectorMultiPolygonGeometry<D> = { type: 'MultiPolygon', coordinates: [], is3D: false };
+  for (const vectorPoly in vectorPolygons) {
+    const cleaned = cleanPolygon(vectorPolygons[vectorPoly], removeCollinearPoints, cleanWGS84);
+    if (cleaned !== undefined) {
+      if (cleaned.bbox !== undefined) res.bbox = mergeBBoxes(res.bbox, cleaned.bbox);
+      res.coordinates.push(...cleaned.coordinates);
+    }
+  }
+
+  return res;
 }
 
 /**
@@ -57,6 +76,7 @@ export function cleanPolygons<
  * in true to `removeCollinearPoints`
  * @param polygon - the polygon as either a VectorFeature, VectorPolygonGeometry, or raw VectorPolygon
  * @param removeCollinearPoints - if true, remove superfluous points
+ * @param cleanWGS84 - if true, clean WGS84 points to be in bounds
  * @returns - the cleaned polygon
  */
 export function cleanPolygon<
@@ -69,7 +89,8 @@ export function cleanPolygon<
     | VectorPolygonGeometry<D>
     | VectorFeatures<M, D, P, VectorPolygonGeometry<D>>,
   removeCollinearPoints = false,
-): VectorMultiPolygon<D> {
+  cleanWGS84 = false,
+): VectorMultiPolygonGeometry<D> | undefined {
   const vectorPolygon: VectorPolygon<D> =
     'geometry' in polygon
       ? polygon.geometry.coordinates
@@ -78,14 +99,25 @@ export function cleanPolygon<
         : polygon;
 
   // clone vectorPolygon so we can return a new object
-  const cloned: VectorPolygon<D> = vectorPolygon.map((ring) => ring.map((p) => ({ ...p })));
+  const cloned: VectorPolygon<D> = vectorPolygon.map((ring) =>
+    ring.map((p) => {
+      const dup = { ...p };
+      return cleanWGS84 ? clampWGS84Point(dup) : dup;
+    }),
+  );
 
   // remove duplicates from the rings (and optionally remove superfluous/collinear points)
+  // If outer ring is dropped, we kill the polygon
   const res: VectorPolygon<D> = [];
-  for (const ring of cloned) {
+  for (let i = 0; i < cloned.length; i++) {
+    const ring = cloned[i];
     let lastPoint: VectorPoint<D> | undefined;
     if (removeCollinearPoints) {
-      res.push(cleanLineString(ring, true));
+      const line = cleanLineString(ring, true);
+      if (line === undefined) {
+        if (i === 0) return;
+        continue;
+      } else res.push(line);
     } else {
       const newRing: VectorPoint<D>[] = [];
       for (const point of ring) {
@@ -94,7 +126,8 @@ export function cleanPolygon<
           lastPoint = point;
         }
       }
-      res.push(newRing);
+      if (newRing.length >= 4) res.push(newRing);
+      else if (i === 0) return;
     }
   }
 
@@ -106,5 +139,5 @@ export function cleanPolygon<
     if (i === 0 ? area < 0 : area > 0) res[i] = ring.reverse();
   }
 
-  return deKinkPolygon(res);
+  return dekinkPolygon(res);
 }

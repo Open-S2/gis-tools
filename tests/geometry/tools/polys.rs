@@ -1148,7 +1148,7 @@ mod tests {
         ]];
 
         assert_eq!(
-            clean_polygon(&polygon, false),
+            clean_polygon(&polygon, false, false).unwrap(),
             vec![
                 vec![vec![
                     VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
@@ -1208,7 +1208,7 @@ mod tests {
             VectorPoint::from_xy(0., 0.),
         ]];
         assert_eq!(
-            clean_polygon(&polygon, true),
+            clean_polygon(&polygon, true, false).unwrap(),
             vec![
                 vec![vec![
                     VectorPoint::from_xy(0., 0.),

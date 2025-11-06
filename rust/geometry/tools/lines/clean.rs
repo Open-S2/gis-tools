@@ -1,38 +1,45 @@
+use crate::geometry::ClampWGS84Point;
 use alloc::{vec, vec::Vec};
 use libm::fabs;
-use s2json::GetXY;
+use s2json::{GetXY, SetXY};
 
 /// Removes superfluous/collinear points from a collection of linestrings
 ///
 /// ## Parameters
 /// - `lines`: the linestring to clean
 /// - `eps`: the tolerance. Defaults to `1e-12`
+/// - `clean_wgs84`: if true, clean WGS84 points to be valid WGS84 points
 ///
 /// ## Returns
 /// The cleaned linestrings
-pub fn clean_linestrings<P: GetXY + Clone + PartialEq>(
+pub fn clean_linestrings<P: GetXY + SetXY + Clone + PartialEq>(
     lines: &Vec<Vec<P>>,
     is_poly: bool,
     eps: Option<f64>,
-) -> Vec<Vec<P>> {
-    lines.into_iter().map(|p| clean_linestring(p, is_poly, eps)).collect()
+    clean_wgs84: bool,
+) -> Option<Vec<Vec<P>>> {
+    let res: Vec<Vec<P>> =
+        lines.into_iter().filter_map(|p| clean_linestring(p, is_poly, eps, clean_wgs84)).collect();
+    if res.is_empty() { None } else { Some(res) }
 }
 
 /// Removes superfluous/collinear points from a linestring
 ///
 /// ## Parameters
 /// - `line`: the linestring to clean
-/// - `eps`: the tolerance. Defaults to `1e-12`
+/// - `eps`: the toleranc to check if the segments are superfluous/collinear. Defaults to `1e-12`
+/// - `clean_wgs84`: if true, clean WGS84 points to be valid WGS84 points
 ///
 /// ## Returns
 /// The cleaned linestring
-pub fn clean_linestring<P: GetXY + Clone + PartialEq>(
+pub fn clean_linestring<P: GetXY + SetXY + Clone + PartialEq>(
     line: &Vec<P>,
     is_poly: bool,
     eps: Option<f64>,
-) -> Vec<P> {
-    if if is_poly { line.len() <= 4 } else { line.len() <= 2 } {
-        return line.clone();
+    clean_wgs84: bool,
+) -> Option<Vec<P>> {
+    if if is_poly { line.len() < 4 } else { line.len() < 2 } {
+        return None;
     }
     let eps = eps.unwrap_or(1e-12);
     // First remove all duplicates
@@ -55,6 +62,14 @@ pub fn clean_linestring<P: GetXY + Clone + PartialEq>(
         }
     }
     cleaned.push(no_dups[no_dups.len() - 1].clone());
+    // check again if linestring is valid
+    if if is_poly { cleaned.len() < 4 } else { cleaned.len() < 2 } {
+        return None;
+    }
+    // if user want's valid WGS84 points let's fix them
+    if clean_wgs84 {
+        cleaned.iter_mut().for_each(|p| p.clamp_wgs84());
+    }
 
-    cleaned
+    Some(cleaned)
 }

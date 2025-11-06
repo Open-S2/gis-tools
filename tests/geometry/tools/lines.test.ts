@@ -2,6 +2,7 @@ import {
   alongLine,
   cleanLineString,
   cleanMultiLineString,
+  equalLines,
   intersectionOfSegments,
   intersectionOfSegmentsRobust,
   lineArea,
@@ -13,6 +14,7 @@ import {
 import { describe, expect, it, test } from 'bun:test';
 
 import type {
+  VectorLineString,
   VectorLineStringGeometry,
   VectorMultiLineStringGeometry,
   VectorPoint,
@@ -311,8 +313,10 @@ describe('intersectionOfSegmentsRobust', () => {
     // expect(intersectionOfSegmentsRobust(a, b)).toEqual({ x: 1, y: 1, t: 0.5 });
     expect(intersectionOfSegmentsRobust(a, b)).toEqual({
       point: { x: 1, y: 1 },
-      t: 0.5,
       u: 0.5,
+      t: 0.5,
+      uVec: { x: 1, y: 1 },
+      tVec: { x: 1, y: -1 },
     });
   });
 
@@ -349,10 +353,12 @@ describe('intersectionOfSegmentsRobust', () => {
       { x: 1, y: 1 },
       { x: 2, y: 0 },
     ];
-    expect(intersectionOfSegmentsRobust(a, b, 1, 2)).toEqual({
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
       point: { x: 1, y: 1 },
       t: 0,
       u: 1,
+      tVec: { x: -0, y: 0 },
+      uVec: { x: 1, y: 1 },
     });
   });
 
@@ -365,7 +371,7 @@ describe('intersectionOfSegmentsRobust', () => {
       { x: 1, y: 1 },
       { x: 2, y: 0 },
     ];
-    expect(intersectionOfSegmentsRobust(a, b, 1, 1)).toBeUndefined();
+    expect(intersectionOfSegmentsRobust(a, b, true)).toBeUndefined();
   });
 
   it('returns intersection inside segment ranges', () => {
@@ -377,11 +383,12 @@ describe('intersectionOfSegmentsRobust', () => {
       { x: 2, y: -1 },
       { x: 2, y: 1 },
     ];
-    // expect(intersectionOfSegmentsRobust(a, b)).toEqual({ x: 2, y: 0, t: 0.5 });
     expect(intersectionOfSegmentsRobust(a, b)).toEqual({
       point: { x: 2, y: 0 },
       t: 0.5,
       u: 0.5,
+      tVec: { x: 0, y: 1 },
+      uVec: { x: 2, y: 0 },
     });
   });
 
@@ -407,6 +414,42 @@ describe('intersectionOfSegmentsRobust', () => {
       { x: 3, y: 0 },
     ];
     expect(intersectionOfSegmentsRobust(a, b)).toBeUndefined();
+  });
+
+  it('edges are touching', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: -104.0624, y: 75.4279145091691 },
+      { x: -104.0625, y: 75.44 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: -104.0529352, y: 75.4261125 },
+      { x: -104.0625, y: 75.44 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
+      point: { x: -104.0625, y: 75.44 },
+      u: 1,
+      t: 1,
+      uVec: { x: -0.00010000000000331966, y: 0.012085490830898493 },
+      tVec: { x: -0.009564800000006814, y: 0.013887499999995615 },
+    });
+  });
+
+  it('such a small u value the points are equal', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 54.569778932416476, y: 24.441366817541834 },
+      { x: 54.56977894449294, y: 24.441074136738756 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 54.57000000000001, y: 24.441250624330703 },
+      { x: 54.56795534005685, y: 24.442325298422087 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
+      point: { x: 54.569778932416476, y: 24.441366817541834 },
+      t: 0.10811948670049906,
+      tVec: { x: -0.00022106758353146463, y: 0.0001161932111308183 },
+      u: 0.00000000000020134769880365415,
+      uVec: { x: 0.0000000000000000000024315679333950687, y: -0.0000000000000000589306061837349 },
+    });
   });
 });
 
@@ -834,7 +877,7 @@ describe('cleanLineString', () => {
       ],
       is3D: false,
     };
-    const result = cleanLineString(line);
+    const result = cleanLineString(line)!;
     expect(result.length).toBe(4);
   });
 
@@ -851,7 +894,7 @@ describe('cleanLineString', () => {
     expect(result).toEqual(line.coordinates);
   });
 
-  test('returns original when too few points (poly)', () => {
+  test('0 area poly returns empty', () => {
     const line: VectorLineStringGeometry = {
       type: 'LineString',
       coordinates: [
@@ -863,7 +906,7 @@ describe('cleanLineString', () => {
       is3D: false,
     };
     const result = cleanLineString(line, true);
-    expect(result).toEqual(line.coordinates);
+    expect(result).toBeUndefined();
   });
 
   test('respects tolerance (eps) for nearly collinear points', () => {
@@ -876,8 +919,8 @@ describe('cleanLineString', () => {
       ],
       is3D: false,
     };
-    const resultStrict = cleanLineString(line, false, 1e-15);
-    const resultLoose = cleanLineString(line, false, 1e-3);
+    const resultStrict = cleanLineString(line, false, 1e-15)!;
+    const resultLoose = cleanLineString(line, false, 1e-3)!;
     expect(resultStrict.length).toBe(3); // strict keeps small deviations
     expect(resultLoose.length).toBe(2); // loose removes them
   });
@@ -904,5 +947,41 @@ describe('cleanLineStrings', () => {
         { x: 3, y: 3 },
       ],
     ]);
+  });
+});
+
+describe('equalLines', () => {
+  test('returns true for equal lines', () => {
+    const a: VectorLineString = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 2, y: 2 },
+      { x: 0, y: 0 },
+    ];
+    const b: VectorLineString = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 2, y: 2 },
+      { x: 0, y: 0 },
+    ];
+    const c: VectorLineString = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 2, y: 2 },
+    ];
+    const d: VectorLineString = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 2, y: 3 },
+      { x: 0, y: 0 },
+    ];
+    expect(equalLines(a, a)).toBeTrue();
+    expect(equalLines(a, b)).toBeTrue();
+    expect(equalLines(a, c)).toBeFalse();
+    expect(equalLines(a, d)).toBeFalse();
   });
 });

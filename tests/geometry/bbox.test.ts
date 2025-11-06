@@ -1,4 +1,5 @@
 import {
+  bboxArea,
   bboxOverlap,
   clipBBox,
   fromLineString,
@@ -105,4 +106,36 @@ test('fromMultiPolygon', () => {
     ],
   ]);
   expect(res).toEqual([0, 0, 30, 30]);
+});
+
+test('bboxArea', () => {
+  {
+    const res = bboxArea([0, 0, 10, 10]);
+    expect(res).toEqual(100);
+
+    const res2 = bboxArea([-5, -5, 5, 5]);
+    expect(res2).toEqual(100);
+
+    const res3 = bboxArea([-10, -10, 0, 0]);
+    expect(res3).toEqual(100);
+
+    const res4 = bboxArea([-10, -10, 0, 0, 0, 0]);
+    expect(res4).toEqual(100);
+  }
+
+  // 3D
+
+  {
+    const res = bboxArea([0, 0, 10, 10, 0, 1]);
+    expect(res).toEqual(100);
+
+    const res2 = bboxArea([-5, -5, 5, 5, 0, 1]);
+    expect(res2).toEqual(100);
+
+    const res3 = bboxArea([-10, -10, 0, 0, 0, 1]);
+    expect(res3).toEqual(100);
+
+    const res4 = bboxArea([-10, -10, 0, 0, -1, -1]);
+    expect(res4).toEqual(0);
+  }
 });

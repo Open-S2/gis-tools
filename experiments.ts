@@ -503,84 +503,131 @@
 
 // expect(itemsSearchMine.sort((itemA, itemB) => itemA.id - itemB.id)).toEqual(itemsSearchFlatbush.sort((itemA, itemB) => itemA.id - itemB.id));
 
-// //  _levelBounds: [ 400, 428, 432 ]
-
-// import { VectorPolygon, polygonsIntersections } from './src';
-// import { expect } from 'bun:test';
-
-// const polygonFeature: VectorPolygon = [
-//   [
-//     { x: 0, y: 0 },
-//     { x: 2, y: 0 },
-//     { x: 0, y: 2 },
-//     { x: 2, y: 2 },
-//     { x: 0, y: 0 },
-//   ],
-// ];
-
-// const intersections = polygonsIntersections([polygonFeature], true);
-
-// expect(intersections).toEqual([]);
 
 
-// [
-//   [8.094854051549703, 44.067038922182604],
-//   [27.45169791493106, 34.31013538862004],
-//   [30.51892217779216, 27.233954216494492],
-//   [7.463652621221485, 25.00221485407819],
-//   [25.347693147171753, 4.999693002409302],
-//   [-7.4747812298659255, -36.777396059815665],
-//   [27.662098391706394, -40.233822107102995],
-//   [28.011510823463176, -33.08536237940715],
-//   [62.79897801327945, -31.19907851930298],
-//   [86.57423188895399, 16.55327251195662],
-//   [77.40918288852106, 15.452216515532072],
-//   [81.52462044633336, 36.369487623534425],
-//   [54.80375989579596, 56.70904723358515],
-//   [8.094854051549703, 44.067038922182604]
-// ]
-// [
-//   [30.51892217779216, 27.233954216494492],
-//   [31.238906496896703, 25.572928139998595],
-//   [26.610096007827508, 22.88716015007573],
-//   [25.978894577499233, 18.957601207155236],
-//   [32.08050840400031, 17.157354229920827],
-//   [38.8133236608289, 20.541732106259843],
-//   [40.496527475035236, 28.199781765371043],
-//   [30.51892217779216, 27.233954216494492]
-// ]
-// [
-//   [28.011510823463176, -33.08536237940715],
-//   [28.92450125236215, -14.406933337995738],
-//   [4.097244992807987, -34.38206769619466],
-//   [28.011510823463176, -33.08536237940715]
-// ]
-// [
-//   [77.40918288852106, 15.452216515532072],
-//   [54.38295894224376, 12.685928855764459],
-//   [73.73980280562509, -3.197906810124664],
-//   [77.40918288852106, 15.452216515532072]
-// ]
+// import { cleanPolygons, convert, polygonsUnion, vectorToFlat } from './src/index.js';
+
+// import type { FeatureCollection, Properties, VectorMultiPolygon, VectorMultiPolygonGeometry } from 's2json-spec';
+
+// const featureCollection = (await Bun.file(
+//   `${__dirname}/tests/geometry/tools/fixtures/chunks-water.json`,
+// ).json()) as FeatureCollection;
+// const vectorFeatures = convert('WG', featureCollection);
+
+// const vectorPolys: VectorMultiPolygon = [];
+
+// for (const feature of vectorFeatures) {
+//   const { type, coordinates } = feature.geometry;
+//   if (type === 'Polygon') {
+//     vectorPolys.push(coordinates);
+//   } else if (type === 'MultiPolygon') {
+//     vectorPolys.push(...coordinates);
+//   }
+// }
+// const cleanedPolys = cleanPolygons(vectorPolys, true)!;
+// const geo: VectorMultiPolygonGeometry<Properties> = { type: 'MultiPolygon', coordinates: cleanedPolys, is3D: false }
+// const geometry = vectorToFlat(geo);
+// const feature = { type: 'Feature', properties: {}, geometry };
+// const res = { type: 'FeatureCollection', features: [feature] };
+
+// await Bun.write(
+//   `${__dirname}/tests/geometry/tools/fixtures/chunks-water-cleaned.json`,
+//   JSON.stringify(res),
+// );
+
+import { orient2dVector } from './src/index.js';
 
 import type { VectorPoint } from "s2json-spec";
 
-/**
- * Returns the absolute angle between points A->B->C
- * @param a - First point
- * @param b - Vertex point (angle at this point)
- * @param c - Third point
- * @returns Angle in degrees [-PI, PI]
- */
-function angleRad(a: VectorPoint, b: VectorPoint, c: VectorPoint): number {
-  const { atan2, PI } = Math;
+// const startA: VectorPoint = { x: 54.57114771720956, y: 24.441853864959285 };
+// const startB: VectorPoint = { x: 54.57204465994316, y: 24.442325298422087 };
+const int: VectorPoint = { x: 54.571070122708974, y: 24.441813081258456 };
+// const c: VectorPoint = { x: 54.57080496898934, y: 24.4416737163564 };
 
-  const angleBA = atan2(a.y - b.y, a.x - b.x);
-  const angleBC = atan2(c.y - b.y, c.x - b.x);
+// const firstRes = -orient2dVector(startA, c, int); // 6.760034294416112e-19
+// const secondRes = -orient2dVector(startB, c, int); // 5.519081395851809e-18
 
-  // Difference in radians
-  let angle = angleBA - angleBC;
-  if (angle < 0) angle += 2 * PI;
-  return angle;
-}
+// const singleRes = -orient2dVector(startA, c, startB);
 
-console.log(angleRad({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 1 }))
+// console.log('firstRes', firstRes);
+// console.log('secondRes', secondRes);
+// console.log('singleRes', singleRes);
+
+// PAIR 0 0 {
+//   x: 54.57114771720956,
+//   y: 24.441853864959285,
+// } {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } {
+//   x: 54.57080496898934,
+//   y: 24.4416737163564,
+// } 3.1415926535640484 0 0
+
+// PAIR 1 1 {
+//   x: 54.57204465994316,
+//   y: 24.442325298422087,
+// } {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } {
+//   x: 54.57080496898934,
+//   y: 24.4416737163564,
+// } 3.1415926535730576 0 0
+
+
+// INTERSECTION 0 0 6 7 0.22638921520691385 [ 54.571070122708974, 24.441813081258456 ]
+// [54.57114771720956, 24.441853864959285],
+// [54.57080496898934, 24.4416737163564],
+const BStart: VectorPoint = { x: 54.57114771720956, y: 24.441853864959285 };
+const BEnd: VectorPoint = { x: 54.57080496898934, y: 24.4416737163564 };
+
+// INTERSECTION 1 1 3 4 0.4766257516779802 [ 54.571070122708974, 24.441813081258456 ]
+// [54.57204465994316, 24.442325298422087],
+// [54.57000000000001, 24.441250624330703],
+const AStart: VectorPoint = { x: 54.57204465994316, y: 24.442325298422087 };
+const AEnd: VectorPoint = { x: 54.57000000000001, y: 24.441250624330703 };
+
+const secondIntersection: VectorPoint = {
+  x: 54.57080496898934,
+  y: 24.44167371635639,
+};
+
+
+const firstRes = -orient2dVector(AStart, int, BStart);
+console.log('firstRes', firstRes);
+
+// TODO {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } 3.141592653574547 3.1415926535640484
+// [ 54.57114771720956, 24.441853864959285 ] [ 54.57114771720956, 24.441853864959285 ] [ 54.57080496898934, 24.441673716356398 ] [ 54.57080496898934, 24.4416737163564 ] false 9.42015246719407e-19 
+
+// TODO {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } 3.1415926535730576 3.141592653574547
+// [ 54.57204465994316, 24.442325298422087 ] [ 54.57114771720956, 24.441853864959285 ] [ 54.57080496898934, 24.4416737163564 ] [ 54.57080496898934, 24.441673716356398 ] false 8.69459468021838e-19 
+
+// TODO {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } 3.1415926535835563 3.141592653574547
+// [ 54.57204465994316, 24.442325298422087 ] [ 54.57114771720956, 24.441853864959285 ] [ 54.57080496898934, 24.441673716356398 ] [ 54.57080496898934, 24.441673716356398 ] true 8.69459468021838e-19 
+
+// TODO {
+//   x: 54.571070122708974,
+//   y: 24.441813081258456,
+// } 3.1415926535835563 3.1415926535730576
+// [ 54.57204465994316, 24.442325298422087 ] [ 54.57204465994316, 24.442325298422087 ] [ 54.57080496898934, 24.441673716356398 ] [ 54.57080496898934, 24.4416737163564 ] false 9.42015246719407e-19 
+
+// CONNECT! [ 54.569778932416476, 24.441366817541834 ] [
+//   [ 54.56977894449294, 24.441074136738756 ], [ 54.57000000000001, 24.441190327160086 ], [ 54.57084694057397, 24.440745161222193 ], [ 54.57084693745136, 24.44028034081218 ], [ 54.571147760242575, 24.44043845608456 ], [ 54.57114771720956, 24.441853864959285 ]
+// ] [ 54.571070122708974, 24.441813081258456 ] [
+//   [ 54.57080496898934, 24.4416737163564 ]
+// ] [ 54.57080496898934, 24.441673716356398 ]
+
+
+// CONNECT! [ 54.56795530519258, 24.44447467409078 ] [
+//   [ 54.57000000000001, 24.4455493756693 ], [ 54.57204469480743, 24.44447467409078 ], [ 54.57204465994316, 24.442325298422087 ]
+// ] [ 54.571070122708974, 24.441813081258456 ] [] [ 54.57080496898934, 24.441673716356398 ]

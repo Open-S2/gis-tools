@@ -15,7 +15,8 @@ import type {
  * @param b - The second XYZ Point
  * @returns - True if the two XYZ Points are equal
  */
-export function equalPoints(a: VectorPoint, b: VectorPoint): boolean {
+export function equalPoints(a?: VectorPoint, b?: VectorPoint): boolean {
+  if (a === undefined || b === undefined) return false;
   return a.x === b.x && a.y === b.y && a.z === b.z;
 }
 
@@ -187,4 +188,21 @@ export function pointDestination<D extends MValue = Properties>(
     x: radToDeg(e_lon),
     y: radToDeg(e_lat),
   };
+}
+
+/**
+ * Updates the WGS84 point's x and y values as needed
+ * @param point - the WGS 84 point to clamp/wrap
+ * @returns the point itself post update
+ */
+export function clampWGS84Point<D extends MValue = Properties>(
+  point: VectorPoint<D>,
+): VectorPoint<D> {
+  // Don't touch the point if it's already in bounds
+  if (point.x < -180 || point.x >= 180) {
+    point.x = ((((point.x + 180) % 360) + 360) % 360) - 180;
+  }
+  if (point.y < -90 || point.y > 90) point.y = Math.min(Math.max(point.y, -90), 90);
+
+  return point;
 }

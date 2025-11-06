@@ -4,7 +4,10 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::{
-        geometry::{AverageOfPoints, CenterOfPoints, NearestPoint, ToPoints, bearing, destination},
+        geometry::{
+            AverageOfPoints, CenterOfPoints, NearestPoint, ToPoints, bearing, clamp_wgs84_point,
+            destination,
+        },
         proj::Coords,
     };
     use s2json::{
@@ -939,4 +942,84 @@ mod tests {
             VectorPoint::from_xyz(1.0, 1.0, 1.0)
         );
     }
+
+    #[test]
+    fn test_clamp_wgs84_point() {
+        let mut point = Point(0.0, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(0.0, 0.0));
+
+        let mut point = Point(179.0, -90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(179.0, -90.0));
+
+        let mut point = Point(179.999999, -90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(179.999999, -90.0));
+
+        let mut point = Point(180.0, -90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-180.0, -90.0));
+
+        let mut point = Point(-180.0, -90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-180.0, -90.0));
+
+        let mut point = Point(-180.0, 90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-180.0, 90.0));
+
+        let mut point = Point(180.0, 90.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-180.0, 90.0));
+
+        // Clamp y's
+        let mut point = Point(0.0, -91.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(0.0, -90.0));
+
+        let mut point = Point(0.0, 91.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(0.0, 90.0));
+
+        // wrap x's
+        let mut point = Point(181.0, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-179.0, 0.0));
+
+        let mut point = Point(-181.0, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(179.0, 0.0));
+
+        let mut point = Point(520.0, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(160.0, 0.0));
+
+        let mut point = Point(-420.0, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-60.0, 0.0));
+
+        // 196.4
+        let mut point = Point(196.4, 0.0);
+        clamp_wgs84_point(&mut point);
+        assert_eq!(point, Point(-163.60000000000002, 0.0));
+    }
 }
+
+// test('clampWGS84Point', () => {
+//   expect(clampWGS84Point({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
+//   expect(clampWGS84Point({ x: 179, y: -90 })).toEqual({ x: 179, y: -90 });
+//   expect(clampWGS84Point({ x: 179.999999, y: -90 })).toEqual({ x: 179.999999, y: -90 });
+//   expect(clampWGS84Point({ x: -180, y: 90 })).toEqual({ x: -180, y: 90 });
+//   // Clamp y's
+//   expect(clampWGS84Point({ x: 0, y: -91 })).toEqual({ x: 0, y: -90 });
+//   expect(clampWGS84Point({ x: 0, y: 91 })).toEqual({ x: 0, y: 90 });
+//   // wrap x's
+//   expect(clampWGS84Point({ x: 181, y: 0 })).toEqual({ x: -179, y: 0 });
+//   expect(clampWGS84Point({ x: -181, y: 0 })).toEqual({ x: 179, y: 0 });
+//   expect(clampWGS84Point({ x: 520, y: 0 })).toEqual({ x: 160, y: 0 });
+//   expect(clampWGS84Point({ x: -420, y: 0 })).toEqual({ x: -60, y: 0 });
+
+//   // 196.4
+//   expect(clampWGS84Point({ x: 196.4, y: 0 })).toEqual({ x: -163.60000000000002, y: 0 });
+// });

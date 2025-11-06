@@ -130,6 +130,8 @@
 //! - [`crate::geometry::AverageOfPoints`]: Get the average of a collection of [`s2json::VectorPoint`].
 //! - [`crate::geometry::bearing()`]: Get the bearing in degrees between two points
 //! - [`crate::geometry::CenterOfPoints`]: Get the center of a bounding box from a collection of [`s2json::VectorPoint`]
+//! - [`crate::geometry::ClampWGS84Point`]: Traint to ensure a WGS84 point is valid
+//! - [`crate::geometry::clamp_wgs84_point()`]: Updates a WGS84 point's x and y values as needed to be valid WGS84
 //! - [`crate::geometry::destination()`]: Get the destination given a start point, bearing, and distance
 //! - [`crate::geometry::NearestPoint`]: Get the nearest of a collection of [`s2json::VectorPoint`].
 //! - [`crate::geometry::ToPoints`]: Convert any geometry shape to a [`s2json::VectorMultiPoint`]

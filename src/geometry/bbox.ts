@@ -181,3 +181,16 @@ export function clipBBox(bb: BBOX | undefined, axis: 0 | 1, k1: number, k2: numb
 
   return newBox;
 }
+
+/**
+ * Calculates the area of a bounding box
+ * @param bbox - the bounding box
+ * @returns the area
+ */
+export function bboxArea(bbox: BBOX): number {
+  let res = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]);
+  if (bbox[4] !== undefined && bbox[4] !== 0 && bbox[5] !== undefined && bbox[5] !== 0)
+    res *= bbox[5] - bbox[4];
+
+  return res;
+}

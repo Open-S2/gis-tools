@@ -1,6 +1,6 @@
 use crate::geometry::{Area, clean_linestring, dekink_polygon};
 use alloc::{vec, vec::Vec};
-use s2json::{GetXY, NewXY};
+use s2json::{GetXY, NewXY, SetXY};
 
 /// Ensures the collection of polygon ring order is correct, removes duplicate points,
 /// and runs a dekink to be thorough.
@@ -15,14 +15,21 @@ use s2json::{GetXY, NewXY};
 /// ## Parameters
 /// - `polygons`: the collection of polygon as either a VectorFeature, VectorMultiPolygonGeometry, or raw VectorMultiPolygon
 /// - `remove_collinear_points`: - if true, remove superfluous points
+/// - `clean_wgs84`: if true, clean WGS84 points to be valid WGS84 points
 ///
 /// ## Returns
 /// The cleaned polygons as a new collection of polygons
-pub fn clean_polygons<P: NewXY + GetXY + PartialEq + Clone>(
+pub fn clean_polygons<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
     polygons: &Vec<Vec<Vec<P>>>,
     remove_collinear_points: bool,
-) -> Vec<Vec<Vec<P>>> {
-    polygons.into_iter().flat_map(|p| clean_polygon(p, remove_collinear_points)).collect()
+    clean_wgs84: bool,
+) -> Option<Vec<Vec<Vec<P>>>> {
+    let res: Vec<Vec<Vec<P>>> = polygons
+        .into_iter()
+        .filter_map(|p| clean_polygon(p, remove_collinear_points, clean_wgs84))
+        .flatten()
+        .collect();
+    if res.is_empty() { None } else { Some(res) }
 }
 
 /// Ensures the polygon ring order is correct, removes duplicate points, and runs a dekink to be
@@ -38,20 +45,29 @@ pub fn clean_polygons<P: NewXY + GetXY + PartialEq + Clone>(
 /// ## Parameters
 /// - `polygon`: the polygon as either a VectorFeature, VectorPolygonGeometry, or raw VectorPolygon
 /// - `remove_collinear_points`: if true, remove superfluous points
+/// - `clean_wgs84`: if true, clean WGS84 points to be valid WGS84 points
 ///
 /// ## Returns
 /// The cleaned polygon, split into a multi-polygon as necessary
-pub fn clean_polygon<P: NewXY + GetXY + PartialEq + Clone>(
+pub fn clean_polygon<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
     polygon: &Vec<Vec<P>>,
     remove_collinear_points: bool,
-) -> Vec<Vec<Vec<P>>> {
+    clean_wgs84: bool,
+) -> Option<Vec<Vec<Vec<P>>>> {
     // remove duplicates from the rings
     let mut res: Vec<Vec<P>> = vec![];
-    for ring in polygon {
+    for (index, ring) in polygon.iter().enumerate() {
         let mut last_point: Option<&P> = None;
 
         if remove_collinear_points {
-            res.push(clean_linestring(ring, true, None));
+            match clean_linestring(ring, true, None, clean_wgs84) {
+                Some(cleaned) => res.push(cleaned),
+                None => {
+                    if index == 0 {
+                        return None;
+                    }
+                }
+            }
         } else {
             let mut new_ring: Vec<P> = vec![];
             for point in ring {
@@ -60,7 +76,13 @@ pub fn clean_polygon<P: NewXY + GetXY + PartialEq + Clone>(
                     last_point = Some(point);
                 }
             }
-            res.push(new_ring);
+            if new_ring.len() >= 4 {
+                res.push(new_ring);
+            } else {
+                if index == 0 {
+                    return None;
+                }
+            }
         }
     }
     // run polygon_ring_area for each ring and invert if it's direction is wrong for the ring type
@@ -73,5 +95,5 @@ pub fn clean_polygon<P: NewXY + GetXY + PartialEq + Clone>(
         }
     }
 
-    dekink_polygon(&res)
+    Some(dekink_polygon(&res))
 }

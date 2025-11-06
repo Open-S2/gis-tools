@@ -1,6 +1,7 @@
 import {
   averageOfPoints,
   centerOfPoints,
+  clampWGS84Point,
   equalPoints,
   pointBearing,
   pointDestination,
@@ -234,4 +235,23 @@ test('pointDestination', () => {
     x: 0.0000063586709560916785,
     y: 0.000006359639560000226,
   });
+});
+
+test('clampWGS84Point', () => {
+  expect(clampWGS84Point({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
+  expect(clampWGS84Point({ x: 179, y: -90 })).toEqual({ x: 179, y: -90 });
+  expect(clampWGS84Point({ x: 179.999999, y: -90 })).toEqual({ x: 179.999999, y: -90 });
+  expect(clampWGS84Point({ x: 180, y: 90 })).toEqual({ x: -180, y: 90 });
+  expect(clampWGS84Point({ x: -180, y: 90 })).toEqual({ x: -180, y: 90 });
+  // Clamp y's
+  expect(clampWGS84Point({ x: 0, y: -91 })).toEqual({ x: 0, y: -90 });
+  expect(clampWGS84Point({ x: 0, y: 91 })).toEqual({ x: 0, y: 90 });
+  // wrap x's
+  expect(clampWGS84Point({ x: 181, y: 0 })).toEqual({ x: -179, y: 0 });
+  expect(clampWGS84Point({ x: -181, y: 0 })).toEqual({ x: 179, y: 0 });
+  expect(clampWGS84Point({ x: 520, y: 0 })).toEqual({ x: 160, y: 0 });
+  expect(clampWGS84Point({ x: -420, y: 0 })).toEqual({ x: -60, y: 0 });
+
+  // 196.4
+  expect(clampWGS84Point({ x: 196.4, y: 0 })).toEqual({ x: -163.60000000000002, y: 0 });
 });

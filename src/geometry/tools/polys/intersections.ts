@@ -1,8 +1,9 @@
 import { BoxIndex, intersectionOfSegmentsRobust } from '../../../index.js';
 
 import type {
+  BBox,
   BoxIndexAccessor,
-  IntersectionOfSegments,
+  IntersectionOfSegmentsRobust,
   MValue,
   Properties,
   VectorFeatures,
@@ -62,17 +63,12 @@ export function polygonsIntersections<
    * @param segment - the segment
    * @returns - the minX, minY, maxX, and maxY
    */
-  const getBounds: BoxIndexAccessor<Segment> = (segment: Segment) => {
+  const getBounds: BoxIndexAccessor<Segment> = (segment: Segment): BBox => {
     const { min, max } = Math;
     const { polyIndex, ringIndex, from, to } = segment;
-    const fromPoint = vectorPolygons[polyIndex][ringIndex][from];
-    const toPoint = vectorPolygons[polyIndex][ringIndex][to];
-    return [
-      min(fromPoint.x, toPoint.x),
-      min(fromPoint.y, toPoint.y),
-      max(fromPoint.x, toPoint.x),
-      max(fromPoint.y, toPoint.y),
-    ];
+    const { x: fromX, y: fromY } = vectorPolygons[polyIndex][ringIndex][from];
+    const { x: toX, y: toY } = vectorPolygons[polyIndex][ringIndex][to];
+    return [min(fromX, toX), min(fromY, toY), max(fromX, toX), max(fromY, toY)];
   };
   // setup a 2D box index
   const boxIndex = new BoxIndex(segments, getBounds);
@@ -137,10 +133,14 @@ export function findPolygonIntersections<D extends MValue = Properties>(
   vectorPolygons: VectorMultiPolygon<D>,
   segment1: Segment,
   segment2: Segment,
-): IntersectionOfSegments<D> | undefined {
+): IntersectionOfSegmentsRobust<D> | undefined {
   const p1 = vectorPolygons[segment1.polyIndex][segment1.ringIndex][segment1.from];
   const p2 = vectorPolygons[segment1.polyIndex][segment1.ringIndex][segment1.to];
   const q1 = vectorPolygons[segment2.polyIndex][segment2.ringIndex][segment2.from];
   const q2 = vectorPolygons[segment2.polyIndex][segment2.ringIndex][segment2.to];
-  return intersectionOfSegmentsRobust([p1, p2], [q1, q2]);
+  return intersectionOfSegmentsRobust(
+    [p1, p2],
+    [q1, q2],
+    segment1.polyIndex === segment2.polyIndex && segment1.ringIndex === segment2.ringIndex,
+  );
 }

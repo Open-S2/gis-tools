@@ -1,4 +1,4 @@
-import { deKinkPolygon } from '../src/index.js';
+import { dekinkPolygon } from '../src/index.js';
 import { polygon, unkinkPolygon } from '@turf/turf';
 
 import type { VectorPolygon } from 's2json-spec';
@@ -37,7 +37,7 @@ const turfPolygon = polygon(polygonFeature.map((ring) => ring.map((coord) => [co
 const startDekink = Bun.nanoseconds();
 
 for (let i = 0; i < 1_000_000; i++) {
-  deKinkPolygon(polygonFeature);
+  dekinkPolygon(polygonFeature);
 }
 
 const endDekink = Bun.nanoseconds();

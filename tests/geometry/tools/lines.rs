@@ -5,8 +5,8 @@
 mod tests {
     use gistools::{
         geometry::{
-            DistanceMethod, IntersectionOfSegments, LengthOfLines, ToLines, along_line,
-            clean_linestring, clean_linestrings, intersection_of_segments,
+            DistanceMethod, IntersectionOfSegments, IntersectionOfSegmentsRobust, LengthOfLines,
+            ToLines, along_line, clean_linestring, clean_linestrings, intersection_of_segments,
             intersection_of_segments_robust, point_on_line, point_to_line_distance,
         },
         proj::Coords,
@@ -571,13 +571,16 @@ mod tests {
     fn intersection_of_segments_robust_for_crossing_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 2.0));
         let b = (&VectorPoint::from_xy(0.0, 2.0), &VectorPoint::from_xy(2.0, 0.0));
-        // assert_eq!(
-        //     intersection_of_segments_robust(a, b, None, None),
-        //     Some(VectorPoint::from_xy(1.0, 1.0))
-        // );
         assert_eq!(
-            intersection_of_segments_robust(a, b, None, None),
-            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 0.5, t: 0.5 })
+            intersection_of_segments_robust(a, b, false),
+            Some(IntersectionOfSegmentsRobust::new(
+                1.,
+                1.,
+                0.5,
+                0.5,
+                VectorPoint::from_xy(1.0, 1.0),
+                VectorPoint::from_xy(1.0, -1.0)
+            ))
         );
     }
 
@@ -585,20 +588,14 @@ mod tests {
     fn intersection_of_segments_robust_undefined_for_parallel_non_intersecting_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(0.0, 1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(
-            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
-            None
-        );
+        assert_eq!(intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, false), None);
     }
 
     #[test]
     fn intersection_of_segments_robust_undefined_for_collinear_overlapping_segments() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
-        assert_eq!(
-            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
-            None
-        );
+        assert_eq!(intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, false), None);
     }
 
     #[test]
@@ -606,13 +603,16 @@ mod tests {
     {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
-        // assert_eq!(
-        //     intersection_of_segments_robust(a, b, Some(1), Some(2)),
-        //     Some(VectorPoint::from_xy(1.0, 1.0))
-        // );
         assert_eq!(
-            intersection_of_segments_robust(a, b, Some(1), Some(2)),
-            Some(IntersectionOfSegments { point: VectorPoint::from_xy(1.0, 1.0), u: 1.0, t: 0.0 })
+            intersection_of_segments_robust(a, b, false),
+            Some(IntersectionOfSegmentsRobust::new(
+                1.,
+                1.,
+                1.,
+                0.,
+                VectorPoint::from_xy(1.0, 1.0),
+                VectorPoint::from_xy(-0.0, 0.0)
+            ))
         );
     }
 
@@ -621,23 +621,23 @@ mod tests {
      {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 1.0));
         let b = (&VectorPoint::from_xy(1.0, 1.0), &VectorPoint::from_xy(2.0, 0.0));
-        assert_eq!(
-            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, Some(1), Some(1)),
-            None
-        );
+        assert_eq!(intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, true), None);
     }
 
     #[test]
     fn intersection_of_segments_robust_returns_intersections_inside_segment_ranges() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(4.0, 0.0));
         let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
-        // assert_eq!(
-        //     intersection_of_segments_robust(a, b, None, None),
-        //     Some(VectorPoint::from_xy(2.0, 0.0))
-        // );
         assert_eq!(
-            intersection_of_segments_robust(a, b, None, None),
-            Some(IntersectionOfSegments { point: VectorPoint::from_xy(2.0, 0.0), u: 0.5, t: 0.5 })
+            intersection_of_segments_robust(a, b, false),
+            Some(IntersectionOfSegmentsRobust::new(
+                2.,
+                0.,
+                0.5,
+                0.5,
+                VectorPoint::from_xy(2.0, 0.0),
+                VectorPoint::from_xy(0.0, 1.0)
+            ))
         );
     }
 
@@ -646,20 +646,14 @@ mod tests {
      {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(1.0, 0.0));
         let b = (&VectorPoint::from_xy(2.0, -1.0), &VectorPoint::from_xy(2.0, 1.0));
-        assert_eq!(
-            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
-            None
-        );
+        assert_eq!(intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, false), None);
     }
 
     #[test]
     fn intersection_of_segments_robust_undefined_when_parallel_overlap() {
         let a = (&VectorPoint::from_xy(0.0, 0.0), &VectorPoint::from_xy(2.0, 0.0));
         let b = (&VectorPoint::from_xy(1.0, 0.0), &VectorPoint::from_xy(3.0, 0.0));
-        assert_eq!(
-            intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, None, None),
-            None
-        );
+        assert_eq!(intersection_of_segments_robust::<VectorPoint, VectorPoint>(a, b, false), None);
     }
 
     #[test]
@@ -793,7 +787,7 @@ mod tests {
             VectorPoint::from_xy(3.0, 3.0),
             VectorPoint::from_xy(3.0, 3.0),
         ];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
     }
 
@@ -809,7 +803,7 @@ mod tests {
             VectorPoint::from_xy(2.0, 2.0),
             VectorPoint::from_xy(3.0, 3.0),
         ];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
     }
 
@@ -825,7 +819,7 @@ mod tests {
             VectorPoint::from_xy(0., 0.),
             VectorPoint::from_xy(0., 0.),
         ];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(
             result,
             vec![
@@ -846,7 +840,7 @@ mod tests {
             VectorPoint::from_xy(2.0, 2.0),
             VectorPoint::from_xy(3.0, 3.0),
         ];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]);
     }
 
@@ -858,14 +852,14 @@ mod tests {
             VectorPoint::from_xy(2.0, 0.0),
             VectorPoint::from_xy(3.0, 1.0),
         ];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(result, line);
     }
 
     #[test]
     fn clean_linestring_returns_original_when_too_few_points() {
         let line = vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(2.0, 2.0)];
-        let result = clean_linestring(&line, false, None);
+        let result = clean_linestring(&line, false, None, false).unwrap();
         assert_eq!(result, line);
     }
 
@@ -877,8 +871,8 @@ mod tests {
             VectorPoint::from_xy(2.0, 2.0),
             VectorPoint::from_xy(0.0, 0.0),
         ];
-        let result = clean_linestring(&line, true, None);
-        assert_eq!(result, line);
+        let result = clean_linestring(&line, true, None, false);
+        assert_eq!(result, None);
     }
 
     #[test]
@@ -889,10 +883,10 @@ mod tests {
             VectorPoint::from_xy(2.0, 2.0),
         ];
         // high tolerance
-        let result = clean_linestring(&line, false, Some(1e-15));
+        let result = clean_linestring(&line, false, Some(1e-15), false).unwrap();
         assert_eq!(result, line);
         // low tolerance
-        let result = clean_linestring(&line, false, Some(1e-3));
+        let result = clean_linestring(&line, false, Some(1e-3), false).unwrap();
         assert_eq!(result, vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(2.0, 2.0)]);
     }
 
@@ -904,7 +898,7 @@ mod tests {
             VectorPoint::from_xy(2.0, 2.0),
             VectorPoint::from_xy(3.0, 3.0),
         ]];
-        let result = clean_linestrings(&lines, false, None);
+        let result = clean_linestrings(&lines, false, None, false).unwrap();
         assert_eq!(
             result,
             vec![vec![VectorPoint::from_xy(0.0, 0.0), VectorPoint::from_xy(3.0, 3.0)]]

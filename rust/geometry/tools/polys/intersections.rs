@@ -1,6 +1,6 @@
 use crate::{
     data_structures::{BoxIndex, BoxIndexAccessor},
-    geometry::{IntersectionOfSegments, intersection_of_segments_robust},
+    geometry::{IntersectionOfSegmentsRobust, intersection_of_segments_robust},
 };
 use alloc::{vec, vec::Vec};
 use libm::{fmax, fmin};
@@ -150,12 +150,16 @@ pub fn find_polygon_intersection<P: GetXY + PartialEq, Q: NewXY>(
     vector_polygons: &[Vec<Vec<P>>],
     segment1: &Segment,
     segment2: &Segment,
-) -> Option<IntersectionOfSegments<Q>> {
+) -> Option<IntersectionOfSegmentsRobust<Q>> {
     let p1 = &vector_polygons[segment1.poly_index][segment1.ring_index][segment1.from];
     let p2 = &vector_polygons[segment1.poly_index][segment1.ring_index][segment1.to];
     let q1 = &vector_polygons[segment2.poly_index][segment2.ring_index][segment2.from];
     let q2 = &vector_polygons[segment2.poly_index][segment2.ring_index][segment2.to];
-    intersection_of_segments_robust((p1, p2), (q1, q2), None, None)
+    intersection_of_segments_robust(
+        (p1, p2),
+        (q1, q2),
+        segment1.poly_index == segment2.poly_index && segment1.ring_index == segment2.ring_index,
+    )
 }
 
 /// Find all intersections within a collection of polygons where each polygon is their own ref.
@@ -263,10 +267,14 @@ fn find_intersection_ref<P: GetXY + PartialEq, Q: NewXY>(
     vector_polygons: &[&Vec<Vec<P>>],
     segment1: &Segment,
     segment2: &Segment,
-) -> Option<IntersectionOfSegments<Q>> {
+) -> Option<IntersectionOfSegmentsRobust<Q>> {
     let p1 = &vector_polygons[segment1.poly_index][segment1.ring_index][segment1.from];
     let p2 = &vector_polygons[segment1.poly_index][segment1.ring_index][segment1.to];
     let q1 = &vector_polygons[segment2.poly_index][segment2.ring_index][segment2.from];
     let q2 = &vector_polygons[segment2.poly_index][segment2.ring_index][segment2.to];
-    intersection_of_segments_robust((p1, p2), (q1, q2), None, None)
+    intersection_of_segments_robust(
+        (p1, p2),
+        (q1, q2),
+        segment1.poly_index == segment2.poly_index && segment1.ring_index == segment2.ring_index,
+    )
 }

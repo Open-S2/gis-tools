@@ -10,6 +10,7 @@ import type {
 export * from './along.js';
 export * from './area.js';
 export * from './clean.js';
+export * from './equal.js';
 export * from './intersection.js';
 export * from './length.js';
 export * from './pointOnLine.js';

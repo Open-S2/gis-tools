@@ -175,7 +175,8 @@ export class RasterTilesFileReader<
 
   /**
    * Iterate over all tiles in the archive
-   * @yields - the each of the tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
+   * @yields {S2Feature<S2TileMetadata, T, P> | VectorFeature<TileMetadata, T, P>} the each of the
+   * tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
     S2Feature<S2TileMetadata, T, P> | VectorFeature<TileMetadata, T, P>

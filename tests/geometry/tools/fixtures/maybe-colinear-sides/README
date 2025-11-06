@@ -1,1 +1,0 @@
-This test checks for a rounding error between two difference calculations that are being used to determine collinearity - the signed triangle area calculation and the number of intersections calculation.

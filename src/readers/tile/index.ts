@@ -238,7 +238,8 @@ export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
 
   /**
    * Iterate over all tiles in the archive
-   * @yields - the each of the tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
+   * @yields {S2Feature<S2TileMetadata, T, Properties> | VectorFeature<TileMetadata, T, Properties>}
+   * the each of the tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
     S2Feature<S2TileMetadata, T, Properties> | VectorFeature<TileMetadata, T, Properties>
@@ -300,7 +301,8 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint, P extend
 
   /**
    * Iterate over all tiles in the archive
-   * @yields - the each of the tile's pixel RGBA data as lon-lat coordinates with the RGBA as m-values
+   * @yields {VectorFeature<TileMetadata, T, P>} the each of the tile's pixel RGBA data as lon-lat
+   * coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<VectorFeature<TileMetadata, T, P>> {
     const { zoom, x, y, image, tmsStyle } = this;
@@ -369,7 +371,8 @@ export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint, P exte
 
   /**
    * Iterate over all tiles in the archive
-   * @yields - the each of the tile's pixel RGBA data as S2 s-t coordinates with the RGBA as m-values
+   * @yields {S2Feature<S2TileMetadata, T, P>} The each of the tile's pixel RGBA data as S2 s-t
+   * coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<S2Feature<S2TileMetadata, T, P>> {
     const { face, zoom, x, y, image } = this;
