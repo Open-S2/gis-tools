@@ -370,7 +370,7 @@ pub fn point_in_polyline<P1: GetXY, P2: GetXY>(point: &P1, contour: &[P2]) -> In
     let y = point.y();
     let contour_len = contour.len() - 1;
 
-    let mut current_p = &contour[0];
+    let current_p = &contour[0];
     if current_p.x() != contour[contour_len].x() && current_p.y() != contour[contour_len].y() {
         // since the first and last coordinates in a ring are not the same, assume it's not a polygon and return false
         return InsideResult::Outside;
@@ -409,12 +409,12 @@ pub fn point_in_polyline<P1: GetXY, P2: GetXY>(point: &P1, contour: &[P2]) -> In
 /// Check if a polyline/hole is inside another polyline/outer ring
 ///
 /// ## Parameters
-/// - `outer`: the outer
-/// - `hole`: the hole
+/// - `hole`: the hole to test if inside the outer
+/// - `outer`: the outer to test against
 ///
 /// ## Returns
 /// true if the hole is inside the outer
-pub fn polyline_in_polyline<P: GetXY>(outer: &[P], hole: &[P]) -> bool {
+pub fn polyline_in_polyline<P: GetXY>(hole: &[P], outer: &[P]) -> bool {
     for point in hole {
         match point_in_polyline(point, outer) {
             InsideResult::Inside => return true,

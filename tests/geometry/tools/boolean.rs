@@ -177,7 +177,7 @@ mod tests {
     //     polygons_union_no_self_intersecting_rings_output,
     //     "no-self-intersecting-rings-output"
     // );
-    // polygons_union_test!(polygons_union_non_zero_rule_not_even_odd, "non-zero-rule-not-even-odd");
+    polygons_union_test!(polygons_union_non_zero_rule_not_even_odd, "non-zero-rule-not-even-odd");
     polygons_union_test!(polygons_union_overlap_edges, "overlap-edges");
     // polygons_union_test!(polygons_union_overlap_loop, "overlap-loop");
     // polygons_union_test!(polygons_union_overlapping_clippings, "overlapping-clippings");
@@ -198,8 +198,8 @@ mod tests {
         polygons_union_self_intersects_but_doesnt_cross_2,
         "self-intersects-but-doesnt-cross-2"
     );
-    // polygons_union_test!(polygons_union_simple_kink, "simple-kink");
-    // polygons_union_test!(polygons_union_simple_kink_2, "simple-kink-2");
+    polygons_union_test!(polygons_union_simple_kink, "simple-kink");
+    polygons_union_test!(polygons_union_simple_kink_2, "simple-kink-2");
     polygons_union_test!(
         polygons_union_split_almost_vertical_segment,
         "split-almost-vertical-segment"

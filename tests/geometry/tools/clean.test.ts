@@ -174,7 +174,7 @@ describe('cleanPolygons', () => {
   });
 
   test('cleanPolygons - experiments', async () => {
-    const folder = 'hole-interacts-outer';
+    const folder = 'issue-turf-1094';
     const input = await getInput(folder);
     const cleaned = cleanPolygons(input)!;
 

@@ -221,9 +221,18 @@ function ringSetToPaths<D extends MValue = Properties>(
   // const holesMaybeHole = ringSet.filter((r) => r.isHole && r.isCCW);
   const actualOuters: PolyPath<D>[] = [];
 
-  // store all true outers
-  for (const outer of outers) {
-    actualOuters.push(new PolyPath(outer.lineString, new Set(), true, outer.bbox));
+  // store all true outers. We know the first outer is the largest original outer ring.
+  // The future outers are holes either kink inside or outside the original. Only store kinks that are outside the original
+  if (outers.length > 0) {
+    // store the first one
+    const { lineString: firstLink, bbox: firstBBox } = outers[0];
+    actualOuters.push(new PolyPath(firstLink, new Set(), true, firstBBox));
+    // check all the others
+    for (const outer of outers.slice(1)) {
+      if (bboxInside(outer.bbox, firstBBox) && polylineInPolyline(outer.lineString, firstLink))
+        continue;
+      actualOuters.push(new PolyPath(outer.lineString, new Set(), true, outer.bbox));
+    }
   }
 
   // If outer in `outersMaybeHole` is inside an actual outer, it's a hole; Otherwise it's another outer
@@ -232,7 +241,7 @@ function ringSetToPaths<D extends MValue = Properties>(
     for (const actualOuter of actualOuters) {
       if (
         bboxInside(bbox, actualOuter.bbox) &&
-        polylineInPolyline(actualOuter.outer!, lineString)
+        polylineInPolyline(lineString, actualOuter.outer!)
       ) {
         // store the hole in this outer
         actualOuter.holes.push(lineString);
@@ -255,7 +264,7 @@ function ringSetToPaths<D extends MValue = Properties>(
         for (const actualOuter of actualOuters) {
           if (
             bboxInside(bbox, actualOuter.bbox) &&
-            polylineInPolyline(actualOuter.outer!, lineString)
+            polylineInPolyline(lineString, actualOuter.outer!)
           ) {
             // store the hole in this outer
             actualOuter.holes.push(lineString);

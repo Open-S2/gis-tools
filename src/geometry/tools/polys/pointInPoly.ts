@@ -86,11 +86,11 @@ export function pointInPolygon<
 
 /**
  * Check if a hole is inside an outer ring
- * @param outer - the outer
- * @param hole - the hole
+ * @param hole - the hole to test if inside the outer
+ * @param outer - the outer to test against
  * @returns true if the hole is inside the outer
  */
-export function polylineInPolyline(outer: VectorLineString, hole: VectorLineString): boolean {
+export function polylineInPolyline(hole: VectorLineString, outer: VectorLineString): boolean {
   const outerPoly = [outer];
   for (const point of hole) {
     const result = pointInPolygon(point, outerPoly, false);

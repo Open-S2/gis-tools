@@ -192,15 +192,30 @@ fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut 
 
     // store all true outers
     {
-        let outers: Vec<&mut Ring<P>> =
+        let mut outers: Vec<&mut Ring<P>> =
             ring_set.iter_mut().filter(|r| !r.is_hole && r.is_ccw).collect();
-        for outer in outers {
-            actual_outers.push(PolyPath::new_ref(
-                take(&mut outer.linestring),
-                BTreeSet::new(),
-                true,
-                Some(outer.bbox),
-            ));
+        // store all true outers. We know the first outer is the largest original outer ring.
+        // The future outers are holes either kink inside or outside the original. Only store kinks that are outside the original
+        if outers.len() > 0 {
+            let first = outers.remove(0);
+            // store the first one without the ring we still need it for now
+            actual_outers.push(PolyPath::new_ref(vec![], BTreeSet::new(), true, Some(first.bbox)));
+            // check all the others are not in the first
+            for outer in outers {
+                if outer.bbox.inside(&first.bbox)
+                    && polyline_in_polyline(&outer.linestring, &first.linestring)
+                {
+                    continue;
+                }
+                actual_outers.push(PolyPath::new_ref(
+                    take(&mut outer.linestring),
+                    BTreeSet::new(),
+                    true,
+                    Some(outer.bbox),
+                ));
+            }
+            // now store the first one's ring
+            actual_outers[0].borrow_mut().outer = Some(take(&mut first.linestring));
         }
     }
 
@@ -213,7 +228,7 @@ fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut 
             for actual_outer in actual_outers.iter() {
                 let actual_outer = &mut actual_outer.borrow_mut();
                 if bbox.inside(&actual_outer.bbox)
-                    && polyline_in_polyline(actual_outer.outer.as_ref().unwrap(), linestring)
+                    && polyline_in_polyline(linestring, actual_outer.outer.as_ref().unwrap())
                 {
                     // store the hole in this outer
                     actual_outer.holes.push(take(linestring));
@@ -248,8 +263,8 @@ fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut 
                     for actual_outer in actual_outers.iter() {
                         if bbox.inside(&actual_outer.borrow().bbox)
                             && polyline_in_polyline(
-                                actual_outer.borrow().outer.as_ref().unwrap(),
                                 linestring,
+                                actual_outer.borrow().outer.as_ref().unwrap(),
                             )
                         {
                             // store the hole in this outer

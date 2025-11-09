@@ -145,7 +145,7 @@ describe('polygonsUnion', () => {
     'nearly-vertical-far-right',
     'no-bbox-overlap',
     // 'no-self-intersecting-rings-output',
-    // 'non-zero-rule-not-even-odd',
+    'non-zero-rule-not-even-odd',
     'overlap-edges',
     // 'overlap-loop',
     // 'overlapping-clippings',
@@ -183,7 +183,7 @@ describe('polygonsUnion', () => {
   });
 
   test('polygonsUnion - experiments', async () => {
-    const folder = 'vertical-segment-upon-split';
+    const folder = 'simple-kink-2';
     const inputPolys = await getInput(folder, false, true);
     const union = polygonsUnion(inputPolys);
     await checkResult(folder, union, false);
@@ -197,9 +197,6 @@ describe('polygonsUnion', () => {
   // - overlapping-clippings
   // - infinitely-thin-polygon
   // - no-self-intersecting-rings-output
-  // - non-zero-rule-not-even-odd
-  // - simple-kink
-  // - simple-kink-2
 
   // TODO: chunks-water => After fixing existing bugs this should be perfect
 
