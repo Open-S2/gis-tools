@@ -30,6 +30,20 @@ export interface Intersection<D extends MValue = Properties> {
   t: number; // where the intersection occurs on segment2 from 0 to 1
 }
 
+/** Local Intersection to a [polyIndex][ringIndex] */
+export interface RingIntersection<D extends MValue = Properties> {
+  from: number;
+  to: number;
+  point: VectorPoint<D>;
+  t: number;
+  tVec: VectorPoint<D>;
+}
+/** [polyIndex][ringIndex] -> Intersections */
+export type RingIntersectionLookup<D extends MValue = Properties> = Record<
+  number,
+  Record<number, RingIntersection<D>[]>
+>;
+
 /**
  * Find the intersection of a collection of polygons
  * @param polygons - the collection of polygons
@@ -98,6 +112,75 @@ export function polygonsIntersections<
   }
 
   return res;
+}
+
+/**
+ * Run through the vectorPolygons and Builds the ring intersection lookup
+ * @param vectorPolygons - the collection of polygons
+ * @param segmentFilter -  the function to filter the segments, default ignores self intersections
+ * @returns - the ring intersection lookup for all rings in the multipolygon collection
+ */
+export function polygonsIntersectionsLookup<D extends MValue = Properties>(
+  vectorPolygons: VectorMultiPolygon<D>,
+  segmentFilter?: (seg1: Segment) => { (seg2: Segment): boolean },
+): RingIntersectionLookup<D> {
+  const segments = buildPolygonSegments(vectorPolygons);
+  const ringIntersectLookup: RingIntersectionLookup<D> = {};
+
+  if (segmentFilter === undefined) {
+    /**
+     * Default segment filter
+     * @param seg1 - the first segment
+     * @returns - filter on the second segment
+     */
+    segmentFilter = (seg1: Segment) => {
+      return (seg2: Segment): boolean =>
+        // if same id ignore
+        seg2.id !== seg1.id &&
+        // only pass forward not backward
+        seg2.id > seg1.id &&
+        // if same polyIndex ignore
+        seg2.polyIndex !== seg1.polyIndex;
+    };
+  }
+
+  /**
+   * Setup a function for accessing the minX, minY, maxX, and maxY properties of the items.
+   * @param segment - the segment
+   * @returns - the minX, minY, maxX, and maxY
+   */
+  const getBounds: BoxIndexAccessor<Segment> = (segment: Segment): BBox => {
+    const { min, max } = Math;
+    const { polyIndex, ringIndex, from, to } = segment;
+    const { x: fromX, y: fromY } = vectorPolygons[polyIndex][ringIndex][from];
+    const { x: toX, y: toY } = vectorPolygons[polyIndex][ringIndex][to];
+    return [min(fromX, toX), min(fromY, toY), max(fromX, toX), max(fromY, toY)];
+  };
+  // setup a 2D box index
+  const boxIndex = new BoxIndex(segments, getBounds);
+  // iterate each segment and check for intersections with other segments
+  for (const segment1 of segments) {
+    const { from: s1f, to: s1t, polyIndex: s1pi, ringIndex: s1ri } = segment1;
+    const potentialIntersections = boxIndex.search(...getBounds(segment1), segmentFilter(segment1));
+    for (const segment2 of potentialIntersections) {
+      const { from: s2f, to: s2t, polyIndex: s2pi, ringIndex: s2ri } = segment2;
+      const pInt = findPolygonIntersections<D>(vectorPolygons, segment1, segment2);
+      // ignore points that interact at their edges if both segments leaving or coming
+      if (pInt !== undefined) {
+        const { point, u, t, uVec, tVec } = pInt;
+        // skip if u and t are equal
+        if (u === t && (u === 0 || u === 1)) continue;
+        // first segment intersection
+        const s1 = ((ringIntersectLookup[s1pi] ??= {})[s1ri] ??= []);
+        s1.push({ from: s1f, to: s1t, point, t: u, tVec: uVec });
+        // second segment intersection
+        const s2 = ((ringIntersectLookup[s2pi] ??= {})[s2ri] ??= []);
+        s2.push({ from: s2f, to: s2t, point, t, tVec });
+      }
+    }
+  }
+
+  return ringIntersectLookup;
 }
 
 /**

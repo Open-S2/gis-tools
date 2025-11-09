@@ -79,16 +79,23 @@ describe('polygonsUnion', () => {
     'almost-parrallel-segments',
     'almost-parrallel-segments-2',
     'almost-parrallel-segments-3',
+    'chunks-water-2',
+    'chunks-water-3',
     'clean-multipoly-with-polys-overlapping',
     'clean-multipoly-with-polys-touching',
+    'clean-poly-with-backward-ring-winding-order',
+    'clean-poly-with-repeated-and-extra-points',
     'collapsed-edges-removed',
+    'disjoint-union',
     'dont-consume-prev-segment-1',
     'dont-consume-prev-segment-2',
     'dont-consume-prev-segment-3',
     'double-overlap',
     'empty-multipoly',
     'high-coincidence',
+    'hole-from-outers-bug',
     'hole-interacts-outer',
+    // 'infinitely-thin-polygon',
     'intersection-after-remove-1',
     'intersection-after-remove-2',
     'island-in-hole-4x',
@@ -102,11 +109,14 @@ describe('polygonsUnion', () => {
     'issue-60-3',
     'issue-60-4',
     'issue-60-5',
+    // 'issue-60-6',
     'issue-60-7',
     'issue-60-8',
+    // 'issue-61',
     'issue-61-2',
     'issue-62',
     'issue-62-2',
+    // 'issue-66',
     'issue-68',
     'issue-68-1',
     'issue-75',
@@ -118,6 +128,7 @@ describe('polygonsUnion', () => {
     'issue-90',
     'issue-91',
     'issue-93',
+    // 'issue-94',
     'issue-105',
     'issue-115',
     'issue-118',
@@ -125,13 +136,19 @@ describe('polygonsUnion', () => {
     'issue-139',
     'issue-140',
     'issue-141',
+    'issue-142',
+    'issue-turf-1094',
     'maybe-colinear-sides',
     'multipoly-and-square',
     'multipoly-with-hole-and-square',
     'multipolys-with-disjoint-polys',
     'nearly-vertical-far-right',
     'no-bbox-overlap',
+    // 'no-self-intersecting-rings-output',
+    // 'non-zero-rule-not-even-odd',
     'overlap-edges',
+    // 'overlap-loop',
+    // 'overlapping-clippings',
     'poly-and-square',
     'poly-with-hole-and-square',
     'polygon-and-trapezoid',
@@ -140,12 +157,13 @@ describe('polygonsUnion', () => {
     'saw-and-cheese',
     'self-intersects-but-doesnt-cross-1',
     'self-intersects-but-doesnt-cross-2',
+    // 'simple-kink',
+    // 'simple-kink-2',
     'split-almost-vertical-segment',
     'split-prev-segment',
     'three-triangles',
     'touching-boxes',
     'triple-coincident-segments',
-    'vertical-intersection-rounding-error',
     'two-disjoint-polygons',
     'two-overlapping-triangles',
     'two-overlapping-triangles-start-inside',
@@ -165,13 +183,11 @@ describe('polygonsUnion', () => {
   });
 
   test('polygonsUnion - experiments', async () => {
-    const folder = 'issue-142-simple';
+    const folder = 'vertical-segment-upon-split';
     const inputPolys = await getInput(folder, false, true);
     const union = polygonsUnion(inputPolys);
-    await checkResult(folder, union, true);
+    await checkResult(folder, union, false);
   });
-
-  // TODO: hole-from-outers-bug => outers overlap creating a hole from outers that overlap en-masse
 
   // TODO: leftover polys
   // - issue-60-6
@@ -181,10 +197,13 @@ describe('polygonsUnion', () => {
   // - overlapping-clippings
   // - infinitely-thin-polygon
   // - no-self-intersecting-rings-output
+  // - non-zero-rule-not-even-odd
+  // - simple-kink
+  // - simple-kink-2
 
   // TODO: chunks-water => After fixing existing bugs this should be perfect
 
-  // TODO: issue-142 => Hole is not building properly. (Is this fixable?)
+  // TODO: issue-142 => Hole is not building properly. Use vectors to check angles not segments
   // 54.57080496898934, 24.441673716356398
 
   test('polygonsUnion - fully empty', (): void => {

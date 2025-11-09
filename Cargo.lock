@@ -2738,9 +2738,9 @@ dependencies = [
 
 [[package]]
 name = "s2json"
-version = "1.42.0"
+version = "1.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "869d7fb655073df7d1b6ca75e9fcbb135620b81fcffe22488644098cf01473af"
+checksum = "6e326976566a9cf1c21c451f1af29d777463660ef4bc33d9b92b785d12538cf3"
 dependencies = [
  "s2json-core",
  "s2json-derive",
@@ -2748,9 +2748,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-core"
-version = "1.42.0"
+version = "1.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce28dba803a45ed0e1fdb5a450a5cb074f766350330b093779150fc82d80444d"
+checksum = "0bf6a62e67583c3732f736a4ffbd74a824b6631bdb22bf24204bc2b217b03ef2"
 dependencies = [
  "libm",
  "pbf",
@@ -2760,9 +2760,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-derive"
-version = "1.42.0"
+version = "1.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "548b6f31c1f72b76bf69fbcd6c1d7d1bfc716c0a55dda08a89900186debad540"
+checksum = "e0f8b972369ca542b9328fe1649448a5595f729870b341ace5c7cd698bfd7cb1"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",

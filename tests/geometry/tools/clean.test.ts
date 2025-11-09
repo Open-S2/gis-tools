@@ -68,6 +68,9 @@ describe('cleanPolygons', () => {
     'almost-parrallel-segments',
     'almost-parrallel-segments-2',
     'almost-parrallel-segments-3',
+    'bathymetry_2000',
+    'chunks-water-2',
+    'chunks-water-3',
     'clean-multipoly-with-polys-overlapping',
     'clean-multipoly-with-polys-touching',
     'clean-poly-with-backward-ring-winding-order',
@@ -171,13 +174,28 @@ describe('cleanPolygons', () => {
   });
 
   test('cleanPolygons - experiments', async () => {
-    const folder = 'simple-kink-2';
+    const folder = 'hole-interacts-outer';
     const input = await getInput(folder);
     const cleaned = cleanPolygons(input)!;
 
     await checkResult(folder, cleaned, false);
   });
   // 'chunks-water-simple'
+
+  // start: Point(0.0, 1.0)
+  // add mid: []
+  // add int: Point(0.07466666666666667, 1.0213333333333334)
+  // add mid: []
+  // add int: Point(0.0, 1.04)
+  // add mid: []
+  // add int: Point(0.0, 1.0)
+  // start: Point(0.08, 1.02)
+  // add mid: []
+  // add int: Point(0.07466666666666667, 1.0213333333333334)
+  // add mid: []
+  // add int: Point(0.14, 1.04)
+  // add mid: []
+  // add int: Point(0.08, 1.02)
 });
 
 // TODO: Hole interacts with outer ring

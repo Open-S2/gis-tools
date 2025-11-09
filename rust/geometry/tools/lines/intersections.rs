@@ -100,23 +100,18 @@ pub fn intersection_of_segments_robust<P: GetXY + PartialEq, Q: NewXY>(
     b: (&P, &P),
     same_ring: bool,
 ) -> Option<IntersectionOfSegmentsRobust<Q>> {
-    let x1 = a.0.x();
-    let y1 = a.0.y();
-    let x2 = a.1.x();
-    let y2 = a.1.y();
-    let x3 = b.0.x();
-    let y3 = b.0.y();
-    let x4 = b.1.x();
-    let y4 = b.1.y();
-    let dx_a = x2 - x1;
-    let dy_a = y2 - y1;
-    let dx_b = x4 - x3;
-    let dy_b = y4 - y3;
+    let (x1, y1) = a.0.xy();
+    let (x2, y2) = a.1.xy();
+    let (x3, y3) = b.0.xy();
+    let (x4, y4) = b.1.xy();
+    let (dx_a, dy_a) = (x2 - x1, y2 - y1);
+    let (dx_b, dy_b) = (x4 - x3, y4 - y3);
+    let (dx_c, dy_c) = (x1 - x3, y1 - y3);
 
     // build numerators and denominator. Extrapolate vectors from them
-    let denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-    let nume_a = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
-    let nume_b = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+    let denom = dy_b * dx_a - dx_b * dy_a;
+    let nume_a = dx_b * dy_c - dy_b * dx_c;
+    let nume_b = dx_a * dy_c - dy_a * dx_c;
     let u_a = nume_a / denom;
     let u_b = nume_b / denom;
     let u_vec = Q::new_xy(u_a * dx_a, u_a * dy_a);

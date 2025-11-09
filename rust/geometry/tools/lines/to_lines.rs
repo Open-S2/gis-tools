@@ -1,12 +1,12 @@
 use alloc::{vec, vec::Vec};
 use s2json::{
-    Feature, Geometry, GetXY, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
-    MultiLineStringGeometry, MultiPoint, MultiPoint3D, MultiPoint3DGeometry, MultiPointGeometry,
-    MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry, MultiPolygonGeometry, NewXY, Point,
-    Point3D, Point3DGeometry, PointGeometry, VectorFeature, VectorGeometry, VectorLineString,
-    VectorMultiLineString, VectorMultiLineStringGeometry, VectorMultiPoint,
-    VectorMultiPointGeometry, VectorMultiPolygon, VectorMultiPolygonGeometry, VectorPoint,
-    VectorPointGeometry,
+    Feature, Features, Geometry, GetXY, MultiLineString, MultiLineString3D,
+    MultiLineString3DGeometry, MultiLineStringGeometry, MultiPoint, MultiPoint3D,
+    MultiPoint3DGeometry, MultiPointGeometry, MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry,
+    MultiPolygonGeometry, NewXY, Point, Point3D, Point3DGeometry, PointGeometry, VectorFeature,
+    VectorGeometry, VectorLineString, VectorMultiLineString, VectorMultiLineStringGeometry,
+    VectorMultiPoint, VectorMultiPointGeometry, VectorMultiPolygon, VectorMultiPolygonGeometry,
+    VectorPoint, VectorPointGeometry,
 };
 
 /// Given a Geometry, attempt to Return a VectorMultiLineString.
@@ -18,21 +18,26 @@ use s2json::{
 /// - [`Geometry`]
 /// - [`PointGeometry`]
 /// - [`MultiPointGeometry`]
+/// - [`s2json::LineStringGeometry`]
 /// - [`MultiLineStringGeometry`]
 /// - [`MultiPolygonGeometry`]
 /// - [`Point3DGeometry`]
 /// - [`MultiPoint3DGeometry`]
+/// - [`s2json::LineString3DGeometry`]
 /// - [`MultiLineString3DGeometry`]
 /// - [`MultiPolygon3DGeometry`]
 /// - [`VectorFeature`]
 /// - [`VectorGeometry`]
 /// - [`VectorPointGeometry`]
 /// - [`VectorMultiPointGeometry`]
+/// - [`s2json::VectorLineStringGeometry`]
 /// - [`VectorMultiLineStringGeometry`]
 /// - [`VectorMultiPolygonGeometry`]
 /// - [`VectorMultiPoint`]
+/// - [`s2json::VectorLineString`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - [`Features`]
 /// - `&[P]` where P implements [`GetXY`]
 /// - `&Vec<Vec<P>>` where P implements [`GetXY`]
 ///
@@ -236,5 +241,16 @@ impl<M: Clone + Default> ToLines<M> for VectorMultiLineString<M> {
 impl<M: Clone + Default> ToLines<M> for VectorMultiPolygon<M> {
     fn to_lines(&self) -> VectorMultiLineString<M> {
         self.iter().flat_map(|p| p.to_lines()).collect()
+    }
+}
+
+// Features
+
+impl<M, P: Clone + Default, D: Clone + Default> ToLines<D> for Features<M, P, D> {
+    fn to_lines(&self) -> VectorMultiLineString<D> {
+        match self {
+            Features::Feature(f) => f.to_lines(),
+            Features::VectorFeature(g) => g.to_lines(),
+        }
     }
 }

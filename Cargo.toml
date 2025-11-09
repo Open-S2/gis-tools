@@ -31,7 +31,7 @@ path = "rust/main.rs"
 earclip = "1.7"
 open-vector-tile = "1.9"
 pbf = "1.22"
-s2json = "1.42"
+s2json = "1.44"
 s2-tilejson = "1.10"
 # External shared dependencies
 libm = "0.2"
@@ -59,6 +59,8 @@ rand = "0.9"
 tiff = "0.10.3"
 tiny_http = "0.12"
 smol = "2"
+# We need the float_roundtrip feature for serde_json to match javascript float results
+serde_json = { version = "1.0", default-features = false, features = ["alloc", "float_roundtrip"] }
 
 [features]
 default = ["std", "quadratic"] # Default feature

@@ -1,5 +1,5 @@
 use crate::geometry::orient2d;
-use alloc::{vec, vec::Vec};
+use alloc::vec::Vec;
 use s2json::{
     Feature, Geometry, GetXY, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
     MultiLineStringGeometry, MultiPoint, MultiPoint3D, MultiPoint3DGeometry, MultiPointGeometry,
@@ -10,14 +10,13 @@ use s2json::{
 };
 
 /// The result of a point being inside, outside, or on the boundary
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InsideResult {
     /// The point is inside
     Inside,
     /// The point is outside
     Outside,
     /// The point is on the boundary
-    #[default]
     Boundary,
 }
 impl InsideResult {
@@ -173,7 +172,7 @@ impl Inside for Point {
 }
 impl Inside for MultiPoint {
     fn inside<P: GetXY>(&self, b: &P) -> InsideResult {
-        point_in_polygon(b, &vec![self.to_vec()])
+        point_in_polyline(b, self)
     }
 }
 impl Inside for MultiLineString {
@@ -201,7 +200,7 @@ impl Inside for Point3D {
 }
 impl Inside for MultiPoint3D {
     fn inside<P: GetXY>(&self, b: &P) -> InsideResult {
-        point_in_polygon(b, &vec![self.to_vec()])
+        point_in_polyline(b, self)
     }
 }
 impl Inside for MultiLineString3D {
@@ -272,7 +271,7 @@ impl<M: Clone + Default> Inside for VectorPoint<M> {
 }
 impl<M: Clone + Default> Inside for VectorMultiPoint<M> {
     fn inside<P: GetXY>(&self, b: &P) -> InsideResult {
-        point_in_polygon(b, &vec![self.to_vec()])
+        point_in_polyline(b, self)
     }
 }
 impl<M: Clone + Default> Inside for VectorMultiLineString<M> {
@@ -291,9 +290,13 @@ impl<M: Clone + Default> Inside for VectorMultiPolygon<M> {
 }
 
 /// A Robust point in polygon test
-/// @param point - the point
-/// @param polygon - the polygon
-/// @returns - true if the point is in the polygon, 0 if on the boundary, false otherwise
+///
+/// ## Parameters
+/// - `point`: the point
+/// - `polygon`: the polygon
+///
+/// ## Returns
+/// true if the point is in the polygon, 0 if on the boundary, false otherwise
 pub fn point_in_polygon<P1: GetXY, P2: GetXY>(point: &P1, polygon: &[Vec<P2>]) -> InsideResult {
     let mut k = 0;
     let mut f;
@@ -344,4 +347,81 @@ pub fn point_in_polygon<P1: GetXY, P2: GetXY>(point: &P1, polygon: &[Vec<P2>]) -
     }
 
     if k % 2 == 0 { InsideResult::Outside } else { InsideResult::Inside }
+}
+
+/// A Robust point in polygon test
+///
+/// ## Parameters
+/// - `point`: the point
+/// - `polygon`: the polygon
+///
+/// ## Returns
+/// true if the point is in the polygon, 0 if on the boundary, false otherwise
+pub fn point_in_polyline<P1: GetXY, P2: GetXY>(point: &P1, contour: &[P2]) -> InsideResult {
+    let mut k = 0;
+    let mut f;
+    let mut u1;
+    let mut v1;
+    let mut u2;
+    let mut v2;
+    let mut next_p: &P2;
+
+    let x = point.x();
+    let y = point.y();
+    let contour_len = contour.len() - 1;
+
+    let mut current_p = &contour[0];
+    if current_p.x() != contour[contour_len].x() && current_p.y() != contour[contour_len].y() {
+        // since the first and last coordinates in a ring are not the same, assume it's not a polygon and return false
+        return InsideResult::Outside;
+    }
+
+    u1 = current_p.x() - x;
+    v1 = current_p.y() - y;
+
+    for ii in 0..contour_len {
+        next_p = &contour[ii + 1];
+
+        u2 = next_p.x() - x;
+        v2 = next_p.y() - y;
+
+        if v1 == 0. && v2 == 0. {
+            if (u2 <= 0. && u1 >= 0.) || (u1 <= 0. && u2 >= 0.) {
+                return InsideResult::Boundary;
+            }
+        } else if (v2 >= 0. && v1 <= 0.) || (v2 <= 0. && v1 >= 0.) {
+            f = orient2d(u1, u2, v1, v2, 0., 0.);
+            if f == 0. {
+                return InsideResult::Boundary;
+            }
+            if (f > 0. && v2 > 0. && v1 <= 0.) || (f < 0. && v2 <= 0. && v1 > 0.) {
+                k += 1;
+            }
+        }
+        // current_p = next_p;
+        v1 = v2;
+        u1 = u2;
+    }
+
+    if k % 2 == 0 { InsideResult::Outside } else { InsideResult::Inside }
+}
+
+/// Check if a polyline/hole is inside another polyline/outer ring
+///
+/// ## Parameters
+/// - `outer`: the outer
+/// - `hole`: the hole
+///
+/// ## Returns
+/// true if the hole is inside the outer
+pub fn polyline_in_polyline<P: GetXY>(outer: &[P], hole: &[P]) -> bool {
+    for point in hole {
+        match point_in_polyline(point, outer) {
+            InsideResult::Inside => return true,
+            InsideResult::Outside => return false,
+            InsideResult::Boundary => continue,
+        }
+    }
+    // If we make it means all points of the hole were on the boundary therefore its inside the outer
+    return true;
 }

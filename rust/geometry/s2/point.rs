@@ -6,17 +6,18 @@ use core::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign},
 };
 use libm::{atan2, fabs, sqrt};
-use s2json::{GetXY, GetZ, VectorPoint};
+use s2json::{GetXY, GetZ, NewXY, NewXYZ, SetXY, SetZ, VectorPoint};
 use serde::{Deserialize, Serialize};
 
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
 /// points are normalized to be unit length, but some methods do not require
 /// this.  See util/math/vector.h for the methods available.  Among other
 /// things, there are overloaded operators that make it convenient to write
-/// arithmetic expressions (e.g. (1-x)*p1 + x*p2).
+/// arithmetic expressions (e.g. p1 + p2).
+///
 /// NOTE: asumes only f64 or greater is used.
 ///
-/// Uses the [`GetXY`] and [`GetZ`] traits
+/// Implements the [`GetXY`] and [`GetZ`] traits
 ///
 /// ## Usage
 ///
@@ -61,6 +62,29 @@ impl GetXY for S2Point {
 impl GetZ for S2Point {
     fn z(&self) -> Option<f64> {
         Some(self.z)
+    }
+}
+impl NewXY for S2Point {
+    fn new_xy(x: f64, y: f64) -> Self {
+        S2Point { x, y, z: 0.0 }
+    }
+}
+impl NewXYZ for S2Point {
+    fn new_xyz(x: f64, y: f64, z: f64) -> Self {
+        S2Point { x, y, z }
+    }
+}
+impl SetXY for S2Point {
+    fn set_x(&mut self, x: f64) {
+        self.x = x;
+    }
+    fn set_y(&mut self, y: f64) {
+        self.y = y;
+    }
+}
+impl SetZ for S2Point {
+    fn set_z(&mut self, z: f64) {
+        self.z = z;
     }
 }
 impl S2Point {
@@ -206,11 +230,6 @@ impl<M: Clone + Default> From<&VectorPoint<M>> for S2Point {
 impl<M: Clone + Default> From<&mut VectorPoint<M>> for S2Point {
     fn from(v: &mut VectorPoint<M>) -> Self {
         Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
-    }
-}
-impl<M: Clone + Default> From<&S2Point> for VectorPoint<M> {
-    fn from(p: &S2Point) -> Self {
-        VectorPoint::new_xyz(p.x, p.y, p.z, Some(M::default()))
     }
 }
 impl From<S2CellId> for S2Point {

@@ -5,8 +5,8 @@
 mod tests {
     use gistools::{
         geometry::{
-            Area, Inside, InsideResult, Intersection, Segment, clean_polygon, dekink_polygon,
-            dekink_polygons, polygons_intersections, polygons_intersections_ref,
+            Area, Inside, InsideResult, Intersection, Segment, dekink_polygon, dekink_polygons,
+            polygons_intersections, polygons_intersections_ref,
         },
         proj::Coords,
     };
@@ -902,21 +902,24 @@ mod tests {
             VectorPoint::from_xy(0., 0.),
         ]];
         assert_eq!(
-            dekink_polygon(&polygon),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(0., 0.),
-                    VectorPoint::from_xy(2., 0.),
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 0.),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 2.),
-                    VectorPoint::from_xy(2., 2.),
-                    VectorPoint::from_xy(1., 1.),
-                ]]
-            ]
+            dekink_polygon(&polygon).unwrap(),
+            (
+                vec![
+                    vec![vec![
+                        VectorPoint::from_xy(0., 0.),
+                        VectorPoint::from_xy(2., 0.),
+                        VectorPoint::from_xy(1., 1.),
+                        VectorPoint::from_xy(0., 0.),
+                    ]],
+                    vec![vec![
+                        VectorPoint::from_xy(1., 1.),
+                        VectorPoint::from_xy(2., 2.),
+                        VectorPoint::from_xy(0., 2.),
+                        VectorPoint::from_xy(1., 1.),
+                    ]]
+                ],
+                BBox::new(0., 0., 2., 2.)
+            ),
         );
     }
 
@@ -930,299 +933,24 @@ mod tests {
             VectorPoint::from_xy(0., 0.),
         ]];
         assert_eq!(
-            dekink_polygons(&vec![polygon]),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(0., 0.),
-                    VectorPoint::from_xy(2., 0.),
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 0.),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 2.),
-                    VectorPoint::from_xy(2., 2.),
-                    VectorPoint::from_xy(1., 1.),
-                ]]
-            ]
-        );
-    }
-
-    #[test]
-    fn dekink_polygon_turfjs_issue_1094() {
-        let polygon: VectorPolygon = vec![vec![
-            VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-            VectorPoint::from_xy(-91.9139393415105, 42.75096509455043),
-            VectorPoint::from_xy(-91.91403053661699, 42.74800278177934),
-            VectorPoint::from_xy(-91.91407345196123, 42.74679733206786),
-            VectorPoint::from_xy(-91.91410563846941, 42.74537912592471),
-            VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-            VectorPoint::from_xy(-91.9165088977471, 42.74624187186039),
-            VectorPoint::from_xy(-91.91667519470603, 42.746249750763376),
-            VectorPoint::from_xy(-91.91669128796013, 42.74536730740387),
-            VectorPoint::from_xy(-91.91752277275486, 42.745359428388724),
-            VectorPoint::from_xy(-91.91750131508273, 42.74636399474419),
-            VectorPoint::from_xy(-91.91750667950076, 42.74737248420069),
-            VectorPoint::from_xy(-91.91857047641793, 42.74735355619808),
-            VectorPoint::from_xy(-91.91856615206176, 42.74748869579865),
-            VectorPoint::from_xy(-91.91859029194288, 42.746734301373),
-            VectorPoint::from_xy(-91.918995305504, 42.7463029333329),
-            VectorPoint::from_xy(-91.91905967852034, 42.7461453552181),
-            VectorPoint::from_xy(-91.9191481914178, 42.74588535045296),
-            VectorPoint::from_xy(-91.91914282699976, 42.74558594967556),
-            VectorPoint::from_xy(-91.91900871654907, 42.74558004043513),
-            VectorPoint::from_xy(-91.91898457666794, 42.745357458635716),
-            VectorPoint::from_xy(-91.92070119043696, 42.74535154937352),
-            VectorPoint::from_xy(-91.92096672912932, 42.745483522761845),
-            VectorPoint::from_xy(-91.92110352178906, 42.74550912950613),
-            VectorPoint::from_xy(-91.92127786537496, 42.745485492511776),
-            VectorPoint::from_xy(-91.92160241266565, 42.74565292102763),
-            VectorPoint::from_xy(-91.9217257942803, 42.745786863514724),
-            VectorPoint::from_xy(-91.92172311207129, 42.74599959510529),
-            VectorPoint::from_xy(-91.92183040043186, 42.746527481454386),
-            VectorPoint::from_xy(-91.92210935016931, 42.74716369671481),
-            VectorPoint::from_xy(-91.92166678568198, 42.747210969414716),
-            VectorPoint::from_xy(-91.92159704824762, 42.7472739996252),
-            VectorPoint::from_xy(-91.92226760050114, 42.74730157532212),
-            VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-        ]];
-
-        assert_eq!(
-            dekink_polygon(&polygon),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-                    VectorPoint::from_xy(-91.9139393415105, 42.75096509455043),
-                    VectorPoint::from_xy(-91.91403053661699, 42.74800278177934),
-                    VectorPoint::from_xy(-91.91407345196123, 42.74679733206786),
-                    VectorPoint::from_xy(-91.91410563846941, 42.74537912592471),
-                    VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-                    VectorPoint::from_xy(-91.9165088977471, 42.74624187186039),
-                    VectorPoint::from_xy(-91.91667519470603, 42.746249750763376),
-                    VectorPoint::from_xy(-91.91669128796013, 42.74536730740387),
-                    VectorPoint::from_xy(-91.91752277275486, 42.745359428388724),
-                    VectorPoint::from_xy(-91.91750131508273, 42.74636399474419),
-                    VectorPoint::from_xy(-91.91750667950076, 42.74737248420069),
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                    VectorPoint::from_xy(-91.91859029194288, 42.746734301373),
-                    VectorPoint::from_xy(-91.918995305504, 42.7463029333329),
-                    VectorPoint::from_xy(-91.91905967852034, 42.7461453552181),
-                    VectorPoint::from_xy(-91.9191481914178, 42.74588535045296),
-                    VectorPoint::from_xy(-91.91914282699976, 42.74558594967556),
-                    VectorPoint::from_xy(-91.91900871654907, 42.74558004043513),
-                    VectorPoint::from_xy(-91.91898457666794, 42.745357458635716),
-                    VectorPoint::from_xy(-91.92070119043696, 42.74535154937352),
-                    VectorPoint::from_xy(-91.92096672912932, 42.745483522761845),
-                    VectorPoint::from_xy(-91.92110352178906, 42.74550912950613),
-                    VectorPoint::from_xy(-91.92127786537496, 42.745485492511776),
-                    VectorPoint::from_xy(-91.92160241266565, 42.74565292102763),
-                    VectorPoint::from_xy(-91.9217257942803, 42.745786863514724),
-                    VectorPoint::from_xy(-91.92172311207129, 42.74599959510529),
-                    VectorPoint::from_xy(-91.92183040043186, 42.746527481454386),
-                    VectorPoint::from_xy(-91.92210935016931, 42.74716369671481),
-                    VectorPoint::from_xy(-91.92166678568198, 42.747210969414716),
-                    VectorPoint::from_xy(-91.92159704824762, 42.7472739996252),
-                    VectorPoint::from_xy(-91.92226760050114, 42.74730157532212),
-                    VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-                ],],
-                vec![vec![
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                    VectorPoint::from_xy(-91.91857047641793, 42.74735355619808),
-                    VectorPoint::from_xy(-91.91856615206176, 42.74748869579865),
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                ],],
-            ]
-        );
-    }
-
-    #[test]
-    fn dekink_polygon_multiple_kinks() {
-        let polygon: VectorPolygon = vec![vec![
-            VectorPoint::from_xy(8.094854051549703, 44.067038922182604),
-            VectorPoint::from_xy(27.45169791493106, 34.31013538862004),
-            VectorPoint::from_xy(31.238906496896703, 25.572928139998595),
-            VectorPoint::from_xy(26.610096007827508, 22.88716015007573),
-            VectorPoint::from_xy(25.978894577499233, 18.957601207155236),
-            VectorPoint::from_xy(32.08050840400031, 17.157354229920827),
-            VectorPoint::from_xy(38.8133236608289, 20.541732106259843),
-            VectorPoint::from_xy(40.496527475035236, 28.199781765371043),
-            VectorPoint::from_xy(7.463652621221485, 25.00221485407819),
-            VectorPoint::from_xy(25.347693147171753, 4.999693002409302),
-            VectorPoint::from_xy(-7.4747812298659255, -36.777396059815665),
-            VectorPoint::from_xy(27.662098391706394, -40.233822107102995),
-            VectorPoint::from_xy(28.92450125236215, -14.406933337995738),
-            VectorPoint::from_xy(4.097244992807987, -34.38206769619466),
-            VectorPoint::from_xy(62.79897801327945, -31.19907851930298),
-            VectorPoint::from_xy(86.57423188895399, 16.55327251195662),
-            VectorPoint::from_xy(54.38295894224376, 12.685928855764459),
-            VectorPoint::from_xy(73.73980280562509, -3.197906810124664),
-            VectorPoint::from_xy(81.52462044633336, 36.369487623534425),
-            VectorPoint::from_xy(54.80375989579596, 56.70904723358515),
-            VectorPoint::from_xy(8.094854051549703, 44.067038922182604),
-        ]];
-
-        assert_eq!(
-            dekink_polygon(&polygon),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(8.094854051549703, 44.067038922182604),
-                    VectorPoint::from_xy(27.45169791493106, 34.31013538862004),
-                    VectorPoint::from_xy(30.51892217779216, 27.233954216494492),
-                    VectorPoint::from_xy(7.463652621221485, 25.00221485407819),
-                    VectorPoint::from_xy(25.347693147171753, 4.999693002409302),
-                    VectorPoint::from_xy(-7.4747812298659255, -36.777396059815665),
-                    VectorPoint::from_xy(27.662098391706394, -40.233822107102995),
-                    VectorPoint::from_xy(28.011510823463176, -33.08536237940715),
-                    VectorPoint::from_xy(62.79897801327945, -31.19907851930298),
-                    VectorPoint::from_xy(86.57423188895399, 16.55327251195662),
-                    VectorPoint::from_xy(77.40918288852106, 15.452216515532072),
-                    VectorPoint::from_xy(81.52462044633336, 36.369487623534425),
-                    VectorPoint::from_xy(54.80375989579596, 56.70904723358515),
-                    VectorPoint::from_xy(8.094854051549703, 44.067038922182604),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(30.51892217779216, 27.233954216494492),
-                    VectorPoint::from_xy(31.238906496896703, 25.572928139998595),
-                    VectorPoint::from_xy(26.610096007827508, 22.88716015007573),
-                    VectorPoint::from_xy(25.978894577499233, 18.957601207155236),
-                    VectorPoint::from_xy(32.08050840400031, 17.157354229920827),
-                    VectorPoint::from_xy(38.8133236608289, 20.541732106259843),
-                    VectorPoint::from_xy(40.496527475035236, 28.199781765371043),
-                    VectorPoint::from_xy(30.51892217779216, 27.233954216494492),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(28.011510823463176, -33.08536237940715),
-                    VectorPoint::from_xy(28.92450125236215, -14.406933337995738),
-                    VectorPoint::from_xy(4.097244992807987, -34.38206769619466),
-                    VectorPoint::from_xy(28.011510823463176, -33.08536237940715),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(77.40918288852106, 15.452216515532072),
-                    VectorPoint::from_xy(54.38295894224376, 12.685928855764459),
-                    VectorPoint::from_xy(73.73980280562509, -3.197906810124664),
-                    VectorPoint::from_xy(77.40918288852106, 15.452216515532072),
-                ]],
-            ]
-        );
-    }
-
-    #[test]
-    fn clean_polygon_all_problems() {
-        let polygon: VectorPolygon = vec![vec![
-            VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-            VectorPoint::from_xy(-91.9139393415105, 42.75096509455043),
-            VectorPoint::from_xy(-91.91403053661699, 42.74800278177934),
-            VectorPoint::from_xy(-91.91407345196123, 42.74679733206786),
-            VectorPoint::from_xy(-91.91410563846941, 42.74537912592471),
-            VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-            VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-            VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-            VectorPoint::from_xy(-91.9165088977471, 42.74624187186039),
-            VectorPoint::from_xy(-91.91667519470603, 42.746249750763376),
-            VectorPoint::from_xy(-91.91669128796013, 42.74536730740387),
-            VectorPoint::from_xy(-91.91752277275486, 42.745359428388724),
-            VectorPoint::from_xy(-91.91750131508273, 42.74636399474419),
-            VectorPoint::from_xy(-91.91750667950076, 42.74737248420069),
-            VectorPoint::from_xy(-91.91857047641793, 42.74735355619808),
-            VectorPoint::from_xy(-91.91856615206176, 42.74748869579865),
-            VectorPoint::from_xy(-91.91859029194288, 42.746734301373),
-            VectorPoint::from_xy(-91.918995305504, 42.7463029333329),
-            VectorPoint::from_xy(-91.91905967852034, 42.7461453552181),
-            VectorPoint::from_xy(-91.9191481914178, 42.74588535045296),
-            VectorPoint::from_xy(-91.91914282699976, 42.74558594967556),
-            VectorPoint::from_xy(-91.91900871654907, 42.74558004043513),
-            VectorPoint::from_xy(-91.91898457666794, 42.745357458635716),
-            VectorPoint::from_xy(-91.92070119043696, 42.74535154937352),
-            VectorPoint::from_xy(-91.92096672912932, 42.745483522761845),
-            VectorPoint::from_xy(-91.92110352178906, 42.74550912950613),
-            VectorPoint::from_xy(-91.92127786537496, 42.745485492511776),
-            VectorPoint::from_xy(-91.92160241266565, 42.74565292102763),
-            VectorPoint::from_xy(-91.9217257942803, 42.745786863514724),
-            VectorPoint::from_xy(-91.92172311207129, 42.74599959510529),
-            VectorPoint::from_xy(-91.92183040043186, 42.746527481454386),
-            VectorPoint::from_xy(-91.92210935016931, 42.74716369671481),
-            VectorPoint::from_xy(-91.92166678568198, 42.747210969414716),
-            VectorPoint::from_xy(-91.92159704824762, 42.7472739996252),
-            VectorPoint::from_xy(-91.92226760050114, 42.74730157532212),
-            VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-        ]];
-
-        assert_eq!(
-            clean_polygon(&polygon, false, false).unwrap(),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-                    VectorPoint::from_xy(-91.92226760050114, 42.74730157532212),
-                    VectorPoint::from_xy(-91.92159704824762, 42.7472739996252),
-                    VectorPoint::from_xy(-91.92166678568198, 42.747210969414716),
-                    VectorPoint::from_xy(-91.92210935016931, 42.74716369671481),
-                    VectorPoint::from_xy(-91.92183040043186, 42.746527481454386),
-                    VectorPoint::from_xy(-91.92172311207129, 42.74599959510529),
-                    VectorPoint::from_xy(-91.9217257942803, 42.745786863514724),
-                    VectorPoint::from_xy(-91.92160241266565, 42.74565292102763),
-                    VectorPoint::from_xy(-91.92127786537496, 42.745485492511776),
-                    VectorPoint::from_xy(-91.92110352178906, 42.74550912950613),
-                    VectorPoint::from_xy(-91.92096672912932, 42.745483522761845),
-                    VectorPoint::from_xy(-91.92070119043696, 42.74535154937352),
-                    VectorPoint::from_xy(-91.91898457666794, 42.745357458635716),
-                    VectorPoint::from_xy(-91.91900871654907, 42.74558004043513),
-                    VectorPoint::from_xy(-91.91914282699976, 42.74558594967556),
-                    VectorPoint::from_xy(-91.9191481914178, 42.74588535045296),
-                    VectorPoint::from_xy(-91.91905967852034, 42.7461453552181),
-                    VectorPoint::from_xy(-91.918995305504, 42.7463029333329),
-                    VectorPoint::from_xy(-91.91859029194288, 42.746734301373),
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                    VectorPoint::from_xy(-91.91750667950076, 42.74737248420069),
-                    VectorPoint::from_xy(-91.91750131508273, 42.74636399474419),
-                    VectorPoint::from_xy(-91.91752277275486, 42.745359428388724),
-                    VectorPoint::from_xy(-91.91669128796013, 42.74536730740387),
-                    VectorPoint::from_xy(-91.91667519470603, 42.746249750763376),
-                    VectorPoint::from_xy(-91.9165088977471, 42.74624187186039),
-                    VectorPoint::from_xy(-91.91653571983723, 42.745359428388724),
-                    VectorPoint::from_xy(-91.91410563846941, 42.74537912592471),
-                    VectorPoint::from_xy(-91.91407345196123, 42.74679733206786),
-                    VectorPoint::from_xy(-91.91403053661699, 42.74800278177934),
-                    VectorPoint::from_xy(-91.9139393415105, 42.75096509455043),
-                    VectorPoint::from_xy(-91.92218713423073, 42.750854798206724),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                    VectorPoint::from_xy(-91.91856615206176, 42.74748869579865),
-                    VectorPoint::from_xy(-91.91857047641793, 42.74735355619808),
-                    VectorPoint::from_xy(-91.91857047639631, 42.74735355619846),
-                ]],
-            ]
-        );
-    }
-
-    #[test]
-    fn clean_polygon_all_problems_and_collinearity() {
-        let polygon: VectorPolygon = vec![vec![
-            VectorPoint::from_xy(0., 0.),
-            VectorPoint::from_xy(2., 0.),
-            VectorPoint::from_xy(0., 2.),
-            VectorPoint::from_xy(1., 2.),
-            VectorPoint::from_xy(2., 2.),
-            VectorPoint::from_xy(2., 2.),
-            VectorPoint::from_xy(0., 0.),
-            VectorPoint::from_xy(0., 0.),
-        ]];
-        assert_eq!(
-            clean_polygon(&polygon, true, false).unwrap(),
-            vec![
-                vec![vec![
-                    VectorPoint::from_xy(0., 0.),
-                    VectorPoint::from_xy(2., 0.),
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 0.),
-                ]],
-                vec![vec![
-                    VectorPoint::from_xy(1., 1.),
-                    VectorPoint::from_xy(0., 2.),
-                    VectorPoint::from_xy(2., 2.),
-                    VectorPoint::from_xy(1., 1.),
-                ]],
-            ]
+            dekink_polygons(&vec![polygon]).unwrap(),
+            (
+                vec![
+                    vec![vec![
+                        VectorPoint::from_xy(0., 0.),
+                        VectorPoint::from_xy(2., 0.),
+                        VectorPoint::from_xy(1., 1.),
+                        VectorPoint::from_xy(0., 0.),
+                    ]],
+                    vec![vec![
+                        VectorPoint::from_xy(1., 1.),
+                        VectorPoint::from_xy(2., 2.),
+                        VectorPoint::from_xy(0., 2.),
+                        VectorPoint::from_xy(1., 1.),
+                    ]]
+                ],
+                BBox::new(0., 0., 2., 2.)
+            )
         );
     }
 }

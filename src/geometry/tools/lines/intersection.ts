@@ -85,15 +85,14 @@ export function intersectionOfSegmentsRobust<D extends MValue = Properties>(
 ): IntersectionOfSegmentsRobust<D> | undefined {
   const [{ x: x1, y: y1 }, { x: x2, y: y2 }] = a;
   const [{ x: x3, y: y3 }, { x: x4, y: y4 }] = b;
-  const dxA = x2 - x1;
-  const dyA = y2 - y1;
-  const dxB = x4 - x3;
-  const dyB = y4 - y3;
+  const [dxA, dyA] = [x2 - x1, y2 - y1];
+  const [dxB, dyB] = [x4 - x3, y4 - y3];
+  const [dxC, dyC] = [x1 - x3, y1 - y3];
 
   // build numerators and denominator. Extrapolate vectors from them
-  const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-  const numeA = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
-  const numeB = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+  const denom = dyB * dxA - dxB * dyA;
+  const numeA = dxB * dyC - dyB * dxC;
+  const numeB = dxA * dyC - dyA * dxC;
   const uA = numeA / denom;
   const uB = numeB / denom;
   const uVec = { x: uA * dxA, y: uA * dyA };
@@ -113,12 +112,11 @@ export function intersectionOfSegmentsRobust<D extends MValue = Properties>(
     if (equalPoints(a[0], b[0])) return { point: { x: x1, y: y1 }, u: 0, t: 0, uVec, tVec };
     if (equalPoints(a[0], b[1])) return { point: { x: x1, y: y1 }, u: 0, t: 1, uVec, tVec };
   }
-  if (denom === 0) return undefined;
 
+  if (denom === 0) return undefined;
   const orient1 = orient2d(x1, y1, x2, y2, x3, y3);
   const orient2 = orient2d(x1, y1, x2, y2, x4, y4);
-  if (orient1 > 0 && orient2 > 0) return undefined;
-  else if (orient1 < 0 && orient2 < 0) return undefined;
+  if ((orient1 > 0 && orient2 > 0) || (orient1 < 0 && orient2 < 0)) return undefined;
 
   if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
     return { point: { x: x1 + uA * (x2 - x1), y: y1 + uA * (y2 - y1) }, u: uA, t: uB, uVec, tVec };

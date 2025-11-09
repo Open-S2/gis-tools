@@ -11,7 +11,7 @@ use s2json::Projection;
 #[command(
     name = "gis-tools",
     version,
-    about = "CLI for GIS conversions",
+    about = "CLI for GIS Tools",
     long_about = "Found an issue? Please open an issue on GitHub at:\nhttps://github.com/Open-S2/gis-tools/issues"
 )]
 struct Cli {
@@ -163,6 +163,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_convert_geojson_to_json() {
         // Path to input fixture
         let mut input = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -196,6 +197,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_convert_geojson_to_geojsonld() {
         // Path to input fixture
         let mut input = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

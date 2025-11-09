@@ -1,10 +1,11 @@
 use s2json::{
-    BBox3D, Feature, Geometry, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
-    MultiLineStringGeometry, MultiPoint, MultiPoint3D, MultiPoint3DGeometry, MultiPointGeometry,
-    MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry, MultiPolygonGeometry, Point, Point3D,
-    Point3DGeometry, PointGeometry, VectorFeature, VectorGeometry, VectorMultiLineString,
-    VectorMultiLineStringGeometry, VectorMultiPoint, VectorMultiPointGeometry, VectorMultiPolygon,
-    VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
+    BBox3D, Feature, Features, Geometry, GetXY, GetZ, MultiLineString, MultiLineString3D,
+    MultiLineString3DGeometry, MultiLineStringGeometry, MultiPoint, MultiPoint3D,
+    MultiPoint3DGeometry, MultiPointGeometry, MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry,
+    MultiPolygonGeometry, Point, Point3D, Point3DGeometry, PointGeometry, VectorFeature,
+    VectorGeometry, VectorMultiLineString, VectorMultiLineStringGeometry, VectorMultiPoint,
+    VectorMultiPointGeometry, VectorMultiPolygon, VectorMultiPolygonGeometry, VectorPoint,
+    VectorPointGeometry,
 };
 
 /// Get the center of a bounding box from a collection of [`VectorPoint`]
@@ -14,26 +15,41 @@ use s2json::{
 /// - [`Geometry`]
 /// - [`PointGeometry`]
 /// - [`MultiPointGeometry`]
+/// - [`s2json::LineStringGeometry`]
 /// - [`MultiLineStringGeometry`]
 /// - [`MultiPolygonGeometry`]
 /// - [`Point3DGeometry`]
 /// - [`MultiPoint3DGeometry`]
+/// - [`s2json::LineString3DGeometry`]
 /// - [`MultiLineString3DGeometry`]
 /// - [`MultiPolygon3DGeometry`]
 /// - [`VectorFeature`]
 /// - [`VectorGeometry`]
 /// - [`VectorPointGeometry`]
 /// - [`VectorMultiPointGeometry`]
+/// - [`s2json::VectorLineStringGeometry`]
 /// - [`VectorMultiLineStringGeometry`]
 /// - [`VectorMultiPolygonGeometry`]
 /// - [`VectorMultiPoint`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - [`Features`]
+/// - `&[P]` where P implements [`GetXY`] and [`GetZ`]
 ///
 /// And all specific geometries of the above enums
 pub trait CenterOfPoints {
     /// Get the center of a bounding box from a collection of [`VectorPoint`]
     fn center_of_points(&self) -> VectorPoint;
+}
+
+impl<P: GetXY + GetZ> CenterOfPoints for &[P] {
+    fn center_of_points(&self) -> VectorPoint {
+        let mut bbox = BBox3D::default();
+        for p in self.iter() {
+            bbox.extend_from_point(p)
+        }
+        bbox_center(bbox)
+    }
 }
 
 // Feature and below
@@ -257,5 +273,16 @@ fn bbox_center(bbox: BBox3D) -> VectorPoint {
         )
     } else {
         VectorPoint::new_xy((bbox.right + bbox.left) / 2., (bbox.top + bbox.bottom) / 2., None)
+    }
+}
+
+// Features
+
+impl<M, P: Clone + Default, D: Clone + Default> CenterOfPoints for Features<M, P, D> {
+    fn center_of_points(&self) -> VectorPoint {
+        match self {
+            Features::Feature(f) => f.center_of_points(),
+            Features::VectorFeature(f) => f.center_of_points(),
+        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::geometry::{Area, clean_linestring, dekink_polygon};
 use alloc::{vec, vec::Vec};
-use s2json::{GetXY, NewXY, SetXY};
+use s2json::{BBox, FullXY};
 
 /// Ensures the collection of polygon ring order is correct, removes duplicate points,
 /// and runs a dekink to be thorough.
@@ -19,17 +19,21 @@ use s2json::{GetXY, NewXY, SetXY};
 ///
 /// ## Returns
 /// The cleaned polygons as a new collection of polygons
-pub fn clean_polygons<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
+pub fn clean_polygons<P: FullXY>(
     polygons: &Vec<Vec<Vec<P>>>,
     remove_collinear_points: bool,
     clean_wgs84: bool,
-) -> Option<Vec<Vec<Vec<P>>>> {
-    let res: Vec<Vec<Vec<P>>> = polygons
-        .into_iter()
-        .filter_map(|p| clean_polygon(p, remove_collinear_points, clean_wgs84))
-        .flatten()
-        .collect();
-    if res.is_empty() { None } else { Some(res) }
+) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
+    let mut res: Vec<Vec<Vec<P>>> = vec![];
+    let mut final_bbox: BBox = BBox::default();
+
+    for p in polygons {
+        if let Some((mut cleaned, bbox)) = clean_polygon(p, remove_collinear_points, clean_wgs84) {
+            res.extend(cleaned.drain(..));
+            final_bbox.merge_in_place(&bbox);
+        }
+    }
+    if res.is_empty() { None } else { Some((res, final_bbox)) }
 }
 
 /// Ensures the polygon ring order is correct, removes duplicate points, and runs a dekink to be
@@ -49,11 +53,11 @@ pub fn clean_polygons<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
 ///
 /// ## Returns
 /// The cleaned polygon, split into a multi-polygon as necessary
-pub fn clean_polygon<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
+pub fn clean_polygon<P: FullXY>(
     polygon: &Vec<Vec<P>>,
     remove_collinear_points: bool,
     clean_wgs84: bool,
-) -> Option<Vec<Vec<Vec<P>>>> {
+) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
     // remove duplicates from the rings
     let mut res: Vec<Vec<P>> = vec![];
     for (index, ring) in polygon.iter().enumerate() {
@@ -95,5 +99,5 @@ pub fn clean_polygon<P: NewXY + GetXY + SetXY + PartialEq + Clone>(
         }
     }
 
-    Some(dekink_polygon(&res))
+    dekink_polygon(&res)
 }

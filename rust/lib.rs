@@ -138,7 +138,8 @@
 //!
 //! Lines
 //!
-//! - [`crate::geometry::along_line`]: Given a linestring in degrees and a distance, create a [`s2json::VectorPoint`] along the line
+//! - [`crate::geometry::Along`]: Trait to get a point along a linestring. Or use [`crate::geometry::along_line`] directly
+//! - [`crate::geometry::along_line()`]: Given a linestring in degrees and a distance, create a point along the line
 //! - [`crate::geometry::clean_linestrings`]: Removes superfluous/collinear points from a collection of linestrings
 //! - [`crate::geometry::clean_linestring`]: Removes superfluous/collinear points from a linestring
 //! - [`crate::geometry::intersection_of_segments`]: Find the intersection of two line segments
@@ -158,6 +159,9 @@
 //! - [`crate::geometry::dekink_polygons`]: Given a collection of polygons, if any of the polygons are kinked, dekink them
 //! - [`crate::geometry::dekink_polygon`]: Given a polygon, if it is kinked, dekink it
 //! - [`crate::geometry::Inside`]: Check if a point is inside a geometry.
+//! - [`crate::geometry::point_in_polygon`]: Check if a point is inside a polygon
+//! - [`crate::geometry::point_in_polyline`]: Check if a point is inside a polyline
+//! - [`crate::geometry::polyline_in_polyline`]: Check if a polyline/hole is inside another polyline/outer ring
 //! - [`crate::geometry::polygons_intersections`]: Find all intersections within a collection of polygons using a robust algorithm
 //!
 //! Clip

@@ -57,7 +57,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.0, 1.0));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.0, 1.0));
 
         // Feature -> Geometry -> MultiPoint
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -68,7 +69,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.5, 1.5));
 
         // Feature -> Geometry -> LineString
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -79,7 +81,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.5, 1.5));
 
         // Feature -> Geometry -> MultiLineString
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -90,7 +93,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.5, 1.5));
 
         // Feature -> Geometry -> Polygon
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -101,7 +105,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.5, 1.5));
 
         // Feature -> Geometry -> MultiPolygon
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -112,7 +117,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xy(1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xy(1.5, 1.5));
 
         // Feature -> Geometry -> Point3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -123,7 +129,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.0, 1.0, 1.0));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.0, 1.0, 1.0));
 
         // Feature -> Geometry -> MultiPoint3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -134,7 +141,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // Feature -> Geometry -> LineString3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -145,7 +153,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // Feature -> Geometry -> MultiLineString3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -156,7 +165,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // Feature -> Geometry -> Polygon3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -167,7 +177,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // Feature -> Geometry -> MultiPolygon3D
         let feature: Feature<(), Properties, MValue> = Feature {
@@ -178,7 +189,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // VectorFeature -> VectorGeometry -> Point
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -189,7 +201,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.0, 1.0, 1.0));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.0, 1.0, 1.0));
 
         // VectorFeature -> VectorGeometry -> MultiPoint
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -203,7 +216,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // VectorFeature -> VectorGeometry -> LineString
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -217,7 +231,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // VectorFeature -> VectorGeometry -> MultiLineString
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -231,7 +246,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // VectorFeature -> VectorGeometry -> Polygon
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -245,7 +261,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
 
         // VectorFeature -> VectorGeometry -> MultiPolygon
         let feature: VectorFeature<(), Properties, MValue> = VectorFeature {
@@ -259,7 +276,8 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(feature.average_of_points(), VectorPoint::from_xyz(1.5, 1.5, 1.5));
+        let average: VectorPoint = feature.average_of_points();
+        assert_eq!(average, VectorPoint::from_xyz(1.5, 1.5, 1.5));
     }
 
     #[test]

@@ -2,12 +2,13 @@ use crate::space::EARTH_RADIUS;
 use alloc::vec::Vec;
 use libm::sin;
 use s2json::{
-    Feature, Geometry, GetXY, MultiLineString, MultiLineString3D, MultiLineString3DGeometry,
-    MultiLineStringGeometry, MultiPoint, MultiPoint3D, MultiPoint3DGeometry, MultiPointGeometry,
-    MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry, MultiPolygonGeometry, Point, Point3D,
-    Point3DGeometry, PointGeometry, VectorFeature, VectorGeometry, VectorMultiLineString,
-    VectorMultiLineStringGeometry, VectorMultiPoint, VectorMultiPointGeometry, VectorMultiPolygon,
-    VectorMultiPolygonGeometry, VectorPoint, VectorPointGeometry,
+    Feature, Features, Geometry, GetXY, MultiLineString, MultiLineString3D,
+    MultiLineString3DGeometry, MultiLineStringGeometry, MultiPoint, MultiPoint3D,
+    MultiPoint3DGeometry, MultiPointGeometry, MultiPolygon, MultiPolygon3D, MultiPolygon3DGeometry,
+    MultiPolygonGeometry, Point, Point3D, Point3DGeometry, PointGeometry, VectorFeature,
+    VectorGeometry, VectorMultiLineString, VectorMultiLineStringGeometry, VectorMultiPoint,
+    VectorMultiPointGeometry, VectorMultiPolygon, VectorMultiPolygonGeometry, VectorPoint,
+    VectorPointGeometry,
 };
 
 /// Get the area of the polygon. Lines return 0 if not closed. Other geometries return 0.
@@ -21,21 +22,25 @@ use s2json::{
 /// - [`Geometry`]
 /// - [`PointGeometry`]
 /// - [`MultiPointGeometry`]
+/// - [`s2json::LineStringGeometry`]
 /// - [`MultiLineStringGeometry`]
 /// - [`MultiPolygonGeometry`]
 /// - [`Point3DGeometry`]
 /// - [`MultiPoint3DGeometry`]
+/// - [`s2json::LineString3DGeometry`]
 /// - [`MultiLineString3DGeometry`]
 /// - [`MultiPolygon3DGeometry`]
 /// - [`VectorFeature`]
 /// - [`VectorGeometry`]
 /// - [`VectorPointGeometry`]
 /// - [`VectorMultiPointGeometry`]
+/// - [`s2json::VectorLineStringGeometry`]
 /// - [`VectorMultiLineStringGeometry`]
 /// - [`VectorMultiPolygonGeometry`]
 /// - [`VectorMultiPoint`]
 /// - [`VectorMultiLineString`]
 /// - [`VectorMultiPolygon`]
+/// - [`Features`]
 /// - `&Vec<P>` or `&[P]` where P implements [`GetXY`]
 ///
 /// And all specific geometries of the above enums
@@ -279,6 +284,17 @@ impl<M: Clone + Default> Area for VectorMultiPolygon<M> {
             total += poly.area(radius);
         }
         total
+    }
+}
+
+// Features
+
+impl<M, P: Clone + Default, D: Clone + Default> Area for Features<M, P, D> {
+    fn area(&self, radius: Option<f64>) -> f64 {
+        match self {
+            Features::Feature(f) => f.area(radius),
+            Features::VectorFeature(f) => f.area(radius),
+        }
     }
 }
 

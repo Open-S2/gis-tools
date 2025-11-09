@@ -2,9 +2,9 @@ use crate::{
     data_structures::{BoxIndex, BoxIndexAccessor},
     geometry::{IntersectionOfSegmentsRobust, intersection_of_segments_robust},
 };
-use alloc::{vec, vec::Vec};
+use alloc::{collections::BTreeMap, vec, vec::Vec};
 use libm::{fmax, fmin};
-use s2json::{BBox, GetXY, NewXY, Point};
+use s2json::{BBox, FullXY, GetXY, NewXY, Point};
 
 /// A segment in a polygon
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -42,6 +42,27 @@ pub struct Intersection {
     /// The distance along segment2 that the intersection occurs from [0,1]
     pub t: f64,
 }
+
+/// Local Intersection to a [poly_index][ring_index]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct RingIntersection {
+    /// The index of the ring's start
+    pub from: usize,
+    /// The index of the ring's end
+    pub to: usize,
+    /// The intersection point
+    pub point: Point,
+    /// The t value (where the intersection occurs on the line segment from 0->1)
+    pub t: f64,
+}
+impl RingIntersection {
+    /// Create a new Intersection
+    pub fn new<P: FullXY>(from: usize, to: usize, point: &P, t: f64) -> Self {
+        RingIntersection { from, to, point: (point).into(), t }
+    }
+}
+/// [poly_index][ring_index] -> Intersections
+pub type RingIntersectionLookup = BTreeMap<usize, BTreeMap<usize, Vec<RingIntersection>>>;
 
 /// Find all intersections within a collection of polygons
 ///
@@ -135,6 +156,66 @@ pub fn build_polygon_segments<P: GetXY>(vector_polygons: &[Vec<Vec<P>>]) -> Vec<
     }
 
     segments
+}
+
+/// Run through the vector_polygons and Builds the ring intersection lookup
+///
+/// ## Parameters
+/// - `vector_polygons`: the collection of polygons
+///
+/// ## Returns
+/// The ring intersection lookup for all rings in the multipolygon collection
+pub fn polygons_intersections_lookup<P: FullXY>(
+    vector_polygons: &[Vec<Vec<P>>],
+    segment_filter: Option<impl Fn(&Segment, &Segment) -> bool>,
+) -> RingIntersectionLookup {
+    let segments = build_polygon_segments(vector_polygons);
+    let mut ring_intersect_lookup: RingIntersectionLookup = BTreeMap::new();
+
+    // setup a 2D box index
+    let box_index = BoxIndex::new(segments.clone(), None);
+    // iterate each segment and check for intersections with other segments
+    for seg1 in segments {
+        let potential_intersections = box_index.search(
+            &seg1.bbox(),
+            Some(|seg2: &Segment| {
+                segment_filter.as_ref().map(|f| f(&seg1, &seg2)).unwrap_or_else(|| {
+                    // if same id ignore
+                    seg2.id != seg1.id &&
+                    // only pass forward not backward
+                    seg2.id > seg1.id &&
+                    // if same poly_index ignore
+                    seg2.poly_index != seg1.poly_index
+                })
+            }),
+        );
+        for seg2 in potential_intersections {
+            let p_int = find_polygon_intersection::<P, P>(&vector_polygons, &seg1, &seg2);
+            // ignore points that interact tangentially or precisely at an existing edge or vertex.
+            if let Some(IntersectionOfSegmentsRobust { u, t, point, .. }) = p_int {
+                // skip if u and t are equal
+                if u == t && (u == 0. || u == 1.) {
+                    continue;
+                }
+                // first segment intersection
+                let s1 = ring_intersect_lookup
+                    .entry(seg1.poly_index)
+                    .or_default()
+                    .entry(seg1.ring_index)
+                    .or_default();
+                s1.push(RingIntersection::new(seg1.from, seg1.to, &point, u));
+                // second segment intersection
+                let s2 = ring_intersect_lookup
+                    .entry(seg2.poly_index)
+                    .or_default()
+                    .entry(seg2.ring_index)
+                    .or_default();
+                s2.push(RingIntersection::new(seg2.from, seg2.to, &point, t));
+            }
+        }
+    }
+
+    ring_intersect_lookup
 }
 
 /// Find the intersection of two segments if it exists

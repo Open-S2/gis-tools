@@ -1,10 +1,10 @@
-import { orient2d } from '../../predicates/index.js';
-import { pointOverlap } from '../../bbox.js';
+import { orient2d, pointOverlap } from '../../../index.js';
 
 import type {
   MValue,
   Properties,
   VectorFeatures,
+  VectorLineString,
   VectorMultiPolygon,
   VectorMultiPolygonGeometry,
   VectorPoint,
@@ -31,16 +31,20 @@ export function pointInPolygons<
     | VectorMultiPolygonGeometry<D>
     | VectorFeatures<M, D, P, VectorMultiPolygonGeometry<D>>,
   ignoreBoundary = false,
-): boolean {
+): boolean | 0 {
   const vectorPolygons: VectorMultiPolygon =
     'geometry' in polygons
       ? polygons.geometry.coordinates
       : 'coordinates' in polygons
         ? polygons.coordinates
         : polygons;
-  for (const polygon of vectorPolygons)
-    if (pointInPolygon(point, polygon, ignoreBoundary)) return true;
-  return false;
+  let res: boolean | 0 = false;
+  for (let i = 0; i < vectorPolygons.length; i++) {
+    const test = pointInPolygon(point, vectorPolygons[i], ignoreBoundary);
+    if (test === true) return true;
+    else if (!ignoreBoundary && test === 0) res = 0;
+  }
+  return res;
 }
 
 /**
@@ -62,7 +66,7 @@ export function pointInPolygon<
     | VectorPolygonGeometry<D>
     | VectorFeatures<M, D, P, VectorPolygonGeometry<D>>,
   ignoreBoundary = false,
-): boolean {
+): boolean | 0 {
   // bbox test case - if it doesn't even fit within the bbox, we know it's not in the polygon
   const bbox =
     'geometry' in polygon ? polygon.geometry.bbox : 'bbox' in polygon ? polygon.bbox : undefined;
@@ -76,10 +80,25 @@ export function pointInPolygon<
         : polygon;
 
   const pip = _pointInPolygon(point, vectorPolygon);
-  if (pip === 0) {
-    if (ignoreBoundary) return false;
-    return true;
-  } else return pip;
+  if (ignoreBoundary && pip === 0) return false;
+  return pip;
+}
+
+/**
+ * Check if a hole is inside an outer ring
+ * @param outer - the outer
+ * @param hole - the hole
+ * @returns true if the hole is inside the outer
+ */
+export function polylineInPolyline(outer: VectorLineString, hole: VectorLineString): boolean {
+  const outerPoly = [outer];
+  for (const point of hole) {
+    const result = pointInPolygon(point, outerPoly, false);
+    if (result === true) return true;
+    else if (result === false) return false;
+  }
+  // If we make it means all points of the hole were on the boundary therefore its inside the outer
+  return true;
 }
 
 /**
@@ -133,7 +152,7 @@ function _pointInPolygon<M extends MValue = Properties>(
         if (f === 0) return 0;
         if ((f > 0 && v2 > 0 && v1 <= 0) || (f < 0 && v2 <= 0 && v1 > 0)) k++;
       }
-      currentP = nextP;
+      // currentP = nextP;
       v1 = v2;
       u1 = u2;
     }

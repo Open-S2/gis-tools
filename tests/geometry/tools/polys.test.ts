@@ -29,7 +29,7 @@ test('pointInPolygon', () => {
       { x: 0, y: 0 },
     ],
   ];
-  expect(pointInPolygon({ x: 0, y: 0 }, polygon)).toEqual(true);
+  expect(pointInPolygon({ x: 0, y: 0 }, polygon)).toEqual(0);
   expect(pointInPolygon({ x: 0, y: 0 }, polygon, true)).toEqual(false);
 });
 
@@ -45,7 +45,7 @@ test('pointInPolygons', () => {
       ],
     ],
   ];
-  expect(pointInPolygons({ x: 0, y: 0 }, polygons)).toEqual(true);
+  expect(pointInPolygons({ x: 0, y: 0 }, polygons)).toEqual(0);
   expect(pointInPolygons({ x: 0, y: 0 }, polygons, true)).toEqual(false);
 });
 
@@ -130,43 +130,43 @@ const polygonWithHoleGeom: VectorPolygonGeometry = {
 describe('pointInPolygon (Geometry Inputs)', () => {
   describe('Basic Cases (Simple Polygon)', () => {
     test('should return true for point strictly inside (VectorPolygon input)', () => {
-      expect(pointInPolygon({ x: 5, y: 5 }, simplePolygonCoords)).toBe(true);
+      expect(pointInPolygon({ x: 5, y: 5 }, simplePolygonCoords)).toEqual(true);
     });
 
     test('should return true for point strictly inside (VectorPolygonGeometry input)', () => {
-      expect(pointInPolygon({ x: 5, y: 5 }, simplePolygonGeom)).toBe(true);
+      expect(pointInPolygon({ x: 5, y: 5 }, simplePolygonGeom)).toEqual(true);
     });
 
     test('should return false for point strictly outside', () => {
-      expect(pointInPolygon({ x: 15, y: 15 }, simplePolygonCoords)).toBe(false);
-      expect(pointInPolygon({ x: 5, y: 15 }, simplePolygonGeom)).toBe(false); // Mix types for variety
-      expect(pointInPolygon({ x: -5, y: 5 }, simplePolygonCoords)).toBe(false);
+      expect(pointInPolygon({ x: 15, y: 15 }, simplePolygonCoords)).toEqual(false);
+      expect(pointInPolygon({ x: 5, y: 15 }, simplePolygonGeom)).toEqual(false); // Mix types for variety
+      expect(pointInPolygon({ x: -5, y: 5 }, simplePolygonCoords)).toEqual(false);
     });
   });
 
   describe('Boundary Cases (Simple Polygon)', () => {
     // Vertex
     test('should handle point on vertex', () => {
-      expect(pointInPolygon({ x: 0, y: 0 }, simplePolygonCoords)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 0, y: 0 }, simplePolygonCoords, true)).toBe(false); // Ignore boundary
-      expect(pointInPolygon({ x: 10, y: 10 }, simplePolygonGeom)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 10, y: 10 }, simplePolygonGeom, true)).toBe(false); // Ignore boundary
+      expect(pointInPolygon({ x: 0, y: 0 }, simplePolygonCoords)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 0, y: 0 }, simplePolygonCoords, true)).toEqual(false); // Ignore boundary
+      expect(pointInPolygon({ x: 10, y: 10 }, simplePolygonGeom)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 10, y: 10 }, simplePolygonGeom, true)).toEqual(false); // Ignore boundary
     });
 
     // Horizontal Edge
     test('should handle point on horizontal edge', () => {
-      expect(pointInPolygon({ x: 5, y: 0 }, simplePolygonCoords)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 5, y: 0 }, simplePolygonCoords, true)).toBe(false); // Ignore boundary
-      expect(pointInPolygon({ x: 5, y: 10 }, simplePolygonGeom)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 5, y: 10 }, simplePolygonGeom, true)).toBe(false); // Ignore boundary
+      expect(pointInPolygon({ x: 5, y: 0 }, simplePolygonCoords)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 5, y: 0 }, simplePolygonCoords, true)).toEqual(false); // Ignore boundary
+      expect(pointInPolygon({ x: 5, y: 10 }, simplePolygonGeom)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 5, y: 10 }, simplePolygonGeom, true)).toEqual(false); // Ignore boundary
     });
 
     // Vertical Edge
     test('should handle point on vertical edge', () => {
-      expect(pointInPolygon({ x: 0, y: 5 }, simplePolygonCoords)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 0, y: 5 }, simplePolygonCoords, true)).toBe(false); // Ignore boundary
-      expect(pointInPolygon({ x: 10, y: 5 }, simplePolygonGeom)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 10, y: 5 }, simplePolygonGeom, true)).toBe(false); // Ignore boundary
+      expect(pointInPolygon({ x: 0, y: 5 }, simplePolygonCoords)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 0, y: 5 }, simplePolygonCoords, true)).toEqual(false); // Ignore boundary
+      expect(pointInPolygon({ x: 10, y: 5 }, simplePolygonGeom)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 10, y: 5 }, simplePolygonGeom, true)).toEqual(false); // Ignore boundary
     });
 
     // Diagonal Edge (requires a different polygon)
@@ -181,32 +181,32 @@ describe('pointInPolygon (Geometry Inputs)', () => {
     ];
     test('should handle point on diagonal edge', () => {
       // Point exactly on the segment from (10,0) to (5,10) -> y = -2x + 20. Let x = 7.5, y = 5
-      expect(pointInPolygon({ x: 7.5, y: 5 }, diagonalPolygonCoords)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 7.5, y: 5 }, diagonalPolygonCoords, true)).toBe(false); // Ignore boundary
+      expect(pointInPolygon({ x: 7.5, y: 5 }, diagonalPolygonCoords)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 7.5, y: 5 }, diagonalPolygonCoords, true)).toEqual(false); // Ignore boundary
     });
   });
 
   describe('Polygon with Hole', () => {
     test('should return true for point between outer and inner ring', () => {
-      expect(pointInPolygon({ x: 1, y: 5 }, polygonWithHoleCoords)).toBe(true);
-      expect(pointInPolygon({ x: 9, y: 5 }, polygonWithHoleGeom)).toBe(true);
+      expect(pointInPolygon({ x: 1, y: 5 }, polygonWithHoleCoords)).toEqual(true);
+      expect(pointInPolygon({ x: 9, y: 5 }, polygonWithHoleGeom)).toEqual(true);
     });
 
     test('should return false for point inside the hole', () => {
-      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithHoleCoords)).toBe(false);
-      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithHoleGeom)).toBe(false);
+      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithHoleCoords)).toEqual(false);
+      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithHoleGeom)).toEqual(false);
     });
 
     test('should handle point on outer boundary', () => {
-      expect(pointInPolygon({ x: 0, y: 5 }, polygonWithHoleCoords)).toBe(true);
-      expect(pointInPolygon({ x: 0, y: 5 }, polygonWithHoleCoords, true)).toBe(false);
+      expect(pointInPolygon({ x: 0, y: 5 }, polygonWithHoleCoords)).toEqual(0);
+      expect(pointInPolygon({ x: 0, y: 5 }, polygonWithHoleCoords, true)).toEqual(false);
     });
 
     test('should handle point on inner boundary (hole edge)', () => {
-      expect(pointInPolygon({ x: 2, y: 5 }, polygonWithHoleGeom)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 2, y: 5 }, polygonWithHoleGeom, true)).toBe(false); // Ignore boundary
-      expect(pointInPolygon({ x: 5, y: 2 }, polygonWithHoleCoords)).toBe(true); // On boundary
-      expect(pointInPolygon({ x: 5, y: 2 }, polygonWithHoleCoords, true)).toBe(false); // Ignore boundary
+      expect(pointInPolygon({ x: 2, y: 5 }, polygonWithHoleGeom)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 2, y: 5 }, polygonWithHoleGeom, true)).toEqual(false); // Ignore boundary
+      expect(pointInPolygon({ x: 5, y: 2 }, polygonWithHoleCoords)).toEqual(0); // On boundary
+      expect(pointInPolygon({ x: 5, y: 2 }, polygonWithHoleCoords, true)).toEqual(false); // Ignore boundary
     });
   });
 
@@ -227,8 +227,8 @@ describe('pointInPolygon (Geometry Inputs)', () => {
         coordinates: unclosedPolygonCoords,
       };
 
-      expect(pointInPolygon({ x: 5, y: 5 }, unclosedPolygonCoords)).toBe(false);
-      expect(pointInPolygon({ x: 5, y: 5 }, unclosedPolygonGeom)).toBe(false);
+      expect(pointInPolygon({ x: 5, y: 5 }, unclosedPolygonCoords)).toEqual(false);
+      expect(pointInPolygon({ x: 5, y: 5 }, unclosedPolygonGeom)).toEqual(false);
     });
 
     test('should return false for unclosed hole ring', () => {
@@ -256,9 +256,9 @@ describe('pointInPolygon (Geometry Inputs)', () => {
       };
 
       // Test point technically between rings, but should fail due to invalid hole
-      expect(pointInPolygon({ x: 1, y: 1 }, polygonWithUnclosedHoleCoords)).toBe(true);
+      expect(pointInPolygon({ x: 1, y: 1 }, polygonWithUnclosedHoleCoords)).toEqual(true);
       // Test point technically in hole, should fail
-      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithUnclosedHoleGeom)).toBe(true);
+      expect(pointInPolygon({ x: 5, y: 5 }, polygonWithUnclosedHoleGeom)).toEqual(true);
     });
   });
 });

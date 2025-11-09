@@ -1,23 +1,23 @@
 import {
   InterPointLookup,
+  PolyPath,
   RingChunk,
-  buildPathsAndChunks,
-  buildRingIntersectLookup,
-  mergePairs,
-} from './util.js';
-import {
   bboxArea,
   bboxInside,
+  buildPathsAndChunks,
   equalPoints,
   mergeBBoxes,
-  pointInPolygon,
+  mergeIntersectionPairs,
   polygonRingArea,
+  polygonsIntersectionsLookup,
+  polylineInPolyline,
 } from '../../../index.js';
 
 import type {
   BBox,
   MValue,
   Properties,
+  RingIntersectionLookup,
   Segment,
   VectorFeatures,
   VectorLineString,
@@ -26,7 +26,6 @@ import type {
   VectorPolygon,
   VectorPolygonGeometry,
 } from '../../../index.js';
-import { PolyPath, type RingIntersectionLookup } from './util.js';
 
 /**
  * Given a collection of polygons, if any of the polygons are kinked, dekink them
@@ -94,7 +93,7 @@ export function dekinkPolygon<
   const vectorPolygons = [vectorPolygon];
 
   // 1) build intersections `[polyIndex][ringIndex] -> Intersections`. Store where on the ring other rings intersect
-  const ringIntLookup: RingIntersectionLookup<D> = buildRingIntersectLookup(
+  const ringIntLookup: RingIntersectionLookup<D> = polygonsIntersectionsLookup(
     vectorPolygons,
     (seg1: Segment) => {
       return (seg2: Segment): boolean =>
@@ -103,7 +102,7 @@ export function dekinkPolygon<
         // only pass forward not backward
         seg2.id > seg1.id &&
         // TODO: At some point intersections of inner rings against the outer ring should be considered.
-        // For now the ringIndex must be the same, buildRingIntersectLookup should return
+        // For now the ringIndex must be the same, polygonsIntersectionsLookup should return
         // two problem sets down the road, one for cleaning individual rings, and one for fixing holes that go out of bounds
         seg2.ringIndex === seg1.ringIndex;
     },
@@ -151,7 +150,7 @@ interface RingStore<D extends MValue = Properties> {
  * @param intersections - all intersections
  * @param chunks - a set of chunks
  */
-export function buildPathsFromChunks<D extends MValue = Properties>(
+function buildPathsFromChunks<D extends MValue = Properties>(
   paths: PolyPath<D>[],
   intersections: InterPointLookup<D>,
   chunks: RingChunk<D>[],
@@ -169,7 +168,7 @@ export function buildPathsFromChunks<D extends MValue = Properties>(
   paths.splice(0, paths.length);
   // for each intersections, connect all the from and to, smallest angle between from->to first slowly work your way through
   for (const xs of Object.values(intersections.lookup)) {
-    for (const ys of Object.values(xs)) mergePairs(ys);
+    for (const ys of Object.values(xs)) mergeIntersectionPairs(ys);
   }
   // run through all chunks, if unvisited, add to paths
   for (const chunk of chunks) {
@@ -227,14 +226,14 @@ function ringSetToPaths<D extends MValue = Properties>(
     actualOuters.push(new PolyPath(outer.lineString, new Set(), true, outer.bbox));
   }
 
-  // TODO: when running the `pointInPolygon` cases, if on edge, we need to keep checking more points?
-
   // If outer in `outersMaybeHole` is inside an actual outer, it's a hole; Otherwise it's another outer
   for (const { lineString, bbox } of outersMaybeHole) {
-    const point = lineString[0];
     let found = false;
     for (const actualOuter of actualOuters) {
-      if (bboxInside(bbox, actualOuter.bbox) && pointInPolygon(point, [actualOuter.outer!])) {
+      if (
+        bboxInside(bbox, actualOuter.bbox) &&
+        polylineInPolyline(actualOuter.outer!, lineString)
+      ) {
         // store the hole in this outer
         actualOuter.holes.push(lineString);
         found = true;
@@ -253,9 +252,11 @@ function ringSetToPaths<D extends MValue = Properties>(
         actualOuters[0].holes.push(lineString);
       } else {
         // find the outer this hole belongs to
-        const point = lineString[0];
         for (const actualOuter of actualOuters) {
-          if (bboxInside(bbox, actualOuter.bbox) && pointInPolygon(point, [actualOuter.outer!])) {
+          if (
+            bboxInside(bbox, actualOuter.bbox) &&
+            polylineInPolyline(actualOuter.outer!, lineString)
+          ) {
             // store the hole in this outer
             actualOuter.holes.push(lineString);
             break;
