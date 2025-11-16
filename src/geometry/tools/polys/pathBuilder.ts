@@ -12,12 +12,6 @@ import type {
   VectorPolygon,
 } from '../../../index.js';
 
-// /** An old outer ring that was consumed by a larger outer */
-// export interface OldOuterRing<D extends MValue = Properties> {
-//   ring: VectorLineString<D>;
-//   bbox: BBox;
-// }
-
 /** Reconstructing a poly line that interacts with intersections */
 export class PolyPath<D extends MValue = Properties> {
   id = 0; // helps down the road to spot duplicate pulls of this Path
@@ -26,23 +20,14 @@ export class PolyPath<D extends MValue = Properties> {
   holes: VectorLineString<D>[] = [];
   polysConsumed: Set<number> = new Set(); // indexes of the polygons in the multipolygon. So we can quickly consume holes.
   bbox: BBox;
-  /**
-   * @param ring - the linestring
-   * @param polysConsumed - the collection of polygons consumed
-   * @param outer - whether the ring is the outer ring
-   * @param bbox - if provided, the bounding box
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   constructor(ring: VectorLineString<D>, polysConsumed: Set<number>, outer: boolean, bbox?: BBox) {
     if (outer) this.outer = ring;
     else this.holes.push(ring);
     this.polysConsumed = polysConsumed;
     this.bbox = bbox ?? (fromLineString(ring) as BBox);
   }
-
-  /**
-   * Get the path as a vector polygon
-   * @returns - the resultant poly if it exists
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   getPath(): VectorPolygon | undefined {
     if (this.outer === undefined) return undefined;
     if (this.outer.length < 4) return undefined;
@@ -64,17 +49,8 @@ export interface NextRingChunk<D extends MValue = Properties> {
 /** A path/piece/chunk from a polygon */
 export class RingChunk<D extends MValue = Properties> {
   visted: boolean = false;
-  // isHole: boolean = false;
   next?: NextRingChunk<D>; // used in final step, to link all chunks together.
-  tVec?: VectorPoint<D>;
-  /**
-   * @param polyIndex - the index of the polygon
-   * @param ringIndex - the index of the ring
-   * @param bbox - the bounding box
-   * @param mid - the linestring
-   * @param from - from point
-   * @param to - to point
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   constructor(
     public polyIndex: number,
     public ringIndex: number,
@@ -82,13 +58,10 @@ export class RingChunk<D extends MValue = Properties> {
     public mid: VectorLineString<D>, // Always starts with either the beginning of the poly ring OR an intersection point.
     public from: VectorPoint<D>,
     public to: VectorPoint<D>,
+    public fromAngle: number,
+    public toAngle: number,
   ) {}
-
-  /**
-   * Check if two chunks are equal
-   * @param other - the other chunk
-   * @returns - true if the two chunks are equal
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   equalChunk(other: RingChunk<D>): boolean {
     return (
       this.ringIndex > 0 === other.ringIndex > 0 &&
@@ -109,41 +82,27 @@ export interface IntersectionPoint<D extends MValue = Properties> {
 /** Intersection Lookup for chunks */
 export class InterPointLookup<D extends MValue = Properties> {
   lookup: { [x: number]: { [y: number]: IntersectionPoint<D> } } = {};
-  /**
-   * Get the intersection point
-   * @param point - the intersection point
-   * @returns - the intersection point, creates if it doesn't exist
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   get(point: VectorPoint<D>): IntersectionPoint<D> {
     return ((this.lookup[point.x] ??= {})[point.y] ??= { point, from: [], to: [] });
   }
-
-  /**
-   * Link two points to eachother
-   * @param polyIndex - the index of the polygon
-   * @param ringIndex - the index of the ring
-   * @param from - the from intersection point
-   * @param to - the to intersection point
-   * @param mid - if provided the linestring
-   * @param tVec - if provided, explains the vector from the chunk to the intersection
-   * @returns the created chunk
-   */
+  // eslint-disable-next-line jsdoc/require-jsdoc
   linkInts(
     polyIndex: number,
     ringIndex: number,
     from: VectorPoint<D>,
     to: VectorPoint<D>,
-    mid: VectorLineString<D> = [],
-    tVec?: VectorPoint<D>,
+    mid: VectorLineString<D>,
+    fromAngle?: number,
+    toAngle?: number,
   ): RingChunk<D> {
     // first build a chunk
     const bbox = mergeBBoxes(fromLineString(mid), fromLineString([from, to])) as BBox;
-    const chunk = new RingChunk(polyIndex, ringIndex, bbox, mid, from, to);
-    if (tVec !== undefined) chunk.tVec = tVec;
-    const fromPoint = this.get(from);
-    const toPoint = this.get(to);
-    fromPoint.to.push(chunk);
-    toPoint.from.push(chunk);
+    fromAngle = fromAngle ?? angle(mid.at(-1) ?? from, to);
+    toAngle = toAngle ?? angle(mid.at(0) ?? to, from);
+    const chunk = new RingChunk(polyIndex, ringIndex, bbox, mid, from, to, fromAngle, toAngle);
+    this.get(from).to.push(chunk);
+    this.get(to).from.push(chunk);
     return chunk;
   }
 }
@@ -173,7 +132,7 @@ export function buildPathsAndChunks<D extends MValue = Properties>(
     const poly = vectorPolygons[pI];
     for (let rI = 0; rI < poly.length; rI++) {
       const ring = poly[rI].map((point) => ({ ...point }));
-      let intersections = cleanIntersections(ringIntersectLookup[pI]?.[rI] ?? []);
+      let intersections = ringIntersectLookup.get(pI, rI);
       // Case 1: Insert into paths because it's already completed or expand existing path
       if (intersections.length === 0) {
         const existingPath = pathLookup.get(pI);
@@ -198,63 +157,41 @@ export function buildPathsAndChunks<D extends MValue = Properties>(
       let intIndex = 0;
       let curInt: RingIntersection<D> | undefined = intersections.at(intIndex);
       while (currIndex < ring.length - 1) {
-        // console.log('curInt', curInt);
         // if we are still working with intersections, build points with them
         if (curInt !== undefined) {
           // until we get to the next intersection, we link the points
           if (currIndex !== curInt.from) {
             const start = currIndex;
-            while (currIndex !== curInt.from) {
-              currIndex++;
-            }
+            while (currIndex !== curInt.from) currIndex++;
             const mid = ring.slice(start + 1, currIndex);
             chunks.push(intLookup.linkInts(pI, rI, ring[start], ring[currIndex], mid));
-            // console.log(
-            //   'LINK 1',
-            //   [ring[start].x, ring[start].y],
-            //   ring.slice(start + 1, currIndex).map((p) => [p.x, p.y]),
-            //   [ring[currIndex].x, ring[currIndex].y],
-            //   curInt?.tVec,
-            // );
           }
           // now build links with the intersections until we get to the next intersection that isn't the same index
           let from = ring[currIndex];
           while (curInt !== undefined && curInt.from === currIndex) {
-            if (!equalPoints(from, curInt.point))
-              chunks.push(intLookup.linkInts(pI, rI, from, curInt.point, undefined, curInt.tVec));
-            // console.log(
-            //   'LINK 2',
-            //   [from.x, from.y],
-            //   [curInt.point.x, curInt.point.y],
-            //   curInt.t,
-            //   curInt?.tVec,
-            // );
+            if (!equalPoints(from, curInt.point)) {
+              // NOTE: For robustness, we have to store the angles we found when studying the intersections.
+              // We make decisions about the polygons during the analysis of the intersections using
+              // robust predicates. otherwise we would actually compute slightly different angles
+              // that could percieve the intersection lines as swapped (non-existent).
+              const ang = curInt.tAngle;
+              chunks.push(
+                intLookup.linkInts(pI, rI, from, curInt.point, [], invertAngle(ang), ang),
+              );
+            }
             intIndex++;
             from = curInt.point;
             curInt = intersections.at(intIndex);
           }
           // if the intersection t is not 1, then we need to link the point to the end of the currIndex
-          // if ((curInt === undefined ? intersections[intIndex - 1].t : curInt.t) !== 1) {
-          if (!equalPoints(from, ring[currIndex + 1])) {
-            chunks.push(
-              intLookup.linkInts(pI, rI, from, ring[currIndex + 1], undefined, curInt?.tVec),
-            );
-            // console.log(
-            //   'LINK 2.2',
-            //   [from.x, from.y],
-            //   [ring[currIndex + 1].x, ring[currIndex + 1].y],
-            //   curInt?.t,
-            //   curInt?.tVec,
-            // );
+          const next = ring[currIndex + 1];
+          if (!equalPoints(from, next)) {
+            const { tAngle } = intersections[intIndex - 1];
+            chunks.push(intLookup.linkInts(pI, rI, from, next, [], invertAngle(tAngle), tAngle));
           }
         } else {
           // no intersection, just build the point
-          chunks.push(intLookup.linkInts(pI, rI, ring[currIndex], ring[currIndex + 1]));
-          // console.log(
-          //   'LINK 3',
-          //   [ring[currIndex].x, ring[currIndex].y],
-          //   [ring[currIndex + 1].x, ring[currIndex + 1].y],
-          // );
+          chunks.push(intLookup.linkInts(pI, rI, ring[currIndex], ring[currIndex + 1], []));
         }
         currIndex++;
       }
@@ -269,47 +206,6 @@ export function buildPathsAndChunks<D extends MValue = Properties>(
   });
 
   return [paths, pathLookup, chunks, intLookup, outerRingBBoxes];
-}
-
-/**
- * Given a ring's of intersections, clean them up
- * @param intersections - a collection of intersections to clean up
- * @returns - the cleaned up intersections
- */
-function cleanIntersections<D extends MValue = Properties>(
-  intersections: RingIntersection<D>[],
-): RingIntersection<D>[] {
-  intersections.sort((a, b) => {
-    let diff = a.from - b.from;
-    if (diff === 0) diff = a.t - b.t;
-    return diff;
-  });
-
-  // 1) Remove duplicates
-  const dedupInts: RingIntersection<D>[] = [];
-  for (const int of intersections) {
-    // c.otherPI === int.otherPI &&
-    // c.otherRI === int.otherRI,
-    if (
-      dedupInts.some((c) => c.from === int.from && c.t === int.t && equalPoints(c.point, int.point))
-    )
-      continue;
-
-    dedupInts.push(int);
-  }
-  // 2) Cancel out any intersections with other rings we only touch once with a single point
-  if (dedupInts.length === 2) {
-    const [first, second] = dedupInts;
-    if (
-      (first.t === 0 || first.t === 1) &&
-      (second.t === 0 || second.t === 1) &&
-      equalPoints(first.point, second.point)
-    ) {
-      return [];
-    }
-  }
-
-  return dedupInts;
 }
 
 /**
@@ -344,17 +240,8 @@ export function mergeIntersectionPairs<D extends MValue = Properties>(
   const pairs = [];
   for (const f of froms) {
     for (const t of tos) {
-      const start = f.mid.at(-1) ?? f.from;
-      const end = t.mid.at(0) ?? t.to;
-      // if (equalPoints(end, intPoint) || equalPoints(start, intPoint)) {
-      //   console.log('EQUAL1', start, intPoint, end);
-      // }
-      // if (equalPoints(end, start)) {
-      //   console.log('EQUAL2', start, intPoint, end);
-      // }
-      // console.log('PAIR', [start.x, start.y], [intPoint.x, intPoint.y], [end.x, end.y]);
-      const angle = angleRad(start, intPoint, end);
-      pairs.push({ from: f, to: t, angle });
+      const angle = t.toAngle - f.fromAngle;
+      pairs.push({ from: f, to: t, angle: angle < 0 ? angle + Math.PI * 2 : angle });
     }
   }
   pairs.sort((a, b) => a.angle - b.angle);
@@ -374,24 +261,18 @@ export function mergeIntersectionPairs<D extends MValue = Properties>(
 /**
  * Returns the absolute angle between points A->B->C
  * @param a - First point
- * @param b - Vertex point (angle at this point)
- * @param c - Third point
- * @returns Angle in degrees [0, 2*PI]
+ * @param b - Second Point
+ * @returns Angle in degrees [-PI, PI]
  */
-function angleRad<D extends MValue = Properties>(
-  a: VectorPoint<D>,
-  b: VectorPoint<D>,
-  c: VectorPoint<D>,
-): number {
-  const { atan2, PI } = Math;
-  const twoPI = PI * 2;
+function angle<D extends MValue = Properties>(a: VectorPoint<D>, b: VectorPoint<D>): number {
+  return Math.atan2(a.y - b.y, a.x - b.x);
+}
 
-  // If b->c this algo considers this a full revolution, not 0
-  if (equalPoints(b, c)) return twoPI;
-
-  const angleBA = atan2(a.y - b.y, a.x - b.x);
-  const angleBC = atan2(c.y - b.y, c.x - b.x);
-  // Difference in radians
-  const angle = angleBC - angleBA;
-  return angle < 0 ? angle + twoPI : angle;
+/**
+ * Returns the absolute angle between points A->B->C
+ * @param angle - Angle in degrees [-PI, PI]
+ * @returns Angle in degrees [-PI, PI]
+ */
+function invertAngle(angle: number): number {
+  return angle >= 0 ? angle - Math.PI : angle + Math.PI;
 }

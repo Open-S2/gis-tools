@@ -44,7 +44,7 @@ serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
 brotli = { version = "8", optional = true }
-image = { version = "0.25", optional = true }
+image = { version = "0.25", optional = true, features = ["jpeg", "tiff"] }
 # Optional std/wasm fetch dependency
 surf = { version = "2", default-features = false }
 # CLI dependency

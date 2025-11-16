@@ -155,11 +155,14 @@ mod tests {
     polygons_union_test!(polygons_union_issue_105, "issue-105");
     polygons_union_test!(polygons_union_issue_115, "issue-115");
     polygons_union_test!(polygons_union_issue_118, "issue-118");
+    polygons_union_test!(polygons_union_issue_118_2, "issue-118-2");
     polygons_union_test!(polygons_union_issue_124, "issue-124");
     polygons_union_test!(polygons_union_issue_139, "issue-139");
     polygons_union_test!(polygons_union_issue_140, "issue-140");
     polygons_union_test!(polygons_union_issue_141, "issue-141");
-    // polygons_union_test!(polygons_union_issue_142, "issue-142");
+    polygons_union_test!(polygons_union_issue_142, "issue-142");
+    polygons_union_test!(polygons_union_issue_142_outeres, "issue-142-outers");
+    polygons_union_test!(polygons_union_issue_142_simple, "issue-142-simple");
     polygons_union_test!(polygons_union_issue_turf_1094, "issue-turf-1094");
     polygons_union_test!(polygons_union_maybe_colinear_sides, "maybe-colinear-sides");
     polygons_union_test!(polygons_union_multipoly_and_square, "multipoly-and-square");
@@ -229,6 +232,4 @@ mod tests {
     polygons_union_test!(polygons_union_windmill_4_blades, "windmill-4-blades");
 
     polygons_union_test!(polygons_union_chunks_water_3, "chunks-water-3");
-
-    // polygons_union_test!(polygons_union_issue_142_simple, "issue-142-simple");
 }

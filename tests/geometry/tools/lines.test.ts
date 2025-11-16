@@ -301,7 +301,7 @@ describe('intersectionOfSegments', () => {
 });
 
 describe('intersectionOfSegmentsRobust', () => {
-  it('returns intersection for crossing segments', () => {
+  it('returns intersection for crossing segments robust', () => {
     const a: [VectorPoint, VectorPoint] = [
       { x: 0, y: 0 },
       { x: 2, y: 2 },
@@ -313,10 +313,12 @@ describe('intersectionOfSegmentsRobust', () => {
     // expect(intersectionOfSegmentsRobust(a, b)).toEqual({ x: 1, y: 1, t: 0.5 });
     expect(intersectionOfSegmentsRobust(a, b)).toEqual({
       point: { x: 1, y: 1 },
-      u: 0.5,
       t: 0.5,
-      uVec: { x: 1, y: 1 },
-      tVec: { x: 1, y: -1 },
+      tAngle: -0.7853981633974483,
+      tVec: { x: 0.7071067811865475, y: -0.7071067811865475 },
+      u: 0.5,
+      uAngle: 0.7853981633974483,
+      uVec: { x: 0.7071067811865475, y: 0.7071067811865475 },
     });
   });
 
@@ -356,8 +358,10 @@ describe('intersectionOfSegmentsRobust', () => {
     expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
       point: { x: 1, y: 1 },
       t: 0,
+      tAngle: -0.7853981633974483,
+      tVec: { x: 0, y: 0 },
       u: 1,
-      tVec: { x: -0, y: 0 },
+      uAngle: 0.7853981633974483,
       uVec: { x: 1, y: 1 },
     });
   });
@@ -386,9 +390,11 @@ describe('intersectionOfSegmentsRobust', () => {
     expect(intersectionOfSegmentsRobust(a, b)).toEqual({
       point: { x: 2, y: 0 },
       t: 0.5,
-      u: 0.5,
+      tAngle: 1.5707963267948966,
       tVec: { x: 0, y: 1 },
-      uVec: { x: 2, y: 0 },
+      u: 0.5,
+      uAngle: 0,
+      uVec: { x: 1, y: 0 },
     });
   });
 
@@ -427,10 +433,12 @@ describe('intersectionOfSegmentsRobust', () => {
     ];
     expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
       point: { x: -104.0625, y: 75.44 },
-      u: 1,
       t: 1,
+      tAngle: 2.173921453053248,
+      tVec: { x: -0.009564800000006812, y: 0.013887499999995612 },
+      u: 1,
+      uAngle: 1.5790705226314463,
       uVec: { x: -0.00010000000000331966, y: 0.012085490830898493 },
-      tVec: { x: -0.009564800000006814, y: 0.013887499999995615 },
     });
   });
 
@@ -444,13 +452,117 @@ describe('intersectionOfSegmentsRobust', () => {
       { x: 54.56795534005685, y: 24.442325298422087 },
     ];
     expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
-      point: { x: 54.569778932416476, y: 24.441366817541834 },
+      point: { x: 54.56977893241648, y: 24.44136681754183 },
       t: 0.10811948670049906,
-      tVec: { x: -0.00022106758353146463, y: 0.0001161932111308183 },
+      tAngle: 2.6576750942587646,
+      tVec: { x: -0.8851790736215142, y: 0.4652504783689727 },
       u: 0.00000000000020134769880365415,
-      uVec: { x: 0.0000000000000000000024315679333950687, y: -0.0000000000000000589306061837349 },
+      uAngle: -1.5707550652486564,
+      uVec: { x: 0.000041261546228524994, y: -0.9999999991487425 },
     });
   });
+
+  it('such a small u value the points are equal reversed', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 54.56977894449294, y: 24.441074136738756 },
+      { x: 54.569778932416476, y: 24.441366817541834 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 54.57000000000001, y: 24.441250624330703 },
+      { x: 54.56795534005685, y: 24.442325298422087 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
+      point: {
+        x: 54.56977893241648,
+        y: 24.44136681754183,
+      },
+      t: 0.10811948670049906,
+      tAngle: 2.6576750942587646,
+      tVec: {
+        x: -0.8851790736215142,
+        y: 0.4652504783689727,
+      },
+      u: 0.9999999999997986,
+      uAngle: 1.570837588341137,
+      uVec: {
+        x: -0.00004126154622852499,
+        y: 0.9999999991487425,
+      },
+    });
+  });
+
+  it('such a small u value the points are equal 2', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 54.57000000000001, y: 24.441250624330703 },
+      { x: 54.57204465994316, y: 24.442325298422087 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 54.57114771720956, y: 24.441853864959285 },
+      { x: 54.57080496898934, y: 24.4416737163564 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
+      point: { x: 54.57107012236083, y: 24.441813081075473 },
+      t: 0.22638921520691385,
+      tAngle: -2.6576750942666547,
+      tVec: { x: -0.885179073625185, y: -0.4652504783619886 },
+      u: 0.5233742483220198,
+      uAngle: 0.48391755933245995,
+      uVec: { x: 0.8851790736208484, y: 0.46525047837023953 },
+    });
+  });
+
+  it('such a small u value the points are equal 3', () => {
+    const a: [VectorPoint, VectorPoint] = [
+      { x: 54.57074509421786, y: 24.44164224615234 },
+      { x: 54.57204465994316, y: 24.442325298422087 },
+    ];
+    const b: [VectorPoint, VectorPoint] = [
+      { x: 54.57114771720956, y: 24.441853864959285 },
+      { x: 54.57080496898934, y: 24.4416737163564 },
+    ];
+    expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({
+      point: { x: 54.571107779107194, y: 24.44183287347656 },
+      t: 0.1165233176297705,
+      tAngle: -2.6576750942666547,
+      tVec: { x: -0.885179073625185, y: -0.4652504783619886 },
+      u: 0.27908160570130575,
+      uAngle: 0.48391755933283453,
+      uVec: { x: 0.885179073620674, y: 0.4652504783705712 },
+    });
+  });
+
+  // it('such a small u value the points are equal 4', () => {
+  //   const a: [VectorPoint, VectorPoint] = [
+  //     { x: 54.57080496898934, y: 24.441673716356398 },
+  //     { x: 54.57204465994316, y: 24.442325298422087 },
+  //   ];
+  //   const b: [VectorPoint, VectorPoint] = [
+  //     { x: 54.57114771720956, y: 24.441853864959285 },
+  //     { x: 54.57080496898934, y: 24.4416737163564 },
+  //   ];
+  //   expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({});
+  // });
+
+  // it('should intersect', () => {
+  //   const a: [VectorPoint, VectorPoint] = [
+  //     { x: 19.9284281536379, y: 50.05417333008677 },
+  //     { x: 19.928265336875185, y: 50.05438343158938 },
+  //   ];
+  //   const b: [VectorPoint, VectorPoint] = [
+  //     { x: 19.928383178550334, y: 50.05423136669995 },
+  //     { x: 19.928383178550334, y: 50.05417333008677 },
+  //   ];
+  //   // 2.23007100305349 2.2300710030445616
+  //   /**
+  //    * @param a
+  //    * @param b
+  //    */
+  //   function angle(a: VectorPoint, b: VectorPoint): number {
+  //     return Math.atan2(a.y - b.y, a.x - b.x);
+  //   }
+  //   console.log(angle(b[0], a[0]), angle(a[1], a[0]));
+  //   expect(intersectionOfSegmentsRobust(a, b, false)).toEqual({});
+  // });
 });
 
 describe('lineLength', () => {

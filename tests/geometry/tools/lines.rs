@@ -579,7 +579,9 @@ mod tests {
                 0.5,
                 0.5,
                 VectorPoint::from_xy(1.0, 1.0),
-                VectorPoint::from_xy(1.0, -1.0)
+                VectorPoint::from_xy(1.0, -1.0),
+                0.7853981633974483,
+                -0.7853981633974483
             ))
         );
     }
@@ -611,7 +613,9 @@ mod tests {
                 1.,
                 0.,
                 VectorPoint::from_xy(1.0, 1.0),
-                VectorPoint::from_xy(-0.0, 0.0)
+                VectorPoint::from_xy(-0.0, 0.0),
+                0.7853981633974483,
+                -0.7853981633974483
             ))
         );
     }
@@ -636,7 +640,9 @@ mod tests {
                 0.5,
                 0.5,
                 VectorPoint::from_xy(2.0, 0.0),
-                VectorPoint::from_xy(0.0, 1.0)
+                VectorPoint::from_xy(0.0, 1.0),
+                0.,
+                1.5707963267948966
             ))
         );
     }

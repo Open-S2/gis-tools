@@ -94,25 +94,15 @@ function buildPathsFromChunks<D extends MValue = Properties>(
 ): void {
   // merge in all potential "dead" outer-rings (do we need this?)
   for (const path of paths) storeInnerOldOuters(path, bboxes);
-  // console.log('\n\n\nBUILDING PATHS FROM CHUNKS');
   // for each intersections, connect all the from and to, smallest angle between from->to first slowly work your way through
   for (const xs of Object.values(intersections.lookup)) {
     for (const ys of Object.values(xs)) mergeIntersectionPairs(ys);
   }
-  // console.log(
-  //   'CHUNKS!',
-  //   ...chunks.map((c) => ({
-  //     line: c.mid.map((p) => [p.x, p.y]),
-  //     from: [c.from.x, c.from.y],
-  //     to: [c.to.x, c.to.y],
-  //     visited: c.visted,
-  //   })),
-  // );
   // run through all chunks, if unvisited, add to paths
   for (const chunk of chunks) {
     if (chunk.visted) continue;
     const start = chunk.from;
-    // console.log('START', [start.x, start.y]);
+    // console.log(`START: `, start);
     let currChunk = chunk;
     const foundPolygons = new Set<number>();
     const lineString: VectorLineString<D> = [{ ...start }];
@@ -120,17 +110,16 @@ function buildPathsFromChunks<D extends MValue = Properties>(
     while (true) {
       if (currChunk.visted) break;
       currChunk.visted = true;
-      // console.log(
-      //   'ADD MID',
-      //   currChunk.mid.map((p) => [p.x, p.y]),
-      // );
+      if (currChunk.mid.length !== 0) {
+        // console.log(`ADD MID:`, currChunk.mid);
+      }
       lineString.push(...currChunk.mid);
       foundPolygons.add(currChunk.polyIndex);
       bbox = mergeBBoxes(bbox, currChunk.bbox) as BBox;
       if (currChunk.next === undefined) break;
       const { chunk: nextChunk, intPoint } = currChunk.next;
-      // console.log('ADD INT', [intPoint.x, intPoint.y]);
       lineString.push({ ...intPoint });
+      // console.log(`ADD INT:`, intPoint);
       currChunk = nextChunk;
       if (equalPoints(intPoint, start)) break;
     }
@@ -138,7 +127,6 @@ function buildPathsFromChunks<D extends MValue = Properties>(
     if (area === 0 || lineString.length < 4 || !equalPoints(lineString.at(0)!, lineString.at(-1)!))
       continue;
     // now build the path or add to an existing path
-    // console.log('STORE line', lineString);
     const isCCW = area > 0;
     // Find the correct PolyPath to insert into, otherwise create a new one, update the lookup to
     // include all new polygon indexes used in the path
@@ -156,7 +144,6 @@ function buildPathsFromChunks<D extends MValue = Properties>(
     foundPaths = foundPaths
       .sort((p1, p2) => p1.id - p2.id)
       .filter((p, i) => i === 0 || p.id !== foundPaths[i - 1]?.id);
-    // console.log('foundPolygons', foundPolygons, foundPaths.length);
     let path: PolyPath<D>;
     if (foundPaths.length === 0) {
       path = new PolyPath(lineString, foundPolygons, isCCW, bbox);
@@ -165,8 +152,7 @@ function buildPathsFromChunks<D extends MValue = Properties>(
       // TODO: `chunk.ringIndex !== 0` may not be enough as may contain a hole chunk but started as an outer chunk
       // if only one found, update that one, otherwise create a new merged path and store the new result
       path = foundPaths.length === 1 ? foundPaths[0] : mergePaths(foundPaths);
-      const wasHole = chunk.ringIndex !== 0;
-      addChunkToPath(path, lineString, foundPolygons, bbox, isCCW, wasHole);
+      addChunkToPath(path, lineString, foundPolygons, bbox, isCCW, chunk.ringIndex !== 0);
     }
     // Store all inner outer rings that have not yet been consumed by the new outer but are inside the new outer
     storeInnerOldOuters(path, bboxes);

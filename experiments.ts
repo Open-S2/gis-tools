@@ -535,15 +535,112 @@
 //   JSON.stringify(res),
 // );
 
-// import { vectorToFlat } from './src/index.js';
-// import { shapefileFromPath } from './src/file.js';
+import { vectorToFlat } from './src/index.js';
+import { shapefileFromPath } from './src/file.js';
 
-// const shapefile = await shapefileFromPath(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`);
+const shapefile = await shapefileFromPath(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`);
 
-// const featureCollection = await shapefile.getFeatureCollection();
-// for (const feature of featureCollection.features) {
-//   feature.type = 'Feature';
-//   feature.geometry = vectorToFlat(feature.geometry);
+const featureCollection = await shapefile.getFeatureCollection();
+for (const feature of featureCollection.features) {
+  feature.type = 'Feature';
+  feature.geometry = vectorToFlat(feature.geometry);
+}
+
+await Bun.write(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`, JSON.stringify(featureCollection, null, 2));
+
+// import { type VectorPoint, type MValue, type Properties, equalPoints, orient2dVector, intersectionOfSegmentsRobust } from './src/index.js';
+
+// const d = { x: 54.57080496898934, y: 24.441673716356398 };
+// const d2 = {x: 54.57000000000001, y: 24.441250624330703};
+
+// const a = { x: 54.57114771720956, y: 24.441853864959285 };
+// const b = { x: 54.571070122708974, y: 24.441813081258456 };
+// const b2 = {x: 54.57080496898934, y: 24.4416737163564 }
+// const c = { x: 54.57204465994316, y: 24.442325298422087 };
+
+// // x: 54.57107012236083,
+// // y: 24.441813081075473,
+
+// console.log('ORIENT A TEST', intersectionOfSegmentsRobust([a, b2], [d2, c], false))
+// // console.log('ORIENT B TEST', intersectionOfSegmentsRobust([d2, c], [a, b2], false))
+
+// const aN = { x: 1, y: 0.1 };
+// const bN = { x: 0, y: 0 };
+// const cN = { x: 1, y: 1 };
+
+// // console.log('ORIENT', orient2dVector(a, b, c));
+// // console.log('ORIENT 2', orient2dVector(c, b, a));
+
+// console.log('ANGLE', angleRad(a, b, c));
+
+// // angleAB 0.4839175593430548
+// // angleCB 0.4839175593340457
+// // ANGLECD 0.4839175593324599
+// // ANGLE 1 0.4839175593324599
+// console.log('ANGLEAB', Math.atan2(a.y - b.y, a.x - b.x));
+// console.log('ANGLECB', Math.atan2(c.y - b.y, c.x - b.x));
+// console.log('ANGLECD', Math.atan2(c.y - d2.y, c.x - d2.x));
+
+// console.log('INVERT OTHER', invertAngle(-2.6576750942666547));
+
+// // const vectorAB = { x: a.x - b.x, y: a.y - b.y };
+// // const vectorCB = { x: c.x - b.x, y: c.y - b.y };
+// // console.log();
+// // console.log('vectorAB', vectorAB);
+// // console.log('vectorCB', vectorCB);
+
+// //   ANGLE RAD -2.657675094272483 0.4839175593430548 -3.141592653615538
+// // PAIR [ 54.57114771720956, 24.441853864959285 ] [ 54.571070122708974, 24.441813081258456 ] [ 54.57204465994316, 24.442325298422087 ]
+// // ANGLE RAD 0.4839175593340457 0.4839175593430548 -9.009126777925758e-12
+// // angle normal 6.283185307170577 robust angles -2.6576750942666547 -2.6576750942573333 9.321543537055277e-12 9.321543537055277e-12
+
+// /**
+//  * @param a
+//  * @param b
+//  * @param c
+//  */
+// function robustAngleRad<D extends MValue = Properties>(
+//   a: VectorPoint<D>,
+//   b: VectorPoint<D>,
+//   c: VectorPoint<D>,
+// ): number {
+//   const { atan2 } = Math;
+//   // build angle between a and b
+//   const [dxA, dyA] = [a.x - b.x, a.y - b.y];
+//   const [dxC, dyC] = [c.x - b.x, c.y - b.y];
+
+//   const angleAB = atan2(dyA, dxA);
+//   const angleCB = atan2(dyC, dxC);
+//   console.log('angleAB', angleAB)
+//   console.log('angleCB', angleCB)
+
+//   console.log(orient2dVector(a, b, c))
+
+//   return angleCB - angleAB;
 // }
 
-// await Bun.write(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`, JSON.stringify(featureCollection, null, 2));
+// /**
+//  * Returns the absolute angle between points A->B->C
+//  * @param a - First point
+//  * @param b - Vertex point (angle at this point)
+//  * @param c - Third point
+//  * @returns Angle in degrees [0, 2*PI]
+//  */
+// function angleRad<D extends MValue = Properties>(
+//   a: VectorPoint<D>,
+//   b: VectorPoint<D>,
+//   c: VectorPoint<D>,
+// ): number {
+//   const { atan2, PI } = Math;
+//   const twoPI = PI * 2;
+//   // If b->c this algo considers this a full revolution, not 0 (this should never happen with this algo)
+//   if (equalPoints(b, c)) return twoPI;
+//   // Difference in radians
+//   const angle = atan2(c.y - b.y, c.x - b.x) - atan2(a.y - b.y, a.x - b.x);
+//   // return angle < 0 ? angle + twoPI : angle;
+//   return angle;
+// }
+
+// function invertAngle(angle: number): number {
+//   return angle >= 0 ? angle - Math.PI : angle + Math.PI;
+// }

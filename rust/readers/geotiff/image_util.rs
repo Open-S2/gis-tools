@@ -251,8 +251,8 @@ pub fn get_reader_for_sample(
             // unsigned integer data
             if bits_per_sample <= 8 {
                 return |buffer: &[u8], offset: usize, _little_endian: bool| -> f64 {
-                    let value = buffer[offset];
-                    value as f64
+                    buffer[offset] as f64
+                    // buffer.get(offset).map(|v| *v as f64).unwrap_or(0.0)
                 };
             } else if bits_per_sample <= 16 {
                 return |buffer: &[u8], offset: usize, little_endian: bool| -> f64 {

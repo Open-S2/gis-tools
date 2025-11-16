@@ -1,18 +1,18 @@
 use crate::geometry::{RingIntersection, RingIntersectionLookup};
-use alloc::{collections::BTreeSet, rc::Rc, vec, vec::Vec};
-use core::{cell::RefCell, cmp::Ordering, f64::consts::TAU, mem::take};
+use alloc::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+    vec,
+    vec::Vec,
+};
+use core::{
+    cell::RefCell,
+    cmp::Ordering,
+    f64::consts::{PI, TAU},
+    mem::take,
+};
 use libm::atan2;
 use s2json::{BBox, FullXY, Point};
-use std::collections::BTreeMap;
-
-// /// An old outer ring that was consumed by a larger outer
-// #[derive(Debug)]
-// pub struct OldOuterRing<P: FullXY> {
-//     /// The outer ring
-//     pub ring: Vec<P>,
-//     /// The bbox of the ring
-//     pub bbox: BBox,
-// }
 
 /// Reconstructing a poly line that interacts with intersections
 #[derive(Debug)]
@@ -113,6 +113,10 @@ pub struct RingChunk<P: FullXY> {
     /// can point to just one or multiple chunks. Many polys can touch the same point.
     /// If none provided could be a start-end point
     pub next: Option<NextRingChunk<P>>,
+    /// Precomputed from angle. Useful for when intersections are computed
+    pub from_angle: f64,
+    /// Precomputed to angle. Useful for when intersections are computed
+    pub to_angle: f64,
 }
 /// A reference to a RingChunk wrapped in an RC & RefCell
 pub type RingChunkRef<P> = Rc<RefCell<RingChunk<P>>>;
@@ -125,6 +129,8 @@ impl<P: FullXY> RingChunk<P> {
         mid: Vec<P>,
         from: Point,
         to: Point,
+        from_angle: f64,
+        to_angle: f64,
     ) -> Rc<RefCell<Self>> {
         Rc::new(RefCell::new(RingChunk {
             visted: false,
@@ -135,13 +141,15 @@ impl<P: FullXY> RingChunk<P> {
             from,
             to,
             next: None,
+            from_angle,
+            to_angle,
         }))
     }
 
     /// Check if two chunks are equal
     pub fn equal_chunk(&self, other: &RingChunkRef<P>) -> bool {
         let other = &other.borrow();
-        self.ring_index == other.ring_index
+        (self.ring_index > 0) == (other.ring_index > 0)
             && self.from == other.from
             && self.to == other.to
             && self.mid == other.mid
@@ -191,16 +199,20 @@ impl<P: FullXY> InterPointLookup<P> {
         ring_index: usize,
         from: Point,
         to: Point,
-        mid: Option<Vec<P>>,
+        mid: Vec<P>,
+        from_angle: Option<f64>,
+        to_angle: Option<f64>,
     ) -> RingChunkRef<P> {
         // first build a chunk
-        let mid = mid.unwrap_or(vec![]);
         let bbox = BBox::from_linestring(&mid).merge(&BBox::from_linestring(&vec![from, to]));
-        let chunk = RingChunk::new(poly_index, ring_index, bbox, mid, from, to);
-        let from_point = self.get(from);
-        let to_point = self.get(to);
-        from_point.borrow_mut().to.push(chunk.clone());
-        to_point.borrow_mut().from.push(chunk.clone());
+        let from_angle =
+            from_angle.unwrap_or(angle(&mid.last().map(|p| Point::from(p)).unwrap_or(from), &to));
+        let to_angle =
+            to_angle.unwrap_or(angle(&mid.first().map(|p| Point::from(p)).unwrap_or(to), &from));
+        let chunk =
+            RingChunk::new(poly_index, ring_index, bbox, mid, from, to, from_angle, to_angle);
+        self.get(from).borrow_mut().to.push(chunk.clone());
+        self.get(to).borrow_mut().from.push(chunk.clone());
         chunk
     }
 }
@@ -236,11 +248,9 @@ pub fn build_paths_and_chunks<P: FullXY>(
     let mut int_lookup = InterPointLookup::<P>::new();
     for (p_i, poly) in vector_polygons.iter().enumerate() {
         for (r_i, ring) in poly.iter().enumerate() {
-            let mut intersections = clean_intersections(
-                ring_intersect_lookup.get_mut(&p_i).and_then(|r| r.get_mut(&r_i)),
-            );
+            let intersections = ring_intersect_lookup.get_mut(&p_i).and_then(|r| r.get_mut(&r_i));
             // Case 1: Insert into paths because it's already completed or expand existing path
-            if intersections.len() == 0 {
+            if intersections.is_none() || intersections.as_ref().unwrap().len() == 0 {
                 if let Some(existing_path) = path_lookup.get(&p_i) {
                     let existing_path = &mut existing_path.borrow_mut();
                     if r_i == 0 {
@@ -265,7 +275,8 @@ pub fn build_paths_and_chunks<P: FullXY>(
             if r_i == 0 {
                 outer_ring_bboxes[p_i] = BBox::from_linestring(ring);
             }
-            intersections = intersections.into_iter().filter(|i| i.t != 0.).collect();
+            let intersections: Vec<&RingIntersection> =
+                intersections.as_ref().unwrap().iter().filter(|i| i.t != 0.).collect();
             let mut curr_index = 0;
             let mut int_index = 0;
             while curr_index < ring.len() - 1 {
@@ -281,7 +292,7 @@ pub fn build_paths_and_chunks<P: FullXY>(
                         let from = &ring[start];
                         let to = &ring[curr_index];
                         let chunk =
-                            int_lookup.link_ints(p_i, r_i, from.into(), to.into(), Some(mid));
+                            int_lookup.link_ints(p_i, r_i, from.into(), to.into(), mid, None, None);
                         chunks.push(chunk);
                     }
                     // now build links with the intersections until we get to the next intersection that isn't the same index
@@ -290,17 +301,38 @@ pub fn build_paths_and_chunks<P: FullXY>(
                     while let Some(c_i) = cur_int
                         && c_i.from == curr_index
                     {
-                        if from != c_i.point {
-                            chunks.push(int_lookup.link_ints(p_i, r_i, from, c_i.point, None));
+                        // NOTE: For robustness, we have to store the angles we found when studying the intersections.
+                        // We make decisions about the polygons during the analysis of the intersections using
+                        // robust predicates. otherwise we would actually compute slightly different angles
+                        // that could percieve the intersection lines as swapped (non-existent).
+                        if from != *c_i.point.borrow() {
+                            chunks.push(int_lookup.link_ints(
+                                p_i,
+                                r_i,
+                                from,
+                                *c_i.point.borrow(),
+                                vec![],
+                                Some(invert_angle(c_i.t_angle)),
+                                Some(c_i.t_angle),
+                            ));
                         }
                         int_index += 1;
-                        from = c_i.point;
+                        from = *c_i.point.borrow();
                         cur_int = intersections.get(int_index);
                     }
                     // if the intersection t is not 1, then we need to link the point to the end of the curr_index
                     let next: Point = (&ring[curr_index + 1]).into();
                     if from != next {
-                        chunks.push(int_lookup.link_ints(p_i, r_i, from, next, None));
+                        let ang = intersections[int_index - 1].t_angle;
+                        chunks.push(int_lookup.link_ints(
+                            p_i,
+                            r_i,
+                            from,
+                            next,
+                            vec![],
+                            Some(invert_angle(ang)),
+                            Some(ang),
+                        ));
                     }
                 } else {
                     // no intersection, just build the point
@@ -309,6 +341,8 @@ pub fn build_paths_and_chunks<P: FullXY>(
                         r_i,
                         (&ring[curr_index]).into(),
                         (&ring[curr_index + 1]).into(),
+                        vec![],
+                        None,
                         None,
                     ));
                 }
@@ -328,44 +362,6 @@ pub fn build_paths_and_chunks<P: FullXY>(
     });
 
     (paths, path_lookup, chunks, int_lookup, outer_ring_bboxes)
-}
-
-/// Given a ring's of intersections, clean them up
-///
-/// ## Parameters
-/// - `intersections`: a collection of intersections to clean up
-///
-/// ## Returns
-/// The cleaned up intersections
-fn clean_intersections(intersections: Option<&mut Vec<RingIntersection>>) -> Vec<RingIntersection> {
-    if intersections.is_none() {
-        return vec![];
-    }
-    let intersections = intersections.unwrap();
-    intersections
-        .sort_by(|a, b| a.from.cmp(&b.from).then(a.t.partial_cmp(&b.t).unwrap_or(Ordering::Equal)));
-
-    // 1) Remove duplicates
-    let mut dedup_ints: Vec<RingIntersection> = vec![];
-    for int in intersections.iter() {
-        if dedup_ints.iter().any(|c| c.from == int.from && c.t == int.t && c.point == int.point) {
-            continue;
-        }
-
-        dedup_ints.push(*int);
-    }
-    // 2) Cancel out any intersections with other rings we only touch once with a single point
-    if dedup_ints.len() == 2 {
-        let (first, second) = (&dedup_ints[0], &dedup_ints[1]);
-        if (first.t == 0. || first.t == 1.)
-            && (second.t == 0. || second.t == 1.)
-            && first.point == second.point
-        {
-            return vec![];
-        }
-    }
-
-    dedup_ints
 }
 
 #[derive(Debug)]
@@ -419,9 +415,8 @@ pub fn merge_intersection_pairs<P: FullXY>(intersection: &IntersectionPointRef<P
     let mut pairs: Vec<IntPair<P>> = vec![];
     for f in froms.iter() {
         for t in tos.iter() {
-            let start = f.borrow().mid.last().map(Into::into).unwrap_or(f.borrow().from);
-            let end = t.borrow().mid.first().map(Into::into).unwrap_or(t.borrow().to);
-            let angle = angle_rad(&start, &int_point, &end);
+            let mut angle = t.borrow().to_angle - f.borrow().from_angle;
+            angle = if angle < 0. { angle + TAU } else { angle };
             pairs.push(IntPair { from: f.clone(), to: t.clone(), angle });
         }
     }
@@ -450,19 +445,21 @@ pub fn merge_intersection_pairs<P: FullXY>(intersection: &IntersectionPointRef<P
 ///
 /// ## Parameters
 /// - `a`: First point
-/// - `b`: Vertex point (angle at this point)
-/// - `c`: Third point
+/// - `b`: Second Point
 ///
 /// ## Returns
-/// Angle in degrees [0, 2 * PI]
-fn angle_rad<P: FullXY>(a: &P, b: &P, c: &P) -> f64 {
-    if b == c {
-        return TAU;
-    }
-    let angle_ba = atan2(a.y() - b.y(), a.x() - b.x());
-    let angle_bc = atan2(c.y() - b.y(), c.x() - b.x());
+/// Angle in degrees [-PI, PI]
+fn angle<P: FullXY, Q: FullXY>(a: &P, b: &Q) -> f64 {
+    atan2(a.y() - b.y(), a.x() - b.x())
+}
 
-    // Difference in radians
-    let angle = angle_bc - angle_ba;
-    if angle < 0. { angle + TAU } else { angle }
+/// Returns the absolute angle between points A->B->C
+///
+/// ## Parameters
+/// - `angle`: Angle in degrees [-PI, PI]
+///
+/// ## Returns
+/// Angle in degrees [-PI, PI]
+fn invert_angle(angle: f64) -> f64 {
+    if angle >= 0. { angle - PI } else { angle + PI }
 }

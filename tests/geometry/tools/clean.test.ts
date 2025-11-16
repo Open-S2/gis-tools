@@ -122,11 +122,14 @@ describe('cleanPolygons', () => {
     'issue-105',
     'issue-115',
     'issue-118',
+    'issue-118-2',
     'issue-124',
     'issue-139',
     'issue-140',
     'issue-141',
     'issue-142',
+    'issue-142-outers',
+    'issue-142-simple',
     'issue-turf-1094',
     'maybe-colinear-sides',
     'multipoly-and-square',
@@ -173,29 +176,13 @@ describe('cleanPolygons', () => {
     });
   });
 
-  test('cleanPolygons - experiments', async () => {
-    const folder = 'issue-turf-1094';
-    const input = await getInput(folder);
-    const cleaned = cleanPolygons(input)!;
+  // test('cleanPolygons - experiments', async () => {
+  //   const folder = 'issue-142-simple';
+  //   const input = await getInput(folder);
+  //   const cleaned = cleanPolygons(input)!;
 
-    await checkResult(folder, cleaned, false);
-  });
-  // 'chunks-water-simple'
-
-  // start: Point(0.0, 1.0)
-  // add mid: []
-  // add int: Point(0.07466666666666667, 1.0213333333333334)
-  // add mid: []
-  // add int: Point(0.0, 1.04)
-  // add mid: []
-  // add int: Point(0.0, 1.0)
-  // start: Point(0.08, 1.02)
-  // add mid: []
-  // add int: Point(0.07466666666666667, 1.0213333333333334)
-  // add mid: []
-  // add int: Point(0.14, 1.04)
-  // add mid: []
-  // add int: Point(0.08, 1.02)
+  //   await checkResult(folder, cleaned, true);
+  // });
 });
 
 // TODO: Hole interacts with outer ring
