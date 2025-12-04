@@ -11,7 +11,8 @@ repository = "https://github.com/Open-S2/gis-tools"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
 keywords = ["tools", "s2", "gis", "low-cost-code"]
-license = "SEE LICENSE"
+# license = "SEE LICENSE"
+license-file = "LICENSE"
 include = [
     # "assets/**",
     "rust/**",
