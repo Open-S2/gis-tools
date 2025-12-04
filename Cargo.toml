@@ -93,6 +93,10 @@ harness = false
 name = "union"
 harness = false
 
+[[bench]]
+name = "union_large"
+harness = false
+
 [profile.bench]
 inherits = "release"
 opt-level = 3

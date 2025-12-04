@@ -1,4 +1,4 @@
-use alloc::{collections::BTreeMap, vec::Vec};
+use alloc::collections::{BTreeMap, VecDeque};
 
 /// Function to be called when a value is deleted from the cache
 pub type CacheDeleteFunction<K, V> = fn(&K, &V);
@@ -33,7 +33,7 @@ where
     K: Ord + Clone,
 {
     map: BTreeMap<K, V>,
-    order: Vec<K>,
+    order: VecDeque<K>,
     max_size: usize,
     on_delete: Option<CacheDeleteFunction<K, V>>,
 }
@@ -44,7 +44,7 @@ where
 {
     /// Creates a new cache with a given max size and an optional deletion callback.
     pub fn new(max_size: usize, on_delete: Option<CacheDeleteFunction<K, V>>) -> Self {
-        Self { map: BTreeMap::new(), order: Vec::new(), max_size, on_delete }
+        Self { map: BTreeMap::new(), order: VecDeque::new(), max_size, on_delete }
     }
 
     /// Returns the number of elements in the cache.
@@ -62,11 +62,11 @@ where
         if self.map.contains_key(&key) {
             self.order.retain(|k| k != &key);
         }
-        self.order.insert(0, key.clone());
+        self.order.push_front(key.clone());
         self.map.insert(key, value);
 
         while self.order.len() > self.max_size {
-            if let Some(oldest) = self.order.pop() {
+            if let Some(oldest) = self.order.pop_back() {
                 self.delete(&oldest);
             }
         }
@@ -76,7 +76,7 @@ where
     pub fn get(&mut self, key: &K) -> Option<&V> {
         if self.map.contains_key(key) {
             self.order.retain(|k| k != key);
-            self.order.insert(0, key.clone());
+            self.order.push_front(key.clone());
         }
         self.map.get(key)
     }
@@ -85,7 +85,7 @@ where
     pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
         if self.map.contains_key(key) {
             self.order.retain(|k| k != key);
-            self.order.insert(0, key.clone());
+            self.order.push_front(key.clone());
         }
         self.map.get_mut(key)
     }
