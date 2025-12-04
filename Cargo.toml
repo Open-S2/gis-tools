@@ -19,6 +19,8 @@ include = [
     "/katex-header.html",
     "/README.md",
     "/LICENSE",
+    "!*.DS_Store",
+    "!rust/experiments/**",
 ]
 
 [package.metadata.docs.rs]
