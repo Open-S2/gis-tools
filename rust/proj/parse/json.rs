@@ -953,7 +953,7 @@ impl Unit {
         match self {
             Unit::BaseUnit(unit) => match unit {
                 BaseUnit::Metre => 1.0,
-                BaseUnit::Degree => std::f64::consts::PI / 180.0,
+                BaseUnit::Degree => core::f64::consts::PI / 180.0,
                 BaseUnit::Unity => 1.0,
             },
             Unit::UnitObject(unit) => unit.rad(),
@@ -964,7 +964,7 @@ impl Unit {
         match self {
             Unit::BaseUnit(unit) => match unit {
                 BaseUnit::Metre => 1.0,
-                BaseUnit::Degree => std::f64::consts::PI / 180.0,
+                BaseUnit::Degree => core::f64::consts::PI / 180.0,
                 BaseUnit::Unity => 1.0,
             },
             Unit::UnitObject(unit) => unit.meters(),

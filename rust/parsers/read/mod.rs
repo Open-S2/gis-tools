@@ -9,7 +9,9 @@ mod mmap;
 
 use alloc::{string::String, vec::Vec};
 pub use buffer::*;
+#[cfg(feature = "std")]
 pub use file::*;
+#[cfg(feature = "std")]
 pub use mmap::*;
 use s2json::VectorFeature;
 #[cfg(feature = "std")]

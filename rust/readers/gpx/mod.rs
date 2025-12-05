@@ -130,7 +130,6 @@ impl FeatureReader<(), GPXProperties, GPXWaypoint> for GPXReader {
     }
 
     // GPX is so simple that there is no reason to make paralle work
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let mut wpt_count = self.gpx.wpt.as_ref().map(|w| w.len()).unwrap_or_default();
         let mut rte_count = self.gpx.rte.as_ref().map(|r| r.len()).unwrap_or_default();

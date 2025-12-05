@@ -119,7 +119,6 @@ impl FeatureReader<(), Properties, MValue> for GBFSReader {
         GBFSIterator { features, index: 0, len }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let features: Vec<VectorFeature> = match self {
             GBFSReader::V1(reader) => reader.features(),
@@ -323,7 +322,7 @@ where
     impl<'de> serde::de::Visitor<'de> for BoolOrIntVisitor {
         type Value = bool;
 
-        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
             formatter.write_str("a boolean or an integer 0/1")
         }
 

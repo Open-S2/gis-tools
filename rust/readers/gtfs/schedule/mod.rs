@@ -334,7 +334,6 @@ impl FeatureReader<(), Properties, MValue> for GTFSScheduleReader {
         GTFSScheduleIterator { features: self.collect_vector_features(), index: 0 }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let start = self.collect_vector_features().len() * thread_id / pool_size;
         let end = self.collect_vector_features().len() * (thread_id + 1) / pool_size;

@@ -1,4 +1,6 @@
+#[cfg(feature = "std")]
 use super::ImageData;
+#[cfg(feature = "std")]
 use crate::parsers::Buffer;
 #[cfg(feature = "std")]
 use image::ImageReader;

@@ -276,7 +276,7 @@ impl<M: Clone, P: Clone + Default, D: Clone + Default> IntoIterator
     for JSONCollectionReader<M, P, D>
 {
     type Item = VectorFeature<M, P, D>;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = alloc::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.features.into_iter()
@@ -328,7 +328,6 @@ impl<
         JSONCollectionIterator { reader: self, offset: 0, size: self.features.len() }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let start = self.len() * thread_id / pool_size;
         let end = self.len() * (thread_id + 1) / pool_size;

@@ -124,7 +124,6 @@ impl FeatureReader<(), Properties, MValue> for WKTGeometryReader {
         WKTIterator { reader: self, index: 0, len: self.features.len() }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let start = self.len() * thread_id / pool_size;
         let end = self.len() * (thread_id + 1) / pool_size;

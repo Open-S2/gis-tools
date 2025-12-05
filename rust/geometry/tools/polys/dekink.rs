@@ -3,10 +3,13 @@ use crate::geometry::{
     RingIntersectionLookup, Segment, build_paths_and_chunks, merge_intersection_pairs,
     polygons_intersections_lookup, polyline_in_polyline,
 };
-use alloc::{collections::BTreeMap, vec, vec::Vec};
+use alloc::{
+    collections::{BTreeMap, BTreeSet},
+    vec,
+    vec::Vec,
+};
 use core::{cmp::Ordering, mem::take};
 use s2json::{BBox, FullXY};
-use std::collections::BTreeSet;
 
 /// Given a collection of polygons, if any of the polygons are kinked, dekink them
 ///

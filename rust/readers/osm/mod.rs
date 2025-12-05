@@ -15,8 +15,10 @@ pub mod relation;
 /// Way Block defines the contents of a way
 pub mod way;
 
+#[cfg(feature = "std")]
+use crate::data_store::kv::file::FileKV;
 use crate::{
-    data_store::{KV, KVStore, kv::file::FileKV},
+    data_store::{KV, KVStore},
     parsers::{FeatureReader, Reader},
 };
 use alloc::{boxed::Box, vec::Vec};
@@ -70,6 +72,7 @@ impl Default for OSMReaderOptions {
 /// OSM File Reader ensures we are using local buffers to store intermediate Nodes, Ways, and Relations
 ///
 /// See [`OSMReader`] for full documentation.
+#[cfg(feature = "std")]
 pub type OSMFileReader<T> = OSMReader<
     T,
     FileKV<u64, VectorPoint<MValue>>,
@@ -79,6 +82,7 @@ pub type OSMFileReader<T> = OSMReader<
     FileKV<u64, IntermediateRelation>,
 >;
 /// OSM File Reader Iterator
+#[cfg(feature = "std")]
 pub type OSMFileReaderIter<'a, T> = OsmReaderIter<
     'a,
     T,
@@ -433,7 +437,7 @@ impl<
     R: KVStore<u64, IntermediateRelation>,
 > Debug for OsmReaderIter<'a, T, _N, N, _W, W, R>
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "OsmReaderIter")
     }
 }

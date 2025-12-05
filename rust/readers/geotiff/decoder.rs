@@ -1,5 +1,5 @@
 use crate::{
-    parsers::{image_decoder_buffer, jpeg_decoder},
+    parsers::jpeg_decoder,
     util::{decompress_fflate, decompress_lzw},
 };
 use alloc::{vec, vec::Vec};
@@ -68,7 +68,7 @@ pub fn get_decoder(compression: Option<u16>) -> Option<Decoder> {
         }),
         #[cfg(feature = "std")]
         6 | 256 | 50001 => Some(|buffer: &[u8], _tables: Option<&[u8]>| -> Vec<u8> {
-            image_decoder_buffer(&(buffer.to_vec().into()), None).take()
+            crate::parsers::image_decoder_buffer(&(buffer.to_vec().into()), None).take()
         }),
         7 => {
             Some(|buffer: &[u8], tables: Option<&[u8]>| -> Vec<u8> { jpeg_decoder(buffer, tables) })

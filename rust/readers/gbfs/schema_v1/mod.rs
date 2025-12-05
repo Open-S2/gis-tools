@@ -170,7 +170,6 @@ impl FeatureReader<(), Properties, MValue> for GBFSReaderV1 {
         GBFSIteratorV1 { features, index: 0, len }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let features: Vec<VectorFeature> =
             self.features().iter().map(|f| f.to_m_vector_feature(|_| None)).collect();

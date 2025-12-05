@@ -27,6 +27,7 @@ pub mod s2tiles;
 /// Shapefile Reader
 pub mod shapefile;
 /// Tile-based Readers
+#[cfg(feature = "std")]
 pub mod tile;
 /// WKT Geometry Reader
 pub mod wkt;
@@ -42,7 +43,6 @@ pub use geotiff::*;
 pub use gpx::*;
 pub use grib2::*;
 pub use gtfs::*;
-pub use image::*;
 pub use json::*;
 pub use las::*;
 pub use nadgrid::*;
@@ -55,6 +55,7 @@ use serde::{Deserialize, Serialize};
 pub use shapefile::*;
 #[cfg(feature = "std")]
 use std::path::Path;
+#[cfg(feature = "std")]
 pub use tile::*;
 pub use wkt::*;
 
@@ -317,6 +318,7 @@ impl GISReader<BufferReader> {
         }
     }
 }
+#[cfg(feature = "std")]
 impl GISReader<FileReader> {
     /// Given a file and a file type (or inferred if not provided), return a reader
     ///
@@ -514,7 +516,6 @@ impl<T: Reader + Debug> FeatureReader<(), Properties, MValue> for GISReader<T> {
         }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         match self {
             GISReader::CSV(reader) => GISIterator::CSV(reader.par_iter(pool_size, thread_id)),

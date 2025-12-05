@@ -140,7 +140,7 @@ impl<
 
         // 3) Final cleanup: parse trailing partial line if any
         if !parser.partial_line.is_empty() {
-            let line = std::mem::take(&mut parser.partial_line);
+            let line = core::mem::take(&mut parser.partial_line);
             let feature = self.parse_line(&line);
             parser.partial_line.clear();
             return feature;
@@ -222,7 +222,6 @@ impl<
         NewLineDelimitedJSONIterator { reader: self }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         self.par_seek(pool_size as u64, thread_id as u64);
         NewLineDelimitedJSONIterator { reader: self }
@@ -344,7 +343,6 @@ impl<
         SequenceJSONIterator { reader: self }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         self.par_seek(pool_size as u64, thread_id as u64);
         self.iter()

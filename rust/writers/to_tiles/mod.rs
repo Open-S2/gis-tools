@@ -4,11 +4,13 @@ pub mod types;
 pub mod worker;
 
 use super::OnFeature;
+#[cfg(feature = "std")]
+use crate::writers::FileTileWriter;
 use crate::{
     data_structures::HasLayer,
     geometry::{wm, xyz_to_bbox},
     parsers::FeatureReader,
-    writers::{FileTileWriter, LocalTileWriter, TileWriter},
+    writers::{LocalTileWriter, TileWriter},
 };
 use alloc::{string::String, vec::Vec};
 use core::mem::take;
@@ -24,6 +26,7 @@ pub type LocalTileBuilder = TileBuilder<LocalTileWriter>;
 /// Use the Filesystem to store all file data
 ///
 /// See [`TileBuilder`] for full documentation
+#[cfg(feature = "std")]
 pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 
 /// # The Tile Builder

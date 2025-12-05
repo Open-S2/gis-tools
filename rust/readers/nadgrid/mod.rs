@@ -389,7 +389,6 @@ impl<T: Reader> FeatureReader<NadMetadata, Properties, MValue> for NadGridReader
         NadGridIterator { reader: self, index: 0, len: self.len() }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let pool_size = pool_size as u64;
         let thread_id = thread_id as u64;

@@ -194,6 +194,15 @@ pub fn decompress_data(input: &[u8], format: CompressionFormat) -> Result<Vec<u8
 
 /// Decompress data using the specified format
 #[cfg(not(feature = "std"))]
+pub fn compress_data(
+    _input: Vec<u8>,
+    _format: CompressionFormat,
+) -> Result<Vec<u8>, CompressError> {
+    unimplemented!();
+}
+
+/// Decompress data using the specified format
+#[cfg(not(feature = "std"))]
 pub fn decompress_data(input: &[u8], format: CompressionFormat) -> Result<Vec<u8>, CompressError> {
     let mut output = Vec::new();
 

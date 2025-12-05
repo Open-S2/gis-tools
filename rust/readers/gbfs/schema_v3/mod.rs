@@ -244,7 +244,6 @@ impl FeatureReader<(), Properties, MValue> for GBFSReaderV3 {
         GBFSIteratorV3 { features, index: 0, len }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let features = self.features();
         let start = features.len() * thread_id / pool_size;

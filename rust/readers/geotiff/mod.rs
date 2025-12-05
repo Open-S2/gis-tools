@@ -195,7 +195,6 @@ impl<T: Reader> FeatureReader<GeoTIFFMetadata, Properties, RGBA> for GeoTIFFRead
         GeoTIFFIterator { reader: self, index: 0, end: self.len() }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         let start = self.len() * thread_id / pool_size;
         let end = self.len() * (thread_id + 1) / pool_size;

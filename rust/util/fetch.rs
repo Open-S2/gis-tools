@@ -1,7 +1,6 @@
-use alloc::{
-    string::{String, ToString},
-    vec::Vec,
-};
+#[cfg(feature = "std")]
+use alloc::string::ToString;
+use alloc::{string::String, vec::Vec};
 
 /// Net fetch error
 #[derive(Debug, Clone, PartialEq)]
@@ -12,6 +11,13 @@ pub enum NetError {
     Http(u16),
     /// Other
     Other(String),
+}
+
+/// `no_std` case fetch for raw data
+/// ex. `fetch_url("http://example.com/file.bin", &[("header", "value")])`
+#[cfg(not(any(target_arch = "wasm32", feature = "std")))]
+pub async fn fetch_url(_url: &str, _headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
+    unimplemented!("fetch_url")
 }
 
 /// STD fetch for raw data

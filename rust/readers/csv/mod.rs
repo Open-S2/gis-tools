@@ -221,7 +221,7 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> CSVReader<T, P> {
 
         // Final line after file ends
         if !parser.partial_line.is_empty() {
-            let line = std::mem::take(&mut parser.partial_line);
+            let line = core::mem::take(&mut parser.partial_line);
             let trimmed = line.trim();
             if trimmed.is_empty() || trimmed.starts_with('#') {
                 return None;
@@ -308,7 +308,6 @@ impl<T: Reader, P: MValueCompatible + DeserializeOwned> FeatureReader<(), P, MVa
         CSVIterator { reader: self }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         *self.parser.borrow_mut() = CSVParser::new(self.reader.len());
         self.par_seek(pool_size as u64, thread_id as u64);

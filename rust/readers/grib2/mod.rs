@@ -648,7 +648,6 @@ impl FeatureReader<Vec<Grib2ProductDefinition>, Properties, MValue> for GRIB2Rea
         GRIB2Iterator { reader: self, done: false }
     }
 
-    #[cfg(feature = "std")]
     fn par_iter(&self, _pool_size: usize, thread_id: usize) -> Self::FeatureIterator<'_> {
         if thread_id == 0 { self.iter() } else { GRIB2Iterator { reader: self, done: true } }
     }
