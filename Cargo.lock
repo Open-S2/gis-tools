@@ -1432,7 +1432,7 @@ dependencies = [
 
 [[package]]
 name = "gis-tools"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "assert_cmd",
  "brotli",
@@ -2805,9 +2805,9 @@ dependencies = [
 
 [[package]]
 name = "s2json"
-version = "1.44.0"
+version = "1.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e326976566a9cf1c21c451f1af29d777463660ef4bc33d9b92b785d12538cf3"
+checksum = "a7ae6a3f378fdda885f54ffc5540195d5eb3b6fa57e27dc2deaa4d9bbcb595e1"
 dependencies = [
  "s2json-core",
  "s2json-derive",
@@ -2815,9 +2815,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-core"
-version = "1.44.0"
+version = "1.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bf6a62e67583c3732f736a4ffbd74a824b6631bdb22bf24204bc2b217b03ef2"
+checksum = "62ff2b99e1df7d321db66f6498f13d637cd9b68fe12b7f9eb3330f14eba19223"
 dependencies = [
  "libm",
  "pbf",
@@ -2827,9 +2827,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-derive"
-version = "1.44.0"
+version = "1.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0f8b972369ca542b9328fe1649448a5595f729870b341ace5c7cd698bfd7cb1"
+checksum = "dd07f6c24f8f9368e8f085545a11284c09a41c155bbe0588445a4890e3380876"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",

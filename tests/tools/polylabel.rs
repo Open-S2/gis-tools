@@ -13,14 +13,14 @@ mod tests {
     #[test]
     fn empty() {
         let data: Vec<Vec<VectorPoint<()>>> = vec![vec![]];
-        let emp = polylabel(&data, None);
+        let emp: VectorPoint<PolyLabelMetadata> = polylabel(&data, None);
 
         assert_eq!(emp, VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.))));
     }
 
     #[test]
     fn works_on_degenerate_polygons() {
-        let p1 = polylabel(
+        let p1: VectorPoint<PolyLabelMetadata> = polylabel(
             &vec![vec![
                 VectorPoint::<()>::new_xy(0., 0., None),
                 VectorPoint::new_xy(1., 0., None),
@@ -31,7 +31,7 @@ mod tests {
         );
         assert_eq!(p1, VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.))));
 
-        let p2 = polylabel(
+        let p2: VectorPoint<PolyLabelMetadata> = polylabel(
             &vec![vec![
                 VectorPoint::<()>::new_xy(0., 0., None),
                 VectorPoint::new_xy(1., 0., None),
@@ -43,7 +43,7 @@ mod tests {
         );
         assert_eq!(p2, VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.))));
 
-        let p3 = polylabel(
+        let p3: VectorPoint<PolyLabelMetadata> = polylabel(
             &vec![vec![
                 VectorPoint::<()>::new_xy(0., 0., None),
                 VectorPoint::new_xy(0., 0., None),
@@ -64,7 +64,8 @@ mod tests {
         let water_1: Polygon = serde_json::from_str(&file_as_str).unwrap();
 
         let vector_water_1: VectorPolygon = convert_poly(&water_1);
-        let polylabel_high_precision = polylabel(&vector_water_1, Some(1.));
+        let polylabel_high_precision: VectorPoint<PolyLabelMetadata> =
+            polylabel(&vector_water_1, Some(1.));
         assert_eq!(
             polylabel_high_precision,
             VectorPoint::new_xy(
@@ -74,7 +75,8 @@ mod tests {
             )
         );
 
-        let polylabel_low_precision = polylabel(&vector_water_1, Some(50.));
+        let polylabel_low_precision: VectorPoint<PolyLabelMetadata> =
+            polylabel(&vector_water_1, Some(50.));
         assert_eq!(
             polylabel_low_precision,
             VectorPoint::new_xy(
@@ -93,7 +95,8 @@ mod tests {
         let water_1: Polygon = serde_json::from_str(&file_as_str).unwrap();
 
         let vector_water_1: VectorPolygon = convert_poly(&water_1);
-        let polylabel_high_precision = polylabels(&vec![vector_water_1.clone()], Some(1.));
+        let polylabel_high_precision: Vec<VectorPoint<PolyLabelMetadata>> =
+            polylabels(&vec![vector_water_1.clone()], Some(1.));
         assert_eq!(
             polylabel_high_precision,
             vec![VectorPoint::new_xy(
@@ -103,7 +106,8 @@ mod tests {
             )]
         );
 
-        let polylabel_low_precision = polylabels(&vec![vector_water_1], Some(50.));
+        let polylabel_low_precision: Vec<VectorPoint<PolyLabelMetadata>> =
+            polylabels(&vec![vector_water_1], Some(50.));
         assert_eq!(
             polylabel_low_precision,
             vec![VectorPoint::new_xy(
@@ -122,7 +126,8 @@ mod tests {
         let water_2: Polygon = serde_json::from_str(&file_as_str).unwrap();
 
         let vector_water_2: VectorPolygon = convert_poly(&water_2);
-        let polylabel_high_precision = polylabel(&vector_water_2, Some(1.));
+        let polylabel_high_precision: VectorPoint<PolyLabelMetadata> =
+            polylabel(&vector_water_2, Some(1.));
         assert_eq!(
             polylabel_high_precision,
             VectorPoint::new_xy(3263.5, 3263.5, Some(PolyLabelMetadata::new(960.5)),)

@@ -4,7 +4,7 @@ use core::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 use libm::{asin, atan2, cos, fmin, sin, sqrt};
-use s2json::{GetM, GetXY, MValue, VectorPoint};
+use s2json::{GetM, GetXY, MValue, NewXY, VectorPoint};
 
 /// # Longitude-Latitude Point container
 ///
@@ -47,6 +47,11 @@ impl GetXY for LonLat {
 impl<M: Clone + Default> GetM<M> for LonLat<M> {
     fn m(&self) -> Option<&M> {
         self.0.m.as_ref()
+    }
+}
+impl NewXY for LonLat {
+    fn new_xy(x: f64, y: f64) -> LonLat {
+        LonLat(VectorPoint::new(x, y, None, None))
     }
 }
 impl<M: Clone + Default> LonLat<M> {

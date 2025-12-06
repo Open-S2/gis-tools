@@ -2,17 +2,17 @@ use crate::data_structures::PriorityQueue;
 use alloc::vec::Vec;
 use core::f64::consts::SQRT_2;
 use libm::{fmax, fmin, sqrt};
-use s2json::{MValueCompatible, VectorMultiPolygon, VectorPoint, VectorPolygon};
+use s2json::{GetXY, MValueCompatible, NewXYM};
 
 /// The metadata inserted into the Vector Feature
-#[derive(Debug, Default, MValueCompatible, Clone)]
+#[derive(Debug, Default, Copy, MValueCompatible, Clone, PartialEq)]
 pub struct PolyLabelMetadata {
     /// The distance to the label
     pub distance: f64,
 }
 impl PolyLabelMetadata {
     /// Create a new PolyLabelMetadata
-    pub fn new(distance: f64) -> PolyLabelMetadata {
+    pub fn new(distance: f64) -> Self {
         PolyLabelMetadata { distance }
     }
 }
@@ -58,10 +58,10 @@ pub struct PolyLabelCell {
 ///
 /// ## Returns
 /// The collection of label positions and the distances to the labels
-pub fn polylabels<M: Clone>(
-    polygons: &VectorMultiPolygon<M>,
+pub fn polylabels<P: GetXY, R: NewXYM<PolyLabelMetadata>>(
+    polygons: &Vec<Vec<Vec<P>>>,
     precision: Option<f64>,
-) -> Vec<VectorPoint<PolyLabelMetadata>> {
+) -> Vec<R> {
     polygons.iter().map(|polygon| polylabel(polygon, precision)).collect()
 }
 
@@ -91,10 +91,10 @@ pub fn polylabels<M: Clone>(
 ///
 /// ## Returns
 /// The label position and the distance to the label
-pub fn polylabel<M: Clone>(
-    polygon: &VectorPolygon<M>,
+pub fn polylabel<P: GetXY, R: NewXYM<PolyLabelMetadata>>(
+    polygon: &Vec<Vec<P>>,
     precision: Option<f64>,
-) -> VectorPoint<PolyLabelMetadata> {
+) -> R {
     let precision = precision.unwrap_or(1.0);
     // find the bounding box of the outer ring
     let mut min_x = f64::MAX;
@@ -103,21 +103,22 @@ pub fn polylabel<M: Clone>(
     let mut max_y = f64::MIN;
 
     if polygon.is_empty() || polygon[0].is_empty() {
-        return VectorPoint::new_xy(0.0, 0.0, Some(PolyLabelMetadata::default()));
+        return R::new_xym(0.0, 0.0, PolyLabelMetadata::default());
     }
 
-    for VectorPoint { x, y, .. } in &polygon[0] {
-        if *x < min_x {
-            min_x = *x;
+    for point in &polygon[0] {
+        let (x, y) = point.xy();
+        if x < min_x {
+            min_x = x;
         }
-        if *y < min_y {
-            min_y = *y;
+        if y < min_y {
+            min_y = y;
         }
-        if *x > max_x {
-            max_x = *x;
+        if x > max_x {
+            max_x = x;
         }
-        if *y > max_y {
-            max_y = *y;
+        if y > max_y {
+            max_y = y;
         }
     }
 
@@ -126,7 +127,7 @@ pub fn polylabel<M: Clone>(
     let cell_size = fmax(precision, fmin(width, height));
 
     if cell_size == precision {
-        return VectorPoint::new_xy(min_x, min_y, Some(PolyLabelMetadata::default()));
+        return R::new_xym(min_x, min_y, PolyLabelMetadata::default());
     }
 
     // a priority queue of cells in order of their "potential" (max distance to polygon)
@@ -194,7 +195,7 @@ pub fn polylabel<M: Clone>(
         potentially_queue(x + h, y + h, h, &mut best_cell, &mut cell_queue);
     }
 
-    VectorPoint::new_xy(best_cell.x, best_cell.y, Some(PolyLabelMetadata::new(best_cell.d)))
+    R::new_xym(best_cell.x, best_cell.y, PolyLabelMetadata::default())
 }
 
 /// build a cell
@@ -207,7 +208,7 @@ pub fn polylabel<M: Clone>(
 ///
 /// ## Returns
 /// The cell
-fn build_cell<M: Clone>(x: f64, y: f64, h: f64, polygon: &VectorPolygon<M>) -> PolyLabelCell {
+fn build_cell<P: GetXY>(x: f64, y: f64, h: f64, polygon: &Vec<Vec<P>>) -> PolyLabelCell {
     let d = point_to_polygon_dist(x, y, polygon);
     PolyLabelCell { x, y, h, d, max: d + h * SQRT_2 }
 }
@@ -221,7 +222,7 @@ fn build_cell<M: Clone>(x: f64, y: f64, h: f64, polygon: &VectorPolygon<M>) -> P
 ///
 /// ## Returns
 /// The signed distance
-fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -> f64 {
+fn point_to_polygon_dist<P: GetXY>(x: f64, y: f64, polygon: &Vec<Vec<P>>) -> f64 {
     let mut inside = false;
     let mut min_dist_sq = f64::MAX;
 
@@ -232,7 +233,9 @@ fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -
             let a = &ring[i];
             let b = &ring[j];
 
-            if (a.y > y) != (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x {
+            if (a.y() > y) != (b.y() > y)
+                && x < ((b.x() - a.x()) * (y - a.y())) / (b.y() - a.y()) + a.x()
+            {
                 inside = !inside;
             }
 
@@ -246,7 +249,7 @@ fn point_to_polygon_dist<M: Clone>(x: f64, y: f64, polygon: &VectorPolygon<M>) -
 
 /// get polygon centroid
 /// return the centroid as a cell
-fn get_centroid_cell<M: Clone>(polygon: &VectorPolygon<M>) -> PolyLabelCell {
+fn get_centroid_cell<P: GetXY>(polygon: &Vec<Vec<P>>) -> PolyLabelCell {
     let mut area = 0.;
     let mut x = 0.;
     let mut y = 0.;
@@ -257,15 +260,15 @@ fn get_centroid_cell<M: Clone>(polygon: &VectorPolygon<M>) -> PolyLabelCell {
     for i in 0..len {
         let a = &points[i];
         let b = &points[j];
-        let f = a.x * b.y - b.x * a.y;
-        x += (a.x + b.x) * f;
-        y += (a.y + b.y) * f;
+        let f = a.x() * b.y() - b.x() * a.y();
+        x += (a.x() + b.x()) * f;
+        y += (a.y() + b.y()) * f;
         area += f * 3.;
         j = i; // Update j to the previous i (j = i++)
     }
     let centroid = build_cell(x / area, y / area, 0., polygon);
     if area == 0. || centroid.d < 0. {
-        build_cell(points[0].x, points[0].y, 0., polygon)
+        build_cell(points[0].x(), points[0].y(), 0., polygon)
     } else {
         centroid
     }
@@ -273,18 +276,18 @@ fn get_centroid_cell<M: Clone>(polygon: &VectorPolygon<M>) -> PolyLabelCell {
 
 /// get squared distance from a point to a segment AB
 /// return the squared distance
-fn get_seg_dist_sq<M: Clone>(px: f64, py: f64, a: &VectorPoint<M>, b: &VectorPoint<M>) -> f64 {
-    let mut x = a.x;
-    let mut y = a.y;
-    let mut dx = b.x - x;
-    let mut dy = b.y - y;
+fn get_seg_dist_sq<P: GetXY>(px: f64, py: f64, a: &P, b: &P) -> f64 {
+    let mut x = a.x();
+    let mut y = a.y();
+    let mut dx = b.x() - x;
+    let mut dy = b.y() - y;
 
     if dx != 0. || dy != 0. {
         let t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy);
 
         if t > 1. {
-            x = b.x;
-            y = b.y;
+            x = b.x();
+            y = b.y();
         } else if t > 0. {
             x += dx * t;
             y += dy * t;

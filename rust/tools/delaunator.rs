@@ -2,7 +2,7 @@ use crate::geometry::{incirclefast, orient2d};
 use alloc::{vec, vec::Vec};
 use core::f64;
 use libm::{ceil, fabs, floor, sqrt};
-use s2json::{Point, VectorPoint};
+use s2json::GetXY;
 
 /// # NO_REF means it's not pointing to a location in memory
 pub static NO_REF: usize = usize::MAX;
@@ -114,38 +114,19 @@ impl Delaunator {
         del
     }
 
-    /// Given a flattened array of x,y points. e.g. [[x1, y1], [x2, y2], ...]
+    /// Given a collection of points that contain an `x` and `y` property, returns a new
+    /// [`Delaunator`] object.
     ///
     /// ## Returns
     /// A Delaunator class to do Delaunay triangulation
-    pub fn from_points(points: &[Point]) -> Delaunator {
+    pub fn from_points<P: GetXY>(points: &[P]) -> Delaunator {
         let n = points.len();
         let mut coords = vec![0.; n * 2];
 
         for i in 0..n {
-            let Point(x, y) = points[i];
-            coords[2 * i] = x;
-            coords[2 * i + 1] = y;
-        }
-
-        Delaunator::new(coords)
-    }
-
-    /// Create a new Delaunator from a collection of VectorPoints
-    ///
-    /// ## Parameters
-    /// - `points`: flattened array of x,y vector points. e.g. [{ x1, y1 }, { x2, y2 }, ...]
-    ///
-    /// ## Returns
-    /// A new [`Delaunator`] object
-    pub fn from_vector_points<M: Clone>(points: &[VectorPoint<M>]) -> Delaunator {
-        let n = points.len();
-        let mut coords = vec![0.; n * 2];
-
-        for i in 0..n {
-            let VectorPoint { x, y, .. } = &points[i];
-            coords[2 * i] = *x;
-            coords[2 * i + 1] = *y;
+            let p = &points[i];
+            coords[2 * i] = p.x();
+            coords[2 * i + 1] = p.y();
         }
 
         Delaunator::new(coords)

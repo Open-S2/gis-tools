@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn returns_empty_triangulation_for_small_number_of_points() {
-        let d = Delaunator::from_points(&[]);
+        let d = Delaunator::from_points(&vec![] as &[Point]);
         assert_eq!(d.triangles, vec![] as Vec<usize>);
         assert_eq!(d.hull, vec![] as Vec<usize>);
         let d = Delaunator::from_points(&[Point(168., 180.)]);
@@ -165,7 +165,7 @@ mod tests {
 
     #[test]
     fn supports_custom_point_format() {
-        let d = Delaunator::from_vector_points(&[
+        let d = Delaunator::from_points(&[
             VectorPoint::<()>::new_xy(5., 5., None),
             VectorPoint::new_xy(7., 5., None),
             VectorPoint::new_xy(7., 6., None),

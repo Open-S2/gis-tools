@@ -1,6 +1,5 @@
-use crate::geometry::LonLat;
 use libm::{atan2, cos, sin, sqrt};
-use s2json::VectorPoint;
+use s2json::{GetXY, NewXY};
 
 /// # Orthodrome
 ///
@@ -13,8 +12,7 @@ use s2json::VectorPoint;
 ///
 /// The methods you have access to:
 /// - [`Orthodrome::new`]: Create a new Orthodrome
-/// - [`Orthodrome::from_points`]: Create an orthodrome from two points
-/// - [`Orthodrome::from_vector_points`]: Create an orthodrome from two vector points
+/// - [`Orthodrome::from_points`]: Create an orthodrome from two points. The points must implement the [`GetXY`] trait
 /// - [`Orthodrome::intermediate_point`]: input t 0->1. Find a point along the orthodrome.
 /// - [`Orthodrome::bearing`]: returns the bearing in degrees between the two points
 /// - [`Orthodrome::distance_to`]: Finds the distance between the two points in kilometers projected normalized (0->1)
@@ -75,16 +73,10 @@ impl Orthodrome {
     }
 
     /// Create an orthodrome from two points
-    pub fn from_points(p1: &LonLat, p2: &LonLat) -> Orthodrome {
-        Orthodrome::new(p1.lon(), p1.lat(), p2.lon(), p2.lat())
-    }
-
-    /// Create an orthodrome from two vector points
-    pub fn from_vector_points<M1: Clone, M2: Clone>(
-        p1: &VectorPoint<M1>,
-        p2: &VectorPoint<M2>,
-    ) -> Orthodrome {
-        Orthodrome::new(p1.x, p1.y, p2.x, p2.y)
+    ///
+    /// The points must implement the [`GetXY`] trait
+    pub fn from_points<P1: GetXY, P2: GetXY>(p1: &P1, p2: &P2) -> Orthodrome {
+        Orthodrome::new(p1.x(), p1.y(), p2.x(), p2.y())
     }
 
     /// input t 0->1. Find a point along the orthodrome.
@@ -93,19 +85,21 @@ impl Orthodrome {
     /// - `t`: distance along the orthodrome to find
     ///
     /// ## Returns
-    /// Returns a [`LonLat`] point in degrees
-    pub fn intermediate_point(&self, t: f64) -> LonLat {
+    /// Returns any Point type that implements the [`NewXY`].
+    /// X is the longitude in degrees.
+    /// Y is the latitude in degrees.
+    pub fn intermediate_point<P: NewXY>(&self, t: f64) -> P {
         let Self { lon1, lon2, lat1, lat2, dist, .. } = self;
 
         // check corner cases first
         if t == 0. {
-            return LonLat::new(lon1.to_degrees(), lat1.to_degrees(), None);
+            return P::new_xy(lon1.to_degrees(), lat1.to_degrees());
         } else if t == 1. {
-            return LonLat::new(lon2.to_degrees(), lat2.to_degrees(), None);
+            return P::new_xy(lon2.to_degrees(), lat2.to_degrees());
         }
         // check if points are equal
         else if lon1 == lon2 && lat1 == lat2 {
-            return LonLat::new(lon1.to_degrees(), lat1.to_degrees(), None);
+            return P::new_xy(lon1.to_degrees(), lat1.to_degrees());
         }
 
         let a = sin((1. - t) * dist) / sin(*dist);
@@ -118,7 +112,7 @@ impl Orthodrome {
         let lat = atan2(z, sqrt(x * x + y * y));
         let lon = atan2(y, x);
 
-        LonLat::new(lon.to_degrees(), lat.to_degrees(), None)
+        P::new_xy(lon.to_degrees(), lat.to_degrees())
     }
 
     /// returns the bearing in degrees between the two points
