@@ -285,7 +285,7 @@ pub async fn build_gbfs_reader_v3(
             feed.url
         };
 
-        if let Ok(url_data) = fetch_url(&url, &[]).await {
+        if let Ok(url_data) = fetch_url::<()>(&url, &[], None, None).await {
             match feed.name {
                 GBFSV30FeedsName::Gbfs => {}
                 GBFSV30FeedsName::GbfsVersions => {
@@ -328,7 +328,7 @@ pub async fn build_gbfs_reader_v3(
         } else {
             manifest_url
         };
-        let manifest_data = fetch_url(&manifest_url, &[]).await.unwrap();
+        let manifest_data = fetch_url::<()>(&manifest_url, &[], None, None).await.unwrap();
         reader.manifest = serde_json::from_slice(&manifest_data).unwrap_or(None);
     }
 

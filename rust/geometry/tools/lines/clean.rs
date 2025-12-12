@@ -13,13 +13,13 @@ use s2json::{GetXY, SetXY};
 /// ## Returns
 /// The cleaned linestrings
 pub fn clean_linestrings<P: GetXY + SetXY + Clone + PartialEq>(
-    lines: &Vec<Vec<P>>,
+    lines: &[Vec<P>],
     is_poly: bool,
     eps: Option<f64>,
     clean_wgs84: bool,
 ) -> Option<Vec<Vec<P>>> {
     let res: Vec<Vec<P>> =
-        lines.into_iter().filter_map(|p| clean_linestring(p, is_poly, eps, clean_wgs84)).collect();
+        lines.iter().filter_map(|p| clean_linestring(p, is_poly, eps, clean_wgs84)).collect();
     if res.is_empty() { None } else { Some(res) }
 }
 
@@ -33,7 +33,7 @@ pub fn clean_linestrings<P: GetXY + SetXY + Clone + PartialEq>(
 /// ## Returns
 /// The cleaned linestring
 pub fn clean_linestring<P: GetXY + SetXY + Clone + PartialEq>(
-    line: &Vec<P>,
+    line: &[P],
     is_poly: bool,
     eps: Option<f64>,
     clean_wgs84: bool,
@@ -44,9 +44,9 @@ pub fn clean_linestring<P: GetXY + SetXY + Clone + PartialEq>(
     let eps = eps.unwrap_or(1e-12);
     // First remove all duplicates
     let mut no_dups: Vec<&P> = vec![&line[0]];
-    for i in 1..line.len() {
-        if line[i] != *no_dups[no_dups.len() - 1] {
-            no_dups.push(&line[i]);
+    for line in line.iter().skip(1) {
+        if line != no_dups[no_dups.len() - 1] {
+            no_dups.push(line);
         }
     }
     // Then remove superfluous/collinear points

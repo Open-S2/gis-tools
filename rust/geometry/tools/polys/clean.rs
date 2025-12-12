@@ -20,7 +20,7 @@ use s2json::{BBox, FullXY};
 /// ## Returns
 /// The cleaned polygons as a new collection of polygons
 pub fn clean_polygons<P: FullXY>(
-    polygons: &Vec<Vec<Vec<P>>>,
+    polygons: &[Vec<Vec<P>>],
     remove_collinear_points: bool,
     clean_wgs84: bool,
 ) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
@@ -29,7 +29,7 @@ pub fn clean_polygons<P: FullXY>(
 
     for p in polygons {
         if let Some((mut cleaned, bbox)) = clean_polygon(p, remove_collinear_points, clean_wgs84) {
-            res.extend(cleaned.drain(..));
+            res.append(&mut cleaned);
             final_bbox.merge_in_place(&bbox);
         }
     }
@@ -54,7 +54,7 @@ pub fn clean_polygons<P: FullXY>(
 /// ## Returns
 /// The cleaned polygon, split into a multi-polygon as necessary
 pub fn clean_polygon<P: FullXY>(
-    polygon: &Vec<Vec<P>>,
+    polygon: &[Vec<P>],
     remove_collinear_points: bool,
     clean_wgs84: bool,
 ) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
@@ -82,20 +82,17 @@ pub fn clean_polygon<P: FullXY>(
             }
             if new_ring.len() >= 4 {
                 res.push(new_ring);
-            } else {
-                if index == 0 {
-                    return None;
-                }
+            } else if index == 0 {
+                return None;
             }
         }
     }
     // run polygon_ring_area for each ring and invert if it's direction is wrong for the ring type
-    for i in 0..res.len() {
-        let ring = &res[i];
+    for (i, ring) in res.iter_mut().enumerate() {
         let area = ring.area(Some(1.));
         // flip the ring if outer-ring and area is negative OR inner-ring and area is positive
         if if i == 0 { area < 0. } else { area > 0. } {
-            res[i].reverse();
+            ring.reverse();
         }
     }
 

@@ -39,12 +39,12 @@ pub fn point_to_line_distance<P: GetXY + GetZ, Q: GetXY + GetZ>(
     let haversine = method == DistanceMethod::Haversine;
 
     let mut closest_index: Option<ClosestIndex> = None;
-    for i in 0..line.len() {
+    for (i, line) in line.iter().enumerate() {
         // get the distance between the point and the line's point at index
         let dist = if haversine {
-            haversine_distance(point, &line[i])
+            haversine_distance(point, line)
         } else {
-            euclidean_distance(point, &line[i])
+            euclidean_distance(point, line)
         };
         if dist == 0. {
             return 0.;
@@ -55,7 +55,7 @@ pub fn point_to_line_distance<P: GetXY + GetZ, Q: GetXY + GetZ>(
     }
 
     // If there is no closest point, return -1
-    if closest_index == None {
+    if closest_index.is_none() {
         return -1.;
     }
     let closest_index = closest_index.unwrap();

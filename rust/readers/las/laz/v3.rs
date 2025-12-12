@@ -1863,7 +1863,7 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
             } else {
                 item_nir |= last_item[3] & 0xff00;
             }
-            last_item[3] = item_nir;
+            // last_item[3] = item_nir;
         } else {
             item_nir = last_item[3];
         }
@@ -2244,7 +2244,7 @@ impl<T: Reader> ItemReader for LAZbyte14v3Reader<T> {
                 self.num_bytes_allocated = num_bytes;
             }
             // load the requested bytes and init the corresponding instreams an decoders
-            num_bytes = 0;
+            // num_bytes = 0;
             for i in 0..self.size as usize {
                 if self.requested_bytes[i] {
                     if self.num_bytes_bytes[i] != 0 {
@@ -2255,7 +2255,7 @@ impl<T: Reader> ItemReader for LAZbyte14v3Reader<T> {
                         let mut decoder = ArithmeticDecoder::new(buf_reader);
                         decoder.init(true);
                         self.dec_bytes[i] = Some(decoder);
-                        num_bytes += self.num_bytes_bytes[i];
+                        // num_bytes += self.num_bytes_bytes[i];
                         self.changed_bytes[i] = true;
                     } else {
                         self.dec_bytes[i] = None;

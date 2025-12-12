@@ -173,7 +173,7 @@ pub enum GBFSSchema {
 /// ## Returns
 /// A GBFSReader of the appropriate version
 pub async fn build_gbfs_reader(url: &str, locale: Option<String>) -> GBFSReader {
-    let data = fetch_url(url, &[]).await.unwrap();
+    let data = fetch_url::<()>(url, &[], None, None).await.unwrap();
     let schema = serde_json::from_slice::<GBFSSchema>(&data).unwrap();
 
     let mut path = None;
@@ -250,7 +250,7 @@ pub async fn parse_gtfs_systems_from_url(url: Option<String>) -> Vec<GBFSSystem>
     let url = url.unwrap_or(
         "https://raw.githubusercontent.com/MobilityData/gbfs/refs/heads/master/systems.csv".into(),
     );
-    let data = fetch_url(&url, &[]).await.unwrap();
+    let data = fetch_url::<()>(&url, &[], None, None).await.unwrap();
     parse_gtfs_systems(String::from_utf8_lossy(&data).as_ref())
 }
 

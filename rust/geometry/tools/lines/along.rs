@@ -63,7 +63,7 @@ impl<M: Clone + Default, Q: NewXY> Along<Q> for LineStringGeometry<M> {
 }
 impl<Q: NewXY> Along<Q> for LineString {
     fn along_line(&self, distance: f64, radius: Option<f64>) -> Q {
-        along_line(&self, distance, radius)
+        along_line(self, distance, radius)
     }
 }
 
@@ -89,7 +89,7 @@ impl<M: Clone + Default, Q: NewXY> Along<Q> for VectorLineStringGeometry<M> {
 }
 impl<M: Clone + Default, Q: NewXY> Along<Q> for VectorLineString<M> {
     fn along_line(&self, distance: f64, radius: Option<f64>) -> Q {
-        along_line(&self, distance, radius)
+        along_line(self, distance, radius)
     }
 }
 

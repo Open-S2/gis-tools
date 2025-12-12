@@ -36,6 +36,7 @@ pub struct IntersectionOfSegmentsRobust<Q: NewXY> {
 }
 impl<Q: NewXY> IntersectionOfSegmentsRobust<Q> {
     /// Create a new IntersectionOfSegmentsRobust
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         x: f64,
         y: f64,

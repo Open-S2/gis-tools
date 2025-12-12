@@ -29,9 +29,9 @@ use s2json::{GetXY, NewXY};
 /// use gistools::{geometry::LonLat, tools::Orthodrome};
 ///
 /// let ortho = Orthodrome::new(-60., -40., 20., 10.);
-/// assert_eq!(ortho.intermediate_point(0.), LonLat::new(-59.99999999999999, -40., None));
+/// assert_eq!(ortho.intermediate_point::<LonLat>(0.), LonLat::new(-59.99999999999999, -40., None));
 /// assert_eq!(
-///     ortho.intermediate_point(0.2),
+///     ortho.intermediate_point::<LonLat>(0.2),
 ///     LonLat::new(-39.13793657428956, -33.728521975616516, None)
 /// );
 /// ```

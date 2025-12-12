@@ -66,9 +66,7 @@ impl<P: FullXY> PolyPath<P> {
     /// ## Returns
     /// The resultant poly if it exists
     pub fn get_path(&mut self) -> Option<Vec<Vec<P>>> {
-        if self.outer.is_none() {
-            return None;
-        }
+        self.outer.as_ref()?;
         let outer = self.outer.as_mut().unwrap();
         if outer.len() < 4 {
             return None;
@@ -122,6 +120,7 @@ pub struct RingChunk<P: FullXY> {
 pub type RingChunkRef<P> = Rc<RefCell<RingChunk<P>>>;
 impl<P: FullXY> RingChunk<P> {
     /// Create a new RingChunk
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         poly_index: usize,
         ring_index: usize,
@@ -181,18 +180,19 @@ pub struct InterPointLookup<P: FullXY> {
     /// The lookup
     pub lookup: BTreeMap<Point, IntersectionPointRef<P>>,
 }
-impl<P: FullXY> InterPointLookup<P> {
-    /// Create a new IntersectionLookup
-    pub fn new() -> InterPointLookup<P> {
-        InterPointLookup { lookup: BTreeMap::new() }
+impl<P: FullXY> Default for InterPointLookup<P> {
+    fn default() -> Self {
+        Self { lookup: BTreeMap::new() }
     }
-
+}
+impl<P: FullXY> InterPointLookup<P> {
     /// Get the intersection point
     pub fn get(&mut self, point: Point) -> IntersectionPointRef<P> {
         self.lookup.entry(point).or_insert_with(|| IntersectionPoint::new(point)).clone()
     }
 
     /// Link two points to eachother
+    #[allow(clippy::too_many_arguments)]
     pub fn link_ints(
         &mut self,
         poly_index: usize,
@@ -204,11 +204,11 @@ impl<P: FullXY> InterPointLookup<P> {
         to_angle: Option<f64>,
     ) -> RingChunkRef<P> {
         // first build a chunk
-        let bbox = BBox::from_linestring(&mid).merge(&BBox::from_linestring(&vec![from, to]));
+        let bbox = BBox::from_linestring(&mid).merge(&BBox::from_linestring(&[from, to]));
         let from_angle =
-            from_angle.unwrap_or(angle(&mid.last().map(|p| Point::from(p)).unwrap_or(from), &to));
+            from_angle.unwrap_or(angle(&mid.last().map(Point::from).unwrap_or(from), &to));
         let to_angle =
-            to_angle.unwrap_or(angle(&mid.first().map(|p| Point::from(p)).unwrap_or(to), &from));
+            to_angle.unwrap_or(angle(&mid.first().map(Point::from).unwrap_or(to), &from));
         let chunk =
             RingChunk::new(poly_index, ring_index, bbox, mid, from, to, from_angle, to_angle);
         self.get(from).borrow_mut().to.push(chunk.clone());
@@ -225,6 +225,7 @@ impl<P: FullXY> InterPointLookup<P> {
 ///
 /// ## Returns
 /// The PolyPaths, their lookups, and PolyChunks
+#[allow(clippy::type_complexity)]
 pub fn build_paths_and_chunks<P: FullXY>(
     vector_polygons: &[Vec<Vec<P>>],
     ring_intersect_lookup: &mut RingIntersectionLookup,
@@ -245,12 +246,12 @@ pub fn build_paths_and_chunks<P: FullXY>(
     // 2) Build Poly Pieces
     // If no intersections for the poly_index+Ring_index -> push as completed ring (into paths)
     let mut chunks: Vec<RingChunkRef<P>> = vec![];
-    let mut int_lookup = InterPointLookup::<P>::new();
+    let mut int_lookup = InterPointLookup::<P>::default();
     for (p_i, poly) in vector_polygons.iter().enumerate() {
         for (r_i, ring) in poly.iter().enumerate() {
             let intersections = ring_intersect_lookup.get_mut(&p_i).and_then(|r| r.get_mut(&r_i));
             // Case 1: Insert into paths because it's already completed or expand existing path
-            if intersections.is_none() || intersections.as_ref().unwrap().len() == 0 {
+            if intersections.is_none() || intersections.as_ref().unwrap().is_empty() {
                 if let Some(existing_path) = path_lookup.get(&p_i) {
                     let existing_path = &mut existing_path.borrow_mut();
                     if r_i == 0 {
@@ -288,7 +289,7 @@ pub fn build_paths_and_chunks<P: FullXY>(
                         while curr_index != cur_inter.from {
                             curr_index += 1;
                         }
-                        let mid = (&ring[start + 1..curr_index]).to_vec();
+                        let mid = ring[start + 1..curr_index].to_vec();
                         let from = &ring[start];
                         let to = &ring[curr_index];
                         let chunk =
@@ -378,7 +379,7 @@ struct IntPair<P: FullXY> {
 pub fn merge_intersection_pairs<P: FullXY>(intersection: &IntersectionPointRef<P>) {
     let IntersectionPoint { from, to, point, .. } = &mut *intersection.borrow_mut();
     let int_point = *point;
-    if from.len() == 0 || to.len() == 0 {
+    if from.is_empty() || to.is_empty() {
         return;
     }
     if from.len() == 1 && to.len() == 1 {

@@ -15,7 +15,7 @@ use s2json::{BBox, FullXY};
 ///
 /// ## Parameters
 /// - `polygons`: the collection of polygons to apply a union to. The points in the polygons are
-/// expected to implement the trait [`FullXY`] which extends [`GetXY`] and [`NewXY`]
+///   expected to implement the trait [`FullXY`] which extends [`GetXY`] and [`NewXY`]
 ///
 /// ## Returns
 /// A union of polygons should a union exist.
@@ -23,7 +23,7 @@ pub fn polygons_union<P: FullXY>(
     vector_polygons: &[Vec<Vec<P>>],
 ) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
     // not enough data, just clone
-    if vector_polygons.len() == 0 {
+    if vector_polygons.is_empty() {
         return None;
     }
 
@@ -50,11 +50,7 @@ pub fn polygons_union<P: FullXY>(
         acc.merge_in_place(&b);
         acc
     });
-    if coordinates.len() == 0 {
-        return None;
-    } else {
-        return Some((coordinates, bbox));
-    }
+    if coordinates.is_empty() { None } else { Some((coordinates, bbox)) }
 }
 
 /// Given a set of chunks, build a set of paths
@@ -68,7 +64,7 @@ fn build_paths_from_chunks<P: FullXY>(
     path_lookup: &mut BTreeMap<usize, PolyPathRef<P>>,
     intersections: &InterPointLookup<P>,
     chunks: &[RingChunkRef<P>],
-    bboxes: &Vec<BBox>,
+    bboxes: &[BBox],
 ) {
     // merge in all potential "dead" outer-rings (do we need this?)
     for path in paths.iter() {
@@ -96,7 +92,7 @@ fn build_paths_from_chunks<P: FullXY>(
                 }
                 // add the chunk and mark it as visited
                 curr_chunk.visted = true;
-                linestring.extend(curr_chunk.mid.drain(..));
+                linestring.append(&mut curr_chunk.mid);
                 found_polygons.insert(curr_chunk.poly_index);
                 bbox.merge_in_place(&curr_chunk.bbox);
                 if let Some(NextRingChunk { chunk, int_point }) = curr_chunk.next.as_ref() {
@@ -145,7 +141,7 @@ fn build_paths_from_chunks<P: FullXY>(
             .collect();
         // merge
         let path: PolyPathRef<P>;
-        if found_paths.len() == 0 {
+        if found_paths.is_empty() {
             path = PolyPath::new_ref(linestring, found_polygons.clone(), is_ccw, Some(bbox));
             paths.push(path.clone());
         } else {
@@ -223,7 +219,7 @@ fn add_chunk_to_path<P: FullXY>(
         if !was_hole {
             // Store discarded smaller outer rings, if hole is inside inner outer-ring, it cancels out the hole
             for old_outer in &path.old_outers {
-                if bbox.inside(&old_outer) {
+                if bbox.inside(old_outer) {
                     return;
                 }
             }
@@ -232,12 +228,10 @@ fn add_chunk_to_path<P: FullXY>(
     }
 }
 
-/**
- * Store all inner old outers that have not yet been consumed by the new outer
- * @param path - the path
- * @param bboxes - the bboxes of all outer rings we are merging
- */
-fn store_inner_old_outers<P: FullXY>(path: &PolyPathRef<P>, bboxes: &Vec<BBox>) {
+/// Store all inner old outers that have not yet been consumed by the new outer
+/// @param path - the path
+/// @param bboxes - the bboxes of all outer rings we are merging
+fn store_inner_old_outers<P: FullXY>(path: &PolyPathRef<P>, bboxes: &[BBox]) {
     let path = &mut path.borrow_mut();
     if path.outer.is_none() {
         return;
@@ -276,7 +270,7 @@ fn merge_paths<P: FullXY>(paths_to_merge: &[PolyPathRef<P>]) -> PolyPathRef<P> {
                 }
                 res.outer = Some(take(other_outer));
             }
-            res.holes.extend(other.holes.drain(..));
+            res.holes.append(&mut other.holes);
             res.polys_consumed.extend(&other.polys_consumed);
             res.bbox.merge_in_place(&other.bbox);
             // clear the path now that we comsumed it

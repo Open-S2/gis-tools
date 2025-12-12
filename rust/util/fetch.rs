@@ -1,6 +1,8 @@
-#[cfg(feature = "std")]
-use alloc::string::ToString;
-use alloc::{string::String, vec::Vec};
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
+use serde::Serialize;
 
 /// Net fetch error
 #[derive(Debug, Clone, PartialEq)]
@@ -13,24 +15,65 @@ pub enum NetError {
     Other(String),
 }
 
-/// `no_std` case fetch for raw data
-/// ex. `fetch_url("http://example.com/file.bin", &[("header", "value")])`
-#[cfg(not(any(target_arch = "wasm32", feature = "std")))]
-pub async fn fetch_url(_url: &str, _headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
-    unimplemented!("fetch_url")
+/// HTTP Method (Basic)
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub enum Method {
+    /// GET
+    #[default]
+    Get,
+    /// POST
+    Post,
+    /// PUT
+    Put,
+    /// DELETE
+    Delete,
+    /// HEAD
+    Head,
+    /// OPTIONS
+    Options,
+}
+#[cfg(any(feature = "std", target_arch = "wasm32", feature = "wasm"))]
+impl From<Method> for surf::http::Method {
+    fn from(m: Method) -> surf::http::Method {
+        match m {
+            Method::Get => surf::http::Method::Get,
+            Method::Post => surf::http::Method::Post,
+            Method::Put => surf::http::Method::Put,
+            Method::Delete => surf::http::Method::Delete,
+            Method::Head => surf::http::Method::Head,
+            Method::Options => surf::http::Method::Options,
+        }
+    }
 }
 
-/// STD fetch for raw data
-/// ex. `fetch_url("http://example.com/file.bin", &[("header", "value")])`
+/// STD fetch with arbitrary HTTP method and optional JSON body
+/// Example:
+/// ```ignore
+/// fetch_url("http://example.com/api", &[("header","value")], Some(Method::Post), Some(&my_struct)).await
+/// ```
 #[cfg(feature = "std")]
-pub async fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
+pub async fn fetch_url<T: Serialize>(
+    url: &str,
+    headers: &[(&str, &str)],
+    method: Option<Method>,
+    body: Option<&T>,
+) -> Result<Vec<u8>, NetError> {
+    let method = method.unwrap_or_default();
     let client = surf::client();
+    let url = url.parse::<surf::Url>().map_err(|e| NetError::Other(e.to_string()))?;
+    let mut req = surf::Request::new(method.into(), url);
 
-    let mut req = surf::get(url);
+    // Add headers
     for (k, v) in headers {
-        req = req.header(*k, *v);
+        req.set_header(*k, *v);
     }
-
+    // Add JSON body if provided
+    if let Some(b) = body {
+        let json_str = serde_json::to_string(b).map_err(|e| NetError::Other(e.to_string()))?;
+        req.set_body(surf::Body::from(json_str));
+        req.set_content_type("application/json".into());
+    }
+    // Send request
     let mut res = client.send(req).await.map_err(|e| NetError::Network(e.to_string()))?;
 
     if !res.status().is_success() {
@@ -41,14 +84,33 @@ pub async fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, N
 }
 
 /// WASM fetch for raw data
+/// WASM fetch with arbitrary HTTP method and optional JSON body
 #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
-pub async fn fetch_url(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, NetError> {
-    let mut req = surf::get(url);
+pub async fn fetch_url<T: Serialize>(
+    url: &str,
+    headers: &[(&str, &str)],
+    method: Option<Method>,
+    body: Option<&T>,
+) -> Result<Vec<u8>, NetError> {
+    let method = method.unwrap_or_default();
+    let client = surf::client();
+    let url = url.parse::<surf::Url>().map_err(|e| NetError::Other(e.to_string()))?;
+    let mut req = surf::Request::new(method.into(), url);
+
+    // Add headers
     for (k, v) in headers {
-        req = req.set_header(*k, *v);
+        req.set_header(*k, *v);
     }
 
-    let mut res = req.await.map_err(|e| NetError::Network(e.to_string()))?;
+    // Add JSON body if provided
+    if let Some(b) = body {
+        let json_str = serde_json::to_string(b).map_err(|e| NetError::Other(e.to_string()))?;
+        req.set_body(surf::Body::from(json_str));
+        req.set_content_type("application/json".into());
+    }
+
+    // Send request
+    let mut res = client.send(req).await.map_err(|e| NetError::Network(e.to_string()))?;
 
     if !res.status().is_success() {
         return Err(NetError::Http(res.status().into()));

@@ -41,7 +41,8 @@ const ROOT_SIZE: usize = METADATA_SIZE + ROOT_DIR_SIZE;
 ///
 /// ## Usage
 ///
-/// S2TilesReader utilizes any struc that implements the [`Reader`] trait.
+/// S2TilesReader utilizes any struct that implements the [`Reader`] trait.
+/// Options are [`crate::parsers::BufferReader`], [`crate::parsers::FileReader`], [`crate::parsers::MMapReader`], and [`crate::parsers::FetchReader`].
 ///
 /// The methods you have access to:
 /// - [`S2TilesReader::new`]: Create a new S2TilesReader
@@ -60,16 +61,20 @@ const ROOT_SIZE: usize = METADATA_SIZE + ROOT_DIR_SIZE;
 /// let file_reader = FileReader::new(path).unwrap();
 /// let mut reader = S2TilesReader::new(file_reader, None);
 ///
+/// smol::block_on(async {
+///
 /// // get the metadata
-/// let metadata = reader.get_metadata();
+/// let metadata = reader.get_metadata().await;
 ///
 /// // S2 specific functions
-/// assert!(reader.has_tile_s2(0.into(), 0, 0, 0));
-/// let tile = reader.get_tile_s2(0.into(), 0, 0, 0);
+/// assert!(reader.has_tile_s2(0.into(), 0, 0, 0).await);
+/// let tile = reader.get_tile_s2(0.into(), 0, 0, 0).await;
 ///
 /// // WM functions
-/// assert!(reader.has_tile_wm(0, 0, 0));
-/// let tile = reader.get_tile_wm(0, 0, 0);
+/// assert!(reader.has_tile_wm(0, 0, 0).await);
+/// let tile = reader.get_tile_wm(0, 0, 0).await;
+///
+/// });
 /// ```
 ///
 /// ## Links
@@ -108,11 +113,11 @@ impl<R: Reader> S2TilesReader<R> {
     ///
     /// ## Returns
     /// The metadata of the archive
-    pub fn get_metadata(&mut self) -> Metadata {
+    pub async fn get_metadata(&mut self) -> Metadata {
         if let Some(metadata) = &self.metadata {
             return metadata.clone();
         }
-        self.setup();
+        self.setup().await;
         self.metadata.clone().unwrap()
     }
 
@@ -125,9 +130,9 @@ impl<R: Reader> S2TilesReader<R> {
     ///
     /// ## Returns
     /// True if the tile exists in the archive
-    pub fn has_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> bool {
-        self.setup();
-        self.has_tile_s2(0.into(), zoom, x, y)
+    pub async fn has_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> bool {
+        self.setup().await;
+        self.has_tile_s2(0.into(), zoom, x, y).await
     }
 
     /// Check if an S2 tile exists in the archive
@@ -140,12 +145,12 @@ impl<R: Reader> S2TilesReader<R> {
     ///
     /// ## Returns
     /// True if the tile exists in the archive
-    pub fn has_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32) -> bool {
-        self.setup();
+    pub async fn has_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32) -> bool {
+        self.setup().await;
         // pull in the correct face's directory
         let dir = self.root_dir.get(&(face as u8)).cloned().unwrap();
         // now we walk to the next directory as necessary
-        let node = self.walk(dir, zoom, x, y); // [offset, length]
+        let node = self.walk(dir, zoom, x, y).await; // [offset, length]
         if let Some(node) = node {
             let Directory { offset, length } = node;
             offset != 0 && length != 0
@@ -164,9 +169,9 @@ impl<R: Reader> S2TilesReader<R> {
     /// ## Returns
     /// The bytes of the tile at the given (z, x, y) coordinates, or undefined if the tile
     /// does not exist in the archive.
-    pub fn get_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
-        self.setup();
-        self.get_tile_s2(0.into(), zoom, x, y)
+    pub async fn get_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
+        self.setup().await;
+        self.get_tile_s2(0.into(), zoom, x, y).await
     }
 
     /// Get the bytes of the tile at the given (face, zoom, x, y) coordinates
@@ -180,18 +185,18 @@ impl<R: Reader> S2TilesReader<R> {
     /// ## Returns
     /// The bytes of the tile at the given (face, zoom, x, y) coordinates, or undefined if
     /// the tile does not exist in the archive.
-    pub fn get_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
-        self.setup();
+    pub async fn get_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
+        self.setup().await;
 
         // pull in the correct face's directory
         let dir = self.root_dir.get(&(face as u8)).cloned().unwrap();
         // now we walk to the next directory as necessary
-        let node = self.walk(dir, zoom, x, y); // [offset, length]
+        let node = self.walk(dir, zoom, x, y).await; // [offset, length]
         if let Some(node) = node {
             let Directory { offset, length } = node;
 
             // we found the vector file, let's send the details off to the tile worker
-            let data = self.reader.slice(Some(offset), Some(offset + length as u64));
+            let data = self.get_range(offset, length as u64).await;
             Some(decompress_data(&data, self.compression).unwrap())
         } else {
             None
@@ -208,7 +213,7 @@ impl<R: Reader> S2TilesReader<R> {
     ///
     /// ## Returns
     /// The offset and length of the tile if it exists
-    fn walk(&mut self, mut dir: Buffer, zoom: u8, x: u32, y: u32) -> Option<Directory> {
+    async fn walk(&mut self, mut dir: Buffer, zoom: u8, x: u32, y: u32) -> Option<Directory> {
         let mut path = get_s2_tile_path(zoom, x, y);
         let mut offset = 0;
         let mut length = 0;
@@ -234,7 +239,7 @@ impl<R: Reader> S2TilesReader<R> {
                     return Some(Directory { offset, length });
                 }
                 // otherwise fetch the directory
-                let next_dir = self.get_dir(offset, length);
+                let next_dir = self.get_dir(offset, length).await;
                 dir = next_dir;
             }
         }
@@ -250,11 +255,11 @@ impl<R: Reader> S2TilesReader<R> {
     ///
     /// ## Returns
     /// The directory
-    fn get_dir(&mut self, offset: u64, length: u32) -> Buffer {
+    async fn get_dir(&mut self, offset: u64, length: u32) -> Buffer {
         if let Some(dir) = self.dir_cache.get(&offset) {
             dir.clone()
         } else {
-            let data = self.reader.slice(Some(offset), Some(offset + length as u64));
+            let data = self.get_range(offset, length as u64).await;
             let dir = Buffer::new(data);
             self.dir_cache.set(offset, dir.clone());
             dir
@@ -262,13 +267,13 @@ impl<R: Reader> S2TilesReader<R> {
     }
 
     /// Setup the reader
-    fn setup(&mut self) {
+    async fn setup(&mut self) {
         if self.is_setup {
             return;
         }
         self.is_setup = true;
         // fetch the metadata
-        let data = self.reader.slice(Some(0), Some(ROOT_SIZE as u64));
+        let data = self.get_range(0, ROOT_SIZE as u64).await;
         // prep a data view, store in header, build metadata
         let mut dv = Buffer::new(data.clone());
         if dv.get_u16_at(0) != 12883 {
@@ -292,6 +297,18 @@ impl<R: Reader> S2TilesReader<R> {
         for face in [0, 1, 2, 3, 4, 5] {
             let start = METADATA_SIZE + (face as usize) * DIR_SIZE;
             self.root_dir.insert(face, Buffer::new(data[start..(start + DIR_SIZE)].to_vec()));
+        }
+    }
+
+    /// Get a range of bytes given an offset and length
+    async fn get_range(&mut self, offset: u64, length: u64) -> Vec<u8> {
+        let len = self.reader.len();
+        if len != 0 {
+            // This is not a FetchReader
+            let end = u64::min(len, offset + length);
+            self.reader.slice(Some(offset), Some(end))
+        } else {
+            self.reader.get_slice(offset, Some(length)).await
         }
     }
 }

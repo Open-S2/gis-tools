@@ -13,6 +13,7 @@ const BIT_SHIFT: [u64; 10] = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63];
 /// The `Buffer` struct is used to read and write Buffer messages.
 ///
 /// ## Description
+///
 /// This works as a wrapper around a byte buffer. The idea is to have an opinionated reading/writing
 /// API for little-endian encodings for various signed and unsigned integer types. It also includes
 /// basic varint encoding and decoding.
@@ -451,6 +452,8 @@ impl Buffer {
 }
 
 /// A basic buffer reader for reading data from a buffer
+///
+/// Implements the [`Reader`] trait.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct BufferReader {
     /// The buffer

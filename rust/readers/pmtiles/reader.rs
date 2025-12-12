@@ -23,7 +23,8 @@ use s2json::Face;
 ///
 /// ## Usage
 ///
-/// PMTilesReader utilizes any struc that implements the [`Reader`] trait.
+/// PMTilesReader utilizes any struct that implements the [`Reader`] trait.
+/// Options are [`crate::parsers::BufferReader`], [`crate::parsers::FileReader`], [`crate::parsers::MMapReader`], and [`crate::parsers::FetchReader`].
 ///
 /// The methods you have access to:
 /// - [`PMTilesReader::new`]: Create a new PMTilesReader
@@ -43,17 +44,21 @@ use s2json::Face;
 /// let file_reader = FileReader::new(path).unwrap();
 /// let mut reader = PMTilesReader::new(file_reader, None);
 ///
+/// smol::block_on(async {
+///
 /// // pull out the header
-/// let header = reader.get_header();
+/// let header = reader.get_header().await;
 ///
 /// // get the metadata
 /// let metadata = reader.get_metadata();
 ///
 /// // S2 specific functions
-/// let tile = reader.get_tile_s2(0.into(), 0, 0, 0);
+/// let tile = reader.get_tile_s2(0.into(), 0, 0, 0).await;
 ///
 /// // WM functions
-/// let tile = reader.get_tile_wm(0, 0, 0).unwrap();
+/// let tile = reader.get_tile_wm(0, 0, 0).await.unwrap();
+///
+/// });
 /// ```
 ///
 /// ## Links
@@ -85,12 +90,12 @@ impl<R: Reader> PMTilesReader<R> {
     }
 
     /// fetch the s2 metadata as needed
-    pub fn get_header(&mut self) -> S2PMHeader {
+    pub async fn get_header(&mut self) -> S2PMHeader {
         if self.header.is_some() {
             return self.header.unwrap();
         }
 
-        let data = self.get_range(0, S2_PM_ROOT_SIZE as u64);
+        let data = self.get_range(0, S2_PM_ROOT_SIZE as u64).await;
         let header_data = data[0..S2_PM_HEADER_SIZE_BYTES].to_vec();
         // header
         let mut header = S2PMHeader::from_bytes(&mut header_data.into());
@@ -149,18 +154,24 @@ impl<R: Reader> PMTilesReader<R> {
     }
 
     /// get an S2 tile
-    pub fn get_tile_s2(&mut self, face: Face, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
-        self.get_tile(Some(face), zoom, x, y)
+    pub async fn get_tile_s2(&mut self, face: Face, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
+        self.get_tile(Some(face), zoom, x, y).await
     }
 
     /// get an WM tile
-    pub fn get_tile_wm(&mut self, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
-        self.get_tile(None, zoom, x, y)
+    pub async fn get_tile_wm(&mut self, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
+        self.get_tile(None, zoom, x, y).await
     }
 
     /// get a tile, wheather WM or S2
-    pub fn get_tile(&mut self, face: Option<Face>, zoom: u8, x: u64, y: u64) -> Option<Vec<u8>> {
-        let header = self.get_header();
+    pub async fn get_tile(
+        &mut self,
+        face: Option<Face>,
+        zoom: u8,
+        x: u64,
+        y: u64,
+    ) -> Option<Vec<u8>> {
+        let header = self.get_header().await;
         let tile_id = PMTilePos::new(zoom, x, y).to_id();
         // if zoom < header.min_zoom || zoom > header.max_zoom { return None; }
 
@@ -168,7 +179,7 @@ impl<R: Reader> PMTilesReader<R> {
         let mut d_l = header.root_directory_length;
 
         for _ in 0..4 {
-            let directory = self.get_directory(d_o, d_l, face);
+            let directory = self.get_directory(d_o, d_l, face).await;
             if directory.is_empty() {
                 return None;
             }
@@ -179,8 +190,9 @@ impl<R: Reader> PMTilesReader<R> {
                 }
                 Some(entry) => {
                     if entry.run_length > 0 {
-                        let entry_data =
-                            self.get_range(header.data_offset + entry.offset, entry.length as u64);
+                        let entry_data = self
+                            .get_range(header.data_offset + entry.offset, entry.length as u64)
+                            .await;
                         return Some(
                             decompress_data(&entry_data, header.internal_compression).unwrap(),
                         );
@@ -196,7 +208,7 @@ impl<R: Reader> PMTilesReader<R> {
     }
 
     /// Get a full directory
-    fn get_directory(&mut self, offset: u64, length: u64, face: Option<Face>) -> PMDirectory {
+    async fn get_directory(&mut self, offset: u64, length: u64, face: Option<Face>) -> PMDirectory {
         let dir = match face {
             None => &self.root_dir,
             Some(f) => self.root_dir_s2.get(f),
@@ -212,7 +224,7 @@ impl<R: Reader> PMTilesReader<R> {
             cache.clone()
         } else {
             // get from archive
-            let resp = self.get_range(offset, length);
+            let resp = self.get_range(offset, length).await;
             let data = decompress_data(&resp, internal_compression).unwrap();
             let mut buffer: Buffer = Buffer::new(data);
             let directory = PMDirectory::from_buffer(&mut buffer);
@@ -227,8 +239,14 @@ impl<R: Reader> PMTilesReader<R> {
     }
 
     /// Get a range of bytes given an offset and length
-    fn get_range(&mut self, offset: u64, length: u64) -> Vec<u8> {
-        let end = u64::min(self.reader.len(), offset + length);
-        self.reader.slice(Some(offset), Some(end))
+    async fn get_range(&mut self, offset: u64, length: u64) -> Vec<u8> {
+        let len = self.reader.len();
+        if len != 0 {
+            // This is not a FetchReader
+            let end = u64::min(len, offset + length);
+            self.reader.slice(Some(offset), Some(end))
+        } else {
+            self.reader.get_slice(offset, Some(length)).await
+        }
     }
 }

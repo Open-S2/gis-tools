@@ -44,7 +44,7 @@ pub struct PolyLabelCell {
 /// use s2json::VectorPoint;
 ///
 /// let data: Vec<Vec<Vec<VectorPoint<()>>>> = vec![vec![vec![]]];
-/// let emp = polylabels(&data, None);
+/// let emp: Vec<VectorPoint<PolyLabelMetadata>> = polylabels(&data, None);
 ///
 /// assert_eq!(emp, vec![VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.)))]);
 /// ```
@@ -59,7 +59,7 @@ pub struct PolyLabelCell {
 /// ## Returns
 /// The collection of label positions and the distances to the labels
 pub fn polylabels<P: GetXY, R: NewXYM<PolyLabelMetadata>>(
-    polygons: &Vec<Vec<Vec<P>>>,
+    polygons: &[Vec<Vec<P>>],
     precision: Option<f64>,
 ) -> Vec<R> {
     polygons.iter().map(|polygon| polylabel(polygon, precision)).collect()
@@ -77,7 +77,7 @@ pub fn polylabels<P: GetXY, R: NewXYM<PolyLabelMetadata>>(
 /// use s2json::VectorPoint;
 ///
 /// let data: Vec<Vec<VectorPoint<()>>> = vec![vec![]];
-/// let emp = polylabel(&data, None);
+/// let emp: VectorPoint<PolyLabelMetadata> = polylabel(&data, None);
 ///
 /// assert_eq!(emp, VectorPoint::new_xy(0., 0., Some(PolyLabelMetadata::new(0.))));
 /// ```

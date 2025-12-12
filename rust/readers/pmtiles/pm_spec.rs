@@ -176,7 +176,7 @@ impl PMDirectory {
             if v == 0 && i > 0 {
                 entries[i].offset = entries[i - 1].offset + entries[i - 1].length as u64;
             } else {
-                entries[i].offset = v - 1;
+                entries[i].offset = v.saturating_sub(1);
             }
         }
 

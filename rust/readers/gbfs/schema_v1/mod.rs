@@ -212,7 +212,7 @@ pub async fn build_gbfs_reader_v1(
             feed.url
         };
 
-        if let Ok(url_data) = fetch_url(&url, &[]).await {
+        if let Ok(url_data) = fetch_url::<()>(&url, &[], None, None).await {
             match feed.name {
                 GBFSV11FeedsName::FreeBikeStatus => {
                     reader.free_bike_status = Some(serde_json::from_slice(&url_data).unwrap());

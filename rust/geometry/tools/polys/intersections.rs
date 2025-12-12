@@ -87,7 +87,7 @@ pub type RingIntersectionLookup = BTreeMap<usize, BTreeMap<usize, Vec<RingInters
 /// ## Returns
 /// Found intersections
 pub fn polygons_intersections<P: GetXY + PartialEq>(
-    vector_polygons: &Vec<Vec<Vec<P>>>,
+    vector_polygons: &[Vec<Vec<P>>],
     include_self_intersections: bool,
 ) -> Vec<Intersection> {
     let mut res: Vec<Intersection> = vec![];
@@ -186,7 +186,7 @@ pub fn polygons_intersections_lookup<P: FullXY>(
         let potential_intersections = box_index.search(
             &seg1.bbox(),
             Some(|seg2: &Segment| {
-                segment_filter.as_ref().map(|f| f(&seg1, &seg2)).unwrap_or_else(|| {
+                segment_filter.as_ref().map(|f| f(&seg1, seg2)).unwrap_or_else(|| {
                     // if same id ignore
                     seg2.id != seg1.id &&
                     // only pass forward not backward
@@ -197,7 +197,7 @@ pub fn polygons_intersections_lookup<P: FullXY>(
             }),
         );
         for seg2 in potential_intersections {
-            let p_int = find_polygon_intersection::<P, P>(&vector_polygons, &seg1, &seg2);
+            let p_int = find_polygon_intersection::<P, P>(vector_polygons, &seg1, &seg2);
             // ignore points that interact tangentially or precisely at an existing edge or vertex.
             if let Some(int) = p_int {
                 let IntersectionOfSegmentsRobust { u, t, point, u_angle, t_angle, u_vec, t_vec } =
@@ -384,8 +384,8 @@ fn find_intersection_ref<P: GetXY + PartialEq, Q: NewXY + Clone>(
 ///
 /// ## Returns
 /// The cleaned up intersections
-fn clean_intersections(intersections: &mut Vec<RingIntersection>) -> Vec<RingIntersection> {
-    if intersections.len() == 0 {
+fn clean_intersections(intersections: &mut [RingIntersection]) -> Vec<RingIntersection> {
+    if intersections.is_empty() {
         return vec![];
     }
     intersections
@@ -435,7 +435,7 @@ fn clean_intersections(intersections: &mut Vec<RingIntersection>) -> Vec<RingInt
 ///
 /// ## Parameters
 /// - `intersections`: the collection of intersections
-fn update_intersection_points(intersections: &mut Vec<RingIntersection>) {
+fn update_intersection_points(intersections: &mut [RingIntersection]) {
     let mut starts = vec![];
     let mut ends = vec![];
     for i in 1..intersections.len() {

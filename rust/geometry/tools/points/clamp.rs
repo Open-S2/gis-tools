@@ -22,7 +22,7 @@ pub fn clamp_wgs84_point<P: GetXY + SetXY>(point: &mut P) {
     let x = point.x();
     let y = point.y();
     // Don't touch the point if it's already in bounds
-    if x < -180. || x >= 180. {
+    if !(-180. ..180.).contains(&x) {
         point.set_x(((((x + 180.) % 360.) + 360.) % 360.) - 180.);
     }
     point.set_y(y.clamp(-90., 90.));

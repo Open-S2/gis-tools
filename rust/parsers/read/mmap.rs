@@ -12,6 +12,8 @@ use std::{
 };
 
 /// A file reader for reading data from a file
+///
+/// Implements the [`Reader`] trait.
 #[derive(Debug)]
 pub struct MMapReader {
     path: PathBuf,

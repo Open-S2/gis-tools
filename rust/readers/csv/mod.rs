@@ -63,6 +63,9 @@ impl CSVParser {
 ///
 /// ## Usage
 ///
+/// CSV Reader utilizes any struct that implements the [`Reader`] trait.
+/// Options are [`crate::parsers::BufferReader`], [`crate::parsers::FileReader`], and [`crate::parsers::MMapReader`].
+///
 /// ### File Reader
 /// ```rust
 /// use gistools::{

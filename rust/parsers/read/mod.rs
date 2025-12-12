@@ -1,5 +1,8 @@
 /// Buffer Reader for reading data from a buffer
 mod buffer;
+/// Fetch Reader
+#[cfg(any(feature = "std", target_arch = "wasm32", feature = "wasm"))]
+mod fetch;
 /// File Reader for reading data from a file
 #[cfg(feature = "std")]
 mod file;
@@ -9,6 +12,8 @@ mod mmap;
 
 use alloc::{string::String, vec::Vec};
 pub use buffer::*;
+#[cfg(any(feature = "std", target_arch = "wasm32", feature = "wasm"))]
+pub use fetch::*;
 #[cfg(feature = "std")]
 pub use file::*;
 #[cfg(feature = "std")]
@@ -105,6 +110,14 @@ pub trait Reader: Clone {
     fn seek_slice(&self, size: usize) -> Vec<u8>;
     /// Parse a string from the reader
     fn parse_string(&self, byte_offset: Option<u64>, byte_length: Option<u64>) -> String;
+    /// Fetch based mechanic. Defaults to slice mechanic
+    fn get_slice<'a>(
+        &'a self,
+        byte_offset: u64,
+        byte_length: Option<u64>,
+    ) -> impl Future<Output = Vec<u8>> + 'a {
+        async move { self.slice(Some(byte_offset), byte_length.map(|l| l + byte_offset)) }
+    }
 }
 
 /// A feature reader that all readers should implement

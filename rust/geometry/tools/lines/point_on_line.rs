@@ -38,5 +38,5 @@ pub fn point_on_line<P: GetXY, Q: GetXY>(line: &[P], point: &Q, eps: Option<f64>
         i += 1;
     }
 
-    return false;
+    false
 }

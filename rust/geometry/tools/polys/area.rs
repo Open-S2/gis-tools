@@ -60,7 +60,17 @@ impl<P: GetXY> Area for &Vec<P> {
         ring_area(self, radius.unwrap_or(EARTH_RADIUS))
     }
 }
+impl<P: GetXY> Area for &mut Vec<P> {
+    fn area(&self, radius: Option<f64>) -> f64 {
+        ring_area(self, radius.unwrap_or(EARTH_RADIUS))
+    }
+}
 impl<P: GetXY> Area for &[P] {
+    fn area(&self, radius: Option<f64>) -> f64 {
+        ring_area(self, radius.unwrap_or(EARTH_RADIUS))
+    }
+}
+impl<P: GetXY> Area for &mut [P] {
     fn area(&self, radius: Option<f64>) -> f64 {
         ring_area(self, radius.unwrap_or(EARTH_RADIUS))
     }

@@ -18,12 +18,11 @@ use s2json::{BBox, FullXY};
 ///
 /// ## Returns
 /// The dekinked polygons
-pub fn dekink_polygons<P: FullXY>(polygons: &Vec<Vec<Vec<P>>>) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
-    polygons.into_iter().filter_map(|p| dekink_polygon(p)).fold(
-        Some((vec![], BBox::default())),
-        |acc, mut p| {
-            let (mut res, mut bbox) = acc.unwrap();
-            res.extend(p.0.drain(..));
+pub fn dekink_polygons<P: FullXY>(polygons: &[Vec<Vec<P>>]) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
+    polygons.iter().filter_map(|p| dekink_polygon(p)).try_fold(
+        (vec![], BBox::default()),
+        |(mut res, mut bbox), mut p| {
+            res.append(&mut p.0);
             bbox.merge_in_place(&p.1);
             Some((res, bbox))
         },
@@ -37,9 +36,9 @@ pub fn dekink_polygons<P: FullXY>(polygons: &Vec<Vec<Vec<P>>>) -> Option<(Vec<Ve
 ///
 /// ## Returns
 /// The dekinked polygon
-pub fn dekink_polygon<P: FullXY>(polygon: &Vec<Vec<P>>) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
+pub fn dekink_polygon<P: FullXY>(polygon: &[Vec<P>]) -> Option<(Vec<Vec<Vec<P>>>, BBox)> {
     // not enough data, just clone
-    if polygon.len() == 0 {
+    if polygon.is_empty() {
         return None;
     }
     let vector_polygons = vec![polygon.to_vec()];
@@ -77,11 +76,7 @@ pub fn dekink_polygon<P: FullXY>(polygon: &Vec<Vec<P>>) -> Option<(Vec<Vec<Vec<P
         acc.merge_in_place(&b);
         acc
     });
-    if coordinates.len() == 0 {
-        return None;
-    } else {
-        return Some((coordinates, bbox));
-    }
+    if coordinates.is_empty() { None } else { Some((coordinates, bbox)) }
 }
 
 /// Simplified ring with guide of how it was rebuild
@@ -146,7 +141,7 @@ fn build_paths_from_chunks<P: FullXY>(
                 break;
             }
             curr_chunk.borrow_mut().visted = true;
-            linestring.extend(curr_chunk.borrow_mut().mid.drain(..));
+            linestring.append(&mut curr_chunk.borrow_mut().mid);
             bbox.merge_in_place(&curr_chunk.borrow().bbox);
             if curr_chunk.borrow().next.is_none() {
                 break;
@@ -184,8 +179,8 @@ fn build_paths_from_chunks<P: FullXY>(
 /// ## Parameters
 /// - `paths`: the collection of paths to store the results in
 /// - `ring_set`: the current set of rings re-built from a polygon
-fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut Vec<Ring<P>>) {
-    if ring_set.len() == 0 {
+fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut [Ring<P>]) {
+    if ring_set.is_empty() {
         return;
     }
     // sort by bbox area desc and prep real outers store
@@ -199,7 +194,7 @@ fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut 
             ring_set.iter_mut().filter(|r| !r.is_hole && r.is_ccw).collect();
         // store all true outers. We know the first outer is the largest original outer ring.
         // The future outers are holes either kink inside or outside the original. Only store kinks that are outside the original
-        if outers.len() > 0 {
+        if !outers.is_empty() {
             let first = outers.remove(0);
             // store the first one without the ring we still need it for now
             actual_outers.push(PolyPath::new_ref(vec![], BTreeSet::new(), true, Some(first.bbox)));
@@ -257,7 +252,7 @@ fn ring_set_to_paths<P: FullXY>(paths: &mut Vec<PolyPathRef<P>>, ring_set: &mut 
     {
         let holes: Vec<&mut Ring<P>> =
             ring_set.iter_mut().filter(|r| r.is_hole && !r.is_ccw).collect();
-        if actual_outers.len() != 0 {
+        if !actual_outers.is_empty() {
             for Ring { linestring, bbox, .. } in holes {
                 if actual_outers.len() == 1 {
                     actual_outers[0].borrow_mut().holes.push(take(linestring));

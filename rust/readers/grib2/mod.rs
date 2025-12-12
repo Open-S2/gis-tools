@@ -322,7 +322,10 @@ async fn link_to_chunks(link: String, idxs: &[Grib2SectionLocations]) -> Vec<Buf
     let mut readers: Vec<BufferReader> = vec![];
     for Grib2SectionLocations { start, end, .. } in idxs {
         let end = end.map_or(String::new(), |e| e.to_string());
-        let chunk = fetch_url(&link, &[("Range", &format!("bytes={start}-{end}"))]).await.unwrap();
+        let chunk =
+            fetch_url::<()>(&link, &[("Range", &format!("bytes={start}-{end}"))], None, None)
+                .await
+                .unwrap();
         readers.push(BufferReader::new(chunk));
     }
 
@@ -384,7 +387,7 @@ pub async fn parsed_idx_from_url(
     filters: Vec<String>,
     offset_position: Option<usize>,
 ) -> Vec<Grib2SectionLocations> {
-    let data = fetch_url(&url, &[]).await.unwrap();
+    let data = fetch_url::<()>(&url, &[], None, None).await.unwrap();
     parse_idx(String::from_utf8_lossy(&data).into(), filters, offset_position)
 }
 

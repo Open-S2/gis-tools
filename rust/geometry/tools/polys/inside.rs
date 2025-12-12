@@ -423,5 +423,5 @@ pub fn polyline_in_polyline<P: GetXY>(hole: &[P], outer: &[P]) -> bool {
         }
     }
     // If we make it means all points of the hole were on the boundary therefore its inside the outer
-    return true;
+    true
 }
