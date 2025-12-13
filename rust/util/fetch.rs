@@ -85,7 +85,7 @@ pub async fn fetch_url<T: Serialize>(
 
 /// WASM fetch for raw data
 /// WASM fetch with arbitrary HTTP method and optional JSON body
-#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+#[cfg(any(target_arch = "wasm32", feature = "wasm"))]
 pub async fn fetch_url<T: Serialize>(
     url: &str,
     headers: &[(&str, &str)],

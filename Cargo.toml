@@ -1,6 +1,6 @@
 [package]
 name = "gis-tools"
-version = "1.6.0"
+version = "1.6.1"
 rust-version = "1.91.0"
 edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
@@ -42,7 +42,7 @@ path = "rust/main.rs"
 earclip = "1.7"
 open-vector-tile = "1.9"
 pbf = "1.22"
-s2json = "1.45"
+s2json = "1.46"
 s2-tilejson = "1.10"
 # External shared dependencies
 libm = "0.2"
