@@ -89,7 +89,7 @@ export class Vector<V extends VectorKey> implements VectorStore<V> {
 
   /**
    * iterate through the values
-   * @yields an iterator
+   * @yields {V} - the values iterator
    */
   async *values(): AsyncGenerator<V> {
     for (const value of this.#store) yield value;

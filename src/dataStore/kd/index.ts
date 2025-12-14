@@ -62,7 +62,7 @@ export class KDSpatialIndex<T extends Properties = Properties> implements KDStor
 
   /**
    * iterate through the values
-   * @yields an iterator
+   * @yields {VectorPoint<T>}
    */
   *values(): Generator<VectorPoint<T>> {
     for (const value of this.#store) yield value;

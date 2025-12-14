@@ -40,8 +40,9 @@ const ROOT_SIZE = METADATA_SIZE + ROOT_DIR_SIZE;
  * ```ts
  * import { S2TilesReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
- * // or use the MMapReader if using Bun:
+ * // or use the MMapReader if using Bun / FetchReader for web:
  * // import { MMapReader } from 'gis-tools-ts/mmap';
+ * // import { FetchReader } from 'gis-tools-ts';
  *
  * const reader = new S2TilesReader(new FileReader('./data.s2tiles'));
  *

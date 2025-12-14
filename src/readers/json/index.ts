@@ -39,8 +39,7 @@ export class BufferJSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   data: JSONCollection<M, D, P>;
 
   /** @param data - the JSON data to parase */
@@ -104,8 +103,7 @@ export class NewLineDelimitedJSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   reader: Reader;
   /**
    * @param input - the input to parse from
@@ -181,10 +179,10 @@ export class NewLineDelimitedJSONReader<
  * - https://github.com/geojson/geojson-text-sequences?tab=readme-ov-file
  */
 export class SequenceJSONReader<
-    M = Record<string, unknown>,
-    D extends MValue = MValue,
-    P extends Properties = Properties,
-  >
+  M = Record<string, unknown>,
+  D extends MValue = MValue,
+  P extends Properties = Properties,
+>
   extends NewLineDelimitedJSONReader<M, D, P>
   implements FeatureIterator<M, D, P>
 {
@@ -223,8 +221,7 @@ export class JSONReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   reader: Reader;
   #chunkSize = 65_536;
   #buffer: Uint8Array = new Uint8Array();

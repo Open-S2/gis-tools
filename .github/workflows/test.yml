@@ -20,7 +20,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: v1.1.45
+          bun-version: latest # v1.1.45
 
       - name: Install dependencies
         run: bun install

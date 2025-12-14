@@ -780,9 +780,8 @@ test('LASReader - utm16', async () => {
     },
     '34736': {
       data: new DataView(
-        new Uint8Array([
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ]).buffer,
+        new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+          .buffer,
       ),
       description: 'GeoTiff GeoDoubleParamsTag',
       recordID: 34736,

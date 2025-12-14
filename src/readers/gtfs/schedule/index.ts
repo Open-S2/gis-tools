@@ -92,6 +92,28 @@ export interface GTFSLocationsProperties extends Properties {
   stop_desc: string;
 }
 
+/** A Shape Feature */
+export type GTFSShapeFeature = VectorFeature<
+  Record<string, unknown>,
+  MValue,
+  GTFSShapeProperties,
+  VectorLineStringGeometry
+>;
+/** A Poly Feature */
+export type GTFSPolyFeature = VectorFeature<
+  Record<string, unknown>,
+  MValue,
+  GTFSLocationsProperties,
+  VectorMultiPolygonGeometry | VectorPolygonGeometry
+>;
+/** A Stop Feature */
+export type GTFSStopFeature =
+  | VectorFeature<Record<string, unknown>, MValue, GTFSStopProperties, VectorPointGeometry>
+  | VectorFeature<undefined, MValue, GTFSStopProperties, VectorPointGeometry>;
+
+/** A GTFS Feature */
+export type GTFSFeature = GTFSShapeFeature | GTFSPolyFeature | GTFSStopFeature;
+
 /**
  * # GTFS Schedule Reader
  *
@@ -208,26 +230,11 @@ export class GTFSScheduleReader implements FeatureIterator {
    * TODO: Add proeprties from other files like "color"
    * TODO: All features should be parsed as VectorGeometry
    * Yields all of the shapes
-   * @yields an iterator that contains shapes, stops, location data, and routes
+   * @yields {GTFSFeature} - an iterator that contains shapes, stops, location data, and routes
    */
-  async *[Symbol.asyncIterator](): AsyncGenerator<
-    | VectorFeature<Record<string, unknown>, MValue, GTFSShapeProperties, VectorLineStringGeometry>
-    | VectorFeature<
-        Record<string, unknown>,
-        MValue,
-        GTFSLocationsProperties,
-        VectorMultiPolygonGeometry | VectorPolygonGeometry
-      >
-    | VectorFeature<undefined, MValue, GTFSStopProperties, VectorPointGeometry>
-  > {
+  async *[Symbol.asyncIterator](): AsyncGenerator<GTFSFeature> {
     if (this.geojson !== undefined) {
-      for await (const feature of this.geojson)
-        yield feature as VectorFeature<
-          Record<string, unknown>,
-          MValue,
-          GTFSLocationsProperties,
-          VectorMultiPolygonGeometry | VectorPolygonGeometry
-        >;
+      for await (const feature of this.geojson) yield feature as GTFSPolyFeature;
     }
     if (this.shapes !== undefined) {
       for (const shape of Object.values(this.shapes)) yield shape;
@@ -236,12 +243,7 @@ export class GTFSScheduleReader implements FeatureIterator {
       for (const stop of Object.values(this.stops)) {
         const { lon, lat } = stop;
         if (lon !== undefined && lat !== undefined) {
-          const stopFeature: VectorFeature<
-            undefined,
-            MValue,
-            GTFSStopProperties,
-            VectorPointGeometry
-          > = {
+          const stopFeature: GTFSStopFeature = {
             type: 'VectorFeature',
             properties: stop.properties(),
             geometry: { type: 'Point', is3D: false, coordinates: { x: lon, y: lat } },

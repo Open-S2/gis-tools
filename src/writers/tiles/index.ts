@@ -113,7 +113,7 @@ export interface FeatureIterateResult {
  * @param sources - the vector/raster sources. Either:
  * - the vector sources that the tile is built from and how the layers are to be stored.
  * - the raster sources that will be conjoined into a single rgba pixel index for tile extraction
- * @yields - a features
+ * @yields {FeatureIterateResult} - a features
  */
 async function* getFeature(
   sources: (Record<string, FeatureIterator> | undefined)[],

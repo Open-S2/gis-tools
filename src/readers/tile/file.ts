@@ -61,9 +61,9 @@ import type { Metadata, Metadatas } from 's2-tilejson';
  * - https://cesium.com/blog/2015/04/07/quadtree-cheatseet/
  */
 export class RasterTilesFileReader<
-    T extends MValue = RGBA | ElevationPoint,
-    P extends Properties = T,
-  >
+  T extends MValue = RGBA | ElevationPoint,
+  P extends Properties = T,
+>
   implements
     FeatureIterator<S2TileMetadata | TileMetadata, T, P>,
     TileReader<S2TileMetadata | TileMetadata, T, P>

@@ -30,8 +30,9 @@ export interface S2PMTilesTileEntry {
  * ```ts
  * import { S2PMTilesReader } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';
- * // or use the MMapReader if using Bun:
+ * // or use the MMapReader if using Bun / FetchReader for web:
  * // import { MMapReader } from 'gis-tools-ts/mmap';
+ * // import { FetchReader } from 'gis-tools-ts';
  *
  * const reader = new S2PMTilesReader(new FileReader('./data.pmtiles'));
  *

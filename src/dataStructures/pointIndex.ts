@@ -168,7 +168,7 @@ export class PointIndex<M extends MValue = Properties | RGBA> {
 
   /**
    * iterate through the points
-   * @yields a PointShape<T>
+   * @yields {PointShape<M>} - a PointShape<T>
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<PointShape<M>> {
     await this.sort();

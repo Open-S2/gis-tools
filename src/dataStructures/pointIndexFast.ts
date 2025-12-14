@@ -141,7 +141,7 @@ export class PointIndexFast<M extends MValue = Properties | RGBA> {
 
   /**
    * iterate through the points
-   * @yields a PointShapeFast<T>
+   * @yields {VectorPoint<M>} - a PointShapeFast<T>
    */
   *[Symbol.iterator](): Generator<VectorPoint<M>> {
     this.sort();

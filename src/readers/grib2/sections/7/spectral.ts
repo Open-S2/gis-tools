@@ -161,7 +161,8 @@ function gbits(reader: Reader, iskip: number, nbits: number, nskip: number, n: n
 
 /**
  * Read a list of real values in 32-bit IEEE floating point format.
- * @author Stephen Gilbert @date 2002-10-25
+ * @author Stephen Gilbert
+ * \@date 2002-10-25
  * @param rieee - g2int array of floating point values in 32-bit IEEE
  * format.
  * @param num Number of floating point values to convert.

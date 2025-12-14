@@ -192,7 +192,7 @@ export class S2MMapStore<V = Properties | Value | VectorKey> {
   /**
    * Iterates over all values in the store
    * @param bigint - set to true if the value is a bigint stored in the index
-   * @yields an iterator
+   * @yields {MMapEntry<V>}
    */
   async *entries(bigint = false): AsyncIterableIterator<MMapEntry<V>> {
     await this.#switchToReadState();

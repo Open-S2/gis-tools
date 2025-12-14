@@ -123,7 +123,7 @@ export default class TileWorker {
 
   /**
    * Iterate through the stores and build tiles, compressing as we go if required
-   * @yields - a built tile
+   * @yields  {BuiltTile} - a built tile
    */
   async *buildTiles(): AsyncGenerator<BuiltTile> {
     const { format, layerGuides, projection, encoding } = this;

@@ -66,9 +66,9 @@ export interface ZipItem {
 }
 
 /**
- * Iterate over the items in a zip file
+ * Iterate over the items in a zip file. See {@link ZipItem}.
  * @param raw - the raw data to read
- * @yields - {@link ZipItem}
+ * @yields {ZipItem}
  */
 export function* iterZipFolder(raw: Uint8Array): Generator<ZipItem, void, void> {
   const d = new TextDecoder();
@@ -170,7 +170,7 @@ function findEndCentralDirectory(raw: Uint8Array): number {
 
 /**
  * @param code - error code
- * @throws - an error
+ * @throws {Error}
  */
 function throwCode(code: number): never {
   throw new Error(`Error code: ${code}`);

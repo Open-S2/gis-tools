@@ -79,8 +79,7 @@ export class ShapeFileReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   reader: Reader;
   #header!: SHPHeader;
   rows: number[] = [];

@@ -81,7 +81,7 @@ export class FileMultiMap<V = Properties | Value> implements MultiMapStore<V> {
 
   /**
    * iterate through the values
-   * @yields - The values in the store
+   * @yields {MMEntry<V>} - the values iterator
    */
   async *entries(): AsyncGenerator<MMEntry<V>> {
     let entries: FileEntry<V>[] = [];

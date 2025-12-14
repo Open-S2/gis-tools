@@ -279,9 +279,10 @@ export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
 /**
  * Raster Tile Reader
  */
-export class RasterTileReader<T extends MValue = RGBA | ElevationPoint, P extends Properties = T>
-  implements FeatureIterator<TileMetadata, T, P>
-{
+export class RasterTileReader<
+  T extends MValue = RGBA | ElevationPoint,
+  P extends Properties = T,
+> implements FeatureIterator<TileMetadata, T, P> {
   /**
    * @param zoom - the zoom level of the tile
    * @param x - the x coordinate of the tile
@@ -349,9 +350,10 @@ export class RasterTileReader<T extends MValue = RGBA | ElevationPoint, P extend
 /**
  * S2 Raster Tile Reader
  */
-export class RasterS2TileReader<T extends MValue = RGBA | ElevationPoint, P extends Properties = T>
-  implements FeatureIterator<S2TileMetadata, T, P>
-{
+export class RasterS2TileReader<
+  T extends MValue = RGBA | ElevationPoint,
+  P extends Properties = T,
+> implements FeatureIterator<S2TileMetadata, T, P> {
   /**
    * @param face - the Open S2 projection face
    * @param zoom - the zoom level of the tile

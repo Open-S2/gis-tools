@@ -131,8 +131,7 @@ export class NetCDFReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   private reader: Reader;
   readonly recordDimension: CDFRecordDimension = { size: 0 };
   /** List of dimensions */

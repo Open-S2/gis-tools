@@ -128,7 +128,7 @@ export function jpeg2000Unpacking(
       // indicate which data values are present, 1 bit meaning is present, 0 bit meaning is missing, -1 meaning undefined.
       // [Read more](https://confluence.ecmwf.int/display/UDOC/What+is+the+GRIB+bitmap+-+ecCodes+GRIB+FAQ)
       const byte = bitMapData[Math.floor(i / 8)];
-      if ((byte & (1 << i % 8)) !== 0) {
+      if ((byte & (1 << (i % 8))) !== 0) {
         result.push((referenceValue + jpx.tiles[0].items[i] * EE) / DD);
       } else {
         result.push(Number.NEGATIVE_INFINITY);

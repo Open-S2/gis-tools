@@ -44,8 +44,7 @@ export class WKTGeometryReader<
   M = Record<string, unknown>,
   D extends MValue = MValue,
   P extends Properties = Properties,
-> implements FeatureIterator<M, D, P>
-{
+> implements FeatureIterator<M, D, P> {
   data: VectorFeature<M, D, P>[] = [];
 
   /** @param data - the WKT geometry string to parase */

@@ -75,9 +75,11 @@ export type GBFSFeaturesV1 = GBFSStationPointFeatureV1;
 export type GBFSFeaturePropertiesV1 = GBFSStationV1FeaturesV1Properties;
 
 /** GBFS Version 1 Reader */
-export class GBFSReaderV1
-  implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV1>
-{
+export class GBFSReaderV1 implements FeatureIterator<
+  undefined,
+  Properties,
+  GBFSFeaturePropertiesV1
+> {
   version = 1;
   freeBikeStatus?: GBFSFreeBikeStatusV1;
   gbfs: GBFSV1;
@@ -111,7 +113,7 @@ export class GBFSReaderV1
 
   /**
    * Yields all of the shapes
-   * @yields an iterator that contains shapes, stops, location data, and routes
+   * @yields {GBFSFeaturesV1} - an iterator that contains shapes, stops, location data, and routes
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<GBFSFeaturesV1> {
     const { stationInformation } = this;

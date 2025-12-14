@@ -149,9 +149,11 @@ export type GPXVectorFeatures =
  * ## Links
  * https://www.topografix.com/gpx.asp
  */
-export class GPXReader
-  implements FeatureIterator<GPXMetadata, GPXWaypointProperties, GPXProperties>
-{
+export class GPXReader implements FeatureIterator<
+  GPXMetadata,
+  GPXWaypointProperties,
+  GPXProperties
+> {
   metadata: GPXMetadata;
   wpt?: GPXWaypoint[];
   rte?: GPXRoute[];

@@ -104,7 +104,7 @@ export class MultiMap<V = Properties | Value> implements MultiMapStore<V> {
 
   /**
    * iterate through the values
-   * @yields - The values in the store
+   * @yields {V} - the values iterator
    */
   async *entries(): AsyncGenerator<MMEntry<V>> {
     const entries = Array.from(this.#store.entries()).map(([id, value]) => [id, value]) as [

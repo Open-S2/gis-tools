@@ -179,7 +179,7 @@ export class S2FileStore<V = Properties | Value | VectorKey> {
   /**
    * Iterates over all values in the store
    * @param bigint - set to true if the value is a bigint stored in the index
-   * @yields an iterator
+   * @yields {FileEntry<V>}
    */
   async *entries(bigint = false): AsyncIterableIterator<FileEntry<V>> {
     await this.#switchToReadState();

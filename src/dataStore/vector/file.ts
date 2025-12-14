@@ -78,7 +78,7 @@ export class FileVector<V extends VectorKey> implements VectorStore<V> {
 
   /**
    * iterate through the values
-   * @yields an iterator
+   * @yields {V} - the values iterator
    */
   async *values(): AsyncGenerator<V> {
     for await (const { value } of this.#store.entries()) yield value as V;

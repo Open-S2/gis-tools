@@ -157,7 +157,7 @@ export class KDMMapSpatialIndex<T extends Properties = Properties> implements KD
   /**
    * Iterates over all values in the store
    * @param bigint - set to true if the value is a bigint stored in the index
-   * @yields an iterator
+   * @yields {VectorPoint<T>} as an iterator
    */
   *values(bigint = false): Generator<VectorPoint<T>> {
     this.#setupMMap();

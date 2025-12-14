@@ -122,9 +122,11 @@ export type GBFSFeaturePropertiesV2 =
 /**
  * GBFS Version 1 Reader
  */
-export class GBFSReaderV2
-  implements FeatureIterator<undefined, Properties, GBFSFeaturePropertiesV2>
-{
+export class GBFSReaderV2 implements FeatureIterator<
+  undefined,
+  Properties,
+  GBFSFeaturePropertiesV2
+> {
   version = 2;
   freeBikeStatus?: GBFSFreeBikeStatusV2;
   gbfs: GBFSV2;
@@ -162,7 +164,7 @@ export class GBFSReaderV2
 
   /**
    * Yields all of the shapes
-   * @yields an iterator that contains shapes, stops, location data, and routes
+   * @yields {GBFSFeaturesV2} - an iterator that contains shapes, stops, location data, and routes
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<GBFSFeaturesV2> {
     const { geofencingZones, stationInformation } = this;

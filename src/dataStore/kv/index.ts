@@ -82,7 +82,7 @@ export class KV<V = Properties | Value> implements KVStore<V> {
 
   /**
    * iterate through the values
-   * @yields an iterator
+   * @yields {V} - the values iterator
    */
   async *values(): AsyncGenerator<V> {
     for await (const [, value] of this.#store.entries()) yield value;
