@@ -2,7 +2,7 @@ import { RasterTilesFileReader } from '../../src/file';
 import { PointGrid, idFromFace } from '../../src';
 import { expect, test } from 'bun:test';
 
-// import sharp from 'sharp';
+import sharp from 'sharp';
 
 import type { RGBA } from '../../src';
 
@@ -35,18 +35,22 @@ testFunc(
     if (tile0 === undefined) throw new Error('Tile is undefined');
     const data = tile0.data as RGBA[];
     const image = data.flatMap(({ r, g, b, a }) => [r, g, b, a]);
-    expect(new Uint8ClampedArray(image)).toMatchSnapshot(
-      `${__dirname}/fixtures/wm/wmTileFromWM.png`,
-    );
-    // await sharp(new Uint8ClampedArray(image), {
-    //   raw: {
-    //     width: 512,
-    //     height: 512,
-    //     channels: 4,
-    //   },
-    // })
-    //   .png()
+    // expect(new Uint8ClampedArray(image)).toMatchSnapshot(
+    //   `${__dirname}/fixtures/wm/wmTileFromWM.png`,
+    // );
+    const image_png = await sharp(new Uint8ClampedArray(image), {
+      raw: {
+        width: 512,
+        height: 512,
+        channels: 4,
+      },
+    })
+      .png()
+      .toBuffer();
     //   .toFile(`${__dirname}/fixtures/wm/wmTileFromWM.png`);
+
+    const cmp = await sharp(`${__dirname}/fixtures/wm/wmTileFromWM.png`).toBuffer();
+    for (let i = 0; i < cmp.length; i++) expect(cmp[i]).toBeCloseTo(image_png[i]);
   },
   40_000,
 );
