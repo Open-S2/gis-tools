@@ -8,8 +8,9 @@ use alloc::{collections::BTreeMap, string::String};
 use core::cell::RefCell;
 use libm::{floor, log2};
 use s2json::{
-    Face, GetXY, JSONCollection, MValue, Projection, VectorFeature, VectorFeatureType,
-    VectorGeometry, VectorGeometryType, VectorPoint, VectorPointGeometry,
+    Face, GetXY, JSONCollection, MValue, PrimitiveValue, Projection, Properties, ValueType,
+    VectorFeature, VectorFeatureType, VectorGeometry, VectorGeometryType, VectorPoint,
+    VectorPointGeometry,
 };
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
@@ -47,10 +48,26 @@ impl<M: Clone + Default> Cluster<M> {
 }
 
 /// Used for storing features.
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, MValue)]
 pub struct ClusterData {
     /// The number of points that were added into the cluster
     pub count: usize,
+}
+
+/// Trait for creating a new cluster struct
+pub trait NewCluster: Clone + Default {
+    /// Create the struct adding the count
+    fn new_count(count: usize) -> Self;
+}
+impl NewCluster for ClusterData {
+    fn new_count(count: usize) -> Self {
+        ClusterData { count }
+    }
+}
+impl NewCluster for MValue {
+    fn new_count(count: usize) -> Self {
+        MValue::from([("count".into(), ValueType::Primitive(PrimitiveValue::U64(count as u64)))])
+    }
 }
 
 /// Compare two data items, return true to merge data
@@ -68,7 +85,7 @@ pub type LocalClusterStore<M = MValue> = PointCluster<M, Vector<S2CellId, Cluste
 /// A cluster store to index points at each zoom level
 #[derive(Debug)]
 pub struct PointCluster<
-    M: Clone + Default + Serialize + DeserializeOwned,
+    M: Clone + Default + Serialize + DeserializeOwned = Properties,
     S: VectorStore<S2CellId, ClusterPoint<M>> = Vector<S2CellId, ClusterPoint<M>>,
 > {
     projection: Projection,
@@ -253,8 +270,8 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
     }
 
     /// Given a tile ID, return the vector tile of all the clustered points
-    pub fn get_tile(&mut self, id: S2CellId) -> Tile<(), M, ClusterData> {
-        let mut tile: Tile<(), M, ClusterData> = Tile::new(id);
+    pub fn get_tile<C: NewCluster>(&mut self, id: S2CellId) -> Tile<(), M, C> {
+        let mut tile: Tile<(), M, C> = Tile::new(id);
         let zoom = id.level();
         if zoom < self.minzoom {
             return tile;
@@ -279,7 +296,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
                             x: s,
                             y: t,
                             z: None,
-                            m: Some(ClusterData { count: cluster.count }),
+                            m: Some(C::new_count(cluster.count)),
                             t: None,
                         },
                         None,
