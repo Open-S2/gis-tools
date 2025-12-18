@@ -398,7 +398,7 @@ fn _clip_line<M: Clone + Default>(
     }
 
     // add the last point if inside the clip
-    let last_point = geom[last].clone();
+    let last_point = &geom[last];
     let a = if axis == Axis::X { last_point.x } else { last_point.y };
     if a >= k1 && a <= k2 {
         slice.push(last_point.clone());
