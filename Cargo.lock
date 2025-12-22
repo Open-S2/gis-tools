@@ -263,7 +263,7 @@ version = "1.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c2886ab563af5038f79ec016dd7b87947ed138b794e8dd64992962c9cca0411"
 dependencies = [
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "futures-io",
 ]
 
@@ -287,7 +287,7 @@ version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8034a681df4aed8b8edbd7fbe472401ecf009251c8b40556b304567052e294c5"
 dependencies = [
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "blocking",
  "futures-lite 2.6.1",
 ]
@@ -301,7 +301,7 @@ dependencies = [
  "async-channel 2.5.0",
  "async-executor",
  "async-io 2.6.0",
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "blocking",
  "futures-lite 2.6.1",
  "once_cell",
@@ -373,9 +373,9 @@ dependencies = [
 
 [[package]]
 name = "async-lock"
-version = "3.4.1"
+version = "3.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fd03604047cee9b6ce9de9f70c6cd540a0520c813cbd49bae61f33ab80ed1dc"
+checksum = "290f7f2596bd5b78a9fec8088ccd89180d7f9f55b94b0576823bbbdc72ee8311"
 dependencies = [
  "event-listener 5.4.1",
  "event-listener-strategy",
@@ -413,7 +413,7 @@ checksum = "fc50921ec0055cdd8a16de48773bfeec5c972598674347252c0399676be7da75"
 dependencies = [
  "async-channel 2.5.0",
  "async-io 2.6.0",
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "async-signal",
  "async-task",
  "blocking",
@@ -430,7 +430,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43c070bbf59cd3570b6b2dd54cd772527c7c3620fce8be898406dd3ed6adc64c"
 dependencies = [
  "async-io 2.6.0",
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "atomic-waker",
  "cfg-if",
  "futures-core",
@@ -450,7 +450,7 @@ dependencies = [
  "async-channel 1.9.0",
  "async-global-executor",
  "async-io 2.6.0",
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "crossbeam-utils",
  "futures-channel",
  "futures-core",
@@ -664,9 +664,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cc"
-version = "1.2.49"
+version = "1.2.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90583009037521a116abf44494efecd645ba48b6622457080f080b85544e2215"
+checksum = "9f50d563227a1c37cc0a263f64eca3334388c01c5e4c4861a9def205c614383c"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -1056,9 +1056,9 @@ dependencies = [
 
 [[package]]
 name = "earclip"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a91e090bd91dff08cca09ab78716a7925bf8856d0c564320dfaa2cf530e23c98"
+checksum = "a20d20b289556a902151569c11b566261f4cf2b271a9754951241c2e57ae01fd"
 dependencies = [
  "libm",
  "s2json",
@@ -1432,7 +1432,7 @@ dependencies = [
 
 [[package]]
 name = "gis-tools"
-version = "1.6.4"
+version = "1.6.5"
 dependencies = [
  "assert_cmd",
  "brotli",
@@ -1810,9 +1810,9 @@ dependencies = [
 
 [[package]]
 name = "itoa"
-version = "1.0.15"
+version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
+checksum = "7ee5b5339afb4c41626dde77b7a611bd4f2c202b897852b4bcf5d03eddc61010"
 
 [[package]]
 name = "jobserver"
@@ -2137,9 +2137,9 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 
 [[package]]
 name = "open-vector-tile"
-version = "1.9.0"
+version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c2bb4f67fda8fa87ad87f32ec55647898bf10b44e40f379981b37ec29c98739"
+checksum = "9c50945bced18028cd7b3900e1ac721bf99b35aab6421e4c6e44897272901cc4"
 dependencies = [
  "libm",
  "pbf",
@@ -2788,15 +2788,15 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "ryu"
-version = "1.0.20"
+version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
+checksum = "62049b2877bf12821e8f9ad256ee38fdc31db7387ec2d3b3f403024de2034aea"
 
 [[package]]
 name = "s2-tilejson"
-version = "1.10.0"
+version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25213ba235b5f9b6ba9b99972b82a8b47bc757b5002adb8c05573a6c2aeb2569"
+checksum = "697ad7578615bd7ece63679c3219401fe3dd25ce96e43ee50246da2b93c4d8a5"
 dependencies = [
  "s2json",
  "serde",
@@ -2805,9 +2805,9 @@ dependencies = [
 
 [[package]]
 name = "s2json"
-version = "1.48.0"
+version = "1.49.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4c4aeee46f1eae05b12f1118ed88cb999272e4258b19b7dad2720c299663544"
+checksum = "32ad313f97b18630db288aa9ce08486c7d00c0213ba45a587e8535d2422191be"
 dependencies = [
  "s2json-core",
  "s2json-derive",
@@ -2815,9 +2815,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-core"
-version = "1.48.0"
+version = "1.49.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2483e1cc49dcec841f7af0d1ae724c184da2cf9ae37641d226c74bf5a09c665e"
+checksum = "ffb9ea927186d7a73b173827359b072c3fa65c76dbfaad8a9a61fbf692b009fa"
 dependencies = [
  "libm",
  "pbf",
@@ -2827,9 +2827,9 @@ dependencies = [
 
 [[package]]
 name = "s2json-derive"
-version = "1.48.0"
+version = "1.49.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96b52999e08f11e0c1153d3544e2d02ad3ef8f709589bea89d161c1e0f40bd32"
+checksum = "c75f0f8be5d09674eb918593f12e520d1cd6f4e5cd413bbfcac640e614210010"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -3046,7 +3046,7 @@ dependencies = [
  "async-executor",
  "async-fs",
  "async-io 2.6.0",
- "async-lock 3.4.1",
+ "async-lock 3.4.2",
  "async-net",
  "async-process",
  "blocking",
@@ -3355,9 +3355,9 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.7.4+spec-1.0.0"
+version = "0.7.5+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe3cea6b2aa3b910092f6abd4053ea464fab5f9c170ba5e9a6aead16ec4af2b6"
+checksum = "92e1cfed4a3038bc5a127e35a2d360f145e1f4b971b551a2ba5fd7aedf7e1347"
 dependencies = [
  "serde_core",
 ]
@@ -3376,9 +3376,9 @@ dependencies = [
 
 [[package]]
 name = "toml_parser"
-version = "1.0.5+spec-1.0.0"
+version = "1.0.6+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c03bee5ce3696f31250db0bbaff18bc43301ce0e8db2ed1f07cbb2acf89984c"
+checksum = "a3198b4b0a8e11f09dd03e133c0280504d0801269e9afa46362ffde1cbeebf44"
 dependencies = [
  "winnow",
 ]

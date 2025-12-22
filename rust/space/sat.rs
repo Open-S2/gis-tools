@@ -273,6 +273,12 @@ impl From<&TLEDataCelestrak> for TLEData {
 /// const { position, velocity } = sat.propagate(new Date());
 /// ```
 ///
+/// ## Usage
+/// - [`Satellite::new`]: Create a new Satellite object from a TLE string
+/// - [`Satellite::gpu`]: Convert the satellite state to an array that is readable by the GPU
+/// - [`Satellite::propagate`]: Propagate the orbit of the satellite to a given time
+/// - [`Satellite::sgp4`]: Propagate the orbit of the satellite to a given time
+///
 /// ## Links
 /// - https://en.wikipedia.org/wiki/Two-line_element_set
 /// - https://celestrak.org/NORAD/documentation/tle-fmt.php
@@ -497,11 +503,11 @@ pub struct Satellite {
     pub xni: f64,
 }
 impl Satellite {
-    /**
-     * Constructor
-     * @param data - TLE data or TLE string
-     * @param initialize - initialize the object on creation
-     */
+    /// Create a new Satellite using TLE data
+    ///
+    /// ## Parameters
+    /// - `data`: TLE data or TLE string
+    /// - `initialize`: initialize the object on creation
     pub fn new(data: &TLEData, initialize: Option<bool>) -> Self {
         let mut this = Self::default();
         let initialize = initialize.unwrap_or(true);

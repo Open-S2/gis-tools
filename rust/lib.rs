@@ -284,6 +284,12 @@
 //!
 //! ### Space
 //!
+//! #### Satellite
+//!
+//! - [`crate::space::Satellite`]: Satellite Orbit class
+//! - [`crate::space::TLEData`]: TLE Data class
+//! - [`crate::space::TLEDataCelestrak`]: TLE Data class from Celestrak
+//!
 //! #### Planet Constants
 //!
 //! Earth:
