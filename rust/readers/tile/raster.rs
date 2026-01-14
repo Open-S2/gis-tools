@@ -298,10 +298,10 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
         let (west, south, east, north) = xyz_to_bbox(
             *x,
             *y,
-            *zoom,
+            *zoom as f64,
             Some(self.tms_style),
             Some(Source::Google),
-            Some(tile_size as u16),
+            Some(tile_size as u64),
         );
         let x_step = (east - west) / (tile_size as f64);
         let y_step = (north - south) / (tile_size as f64);

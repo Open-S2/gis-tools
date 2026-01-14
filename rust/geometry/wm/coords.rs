@@ -19,8 +19,8 @@ pub enum Source {
 }
 
 /// Given a zoom and tilesize, build mercator positional attributes
-fn get_zoom_size(zoom: u8, tile_size: f64) -> (f64, f64, f64, f64) {
-    let size = tile_size * pow(2., zoom as f64);
+fn get_zoom_size(zoom: f64, tile_size: f64) -> (f64, f64, f64, f64) {
+    let size = tile_size * pow(2., zoom);
     (size / 360., size / TAU, size / 2., size)
 }
 
@@ -28,9 +28,9 @@ fn get_zoom_size(zoom: u8, tile_size: f64) -> (f64, f64, f64, f64) {
 /// Return the mercator pixel coordinate
 pub fn ll_to_px(
     lonlat: (f64, f64),
-    zoom: u8,
+    zoom: f64,
     anti_meridian: Option<bool>,
-    tile_size: Option<u16>,
+    tile_size: Option<u64>,
 ) -> (f64, f64) {
     let anti_meridian = anti_meridian.unwrap_or(false);
     let tile_size = tile_size.unwrap_or(512) as f64;
@@ -53,7 +53,7 @@ pub fn ll_to_px(
 
 /// Convert mercator pixel coordinates to Longitude and Latitude
 /// Return the Longitude and Latitude
-pub fn px_to_ll(xy: (f64, f64), zoom: u8, tile_size: Option<u16>) -> (f64, f64) {
+pub fn px_to_ll(xy: (f64, f64), zoom: f64, tile_size: Option<u64>) -> (f64, f64) {
     let tile_size = tile_size.unwrap_or(512) as f64;
     let (bc, cc, zc, _) = get_zoom_size(zoom, tile_size);
     let g = (xy.1 - zc) / -cc;
@@ -85,14 +85,14 @@ pub fn merc_to_ll(merc: (f64, f64)) -> (f64, f64) {
 
 /// Convert a pixel coordinate to a tile x-y coordinate
 /// Return the tile x-y
-pub fn px_to_tile(px: (f64, f64), tile_size: Option<u16>) -> (u32, u32) {
+pub fn px_to_tile(px: (f64, f64), tile_size: Option<u64>) -> (u32, u32) {
     let tile_size = tile_size.unwrap_or(512) as f64;
     (floor(px.0 / tile_size) as u32, floor(px.1 / tile_size) as u32)
 }
 
 /// Convert a tile x-y-z to a bbox of the form `[w, s, e, n]`
 /// Return the bbox
-pub fn tile_to_bbox(tile: (u8, u32, u32), tile_size: Option<u16>) -> (u32, u32, u32, u32) {
+pub fn tile_to_bbox(tile: (u8, u32, u32), tile_size: Option<u64>) -> (u32, u32, u32, u32) {
     let tile_size = tile_size.unwrap_or(512) as u32;
     let (_zoom, x, y) = tile;
     let min_x = x * tile_size;
@@ -105,7 +105,7 @@ pub fn tile_to_bbox(tile: (u8, u32, u32), tile_size: Option<u16>) -> (u32, u32, 
 
 /// Convert a lat-lon and zoom to the tile's x-y coordinates
 /// Return the tile x-y
-pub fn ll_to_tile(lonlat: (f64, f64), zoom: u8, tile_size: Option<u16>) -> (u32, u32) {
+pub fn ll_to_tile(lonlat: (f64, f64), zoom: f64, tile_size: Option<u64>) -> (u32, u32) {
     let px = ll_to_px(lonlat, zoom, Some(false), tile_size);
     px_to_tile(px, tile_size)
 }
@@ -115,12 +115,12 @@ pub fn ll_to_tile(lonlat: (f64, f64), zoom: u8, tile_size: Option<u16>) -> (u32,
 pub fn ll_to_tile_px(
     lonlat: (f64, f64),
     tile: (u8, u32, u32),
-    tile_size: Option<u16>,
+    tile_size: Option<u64>,
 ) -> (f64, f64) {
     let (zoom, x, y) = tile;
     let tile_size = tile_size.unwrap_or(512);
     let tile_size_f = tile_size as f64;
-    let px = ll_to_px(lonlat, zoom, Some(false), Some(tile_size));
+    let px = ll_to_px(lonlat, zoom as f64, Some(false), Some(tile_size));
     let tile_x_start = x as f64 * tile_size_f;
     let tile_y_start = y as f64 * tile_size_f;
 
@@ -151,10 +151,10 @@ pub fn convert_bbox(bbox: (f64, f64, f64, f64), source: Source) -> (f64, f64, f6
 pub fn xyz_to_bbox(
     x: u32,
     y: u32,
-    zoom: u8,
+    zoom: f64,
     tms_style: Option<bool>,
     source: Option<Source>,
-    tile_size: Option<u16>,
+    tile_size: Option<u64>,
 ) -> (f64, f64, f64, f64) {
     let x = x as f64;
     let mut y = y as f64;
@@ -165,7 +165,7 @@ pub fn xyz_to_bbox(
     // Convert xyz into bbox with srs WGS84
     // if tmsStyle, the y is inverted
     if tms_style {
-        y = pow(2., zoom as f64) - 1. - y;
+        y = pow(2., zoom) - 1. - y;
     }
     // Use +y to make sure it's a number to avoid inadvertent concatenation.
     let bl: (f64, f64) = (x * tile_size_f, (y + 1.) * tile_size_f);
@@ -192,10 +192,10 @@ pub fn xyz_to_bbox(
 /// returns the tile's bounding box
 pub fn bbox_to_xyz_bounds(
     bbox: (f64, f64, f64, f64),
-    zoom: u8,
+    zoom: f64,
     tms_style: Option<bool>,
     source: Option<Source>,
-    tile_size: Option<u16>,
+    tile_size: Option<u64>,
 ) -> (u32, u32, u32, u32) {
     let tms_style = tms_style.unwrap_or(true);
     let source = source.unwrap_or(Source::WGS84);
@@ -217,15 +217,15 @@ pub fn bbox_to_xyz_bounds(
     let mut bounds = (fmin(x.0, x.1), fmin(y.0, y.1), fmax(x.0, x.1), fmax(y.0, y.1));
 
     if tms_style {
-        let zoom_diff = pow(2., zoom as f64) - 1.;
+        let zoom_diff = pow(2., zoom) - 1.;
         bounds.1 = zoom_diff - bounds.3;
         bounds.3 = zoom_diff - bounds.1;
     }
 
     let min_x = fmax(bounds.0, 0.) as u32;
     let min_y = fmax(bounds.1, 0.) as u32;
-    let max_x = fmin(bounds.2, pow(2., zoom as f64) - 1.) as u32;
-    let max_y = fmin(bounds.3, pow(2., zoom as f64) - 1.) as u32;
+    let max_x = fmin(bounds.2, pow(2., zoom) - 1.) as u32;
+    let max_y = fmin(bounds.3, pow(2., zoom) - 1.) as u32;
 
     (min_x, min_y, max_x, max_y)
 }
