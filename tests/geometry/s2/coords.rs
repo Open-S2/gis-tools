@@ -98,43 +98,43 @@ mod tests {
 
     #[test]
     fn test_get_u_norm() {
-        assert_eq!(get_u_norm(0, 0.), S2Point::new(0., -1., 0.));
-        assert_eq!(get_u_norm(0, 0.25), S2Point::new(0.25, -1., 0.));
+        assert_eq!(get_u_norm::<S2Point>(0, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_u_norm::<S2Point>(0, 0.25), S2Point::new(0.25, -1., 0.));
 
-        assert_eq!(get_u_norm(1, 0.), S2Point::new(1., 0., 0.));
-        assert_eq!(get_u_norm(1, 1.), S2Point::new(1., 1., 0.));
+        assert_eq!(get_u_norm::<S2Point>(1, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_u_norm::<S2Point>(1, 1.), S2Point::new(1., 1., 0.));
 
-        assert_eq!(get_u_norm(2, 0.), S2Point::new(1., 0., 0.));
-        assert_eq!(get_u_norm(2, 1.), S2Point::new(1., 0., 1.));
+        assert_eq!(get_u_norm::<S2Point>(2, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_u_norm::<S2Point>(2, 1.), S2Point::new(1., 0., 1.));
 
-        assert_eq!(get_u_norm(3, 0.), S2Point::new(0., 0., 1.));
-        assert_eq!(get_u_norm(3, 1.), S2Point::new(-1., 0., 1.));
+        assert_eq!(get_u_norm::<S2Point>(3, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_u_norm::<S2Point>(3, 1.), S2Point::new(-1., 0., 1.));
 
-        assert_eq!(get_u_norm(4, 0.), S2Point::new(0., 0., 1.));
-        assert_eq!(get_u_norm(4, 1.), S2Point::new(0., -1., 1.));
+        assert_eq!(get_u_norm::<S2Point>(4, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_u_norm::<S2Point>(4, 1.), S2Point::new(0., -1., 1.));
 
-        assert_eq!(get_u_norm(5, 0.), S2Point::new(0., -1., 0.));
-        assert_eq!(get_u_norm(5, 1.), S2Point::new(0., -1., -1.));
+        assert_eq!(get_u_norm::<S2Point>(5, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_u_norm::<S2Point>(5, 1.), S2Point::new(0., -1., -1.));
     }
 
     #[test]
     fn test_get_v_norm() {
-        assert_eq!(get_v_norm(0, 0.), S2Point::new(0., 0., 1.));
-        assert_eq!(get_v_norm(1, 0.), S2Point::new(0., 0., 1.));
-        assert_eq!(get_v_norm(2, 0.), S2Point::new(0., -1., 0.));
-        assert_eq!(get_v_norm(3, 0.), S2Point::new(0., -1., 0.));
-        assert_eq!(get_v_norm(4, 0.), S2Point::new(1., 0., 0.));
-        assert_eq!(get_v_norm(5, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_v_norm::<S2Point>(0, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_v_norm::<S2Point>(1, 0.), S2Point::new(0., 0., 1.));
+        assert_eq!(get_v_norm::<S2Point>(2, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_v_norm::<S2Point>(3, 0.), S2Point::new(0., -1., 0.));
+        assert_eq!(get_v_norm::<S2Point>(4, 0.), S2Point::new(1., 0., 0.));
+        assert_eq!(get_v_norm::<S2Point>(5, 0.), S2Point::new(1., 0., 0.));
     }
 
     #[test]
     fn test_get_u_axis() {
-        assert_eq!(get_u_axis(0), S2Point::new(0., 1., 0.));
+        assert_eq!(get_u_axis::<S2Point>(0), S2Point::new(0., 1., 0.));
     }
 
     #[test]
     fn test_get_v_axis() {
-        assert_eq!(get_v_axis(0), S2Point::new(0., 0., 1.));
+        assert_eq!(get_v_axis::<S2Point>(0), S2Point::new(0., 0., 1.));
     }
 
     #[test]

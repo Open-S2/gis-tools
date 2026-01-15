@@ -1,12 +1,14 @@
 use super::{ST_TO_UV, face_uv_to_xyz};
-use crate::geometry::{LonLat, S2CellId, xyz_to_face_st, xyz_to_face_uv};
+use crate::geometry::{
+    LonLat, S2CellId, lon_lat_to_xyz, lon_lat_to_xyz_gl, xyz_to_face_st, xyz_to_face_uv,
+};
 use core::{
     cmp::Ordering,
     fmt::Debug,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign},
 };
 use libm::{atan2, fabs, sqrt};
-use s2json::{GetXY, GetZ, NewXY, NewXYZ, SetXY, SetZ, VectorPoint};
+use s2json::{GetXY, GetXYZ, GetZ, NewXY, NewXYZ, SetXY, SetZ, VectorPoint};
 use serde::{Deserialize, Serialize};
 
 /// An S2Point represents a point on the unit sphere as a 3D vector. Usually
@@ -41,6 +43,8 @@ use serde::{Deserialize, Serialize};
 /// - [`S2Point::intermediate`]: Returns the intermediate point between this and the other point
 /// - [`S2Point::from_face_uv`]: Convert an Face-U-V coordinate to an S2Point
 /// - [`S2Point::from_face_st`]: Convert an Face-S-T coordinate to an S2Point
+/// - [`S2Point::from_lon_lat`]: Convert a lon-lat coord to an XYZ Point using the left-hand-rule
+/// - [`S2Point::from_lon_lat_gl`]: Convert a lon-lat coord to an XYZ Point using the right-hand-rule
 #[derive(Debug, Copy, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[repr(C)]
 pub struct S2Point {
@@ -205,7 +209,7 @@ impl S2Point {
 
     /// Convert a u-v coordinate to an XYZ Point.
     pub fn from_face_uv(face: u8, u: f64, v: f64) -> Self {
-        let mut p = face_uv_to_xyz(face, u, v);
+        let mut p: S2Point = face_uv_to_xyz(face, u, v);
         p.normalize();
         p
     }
@@ -215,6 +219,18 @@ impl S2Point {
         let u = ST_TO_UV(s);
         let v = ST_TO_UV(t);
         Self::from_face_uv(face, u, v)
+    }
+
+    /// Convert a lon-lat coord to an XYZ Point using the left-hand-rule
+    pub fn from_lon_lat<P: GetXYZ + NewXYZ>(ll: &P) -> Self {
+        let res = lon_lat_to_xyz(ll);
+        Self { x: res.x(), y: res.y(), z: res.z().unwrap() }
+    }
+
+    /// Convert a lon-lat coord to an XYZ Point using the right-hand-rule
+    pub fn from_lon_lat_gl<P: GetXYZ + NewXYZ>(ll: &P) -> Self {
+        let res = lon_lat_to_xyz_gl(ll);
+        Self { x: res.x(), y: res.y(), z: res.z().unwrap() }
     }
 }
 impl<M: Clone + Default> From<&LonLat<M>> for S2Point {

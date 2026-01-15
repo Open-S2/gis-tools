@@ -1,7 +1,8 @@
 use super::coords_internal::K_FACE_UVW_AXES;
 use crate::geometry::S2Point;
 use core::f64::consts::PI;
-use libm::{atan, round, sqrt, tan};
+use libm::{atan, cos, round, sin, sqrt, tan};
+use s2json::{GetXYZ, NewXYZ};
 
 // This file contains documentation of the various coordinate systems used
 // throughout the library.  Most importantly, S2 defines a framework for
@@ -291,14 +292,14 @@ pub fn to_face_uv(p: &S2Point, face: u8) -> UV {
 
 /// Convert (face, u, v) coordinates to a direction vector (not
 /// necessarily unit length).
-pub fn face_uv_to_xyz(face: u8, u: f64, v: f64) -> S2Point {
+pub fn face_uv_to_xyz<P: NewXYZ>(face: u8, u: f64, v: f64) -> P {
     match face {
-        0 => S2Point::new(1.0, u, v),
-        1 => S2Point::new(-u, 1.0, v),
-        2 => S2Point::new(-u, -v, 1.0),
-        3 => S2Point::new(-1.0, -v, -u),
-        4 => S2Point::new(v, -1.0, -u),
-        _ => S2Point::new(v, u, -1.0),
+        0 => P::new_xyz(1.0, u, v),
+        1 => P::new_xyz(-u, 1.0, v),
+        2 => P::new_xyz(-u, -v, 1.0),
+        3 => P::new_xyz(-1.0, -v, -u),
+        4 => P::new_xyz(v, -1.0, -u),
+        _ => P::new_xyz(v, u, -1.0),
     }
 }
 
@@ -365,16 +366,19 @@ pub fn face_xyz_to_uv(face: u8, p: &S2Point) -> (bool, f64, f64) {
 
 /// Transform the given point P to the (u,v,w) coordinate frame of the given
 /// face (where the w-axis represents the face normal).
-pub fn face_xyz_to_uvw(face: u8, p: &S2Point) -> S2Point {
+pub fn face_xyz_to_uvw<P: NewXYZ + GetXYZ>(face: u8, p: &P) -> P {
     // The result coordinates are simply the dot products of P with the (u,v,w)
     // axes for the given face (see kFaceUVWAxes).
+    let x = p.x();
+    let y = p.y();
+    let z = p.z().unwrap_or_default();
     match face {
-        0 => S2Point::new(p.y, p.z, p.x),
-        1 => S2Point::new(-p.x, p.z, p.y),
-        2 => S2Point::new(-p.x, -p.y, p.z),
-        3 => S2Point::new(-p.z, -p.y, -p.x),
-        4 => S2Point::new(-p.z, p.x, -p.y),
-        _ => S2Point::new(p.y, p.x, -p.z),
+        0 => P::new_xyz(y, z, x),
+        1 => P::new_xyz(-x, z, y),
+        2 => P::new_xyz(-x, -y, z),
+        3 => P::new_xyz(-z, -y, -x),
+        4 => P::new_xyz(-z, x, -y),
+        _ => P::new_xyz(y, x, -z),
     }
 }
 
@@ -382,46 +386,76 @@ pub fn face_xyz_to_uvw(face: u8, p: &S2Point) -> S2Point {
 /// edge in the direction of the positive v-axis at the given u-value on
 /// the given face.  (This vector is perpendicular to the plane through
 /// the sphere origin that contains the given edge.)
-pub fn get_u_norm(face: u8, u: f64) -> S2Point {
+pub fn get_u_norm<P: NewXYZ>(face: u8, u: f64) -> P {
     match face {
-        0 => S2Point::new(u, -1.0, 0.0),
-        1 => S2Point::new(1.0, u, 0.0),
-        2 => S2Point::new(1.0, 0.0, u),
-        3 => S2Point::new(-u, 0.0, 1.0),
-        4 => S2Point::new(0.0, -u, 1.0),
-        _ => S2Point::new(0.0, -1., -u),
+        0 => P::new_xyz(u, -1.0, 0.0),
+        1 => P::new_xyz(1.0, u, 0.0),
+        2 => P::new_xyz(1.0, 0.0, u),
+        3 => P::new_xyz(-u, 0.0, 1.0),
+        4 => P::new_xyz(0.0, -u, 1.0),
+        _ => P::new_xyz(0.0, -1., -u),
     }
 }
 
 /// Return the right-handed normal (not necessarily unit length) for an
 /// edge in the direction of the positive u-axis at the given v-value on
 /// the given face.
-pub fn get_v_norm(face: u8, v: f64) -> S2Point {
+pub fn get_v_norm<P: NewXYZ>(face: u8, v: f64) -> P {
     match face {
-        0 => S2Point::new(-v, 0.0, 1.0),
-        1 => S2Point::new(0.0, -v, 1.0),
-        2 => S2Point::new(0.0, -1.0, -v),
-        3 => S2Point::new(v, -1.0, 0.0),
-        4 => S2Point::new(1.0, v, 0.0),
-        _ => S2Point::new(1.0, 0.0, v),
+        0 => P::new_xyz(-v, 0.0, 1.0),
+        1 => P::new_xyz(0.0, -v, 1.0),
+        2 => P::new_xyz(0.0, -1.0, -v),
+        3 => P::new_xyz(v, -1.0, 0.0),
+        4 => P::new_xyz(1.0, v, 0.0),
+        _ => P::new_xyz(1.0, 0.0, v),
     }
 }
 
 /// Return the unit-length normal for the given face.
-pub fn get_norm(face: u8) -> S2Point {
+pub fn get_norm<P: NewXYZ>(face: u8) -> P {
     get_uvw_axis(face, 2)
 }
 /// Return the u-axis for the given face.
-pub fn get_u_axis(face: u8) -> S2Point {
+pub fn get_u_axis<P: NewXYZ>(face: u8) -> P {
     get_uvw_axis(face, 0)
 }
 /// Return the v-axis for the given face.
-pub fn get_v_axis(face: u8) -> S2Point {
+pub fn get_v_axis<P: NewXYZ>(face: u8) -> P {
     get_uvw_axis(face, 1)
 }
 
 /// Return the given axis of the given face (u=0, v=1, w=2).
-pub fn get_uvw_axis(face: u8, axis: usize) -> S2Point {
+pub fn get_uvw_axis<P: NewXYZ>(face: u8, axis: usize) -> P {
     let p = K_FACE_UVW_AXES[face as usize][axis];
-    S2Point::new(p[0], p[1], p[2])
+    P::new_xyz(p[0], p[1], p[2])
+}
+
+/**
+ * Convert from a lon-lat coord to an left-hand-rule XYZ Point
+ * @param ll - lon-lat vector point
+ * @returns - VectorPoint
+ */
+pub fn lon_lat_to_xyz<P: GetXYZ + NewXYZ>(ll: &P) -> P {
+    let lon = ll.x().to_radians();
+    let lat = ll.y().to_radians();
+    P::new_xyz(
+        cos(lat) * cos(lon), // x
+        cos(lat) * sin(lon), // y
+        sin(lat),            // z
+    )
+}
+
+/**
+ * Convert from a lon-lat coord to an right-hand-rule XYZ Point
+ * @param ll - lon-lat vector point
+ * @returns - WebGL oriented VectorPoint
+ */
+pub fn lon_lat_to_xyz_gl<P: GetXYZ + NewXYZ>(ll: &P) -> P {
+    let lon = ll.x().to_radians();
+    let lat = ll.y().to_radians();
+    P::new_xyz(
+        cos(lat) * sin(lon), // y
+        sin(lat),            // z
+        cos(lat) * cos(lon), // x
+    )
 }

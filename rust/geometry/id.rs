@@ -342,10 +342,10 @@ impl S2CellId {
         let f = self.face();
         let BBox { left: u_low, right: u_high, bottom: v_low, top: v_high } = self.get_bound_uv();
         [
-            get_v_norm(f, v_low),
-            get_u_norm(f, u_high),
-            get_v_norm(f, v_high).invert(),
-            get_u_norm(f, u_low).invert(),
+            get_v_norm::<S2Point>(f, v_low),
+            get_u_norm::<S2Point>(f, u_high),
+            get_v_norm::<S2Point>(f, v_high).invert(),
+            get_u_norm::<S2Point>(f, u_low).invert(),
         ]
     }
 
