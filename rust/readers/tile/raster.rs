@@ -296,8 +296,8 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
         let mut bbox = BBox3D::default();
         // Get the bounding box of the tile in lon-lat
         let (west, south, east, north) = xyz_to_bbox(
-            *x,
-            *y,
+            *x as i64,
+            *y as i64,
             *zoom as f64,
             Some(self.tms_style),
             Some(Source::Google),

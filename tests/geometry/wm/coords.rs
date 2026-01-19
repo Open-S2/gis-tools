@@ -254,6 +254,8 @@ mod tests {
             (0.0, 0.0),
             // "center for zoom 1 tiles"
         );
+        // test negative direction
+        assert_eq!(ll_to_tile_px(&(0.0, 0.0), (1, -1, -1), Some(512)), (2., 2.),);
     }
 
     #[test]

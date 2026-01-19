@@ -251,8 +251,14 @@ impl<W: TileWriter> TileBuilder<W> {
                 self.meta_builder.add_tile_s2(face, zoom, x, y, &LonLatBounds::default());
             } else {
                 self.tile_writer.write_tile_wm(zoom, x, y, data);
-                let (w, s, e, n) =
-                    xyz_to_bbox(x, y, zoom as f64, Some(false), Some(wm::Source::WGS84), None);
+                let (w, s, e, n) = xyz_to_bbox(
+                    x as i64,
+                    y as i64,
+                    zoom as f64,
+                    Some(false),
+                    Some(wm::Source::WGS84),
+                    None,
+                );
                 self.meta_builder.add_tile_wm(zoom, x, y, &LonLatBounds::new(w, s, e, n));
             }
         }

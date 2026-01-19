@@ -299,6 +299,11 @@ describe('llToTilePx', () => {
     expect(tileOffset).toEqual({ x: 0, y: 0.9999636575709028 });
   });
 
+  it('neg test', () => {
+    const tileOffset = llToTilePx({ x: 0, y: 0 }, [1, -1, -1], 512);
+    expect(tileOffset).toEqual({ x: 2, y: 2 });
+  });
+
   it('center for zoom 1 tiles', () => {
     const tileOffset00 = llToTilePx({ x: 0, y: 0 }, [1, 0, 0], 512);
     expect(tileOffset00).toEqual({ x: 1, y: 1 });
