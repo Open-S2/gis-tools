@@ -1,8 +1,8 @@
 use super::coords_internal::K_FACE_UVW_AXES;
 use crate::geometry::S2Point;
 use core::f64::consts::PI;
-use libm::{atan, cos, round, sin, sqrt, tan};
-use s2json::{GetXYZ, NewXYZ};
+use libm::{atan, atan2, cos, round, sin, sqrt, tan};
+use s2json::{GetXYZ, NewXY, NewXYZ};
 
 // This file contains documentation of the various coordinate systems used
 // throughout the library.  Most importantly, S2 defines a framework for
@@ -303,6 +303,19 @@ pub fn face_uv_to_xyz<P: NewXYZ>(face: u8, u: f64, v: f64) -> P {
     }
 }
 
+/// Convert (face, u, v) coordinates to a direction vector (not
+/// necessarily unit length) using the GL coordinate system (right-hand-rule)
+pub fn face_uv_to_xyz_gl<P: NewXYZ>(face: u8, u: f64, v: f64) -> P {
+    match face {
+        0 => P::new_xyz(u, v, 1.0),
+        1 => P::new_xyz(1.0, v, -u),
+        2 => P::new_xyz(-v, 1.0, -u),
+        3 => P::new_xyz(-v, -u, -1.0),
+        4 => P::new_xyz(-1.0, -u, v),
+        _ => P::new_xyz(u, -1.0, v),
+    }
+}
+
 /// Given a *valid* face for the given point p (meaning that dot product
 /// of p with the face normal is positive), return the corresponding
 /// u and v values (which may lie outside the range [-1,1]).
@@ -329,6 +342,15 @@ pub fn get_face(p: &S2Point) -> u8 {
         face += 3;
     }
     face
+}
+
+/// Convert from an left-hand-rule XYZ Point to a lon-lat coord
+pub fn xyz_to_lon_lat<P: GetXYZ, Q: NewXY>(xyz: &P) -> Q {
+    let x = xyz.x();
+    let y = xyz.y();
+    let z = xyz.z().unwrap_or(1.0);
+
+    Q::new_xy(atan2(y, x).to_degrees(), atan2(z, sqrt(x * x + y * y)).to_degrees())
 }
 
 /// Convert a direction vector (not necessarily unit length) to

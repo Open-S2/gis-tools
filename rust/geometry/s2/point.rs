@@ -1,6 +1,7 @@
 use super::{ST_TO_UV, face_uv_to_xyz};
 use crate::geometry::{
-    LonLat, S2CellId, lon_lat_to_xyz, lon_lat_to_xyz_gl, xyz_to_face_st, xyz_to_face_uv,
+    LonLat, S2CellId, face_uv_to_xyz_gl, lon_lat_to_xyz, lon_lat_to_xyz_gl, st_to_ij,
+    xyz_to_face_st, xyz_to_face_uv, xyz_to_lon_lat,
 };
 use core::{
     cmp::Ordering,
@@ -29,7 +30,10 @@ use serde::{Deserialize, Serialize};
 /// - [`S2Point::face`]: Returns the S2 face assocated with this point
 /// - [`S2Point::angle`]: Returns the angle between this point and another
 /// - [`S2Point::cross`]: Get the cross product of two XYZ Points
-/// - [`S2Point::to_face_st`]: Convert an S2Point to an S2Point in normalized vector coordinates
+/// - [`S2Point::to_lon_lat`]: Returns a LonLat representation of this point
+/// - [`S2Point::to_face_uv`]:  Returns a Face-UV representation of this point
+/// - [`S2Point::to_face_st`]:  Returns a Face-ST representation of this point
+/// - [`S2Point::to_face_ij`]:  Returns a Face-IJ representation of this point
 /// - [`S2Point::get_face`]: Returns the S2 face assocated with this point
 /// - [`S2Point::dot`]: Get the dot product of two XYZ Points
 /// - [`S2Point::abs`]: Returns the absolute value of the point
@@ -41,8 +45,10 @@ use serde::{Deserialize, Serialize};
 /// - [`S2Point::distance`]: return the distance from this point to the other point
 /// - [`S2Point::largest_abs_component`]: Returns the largest absolute component of the point
 /// - [`S2Point::intermediate`]: Returns the intermediate point between this and the other point
-/// - [`S2Point::from_face_uv`]: Convert an Face-U-V coordinate to an S2Point
-/// - [`S2Point::from_face_st`]: Convert an Face-S-T coordinate to an S2Point
+/// - [`S2Point::from_face_uv`]: Convert an Face-U-V coordinate to an S2Point using the left-hand-rule
+/// - [`S2Point::from_face_st`]: Convert an Face-S-T coordinate to an S2Point using the left-hand-rule
+/// - [`S2Point::from_face_uv_gl`]: Convert an Face-U-V coordinate to an S2Point using the right-hand-rule
+/// - [`S2Point::from_face_st_gl`]: Convert an Face-S-T coordinate to an S2Point using the right-hand-rule
 /// - [`S2Point::from_lon_lat`]: Convert a lon-lat coord to an XYZ Point using the left-hand-rule
 /// - [`S2Point::from_lon_lat_gl`]: Convert a lon-lat coord to an XYZ Point using the right-hand-rule
 #[derive(Debug, Copy, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -130,9 +136,38 @@ impl S2Point {
         )
     }
 
+    /// Return a Lon-lat representation of this point
+    pub fn to_lon_lat<P: NewXY>(&self) -> P {
+        xyz_to_lon_lat(self)
+    }
+
+    /// Returns a Face-UV representation of this point
+    pub fn to_face_uv(&self) -> (u8, f64, f64) {
+        xyz_to_face_uv(self)
+    }
+
     /// Returns a Face-ST representation of this point
     pub fn to_face_st(&self) -> (u8, f64, f64) {
         xyz_to_face_st(self)
+    }
+
+    /// Returns a Face-IJ representation of this point
+    pub fn to_face_ij(&self, level: Option<u8>) -> (u8, u32, u32) {
+        // Convert the given XYZ Point to Face-S-T coordinates.
+        let (face, s, t) = self.to_face_st();
+
+        // Convert the S-T coordinates to I-J coordinates using the STtoIJ function.
+        let mut i = st_to_ij(s);
+        let mut j = st_to_ij(t);
+
+        // If a level is provided, shift the I-J coordinates to the right by (30 - level) bits.
+        if let Some(level) = level {
+            i = i >> (30 - level);
+            j = j >> (30 - level);
+        }
+
+        // Return the Face-I-J coordinates.
+        (face, i, j)
     }
 
     /// Returns the S2 face assocated with this point
@@ -221,6 +256,20 @@ impl S2Point {
         Self::from_face_uv(face, u, v)
     }
 
+    /// Convert a u-v coordinate to an XYZ Point using the right-hand-rule
+    pub fn from_face_uv_gl(face: u8, u: f64, v: f64) -> Self {
+        let mut p: S2Point = face_uv_to_xyz_gl(face, u, v);
+        p.normalize();
+        p
+    }
+
+    /// Convert an s-t coordinate to an XYZ Point using the right-hand-rule
+    pub fn from_face_st_gl(face: u8, s: f64, t: f64) -> Self {
+        let u = ST_TO_UV(s);
+        let v = ST_TO_UV(t);
+        Self::from_face_uv_gl(face, u, v)
+    }
+
     /// Convert a lon-lat coord to an XYZ Point using the left-hand-rule
     pub fn from_lon_lat<P: GetXYZ + NewXYZ>(ll: &P) -> Self {
         let res = lon_lat_to_xyz(ll);
@@ -240,11 +289,6 @@ impl<M: Clone + Default> From<&LonLat<M>> for S2Point {
 }
 impl<M: Clone + Default> From<&VectorPoint<M>> for S2Point {
     fn from(v: &VectorPoint<M>) -> Self {
-        Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
-    }
-}
-impl<M: Clone + Default> From<&mut VectorPoint<M>> for S2Point {
-    fn from(v: &mut VectorPoint<M>) -> Self {
         Self { x: v.x, y: v.y, z: v.z.unwrap_or(0.0) }
     }
 }

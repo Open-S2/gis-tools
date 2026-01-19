@@ -49,8 +49,8 @@ impl<M: Clone + Default> GetM<M> for LonLat<M> {
         self.0.m.as_ref()
     }
 }
-impl NewXY for LonLat {
-    fn new_xy(x: f64, y: f64) -> LonLat {
+impl<M: Clone + Default> NewXY for LonLat<M> {
+    fn new_xy(x: f64, y: f64) -> LonLat<M> {
         LonLat(VectorPoint::new(x, y, None, None))
     }
 }
