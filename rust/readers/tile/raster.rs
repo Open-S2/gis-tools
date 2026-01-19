@@ -313,7 +313,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
             for px in 0..tile_size {
                 let px_f64 = px as f64;
                 let x_pos = west + (px_f64 + 0.5) * x_step; // Center of the column
-                let (lon, lat) = merc_to_ll((x_pos, y_pos));
+                let (lon, lat) = merc_to_ll(&(x_pos, y_pos));
                 let pixel = self.image.get_pixel(px as u32, py as u32);
                 let m_value =
                     D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3]));

@@ -12,32 +12,32 @@ mod tests {
     #[test]
     fn test_ll_to_px() {
         assert_eq!(
-            ll_to_px((-179.0, 85.0), 9., Some(true), Some(256)),
+            ll_to_px(&(-179.0, 85.0), 9., Some(true), Some(256)),
             (364.0888888888876, 214.68476683766494),
             // "PX with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            ll_to_px((-179.0, 85.0), 9., Some(false), Some(256)),
+            ll_to_px(&(-179.0, 85.0), 9., Some(false), Some(256)),
             (364.0888888888876, 214.68476683766494),
             // "PX with int zoom value converts when antiMeridian=false"
         );
         assert_eq!(
-            ll_to_px((250.0, 3.0), 4., Some(false), Some(256)),
+            ll_to_px(&(250.0, 3.0), 4., Some(false), Some(256)),
             (4096.0, 2013.8510595566413),
             // "Clamps PX by default when lon >180 when antiMeridian=false"
         );
         assert_eq!(
-            ll_to_px((250.0, 3.0), 4., Some(true), Some(256)),
+            ll_to_px(&(250.0, 3.0), 4., Some(true), Some(256)),
             (4892.444444444444, 2013.8510595566413),
             // "PX with lon > 180 converts when antimeridian=true"
         );
         assert_eq!(
-            ll_to_px((400.0, 3.0), 4., Some(true), Some(256)),
+            ll_to_px(&(400.0, 3.0), 4., Some(true), Some(256)),
             (6599.111111111111, 2013.8510595566413),
             // "Clamps PX when lon >360 and antimeridian=true"
         );
         assert_eq!(
-            ll_to_px((400.0, 3.0), 4., Some(false), Some(256)),
+            ll_to_px(&(400.0, 3.0), 4., Some(false), Some(256)),
             (4096.0, 2013.8510595566413),
             // "Clamps PX when lon >360 and antimeridian=false"
         );
@@ -46,7 +46,7 @@ mod tests {
     #[test]
     fn test_px_to_ll() {
         assert_eq!(
-            px_to_ll((200.0, 200.0), 9., Some(256)),
+            px_to_ll(&(200.0, 200.0), 9., Some(256)),
             (-179.45068359375, 85.00351401304403),
             // "LL with int zoom value converts when antiMeridian=true"
         );
@@ -55,17 +55,17 @@ mod tests {
     #[test]
     fn test_ll_to_merc() {
         assert_eq!(
-            ll_to_merc((0.0, 0.0)),
+            ll_to_merc(&(0.0, 0.0)),
             (0.0, -7.081154551613622e-10),
             // "LL with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            ll_to_merc((-180.0, 90.0)),
+            ll_to_merc(&(-180.0, 90.0)),
             (-20037508.342789244, 20037508.342789244),
             // "LL with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            ll_to_merc((180.0, -90.0)),
+            ll_to_merc(&(180.0, -90.0)),
             (20037508.342789244, -20037508.342789244),
             // "LL with int zoom value converts when antiMeridian=true"
         );
@@ -74,17 +74,17 @@ mod tests {
     #[test]
     fn test_merc_to_ll() {
         assert_eq!(
-            merc_to_ll((0.0, -7.081154551613622e-10)),
+            merc_to_ll(&(0.0, -7.081154551613622e-10)),
             (0.0, 0.0),
             // "LL with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            merc_to_ll((-20037508.34278924, 20037508.342789244)),
+            merc_to_ll(&(-20037508.34278924, 20037508.342789244)),
             (-179.99999999999997, 85.0511287798066),
             // "LL with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            merc_to_ll((20037508.34278924, -20037508.342789244)),
+            merc_to_ll(&(20037508.34278924, -20037508.342789244)),
             (179.99999999999997, -85.0511287798066),
             // "LL with int zoom value converts when antiMeridian=true"
         );
@@ -93,12 +93,12 @@ mod tests {
     #[test]
     fn test_px_to_tile() {
         assert_eq!(
-            px_to_tile((0.0, 0.0), Some(512)),
+            px_to_tile(&(0.0, 0.0), Some(512)),
             (0, 0),
             // "LL with int zoom value converts when antiMeridian=true"
         );
         assert_eq!(
-            px_to_tile((600.0, 2000.0), Some(512)),
+            px_to_tile(&(600.0, 2000.0), Some(512)),
             (1, 3),
             // "LL with int zoom value converts when antiMeridian=true"
         );
@@ -191,66 +191,66 @@ mod tests {
 
     #[test]
     fn test_ll_to_tile() {
-        assert_eq!(ll_to_tile((0.0, 0.0), 0., Some(512)), (0, 0));
-        assert_eq!(ll_to_tile((-180.0, 85.05), 0., Some(512)), (0, 0));
-        assert_eq!(ll_to_tile((0.0, 0.0), 1., Some(512)), (1, 1));
-        assert_eq!(ll_to_tile((-180.0, 85.05), 1., Some(512)), (0, 0));
+        assert_eq!(ll_to_tile(&(0.0, 0.0), 0., Some(512)), (0, 0));
+        assert_eq!(ll_to_tile(&(-180.0, 85.05), 0., Some(512)), (0, 0));
+        assert_eq!(ll_to_tile(&(0.0, 0.0), 1., Some(512)), (1, 1));
+        assert_eq!(ll_to_tile(&(-180.0, 85.05), 1., Some(512)), (0, 0));
     }
 
     #[test]
     fn test_ll_to_tile_px() {
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (0, 0, 0), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (0, 0, 0), Some(512)),
             (0.5, 0.5),
             // "0-0-0: center point"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (2, 3, 3), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (2, 3, 3), Some(512)),
             (-1.0, -1.0),
             // "2-3-3: center point"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (0, 2, 0), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (0, 2, 0), Some(512)),
             (-1.5, 0.5),
             // "0-1-0: out of bounds tile with center point (used for world wrapping)"
         );
         assert_eq!(
-            ll_to_tile_px((-180.0, 85.05), (0, 0, 0), Some(512)),
+            ll_to_tile_px(&(-180.0, 85.05), (0, 0, 0), Some(512)),
             (0.0, 0.00003634242909722474),
             // "0-0-0: top left"
         );
         assert_eq!(
-            ll_to_tile_px((180.0, 85.05), (0, 0, 0), Some(512)),
+            ll_to_tile_px(&(180.0, 85.05), (0, 0, 0), Some(512)),
             (1.0, 0.00003634242909722474),
             // "0-0-0: top right"
         );
         assert_eq!(
-            ll_to_tile_px((180.0, -85.05), (0, 0, 0), Some(512)),
+            ll_to_tile_px(&(180.0, -85.05), (0, 0, 0), Some(512)),
             (1.0, 0.9999636575709028),
             // "0-0-0: bottom right"
         );
         assert_eq!(
-            ll_to_tile_px((-180.0, -85.05), (0, 0, 0), Some(512)),
+            ll_to_tile_px(&(-180.0, -85.05), (0, 0, 0), Some(512)),
             (0.0, 0.9999636575709028),
             // "0-0-0: bottom left"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (1, 0, 0), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (1, 0, 0), Some(512)),
             (1.0, 1.0),
             // "center for zoom 1 tiles"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (1, 1, 0), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (1, 1, 0), Some(512)),
             (0.0, 1.0),
             // "center for zoom 1 tiles"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (1, 0, 1), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (1, 0, 1), Some(512)),
             (1.0, 0.0),
             // "center for zoom 1 tiles"
         );
         assert_eq!(
-            ll_to_tile_px((0.0, 0.0), (1, 1, 1), Some(512)),
+            ll_to_tile_px(&(0.0, 0.0), (1, 1, 1), Some(512)),
             (0.0, 0.0),
             // "center for zoom 1 tiles"
         );
