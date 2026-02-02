@@ -162,8 +162,8 @@ impl S2Point {
 
         // If a level is provided, shift the I-J coordinates to the right by (30 - level) bits.
         if let Some(level) = level {
-            i = i >> (30 - level);
-            j = j >> (30 - level);
+            i >>= 30 - level;
+            j >>= 30 - level;
         }
 
         // Return the Face-I-J coordinates.

@@ -4,7 +4,10 @@ use crate::{
     geometry::{K_AVG_ANGLE_SPAN, LonLat, S1ChordAngle, S2CellId, S2Point, convert},
     parsers::FeatureReader,
 };
-use alloc::{collections::BTreeMap, string::String};
+use alloc::{
+    collections::{BTreeMap, BTreeSet},
+    string::String,
+};
 use core::cell::RefCell;
 use libm::{floor, log2};
 use s2json::{
@@ -88,13 +91,22 @@ pub struct PointCluster<
     M: Clone + Default + Serialize + DeserializeOwned = Properties,
     S: VectorStore<S2CellId, ClusterPoint<M>> = Vector<S2CellId, ClusterPoint<M>>,
 > {
-    projection: Projection,
-    layer_name: String,
-    minzoom: u8,
-    maxzoom: u8,
-    radius: f64,
-    grid_size: u32, // a default is a 512x512 pixel tile
-    indexes: BTreeMap<u8, RefCell<PointIndex<Cluster<M>, S>>>, // zoom => index
+    /// The projection
+    pub projection: Projection,
+    /// The layer name
+    pub layer_name: String,
+    /// store which faces are active. 0 face could be entire WM projection
+    pub faces: BTreeSet<Face>,
+    /// min zoom to preserve detail on
+    pub minzoom: u8,
+    /// max zoom to preserve detail on
+    pub maxzoom: u8,
+    /// cluster radius
+    pub radius: f64,
+    /// grid size. Defaults to 512x512 pixel tile
+    pub grid_size: u32,
+    /// Index store for each zoom
+    pub indexes: BTreeMap<u8, RefCell<PointIndex<Cluster<M>, S>>>, // zoom => index
 }
 impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId, ClusterPoint<M>>>
     PointCluster<M, S>
@@ -108,6 +120,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
         let mut cluster_store = PointCluster {
             projection: options.projection.unwrap_or(Projection::S2),
             layer_name: options.layer_name.unwrap_or(String::from("default")),
+            faces: BTreeSet::new(),
             minzoom: options.minzoom.unwrap_or(0),
             maxzoom: options.maxzoom.unwrap_or(16),
             radius: options.radius.unwrap_or(40.0),
@@ -190,6 +203,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
             match feature.geometry {
                 VectorGeometry::Point(geometry) => {
                     let coordinates = geometry.coordinates;
+                    self.faces.insert(feature.face);
                     self._insert_face_st(
                         feature.face.into(),
                         coordinates.x,
@@ -199,6 +213,7 @@ impl<M: Clone + Default + Serialize + DeserializeOwned, S: VectorStore<S2CellId,
                 }
                 VectorGeometry::MultiPoint(geometry) => {
                     for point in geometry.coordinates {
+                        self.faces.insert(feature.face);
                         self._insert_face_st(
                             feature.face.into(),
                             point.x,

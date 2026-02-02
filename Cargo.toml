@@ -1,6 +1,6 @@
 [package]
 name = "gis-tools"
-version = "1.11.0"
+version = "1.12.0"
 rust-version = "1.91.0"
 edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
@@ -40,7 +40,7 @@ path = "rust/main.rs"
 [dependencies]
 # Open S2 dependencies
 earclip = "1.8"
-open-vector-tile = "1.10"
+open-vector-tile = "1.11"
 pbf = "1.22"
 s2json = "1"
 s2-tilejson = "1.11"
@@ -67,7 +67,7 @@ assert_cmd = "2"
 predicates = "3"
 criterion = { version = "0.8", features = ["html_reports"] }
 rand = "0.9"
-tiff = "0.10.3"
+tiff = "0.11"
 tiny_http = "0.12"
 smol = "2"
 # We need the float_roundtrip feature for serde_json to match javascript float results
