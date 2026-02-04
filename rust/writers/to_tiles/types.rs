@@ -4,7 +4,7 @@ use crate::{
     readers::ReaderType,
     writers::OnFeature,
 };
-use alloc::{collections::BTreeMap, string::String, vec, vec::Vec};
+use alloc::{string::String, vec, vec::Vec};
 use open_vector_tile::Extent;
 use s2_tilejson::{Attributions, DrawType, Encoding, LayerMetaData, SourceType};
 use s2json::{MValue, MValueCompatible, Projection, Properties, Shape, VectorFeature};
@@ -363,7 +363,7 @@ impl Default for JSONBuildGuide {
             extension: "pbf".into(),
             projection: Projection::S2,
             encoding: Encoding::None,
-            attribution: BTreeMap::default(),
+            attribution: Attributions::new(),
             format: FormatOutput::default(),
             vector_sources: vec![],
             raster_sources: vec![],
@@ -423,7 +423,7 @@ impl Default for BuildGuide {
             extension: "pbf".into(),
             projection: Projection::S2,
             encoding: Encoding::None,
-            attributions: BTreeMap::default(),
+            attributions: Attributions::new(),
             format: FormatOutput::default(),
             build_indices: true,
             layer_guides: vec![],
