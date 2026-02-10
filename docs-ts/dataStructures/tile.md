@@ -18,11 +18,11 @@ Tile Class to contain the tile information for splitting or simplifying.
 
 ```ts
 import { Tile } from 'gis-tools-ts';
- // create a tile
+// create a tile
 const tile = new Tile(id);
 // add a feature
 tile.addFeature(feature);
- // transform the geometry to be relative to the tile
+// transform the geometry to be relative to the tile
 tile.transform();
 ```
 

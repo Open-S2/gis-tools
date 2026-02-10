@@ -71,7 +71,7 @@ pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 /// use serde::{Deserialize, Serialize};
 /// use s2_tilejson::{Metadata, MetadataBuilder, DrawType};
 /// use open_vector_tile::Extent;
-/// use s2json::{MValue, MValueCompatible, Properties, Projection};
+/// use s2json::{Attributions, MValue, MValueCompatible, Properties, Projection};
 /// use std::{path::PathBuf, collections::BTreeMap};
 ///
 /// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
@@ -98,7 +98,7 @@ pub type FileTileBuilder = TileBuilder<FileTileWriter>;
 /// let build_guide = BuildGuide {
 ///     projection: Projection::WG,
 ///     build_indices: true,
-///     attributions: BTreeMap::from([("Satellite Data".into(), "https://example.com".into())]),
+///     attributions: Attributions::from([("Satellite Data".into(), "https://example.com".into())]),
 ///     layer_guides: vec![
 ///         // add points
 ///         LayerGuide::Vector(VectorLayerGuide {
@@ -282,7 +282,7 @@ fn setup_builder(build_guide: &BuildGuide) -> MetadataBuilder {
     meta_builder.set_scheme(scheme);
     meta_builder.set_type((&build_guide.format).into());
 
-    meta_builder.set_encoding(build_guide.encoding.clone());
+    meta_builder.set_encoding(build_guide.encoding);
     // Add attribution
     for (display_name, href) in attributions.iter() {
         meta_builder.add_attribution(display_name, href);

@@ -40,7 +40,7 @@ const geotiffReader = new GeoTIFFReader(
   new FileReader('utf.tif'),
   [UniversalTransverseMercator],
   { EPSG_32617 },
-  [{ key: 'BETA2007.gsb', reader: new FileReader('BETA2007.gsb') }]
+  [{ key: 'BETA2007.gsb', reader: new FileReader('BETA2007.gsb') }],
 );
 ```
 
@@ -56,7 +56,7 @@ const fileReader = new FileReader('utf.tif');
 const geotiffReader = new GeoTIFFReader(fileReader, ALL_DEFINITIONS, EPSG_CODES);
 ```
 
-It's recommended though to reduce build size by passing in the needed definitions and EPSG codes. You can refer to [projections](../proj4/projections.md) and [transformer](../proj4/transformer.md)  docs for more information.
+It's recommended though to reduce build size by passing in the needed definitions and EPSG codes. You can refer to [projections](../proj4/projections.md) and [transformer](../proj4/transformer.md) docs for more information.
 
 ## Polyfills
 

@@ -23,7 +23,9 @@ Be sure to checkout the [Reader](reader.md) page for more knowledge on how to in
 ```ts
 import { WKTGeometryReader } from 'gis-tools-ts';
 
-const reader = new WKTGeometryReader('POINT(4 6) GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(3 4,5 6))');
+const reader = new WKTGeometryReader(
+  'POINT(4 6) GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(3 4,5 6))',
+);
 
 // read the features
 for await (const feature of reader) {
@@ -58,7 +60,7 @@ If you're playing with a PROJ WKT string, feel free to use the `parseWKTProjecti
 ```ts
 import { isWKTProjection, parseWKTProjection } from 'gis-tools-ts';
 
-const projWKTStr = 'PROJCS["NZGD49 / New Zealand Map...'
+const projWKTStr = 'PROJCS["NZGD49 / New Zealand Map...';
 
 if (isWKTProjection(projWKTStr)) {
   const projectionObject = parseWKTProjection(projWKTStr);

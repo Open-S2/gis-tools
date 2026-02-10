@@ -184,8 +184,8 @@ export interface NadGridMetadata {
  * ```
  *
  * ## Links
- * - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
- * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
+ * - [https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf](https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf)
+ * - [http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm](http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm)
  */
 export class NadGridReader implements FeatureIterator<NadGridMetadata> {
   reader: Reader;

@@ -15,7 +15,7 @@ Represents an orthodrome, which is the shortest path between two points on a sph
 ## Usage
 
 ```ts
-import { Orthodrome } from 'gis-tools-ts'
+import { Orthodrome } from 'gis-tools-ts';
 
 // starting at lon-lat (-60, -40) and ending at (20, 10)
 const orthodrome = new Orthodrome(-60, -40, 20, 10);

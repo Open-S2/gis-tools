@@ -13,8 +13,8 @@ mod tests {
         },
     };
     use s2_tilejson::{Metadata, Scheme};
-    use s2json::{BBox, VectorGeometry, VectorPoint};
-    use std::{collections::BTreeMap, path::PathBuf};
+    use s2json::{Attributions, BBox, VectorGeometry, VectorPoint};
+    use std::path::PathBuf;
 
     #[test]
     fn test_convert_terrarium_elevation_data() {
@@ -141,7 +141,7 @@ mod tests {
                 name: "Modis Raster Dataset".into(),
                 description: "NASA Modis Dataset Reprojected by S2 MAPS INC.".into(),
                 // tilestats: TileStatsMetadata { total: 8190, total_0: 1365, total_1: 1365, total_2: 1365, total_3: 1365, total_4: 1365, total_5: 1365 }
-                attributions: BTreeMap::from([(
+                attributions: Attributions::from([(
                     "MODIS".into(),
                     "https://modis.gsfc.nasa.gov".into()
                 )]),

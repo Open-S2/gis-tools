@@ -147,11 +147,11 @@ export function dpper(
   let dls: number;
   let f2: number;
   let f3: number;
-  let pe: number;
-  let pgh: number;
-  let ph: number;
-  let pinc: number;
-  let pl: number;
+  let pe = 0;
+  let pgh = 0;
+  let ph = 0;
+  let pinc = 0;
+  let pl = 0;
   let sinzf: number;
   let xls: number;
   let xnoh: number;

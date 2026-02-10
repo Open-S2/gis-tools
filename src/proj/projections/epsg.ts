@@ -29999,8 +29999,7 @@ export const EPSG_5613 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_5614 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_5614 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # RH00 height
@@ -34575,8 +34574,7 @@ export const EPSG_6357 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_6358 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_6358 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # NGVD29 depth (ftUS)
@@ -44303,8 +44301,7 @@ export const EPSG_8050 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_8051 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_8051 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # MSL height (ftUS)
@@ -44319,8 +44316,7 @@ export const EPSG_8052 =
  * - **Type**: undefined
  * - **Datum**: N/A
  */
-export const EPSG_8053 =
-  'WKT is not supported for vertical CRS derived in multiple steps.';
+export const EPSG_8053 = 'WKT is not supported for vertical CRS derived in multiple steps.';
 
 /**
  * # GDA2020 / NSW Lambert
@@ -60987,7 +60983,7 @@ export const EPSG_10550 =
   'VERTCRS["DKLAT(2023) depth",VDATUM["Denmark Lowest Astronomic Tide (2023)",ID["EPSG",1375]],CS[vertical,1,ID["EPSG",6498]],AXIS["Depth (D)",down],LENGTHUNIT["metre",1,ID["EPSG",9001]],GEOIDMODEL["ETRS89 to DKLAT(2023) depth (1)",ID["EPSG",10563]],ID["EPSG",10550]]';
 
 /**
- * # DKMSL depth 
+ * # DKMSL depth
  * - **Type**: VERTCRS
  * - **Datum**: N/A
  */

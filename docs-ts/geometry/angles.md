@@ -64,7 +64,7 @@ const angle: S1Angle = angleToE7(45);
 
 ### Convert two S2Points to an S1Angle
 
-Return the angle between two points, which is also equal to the distance between these points on the unit sphere.  The points do not need to be normalized.  This function has a maximum error of 3.25 *DBL_EPSILON (or 2.5* DBL_EPSILON for angles up to 1 radian). If either point is zero-length (e.g. an uninitialized S2Point), or almost zero-length, the resulting angle will be zero.
+Return the angle between two points, which is also equal to the distance between these points on the unit sphere. The points do not need to be normalized. This function has a maximum error of 3.25 _DBL_EPSILON (or 2.5_ DBL_EPSILON for angles up to 1 radian). If either point is zero-length (e.g. an uninitialized S2Point), or almost zero-length, the resulting angle will be zero.
 
 ```ts
 import { angleFromS2Points } from 'gis-tools-ts';
@@ -77,7 +77,7 @@ const angle: S1Angle = angleFromS2Points(p1, p2);
 
 ### Convert two Lon-Lat to an S1Angle
 
-Like the constructor above, but return the angle (i.e., distance) between two S2LatLng points.  This function has about 15 digits of accuracy for small distances but only about 8 digits of accuracy as the distance approaches 180 degrees (i.e., nearly-antipodal points).
+Like the constructor above, but return the angle (i.e., distance) between two S2LatLng points. This function has about 15 digits of accuracy for small distances but only about 8 digits of accuracy as the distance approaches 180 degrees (i.e., nearly-antipodal points).
 
 ```ts
 import { angleFromS2Points } from 'gis-tools-ts';
@@ -172,13 +172,13 @@ const normalizedAngle: S1Angle = angleNormalize(angle);
 
 ## S1ChordAngle Description
 
-S1ChordAngle represents the angle subtended by a chord (i.e., the straight line segment connecting two points on the sphere).  Its representation makes it very efficient for computing and comparing distances, but unlike S1Angle it is only capable of representing angles between 0 and Pi radians. S1ChordAngle is intended for applications where many angles need to be computed and compared, otherwise it is simpler to use S1Angle. [See the full description in the ts-docs.](https://open-s2.github.io/gis-tools/types/index.S1ChordAngle.html).
+S1ChordAngle represents the angle subtended by a chord (i.e., the straight line segment connecting two points on the sphere). Its representation makes it very efficient for computing and comparing distances, but unlike S1Angle it is only capable of representing angles between 0 and Pi radians. S1ChordAngle is intended for applications where many angles need to be computed and compared, otherwise it is simpler to use S1Angle. [See the full description in the ts-docs.](https://open-s2.github.io/gis-tools/types/index.S1ChordAngle.html).
 
 ## S1ChordAngle Usage
 
 ### Convert an S1Angle to an S1ChordAngle
 
-Conversion from an S1Angle.  Angles outside the range `[0, Pi]` are handled as follows: Infinity() is mapped to Infinity(), negative angles are mapped to Negative(), and finite angles larger than Pi are mapped to Straight().
+Conversion from an S1Angle. Angles outside the range `[0, Pi]` are handled as follows: Infinity() is mapped to Infinity(), negative angles are mapped to Negative(), and finite angles larger than Pi are mapped to Straight().
 
 ```ts
 import { chordAngFromAngle } from 'gis-tools-ts';
@@ -190,7 +190,7 @@ const chordAngle: S1ChordAngle = chordAngFromAngle(angle);
 
 ### Construct an S1ChordAngle from the squared chord length
 
-Note that the argument is automatically clamped to a maximum of 4.0 to handle possible roundoff errors.  The argument must be non-negative.
+Note that the argument is automatically clamped to a maximum of 4.0 to handle possible roundoff errors. The argument must be non-negative.
 
 ```ts
 import { chordAngFromLength2 } from 'gis-tools-ts';

@@ -25,7 +25,9 @@ import { MMapVector } from 'gis-tools-ts/mmap';
 
 import type { VectorKey } from 'gis-tools-ts';
 
-interface Data extends VectorKey { name: string };
+interface Data extends VectorKey {
+  name: string;
+}
 
 // NOTE: Add an input string to the constructor to create a FileKV or MMapKV. Otherwise a tmp folder/file is used.
 const vec = new Vector<Data>();

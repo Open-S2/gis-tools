@@ -21,7 +21,7 @@ Be sure to checkout the [Reader](reader.md) page for more knowledge on how to in
 ### GIS Reader
 
 ```ts
-import { NadGridReader } from 'gis-tools-ts'
+import { NadGridReader } from 'gis-tools-ts';
 import { FileReader } from 'gis-tools-ts/file';
 // or use the MMapReader if using Bun:
 // import { MMapReader } from 'gis-tools-ts/mmap';

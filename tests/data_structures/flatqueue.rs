@@ -3,7 +3,7 @@
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
     use gistools::data_structures::FlatQueue;
-    use rand::Rng;
+    use rand::RngExt;
 
     #[test]
     fn maintains_a_priority_queue() {

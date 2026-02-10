@@ -23,7 +23,9 @@ import { FileKV } from 'gis-tools-ts/file';
 // Or use the MMapKV if using Bun:
 import { MMapKV } from 'gis-tools-ts/mmap';
 
-interface Data { name: string };
+interface Data {
+  name: string;
+}
 
 // NOTE: Add an input string to the constructor to create a FileKV or MMapKV. Otherwise a tmp folder/file is used.
 const kv = new KV<Data>();

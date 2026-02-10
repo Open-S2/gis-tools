@@ -132,7 +132,7 @@ export class LASpoint10 extends CopyDataView {
   get x(): number {
     return this.data.getInt32(0, true);
   }
-  /** set an I32 at x position */
+  /** @param value - set an I32 at x position */
   set x(value: number) {
     this.data.setInt32(0, value, true);
   }
@@ -141,7 +141,7 @@ export class LASpoint10 extends CopyDataView {
   get y(): number {
     return this.data.getInt32(4, true);
   }
-  /** set an I32 at y position */
+  /** @param value - set an I32 at y position */
   set y(value: number) {
     this.data.setInt32(4, value, true);
   }
@@ -150,7 +150,7 @@ export class LASpoint10 extends CopyDataView {
   get z(): number {
     return this.data.getInt32(8, true);
   }
-  /** set an I32 at z position */
+  /** @param value - set an I32 at z position */
   set z(value: number) {
     this.data.setInt32(8, value, true);
   }
@@ -159,7 +159,7 @@ export class LASpoint10 extends CopyDataView {
   get intensity(): number {
     return this.data.getUint16(12, true);
   }
-  /** set an U16 at intensity position */
+  /** @param value - set an U16 at intensity position */
   set intensity(value: number) {
     this.data.setUint16(12, value, true);
   }
@@ -184,7 +184,7 @@ export class LASpoint10 extends CopyDataView {
   get edgeOfFlightLine(): number {
     return this.flags >> 7;
   }
-  /** set an U8 at flags position */
+  /** @param value - set an U8 at flags position */
   set flags(value: number) {
     this.data.setUint8(14, value);
   }
@@ -205,7 +205,7 @@ export class LASpoint10 extends CopyDataView {
   get isWithheld(): boolean {
     return (this.class & (1 << 7)) !== 0;
   }
-  /** set an U8 at class position */
+  /** @param value - set an U8 at class position */
   set class(value: number) {
     this.data.setUint8(15, value);
   }
@@ -214,7 +214,7 @@ export class LASpoint10 extends CopyDataView {
   get scanAngleRank(): number {
     return this.data.getInt8(16);
   }
-  /** set an I8 at scan angle rank */
+  /** @param value - set an I8 at scan angle rank */
   set scanAngleRank(value: number) {
     this.data.setInt8(16, value);
   }
@@ -223,7 +223,7 @@ export class LASpoint10 extends CopyDataView {
   get userData(): number {
     return this.data.getUint8(17);
   }
-  /** set an U8 at user data position */
+  /** @param value - set an U8 at user data position */
   set userData(value: number) {
     this.data.setUint8(17, value);
   }
@@ -232,7 +232,7 @@ export class LASpoint10 extends CopyDataView {
   get pointSourceID(): number {
     return this.data.getUint16(18, true);
   }
-  /** set an U16 at point source ID position */
+  /** @param value - set an U16 at point source ID position */
   set pointSourceID(value: number) {
     this.data.setUint16(18, value, true);
   }
@@ -264,7 +264,7 @@ export class LASrgba extends CopyDataView {
   get r(): number {
     return this.data.getInt16(0, true);
   }
-  /** set an U16 red position */
+  /** @param value - set an U16 red position */
   set r(value: number) {
     this.data.setInt16(0, value, true);
   }
@@ -272,7 +272,7 @@ export class LASrgba extends CopyDataView {
   get g(): number {
     return this.data.getInt16(2, true);
   }
-  /** set an U16 green position */
+  /** @param value - set an U16 green position */
   set g(value: number) {
     this.data.setInt16(2, value, true);
   }
@@ -280,7 +280,7 @@ export class LASrgba extends CopyDataView {
   get b(): number {
     return this.data.getInt16(4, true);
   }
-  /** set an U16 blue position */
+  /** @param value - set an U16 blue position */
   set b(value: number) {
     this.data.setInt16(4, value, true);
   }
@@ -307,7 +307,7 @@ export class LASrgbaNir extends LASrgba {
   get nir(): number {
     return this.data.getInt16(6, true);
   }
-  /** set an U16 blue position */
+  /** @param value - set an U16 blue position */
   set nir(value: number) {
     this.data.setInt16(6, value, true);
   }
@@ -341,7 +341,7 @@ export class LASWavePacket13 extends CopyDataView {
   get index(): number {
     return this.data.getUint8(0);
   }
-  /** set the index */
+  /** @param value - set the index */
   set index(value: number) {
     this.data.setUint8(0, value);
   }
@@ -350,7 +350,7 @@ export class LASWavePacket13 extends CopyDataView {
   get offset(): number {
     return Number(this.data.getBigUint64(1, true));
   }
-  /** set an offset */
+  /** @param value - set an offset */
   set offset(value: number | bigint) {
     this.data.setBigUint64(1, BigInt(value), true);
   }
@@ -358,7 +358,7 @@ export class LASWavePacket13 extends CopyDataView {
   get packetSize(): number {
     return this.data.getUint32(9, true);
   }
-  /** set an packet size */
+  /** @param value - set an packet size */
   set packetSize(value: number) {
     this.data.setUint32(9, value, true);
   }
@@ -366,7 +366,7 @@ export class LASWavePacket13 extends CopyDataView {
   get returnPoint(): number {
     return this.data.getInt32(13, true);
   }
-  /** set an return point */
+  /** @param value - set an return point */
   set returnPoint(value: number) {
     this.data.setInt32(13, value, true);
   }
@@ -374,7 +374,7 @@ export class LASWavePacket13 extends CopyDataView {
   get x(): number {
     return this.data.getInt32(17, true);
   }
-  /** set an x */
+  /** @param value - set an x */
   set x(value: number) {
     this.data.setInt32(17, value, true);
   }
@@ -382,7 +382,7 @@ export class LASWavePacket13 extends CopyDataView {
   get y(): number {
     return this.data.getInt32(21, true);
   }
-  /** set an y */
+  /** @param value - set an y */
   set y(value: number) {
     this.data.setInt32(21, value, true);
   }
@@ -390,7 +390,7 @@ export class LASWavePacket13 extends CopyDataView {
   get z(): number {
     return this.data.getInt32(25, true);
   }
-  /** set an z */
+  /** @param value - set an z */
   set z(value: number) {
     this.data.setInt32(25, value, true);
   }
@@ -560,7 +560,7 @@ export class LASpoint14 extends CopyDataView {
   get x(): number {
     return this.data.getInt32(0, true);
   }
-  /** set an I32 at x position */
+  /** @param value - set an I32 at x position */
   set x(value: number) {
     this.data.setInt32(0, value, true);
   }
@@ -569,7 +569,7 @@ export class LASpoint14 extends CopyDataView {
   get y(): number {
     return this.data.getInt32(4, true);
   }
-  /** set an I32 at y position */
+  /** @param value - set an I32 at y position */
   set y(value: number) {
     this.data.setInt32(4, value, true);
   }
@@ -578,7 +578,7 @@ export class LASpoint14 extends CopyDataView {
   get z(): number {
     return this.data.getInt32(8, true);
   }
-  /** set an I32 at z position */
+  /** @param value - set an I32 at z position */
   set z(value: number) {
     this.data.setInt32(8, value, true);
   }
@@ -587,7 +587,7 @@ export class LASpoint14 extends CopyDataView {
   get intensity(): number {
     return this.data.getUint16(12, true);
   }
-  /** set an U16 at intensity position */
+  /** @param value - set an U16 at intensity position */
   set intensity(value: number) {
     this.data.setUint16(12, value, true);
   }
@@ -600,7 +600,7 @@ export class LASpoint14 extends CopyDataView {
   get legacyReturnNumber(): number {
     return this.flags1 & 0b00000111;
   }
-  /** set an U8 at legacy return number position */
+  /** @param value - set an U8 at legacy return number position */
   set legacyReturnNumber(value: number) {
     this.data.setUint8(14, (this.flags1 & 0b11111000) | (value & 0b111));
   }
@@ -608,7 +608,7 @@ export class LASpoint14 extends CopyDataView {
   get legacyNumberOfReturns(): number {
     return (this.flags1 & 0b00111000) >> 3;
   }
-  /** set an U8 at legacy number of returns position */
+  /** @param value - set an U8 at legacy number of returns position */
   set legacyNumberOfReturns(value: number) {
     this.data.setUint8(14, (this.flags1 & 0b11000111) | ((value & 0b111) << 3));
   }
@@ -616,7 +616,7 @@ export class LASpoint14 extends CopyDataView {
   get scanDirectionFlag(): number {
     return (this.flags1 & 0b01000000) >> 6;
   }
-  /** set an U8 at scan direction flag position */
+  /** @param value - set an U8 at scan direction flag position */
   set scanDirectionFlag(value: number) {
     this.data.setUint8(14, (this.flags1 & 0b10111111) | ((value & 0b1) << 6));
   }
@@ -624,11 +624,11 @@ export class LASpoint14 extends CopyDataView {
   get edgeOfFlightLine(): number {
     return (this.flags1 & 0b10000000) >> 7;
   }
-  /** set an U8 at edge of flight line position */
+  /** @param value - set an U8 at edge of flight line position */
   set edgeOfFlightLine(value: number) {
     this.data.setUint8(14, (this.flags1 & 0b01111111) | ((value & 0b1) << 7));
   }
-  /** set an U8 at first flags position */
+  /** @param value - set an U8 at first flags position */
   set flags1(value: number) {
     this.data.setUint8(14, value);
   }
@@ -653,7 +653,7 @@ export class LASpoint14 extends CopyDataView {
   get isWithheld(): boolean {
     return (this.legacyClassification & (1 << 7)) !== 0;
   }
-  /** set an U8 at legacy classification position */
+  /** @param value - set an U8 at legacy classification position */
   set legacyClassification(value: number) {
     this.data.setUint8(15, (this.flags2 & 0b11100000) | (value & 0b11111));
   }
@@ -661,11 +661,11 @@ export class LASpoint14 extends CopyDataView {
   get legacyFlags(): number {
     return (this.flags2 & 0b11100000) >> 5;
   }
-  /** set an U8 at legacy flags position */
+  /** @param value - set an U8 at legacy flags position */
   set legacyFlags(value: number) {
     this.data.setUint8(15, (this.flags2 & 0b00011111) | ((value & 0b111) << 5));
   }
-  /** set an U8 at second flags position */
+  /** @param value - set an U8 at second flags position */
   set flags2(value: number) {
     this.data.setUint8(15, value);
   }
@@ -674,7 +674,7 @@ export class LASpoint14 extends CopyDataView {
   get legacyScanAngleRank(): number {
     return this.data.getInt8(16);
   }
-  /** set an I8 at legacy scan angle rank position */
+  /** @param value - set an I8 at legacy scan angle rank position */
   set legacyScanAngleRank(value: number) {
     this.data.setInt8(16, value);
   }
@@ -683,7 +683,7 @@ export class LASpoint14 extends CopyDataView {
   get userData(): number {
     return this.data.getUint8(17);
   }
-  /** set an U8 at user data position */
+  /** @param value - set an U8 at user data position */
   set userData(value: number) {
     this.data.setUint8(17, value);
   }
@@ -692,7 +692,7 @@ export class LASpoint14 extends CopyDataView {
   get scanAngle(): number {
     return this.data.getInt16(18, true);
   }
-  /** set an I16 at scan angle position */
+  /** @param value - set an I16 at scan angle position */
   set scanAngle(value: number) {
     this.data.setInt16(18, value, true);
   }
@@ -703,7 +703,7 @@ export class LASpoint14 extends CopyDataView {
   get pointSourceID(): number {
     return this.data.getUint16(20, true);
   }
-  /** set an U16 at point source ID position */
+  /** @param value - set an U16 at point source ID position */
   set pointSourceID(value: number) {
     this.data.setUint16(20, value, true);
   }
@@ -720,7 +720,7 @@ export class LASpoint14 extends CopyDataView {
   get scannerChannel(): number {
     return (this.flags3 & 0b1100) >> 2;
   }
-  /** set an U8 at scanner channel position */
+  /** @param value - set an U8 at scanner channel position */
   set scannerChannel(value: number) {
     this.data.setUint8(22, (this.flags3 & 0b11110011) | ((value & 0b11) << 2));
   }
@@ -728,11 +728,11 @@ export class LASpoint14 extends CopyDataView {
   get classificationFlags(): number {
     return (this.flags3 & 0b11110000) >> 4;
   }
-  /** set an U8 at classification flags position */
+  /** @param value - set an U8 at classification flags position */
   set classificationFlags(value: number) {
     this.data.setUint8(22, (this.flags3 & 0b00001111) | ((value & 0b1111) << 4));
   }
-  /** set an U8 at third flags position */
+  /** @param value - set an U8 at third flags position */
   set flags3(value: number) {
     this.data.setUint8(22, value);
   }
@@ -741,7 +741,7 @@ export class LASpoint14 extends CopyDataView {
   get classification(): number {
     return this.data.getUint8(23);
   }
-  /** set an U8 at classification position */
+  /** @param value - set an U8 at classification position */
   set classification(value: number) {
     this.data.setUint8(23, value);
   }
@@ -754,7 +754,7 @@ export class LASpoint14 extends CopyDataView {
   get returnNumber(): number {
     return this.flags4 & 0b00001111;
   }
-  /** set an U8 at return number position */
+  /** @param value - set an U8 at return number position */
   set returnNumber(value: number) {
     this.data.setUint8(24, (this.flags4 & 0b11110000) | (value & 0b1111));
   }
@@ -762,11 +762,11 @@ export class LASpoint14 extends CopyDataView {
   get numberOfReturns(): number {
     return (this.flags4 & 0b11110000) >> 4;
   }
-  /** set an U8 at return number position */
+  /** @param value - set an U8 at return number position */
   set numberOfReturns(value: number) {
     this.data.setUint8(24, (this.flags4 & 0b00001111) | ((value & 0b1111) << 4));
   }
-  /** set an U8 at fourth flags position */
+  /** @param value - set an U8 at fourth flags position */
   set flags4(value: number) {
     this.data.setUint8(24, value);
   }
@@ -777,7 +777,7 @@ export class LASpoint14 extends CopyDataView {
   get deletedFlag(): number {
     return this.data.getUint8(25);
   }
-  /** set an U8 at deleted flag position */
+  /** @param value - set an U8 at deleted flag position */
   set deletedFlag(value: number) {
     this.data.setUint8(25, value);
   }
@@ -788,7 +788,7 @@ export class LASpoint14 extends CopyDataView {
   get dummy(): number {
     return this.data.getUint16(26, true);
   }
-  /** set an U8 at dummy position */
+  /** @param value - set an U8 at dummy position */
   set dummy(value: number) {
     this.data.setUint16(26, value, true);
   }
@@ -799,7 +799,7 @@ export class LASpoint14 extends CopyDataView {
   get gpsTimeChange(): number {
     return this.data.getUint8(28);
   }
-  /** set an BOOL at gps time change position */
+  /** @param value - set an BOOL at gps time change position */
   set gpsTimeChange(value: number) {
     this.data.setUint8(28, value);
   }
@@ -808,7 +808,7 @@ export class LASpoint14 extends CopyDataView {
   get gpsTime(): number {
     return this.data.getFloat64(29, true);
   }
-  /** set an F64 at gps time position */
+  /** @param value - set an F64 at gps time position */
   set gpsTime(value: number) {
     this.data.setFloat64(29, value, true);
   }
@@ -817,7 +817,7 @@ export class LASpoint14 extends CopyDataView {
   get r(): number {
     return this.data.getUint16(37, true);
   }
-  /** set an U16 red position */
+  /** @param value - set an U16 red position */
   set r(value: number) {
     this.data.setUint16(37, value, true);
   }
@@ -825,7 +825,7 @@ export class LASpoint14 extends CopyDataView {
   get g(): number {
     return this.data.getUint16(39, true);
   }
-  /** set an U16 green position */
+  /** @param value - set an U16 green position */
   set g(value: number) {
     this.data.setUint16(39, value, true);
   }
@@ -833,7 +833,7 @@ export class LASpoint14 extends CopyDataView {
   get b(): number {
     return this.data.getUint16(41, true);
   }
-  /** set an U16 blue position */
+  /** @param value - set an U16 blue position */
   set b(value: number) {
     this.data.setUint16(41, value, true);
   }

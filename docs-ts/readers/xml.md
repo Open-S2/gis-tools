@@ -16,7 +16,7 @@ A port of [A light XML library](https://github.com/DanielJDufour/xml-utils).
 
 XML tags are represented by a simple object with an outer and inner property.
 The "outer" property is the text string that completely encompasses the tag, equivalent to an HTML element's "outerHTML".
-The "inner" property represents the sub-parts of the tag.  It is similar to an HTML element's "textContent".
+The "inner" property represents the sub-parts of the tag. It is similar to an HTML element's "textContent".
 
 ## Get attribute
 
@@ -33,7 +33,7 @@ const key = getAttribute(xml, 'key');
 ```ts
 import { findTagByName } from 'gis-tools-ts';
 
-const xml = `<Metadata domain="IMAGE_STRUCTURE"><MDI key="INTERLEAVE">PIXEL</MDI></Metadata>`
+const xml = `<Metadata domain="IMAGE_STRUCTURE"><MDI key="INTERLEAVE">PIXEL</MDI></Metadata>`;
 const tag = findTagByName(xml, 'MDI');
 ```
 
@@ -84,7 +84,7 @@ const xml = `
          </gmd:RS_Identifier>
        </gmd:referenceSystemIdentifier>
        `;
-const tag = findTagByPath(xml, ["gmd:RS_Identifier", "gmd:code", "gco:CharacterString"]);
+const tag = findTagByPath(xml, ['gmd:RS_Identifier', 'gmd:code', 'gco:CharacterString']);
 ```
 
 ## Find multiple tags by path
@@ -99,9 +99,9 @@ const tags = findTagsByPath(xml, ['Metadata', 'MDI']);
 
 // find description for 10th tag in list
 const tags = findTagsByPath(iso, [
-  { name: "gmd:onLine", index: 9 }, // using zero-based index
+  { name: 'gmd:onLine', index: 9 }, // using zero-based index
   'gmd:description',
-  'gco:CharacterString'
+  'gco:CharacterString',
 ]);
 ```
 
@@ -115,7 +115,7 @@ const xml = `<list>
   <B/>
 </list>`;
 removeComments(xml);
-"<list>\n  \n<B/><list>";
+('<list>\n  \n<B/><list>');
 ```
 
 ## Remove tags by name
@@ -123,9 +123,9 @@ removeComments(xml);
 ```ts
 import { removeTagsByName } from 'gis-tools-ts';
 
-const xml = "<ul><li>A</li><li>B</li></ul>";
-removeTagsByName(xml, "li")
-"<ul></ul>"
+const xml = '<ul><li>A</li><li>B</li></ul>';
+removeTagsByName(xml, 'li');
+('<ul></ul>');
 ```
 
 ## Useful links

@@ -171,7 +171,7 @@ export function geocentricToGeodetic(p: VectorPoint, es: number, a: number, b: n
   let CPHI; /* cos of searched geodetic latitude */
   let SPHI; /* sin of searched geodetic latitude */
   let SDPHI; /* end-criterium: addition-theorem of sin(Latitude(iter)-Latitude(iter-1)) */
-  let iter; /* # of continous iteration, max. 30 is always enough (s.a.) */
+  let iter = 0; /* # of continous iteration, max. 30 is always enough (s.a.) */
 
   const X = p.x;
   const Y = p.y;
@@ -523,10 +523,9 @@ function nadInterpolate(pin: VectorPoint, ct: NadSubGrid): VectorPoint {
   const indx: VectorPoint = { x: floor(t.x), y: floor(t.y) };
   const frct = { x: t.x - indx.x, y: t.y - indx.y };
   const val = { x: NaN, y: NaN };
-  let inx;
   if (indx.x < 0 || indx.x >= ct.lim.x) return val;
   if (indx.y < 0 || indx.y >= ct.lim.y) return val;
-  inx = indx.y * ct.lim.x + indx.x;
+  let inx = indx.y * ct.lim.x + indx.x;
   const f00 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };
   inx++;
   const f10 = { x: ct.cvs[inx].x, y: ct.cvs[inx].y };

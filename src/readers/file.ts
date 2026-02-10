@@ -235,6 +235,7 @@ export class FileReader implements Reader {
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
     this.cursor = byteOffset + byteLength;
     const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
+    // oxlint-disable-next-line no-control-regex
     return out.replace(/\0/g, '');
   }
 

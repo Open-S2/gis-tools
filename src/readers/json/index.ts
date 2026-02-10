@@ -269,11 +269,13 @@ export class JSONReader<
   }
 
   /**
-   * since we know that a '{' is the start of a feature after we read a '"features"',
+   * since we know that a `'{'` is the start of a feature after we read a '"features"',
    * than we start there to avoid reading in values that are not features.
    * This is a modified Knuth–Morris–Pratt algorithm
-   * @returns - true if the start position was found
+   *
+   * @returns true if the start position was found
    */
+  // oxlint-disable-next-line jsdoc/require-returns - false positive
   #setStartPosition(): boolean {
     const features = Buffer.from('"features":');
     const featuresSize = features.length;
@@ -314,8 +316,9 @@ export class JSONReader<
    * Once we find the end of the feature, store the "start" and "end" indexes, slice the buffer and send out
    * as a return. If we run out of buffer to read AKA we finish the file, we return a null. If we run
    * out of the buffer, but we still have file left to read, just read into the buffer and continue on
-   * @returns - the feature or nothing if we hit the end of the file
+   * @returns the feature or nothing if we hit the end of the file
    */
+  // oxlint-disable-next-line jsdoc/require-returns - false positive
   #nextValue(): undefined | Features<M, D, P> {
     // get started
     while (this.#pos < this.#chunkSize) {

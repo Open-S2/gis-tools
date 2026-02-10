@@ -19,7 +19,13 @@ The Transformer class extends the [NadGridStore](../readers//nadgrid.md) class t
 ### Full Example
 
 ```ts
-import { Transformer, injectAllDefinitions, injectAllEPSGCodes, HotineObliqueMercator, EPSG_8803 } from 'gis-tools-ts';
+import {
+  Transformer,
+  injectAllDefinitions,
+  injectAllEPSGCodes,
+  HotineObliqueMercator,
+  EPSG_8803,
+} from 'gis-tools-ts';
 // Create a transform using a source and destination projection
 const transform = new Transformer();
 // inject all default definition projections. This is not memory efficient but ensures all
@@ -32,10 +38,7 @@ injectAllEPSGCodes(transform);
 // Or add a specific EPSG code
 transform.insertEPSGCode('EPSG_4326', EPSG_4326);
 // If the transform requires a grid, this is how you add it.
-transform.addGridFromReader(
-  'BETA2007.gsb',
-  new MMapReader(`${__dirname}/fixtures/BETA2007.gsb`),
-);
+transform.addGridFromReader('BETA2007.gsb', new MMapReader(`${__dirname}/fixtures/BETA2007.gsb`));
 // Set the source and destination projections
 transform.setSource('EPSG_31466');
 transform.setDestination('EPSG_25832');

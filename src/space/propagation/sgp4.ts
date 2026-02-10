@@ -179,24 +179,24 @@ export function sgp4(sat: Satellite, tsince: number): SGP4ErrorOutput | SGP4Outp
   let cosisq: number;
   let delm: number;
   let delomg: number;
-  let eo1: number;
+  let eo1 = 0;
   let argpm: number;
   let argpp: number;
-  let su: number;
+  let su = 0;
   let t3: number;
   let t4: number;
   let tc: number;
   let tem5: number;
   let temp: number;
   let tempa: number;
-  let tempe: number;
+  let tempe = 0;
   let templ: number;
   let inclm: number;
   let mm: number;
   let nm: number;
   let nodem: number;
   let xincp: number;
-  let xlm: number;
+  let xlm = 0;
   let mp: number;
   let nodep: number;
 

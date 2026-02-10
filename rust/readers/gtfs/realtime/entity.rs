@@ -27,22 +27,18 @@ impl From<&GTFSRealtimeEntity> for GTFSRealtimeEntityMessage {
     fn from(entity: &GTFSRealtimeEntity) -> Self {
         if entity.is_deleted {
             GTFSRealtimeEntityMessage::Deleted
-        } else if entity.trip_update.is_some() {
-            GTFSRealtimeEntityMessage::TripUpdate(entity.trip_update.as_ref().unwrap().clone())
-        } else if entity.vehicle_position.is_some() {
-            GTFSRealtimeEntityMessage::VehiclePosition(
-                entity.vehicle_position.as_ref().unwrap().clone(),
-            )
-        } else if entity.alert.is_some() {
-            GTFSRealtimeEntityMessage::Alert(entity.alert.as_ref().unwrap().clone())
-        } else if entity.shape.is_some() {
-            GTFSRealtimeEntityMessage::Shape(entity.shape.as_ref().unwrap().clone())
-        } else if entity.stop.is_some() {
-            GTFSRealtimeEntityMessage::Stop(entity.stop.as_ref().unwrap().clone())
-        } else if entity.trip_modifications.is_some() {
-            GTFSRealtimeEntityMessage::TripModifications(
-                entity.trip_modifications.as_ref().unwrap().clone(),
-            )
+        } else if let Some(trip_update) = &entity.trip_update {
+            GTFSRealtimeEntityMessage::TripUpdate(trip_update.clone())
+        } else if let Some(vehicle_position) = &entity.vehicle_position {
+            GTFSRealtimeEntityMessage::VehiclePosition(vehicle_position.clone())
+        } else if let Some(alert) = &entity.alert {
+            GTFSRealtimeEntityMessage::Alert(alert.clone())
+        } else if let Some(shape) = &entity.shape {
+            GTFSRealtimeEntityMessage::Shape(shape.clone())
+        } else if let Some(stop) = &entity.stop {
+            GTFSRealtimeEntityMessage::Stop(stop.clone())
+        } else if let Some(trip_modifications) = &entity.trip_modifications {
+            GTFSRealtimeEntityMessage::TripModifications(trip_modifications.clone())
         } else {
             GTFSRealtimeEntityMessage::Deleted
         }

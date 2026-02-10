@@ -60,7 +60,9 @@ import { averageInterpolation, PointIndexFast } from 'gis-tools-ts';
 import type { VectorPoint } from 'gis-tools-ts';
 
 // We have m-value data that we want to interpolate
-interface TempData { temp: number; }
+interface TempData {
+  temp: number;
+}
 
 const pointIndex = new PointIndexFast<TempData>();
 // add lots of points
@@ -99,7 +101,9 @@ import { nearestInterpolation, PointIndexFast } from 'gis-tools-ts';
 import type { VectorPoint } from 'gis-tools-ts';
 
 // We have m-value data that we want to interpolate
-interface TempData { temp: number; }
+interface TempData {
+  temp: number;
+}
 
 const pointIndex = new PointIndexFast<TempData>();
 // add lots of points
@@ -139,7 +143,9 @@ import { idwInterpolation, PointIndexFast } from 'gis-tools-ts';
 import type { VectorPoint } from 'gis-tools-ts';
 
 // We have m-value data that we want to interpolate
-interface TempData { temp: number; }
+interface TempData {
+  temp: number;
+}
 
 const pointIndex = new PointIndexFast<TempData>();
 // add lots of points
@@ -179,7 +185,9 @@ import { lanczosInterpolation, PointIndexFast } from 'gis-tools-ts';
 import type { VectorPoint } from 'gis-tools-ts';
 
 // We have m-value data that we want to interpolate
-interface TempData { temp: number; }
+interface TempData {
+  temp: number;
+}
 
 const pointIndex = new PointIndexFast<TempData>();
 // add lots of points

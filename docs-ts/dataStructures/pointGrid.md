@@ -12,7 +12,7 @@
 
 A cluster store to build grid data of gridSize x gridSize. The resultant tiles are filled. Useful for building raster tiles or other grid like data (temperature, precipitation, wind, etc).
 
-Note on interpolation. I have found that  Inverse Distance Weight (IDW) interpolation has the best results at max zoom. As data is scaled up, the interpolator is changed to Lanczos. Especially for RGBA data, lanczos absolutely nails it.
+Note on interpolation. I have found that Inverse Distance Weight (IDW) interpolation has the best results at max zoom. As data is scaled up, the interpolator is changed to Lanczos. Especially for RGBA data, lanczos absolutely nails it.
 
 You normally don't want to add a buffer to the Grid options as point data doesn't require it, but there are corner cases where you do want it. When working with wind data for example, you may want to animate wind particles on the GPU, and ass such it's good to know wind directions in neighboring cells. Having access to neighbors that extend out of the tile is important. Another example is terrain data where you may want to know the elevation of neighboring cells.
 

@@ -15,8 +15,8 @@ A fast algorithm for finding polygon pole of inaccessibility, the most distant i
 ## Usage
 
 ```ts
-import { polylabels, polylabel } from 'gis-tools-ts'
-import type { VectorMultiPolygon } from 'gis-tools-ts'
+import { polylabels, polylabel } from 'gis-tools-ts';
+import type { VectorMultiPolygon } from 'gis-tools-ts';
 
 // for vector multipolygons:
 const vectorGeometry: VectorMultiPolygon = [];

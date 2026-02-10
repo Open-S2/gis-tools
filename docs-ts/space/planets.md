@@ -25,8 +25,8 @@ import {
   EARTH_RADIUS_POLAR,
   EARTH_CIRCUMFERENCE,
   EARTH_LOWEST_ALTITUDE,
-  EARTH_HIGHEST_ALTITUDE
-} from 'gis-tools-ts'
+  EARTH_HIGHEST_ALTITUDE,
+} from 'gis-tools-ts';
 ```
 
 ### Jupiter
@@ -37,7 +37,7 @@ import {
   JUPITER_RADIUS_EQUATORIAL,
   JUPITER_RADIUS_POLAR,
   JUPITER_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Mars
@@ -48,7 +48,7 @@ import {
   MARS_RADIUS_EQUATORIAL,
   MARS_RADIUS_POLAR,
   MARS_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Mercury
@@ -59,7 +59,7 @@ import {
   MERCURY_RADIUS_EQUATORIAL,
   MERCURY_RADIUS_POLAR,
   MERCURY_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Moon
@@ -70,7 +70,7 @@ import {
   MOON_RADIUS_EQUATORIAL,
   MOON_RADIUS_POLAR,
   MOON_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Neptune
@@ -81,7 +81,7 @@ import {
   NEPTUNE_RADIUS_EQUATORIAL,
   NEPTUNE_RADIUS_POLAR,
   NEPTUNE_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Pluto
@@ -92,7 +92,7 @@ import {
   PLUTO_RADIUS_EQUATORIAL,
   PLUTO_RADIUS_POLAR,
   PLUTO_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Saturn
@@ -103,7 +103,7 @@ import {
   SATURN_RADIUS_EQUATORIAL,
   SATURN_RADIUS_POLAR,
   SATURN_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ### Venus
@@ -114,7 +114,7 @@ import {
   VENUS_RADIUS_EQUATORIAL,
   VENUS_RADIUS_POLAR,
   VENUS_CIRCUMFERENCE,
-} from 'gis-tools-ts'
+} from 'gis-tools-ts';
 ```
 
 ## Useful links

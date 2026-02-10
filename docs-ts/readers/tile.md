@@ -32,7 +32,7 @@ const reader = new RasterTilesReader('https://example.com/satellite-data', 3);
 const reader2 = new RasterTilesReader(
   'https://example.com/terrariumData',
   -1, // if -1 is set you want to access the max zoom data
-  convertTerrariumElevationData
+  convertTerrariumElevationData,
 );
 
 // grab the metadata

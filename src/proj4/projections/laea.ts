@@ -336,10 +336,9 @@ export class LambertAzimuthalEqualArea extends ProjectionBase implements Project
  * @returns [APA0, APA1, APA2]
  */
 function authset(es: number): APA {
-  let t;
   const APA: APA = [0, 0, 0];
   APA[0] = es * P00;
-  t = es * es;
+  let t = es * es;
   APA[0] += t * P01;
   APA[1] = t * P10;
   t *= es;

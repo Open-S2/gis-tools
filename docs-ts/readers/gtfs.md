@@ -24,7 +24,7 @@ import { buildGTFSSchedule } from 'gis-tools-ts';
 const schedule = await buildGTFSSchedule(gzipData);
 
 for await (const feature of schedule) {
-    console.log(feature);
+  console.log(feature);
 }
 ```
 

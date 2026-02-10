@@ -72,7 +72,11 @@ export class U32I32F32 {
   get u32(): number {
     return this.view.getUint32(0, true);
   }
-  /** sets an unsigned 32-bit number */
+  /**
+   * sets an unsigned 32-bit number
+   *
+   * @param value - the 32-bit unsigned number
+   */
   set u32(value: number) {
     this.view.setUint32(0, value, true);
   }
@@ -81,7 +85,11 @@ export class U32I32F32 {
   get i32(): number {
     return this.view.getInt32(0, true);
   }
-  /** sets a signed 32-bit number */
+  /**
+   * sets a signed 32-bit number
+   *
+   * @param value - the 32-bit signed number
+   */
   set i32(value: number) {
     this.view.setInt32(0, value, true);
   }
@@ -90,7 +98,11 @@ export class U32I32F32 {
   get f32(): number {
     return this.view.getFloat32(0, true);
   }
-  /** sets a 32-bit float */
+  /**
+   * sets a 32-bit float
+   *
+   * @param value - the 32-bit float
+   */
   set f32(value: number) {
     this.view.setFloat32(0, value, true);
   }
@@ -125,7 +137,11 @@ export class U64I64F64 {
   get u64(): bigint {
     return this.view.getBigUint64(0, true);
   }
-  /** sets an unsigned 64-bit number */
+  /**
+   * sets an unsigned 64-bit number
+   *
+   * @param value - the input 64-bit number
+   */
   set u64(value: bigint | number) {
     this.view.setBigUint64(0, BigInt(value), true);
   }
@@ -134,7 +150,11 @@ export class U64I64F64 {
   get i64(): bigint {
     return this.view.getBigInt64(0, true);
   }
-  /** sets a signed 64-bit number */
+  /**
+   * sets a signed 64-bit number
+   *
+   * @param value - the input 64-bit number
+   */
   set i64(value: number | bigint) {
     this.view.setBigInt64(0, BigInt(value), true);
   }
@@ -143,7 +163,10 @@ export class U64I64F64 {
   get f64(): number {
     return this.view.getFloat64(0, true);
   }
-  /** sets a 64-bit float */
+  /**
+   * sets a 64-bit float
+   * @param value - the input 64-bit float
+   */
   set f64(value: number | bigint) {
     this.view.setFloat64(0, Number(value), true);
   }

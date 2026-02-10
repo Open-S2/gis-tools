@@ -54,7 +54,7 @@ This implementation assumes the records are simple enough to parse the entire st
 import { parseCSVAsRecord } from 'gis-tools-ts';
 
 const csv: string = '...';
-const records = parseCSVAsRecord<{ a: string, b: number }>(csv);
+const records = parseCSVAsRecord<{ a: string; b: number }>(csv);
 ```
 
 ## Useful links

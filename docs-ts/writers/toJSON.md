@@ -42,9 +42,9 @@ const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
 const jsonReader = new JSONReader(fileReader);
 const bufWriter = new FileWriter(`${__dirname}/fixtures/points.geojsonld`);
 const onFeature = (feature) => {
- feature.metadata = { id: feature.id };
- return feature;
-}
+  feature.metadata = { id: feature.id };
+  return feature;
+};
 
 // store all the readers in a signle json file:
 await toJSONLD(bufWriter, [jsonReader], { projection: 'S2', buildBBox: true, onFeature });

@@ -75,7 +75,7 @@ If the OSM file is large, you will probably run out of memory, so feel free to u
 import { OSMFileReader } from 'gis-tools-ts/file';
 const reader = new OSMFileReader('./data.osm.pbf');
 
-// OR: 
+// OR:
 
 import { OSMMMapReader } from 'gis-tools-ts/mmap';
 const reader = new OSMMMapReader('./data.osm.pbf');

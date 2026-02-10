@@ -90,7 +90,8 @@ export class BonneWerner extends ProjectionBase implements ProjectionTransform {
     const { sin, cos, sqrt } = Math;
     const lam = adjustLon(p.x - (this.long0 ?? 0));
     const phi = p.y;
-    let E, c;
+    let E,
+      c = 0;
     const rh = this.am1 + this.m1 - pjMlfn(phi, (E = sin(phi)), (c = cos(phi)), this.en);
     E = (c * lam) / (rh * sqrt(1 - this.es * E * E));
     p.x = rh * sin(E);

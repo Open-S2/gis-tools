@@ -37,15 +37,15 @@ A collection of geospatial tools primarily designed for WGS84, Web Mercator, and
 
 Notable features of GIS-Tools are:
 
-* 🔗 Lightweight, fast, and memory efficient. `no_std` builds for Rust. Tree-shaking for Typescript.
-* 🗺️ Full toolkit support for WGS84, Web Mercator, and S2 projections.
-* 🌱 A large list of projections can be converted to/from one of the above 3 via Transformers.
-* 📦 Build Vector Tiles, Raster Tiles, and Gridded Data Tiles. Vector supports 3 output formats (Mapbox Vector Tile, Open S2 Tiles, and Flat Open S2 Tiles).
-* ✅ Most data structures support all projections, but primarily focus the big 3 states above. Also handle large data sets through working with the filesystem and mmap buffers.
-* 📖 Contains **23** native GIS readers. The list of readers are: CSV, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, Shapefiles, raster and vector tiles, WKT, and XML.
-* 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript. Rust requires a little more: [libm](https://github.com/rust-lang/libm), [half](https://docs.rs/half/latest/half/), [regex](https://github.com/rust-lang/regex), [serde](https://github.com/serde-rs/serde), [serde_json](https://github.com/serde-rs/json), and some optional std/wasm [memmap2](https://github.com/RazrFalcon/memmap2-rs), [image](https://github.com/image-rs/image), [flate2](https://github.com/rust-lang/flate2-rs) and [surf](https://github.com/http-rs/surf).
-* 🧲 Full suite of tools for points, lines, polygons, greater-circle-arcs, predicates, and more.
-* 🌌 Space specific tools for planets and satellite orbits.
+- 🔗 Lightweight, fast, and memory efficient. `no_std` builds for Rust. Tree-shaking for Typescript.
+- 🗺️ Full toolkit support for WGS84, Web Mercator, and S2 projections.
+- 🌱 A large list of projections can be converted to/from one of the above 3 via Transformers.
+- 📦 Build Vector Tiles, Raster Tiles, and Gridded Data Tiles. Vector supports 3 output formats (Mapbox Vector Tile, Open S2 Tiles, and Flat Open S2 Tiles).
+- ✅ Most data structures support all projections, but primarily focus the big 3 states above. Also handle large data sets through working with the filesystem and mmap buffers.
+- 📖 Contains **23** native GIS readers. The list of readers are: CSV, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, Shapefiles, raster and vector tiles, WKT, and XML.
+- 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript. Rust requires a little more: [libm](https://github.com/rust-lang/libm), [half](https://docs.rs/half/latest/half/), [regex](https://github.com/rust-lang/regex), [serde](https://github.com/serde-rs/serde), [serde_json](https://github.com/serde-rs/json), and some optional std/wasm [memmap2](https://github.com/RazrFalcon/memmap2-rs), [image](https://github.com/image-rs/image), [flate2](https://github.com/rust-lang/flate2-rs) and [surf](https://github.com/http-rs/surf).
+- 🧲 Full suite of tools for points, lines, polygons, greater-circle-arcs, predicates, and more.
+- 🌌 Space specific tools for planets and satellite orbits.
 
 ## Goals
 
@@ -98,29 +98,29 @@ deno install -g gis-tools-ts
 
 Most readers are parsers that take `ReaderInputs` as an input. This is to ensure both browser and file inputs are supported. You can learn more about [readers here](/docs-ts/readers/reader.md).
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [jpeg]                   | ![JPEG Badge][jpegBadge]      | Read/parse JPEG data.                                            |
-| [jpeg2000]               | ![JPEG2 Badge][jpeg2Badge]    | Read/parse JPEG 2000 data.                                       |
-| [lanczos]                | ![Lanc Badge][lancBadge]      | Apply a Lanczos filter that downsamples an image.                |
-| [csv]                    | ![CSV Badge][csvBadge]        | CSV data reader with options on parsing.                         |
-| [gbfs]                   | ![GBFS Badge][gbfsBadge]      | General Bikeshare Feed Specification reader.                     |
-| [geotiff]                | ![GTiff Badge][gtiffBadge]    | Geotiff image reader with projection support.                    |
-| [gpx]                    | ![GPX Badge][gpxBadge]        | GPX (xml based) data reader.                                     |
-| [grib2]                  | ![grib2 Badge][grib2Badge]    | GRIB 2 data reader.                                              |
-| [gtfs]                   | ![gtfs Badge][gtfsBadge]      | General Transit Feed Specification. Both Static and Realtime.    |
-| [json]                   | ![JSON Badge][jsonBadge]      | JSON data reader with line delimiter support.                    |
-| [las]                    | ![LAS Badge][lasBadge]        | LAS data reader.                                                 |
-| [laz]                    | ![LAZ Badge][lazBadge]        | LASzipped data reader.                                           |
-| [nadgrid]                | ![NGrid Badge][ngridBadge]    | NAD Grid data reader.                                            |
-| [netcdf]                 | ![NetCDF Badge][netcdfBadge]  | NetCDF data reader.                                              |
-| [osm]                    | ![OSM Badge][osmBadge]        | OpenStreetMap PBF data reader                                    |
-| [pmtiles]                | ![PMT Badge][pmtBadge]        | (S2)PMTiles data reader.                                         |
-| [protobuf]               | ![Proto Badge][protoBadge]    | Protobuf data reader/writer.                                     |
-| [shapefile]              | ![Shape Badge][shapeBadge]    | Shapefile data reader supporting DBF and projections (PRJ).      |
-| [tileReader]             | ![TR Badge][trBadge]          | Tile data reader, usually from a local input folder.             |
-| [wkt]                    | ![wkt Badge][wktBadge]        | Well Known Text data reader.                                     |
-| [xml]                    | ![XML Badge][xmlBadge]        | XML data reader.                                                 |
+| Module       |             Size             |                      <img width="550" height="0"> Description |
+| :----------- | :--------------------------: | ------------------------------------------------------------: |
+| [jpeg]       |   ![JPEG Badge][jpegBadge]   |                                         Read/parse JPEG data. |
+| [jpeg2000]   |  ![JPEG2 Badge][jpeg2Badge]  |                                    Read/parse JPEG 2000 data. |
+| [lanczos]    |   ![Lanc Badge][lancBadge]   |             Apply a Lanczos filter that downsamples an image. |
+| [csv]        |    ![CSV Badge][csvBadge]    |                      CSV data reader with options on parsing. |
+| [gbfs]       |   ![GBFS Badge][gbfsBadge]   |                  General Bikeshare Feed Specification reader. |
+| [geotiff]    |  ![GTiff Badge][gtiffBadge]  |                 Geotiff image reader with projection support. |
+| [gpx]        |    ![GPX Badge][gpxBadge]    |                                  GPX (xml based) data reader. |
+| [grib2]      |  ![grib2 Badge][grib2Badge]  |                                           GRIB 2 data reader. |
+| [gtfs]       |   ![gtfs Badge][gtfsBadge]   | General Transit Feed Specification. Both Static and Realtime. |
+| [json]       |   ![JSON Badge][jsonBadge]   |                 JSON data reader with line delimiter support. |
+| [las]        |    ![LAS Badge][lasBadge]    |                                              LAS data reader. |
+| [laz]        |    ![LAZ Badge][lazBadge]    |                                        LASzipped data reader. |
+| [nadgrid]    |  ![NGrid Badge][ngridBadge]  |                                         NAD Grid data reader. |
+| [netcdf]     | ![NetCDF Badge][netcdfBadge] |                                           NetCDF data reader. |
+| [osm]        |    ![OSM Badge][osmBadge]    |                                 OpenStreetMap PBF data reader |
+| [pmtiles]    |    ![PMT Badge][pmtBadge]    |                                      (S2)PMTiles data reader. |
+| [protobuf]   |  ![Proto Badge][protoBadge]  |                                  Protobuf data reader/writer. |
+| [shapefile]  |  ![Shape Badge][shapeBadge]  |   Shapefile data reader supporting DBF and projections (PRJ). |
+| [tileReader] |     ![TR Badge][trBadge]     |          Tile data reader, usually from a local input folder. |
+| [wkt]        |    ![wkt Badge][wktBadge]    |                                  Well Known Text data reader. |
+| [xml]        |    ![XML Badge][xmlBadge]    |                                              XML data reader. |
 
 [jpeg]: /docs-ts/readers/image/jpeg.md
 [jpegBadge]: /assets/badges/jpeg-gzip-cover.svg
@@ -167,12 +167,12 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Writers
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [pmtilesWriter]          | ![PMTW Badge][pmtwBadge]      | Write (S2)PMTiles data.                                          |
-| [tileWriter]             | ![TW Badge][twBadge]          | Write (S2)Tiles data. Supports time series as well.              |
-| [toJSON]                 | ![To JSON Badge][toJSONBadge] | Convert any Reader to JSON data.                                 |
-| [toTiles]                | ![FT Badge][toTilesBadge]     | Convert any Reader to vector and/or raster tiles.                |
+| Module          |             Size              |            <img width="550" height="0"> Description |
+| :-------------- | :---------------------------: | --------------------------------------------------: |
+| [pmtilesWriter] |   ![PMTW Badge][pmtwBadge]    |                             Write (S2)PMTiles data. |
+| [tileWriter]    |     ![TW Badge][twBadge]      | Write (S2)Tiles data. Supports time series as well. |
+| [toJSON]        | ![To JSON Badge][toJSONBadge] |                    Convert any Reader to JSON data. |
+| [toTiles]       |   ![FT Badge][toTilesBadge]   |   Convert any Reader to vector and/or raster tiles. |
 
 [pmtilesWriter]: /docs-ts/writers/pmtiles.md
 [pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
@@ -185,16 +185,16 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Geometry
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [angles]                 | ![Angle Badge][anglesBadge]   | Spherical geodetic angle methods.                                |
-| [bbox]                   | ![BBOX Badge][bboxBadge]      | Bounding box creation/manipulation.                              |
-| [id]                     | ![ID Badge][idBadge]          | ID tools for S2 and WM.                                          |
-| [lonlat]                 | ![LonLat Badge][lonlanBadge]  | Longitude/Latitude convienience methods.                         |
-| [predicates]             | ![Pred Badge][predBadge]      | Reliability predicates for 2D and 3D orientation geometry.       |
-| [s2]                     | ![S2 Badge][s2Badge]          | S2 geometry convienience methods.                                |
-| [tools]                  | ![Tools Badge][toolsBadge]    | Geometry manipulation tools.                                     |
-| [wm]                     | ![WM Badge][wmBadge]          | Web Mercator (WM) geometry convienience methods.                 |
+| Module       |             Size             |                   <img width="550" height="0"> Description |
+| :----------- | :--------------------------: | ---------------------------------------------------------: |
+| [angles]     | ![Angle Badge][anglesBadge]  |                          Spherical geodetic angle methods. |
+| [bbox]       |   ![BBOX Badge][bboxBadge]   |                        Bounding box creation/manipulation. |
+| [id]         |     ![ID Badge][idBadge]     |                                    ID tools for S2 and WM. |
+| [lonlat]     | ![LonLat Badge][lonlanBadge] |                   Longitude/Latitude convienience methods. |
+| [predicates] |   ![Pred Badge][predBadge]   | Reliability predicates for 2D and 3D orientation geometry. |
+| [s2]         |     ![S2 Badge][s2Badge]     |                          S2 geometry convienience methods. |
+| [tools]      |  ![Tools Badge][toolsBadge]  |                               Geometry manipulation tools. |
+| [wm]         |     ![WM Badge][wmBadge]     |           Web Mercator (WM) geometry convienience methods. |
 
 [angles]: /docs-ts/geometry/angles.md
 [anglesBadge]: /assets/badges/angles-gzip-cover.svg
@@ -215,11 +215,11 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### PROJ4
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [mgrs]                   | ![MGRS Badge][mgrsBadge]      | Military Grid Reference System (MGRS) converter.                 |
-| [projections]            | ![Proj Badge][projBadge]      | Supports a large list of projections to be used by transformers. |
-| [transformer]            | ![Trans Badge][transBadge]    | Tool for transforming coordinates from one projection to another.|
+| Module        |            Size            |                          <img width="550" height="0"> Description |
+| :------------ | :------------------------: | ----------------------------------------------------------------: |
+| [mgrs]        |  ![MGRS Badge][mgrsBadge]  |                  Military Grid Reference System (MGRS) converter. |
+| [projections] |  ![Proj Badge][projBadge]  |  Supports a large list of projections to be used by transformers. |
+| [transformer] | ![Trans Badge][transBadge] | Tool for transforming coordinates from one projection to another. |
 
 [mgrs]: /docs-ts/proj4/mgrs.md
 [mgrsBadge]: /assets/badges/mgrs-gzip-cover.svg
@@ -230,12 +230,12 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Data Stores
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [externalSort]           | ![ES Badge][esBadge]          | Sort large files with uint64 keys                                |
-| [kv]                     | ![KV Badge][kvBadge]          | Key-Value store that works in the browser and the filesystem.    |
-| [multiMap]               | ![MM Badge][mmBadge]          | Multi-map that works in the browser and the filesystem.          |
-| [vector]                 | ![Vec Badge][vecBadge]        | Vector store that works in the browser and the filesystem.       |
+| Module         |          Size          |                      <img width="550" height="0"> Description |
+| :------------- | :--------------------: | ------------------------------------------------------------: |
+| [externalSort] |  ![ES Badge][esBadge]  |                             Sort large files with uint64 keys |
+| [kv]           |  ![KV Badge][kvBadge]  | Key-Value store that works in the browser and the filesystem. |
+| [multiMap]     |  ![MM Badge][mmBadge]  |       Multi-map that works in the browser and the filesystem. |
+| [vector]       | ![Vec Badge][vecBadge] |    Vector store that works in the browser and the filesystem. |
 
 [externalSort]: /docs-ts/dataStore/externalSort.md
 [esBadge]: /assets/badges/externalSort-gzip-cover.svg
@@ -248,16 +248,16 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Data Structures
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [cache]                  | ![Cache Badge][cacheBadge]    | A KV cache for values with a max size. Least used dropped first. |
-| [pointGrid]              | ![PG Badge][pgBadge]          | Point grid tiling for number or raster data.                     |
-| [pointCluster]           | ![PC Badge][pcBadge]          | Point cluster tool with indexing.                                |
-| [pointIndex]             | ![PI Badge][piBadge]          | Point indexing with range/radius queries.                        |
-| [pointIndexFast]         | ![PIF Badge][pifBadge]        | Faster point indexing with range/radius queries.                 |
-| [priorityQueue]          | ![PQ Badge][pqBadge]          | A priority queue.                                                |
-| [splayTree]              | ![ST Badge][stBadge]          | Self balancing binary tree with O(log n) access                  |
-| [tile]                   | ![Tile Badge][tileBadge]      | A tile/layer management tool for features.                       |
+| Module           |            Size            |                         <img width="550" height="0"> Description |
+| :--------------- | :------------------------: | ---------------------------------------------------------------: |
+| [cache]          | ![Cache Badge][cacheBadge] | A KV cache for values with a max size. Least used dropped first. |
+| [pointGrid]      |    ![PG Badge][pgBadge]    |                     Point grid tiling for number or raster data. |
+| [pointCluster]   |    ![PC Badge][pcBadge]    |                                Point cluster tool with indexing. |
+| [pointIndex]     |    ![PI Badge][piBadge]    |                        Point indexing with range/radius queries. |
+| [pointIndexFast] |   ![PIF Badge][pifBadge]   |                 Faster point indexing with range/radius queries. |
+| [priorityQueue]  |    ![PQ Badge][pqBadge]    |                                                A priority queue. |
+| [splayTree]      |    ![ST Badge][stBadge]    |                  Self balancing binary tree with O(log n) access |
+| [tile]           |  ![Tile Badge][tileBadge]  |                       A tile/layer management tool for features. |
 
 [cache]: /docs-ts/dataStructures/cache.md
 [cacheBadge]: /assets/badges/cache-gzip-cover.svg
@@ -278,10 +278,10 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Space
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [planets]                | ![Planet Badge][planetBadge]  | Collection of planet constants with observation tools.           |
-| [satellite]              | ![SAT Badge][satBadge]        | Satellite Orbit Class from TLE data                              |
+| Module      |             Size             |               <img width="550" height="0"> Description |
+| :---------- | :--------------------------: | -----------------------------------------------------: |
+| [planets]   | ![Planet Badge][planetBadge] | Collection of planet constants with observation tools. |
+| [satellite] |    ![SAT Badge][satBadge]    |                    Satellite Orbit Class from TLE data |
 
 [planets]: /docs-ts/space/planets.md
 [planetBadge]: /assets/badges/planets-gzip-cover.svg
@@ -290,12 +290,12 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Tools
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [delaunator]             | ![DEL Badge][delBadge]        | Delaunay triangulation of 2D points.                             |
-| [interpolators]          | ![INT Badge][intBadge]        | Interpolate values from points and weights.                      |
-| [orthodrome]             | ![ORT Badge][orthBadge]       | Find shortest path between two points or point on path.          |
-| [polylabel]              | ![POL Badge][polBadge]        | Find the labels for vector polygons                              |
+| Module          |          Size           |                <img width="550" height="0"> Description |
+| :-------------- | :---------------------: | ------------------------------------------------------: |
+| [delaunator]    | ![DEL Badge][delBadge]  |                    Delaunay triangulation of 2D points. |
+| [interpolators] | ![INT Badge][intBadge]  |             Interpolate values from points and weights. |
+| [orthodrome]    | ![ORT Badge][orthBadge] | Find shortest path between two points or point on path. |
+| [polylabel]     | ![POL Badge][polBadge]  |                     Find the labels for vector polygons |
 
 [delaunator]: /docs-ts/tools/delaunator.md
 [delBadge]: /assets/badges/delaunator-gzip-cover.svg
@@ -308,10 +308,10 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Utils
 
-| Module                   | Size                          | <img width="550" height="0"> Description                         |
-| :----------------------- | :---------------------------: | ---------------------------------------------------------------: |
-| [polyfills]              | ![PF Badge][pfBadge]          | Collection of polyfills that might add value for the browser.    |
-| [compression]            | ![CMP Badge][cmpBadge]        | compression/decompression convenience methods.                   |
+| Module        |          Size          |                      <img width="550" height="0"> Description |
+| :------------ | :--------------------: | ------------------------------------------------------------: |
+| [polyfills]   |  ![PF Badge][pfBadge]  | Collection of polyfills that might add value for the browser. |
+| [compression] | ![CMP Badge][cmpBadge] |                compression/decompression convenience methods. |
 
 [polyfills]: /docs-ts/util/polyfills.md
 [pfBadge]: /assets/badges/polyfills-gzip-cover.svg

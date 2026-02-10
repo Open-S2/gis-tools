@@ -26,7 +26,7 @@ const filters = [':DZDT:0.01 mb:', ':TMP:0.4 mb:', ':ABSV:0.4 mb:anl:'];
 // fetch the .idx file
 const idxs = await parsedIDXFromURL(`${link}.idx`, filters);
 // now bulid the reader
-const gribReader =  await GRIB2Reader.fromIDX(link, idxs);
+const gribReader = await GRIB2Reader.fromIDX(link, idxs);
 
 for await (const feature of gribReader) {
   console.log(feature);
@@ -55,8 +55,8 @@ An example of a file tree I walked:
 A dataset that I see used in weather products is:
 
 ```sh
-gfs.t12z.pgrb2.0p25.f000                     09-Feb-2025 15:31  471M  
-gfs.t12z.pgrb2.0p25.f000.idx                 09-Feb-2025 15:31   31K 
+gfs.t12z.pgrb2.0p25.f000                     09-Feb-2025 15:31  471M
+gfs.t12z.pgrb2.0p25.f000.idx                 09-Feb-2025 15:31   31K
 ```
 
 A lot of that 471MB is useless to your application, so the idx is important to help filter it.
@@ -79,13 +79,14 @@ const data = await fetchGFSAtmos(
   '09', // day
   '12', // hour
   '000', // forecast (3 digits often in increments of 3 up to 384, e.g. '000' or '003')
-  [ // FILTERS
+  [
+    // FILTERS
     ':TMP:1 mb:',
     ':RH:1 mb:',
     ':UGRD:1 mb:',
     ':VGRD:1 mb:',
-  ]
-)
+  ],
+);
 ```
 
 ### GFS WAVE data
@@ -104,8 +105,8 @@ An example of a file tree I walked:
 A dataset that I see used in weather products is:
 
 ```sh
-gfswave.t12z.arctic.9km.f000.grib2                09-Feb-2025 15:29  5.7M  
-gfswave.t12z.arctic.9km.f000.grib2.idx            09-Feb-2025 15:29  851 
+gfswave.t12z.arctic.9km.f000.grib2                09-Feb-2025 15:29  5.7M
+gfswave.t12z.arctic.9km.f000.grib2.idx            09-Feb-2025 15:29  851
 ```
 
 A lot of that 5.7M is useless to your application, so the idx is important to help filter it.
@@ -119,16 +120,10 @@ Let's use the AWS database for this example.
 ```ts
 import { fetchGFSWave } from '@turf/grib2';
 
-const data = await fetchGFSWave(
-    `aws`,
-    'arctic.9km',
-    '2025',
-    '02',
-    '09',
-    '12',
-    '000',
-    ['UGRD:surface', 'VGRD:surface'],
-  );
+const data = await fetchGFSWave(`aws`, 'arctic.9km', '2025', '02', '09', '12', '000', [
+  'UGRD:surface',
+  'VGRD:surface',
+]);
 ```
 
 ## Useful links

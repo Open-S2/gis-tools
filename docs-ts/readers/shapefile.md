@@ -41,10 +41,17 @@ for await (const feature of reader) {
 ## Browser or Locally
 
 ```ts
-import { shapefileFromGzip, shapefileFromURL, LambertConformalConic, EPSG_9974 } from 'gis-tools-ts';
+import {
+  shapefileFromGzip,
+  shapefileFromURL,
+  LambertConformalConic,
+  EPSG_9974,
+} from 'gis-tools-ts';
 
 // From a URL:
-const reader = await shapefileFromURL('https://example.com/data.zip', [LambertConformalConic], { EPSG_9974 });
+const reader = await shapefileFromURL('https://example.com/data.zip', [LambertConformalConic], {
+  EPSG_9974,
+});
 // OR from raw ArrayBuffer from a gzip file
 const reader = await shapefileFromGzip(arrayBufferInput, [LambertConformalConic], { EPSG_9974 });
 
@@ -79,7 +86,7 @@ const def: Definition = {
   shp: 'path/to/file.shp',
   dbf: 'path/to/file.dbf',
   prj: 'path/to/file.prj',
-  cpg: 'path/to/file.cpg'
+  cpg: 'path/to/file.cpg',
 };
 
 const reader = await shapefileFromDefinition(def, [LambertConformalConic], { EPSG_9974 });

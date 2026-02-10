@@ -91,8 +91,8 @@ impl<R: Reader> PMTilesReader<R> {
 
     /// fetch the s2 metadata as needed
     pub async fn get_header(&mut self) -> S2PMHeader {
-        if self.header.is_some() {
-            return self.header.unwrap();
+        if let Some(header) = self.header {
+            return header;
         }
 
         let data = self.get_range(0, S2_PM_ROOT_SIZE as u64).await;

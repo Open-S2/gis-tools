@@ -93,12 +93,6 @@
 
 // // console.log('laz', laz)
 
-
-
-
-
-
-
 // import { LASZipReader, idFromLonLat, LambertConformalConic } from './src';
 // import { FileReader } from './src/file';
 
@@ -139,9 +133,6 @@
 
 // console.log(nums.slice(0, 10))
 
-
-
-
 // import { Transformer, WebMercator } from './src';
 
 // const transformer = new Transformer();
@@ -178,12 +169,6 @@
 // let fwd = transformer.forward({ x: 1, y: 1 });
 // console.log('fwd', fwd)
 
-
-
-
-
-
-
 // import { decodeJpegData } from './src';
 
 // /**
@@ -198,14 +183,6 @@
 // const _rawImageData = decodeJpegData(jpegData);
 // console.log(_rawImageData.data.slice(0, 20))
 
-
-
-
-
-
-
-
-
 // import { GeoTIFFReader, ExtendedTransverseMercator } from './src';
 // import { FileReader } from './src/file';
 
@@ -217,9 +194,6 @@
 // // const _rgb = await image.getRGBA();
 // // const value_2_0 = await image.getValue(2, 0);
 // // console.log(value_2_0[0])
-
-
-
 
 // // import { LASReader, EPSG_26915, UniversalTransverseMercator } from './src';
 // // import { FileReader } from './src/file';
@@ -235,13 +209,6 @@
 // // AFTER:
 // // x: -93.35156259019989,
 // // y: 41.577148395419115
-
-
-
-
-
-
-
 
 // import GtfsRealtimeBindings from 'gtfs-realtime-bindings';
 // import * as fs from 'fs';
@@ -393,13 +360,10 @@
 // const buffer = GtfsRealtimeBindings.transit_realtime.FeedMessage.encode(message).finish();
 // fs.writeFileSync('./realtime_test_data_11.pb', buffer);
 
-
-
 // const bytes = [117, 114, 108, 32];
 // const buffer = Buffer.from(bytes);
 // const value = buffer.readUInt32BE(0);
 // console.log(value); // 1780692640
-
 
 // import { BoxIndex } from './src';
 // import Flatbush from 'flatbush'
@@ -466,7 +430,6 @@
 //   return new BoxIndex<Item>(items, accessor);
 // }
 
-
 // function createIndexFlatbush(): Flatbush {
 //   let index = new Flatbush(items.length);
 
@@ -492,7 +455,6 @@
 
 // expect(indicesMine).toEqual(indicesFlatbush);
 
-
 // const itemsMine = indexMine.neighbors(50, 50, Infinity, 12);
 // const itemsFlatbush = indexFlatbush.neighbors(50, 50, Infinity, 12).map(itemIndex => items[itemIndex]);
 
@@ -502,8 +464,6 @@
 // const itemsSearchFlatbush = indexFlatbush.search(40, 40, 60, 60).map(itemIndex => items[itemIndex]);
 
 // expect(itemsSearchMine.sort((itemA, itemB) => itemA.id - itemB.id)).toEqual(itemsSearchFlatbush.sort((itemA, itemB) => itemA.id - itemB.id));
-
-
 
 // import { cleanPolygons, convert, polygonsUnion, vectorToFlat } from './src/index.js';
 
@@ -536,9 +496,12 @@
 // );
 
 import { vectorToFlat } from './src/index.js';
+
 import { shapefileFromPath } from './src/file.js';
 
-const shapefile = await shapefileFromPath(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`);
+const shapefile = await shapefileFromPath(
+  `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`,
+);
 
 const featureCollection = await shapefile.getFeatureCollection();
 for (const feature of featureCollection.features) {
@@ -546,7 +509,10 @@ for (const feature of featureCollection.features) {
   feature.geometry = vectorToFlat(feature.geometry);
 }
 
-await Bun.write(`${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`, JSON.stringify(featureCollection, null, 2));
+await Bun.write(
+  `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`,
+  JSON.stringify(featureCollection, null, 2),
+);
 
 // import { type VectorPoint, type MValue, type Properties, equalPoints, orient2dVector, intersectionOfSegmentsRobust } from './src/index.js';
 

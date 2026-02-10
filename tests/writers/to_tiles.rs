@@ -19,7 +19,8 @@ mod tests {
         TileStatsMetadata, VectorLayer,
     };
     use s2json::{
-        BBox, MValue, MValueCompatible, PrimitiveShape, Projection, Properties, Shape, ShapeType,
+        Attributions, BBox, MValue, MValueCompatible, PrimitiveShape, Projection, Properties,
+        Shape, ShapeType,
     };
     use serde::{Deserialize, Serialize};
     use std::{collections::BTreeMap, path::PathBuf, vec};
@@ -65,7 +66,7 @@ mod tests {
             vector_guide: TileStoreOptions { maxzoom: Some(4), ..Default::default() },
             ..Default::default()
         }));
-        build_guide.attributions = BTreeMap::from([("a".into(), "b".into())]);
+        build_guide.attributions = Attributions::from([("a".into(), "b".into())]);
         let mut tile_builder = TileBuilder::new(local_tile_writer, build_guide);
 
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -114,7 +115,7 @@ mod tests {
                 minzoom: 0,
                 maxzoom: 4,
                 centerpoint: Center { lon: 0.0, lat: 0.0, zoom: 2 },
-                attributions: BTreeMap::from([("a".into(), "b".into())]),
+                attributions: Attributions::from([("a".into(), "b".into())]),
                 layers: BTreeMap::from([(
                     "points".into(),
                     LayerMetaData {
@@ -153,7 +154,8 @@ mod tests {
                 data: None,
                 grids: None,
                 legend: None,
-                template: None
+                template: None,
+                interval: None,
             }
         );
     }
@@ -170,7 +172,7 @@ mod tests {
                 extension: "pbf".into(),
                 projection: Projection::S2,
                 encoding: Encoding::None,
-                attribution: BTreeMap::default(),
+                attribution: Attributions::default(),
                 format: FormatOutput::default(),
                 vector_sources: vec![],
                 raster_sources: vec![],
@@ -205,7 +207,10 @@ mod tests {
         let build_guide = BuildGuide {
             projection: Projection::WG,
             build_indices: true,
-            attributions: BTreeMap::from([("Satellite Data".into(), "https://example.com".into())]),
+            attributions: Attributions::from([(
+                "Satellite Data".into(),
+                "https://example.com".into(),
+            )]),
             layer_guides: vec![
                 // add points
                 LayerGuide::Vector(VectorLayerGuide {
@@ -275,7 +280,10 @@ mod tests {
             projection: Projection::WG,
             build_indices: true,
             format: FormatOutput::Mapbox,
-            attributions: BTreeMap::from([("Satellite Data".into(), "https://example.com".into())]),
+            attributions: Attributions::from([(
+                "Satellite Data".into(),
+                "https://example.com".into(),
+            )]),
             layer_guides: vec![
                 // add points
                 LayerGuide::Vector(VectorLayerGuide {

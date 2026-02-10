@@ -47,51 +47,51 @@ import { Pbf as Protobuf } from 'gis-tools-ts';
 
 /** Building a class to test with. */
 class Test {
-    a = 0;
-    b = 0;
-    c = 0;
-    /**
-     * @param pbf - the Protobuf object to read from
-     * @param end - the position to stop at
-     */
-    constructor(pbf: Protobuf, end = 0) {
-        pbf.readFields(Test.read, this, end);
-    }
-    /**
-     * @param t - the test object to write.
-     * @param pbf - the Protobuf object to write to.
-     */
-    static writeMessage(t: Test, pbf: Protobuf): void {
-        pbf.writeVarintField(1, t.a);
-        pbf.writeFloatField(2, t.b);
-        pbf.writeSVarintField(3, t.c);
-    }
+  a = 0;
+  b = 0;
+  c = 0;
+  /**
+   * @param pbf - the Protobuf object to read from
+   * @param end - the position to stop at
+   */
+  constructor(pbf: Protobuf, end = 0) {
+    pbf.readFields(Test.read, this, end);
+  }
+  /**
+   * @param t - the test object to write.
+   * @param pbf - the Protobuf object to write to.
+   */
+  static writeMessage(t: Test, pbf: Protobuf): void {
+    pbf.writeVarintField(1, t.a);
+    pbf.writeFloatField(2, t.b);
+    pbf.writeSVarintField(3, t.c);
+  }
 
-    /**
-     * @param tag - the tag to read.
-     * @param test - the test to modify
-     * @param pbf - the Protobuf object to read from
-     */
-    static read(tag: number, test: Test, pbf: Protobuf): void {
-        if (tag === 1) test.a = pbf.readVarint();
-        else if (tag === 2) test.b = pbf.readFloat();
-        else if (tag === 3) test.c = pbf.readSVarint();
-        else throw new Error(`Unexpected tag: ${tag}`);
-    }
+  /**
+   * @param tag - the tag to read.
+   * @param test - the test to modify
+   * @param pbf - the Protobuf object to read from
+   */
+  static read(tag: number, test: Test, pbf: Protobuf): void {
+    if (tag === 1) test.a = pbf.readVarint();
+    else if (tag === 2) test.b = pbf.readFloat();
+    else if (tag === 3) test.c = pbf.readSVarint();
+    else throw new Error(`Unexpected tag: ${tag}`);
+  }
 
-    /**
-     * @returns - a new test object
-     */
-    static newTest(): Test {
-        return { a: 1, b: 2.2, c: -3 } as Test;
-    }
+  /**
+   * @returns - a new test object
+   */
+  static newTest(): Test {
+    return { a: 1, b: 2.2, c: -3 } as Test;
+  }
 
-    /**
-     * @returns - a new default test object
-     */
-    static newTestDefault(): Test {
-        return { a: 0, b: 0, c: 0 } as Test;
-    }
+  /**
+   * @returns - a new default test object
+   */
+  static newTestDefault(): Test {
+    return { a: 0, b: 0, c: 0 } as Test;
+  }
 }
 
 // Writing the message

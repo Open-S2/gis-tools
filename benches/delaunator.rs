@@ -3,7 +3,7 @@ use criterion::{
     AxisScale, BenchmarkId, Criterion, PlotConfiguration, criterion_group, criterion_main,
 };
 use gistools::tools::Delaunator;
-use rand::{Rng, SeedableRng, rngs::StdRng};
+use rand::{RngExt, SeedableRng, rngs::StdRng};
 use s2json::Point;
 
 const COUNTS: &[usize] = &[100, 1000, 10_000, 100_000, 1_000_000];

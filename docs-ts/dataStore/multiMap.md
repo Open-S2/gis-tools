@@ -23,7 +23,9 @@ import { FileMultiMap } from 'gis-tools-ts/file';
 // Or use the MMap store if using Bun:
 import { MMapMultiMap } from 'gis-tools-ts/mmap';
 
-interface Data { name: string };
+interface Data {
+  name: string;
+}
 
 // NOTE: Add an input string to the constructor to create a FileKV or MMapKV. Otherwise a tmp folder/file is used.
 const mm = new MMap<Data>();

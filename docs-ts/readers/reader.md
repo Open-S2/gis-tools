@@ -75,7 +75,9 @@ Assuming we are in the browser, we can parse a GeoTIFF for instance as follows:
 ```ts
 import { GeoTIFFReader } from 'gis-tools-ts';
 
-const data = await fetch('https://example.com/example.tiff').then(async (res) => await res.arrayBuffer());
+const data = await fetch('https://example.com/example.tiff').then(
+  async (res) => await res.arrayBuffer(),
+);
 const reader = new GeoTIFFReader(data);
 ```
 

@@ -98,6 +98,7 @@ export class Delaunator {
    * @param points - flattened array of x,y vector points. e.g. [{ x1, y1 }, { x2, y2 }, ...]
    * @returns - a Delaunator class to do Delaunay triangulation
    */
+  // oxlint-disable-next-line jsdoc/require-returns jsdoc/require-param - false positive
   static fromVectorPoints(points: VectorPoint[]): Delaunator {
     const n = points.length;
     const coords = new Array(n * 2);

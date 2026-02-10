@@ -32,43 +32,43 @@ Error: "omerc" invalid, unsupported, or not loaded
 
 Here is a useful lookup map. Click the import name for the TS documentation:
 
-| Import Name | Short Name |
-| --- | --- |
-| [AlbersConicEqualArea] | `aea`, `Albers`, `Albers_Conic_Equal_Area` |
-| [AzimuthalEquidistant] | `aeqd`, `Azimuthal_Equidistant` |
-| [BonneWerner] | `bonne`, `bonne_werner` |
-| [CassiniSoldner] | `cass`, `Cassini`, `Cassini_Soldner` |
-| [CylindricalEqualArea] | `cea`, `Equal_Area_Cylindrical` |
-| [EquidistantCylindrical] | `eqc`, `Equidistant_Cylindrical`, `Equirectangular`, `Equidistant Cylindrical (Plate Carre)` |
-| [EquidistantConic] | `eqdc`, `Equidistant_Conic` |
-| [EqualEarth] | `eqearth`, `Equal_Earth`, `EqualEarth`, `Equal_Area_Cylindrical`, `Equal Earth` |
-| [EquiRectangular] | `equi`, `EquiRectangular` |
-| [ExtendedTransverseMercator] | `etmerc`, `ExtendedTransverseMercator`, `Extended_Transverse_Mercator`, `Extended Transverse Mercator` |
-| [GaussKruger] | `gauss`, `Gauss_Kruger`, `GaussKruger`, `Gauss Kruger` |
-| [Geocentric] | `geocent`, `Geocentric` |
-| [GeostationarySatelliteView] | `geos`, `Geostationary_Satellite`, `Geostationary Satellite View`, `GeostationarySatelliteView` |
-| [Gnomonic] | `gnom`, `Gnomonic`, `GnomonicProjection`, `Gnomonic Projection` |
-| [GaussSchreiberTransverseMercator] | `gstmerc`, `gstmerg`, `GaussSchreiberTransverseMercator`, `Gauss-Schreiber Transverse Mercator`, `Gauss_Schreiber_Transverse_Mercator` |
-| [Krovak] | `krovak` |
-| [LambertAzimuthalEqualArea] | `laea`, `Lambert_Azimuthal_Equal_Area`, `Lambert Azimuthal Equal Area`, `LambertAzimuthalEqualArea` |
-| [LambertConformalConic] | `lcc`, `Lambert_Conformal_Conic`, `Lambert Conformal Conic`, `LambertConformalConic`, `Lambert_Conformal_Conic_1SP`, `Lambert_Conformal_Conic_2SP` |
-| [Mercator] | `merc`, `Mercator`, `Mercator_1SP`, `Mercator_Auxiliary_Sphere` |
-| [MillerCylindrical] | `mill`, `Miller_Cylindrical`, `Miller Cylindrical`, `MillerCylindrical` |
-| [Mollweide] | `moll`, `Mollweide` |
-| [NewZealandMapGrid] | `nzmg`, `New_Zealand_Map_Grid`, `NewZealandMapGrid` |
-| [HotineObliqueMercator] | `omerc`, `Hotine_Oblique_Mercator`, `HotineObliqueMercator`, `Hotine Oblique Mercator`, `Oblique_Mercator` |
-| [Orthographic] | `ortho`, `Orthographic` |
-| [Polyconic] | `poly`, `Polyconic` |
-| [QuadrilateralizedSphericalCube] | `qsc`, `Quadrilateralized_Spherical_Cube`, `QuadrilateralizedSphericalCube`, `Quadrilateralized_Spherical_Cube` |
-| [Robinson] | `robin`, `Robinson` |
-| [Sinusoidal] | `sinu`, `Sinusoidal` |
-| [SwissObliqueMercator] | `somerc`, `Swiss_Oblique_Mercator`, `SwissObliqueMercator`, `Swiss Oblique Mercator` |
-| [StereographicSouthPole] | `stere`, `Stereographic_South_Pole`, `StereographicSouthPole`, `Stereographic South Pole`, `Polar_Stereographic` |
-| [StereographicNorthPole] | `sterea`, `Oblique_Stereographic`, `StereographicNorthPole`, `Stereographic North Pole`, `Stereographic_North_Pole` |
-| [TransverseMercator] | `tmerc`, `Transverse_Mercator`, `TransverseMercator`, `Transverse Mercator` |
-| [TiltedPerspective] | `tpers`, `TiltedPerspective`, `Tilted_Perspective` |
-| [UniversalTransverseMercator] | `utm`, `Universal_Transverse_Mercator`, `UniversalTransverseMercator`, `Universal Transverse Mercator` |
-| [VanDerGrinten] | `vandg`, `VanDerGrinten`, `Van_der_Grinten_I` |
+| Import Name                        | Short Name                                                                                                                                         |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [AlbersConicEqualArea]             | `aea`, `Albers`, `Albers_Conic_Equal_Area`                                                                                                         |
+| [AzimuthalEquidistant]             | `aeqd`, `Azimuthal_Equidistant`                                                                                                                    |
+| [BonneWerner]                      | `bonne`, `bonne_werner`                                                                                                                            |
+| [CassiniSoldner]                   | `cass`, `Cassini`, `Cassini_Soldner`                                                                                                               |
+| [CylindricalEqualArea]             | `cea`, `Equal_Area_Cylindrical`                                                                                                                    |
+| [EquidistantCylindrical]           | `eqc`, `Equidistant_Cylindrical`, `Equirectangular`, `Equidistant Cylindrical (Plate Carre)`                                                       |
+| [EquidistantConic]                 | `eqdc`, `Equidistant_Conic`                                                                                                                        |
+| [EqualEarth]                       | `eqearth`, `Equal_Earth`, `EqualEarth`, `Equal_Area_Cylindrical`, `Equal Earth`                                                                    |
+| [EquiRectangular]                  | `equi`, `EquiRectangular`                                                                                                                          |
+| [ExtendedTransverseMercator]       | `etmerc`, `ExtendedTransverseMercator`, `Extended_Transverse_Mercator`, `Extended Transverse Mercator`                                             |
+| [GaussKruger]                      | `gauss`, `Gauss_Kruger`, `GaussKruger`, `Gauss Kruger`                                                                                             |
+| [Geocentric]                       | `geocent`, `Geocentric`                                                                                                                            |
+| [GeostationarySatelliteView]       | `geos`, `Geostationary_Satellite`, `Geostationary Satellite View`, `GeostationarySatelliteView`                                                    |
+| [Gnomonic]                         | `gnom`, `Gnomonic`, `GnomonicProjection`, `Gnomonic Projection`                                                                                    |
+| [GaussSchreiberTransverseMercator] | `gstmerc`, `gstmerg`, `GaussSchreiberTransverseMercator`, `Gauss-Schreiber Transverse Mercator`, `Gauss_Schreiber_Transverse_Mercator`             |
+| [Krovak]                           | `krovak`                                                                                                                                           |
+| [LambertAzimuthalEqualArea]        | `laea`, `Lambert_Azimuthal_Equal_Area`, `Lambert Azimuthal Equal Area`, `LambertAzimuthalEqualArea`                                                |
+| [LambertConformalConic]            | `lcc`, `Lambert_Conformal_Conic`, `Lambert Conformal Conic`, `LambertConformalConic`, `Lambert_Conformal_Conic_1SP`, `Lambert_Conformal_Conic_2SP` |
+| [Mercator]                         | `merc`, `Mercator`, `Mercator_1SP`, `Mercator_Auxiliary_Sphere`                                                                                    |
+| [MillerCylindrical]                | `mill`, `Miller_Cylindrical`, `Miller Cylindrical`, `MillerCylindrical`                                                                            |
+| [Mollweide]                        | `moll`, `Mollweide`                                                                                                                                |
+| [NewZealandMapGrid]                | `nzmg`, `New_Zealand_Map_Grid`, `NewZealandMapGrid`                                                                                                |
+| [HotineObliqueMercator]            | `omerc`, `Hotine_Oblique_Mercator`, `HotineObliqueMercator`, `Hotine Oblique Mercator`, `Oblique_Mercator`                                         |
+| [Orthographic]                     | `ortho`, `Orthographic`                                                                                                                            |
+| [Polyconic]                        | `poly`, `Polyconic`                                                                                                                                |
+| [QuadrilateralizedSphericalCube]   | `qsc`, `Quadrilateralized_Spherical_Cube`, `QuadrilateralizedSphericalCube`, `Quadrilateralized_Spherical_Cube`                                    |
+| [Robinson]                         | `robin`, `Robinson`                                                                                                                                |
+| [Sinusoidal]                       | `sinu`, `Sinusoidal`                                                                                                                               |
+| [SwissObliqueMercator]             | `somerc`, `Swiss_Oblique_Mercator`, `SwissObliqueMercator`, `Swiss Oblique Mercator`                                                               |
+| [StereographicSouthPole]           | `stere`, `Stereographic_South_Pole`, `StereographicSouthPole`, `Stereographic South Pole`, `Polar_Stereographic`                                   |
+| [StereographicNorthPole]           | `sterea`, `Oblique_Stereographic`, `StereographicNorthPole`, `Stereographic North Pole`, `Stereographic_North_Pole`                                |
+| [TransverseMercator]               | `tmerc`, `Transverse_Mercator`, `TransverseMercator`, `Transverse Mercator`                                                                        |
+| [TiltedPerspective]                | `tpers`, `TiltedPerspective`, `Tilted_Perspective`                                                                                                 |
+| [UniversalTransverseMercator]      | `utm`, `Universal_Transverse_Mercator`, `UniversalTransverseMercator`, `Universal Transverse Mercator`                                             |
+| [VanDerGrinten]                    | `vandg`, `VanDerGrinten`, `Van_der_Grinten_I`                                                                                                      |
 
 [AlbersConicEqualArea]: https://open-s2.github.io/gis-tools/classes/index.AlbersConicEqualArea.html
 [AzimuthalEquidistant]: https://open-s2.github.io/gis-tools/classes/index.AzimuthalEquidistant.html

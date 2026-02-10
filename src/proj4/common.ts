@@ -253,10 +253,9 @@ export function hypot(x: number, y: number): number {
  * @returns - iMLfn(ml, e0, e1, e2, e3)
  */
 export function imlfn(ml: number, e0: number, e1: number, e2: number, e3: number): number {
-  let phi;
   let dphi;
 
-  phi = ml / e0;
+  let phi = ml / e0;
   for (let i = 0; i < 15; i++) {
     dphi =
       (ml - (e0 * phi - e1 * Math.sin(2 * phi) + e2 * Math.sin(4 * phi) - e3 * Math.sin(6 * phi))) /

@@ -191,7 +191,6 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
     const xy = { x: 0, y: 0 };
     let lat, lon;
     let theta, phi;
-    let mu;
     /* nu; */
     const area = { value: 0 };
     // move lon according to projection's lon
@@ -277,7 +276,7 @@ export class QuadrilateralizedSphericalCube extends ProjectionBase implements Pr
     /* Compute mu and nu for the area of definition.
      * For mu, see Eq. (3-21) in [OL76], but note the typos:
      * compare with Eq. (3-14). For nu, see Eq. (3-38). */
-    mu = atan((12 / SPI) * (theta + acos(sin(theta) * cos(QUART_PI)) - HALF_PI));
+    let mu = atan((12 / SPI) * (theta + acos(sin(theta) * cos(QUART_PI)) - HALF_PI));
     const t = sqrt((1 - cos(phi)) / (cos(mu) * cos(mu)) / (1 - cos(atan(1 / cos(theta)))));
     /* Apply the result to the real area. */
     if (area.value === AREA_ENUM.AREA_1) {
