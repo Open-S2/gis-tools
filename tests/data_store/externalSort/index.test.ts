@@ -3,10 +3,9 @@ import { S2MMapStore, externalSort } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('sort - single threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'externalSort_single' });
+  const dir = tmp.dirSync({ prefix: 'external_sort_single_1', unsafeCleanup: true });
   const name = `${dir.name}/sort-single-threaded`;
   const store = new S2FileStore<{ a: number }>(name);
 
@@ -32,10 +31,12 @@ test('sort - single threaded', async () => {
     { key: 22n, value: { a: 6 } },
     { key: 5_005n, value: { a: 3 } },
   ]);
+
+  dir.removeCallback();
 });
 
 test('sort multi-file - single threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'externalSort_single' });
+  const dir = tmp.dirSync({ prefix: 'external_sort_single_2', unsafeCleanup: true });
 
   const storeA = new S2FileStore<{ a: number }>(`${dir.name}/a`);
   storeA.set(0, { a: 1 });
@@ -73,10 +74,12 @@ test('sort multi-file - single threaded', async () => {
     { key: 5_005n, value: { a: 3 } },
     { key: 9_807n, value: { a: 7 } },
   ]);
+
+  dir.removeCallback();
 });
 
 test('sort - multi threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'externalSort_single' });
+  const dir = tmp.dirSync({ prefix: 'externalSort_single_3', unsafeCleanup: true });
   const name = `${dir.name}/sort-multi-threaded`;
   const store = new S2MMapStore<{ a: number }>(name);
 
@@ -144,4 +147,6 @@ test('sort - multi threaded', async () => {
       { key: 987678987330n, value: { a: 24 } },
     ].sort((a, b) => a.value.a - b.value.a),
   );
+
+  dir.removeCallback();
 });

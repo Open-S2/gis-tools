@@ -2,10 +2,9 @@ import { MMapMultiMap } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('MMapMultiMap', async () => {
-  const dir = tmp.dirSync({ prefix: 'multimap_mmap' });
+  const dir = tmp.dirSync({ prefix: 'data_store_multimap_mmap', unsafeCleanup: true });
   const store = new MMapMultiMap<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);
@@ -29,4 +28,5 @@ test('MMapMultiMap', async () => {
   ]);
 
   store.close();
+  dir.removeCallback();
 });

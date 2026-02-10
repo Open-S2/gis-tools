@@ -2,10 +2,9 @@ import { S2FileStore } from '../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('S2FileStore', async () => {
-  const dir = tmp.dirSync({ prefix: 'file_test' });
+  const dir = tmp.dirSync({ prefix: 'file_test', unsafeCleanup: true });
   const store = new S2FileStore<{ a: number }>(dir.name);
   expect(store.length).toEqual(0);
   store.set(0, { a: 1 });
@@ -25,6 +24,7 @@ test('S2FileStore', async () => {
   ]);
 
   store.close(true);
+  dir.removeCallback();
 });
 
 test('S2FileStore - valuesAreIndex', async () => {

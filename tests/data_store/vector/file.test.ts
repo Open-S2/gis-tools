@@ -2,7 +2,6 @@ import { FileVector } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 import type { VectorKey } from '../../../src/dataStore/vector';
 
@@ -12,7 +11,7 @@ interface TestKey extends VectorKey {
 }
 
 test('FileVector', async () => {
-  const dir = tmp.dirSync({ prefix: 'vector_file' });
+  const dir = tmp.dirSync({ prefix: 'vector_file', unsafeCleanup: true });
   const store = new FileVector<TestKey>(dir.name);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: 0n });
@@ -48,4 +47,5 @@ test('FileVector', async () => {
   ]);
 
   store.close();
+  dir.removeCallback();
 });

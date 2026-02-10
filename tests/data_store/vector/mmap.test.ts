@@ -2,7 +2,6 @@ import { MMapVector } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 import type { VectorKey } from '../../../src/dataStore/vector';
 
@@ -12,7 +11,7 @@ interface TestKey extends VectorKey {
 }
 
 test('MMapVector', async () => {
-  const dir = tmp.dirSync({ prefix: 'vector_mmap' });
+  const dir = tmp.dirSync({ prefix: 'vector_mmap', unsafeCleanup: true });
   const store = new MMapVector<TestKey>(dir.name);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: 0n });
@@ -48,4 +47,5 @@ test('MMapVector', async () => {
   ]);
 
   store.close();
+  dir.removeCallback();
 });

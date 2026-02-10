@@ -2,10 +2,9 @@ import { FileTileWriter } from '../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('writers - Tile File Writer', async () => {
-  const dir = tmp.dirSync({ prefix: 'file_test' });
+  const dir = tmp.dirSync({ prefix: 'writers_tile_file_test', unsafeCleanup: true });
   const textEncoder = new TextEncoder();
   const writer = new FileTileWriter(`${dir.name}`, 'png');
 
@@ -32,4 +31,5 @@ test('writers - Tile File Writer', async () => {
   expect(s2TimeTile).toEqual('test4');
   const metadata = await Bun.file(`${dir.name}/metadata.json`).json();
   expect(metadata).toEqual({ test: 'a', test2: 2 });
+  dir.removeCallback();
 });

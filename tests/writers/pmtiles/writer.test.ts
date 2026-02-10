@@ -9,12 +9,10 @@ import {
 import { FileReader, FileWriter } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
-import { stat } from 'node:fs/promises';
+import { stat, unlink } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
 import type { S2Header } from '../../../src';
-
-tmp.setGracefulCleanup();
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 
@@ -155,6 +153,9 @@ test('S2PMTiles - File Writer - S2', async () => {
 
   const tile6 = await reader.getTileS2(2, 8, 1, 1);
   expect(tile6).toEqual(uint8_2);
+
+  // cleanup tmpFile1
+  await unlink(tmpFile1);
 });
 
 testFunc(
@@ -209,6 +210,9 @@ testFunc(
     const buf = Buffer.from(str, 'utf8');
     const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
     expect(tile).toEqual(uint8);
+
+    // cleanup
+    await unlink(tmpFile2);
   },
   { timeout: 10_000 },
 );

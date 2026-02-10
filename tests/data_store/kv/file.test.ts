@@ -2,10 +2,9 @@ import { FileKV } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('KV - File', async () => {
-  const dir = tmp.dirSync({ prefix: 'kv_file' });
+  const dir = tmp.dirSync({ prefix: 'data_store_kv_file', unsafeCleanup: true });
   const store = new FileKV<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);
@@ -23,4 +22,5 @@ test('KV - File', async () => {
   expect(values).toStrictEqual([1, 2, 4, 3]);
   expect(values2).toStrictEqual([1, 2, 4, 3]);
   store.close();
+  dir.removeCallback();
 });

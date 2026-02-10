@@ -2,10 +2,9 @@ import { FileMultiMap } from '../../../src/file';
 import { expect, test } from 'bun:test';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('FileMultiMap', async () => {
-  const dir = tmp.dirSync({ prefix: 'multimap_file' });
+  const dir = tmp.dirSync({ prefix: 'data_store_multimap_file', unsafeCleanup: true });
   const store = new FileMultiMap<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);
@@ -29,4 +28,5 @@ test('FileMultiMap', async () => {
   ]);
 
   store.close();
+  dir.removeCallback();
 });

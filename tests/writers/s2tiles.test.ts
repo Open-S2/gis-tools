@@ -1,12 +1,10 @@
-import { stat } from 'node:fs/promises';
 import tmp from 'tmp';
 import { BufferReader, BufferWriter, Compression, S2TilesReader, S2TilesWriter } from '../../src';
 import { FileReader, FileWriter } from '../../src/file';
 import { expect, test } from 'bun:test';
+import { stat, unlink } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
-
-tmp.setGracefulCleanup();
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 
@@ -94,6 +92,8 @@ test('S2Tiles - File Writer - S2', async () => {
   expect(tile6).toEqual(uint8_2);
 
   expect(await reader.hasTileS2(1, 1, 1, 1)).toBeFalse();
+  // cleanup tmpFile1
+  await unlink(tmpFile1);
 });
 
 testFunc(
@@ -133,6 +133,8 @@ testFunc(
     const buf2 = Buffer.from(str2, 'utf8');
     const uint8_2 = new Uint8Array(buf2.buffer, buf2.byteOffset, buf2.byteLength);
     expect(tile2).toEqual(uint8_2);
+    // cleanup tmpFile2
+    await unlink(tmpFile2);
   },
   { timeout: 10_000 },
 );

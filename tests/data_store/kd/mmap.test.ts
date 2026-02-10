@@ -5,10 +5,9 @@ import { expect, test } from 'bun:test';
 import cities from 'all-the-cities';
 
 import tmp from 'tmp';
-tmp.setGracefulCleanup();
 
 test('KDTree - MMAP', (): void => {
-  const dir = tmp.dirSync({ prefix: 'file_test' });
+  const dir = tmp.dirSync({ prefix: 'kdtree_mmap_file_test', unsafeCleanup: true });
   const store = new KDMMapSpatialIndex<{ a: number }>(64, dir.name);
   expect(store.length).toBe(0);
   store.push({ x: 0, y: 1, m: { a: 1 } });
@@ -42,6 +41,7 @@ test('KDTree - MMAP', (): void => {
   ]);
 
   store.close();
+  dir.removeCallback();
 });
 
 test('KDTree - MMap [cities]', (): void => {
