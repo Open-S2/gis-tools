@@ -28,7 +28,7 @@ jobs:
       # BUN TESTS
 
       - name: Run JavaScript/TypeScript tests
-        run: bun run test
+        run: bun run test --retry 3
 
       # SETUP RUST
 

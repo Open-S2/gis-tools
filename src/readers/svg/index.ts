@@ -14,10 +14,9 @@ export interface SVGProperties extends Properties {
  *
  * ## Description
  *
- * Reads data from an SVG string
+ * Reads data from an SVG string. The assumed projection is WGS84
  *
  * Implements the {@link FeatureIterator} interface
- *
  *
  * ## Usage
  *

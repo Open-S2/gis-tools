@@ -64,7 +64,7 @@ test('S2Tiles - File Writer - S2', async () => {
   await writer.writeTileS2(5, 5, 5, 5, uint8);
   // finish
   await writer.commit({ metadata: true } as unknown as Metadata);
-  fileWriter.close();
+  await fileWriter.close();
 
   const reader = new S2TilesReader(new FileReader(`${dir}/file_writer_s2`));
   const metadata = await reader.getMetadata();

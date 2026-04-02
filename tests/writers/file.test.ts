@@ -7,7 +7,7 @@ test('writers - File', async () => {
   const writer = new FileWriter(`${dir}/test_writers_file.txt`);
   await writer.appendString('test');
   writer.appendStringSync('test2');
-  writer.close();
+  await writer.close();
 
   const reader = new FileReader(`${dir}/test_writers_file.txt`);
   expect(reader.parseString(0, 4)).toEqual('test');
