@@ -300,7 +300,7 @@ export function tileXYFromUVZoom(u: number, v: number, zoom: number): Point {
  */
 export function tileXYFromSTZoom(x: number, y: number, zoom: number): Point {
   const { floor } = Math;
-  const divisionFactor = (2 / (1 << zoom)) * 0.5;
+  const divisionFactor = (2 / Math.pow(2, zoom)) * 0.5;
 
   return [floor(x / divisionFactor), floor(y / divisionFactor)];
 }
@@ -313,7 +313,7 @@ export function tileXYFromSTZoom(x: number, y: number, zoom: number): Point {
  * @returns - local UV bounds for the tile
  */
 export function bboxUV(u: number, v: number, zoom: number): BBox {
-  const divisionFactor = 2 / (1 << zoom);
+  const divisionFactor = 2 / Math.pow(2, zoom);
 
   return [
     divisionFactor * u - 1,
@@ -331,7 +331,7 @@ export function bboxUV(u: number, v: number, zoom: number): BBox {
  * @returns - local ST bounds for the tile
  */
 export function bboxST(s: number, t: number, zoom: number): BBox {
-  const divisionFactor = (2 / (1 << zoom)) * 0.5;
+  const divisionFactor = (2 / Math.pow(2, zoom)) * 0.5;
 
   return [
     divisionFactor * s,

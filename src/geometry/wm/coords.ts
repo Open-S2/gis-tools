@@ -20,7 +20,7 @@ export type Sources = 'WGS84' | '900913';
  * @returns - a bounding box sharing zoom size bounds
  */
 function getZoomSize(zoom: number, tileSize: number): BBox {
-  const size = tileSize * (1 << zoom);
+  const size = tileSize * Math.pow(2, zoom);
   return [size / 360, size / (2 * Math.PI), size / 2, size];
 }
 
@@ -199,7 +199,7 @@ export function xyzToBBOX(
 ): BBox {
   // Convert xyz into bbox with srs WGS84
   // if tmsStyle, the y is inverted
-  if (tmsStyle) y = (1 << zoom) - 1 - y;
+  if (tmsStyle) y = Math.pow(2, zoom) - 1 - y;
   // Use +y to make sure it's a number to avoid inadvertent concatenation.
   const bl: VectorPoint = { x: x * tileSize, y: (y + 1) * tileSize }; // bottom left
   // Use +x to make sure it's a number to avoid inadvertent concatenation.
