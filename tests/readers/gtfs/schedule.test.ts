@@ -1221,8 +1221,8 @@ test('build schedule', async () => {
     },
   ]);
 
+  // @ts-expect-error - we dont care
   expect(schedule.stops).toEqual({
-    // @ts-expect-error - we dont care
     '70011': {
       code: '70011',
       desc: undefined,
@@ -1240,7 +1240,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70012': {
       code: '70012',
       desc: undefined,
@@ -1258,7 +1257,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70021': {
       code: '70021',
       desc: undefined,
@@ -1276,7 +1274,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70022': {
       code: '70022',
       desc: undefined,
@@ -1294,7 +1291,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70031': {
       code: '70031',
       desc: undefined,
@@ -1312,7 +1308,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70032': {
       code: '70032',
       desc: undefined,
@@ -1330,7 +1325,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70041': {
       code: '70041',
       desc: undefined,
@@ -1348,7 +1342,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70042': {
       code: '70042',
       desc: undefined,
@@ -1366,7 +1359,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70051': {
       code: '70051',
       desc: undefined,
@@ -1384,7 +1376,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70052': {
       code: '70052',
       desc: undefined,
@@ -1402,7 +1393,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '1',
     },
-    // @ts-expect-error - we dont care
     '70061': {
       code: '70061',
       desc: undefined,
@@ -1420,7 +1410,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70062': {
       code: '70062',
       desc: undefined,
@@ -1438,7 +1427,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70071': {
       code: '70071',
       desc: undefined,
@@ -1456,7 +1444,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70072': {
       code: '70072',
       desc: undefined,
@@ -1474,7 +1461,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70081': {
       code: '70081',
       desc: undefined,
@@ -1492,7 +1478,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70082': {
       code: '70082',
       desc: undefined,
@@ -1510,7 +1495,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70091': {
       code: '70091',
       desc: undefined,
@@ -1528,7 +1512,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70092': {
       code: '70092',
       desc: undefined,
@@ -1546,7 +1529,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70101': {
       code: '70101',
       desc: undefined,
@@ -1564,7 +1546,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70102': {
       code: '70102',
       desc: undefined,
@@ -1582,7 +1563,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70111': {
       code: '70111',
       desc: undefined,
@@ -1600,7 +1580,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70112': {
       code: '70112',
       desc: undefined,
@@ -1618,7 +1597,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70121': {
       code: '70121',
       desc: undefined,
@@ -1636,7 +1614,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70122': {
       code: '70122',
       desc: undefined,
@@ -1654,7 +1631,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70131': {
       code: '70131',
       desc: undefined,
@@ -1672,7 +1648,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70132': {
       code: '70132',
       desc: undefined,
@@ -1690,7 +1665,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70141': {
       code: '70141',
       desc: undefined,
@@ -1708,7 +1682,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70142': {
       code: '70142',
       desc: undefined,
@@ -1726,7 +1699,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '2',
     },
-    // @ts-expect-error - we dont care
     '70151': {
       code: '70151',
       desc: undefined,
@@ -1744,7 +1716,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70152': {
       code: '70152',
       desc: undefined,
@@ -1762,7 +1733,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70161': {
       code: '70161',
       desc: undefined,
@@ -1780,7 +1750,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70162': {
       code: '70162',
       desc: undefined,
@@ -1798,7 +1767,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70171': {
       code: '70171',
       desc: undefined,
@@ -1816,7 +1784,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70172': {
       code: '70172',
       desc: undefined,
@@ -1834,7 +1801,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70191': {
       code: '70191',
       desc: undefined,
@@ -1852,7 +1818,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70192': {
       code: '70192',
       desc: undefined,
@@ -1870,7 +1835,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70201': {
       code: '70201',
       desc: undefined,
@@ -1888,7 +1852,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70202': {
       code: '70202',
       desc: undefined,
@@ -1906,7 +1869,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70211': {
       code: '70211',
       desc: undefined,
@@ -1924,7 +1886,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70212': {
       code: '70212',
       desc: undefined,
@@ -1942,7 +1903,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70221': {
       code: '70221',
       desc: undefined,
@@ -1960,7 +1920,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70222': {
       code: '70222',
       desc: undefined,
@@ -1978,7 +1937,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '3',
     },
-    // @ts-expect-error - we dont care
     '70231': {
       code: '70231',
       desc: undefined,
@@ -1996,7 +1954,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70232': {
       code: '70232',
       desc: undefined,
@@ -2014,7 +1971,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70241': {
       code: '70241',
       desc: undefined,
@@ -2032,7 +1988,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70242': {
       code: '70242',
       desc: undefined,
@@ -2050,7 +2005,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70251': {
       code: '70251',
       desc: undefined,
@@ -2068,7 +2022,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70252': {
       code: '70252',
       desc: undefined,
@@ -2086,7 +2039,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70261': {
       code: '70261',
       desc: undefined,
@@ -2104,7 +2056,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70262': {
       code: '70262',
       desc: undefined,
@@ -2122,7 +2073,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70271': {
       code: '70271',
       desc: undefined,
@@ -2140,7 +2090,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70272': {
       code: '70272',
       desc: undefined,
@@ -2158,7 +2107,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '70281': {
       code: '70281',
       desc: undefined,
@@ -2176,7 +2124,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
-    // @ts-expect-error - we dont care
     '70282': {
       code: '70282',
       desc: undefined,
@@ -2194,7 +2141,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
-    // @ts-expect-error - we dont care
     '70291': {
       code: '70291',
       desc: undefined,
@@ -2212,7 +2158,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
-    // @ts-expect-error - we dont care
     '70292': {
       code: '70292',
       desc: undefined,
@@ -2230,7 +2175,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '5',
     },
-    // @ts-expect-error - we dont care
     '70301': {
       code: '70301',
       desc: undefined,
@@ -2248,7 +2192,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '70302': {
       code: '70302',
       desc: undefined,
@@ -2266,7 +2209,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '70311': {
       code: '70311',
       desc: undefined,
@@ -2284,7 +2226,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '70312': {
       code: '70312',
       desc: undefined,
@@ -2302,7 +2243,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '70321': {
       code: '70321',
       desc: undefined,
@@ -2320,7 +2260,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '70322': {
       code: '70322',
       desc: undefined,
@@ -2338,7 +2277,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '6',
     },
-    // @ts-expect-error - we dont care
     '777402': {
       code: '777402',
       desc: undefined,
@@ -2356,7 +2294,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     '777403': {
       code: '777403',
       desc: undefined,
@@ -2374,7 +2311,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: '4',
     },
-    // @ts-expect-error - we dont care
     ct22: {
       code: undefined,
       desc: undefined,
@@ -2392,7 +2328,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctat: {
       code: undefined,
       desc: undefined,
@@ -2410,7 +2345,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctba: {
       code: undefined,
       desc: undefined,
@@ -2428,7 +2362,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctbe: {
       code: undefined,
       desc: undefined,
@@ -2446,7 +2379,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctbl: {
       code: undefined,
       desc: undefined,
@@ -2464,7 +2396,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctbr: {
       code: undefined,
       desc: undefined,
@@ -2482,7 +2413,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctbu: {
       code: undefined,
       desc: undefined,
@@ -2500,7 +2430,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctca: {
       code: undefined,
       desc: undefined,
@@ -2518,7 +2447,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctcap: {
       code: undefined,
       desc: undefined,
@@ -2536,7 +2464,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctco: {
       code: undefined,
       desc: undefined,
@@ -2554,7 +2481,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctgi: {
       code: undefined,
       desc: undefined,
@@ -2572,7 +2498,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctha: {
       code: undefined,
       desc: undefined,
@@ -2590,7 +2515,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     cthi: {
       code: undefined,
       desc: undefined,
@@ -2608,7 +2532,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctla: {
       code: undefined,
       desc: undefined,
@@ -2626,7 +2549,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctmh: {
       code: undefined,
       desc: undefined,
@@ -2644,7 +2566,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctmi: {
       code: undefined,
       desc: undefined,
@@ -2662,7 +2583,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctmp: {
       code: undefined,
       desc: undefined,
@@ -2680,7 +2600,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctmv: {
       code: undefined,
       desc: undefined,
@@ -2698,7 +2617,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctpa: {
       code: undefined,
       desc: undefined,
@@ -2716,7 +2634,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctrwc: {
       code: undefined,
       desc: undefined,
@@ -2734,7 +2651,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsa: {
       code: undefined,
       desc: undefined,
@@ -2752,7 +2668,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsb: {
       code: undefined,
       desc: undefined,
@@ -2770,7 +2685,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsc: {
       code: undefined,
       desc: undefined,
@@ -2788,7 +2702,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctscl: {
       code: undefined,
       desc: undefined,
@@ -2806,7 +2719,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsf: {
       code: undefined,
       desc: undefined,
@@ -2824,7 +2736,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsj: {
       code: undefined,
       desc: undefined,
@@ -2842,7 +2753,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsmar: {
       code: undefined,
       desc: undefined,
@@ -2860,7 +2770,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsmat: {
       code: undefined,
       desc: undefined,
@@ -2878,7 +2787,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctssf: {
       code: undefined,
       desc: undefined,
@@ -2896,7 +2804,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 2,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctsu: {
       code: undefined,
       desc: undefined,
@@ -2914,7 +2821,6 @@ test('build schedule', async () => {
       wheelchairBoarding: 1,
       zoneId: undefined,
     },
-    // @ts-expect-error - we dont care
     ctta: {
       code: undefined,
       desc: undefined,

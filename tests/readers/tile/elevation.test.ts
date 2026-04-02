@@ -31,9 +31,9 @@ test('read in wm terrain', async () => {
   );
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - ignore for testing
   expect(metadata).toEqual({
     attributions: { '© Mapbox': 'https://www.mapbox.com/about/maps/' },
-    // @ts-expect-error - ignore for testing
     bounds: [-180, -85, 180, 85],
     description: 'height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)',
     encoding: 'none',
@@ -83,9 +83,9 @@ test('read in wm terrain-v2', async () => {
   );
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - ignore for testing
   expect(metadata).toEqual({
     attributions: { '© Mapbox': 'https://www.mapbox.com/about/maps/' },
-    // @ts-expect-error - ignore for testing
     bounds: [-180, -85, 180, 85],
     description: 'height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)',
     encoding: 'none',
@@ -136,9 +136,9 @@ test('read in wm terrarium2x', async () => {
   );
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - ignore for testing
   expect(metadata).toEqual({
     attributions: { Terrarium: 'https://registry.opendata.aws/terrain-tiles/' },
-    // @ts-expect-error - ignore for testing
     bounds: [-180, -85, 180, 85],
     description: 'height = (R * 256. + G + B / 256.) - 32768.',
     encoding: 'none',

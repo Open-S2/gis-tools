@@ -1,7 +1,7 @@
 use super::coords_internal::K_FACE_UVW_AXES;
 use crate::geometry::S2Point;
 use core::f64::consts::PI;
-use libm::{atan, atan2, cos, round, sin, sqrt, tan};
+use libm::{atan, atan2, cos, floor, round, sin, sqrt, tan};
 use s2json::{GetXYZ, NewXY, NewXYZ};
 
 // This file contains documentation of the various coordinate systems used
@@ -452,11 +452,13 @@ pub fn get_uvw_axis<P: NewXYZ>(face: u8, axis: usize) -> P {
     P::new_xyz(p[0], p[1], p[2])
 }
 
-/**
- * Convert from a lon-lat coord to an left-hand-rule XYZ Point
- * @param ll - lon-lat vector point
- * @returns - VectorPoint
- */
+/// Convert from a lon-lat coord to an left-hand-rule XYZ Point
+///
+/// ## Parameters
+/// - `ll`: lon-lat vector point
+///
+/// ## Returns
+/// The left-hand-rule XYZ Point
 pub fn lon_lat_to_xyz<P: GetXYZ + NewXYZ>(ll: &P) -> P {
     let lon = ll.x().to_radians();
     let lat = ll.y().to_radians();
@@ -467,11 +469,13 @@ pub fn lon_lat_to_xyz<P: GetXYZ + NewXYZ>(ll: &P) -> P {
     )
 }
 
-/**
- * Convert from a lon-lat coord to an right-hand-rule XYZ Point
- * @param ll - lon-lat vector point
- * @returns - WebGL oriented VectorPoint
- */
+/// Convert from a lon-lat coord to an right-hand-rule XYZ Point
+///
+/// ## Parameters
+/// - `ll`: lon-lat vector point
+///
+/// ## Returns
+/// The right-hand-rule XYZ Point
 pub fn lon_lat_to_xyz_gl<P: GetXYZ + NewXYZ>(ll: &P) -> P {
     let lon = ll.x().to_radians();
     let lat = ll.y().to_radians();
@@ -480,4 +484,31 @@ pub fn lon_lat_to_xyz_gl<P: GetXYZ + NewXYZ>(ll: &P) -> P {
         sin(lat),            // z
         cos(lat) * cos(lon), // x
     )
+}
+
+/// Convert an u-v-zoom coordinate to a tile coordinate
+///
+/// ## Parameters
+/// - `u`: u coordinate
+/// - `v`: v coordinate
+/// - `zoom`: zoom level
+///
+/// ## Returns
+/// The tile X-Y coordinate
+pub fn tile_xy_from_uv_zoom(u: f64, v: f64, zoom: u8) -> (i64, i64) {
+    tile_xy_from_st_zoom(UV_TO_ST(u), UV_TO_ST(v), zoom)
+}
+
+/// Convert an x-y-zoom coordinate to a tile coordinate
+///
+/// ## Parameters
+/// - `x`: x coordinate
+/// - `y`: y coordinate
+/// - `zoom`: zoom level
+///
+/// ## Returns
+/// The tile X-Y coordinate
+pub fn tile_xy_from_st_zoom(x: f64, y: f64, zoom: u8) -> (i64, i64) {
+    let division_factor = 2.0 / ((1 << (zoom as u64)) as f64) * 0.5;
+    (floor(x / division_factor) as i64, floor(y / division_factor) as i64)
 }

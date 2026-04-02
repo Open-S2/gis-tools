@@ -471,9 +471,12 @@ test('TileStore - polys', () => {
     ],
   ];
   for (let i = 0; i < coords.length; i++) {
+    // @ts-expect-error - just for testing
     expect(coords[0][i].x).toBeCloseTo(expected[0][i].x);
+    // @ts-expect-error - just for testing
     expect(coords[0][i].y).toBeCloseTo(expected[0][i].y);
   }
+  // @ts-expect-error - just for testing
   expect(feature.geometry.offset?.[0]).toBeCloseTo(2.6779635944880855);
   const bboxExpected = [0.019745389202600605, 0.36081320997943556, 0.425051753528058, 1.0625];
   for (let i = 0; i < bboxExpected.length; i++) {

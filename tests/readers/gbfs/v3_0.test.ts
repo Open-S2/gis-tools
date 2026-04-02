@@ -20,6 +20,7 @@ import {
 } from '../../../src';
 
 const ajv = new Ajv({ strict: false });
+// @ts-expect-error - ignore for testing
 addFormats(ajv);
 
 test('version 3.0', async () => {

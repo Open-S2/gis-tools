@@ -199,6 +199,7 @@ test('read 2 dimensional variable', () => {
   if (lat === undefined) throw new Error('Variable not found');
   expect(lat).toHaveLength(49);
   expect(lat[0]).toHaveLength(1000);
+  // @ts-expect-error - testing so ignore
   expect(lat[0][0]).toBe(53.26256561279297);
 });
 

@@ -332,9 +332,7 @@ test('Check data/feb17.tle.txt matches satellite.js', async () => {
     const satProp = sat.propagate(date);
     if ('error' in satProp) continue;
     const satrecProp = propagate(satrec, date);
-    // @ts-expect-error - no need to type check against a package interface
     expect(satProp.position).toEqual(satrecProp.position);
-    // @ts-expect-error - no need to type check against a package interface
     expect(satProp.velocity).toEqual(satrecProp.velocity);
   }
 });

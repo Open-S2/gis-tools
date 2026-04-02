@@ -82,9 +82,13 @@ test('robustness', async () => {
   const robustness3 = await Bun.file(`${__dirname}/fixtures/robustness3.json`).json();
   const robustness4 = await Bun.file(`${__dirname}/fixtures/robustness4.json`).json();
   validate(robustness1);
+  // @ts-expect-error - testing purposes only
   validate(robustness1.map((p) => [p[0] / 1e9, p[1] / 1e9]));
+  // @ts-expect-error - testing purposes only
   validate(robustness1.map((p) => [p[0] / 100, p[1] / 100]));
+  // @ts-expect-error - testing purposes only
   validate(robustness1.map((p) => [p[0] * 100, p[1] * 100]));
+  // @ts-expect-error - testing purposes only
   validate(robustness1.map((p) => [p[0] * 1e9, p[1] * 1e9]));
   validate(robustness2.slice(0, 100));
   validate(robustness2);

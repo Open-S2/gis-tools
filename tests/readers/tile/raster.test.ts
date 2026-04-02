@@ -12,8 +12,8 @@ test('read in wm satellite', async () => {
   );
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - ignore for now
   expect(metadata).toEqual({
-    // @ts-expect-error - ignore for now
     bounds: [-180, -85, 180, 85],
     encoding: 'none',
     extension: 'webp',
@@ -97,6 +97,10 @@ test('read in wm satellite', async () => {
     },
   ]);
 
+  // lon lat lookup
+  const lonLatValue = await reader.getLonLatValuesWM(2, 20, -20);
+  expect(lonLatValue).toEqual({ r: 146, g: 123, b: 56, a: 255 });
+
   const tiles = await Array.fromAsync(reader);
   expect(tiles.length).toEqual(4);
 
@@ -107,8 +111,8 @@ test('read in wm satellite file', async () => {
   const reader = new RasterTilesFileReader(`${__dirname}/fixtures/wm/satellite`, 1);
 
   const metadata = await reader.getMetadata();
+  // @ts-expect-error - ignore for now
   expect(metadata).toEqual({
-    // @ts-expect-error - ignore for now
     bounds: [-180, -85, 180, 85],
     encoding: 'none',
     extension: 'webp',
@@ -236,6 +240,10 @@ test('read in s2 modis-mini', async () => {
   expect(zoom).toEqual(0);
   expect(x).toEqual(0);
   expect(y).toEqual(0);
+
+  // lon lat lookup
+  const lonLatValue = await reader.getLonLatValuesS2(2, 20, -20);
+  expect(lonLatValue).toEqual({ r: 93, g: 80, b: 46, a: 255 });
 
   const tiles = await Array.fromAsync(reader);
   expect(tiles.length).toEqual(24);

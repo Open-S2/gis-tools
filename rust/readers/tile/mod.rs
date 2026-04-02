@@ -74,6 +74,10 @@ pub trait TileFetcher<
     fn get_tile_wm(&self, zoom: u8, x: u32, y: u32) -> T;
     /// Get an S2 Geometry tile
     fn get_tile_s2(&self, face: Face, zoom: u8, x: u32, y: u32) -> T;
+    /// Get the Web Mercator value given a zoom, longitude, and latitude
+    fn get_tile_value_wm(&self, zoom: u8, lon: f64, lat: f64, tile_size: Option<u64>) -> Option<D>;
+    /// Get teh S2 value given a zoom, longitude, and latitude
+    fn get_tile_value_s2(&self, zoom: u8, lon: f64, lat: f64, tile_size: Option<u64>) -> Option<D>;
     /// Check if it is S2 tile
     fn is_s2(&self) -> bool {
         let Metadata { scheme, .. } = self.get_metadata();

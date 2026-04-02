@@ -2,16 +2,19 @@ use super::{
     GetRasterTileValue, S2TileMetadata, TileFetcher, TileMetadata, TileReader, WMTileMetadata,
 };
 use crate::{
-    geometry::{Source, merc_to_ll, xyz_to_bbox},
+    geometry::{
+        S2Point, Source, ll_to_px, merc_to_ll, px_to_tile, tile_xy_from_st_zoom, xyz_to_bbox,
+    },
     parsers::FeatureReader,
 };
 use alloc::{format, string::String, vec, vec::Vec};
 use core::marker::PhantomData;
 use image::RgbaImage;
+use libm::{floor, pow};
 use s2_tilejson::{Metadata, Scheme, UnknownMetadata};
 use s2json::{
-    BBox, BBox3D, Face, VectorFeature, VectorFeatureType, VectorGeometry, VectorMultiPoint,
-    VectorPoint,
+    BBox, BBox3D, Face, NewXY, Point, Point3D, VectorFeature, VectorFeatureType, VectorGeometry,
+    VectorMultiPoint, VectorPoint,
 };
 use std::{
     fs,
@@ -102,6 +105,46 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader
 
     fn get_tile_s2(&self, face: Face, zoom: u8, x: u32, y: u32) -> RasterTileReader<D> {
         RasterTileReader::new(self.path.clone(), self.get_metadata(), face, zoom, x, y, true)
+    }
+
+    fn get_tile_value_wm(&self, zoom: u8, lon: f64, lat: f64, tile_size: Option<u64>) -> Option<D> {
+        let tile_size = tile_size.unwrap_or(512);
+        let tile_size_f64 = tile_size as f64;
+        let zoom_f64 = zoom as f64;
+        // get the tile coordinates
+        let Point(x, y) = ll_to_px(&Point(lon, lat), zoom_f64, Some(false), Some(tile_size));
+        let (tile_x, tile_y) = px_to_tile(&Point(x, y), Some(tile_size));
+        // get the tile
+        let tile = self.get_tile_wm(zoom, tile_x as u32, tile_y as u32);
+        // get the pixel
+        let local_x = modulo(x, tile_size_f64);
+        let local_y = modulo(y, tile_size_f64);
+        let pixel_x = floor(local_x);
+        // If TMS style, invert the y position
+        let pixel_y =
+            if tile.tms_style { floor(tile_size_f64 - 1.0 - local_y) } else { floor(local_y) };
+        let pixel = tile.image.get_pixel(pixel_x as u32, pixel_y as u32);
+
+        Some(D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3])))
+    }
+
+    fn get_tile_value_s2(&self, zoom: u8, lon: f64, lat: f64, tile_size: Option<u64>) -> Option<D> {
+        let tile_size = tile_size.unwrap_or(512);
+        let tile_size_f64 = tile_size as f64;
+        let zoom_f64 = zoom as f64;
+        // get the tile coordinates
+        let xyz = S2Point::from_lon_lat(&Point3D::new_xy(lon, lat));
+        let (face, s, t) = xyz.to_face_st();
+        let (tile_x, tile_y) = tile_xy_from_st_zoom(s, t, zoom);
+        // get the tile
+        let tile = self.get_tile_s2(face.into(), zoom, tile_x as u32, tile_y as u32);
+        // get the pixel
+        let zoom_size = tile_size_f64 * pow(2., zoom_f64);
+        let pixel_x = floor(modulo(zoom_size * s, tile_size_f64));
+        let pixel_y = floor(modulo(zoom_size * t, tile_size_f64));
+        let pixel = tile.image.get_pixel(pixel_x as u32, pixel_y as u32);
+
+        Some(D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3])))
     }
 }
 impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, D, D>
@@ -331,4 +374,8 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
             ..Default::default()
         }
     }
+}
+
+fn modulo(n: f64, m: f64) -> f64 {
+    ((n % m) + m) % m
 }

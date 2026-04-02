@@ -206,6 +206,7 @@ pub fn bbox_to_xyz_bounds(
     let source = source.unwrap_or(Source::WGS84);
     let tile_size = tile_size.unwrap_or(512);
     let tile_size_f: f64 = tile_size as f64;
+    let zoom_size = pow(2., zoom);
 
     let mut bl = Point(bbox.0, bbox.1); // bottom left
     let mut tr = Point(bbox.2, bbox.3); // top right
@@ -222,15 +223,15 @@ pub fn bbox_to_xyz_bounds(
     let mut bounds = (fmin(x.0, x.1), fmin(y.0, y.1), fmax(x.0, x.1), fmax(y.0, y.1));
 
     if tms_style {
-        let zoom_diff = pow(2., zoom) - 1.;
+        let zoom_diff = zoom_size - 1.;
         bounds.1 = zoom_diff - bounds.3;
         bounds.3 = zoom_diff - bounds.1;
     }
 
     let min_x = fmax(bounds.0, 0.) as i64;
     let min_y = fmax(bounds.1, 0.) as i64;
-    let max_x = fmin(bounds.2, pow(2., zoom) - 1.) as i64;
-    let max_y = fmin(bounds.3, pow(2., zoom) - 1.) as i64;
+    let max_x = fmin(bounds.2, zoom_size - 1.) as i64;
+    let max_y = fmin(bounds.3, zoom_size - 1.) as i64;
 
     (min_x, min_y, max_x, max_y)
 }

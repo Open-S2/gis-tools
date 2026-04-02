@@ -3,16 +3,19 @@
 [ ] - support missing projections in proj4 found in c++ implementation
 [ ] - Grib2 has missing templates
 
-[ ] - PROJ5: Completely new rewrite.
+[ ] - PROJ5: Completely new rewrite for TS.
 [ ] - - Support all projections
 [ ] - - GeoTIFF grids
 [ ] - - pipeline system
 
+[ ] - Readers extensions:
+[ ] - - MBTiles
+[ ] - - FlatGeobuf
+[ ] - - GeoTIFF (better / faster alternative)
+
 [ ] - GeoTIFF should be modified to work well with cloud-based requests
 
 [ ] - translations [BCP-47 language code] [ISO 639-1 language code]
-
-[ ] Tile readers should support a 'lon-lat' lookup where it finds the RGBA or elevation at said lon-lat. Maybe take an input VectorGeometry, so all points will get the Elevation interface injected.
 
 [ ] - GRIB2 WAVES parsing is incomplete
 

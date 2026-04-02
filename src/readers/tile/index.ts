@@ -1,7 +1,15 @@
-import { bboxST } from '../../geometry/s2/coords.js';
-import { imageDecoder } from '../image/index.js';
 import { toMetadata } from 's2-tilejson';
-import { mercToLL, xyzToBBOX } from '../../geometry/wm/coords.js';
+import {
+  bboxST,
+  imageDecoder,
+  llToPX,
+  lonLatToXYZ,
+  mercToLL,
+  pointToST,
+  pxToTile,
+  tileXYFromSTZoom,
+  xyzToBBOX,
+} from '../../index.js';
 
 import type {
   Face,
@@ -39,6 +47,18 @@ export interface TileReader<
     x: number,
     y: number,
   ) => Promise<RasterS2TileReader<D, P> | undefined>;
+  getLonLatValuesWM: (
+    zoom: number,
+    lon: number,
+    lat: number,
+    tileSize?: number,
+  ) => Promise<RGBA | ElevationPoint | undefined>;
+  getLonLatValuesS2: (
+    zoom: number,
+    lon: number,
+    lat: number,
+    tileSize?: number,
+  ) => Promise<RGBA | ElevationPoint | undefined>;
 }
 
 /** Tile's metadata */
@@ -87,7 +107,7 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  *
  * Supports reading either RGB(A) data and/or RGB(A) encoded elevation data.
  *
- * NOTE: Consider using the RasterTilesFileReader from `gis-tools-ts/file` instead for local access.
+ * NOTE: Consider using the `RasterTilesFileReader` from `gis-tools-ts/file` instead for local access.
  *
  * ## Usage
  * ```ts
@@ -105,6 +125,11 @@ export function convertMapboxElevationData(r: number, g: number, b: number): num
  * const tile1 = await reader.getTile(0, 0, 0);
  * // or if it's an S2 tile spec
  * const tile2 = await reader.getTileS2(0, 0, 0, 0);
+ *
+ * // get a specfic WM value given a longitude and latitude
+ * const value = await reader.getLonLatValuesWM(0, 0, 0);
+ * // get a specfic S2 value given a longitude and latitude
+ * const value2 = await reader.getLonLatValuesS2(0, 0, 0);
  *
  * // grab all the max zoom tiles:
  * for await (const tile of reader) {
@@ -233,6 +258,90 @@ export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
       return response.ok;
     } else {
       return await this.input.hasTileS2(face, zoom, x, y);
+    }
+  }
+
+  /**
+   * Get the value of the given longitude and latitude
+   * @param zoom - the zoom level
+   * @param lon - the longitude
+   * @param lat - the latitude
+   * @param tileSize - in pixels
+   * @returns - the value at the given longitude and latitude
+   */
+  async getLonLatValuesWM(
+    zoom: number,
+    lon: number,
+    lat: number,
+    tileSize = 512,
+  ): Promise<RGBA | ElevationPoint | undefined> {
+    const { floor } = Math;
+    const mod = (n: number, m: number) => ((n % m) + m) % m;
+    // get the tile coordinates
+    const { x, y } = llToPX({ x: lon, y: lat }, zoom, false, tileSize);
+    const { x: tileX, y: tileY } = pxToTile({ x, y }, tileSize);
+    // get the tile
+    const tile = await this.getTileWM(zoom, tileX, tileY);
+    if (tile === undefined) return undefined;
+    // get the pixel
+    const localX = mod(x, tileSize);
+    const localY = mod(y, tileSize);
+    const pixelX = floor(localX);
+    // If TMS style, invert the y position
+    const pixelY = tile.tmsStyle ? floor(tileSize - 1 - localY) : floor(localY);
+    const channels = tile.image.data.length / (tileSize * tileSize);
+    const position = (pixelY * tileSize + pixelX) * channels;
+    const r = tile.image.data[position];
+    const g = tile.image.data[position + 1];
+    const b = tile.image.data[position + 2];
+    const a = channels >= 4 ? tile.image.data[position + 3] : 255;
+    // set to the elevation or RGBA
+    if (this.converter !== undefined) {
+      return { elev: this.converter(r, g, b, a) };
+    } else {
+      return { r, g, b, a };
+    }
+  }
+
+  /**
+   * Get the value of the given longitude and latitude
+   * @param face - the Open S2 projection face
+   * @param zoom - the zoom level
+   * @param lon - the longitude
+   * @param lat - the latitude
+   * @param tileSize - in pixels
+   * @returns - the value at the given longitude and latitude
+   */
+  async getLonLatValuesS2(
+    zoom: number,
+    lon: number,
+    lat: number,
+    tileSize = 512,
+  ): Promise<RGBA | ElevationPoint | undefined> {
+    const { floor } = Math;
+    const mod = (n: number, m: number) => ((n % m) + m) % m;
+    // get the tile coordinates
+    const xyz = lonLatToXYZ({ x: lon, y: lat });
+    const [face, s, t] = pointToST(xyz);
+    const [tileX, tileY] = tileXYFromSTZoom(s, t, zoom);
+    // get the tile
+    const tile = await this.getTileS2(face, zoom, tileX, tileY);
+    if (tile === undefined) return undefined;
+    // get the pixel
+    const zoomSize = tileSize * (1 << zoom);
+    const pixelX = floor(mod(zoomSize * s, tileSize));
+    const pixelY = floor(mod(zoomSize * t, tileSize));
+    const channels = tile.image.data.length / (tileSize * tileSize);
+    const position = (pixelY * tileSize + pixelX) * channels;
+    const r = tile.image.data[position];
+    const g = tile.image.data[position + 1];
+    const b = tile.image.data[position + 2];
+    const a = channels >= 4 ? tile.image.data[position + 3] : 255;
+
+    if (this.converter !== undefined) {
+      return { elev: this.converter(r, g, b, a) };
+    } else {
+      return { r, g, b, a };
     }
   }
 

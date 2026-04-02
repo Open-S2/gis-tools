@@ -1,4 +1,4 @@
-import './util/polyfills/local';
+import './util/polyfills/local.js';
 
 export * from './dataStore/externalSort/index.js';
 export * from './dataStore/mmap.js';

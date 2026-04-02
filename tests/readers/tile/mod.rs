@@ -114,6 +114,9 @@ mod tests {
             panic!("Invalid geometry type: {:?}", feature.geometry);
         }
 
+        let lon_lat_value = reader.get_tile_value_wm(2, 20., -20., Some(512));
+        assert_eq!(lon_lat_value, Some(RGBA::from_u8s(146, 123, 56, 255)));
+
         let tiles: Vec<_> = reader.iter().collect();
         assert_eq!(tiles.len(), 4);
 
@@ -244,6 +247,9 @@ mod tests {
         } else {
             panic!("Invalid geometry type: {:?}", feature.geometry);
         }
+
+        let lon_lat_value = reader.get_tile_value_s2(2, 20., -20., Some(512));
+        assert_eq!(lon_lat_value, Some(RGBA::from_u8s(93, 80, 46, 255)));
 
         // TODO: If we can optimize image crate speed, we can bring this back
         // let tiles: Vec<_> = reader.iter().collect();

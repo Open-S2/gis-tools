@@ -55,7 +55,8 @@ export interface SHPRow {
  * This ensures the other files paired with the shapefile are loaded to properly handle the
  * projection and properties data.
  *
- * ## Usage
+ * ## Direct Usage
+ *
  * ```ts
  * import { ShapeFileReader, DataBaseFile, Transformer } from 'gis-tools-ts';
  * import { FileReader } from 'gis-tools-ts/file';

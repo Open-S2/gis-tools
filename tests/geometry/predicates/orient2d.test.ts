@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { orient2d, orient2dfast } from '../../../src';
 
+// @ts-expect-error - we dont care
 import robustOrientation from 'robust-orientation';
 
 test('orient2d', async () => {

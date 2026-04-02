@@ -1,5 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "eslint.useFlatConfig": true,
   // "files.exclude": {
   //     "rust/proj/generated": true,
@@ -16,6 +16,7 @@
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "oxc.fmt.configPath": ".oxfmtrc.json",
+  "oxc.tsConfigPath": "tsconfig.eslint.json",
   "[javascript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },

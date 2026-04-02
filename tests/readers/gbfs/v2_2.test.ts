@@ -23,6 +23,7 @@ import {
 import type { GBFSReaderV2 } from '../../../src';
 
 const ajv = new Ajv({ strict: false });
+// @ts-expect-error - ignore for testing
 addFormats(ajv);
 
 test('version 2.2', async () => {

@@ -5,7 +5,6 @@ export interface XMLOptions {
   nested?: boolean;
   returnOnFirst?: boolean;
 }
-
 /** A Tag is a pair of an inner and an outer strings with their indexes */
 export interface XMLTag {
   inner: undefined | string;
