@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { incircle, incirclefast } from '../../../src';
+import { incircle, incirclefast } from '../../../src/index.js';
 
 test('incircle', async () => {
   expect(incircle(0, -1, 0, 1, 1, 0, -0.5, 0) < 0, 'inside');

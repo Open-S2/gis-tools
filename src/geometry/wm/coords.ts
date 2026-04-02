@@ -1,7 +1,7 @@
 import { EARTH_CIRCUMFERENCE } from '../../index.js';
 import { degToRad, radToDeg } from '../util.js';
 
-import type { BBox, VectorPoint } from '../index.js';
+import type { BBox, MValue, Properties, VectorPoint } from '../index.js';
 
 /** 900913 (Web Mercator) constant */
 export const A = 6_378_137.0;
@@ -32,8 +32,8 @@ function getZoomSize(zoom: number, tileSize: number): BBox {
  * @param tileSize - in pixels
  * @returns - the mercator pixel
  */
-export function llToPX(
-  ll: VectorPoint,
+export function llToPX<M extends MValue = Properties>(
+  ll: VectorPoint<M>,
   zoom: number,
   antiMeridian = false,
   tileSize = 512,
@@ -58,7 +58,11 @@ export function llToPX(
  * @param tileSize - in pixels
  * @returns - the longitude and latitude
  */
-export function pxToLL(px: VectorPoint, zoom: number, tileSize = 512): VectorPoint {
+export function pxToLL<M extends MValue = Properties>(
+  px: VectorPoint<M>,
+  zoom: number,
+  tileSize = 512,
+): VectorPoint {
   const { atan, exp, PI } = Math;
   const [Bc, Cc, Zc] = getZoomSize(zoom, tileSize);
   const g = (px.y - Zc) / -Cc;
@@ -72,7 +76,7 @@ export function pxToLL(px: VectorPoint, zoom: number, tileSize = 512): VectorPoi
  * @param ll - the longitude and latitude
  * @returns - the mercator pixel
  */
-export function llToMerc(ll: VectorPoint): VectorPoint {
+export function llToMerc<M extends MValue = Properties>(ll: VectorPoint<M>): VectorPoint {
   const { tan, log, PI } = Math;
   let x = degToRad(A * ll.x);
   let y = A * log(tan(PI * 0.25 + degToRad(0.5 * ll.y)));
@@ -90,7 +94,7 @@ export function llToMerc(ll: VectorPoint): VectorPoint {
  * @param merc - the mercator pixel
  * @returns - the longitude and latitude
  */
-export function mercToLL(merc: VectorPoint): VectorPoint {
+export function mercToLL<M extends MValue = Properties>(merc: VectorPoint<M>): VectorPoint {
   const { atan, exp, PI } = Math;
   const x = radToDeg(merc.x / A);
   const y = radToDeg(0.5 * PI - 2 * atan(exp(-merc.y / A)));
@@ -103,7 +107,10 @@ export function mercToLL(merc: VectorPoint): VectorPoint {
  * @param tileSize - in pixels
  * @returns - the tile x-y
  */
-export function pxToTile(px: VectorPoint, tileSize = 512): VectorPoint {
+export function pxToTile<M extends MValue = Properties>(
+  px: VectorPoint<M>,
+  tileSize = 512,
+): VectorPoint {
   const { floor } = Math;
   const x = floor(px.x / tileSize);
   const y = floor(px.y / tileSize);
@@ -129,12 +136,14 @@ export function tilePxBounds(tile: [zoom: number, x: number, y: number], tileSiz
  * Convert a lat-lon and zoom to the tile's x-y coordinates
  * @param ll - the lat-lon
  * @param zoom - the zoom
- * @param tileSize - in pixels
  * @returns - the tile x-y
  */
-export function llToTile(ll: VectorPoint, zoom: number, tileSize = 512): VectorPoint {
-  const px = llToPX(ll, zoom, false, tileSize);
-  return pxToTile(px, tileSize);
+export function llToTile<M extends MValue = Properties>(
+  ll: VectorPoint<M>,
+  zoom: number,
+): VectorPoint {
+  const px = llToPX(ll, zoom, false, 512);
+  return pxToTile(px, 512);
 }
 
 /**
@@ -144,17 +153,17 @@ export function llToTile(ll: VectorPoint, zoom: number, tileSize = 512): VectorP
  * @param tileSize - in pixels
  * @returns - the tile x-y
  */
-export function llToTilePx(
-  ll: VectorPoint,
+export function llToTilePx<M extends MValue = Properties>(
+  ll: VectorPoint<M>,
   tile: [zoom: number, x: number, y: number],
   tileSize = 512,
-): VectorPoint {
+): VectorPoint<M> {
   const [zoom, x, y] = tile;
   const px = llToPX(ll, zoom, false, tileSize);
   const tileXStart = x * tileSize;
   const tileYStart = y * tileSize;
 
-  return { x: (px.x - tileXStart) / tileSize, y: (px.y - tileYStart) / tileSize };
+  return { x: (px.x - tileXStart) / tileSize, y: (px.y - tileYStart) / tileSize, m: ll.m };
 }
 
 /**
@@ -186,27 +195,25 @@ export function convertBBox(bbox: BBox, outSource: Sources): BBox {
  * @param zoom - the zoom level
  * @param tmsStyle - if true, the y is inverted
  * @param source - the source
- * @param tileSize - in pixels
  * @returns - the bounding box in WGS84 or 900913
  */
 export function xyzToBBOX(
   x: number,
   y: number,
   zoom: number,
-  tmsStyle = true,
+  tmsStyle = false,
   source: Sources = '900913',
-  tileSize = 512,
 ): BBox {
   // Convert xyz into bbox with srs WGS84
   // if tmsStyle, the y is inverted
   if (tmsStyle) y = Math.pow(2, zoom) - 1 - y;
   // Use +y to make sure it's a number to avoid inadvertent concatenation.
-  const bl: VectorPoint = { x: x * tileSize, y: (y + 1) * tileSize }; // bottom left
+  const bl: VectorPoint = { x: x * 512, y: (y + 1) * 512 }; // bottom left
   // Use +x to make sure it's a number to avoid inadvertent concatenation.
-  const tr: VectorPoint = { x: (x + 1) * tileSize, y: y * tileSize }; // top right
+  const tr: VectorPoint = { x: (x + 1) * 512, y: y * 512 }; // top right
   // to pixel-coordinates
-  const pxBL = pxToLL(bl, zoom, tileSize);
-  const pxTR = pxToLL(tr, zoom, tileSize);
+  const pxBL = pxToLL(bl, zoom, 512);
+  const pxTR = pxToLL(tr, zoom, 512);
 
   // If web mercator requested reproject to 900913.
   if (source === '900913') {
@@ -226,15 +233,13 @@ export function xyzToBBOX(
  * @param zoom - the zoom level
  * @param tmsStyle - if true, the y is inverted
  * @param source - the source
- * @param tileSize - in pixels
  * @returns - the tile's bounding box [minX, minY, maxX, maxY] in XYZ space
  */
 export function bboxToXYZBounds(
   bbox: BBox,
   zoom: number,
-  tmsStyle = true,
+  tmsStyle = false,
   source: Sources = '900913',
-  tileSize = 512,
 ): BBox {
   const { min, max, pow, floor } = Math;
   let bl: VectorPoint = { x: bbox[0], y: bbox[1] }; // bottom left
@@ -245,11 +250,11 @@ export function bboxToXYZBounds(
     tr = llToMerc(tr);
   }
 
-  const pxBL = llToPX(bl, zoom, false, tileSize);
-  const pxTR = llToPX(tr, zoom, false, tileSize);
+  const pxBL = llToPX(bl, zoom, false, 512);
+  const pxTR = llToPX(tr, zoom, false, 512);
   // Y = 0 for XYZ is the top hence minY uses pxTR[1].
-  const x = [floor(pxBL.x / tileSize), floor((pxTR.x - 1) / tileSize)];
-  const y = [floor(pxTR.y / tileSize), floor((pxBL.y - 1) / tileSize)];
+  const x = [floor(pxBL.x / 512), floor((pxTR.x - 1) / 512)];
+  const y = [floor(pxTR.y / 512), floor((pxBL.y - 1) / 512)];
 
   const bounds: BBox = [
     min(...x) < 0 ? 0 : min(...x),

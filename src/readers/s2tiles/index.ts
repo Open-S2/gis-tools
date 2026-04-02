@@ -1,10 +1,8 @@
-import { Cache as DirCache } from '../../dataStructures/cache.js';
 import { Compression, compressionToFormat, decompressStream } from '../../util/index.js';
-import { FetchReader, toReader } from '../index.js';
+import { Cache as DirCache, FetchReader, toReader } from '../../index.js';
 
-import type { Face } from 'gis-tools/index.js';
 import type { Metadata } from 's2-tilejson';
-import type { Reader, ReaderInputs } from '../index.js';
+import type { Face, Reader, ReaderInputs } from '../../index.js';
 
 /**
  * A directory consists of an offset and a length pointing to a node or a leaf.
@@ -15,13 +13,13 @@ type Directory = [offset: number, length: number];
 
 const NODE_SIZE = 10; // [offset, length] => [6 bytes, 4 bytes]
 const DIR_SIZE = 1_365 * NODE_SIZE; // (13_650) -> 6 levels, the 6th level has both node and leaf (1+4+16+64+256+1024)*2 => (1365)+1365 => 2_730
-const METADATA_SIZE = 131_072; // 131,072 bytes is 128kB
-const ROOT_DIR_SIZE = DIR_SIZE * 6; // 27_300 * 6 = 163_800
+const METADATA_SIZE = 131_072; // 131,072 bytes is 128kB. It is assumed the map metadata AND the S2Tile format metadata is less than 128kB.
+const ROOT_DIR_SIZE = DIR_SIZE * 7; // 27_300 * 7 = 191_100
 const ROOT_SIZE = METADATA_SIZE + ROOT_DIR_SIZE;
 // assuming all tiles exist for every face from 0->30 the max leafs to reach depth of 30 is 5
-// root: 6sides * 27_300bytes/dir = (163_800 bytes)
-// all leafs at 6: 1024 * 6sides * 27_300bytes/dir (0.167731 GB)
-// al leafs at 12: 524_288 * 6sides * 27_300bytes/dir (85.8783744 GB) - obviously most of this is water
+// root: 7sides * 27_300bytes/dir = (191_100 bytes)
+// all leafs at 6 (only S2): 1024 * 6sides * 27_300bytes/dir (0.167731 GB)
+// al leafs at 12 (only S2): 524_288 * 6sides * 27_300bytes/dir (85.8783744 GB) - obviously most of this is water
 
 /**
  * # S2 Tiles Reader
@@ -107,7 +105,7 @@ export class S2TilesReader {
     const data = await this.#reader.getRange(0, ROOT_SIZE);
     // prep a data view, store in header, build metadata
     const dv = new DataView(data.buffer, 0, ROOT_SIZE);
-    if (dv.getUint16(0, true) !== 12883) {
+    if (dv.getUint16(0, true) !== 12_883) {
       // the first two bytes are S and 2, we validate
       throw new Error(`Bad metadata from ${this.path}`);
     }
@@ -124,7 +122,7 @@ export class S2TilesReader {
     const meta_data = await decompress(data.slice(10, 10 + mL), this.compression);
     this.metadata = JSON.parse(this.decoder.decode(meta_data)) as Metadata;
     // create root directories
-    for (const face of [0, 1, 2, 3, 4, 5])
+    for (const face of [0, 1, 2, 3, 4, 5, 6])
       this.#rootDir[face] = new DataView(data.buffer, METADATA_SIZE + face * DIR_SIZE, DIR_SIZE);
   }
 
@@ -136,7 +134,7 @@ export class S2TilesReader {
    * @returns - true if the tile exists in the archive
    */
   async hasTileWM(zoom: number, x: number, y: number): Promise<boolean> {
-    return await this.hasTileS2(0, zoom, x, y);
+    return await this.hasTileS2(6 as Face, zoom, x, y);
   }
 
   /**
@@ -168,7 +166,7 @@ export class S2TilesReader {
    */
   async getTileWM(zoom: number, x: number, y: number): Promise<Uint8Array | undefined> {
     await this.setup();
-    return await this.getTileS2(0, zoom, x, y);
+    return await this.getTileS2(6 as Face, zoom, x, y);
   }
 
   /**
@@ -208,7 +206,7 @@ export class S2TilesReader {
    */
   async #walk(dir: DataView, zoom: number, x: number, y: number): Promise<undefined | Directory> {
     const { maxzoom } = this;
-    const path = getS2TilePath(zoom, x, y);
+    const path = getTilePath(zoom, x, y);
     let offset = 0;
     let length = 0;
 
@@ -269,7 +267,7 @@ function _readUInt48LE(buffer: DataView, offset = 0): number {
  * @param y - the y
  * @returns - The path as a collection of offsets pointing to the tile Node in the directory
  */
-export function getS2TilePath(zoom: number, x: number, y: number): number[] {
+export function getTilePath(zoom: number, x: number, y: number): number[] {
   const { max, pow } = Math;
   const path: Array<[number, number, number]> = [];
   while (zoom >= 5) {

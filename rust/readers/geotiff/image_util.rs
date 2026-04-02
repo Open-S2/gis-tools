@@ -133,7 +133,7 @@ pub fn normalize_array(
     tile_height: usize,
 ) -> Vec<u8> {
     // const inByteArray = new Uint8Array(in_buffer);
-    let mut view = Buffer::new(in_buffer);
+    let view = Buffer::new(in_buffer);
     let out_size = if planar_configuration == 2 {
         tile_height * tile_width
     } else {

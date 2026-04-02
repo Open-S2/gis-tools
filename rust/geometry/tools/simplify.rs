@@ -52,7 +52,7 @@ pub fn build_sq_dists<M: Clone + Default>(
 
 /// calculate simplification of line vector data using
 /// optimized Douglas-Peucker algorithm
-fn build_sq_dist<M: Clone + Default>(
+pub fn build_sq_dist<M: Clone + Default>(
     coords: &mut VectorLineString<M>,
     first: usize,
     last: usize,
@@ -151,11 +151,19 @@ pub fn simplify<M: Clone + Default>(
         VectorGeometry::LineString(geo) => {
             geo.coordinates = simplify_line(&geo.coordinates, zoom_tol, false, false);
         }
-        VectorGeometry::Polygon(geo) | VectorGeometry::MultiLineString(geo) => {
+        VectorGeometry::MultiLineString(geo) => {
             geo.coordinates = geo
                 .coordinates
                 .iter()
                 .map(|line| simplify_line(line, zoom_tol, false, false))
+                .collect();
+        }
+        VectorGeometry::Polygon(geo) => {
+            geo.coordinates = geo
+                .coordinates
+                .iter()
+                .enumerate()
+                .map(|(i, line)| simplify_line(line, zoom_tol, true, i == 0))
                 .collect();
         }
         VectorGeometry::MultiPolygon(geo) => {
@@ -172,7 +180,7 @@ pub fn simplify<M: Clone + Default>(
 }
 
 /// simplified a vector line
-fn simplify_line<M: Clone + Default>(
+pub fn simplify_line<M: Clone + Default>(
     line: &VectorLineString<M>,
     tolerance: f64,
     is_polygon: bool,
@@ -197,23 +205,25 @@ fn simplify_line<M: Clone + Default>(
     ring
 }
 
-/// In place adjust the ring if necessary
+/// In place adjust the ring if necessary.
 pub fn rewind<M: Clone + Default>(ring: &mut VectorLineString<M>, clockwise: bool) {
     let len = ring.len();
-    let mut area: f64 = 0.;
-    let mut i = 0;
-    let mut j = len - 2;
-    while i < len {
+    if len < 4 {
+        return;
+    }
+
+    let mut area: f64 = 0.0;
+    let mut j = len - 1;
+
+    for i in 0..len {
         area += (ring[i].x - ring[j].x) * (ring[i].y + ring[j].y);
         j = i;
-        i += 2;
     }
-    i = 0;
-    if (area > 0.) == clockwise {
-        let len_half = len / 2;
-        while i < len_half {
+
+    if (area > 0.0) == clockwise {
+        // Explicitly mirror the TS manual swapping logic
+        for i in 0..(len / 2) {
             ring.swap(i, len - i - 1);
-            i += 1;
         }
     }
 }

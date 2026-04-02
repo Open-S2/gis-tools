@@ -110,7 +110,8 @@ mod tests {
                         (4, BBox::<u64> { left: 14, bottom: 1, right: 15, top: 2 })
                     ]),
                     face4: BTreeMap::default(),
-                    face5: BTreeMap::default()
+                    face5: BTreeMap::default(),
+                    wm: BTreeMap::default(),
                 },
                 minzoom: 0,
                 maxzoom: 4,
@@ -137,7 +138,8 @@ mod tests {
                     total_2: 0,
                     total_3: 7,
                     total_4: 0,
-                    total_5: 0
+                    total_5: 0,
+                    total_wm: 0,
                 },
                 vector_layers: vec![VectorLayer {
                     id: "points".into(),

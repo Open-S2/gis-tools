@@ -17,10 +17,10 @@ import {
   pxToTile,
   tilePxBounds,
   xyzToBBOX,
-} from '../../../src/geometry/wm/coords';
+} from '../../../src/geometry/wm/coords.js';
 import { describe, expect, it, test } from 'bun:test';
 
-import type { BBox } from '../../../src/geometry';
+import type { BBox } from '../../../src/geometry/index.js';
 
 describe('llToPX', () => {
   it('PX with int zoom value converts when antiMeridian=true', () => {
@@ -92,23 +92,23 @@ describe('pxToLL', () => {
 
 describe('xyzToBBOX', () => {
   it('[0,0,0] converted to proper bbox.', () => {
-    expect(xyzToBBOX(0, 0, 0, true, 'WGS84', 256)).toEqual([
+    expect(xyzToBBOX(0, 0, 0, true, 'WGS84')).toEqual([
       -180, -85.05112877980659, 180, 85.05112877980659,
     ]);
   });
 
   it('[0,0,0] converted to proper bbox. source=900913', () => {
-    expect(xyzToBBOX(0, 0, 0, true, '900913', 256)).toEqual([
+    expect(xyzToBBOX(0, 0, 0, true, '900913')).toEqual([
       -20037508.34278924, -20037508.342789236, 20037508.34278924, 20037508.342789244,
     ]);
   });
 
   it('[0,0,1] converted to proper bbox.', () => {
-    expect(xyzToBBOX(0, 0, 1, true, 'WGS84', 256)).toEqual([-180, -85.05112877980659, 0, 0]);
+    expect(xyzToBBOX(0, 0, 1, true, 'WGS84')).toEqual([-180, -85.05112877980659, 0, 0]);
   });
 
   it('[0,0,1] converted to proper bbox. source=900913', () => {
-    expect(xyzToBBOX(0, 0, 1, true, '900913', 256)).toEqual([
+    expect(xyzToBBOX(0, 0, 1, true, '900913')).toEqual([
       -20037508.34278924, -20037508.342789236, 0, -0.0000000007081154551613622,
     ]);
   });
@@ -117,38 +117,38 @@ describe('xyzToBBOX', () => {
 describe('bboxToXYZBounds', () => {
   it('World extents converted to proper tile ranges.', () => {
     expect(
-      bboxToXYZBounds([-180, -85.05112877980659, 180, 85.0511287798066], 0, true, 'WGS84', 256),
+      bboxToXYZBounds([-180, -85.05112877980659, 180, 85.0511287798066], 0, true, 'WGS84'),
     ).toEqual([0, 0, 0, 0]);
   });
 
   it('World extents converted to proper tile ranges. source=900913', () => {
     expect(
-      bboxToXYZBounds([-180, -85.05112877980659, 180, 85.0511287798066], 0, true, '900913', 256),
+      bboxToXYZBounds([-180, -85.05112877980659, 180, 85.0511287798066], 0, true, '900913'),
     ).toEqual([0, -1, 0, 0]);
   });
 
   it('SW converted to proper tile ranges.', () => {
-    expect(bboxToXYZBounds([-180, -85.05112877980659, 0, 0], 1, true, 'WGS84', 256)).toEqual([
+    expect(bboxToXYZBounds([-180, -85.05112877980659, 0, 0], 1, true, 'WGS84')).toEqual([
       0, 0, 0, 0,
     ]);
   });
 
   it('SW converted to proper tile ranges. source=900913', () => {
-    expect(bboxToXYZBounds([-180, -85.05112877980659, 0, 0], 1, true, '900913', 256)).toEqual([
+    expect(bboxToXYZBounds([-180, -85.05112877980659, 0, 0], 1, true, '900913')).toEqual([
       0, 0, 0, 1,
     ]);
   });
 
   it('broken case', () => {
     const extent: BBox = [-0.087891, 40.95703, 0.087891, 41.044916];
-    const xyz = bboxToXYZBounds(extent, 3, true, 'WGS84', 256);
+    const xyz = bboxToXYZBounds(extent, 3, true, 'WGS84');
     expect(xyz[0] <= xyz[2]).toBe(true);
     expect(xyz[1] <= xyz[3]).toBe(true);
   });
 
   it('negative case', () => {
     const extent: BBox = [-112.5, 85.0511, -112.5, 85.0511];
-    const xyz = bboxToXYZBounds(extent, 0, true, 'WGS84', 256);
+    const xyz = bboxToXYZBounds(extent, 0, true, 'WGS84');
     expect(xyz[1]).toBe(0);
   });
 
@@ -159,7 +159,7 @@ describe('bboxToXYZBounds', () => {
       const y = [-85 + 170 * Math.random(), -85 + 170 * Math.random()];
       const z = Math.floor(22 * Math.random());
       const extent: BBox = [min(...x), min(...y), max(...x), max(...y)];
-      const xyz = bboxToXYZBounds(extent, z, true, 'WGS84', 256);
+      const xyz = bboxToXYZBounds(extent, z, true, 'WGS84');
       expect(xyz[0] <= xyz[2]).toBe(true);
       expect(xyz[1] <= xyz[3]).toBe(true);
     }
@@ -190,7 +190,7 @@ describe('convertBBox', () => {
       -20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244,
     ]);
 
-    expect(bboxToXYZBounds([-240, -90, 240, 90], 4, true, 'WGS84', 256)).toEqual([0, 0, 15, 15]);
+    expect(bboxToXYZBounds([-240, -90, 240, 90], 4, true, 'WGS84')).toEqual([0, 0, 15, 15]);
   });
 });
 
@@ -242,23 +242,23 @@ test('high precision float 512', () => {
 
 describe('llToTile', () => {
   it('0-0-0: center point', () => {
-    const tile = llToTile({ x: 0, y: 0 }, 0, 512);
+    const tile = llToTile({ x: 0, y: 0 }, 0);
     expect(tile).toEqual({ x: 0, y: 0 });
   });
 
   it('0-0-0: top left', () => {
-    const tile = llToTile({ x: -180, y: 85.05 }, 0, 512);
+    const tile = llToTile({ x: -180, y: 85.05 }, 0);
     expect(tile).toEqual({ x: 0, y: 0 });
   });
 
   // zoom 1
   it('1-0-0: center point', () => {
-    const tile = llToTile({ x: 0, y: 0 }, 1, 512);
+    const tile = llToTile({ x: 0, y: 0 }, 1);
     expect(tile).toEqual({ x: 1, y: 1 });
   });
 
   it('1-0-0: top left', () => {
-    const tile = llToTile({ x: -180, y: 85.05 }, 1, 512);
+    const tile = llToTile({ x: -180, y: 85.05 }, 1);
     expect(tile).toEqual({ x: 0, y: 0 });
   });
 });

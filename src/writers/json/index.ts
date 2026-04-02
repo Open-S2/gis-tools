@@ -1,9 +1,6 @@
-import { convert } from '../../geometry/tools/convert.js';
-import { mergeBBoxes, toFlatGeometry } from '../../geometry/index.js';
+import { convert, fromVectorGeometry, mergeBBoxes, toFlatGeometry } from '../../index.js';
 
-import type { FeatureIterator } from '../../readers/index.js';
-import type { Writer } from '../index.js';
-import type { BBOX, Projection, VectorFeatures } from '../../geometry/index.js';
+import type { BBOX, FeatureIterator, Projection, VectorFeatures, Writer } from '../../index.js';
 
 /** User defined options on how to store the features */
 export interface ToJSONOptions {
@@ -18,9 +15,13 @@ export interface ToJSONOptions {
 }
 
 /**
+ * # JSON Writer
+ *
+ * ## Description
+ *
  * Given a writer and an array of iterators, write the input features to the writer as a JSON object
  *
- * Usage:
+ * ## Usage
  * ```ts
  * import { toJSON, JSONReader } from 'gis-tools-ts';
  * import { FileReader, FileWriter } from 'gis-tools-ts/file';
@@ -60,9 +61,12 @@ export async function toJSON(
       for (const convertedFeature of convertedFeatures) {
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;
-        faces.add(userFeature.face ?? 0);
-        if (buildBBox && userFeature.geometry.bbox !== undefined)
-          bbox = mergeBBoxes(bbox, userFeature.geometry.bbox);
+        faces.add(userFeature.face ?? 6);
+        if (buildBBox) {
+          let fBbox = userFeature.geometry.bbox;
+          if (fBbox === undefined) fBbox = fromVectorGeometry(userFeature.geometry);
+          bbox = mergeBBoxes(bbox, fBbox);
+        }
         if (!first) await writer.appendString(',\n');
         else first = false;
         const storedFeature = opts?.geojson === true ? toFlatGeometry(userFeature) : userFeature;
@@ -101,11 +105,13 @@ export async function toJSON(
  * @param writer - the writer to apppend strings to
  * @param iterators - the collection of iterators to write
  * @param opts - user defined options [optional]
+ * @param lineDelimiter - the lineDelimiter to use to separate lines [Default='\n']
  */
 export async function toJSONLD(
   writer: Writer,
   iterators: FeatureIterator[],
   opts?: ToJSONOptions,
+  lineDelimiter: string = '\n',
 ): Promise<void> {
   const projection = opts?.projection ?? 'S2';
   const onFeature = opts?.onFeature ?? ((feature) => feature);
@@ -118,7 +124,7 @@ export async function toJSONLD(
         const userFeature = onFeature(convertedFeature);
         if (userFeature === undefined) continue;
         const storedFeature = opts?.geojson === true ? toFlatGeometry(userFeature) : userFeature;
-        await writer.appendString(JSON.stringify(storedFeature) + '\n');
+        await writer.appendString(JSON.stringify(storedFeature) + lineDelimiter);
       }
     }
   }

@@ -1,5 +1,5 @@
-import { buildServer } from '../../server';
-import { fetchGTFSSystems } from '../../../src';
+import { buildServer } from '../../server.js';
+import { fetchGTFSSystems } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('fetchGTFSSystems', async () => {

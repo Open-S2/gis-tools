@@ -31,7 +31,7 @@ mod tests {
         }
 
         if clean {
-            if let Some((cleaned, _)) = clean_polygons(&res, true, false) {
+            if let Some((cleaned, _)) = clean_polygons(&res, true, false, false) {
                 return cleaned;
             } else {
                 return vec![];

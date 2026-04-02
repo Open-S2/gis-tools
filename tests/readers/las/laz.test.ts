@@ -1,11 +1,11 @@
-import { FileReader } from '../../../src/file';
+import { FileReader } from '../../../src/file.js';
 import {
   EPSG_26915,
   LASZipReader,
   LambertConformalConic,
   NewLineDelimitedJSONReader,
   TransverseMercator,
-} from '../../../src';
+} from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('LASzipReader - 1.2_0 ZIP', async () => {

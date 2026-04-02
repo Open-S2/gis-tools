@@ -152,7 +152,7 @@ export function complexUnpacking(reader: Reader, sections: Grib2Sections): numbe
   }
 
   if (groupSplittingMethod.code !== 1)
-    throw new Error('internal decode does not support code table 5.4=' + groupSplittingMethod);
+    throw new Error(`internal decode does not support code table 5.4=${groupSplittingMethod}`);
 
   // do a check for number of grid points and size
   let i = 0;
@@ -200,7 +200,7 @@ export function complexUnpacking(reader: Reader, sections: Grib2Sections): numbe
   }
 
   // check everything added up correctly
-  if (j !== numPoints) throw new Error('bad complex packing: n points `${j}`');
+  if (j !== numPoints) throw new Error(`bad complex packing: n points "${j}"`);
   nBytes += Math.floor((nBits + 7) / 8);
   if (readerCursor + nBytes !== reader.byteLength)
     throw new Error('complex unpacking size mismatch old test');
@@ -319,7 +319,7 @@ export function complexUnpacking(reader: Reader, sections: Grib2Sections): numbe
         }
       }
     } else {
-      throw new Error('Unsupported: code table 5.6=${metadata.orderOfSpatialDifference}');
+      throw new Error(`Unsupported: code table 5.6=${metadata.orderOfSpatialDifference}`);
     }
   }
 
@@ -347,7 +347,7 @@ export function complexUnpacking(reader: Reader, sections: Grib2Sections): numbe
       mask <<= 1;
     }
   } else {
-    throw new Error('unknown bitmap: {bms.bitMapIndicator}');
+    throw new Error(`unknown bitmap: ${bms.bitMapIndicator}`);
   }
 
   return res;

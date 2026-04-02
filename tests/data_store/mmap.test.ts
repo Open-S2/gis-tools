@@ -1,7 +1,7 @@
-import { S2MMapStore } from '../../src/mmap';
+import { S2MMapStore } from '../../src/mmap.js';
 import { expect, test } from 'bun:test';
 
-import { createTempPath, deletePath } from '../../tests/tmp';
+import { createTempPath, deletePath } from '../../tests/tmp.js';
 
 test('S2MMapStore', async () => {
   const dir = createTempPath('mmap_test');

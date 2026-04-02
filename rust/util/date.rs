@@ -59,6 +59,26 @@ impl Date {
         Date { year, month, day, hour, minute, second }
     }
 
+    /// Returns the current Date and time if `std` is available.
+    /// In a `no_std` environment, it safely returns a default Unix Epoch Date (1970-01-01).
+    pub fn now() -> Self {
+        #[cfg(feature = "std")]
+        {
+            use std::time::{SystemTime, UNIX_EPOCH};
+            let start = SystemTime::now();
+            let since_the_epoch = start.duration_since(UNIX_EPOCH).expect("Time went backwards");
+
+            // Convert total duration to milliseconds
+            let ms = since_the_epoch.as_millis() as i64;
+            Date::from_time(ms)
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            // Placeholder/dead implementation for embedded/no_std systems
+            Date::from_time(0)
+        }
+    }
+
     /// Create date given number of milliseconds since 1970-01-01T00:00:00Z (UTC)
     pub fn from_time(time: i64) -> Date {
         let mut date = Date::default();

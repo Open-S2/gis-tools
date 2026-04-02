@@ -1,7 +1,7 @@
-import { Mercator, Transformer, injectAllDefinitions } from '../../src';
+import { Mercator, Transformer, injectAllDefinitions } from '../../src/index.js';
 import { describe, expect, it } from 'bun:test';
 
-import { TEST_DATA } from './testData';
+import { TEST_DATA } from './testData.js';
 
 // was untested:
 // - src/proj4/projections/cea.ts

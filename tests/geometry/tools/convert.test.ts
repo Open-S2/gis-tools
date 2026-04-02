@@ -1,4 +1,4 @@
-import { convert } from '../../../src';
+import { convert } from '../../../src/index.js';
 import { describe, expect, it } from 'bun:test';
 
 import type {
@@ -8,7 +8,7 @@ import type {
   S2FeatureCollection,
   VectorFeature,
   VectorFeatureCollection,
-} from '../../../src/geometry';
+} from '../../../src/geometry/index.js';
 
 // FeatureCollection | S2FeatureCollection | Feature | VectorFeature | S2Feature
 

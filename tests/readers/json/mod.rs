@@ -13,7 +13,7 @@ mod tests {
         readers::json::{JSONCollectionReader, ToGisJSON},
     };
     use s2json::{
-        BBox3D, BaseGeometry, Feature, FeatureCollection, FeatureCollectionType, FeatureType,
+        BBox3D, BaseGeometry, Face, Feature, FeatureCollection, FeatureCollectionType, FeatureType,
         Features, Geometry, GeometryType, JSONCollection, MValue, MValueCompatible, Point,
         S2FeatureCollection, S2FeatureCollectionType, VectorBaseGeometry, VectorFeature,
         VectorFeatureType, VectorGeometry, VectorGeometryType, VectorPoint,
@@ -135,7 +135,7 @@ mod tests {
             vec![VectorFeature {
                 _type: VectorFeatureType::VectorFeature,
                 id: None,
-                face: 0.into(),
+                face: Face::WM,
                 properties: Test { name: "Tokyo".into() },
                 geometry: VectorGeometry::Point(VectorBaseGeometry {
                     _type: VectorGeometryType::Point,
@@ -162,7 +162,7 @@ mod tests {
             vec![VectorFeature {
                 _type: VectorFeatureType::VectorFeature,
                 id: None,
-                face: 0.into(),
+                face: Face::WM,
                 properties: Test { name: "Tokyo".into() },
                 geometry: VectorGeometry::Point(VectorBaseGeometry {
                     _type: VectorGeometryType::Point,
@@ -190,7 +190,7 @@ mod tests {
             vec![VectorFeature {
                 _type: VectorFeatureType::VectorFeature,
                 id: None,
-                face: 0.into(),
+                face: Face::WM,
                 properties: Test { name: "Tokyo".into() },
                 geometry: VectorGeometry::Point(VectorBaseGeometry {
                     _type: VectorGeometryType::Point,
@@ -217,7 +217,7 @@ mod tests {
             vec![VectorFeature {
                 _type: VectorFeatureType::VectorFeature,
                 id: None,
-                face: 0.into(),
+                face: Face::WM,
                 properties: Test { name: "Tokyo".into() },
                 geometry: VectorGeometry::Point(VectorBaseGeometry {
                     _type: VectorGeometryType::Point,
@@ -247,7 +247,7 @@ mod tests {
 
         let json_str = r#"{
             "type": "VectorFeature",
-            "face": 0,
+            "face": 6,
             "properties": { "name": "Tokyo" },
             "geometry": {
                 "type": "Point",
@@ -286,7 +286,7 @@ mod tests {
             "type": "FeatureCollection",
             "features": [{
             "type": "VectorFeature",
-            "face": 0,
+            "face": 6,
             "properties": { "name": "Tokyo" },
             "geometry": {
                 "type": "Point",
@@ -304,6 +304,7 @@ mod tests {
                 features: vec![Features::VectorFeature(VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
+                    face: Face::WM,
                     properties: Test { name: "Tokyo".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,

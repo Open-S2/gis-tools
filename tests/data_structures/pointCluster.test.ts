@@ -1,11 +1,10 @@
-import { FileReader } from '../../src/file';
-import { JSONReader, PointCluster } from '../../src';
+import { FileReader } from '../../src/file.js';
+import { JSONReader, PointCluster } from '../../src/index.js';
 import { expect, test } from 'bun:test';
-
 // helper functions
-import { idFromFace } from '../../src';
+import { idFromFace } from '../../src/index.js';
 
-import type { Properties, Tile } from '../../src';
+import type { Properties, Tile } from '../../src/index.js';
 
 test('PointCluster', async () => {
   const cluster = new PointCluster<{ a: number }>(

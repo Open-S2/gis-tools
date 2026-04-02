@@ -1,8 +1,8 @@
-import { S2FileStore } from '../../../src/file';
-import { S2MMapStore, externalSort } from '../../../src/mmap';
+import { S2FileStore } from '../../../src/file.js';
+import { S2MMapStore, externalSort } from '../../../src/mmap.js';
 import { expect, test } from 'bun:test';
 
-import { createTempPath, deletePath } from '../../../tests/tmp';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 
 test('sort - single threaded', async () => {
   const dir = createTempPath('external_sort_single_1');

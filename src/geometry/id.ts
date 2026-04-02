@@ -807,22 +807,22 @@ export function idVertexNeighbors(id: S2CellId, lev?: number): S2CellId[] {
 export type Vertices = [VectorPoint, VectorPoint, VectorPoint, VectorPoint];
 
 /**
- * Returns the four vertices of the cell.  Vertices are returned
+ * Returns the four vertices of the cell as XYZ S2Points. Vertices are returned
  * in CCW order (lower left, lower right, upper right, upper left in the UV
- * plane).  The points returned by getVertices are pointNd.
+ * plane). The points returned by getVertices are pointNd.
  * @param id - the S2CellID
- * @returns the k-th vertex of the cell
+ * @returns the four vertices of the cell
  */
 export function idGetVertices(id: S2CellId): Vertices {
   return idGetVerticesRaw(id).map(pointNormalize) as Vertices;
 }
 
 /**
- * Returns the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
+ * Returns the four vertices of the cell as XYZ S2Points. Vertices are returned
  * in CCW order (lower left, lower right, upper right, upper left in the UV
- * plane).  The points returned by getVerticesRaw are not normalized.
+ * plane). The points returned by getVerticesRaw are not normalized.
  * @param id - the S2CellID
- * @returns the k-th vertex of the cell
+ * @returns the four vertices of the cell
  */
 export function idGetVerticesRaw(id: S2CellId): Vertices {
   const f = idFace(id);

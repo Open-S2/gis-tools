@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readVarint, writeVarint } from '../../../src';
+import { readVarint, writeVarint } from '../../../src/index.js';
 
 describe('varint', () => {
   const buffer = { buf: new Uint8Array(0), pos: 0 };

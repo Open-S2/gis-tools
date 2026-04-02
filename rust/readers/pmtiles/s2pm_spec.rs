@@ -22,7 +22,7 @@ impl S2PMEntries {
     /// Get the directory for the given face
     pub fn get(&self, face: Face) -> &PMDirectory {
         match face {
-            Face::Face0 => &self.face_0,
+            Face::Face0 | Face::WM => &self.face_0,
             Face::Face1 => &self.face_1,
             Face::Face2 => &self.face_2,
             Face::Face3 => &self.face_3,
@@ -34,7 +34,7 @@ impl S2PMEntries {
     /// Get the mutable directory for the given face
     pub fn get_mut(&mut self, face: Face) -> &mut PMDirectory {
         match face {
-            Face::Face0 => &mut self.face_0,
+            Face::Face0 | Face::WM => &mut self.face_0,
             Face::Face1 => &mut self.face_1,
             Face::Face2 => &mut self.face_2,
             Face::Face3 => &mut self.face_3,
@@ -46,7 +46,7 @@ impl S2PMEntries {
     /// Set the directory for the given face
     pub fn set_dir(&mut self, face: Face, dir: PMDirectory) {
         match face {
-            Face::Face0 => self.face_0 = dir,
+            Face::Face0 | Face::WM => self.face_0 = dir,
             Face::Face1 => self.face_1 = dir,
             Face::Face2 => self.face_2 = dir,
             Face::Face3 => self.face_3 = dir,
@@ -291,7 +291,7 @@ impl S2PMHeader {
     /// Get the root directory offset for a given face
     pub fn get_root_offset(&self, face: Face) -> u64 {
         match face {
-            Face::Face0 => self.root_directory_offset,
+            Face::Face0 | Face::WM => self.root_directory_offset,
             Face::Face1 => self.root_directory_offset1,
             Face::Face2 => self.root_directory_offset2,
             Face::Face3 => self.root_directory_offset3,
@@ -303,7 +303,7 @@ impl S2PMHeader {
     /// Get the root directory length for a given face
     pub fn get_root_length(&self, face: Face) -> u64 {
         match face {
-            Face::Face0 => self.root_directory_length,
+            Face::Face0 | Face::WM => self.root_directory_length,
             Face::Face1 => self.root_directory_length1,
             Face::Face2 => self.root_directory_length2,
             Face::Face3 => self.root_directory_length3,

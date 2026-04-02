@@ -14,10 +14,10 @@ import {
   angleToE7,
   angleToKM,
   angleToMeters,
-} from '../../../src/geometry/s1/angle';
+} from '../../../src/geometry/s1/angle.js';
 import { expect, test } from 'bun:test';
 
-import { pointFromLonLat } from '../../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../../src/geometry/s2/point.js';
 
 test('angleE5', () => {
   expect(angleE5(0)).toEqual(0);

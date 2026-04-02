@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { orient3d, orient3dfast, orient3dfastVector } from '../../../src';
+import { orient3d, orient3dfast, orient3dfastVector } from '../../../src/index.js';
 
 // import robustOrientation from 'robust-orientation';
 

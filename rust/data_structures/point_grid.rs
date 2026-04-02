@@ -209,7 +209,7 @@ impl<
                     // search for points within a reasonable cell size
                     let mut grid_level_search = zoom_grid_level;
                     let mut point_shapes: Vec<IndexPoint<V>>;
-                    let fst_point = S2CellId::from_face_st(face, s, t);
+                    let fst_point = S2CellId::from_face_st(face, s, t, None);
                     let mut st_cell = fst_point.parent(Some(zoom_grid_level));
                     loop {
                         point_shapes = self

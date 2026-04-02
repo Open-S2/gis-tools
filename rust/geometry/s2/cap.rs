@@ -228,7 +228,6 @@ where
         //   let sin2Angle = chordAngleSin2(self.radius);
         let sin2_angle = self.radius.chord_angle_sin2();
         let edges: [S2Point; 4] = cell.get_edges_raw();
-        //   for (let k = 0; k < 4; k += 1) {
         for k in 0..4 {
             let edge = edges[k];
             let dot = self.center.dot(&edge);

@@ -45,7 +45,7 @@ export function toFlatGeometry<
   const { id, type, face, properties, metadata } = data;
   const vectorGeo = data.geometry;
   // adjust S2 to Vector if needed
-  if (type === 'S2Feature') s2ToVector<D>(face ?? 0, data.geometry);
+  if (type === 'S2Feature') s2ToVector<D>(face ?? 6, data.geometry);
   const flatGeo = vectorToFlat<D>(vectorGeo, buildBBox);
   return {
     id,

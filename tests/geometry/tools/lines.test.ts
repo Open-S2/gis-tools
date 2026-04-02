@@ -10,7 +10,7 @@ import {
   pointOnLine,
   pointToLineDistance,
   toLines,
-} from '../../../src';
+} from '../../../src/index.js';
 import { describe, expect, it, test } from 'bun:test';
 
 import type {
@@ -18,7 +18,7 @@ import type {
   VectorLineStringGeometry,
   VectorMultiLineStringGeometry,
   VectorPoint,
-} from '../../../src';
+} from '../../../src/index.js';
 
 test('toLines', () => {
   expect(

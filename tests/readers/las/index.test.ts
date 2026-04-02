@@ -1,4 +1,4 @@
-import { FileReader } from '../../../src/file';
+import { FileReader } from '../../../src/file.js';
 import {
   EPSG_26915,
   EPSG_26916,
@@ -8,7 +8,7 @@ import {
   toLASClassification,
   toLASClassification14,
   toLASClassificationFlag,
-} from '../../../src';
+} from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('toLASClassificationFlag', () => {

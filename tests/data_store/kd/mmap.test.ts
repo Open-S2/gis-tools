@@ -1,6 +1,6 @@
-import { KDMMapSpatialIndex } from '../../../src/dataStore/kd/mmap';
+import { KDMMapSpatialIndex } from '../../../src/dataStore/kd/mmap.js';
 import cities from 'all-the-cities';
-import { createTempPath, deletePath } from '../../../tests/tmp';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 test('KDTree - MMAP', (): void => {

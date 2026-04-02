@@ -1,0 +1,185 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2400.0,
+        "elev_ft": 7874.016
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2500.0,
+        "elev_ft": 8202.1
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2600.0,
+        "elev_ft": 8530.184
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2700.0,
+        "elev_ft": 8858.268
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2800.0,
+        "elev_ft": 9186.352
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 2900.0,
+        "elev_ft": 9514.436
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 3000.0,
+        "elev_ft": 9842.52
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 3100.0,
+        "elev_ft": 10170.604
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 3200.0,
+        "elev_ft": 10498.688
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elev": 3300.0,
+        "elev_ft": 10826.771999999999
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [],
+        "mValues": [],
+        "bbox": [
+          1.7976931348623157e+308,
+          1.7976931348623157e+308,
+          -1.7976931348623157e+308,
+          -1.7976931348623157e+308
+        ]
+      }
+    }
+  ]
+}

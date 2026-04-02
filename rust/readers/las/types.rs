@@ -377,7 +377,7 @@ pub struct LAZHeader {
 impl LAZHeader {
     /// Build LAZ Header
     pub fn from_bytes(data: Vec<u8>) -> Self {
-        let mut raw_header = Buffer::from(data);
+        let raw_header = Buffer::from(data);
         let mut header = LAZHeader {
             compressor: LAZCompressor::from(raw_header.get_u16_at(0)),
             coder: raw_header.get_u16_at(2),

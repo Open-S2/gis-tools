@@ -1,9 +1,11 @@
-import { buildServer } from '../../server';
+import { buildServer } from '../../server.js';
 import {
   RasterTilesReader,
   convertMapboxElevationData,
   convertTerrariumElevationData,
-} from '../../../src';
+  encodeMapboxElevationData,
+  encodeTerrariumElevationData,
+} from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('convertMapboxElevationData', () => {
@@ -20,6 +22,22 @@ test('convertTerrariumElevationData', () => {
   expect(convertTerrariumElevationData(0, 0, 255)).toBe(-32767.00390625);
   expect(convertTerrariumElevationData(255, 0, 0)).toBe(32512);
   expect(convertTerrariumElevationData(0, 255, 0)).toBe(-32513);
+});
+
+test('encodeTerrariumElevationData', () => {
+  expect(encodeTerrariumElevationData(-32768.0)).toEqual([0, 0, 0]);
+  expect(encodeTerrariumElevationData(32767.99609375)).toEqual([255, 255, 255]);
+  expect(encodeTerrariumElevationData(-32767.00390625)).toEqual([0, 0, 255]);
+  expect(encodeTerrariumElevationData(32512.0)).toEqual([255, 0, 0]);
+  expect(encodeTerrariumElevationData(-32513.0)).toEqual([0, 255, 0]);
+});
+
+test('encodeMapboxElevationData', () => {
+  expect(encodeMapboxElevationData(-10000.0)).toEqual([0, 0, 0]);
+  expect(encodeMapboxElevationData(1667721.5)).toEqual([255, 255, 255]);
+  expect(encodeMapboxElevationData(-9974.5)).toEqual([0, 0, 255]);
+  expect(encodeMapboxElevationData(1661168.0)).toEqual([255, 0, 0]);
+  expect(encodeMapboxElevationData(-3472.0)).toEqual([0, 255, 0]);
 });
 
 test('read in wm terrain', async () => {

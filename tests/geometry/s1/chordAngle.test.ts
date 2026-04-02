@@ -16,7 +16,7 @@ import {
   chordAngToAngle,
   chordAngToKM,
   chordAngToMeters,
-} from '../../../src/geometry/s1/chordAngle';
+} from '../../../src/geometry/s1/chordAngle.js';
 import { expect, test } from 'bun:test';
 
 test('chordAngCos', () => {

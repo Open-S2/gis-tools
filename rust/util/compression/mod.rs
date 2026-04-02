@@ -315,3 +315,118 @@ fn find_end_central_directory(raw: &[u8]) -> Result<usize, CompressError> {
 
     Err(CompressError::BadZipFormat)
 }
+
+/// Represents an item to be zipped
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct WriteZipItem {
+    /// The name of the file
+    pub filename: String,
+    /// The comment
+    pub comment: Option<String>,
+    /// The data itself
+    pub bytes: Vec<u8>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq)]
+struct DirectoryEntry {
+    pub filename_bytes: Vec<u8>,
+    pub comment_bytes: Vec<u8>,
+    pub compressed_size: u32,
+    pub uncompressed_size: u32,
+    pub local_header_offset: u32,
+}
+
+/// Zip a collection of files
+///
+/// ## Parameters
+/// `items`: The collection of files you want to compress
+///
+/// ## Returns
+/// A compressed folder of items
+pub fn zip_folder(items: Vec<WriteZipItem>) -> Result<Vec<u8>, CompressError> {
+    let mut zip_payload = Vec::with_capacity(1024 * 64);
+    let mut directory_entries: Vec<DirectoryEntry> = Vec::with_capacity(items.len());
+
+    // 1. Write Local File Headers and Data
+    for item in items {
+        let current_offset = zip_payload.len() as u32;
+
+        let item_len = item.bytes.len() as u32;
+        let filename_bytes = item.filename.as_bytes();
+        let comment_bytes = item.comment.as_ref().map_or(&[][..], |s| s.as_bytes());
+
+        // NOTE: Your compress_data function must also support no_std (e.g., flate2 with core/alloc features)
+        let compressed_bytes = compress_data(item.bytes, CompressionFormat::DeflateRaw)?;
+        let compressed_len = compressed_bytes.len() as u32;
+
+        append_u32(&mut zip_payload, 0x04034b50); // Signature
+        append_u16(&mut zip_payload, 20); // Version needed
+        append_u16(&mut zip_payload, 0); // Flags
+        append_u16(&mut zip_payload, 8); // Compression (Deflate)
+        append_u32(&mut zip_payload, 0); // Mod Time/Date
+        append_u32(&mut zip_payload, 0); // CRC-32
+        append_u32(&mut zip_payload, compressed_len);
+        append_u32(&mut zip_payload, item_len);
+        append_u16(&mut zip_payload, filename_bytes.len() as u16);
+        append_u16(&mut zip_payload, 0); // Extra field len
+
+        zip_payload.extend_from_slice(filename_bytes);
+        zip_payload.extend_from_slice(&compressed_bytes);
+
+        directory_entries.push(DirectoryEntry {
+            filename_bytes: filename_bytes.to_vec(),
+            comment_bytes: comment_bytes.to_vec(),
+            compressed_size: compressed_len,
+            uncompressed_size: item_len,
+            local_header_offset: current_offset,
+        });
+    }
+
+    let central_directory_offset = zip_payload.len() as u32;
+
+    // 2. Write Central Directory Entries
+    for entry in &directory_entries {
+        append_u32(&mut zip_payload, 0x02014b50); // CD Signature
+        append_u16(&mut zip_payload, 20); // Version made by
+        append_u16(&mut zip_payload, 20); // Version needed
+        append_u16(&mut zip_payload, 0); // Flags
+        append_u16(&mut zip_payload, 8); // Compression
+        append_u32(&mut zip_payload, 0); // Mod Time/Date
+        append_u32(&mut zip_payload, 0); // CRC-32
+        append_u32(&mut zip_payload, entry.compressed_size);
+        append_u32(&mut zip_payload, entry.uncompressed_size);
+        append_u16(&mut zip_payload, entry.filename_bytes.len() as u16);
+        append_u16(&mut zip_payload, 0); // Extra field len
+        append_u16(&mut zip_payload, entry.comment_bytes.len() as u16);
+        append_u16(&mut zip_payload, 0); // Disk start
+        append_u16(&mut zip_payload, 0); // Internal attrs
+        append_u32(&mut zip_payload, 0); // External attrs
+        append_u32(&mut zip_payload, entry.local_header_offset);
+
+        zip_payload.extend_from_slice(&entry.filename_bytes);
+        zip_payload.extend_from_slice(&entry.comment_bytes);
+    }
+
+    let central_directory_size = (zip_payload.len() as u32) - central_directory_offset;
+    let total_items = directory_entries.len() as u16;
+
+    // 3. Write End of Central Directory (EOCD)
+    append_u32(&mut zip_payload, 0x06054b50); // EOCD Signature
+    append_u16(&mut zip_payload, 0); // Disk num
+    append_u16(&mut zip_payload, 0); // CD Disk num
+    append_u16(&mut zip_payload, total_items); // Disk records
+    append_u16(&mut zip_payload, total_items); // Total records
+    append_u32(&mut zip_payload, central_directory_size);
+    append_u32(&mut zip_payload, central_directory_offset);
+    append_u16(&mut zip_payload, 0); // Comment len
+
+    Ok(zip_payload)
+}
+
+fn append_u16(vec: &mut Vec<u8>, val: u16) {
+    vec.extend_from_slice(&val.to_le_bytes());
+}
+
+fn append_u32(vec: &mut Vec<u8>, val: u32) {
+    vec.extend_from_slice(&val.to_le_bytes());
+}

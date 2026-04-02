@@ -110,9 +110,9 @@ pub fn tile_to_bbox(tile: (u8, i64, i64), tile_size: Option<u64>) -> (i64, i64, 
 ///
 /// ## Returns
 /// The tile x-y
-pub fn ll_to_tile<P: GetXY + NewXY>(lonlat: &P, zoom: f64, tile_size: Option<u64>) -> (i64, i64) {
-    let px = ll_to_px(lonlat, zoom, Some(false), tile_size);
-    px_to_tile(&px, tile_size)
+pub fn ll_to_tile<P: GetXY + NewXY>(lonlat: &P, zoom: f64) -> (i64, i64) {
+    let px = ll_to_px(lonlat, zoom, Some(false), Some(512));
+    px_to_tile(&px, Some(512))
 }
 
 /// given a lon-lat and tile, find the offset in pixels
@@ -159,13 +159,12 @@ pub fn xyz_to_bbox(
     zoom: f64,
     tms_style: Option<bool>,
     source: Option<Source>,
-    tile_size: Option<u64>,
 ) -> (f64, f64, f64, f64) {
     let x = x as f64;
     let mut y = y as f64;
-    let tms_style = tms_style.unwrap_or(true);
+    let tms_style = tms_style.unwrap_or(false);
     let source = source.unwrap_or(Source::Google);
-    let tile_size = tile_size.unwrap_or(512);
+    let tile_size = 512;
     let tile_size_f = tile_size as f64;
     // Convert xyz into bbox with srs WGS84
     // if tmsStyle, the y is inverted
@@ -200,11 +199,10 @@ pub fn bbox_to_xyz_bounds(
     zoom: f64,
     tms_style: Option<bool>,
     source: Option<Source>,
-    tile_size: Option<u64>,
 ) -> (i64, i64, i64, i64) {
-    let tms_style = tms_style.unwrap_or(true);
+    let tms_style = tms_style.unwrap_or(false);
     let source = source.unwrap_or(Source::WGS84);
-    let tile_size = tile_size.unwrap_or(512);
+    let tile_size = 512;
     let tile_size_f: f64 = tile_size as f64;
     let zoom_size = pow(2., zoom);
 

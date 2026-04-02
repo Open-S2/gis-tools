@@ -102,15 +102,11 @@ pub fn to_json<
                 None,
             );
             for converted_feature in converted_features {
-                let user_feature = on_feature(converted_feature);
-                if user_feature.is_none() {
+                let Some(mut user_feature) = on_feature(converted_feature) else {
                     continue;
-                }
-                let user_feature = user_feature.unwrap();
+                };
                 faces.insert(user_feature.face.into());
-                if build_bbox && let Some(feature_bbox) = user_feature.geometry.bbox() {
-                    bbox.merge_in_place(feature_bbox);
-                }
+                bbox.merge_in_place(&user_feature.geometry.bbox());
                 if !first {
                     writer.append_string(",\n");
                 } else {
@@ -144,6 +140,7 @@ pub fn to_json<
 /// - `writer`: the buffer or file to write to. See [`Writer`] for what writers are available
 /// - `readers`: Any reader that implements the [`FeatureReader`] trait can be used
 /// - `opts`: user defined options on how to write the features
+/// - `line_delim`: the line delimiter to use. Defaults to "\n"
 ///
 /// ## Usage
 /// ```rust
@@ -173,6 +170,7 @@ pub fn to_json<
 ///         geojson: Some(true),
 ///         ..Default::default()
 ///     }),
+///     None,
 /// );
 /// ```
 pub fn to_jsonld<
@@ -185,11 +183,13 @@ pub fn to_jsonld<
     writer: &mut T,
     readers: Vec<&I>,
     opts: Option<ToJSONOptions<M, P, D>>,
+    line_delim: Option<String>,
 ) {
     let opts = opts.unwrap_or_default();
     let projection = opts.projection.unwrap_or(Projection::S2);
     let on_feature = opts.on_feature.unwrap_or(Some);
     let build_bbox = opts.build_bbox.unwrap_or(true);
+    let line_delim = line_delim.unwrap_or("\n".into());
 
     for reader in readers {
         for feature in reader.iter() {
@@ -207,7 +207,7 @@ pub fn to_jsonld<
                         false => serde_json::to_string(&user_feature).unwrap(),
                     };
                     writer.append_string(&feature_str);
-                    writer.append_string("\n");
+                    writer.append_string(&line_delim);
                 }
             }
         }

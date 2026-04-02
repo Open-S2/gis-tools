@@ -116,6 +116,20 @@
 //!
 //! ### Tools
 //!
+//! #### Elevation Tools
+//!
+//! - [`crate::tools::ElevationConverter`]: The Generic conversion type that a user can provide.
+//! - [`crate::tools::ElevationEncoder`]: The Generic encoding type that a user can provide.
+//! - [`crate::tools::convert_mapbox_elevation_data`]: The default conversion tool using Mapbox's encoding.
+//! - [`crate::tools::encode_mapbox_elevation_data`]: Encode a float precision elevation into Mapbox tile encoded elevation data.
+//! - [`crate::tools::convert_terrarium_elevation_data`]: The Terrarium data conversion tool.
+//! - [`crate::tools::encode_terrarium_elevation_data`]: Encode a float precision elevation into Terrarium tile encoded elevation data.
+//! - [`crate::tools::get_elevation_grid`]: Build a grid from image data and a conversion tool.
+//! - [`crate::tools::build_contours`]: Creates isolines or isobands from an RGB(A) elevation image.
+//! - [`crate::tools::build_terrain_mesh`]: Creates a terrain mesh from an RGB(A) elevation image for rendering in 3D.
+//! - [`crate::tools::vectorize_hillshade`]: Vectorize a hillshade image into light and dark shadings
+//! - [`crate::tools::generate_hillshade`]: Generates a hillshade greyscale image from an RGB(A) elevation image.
+//!
 //! #### Data Tools
 //!
 //! - [`crate::tools::Delaunator`]: An incredibly fast and robust Typescript library for Delaunay triangulation of 2D points.
@@ -164,6 +178,13 @@
 //! - [`crate::geometry::polyline_in_polyline`]: Check if a polyline/hole is inside another polyline/outer ring
 //! - [`crate::geometry::polygons_intersections`]: Find all intersections within a collection of polygons using a robust algorithm
 //!
+//! Tiles
+//!
+//! - [`crate::geometry::S2TileID`]: S2 tile position and functions
+//! - [`crate::geometry::WMTileID`]: WM tile position and functions
+//! - [`crate::geometry::TileID`]: Tile position and functions. Enum wrapper for S2TileID and WMTileID
+//! - [`crate::geometry::ToTiles`]: Trait to convert a geometry to a collection of tiles they overlap with. Polygon types also include inner tiles.
+//!
 //! Clip
 //!
 //! - [`crate::geometry::clip_point`]: Clip a point to an axis and range
@@ -188,6 +209,8 @@
 //! have another level of indirection for writing tiles and use both/either the [`crate::writers::TileWriter`]
 //! and [`crate::writers::TemporalTileWriter`] traits.
 //!
+//! - [`crate::writers::to_csv`]: Given a writer and an array of readers, write the input features to the writer as a CSV data
+//! - [`crate::writers::to_gpx`]: Given a writer and an array of readers, write the input features to the writer as GPX data
 //! - [`crate::writers::to_json`]: Given a writer and an array of readers, write the input features to the writer as a JSON object
 //! - [`crate::writers::to_jsonld`]: Given a writer and an array of readers, write the input features to the writer as JSON-LD
 //! - [`crate::writers::PMTilesWriter`]: The File reader is to be used by the local filesystem.

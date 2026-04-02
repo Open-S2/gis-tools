@@ -1,10 +1,10 @@
-import { RasterTilesFileReader } from '../../src/file';
-import { PointGrid, idFromFace } from '../../src';
+import { RasterTilesFileReader } from '../../src/file.js';
+import { PointGrid, idFromFace } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 import sharp from 'sharp';
 
-import type { RGBA } from '../../src';
+import type { RGBA } from '../../src/index.js';
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 

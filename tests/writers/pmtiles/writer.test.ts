@@ -5,13 +5,13 @@ import {
   S2PMTilesReader,
   S2PMTilesWriter,
   TileType,
-} from '../../../src';
-import { FileReader, FileWriter } from '../../../src/file';
-import { createTempPath, deletePath } from '../../../tests/tmp';
+} from '../../../src/index.js';
+import { FileReader, FileWriter } from '../../../src/file.js';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 import type { Metadata } from 's2-tilejson';
-import type { S2Header } from '../../../src';
+import type { S2Header } from '../../../src/index.js';
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 
@@ -59,13 +59,13 @@ test('S2PMTiles - File Writer - WM', async () => {
   });
   expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
-  const tile = await reader.getTile(0, 0, 0);
+  const tile = await reader.getTileWM(0, 0, 0);
   expect(tile).toEqual(uint8);
 
-  const tile2 = await reader.getTile(1, 0, 1);
+  const tile2 = await reader.getTileWM(1, 0, 1);
   expect(tile2).toEqual(uint8);
 
-  const tile3 = await reader.getTile(5, 2, 9);
+  const tile3 = await reader.getTileWM(5, 2, 9);
   expect(tile3).toEqual(uint8_2);
 });
 
@@ -203,7 +203,7 @@ testFunc(
     expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
     // get a random tile
-    const tile = await reader.getTile(6, 22, 45);
+    const tile = await reader.getTileWM(6, 22, 45);
     const str = `6-22-45`;
     const buf = Buffer.from(str, 'utf8');
     const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);

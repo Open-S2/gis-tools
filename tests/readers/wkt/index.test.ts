@@ -4,7 +4,7 @@ import {
   parseWKTObject,
   parseWKTProjection,
   splitWKTGeometry,
-} from '../../../src/readers/wkt';
+} from '../../../src/readers/wkt/index.js';
 import { expect, test } from 'bun:test';
 
 test('GEOMETERYCOLLECTION', async () => {

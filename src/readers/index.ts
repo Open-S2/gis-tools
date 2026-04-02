@@ -7,7 +7,7 @@ import { OSMReader } from './osm/index.js';
 import { WKTGeometryReader } from './wkt/geometry.js';
 import { buildGTFSSchedule } from './gtfs/index.js';
 import { shapefileFromGzip } from './shapefile/index.js';
-import { ALL_DEFINITIONS, EPSG_CODES } from 'gis-tools/proj4/index.js';
+import { ALL_DEFINITIONS, EPSG_CODES } from '../proj4/index.js';
 import { JSONReader, NewLineDelimitedJSONReader, SequenceJSONReader } from './json/index.js';
 import { LASReader, LASZipReader } from './las/index.js';
 

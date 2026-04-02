@@ -14,8 +14,10 @@ pub enum Grib2Template5 {
     Grib2Template52(Grib2Template52),
     /// Data Representation Template 5.3 – Complex packing and spatial differencing.
     Grib2Template53(Grib2Template53),
-    /// Data Representation Template 5.40
+    /// Data Representation Template 5.40 - JPEG 2000
     Grib2Template540(Grib2Template540),
+    /// Data Representation Template 5.41 - PNG
+    Grib2Template541(Grib2Template541),
     /// Data Representation Template 5.50 - Spectral data - simple packing
     Grib2Template550(Grib2Template550),
     /// Data Representation Template 5.51 - Spectral data - complex packing
@@ -45,6 +47,54 @@ impl Grib2Template5 {
         match self {
             Grib2Template5::Grib2Template50(template) => Some(template),
             _ => None,
+        }
+    }
+    /// Get the number_of_bits
+    pub fn number_of_bits(&self) -> u8 {
+        match self {
+            Grib2Template5::Grib2Template50(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template52(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template53(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template540(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template541(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template550(template) => template.number_of_bits,
+            Grib2Template5::Grib2Template551(template) => template.number_of_bits,
+        }
+    }
+    /// Get the reference_value
+    pub fn reference_value(&self) -> f64 {
+        match self {
+            Grib2Template5::Grib2Template50(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template52(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template53(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template540(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template541(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template550(template) => template.reference_value as f64,
+            Grib2Template5::Grib2Template551(template) => template.reference_value as f64,
+        }
+    }
+    /// Get the binary_scale_factor
+    pub fn binary_scale_factor(&self) -> f64 {
+        match self {
+            Grib2Template5::Grib2Template50(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template52(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template53(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template540(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template541(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template550(template) => template.binary_scale_factor as f64,
+            Grib2Template5::Grib2Template551(template) => template.binary_scale_factor as f64,
+        }
+    }
+    /// Get the decimal_scale_factor
+    pub fn decimal_scale_factor(&self) -> f64 {
+        match self {
+            Grib2Template5::Grib2Template50(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template52(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template53(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template540(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template541(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template550(template) => template.decimal_scale_factor as f64,
+            Grib2Template5::Grib2Template551(template) => template.decimal_scale_factor as f64,
         }
     }
 }
@@ -318,7 +368,7 @@ impl Grib2Template53 {
     }
 }
 
-/// Data Representation Template 5.40
+/// Data Representation Template 5.40 - JPEG 2000
 ///  
 /// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-40.shtml)
 #[derive(Debug, Clone, PartialEq)]
@@ -348,6 +398,7 @@ impl Grib2Template540 {
     /// ## Returns
     /// Parsed Data Representation Information
     pub fn new<T: Reader>(section: &T) -> Self {
+        // TODO: Do I need to fix binary_scale_factor and decimal_scale_factor to look like the others?
         let original_type_code = section.uint8(Some(20));
         let compression_type = section.uint8(Some(21));
         Self {
@@ -361,8 +412,50 @@ impl Grib2Template540 {
         }
     }
 }
-// export function grib2Template540(section: Reader) {
-// }
+
+/// Data Representation Template 5.41 - PNG
+///  
+/// [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-41.shtml)
+#[derive(Debug, Clone, PartialEq)]
+pub struct Grib2Template541 {
+    /// Reference value (R) (IEEE 32-bit floating-point value) */
+    pub reference_value: f32,
+    /// Binary scale factor (E) */
+    pub binary_scale_factor: i32,
+    /// Decimal scale factor (D) */
+    pub decimal_scale_factor: i32,
+    /// Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
+    pub number_of_bits: u8,
+    /// Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
+    pub original_type: Grib2Table5_1,
+}
+impl Grib2Template541 {
+    /// Create a new instance of Grib2Template541
+    ///
+    /// ## Parameters
+    /// - `section`: The raw section data to parse
+    ///
+    /// ## Returns
+    /// Parsed Data Representation Information
+    pub fn new<T: Reader>(section: &T) -> Self {
+        let mut binary_scale_factor = (section.uint16_be(Some(15)) & 0x7fff) as i32;
+        if section.uint16_be(Some(15)) >> 15 > 0 {
+            binary_scale_factor *= -1;
+        }
+        let mut decimal_scale_factor = (section.uint16_be(Some(17)) & 0x7fff) as i32;
+        if section.uint16_be(Some(17)) >> 15 > 0 {
+            decimal_scale_factor *= -1;
+        }
+        let original_type_code = section.uint8(Some(20));
+        Self {
+            reference_value: section.f32_be(Some(11)),
+            binary_scale_factor,
+            decimal_scale_factor,
+            number_of_bits: section.uint8(Some(19)),
+            original_type: original_type_code.into(),
+        }
+    }
+}
 
 /// # Data Representation Template 5.50 - Spectral data - simple packing
 ///

@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { buildGBFSReader } from '../../../src';
-import { buildServer } from '../../server';
+import { buildGBFSReader } from '../../../src/index.js';
+import { buildServer } from '../../server.js';
 import { expect, test } from 'bun:test';
 
 import {
@@ -18,10 +18,11 @@ import {
   gbfsSystemRegionsSchemaV22,
   gbfsVehicleTypesSchemaV22,
   gbfsVersionsSchemaV22,
-} from '../../../src';
+} from '../../../src/index.js';
 
-import type { GBFSReaderV2 } from '../../../src';
+import type { GBFSReaderV2 } from '../../../src/index.js';
 
+// @ts-expect-error - ignore for testing
 const ajv = new Ajv({ strict: false });
 // @ts-expect-error - ignore for testing
 addFormats(ajv);

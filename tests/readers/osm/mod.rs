@@ -19,8 +19,8 @@ mod tests {
     };
     use pbf::{ProtoRead, Protobuf};
     use s2json::{
-        BBox, BBox3D, Map, VectorBaseGeometry, VectorFeature, VectorFeatureType, VectorGeometry,
-        VectorGeometryType, VectorPoint,
+        BBox, BBox3D, Face, Map, VectorBaseGeometry, VectorFeature, VectorFeatureType,
+        VectorGeometry, VectorGeometryType, VectorPoint,
     };
     use std::{
         path::PathBuf,
@@ -53,7 +53,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(275452090),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::from([
                         ("amenity".into(), "cafe".into()),
                         ("name".into(), "Jam's Sandwich Bar".into()),
@@ -98,7 +98,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(304994979),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -140,7 +140,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(304994980),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::from([("barrier".into(), "gate".into())]),
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -182,7 +182,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(304994981),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -224,7 +224,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(319408586),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -266,7 +266,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(319408587),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -308,7 +308,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(27776903),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::from([
                         ("access".into(), "private".into()),
                         ("highway".into(), "service".into()),
@@ -378,7 +378,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: Some(56688),
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::from([
                         ("network".into(), "VVW".into()),
                         ("ref".into(), "123".into()),

@@ -107,31 +107,27 @@ mod tests {
     #[test]
     fn test_xyz_to_bbox() {
         assert_eq!(
-            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::WGS84), Some(256)),
+            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::WGS84)),
             (-180.0, -85.05112877980659, 180.0, 85.0511287798066),
             // "LL with int zoom value converts when antiMeridian=true"
         );
-
         assert_eq!(
-            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::Google), Some(256)),
+            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::Google)),
             (-20037508.342789244, -20037508.342789236, 20037508.342789244, 20037508.342789244),
             // "LL with int zoom value converts when antiMeridian=true & Source::Google"
         );
-
         assert_eq!(
-            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::WGS84), Some(256)),
+            xyz_to_bbox(0, 0, 0., Some(true), Some(Source::WGS84)),
             (-180.0, -85.05112877980659, 180.0, 85.0511287798066),
             // "LL with int zoom value converts when antiMeridian=true"
         );
-
         assert_eq!(
-            xyz_to_bbox(0, 0, 1., Some(true), Some(Source::WGS84), Some(256)),
+            xyz_to_bbox(0, 0, 1., Some(true), Some(Source::WGS84)),
             (-180.0, -85.05112877980659, 0.0, 0.0),
             // "LL with int zoom value converts when antiMeridian=true"
         );
-
         assert_eq!(
-            xyz_to_bbox(0, 0, 1., Some(true), Some(Source::WGS84), Some(256)),
+            xyz_to_bbox(0, 0, 1., Some(true), Some(Source::WGS84)),
             (-180.0, -85.05112877980659, 0.0, 0.0),
             // "LL with int zoom value converts when antiMeridian=true"
         );
@@ -160,13 +156,7 @@ mod tests {
         );
 
         assert_eq!(
-            bbox_to_xyz_bounds(
-                (-240., -90., 240., 90.),
-                4.,
-                Some(true),
-                Some(Source::WGS84),
-                Some(256)
-            ),
+            bbox_to_xyz_bounds((-240., -90., 240., 90.), 4., Some(true), Some(Source::WGS84),),
             (0, 0, 15, 15)
         );
         assert_eq!(
@@ -175,7 +165,6 @@ mod tests {
                 4.,
                 Some(true),
                 Some(Source::Google),
-                Some(256)
             ),
             (0, 0, 15, 15)
         );
@@ -191,10 +180,10 @@ mod tests {
 
     #[test]
     fn test_ll_to_tile() {
-        assert_eq!(ll_to_tile(&(0.0, 0.0), 0., Some(512)), (0, 0));
-        assert_eq!(ll_to_tile(&(-180.0, 85.05), 0., Some(512)), (0, 0));
-        assert_eq!(ll_to_tile(&(0.0, 0.0), 1., Some(512)), (1, 1));
-        assert_eq!(ll_to_tile(&(-180.0, 85.05), 1., Some(512)), (0, 0));
+        assert_eq!(ll_to_tile(&(0.0, 0.0), 0.), (0, 0));
+        assert_eq!(ll_to_tile(&(-180.0, 85.05), 0.), (0, 0));
+        assert_eq!(ll_to_tile(&(0.0, 0.0), 1.), (1, 1));
+        assert_eq!(ll_to_tile(&(-180.0, 85.05), 1.), (0, 0));
     }
 
     #[test]

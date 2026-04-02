@@ -135,7 +135,7 @@ export class ShapeFileReader<
   }
 
   /** Internal parse for the header */
-  #parseHeader() {
+  #parseHeader(): void {
     const { reader } = this;
     this.#header = {
       length: reader.getInt32(6 << 2) << 1,
@@ -156,7 +156,7 @@ export class ShapeFileReader<
   }
 
   /** Internal parser to build all the row offsets */
-  #getRows() {
+  #getRows(): void {
     const { reader, rows } = this;
     let offset = 100;
     const len = reader.byteLength - 8;

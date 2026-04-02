@@ -10,6 +10,8 @@ import type {
 
 /**
  * Builds squared distances for the vector geometry using the Douglas-Peucker algorithm.
+ *
+ * NOTE: If you are not using a zoom mechanic, use a maxzoom of 0
  * @param geometry - input vector geometry
  * @param tolerance - simplification tolerance
  * @param maxzoom - max zoom level to simplify
@@ -139,6 +141,11 @@ function getSqSegDist(
 /**
  * Simplifies the vector geometry based on zoom level and tolerance.
  * If the geometry is simplified past it being valid, set the coordinates to an empty array.
+ *
+ * A zoom of 0 (as long as maxzoom is not 0) is the default tolerance. Use this if you are not
+ * applying a zoom mechanic to the data.
+ *
+ * NOTE: Be sure to run `buildSqDists` on the geometry before calling this function
  * @param geometry - input vector geometry
  * @param tolerance - simplification tolerance
  * @param zoom - curent zoom
@@ -184,7 +191,7 @@ export function simplify<M extends MValue = Properties>(
  * @param isOuter - whether the line is an outer ring or inner ring (for polygons)
  * @returns - simplified line
  */
-function simplifyLine<M extends MValue = Properties>(
+export function simplifyLine<M extends MValue = Properties>(
   line: VectorLineString<M>,
   tolerance: number,
   isPolygon: boolean,
@@ -217,7 +224,7 @@ export function rewind<M extends MValue = Properties>(
 ): void {
   if (ring.length < 4) return;
   let area = 0;
-  for (let i = 0, len = ring.length, j = len - 2; i < len; j = i, i += 2) {
+  for (let i = 0, len = ring.length, j = len - 1; i < len; j = i, i++) {
     area += (ring[i].x - ring[j].x) * (ring[i].y + ring[j].y);
   }
   if (area > 0 === clockwise) {

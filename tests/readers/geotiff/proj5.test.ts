@@ -1,5 +1,5 @@
-import { FileReader } from '../../../src/file';
-import { GeoTIFFImage, GeoTIFFReader } from '../../../src';
+import { FileReader } from '../../../src/file.js';
+import { GeoTIFFImage, GeoTIFFReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 // We are setting up for improved GRID SHIFTING in the PROJ package

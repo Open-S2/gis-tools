@@ -1,11 +1,11 @@
-import { FileReader } from '../../../src/file';
-import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from '../../../src';
+import { FileReader } from '../../../src/file.js';
+import { ALL_DEFINITIONS, EPSG_CODES, GeoTIFFReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 // import { fromArrayBuffer } from '../../../geotiff/src/geotiff';
 import { fromArrayBuffer } from 'geotiff';
 
-import type { ArrayTypes } from '../../../src';
+import type { ArrayTypes } from '../../../src/index.js';
 
 test('utm.tif test', async (): Promise<void> => {
   const fileReader = new FileReader(`${__dirname}/fixtures/utm.tif`);

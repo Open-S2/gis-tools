@@ -7,14 +7,16 @@ mod tests {
     use crate::spawn_test_server;
     use alloc::{vec, vec::Vec};
     use gistools::{
+        geometry::normalize_ll,
         parsers::{Buffer, BufferReader, FeatureReader},
         readers::{
-            GISReader, GRIB2Reader, Grib2AtmosGFSProduct, Grib2GFSDomain, Grib2GFSHour,
-            Grib2GFSSource, Grib2LocalUseSection, Grib2SectionLocations, Grib2WaveGFSProduct,
-            ReaderType, TableCategory, fetch_gfs_data, parse_idx,
+            GISReader, GRIB2Reader, GRIB2ReaderInput, Grib2AtmosGFSProduct, Grib2GFSDomain,
+            Grib2GFSHour, Grib2GFSSource, Grib2LocalUseSection, Grib2SectionLocations,
+            Grib2Template3, Grib2WaveGFSProduct, ReaderType, TableCategory, fetch_gfs_data,
+            parse_idx,
         },
     };
-    use s2json::VectorPoint;
+    use s2json::{BBox, VectorPoint};
     use std::{
         cmp::Ordering,
         fs::File,
@@ -74,8 +76,23 @@ mod tests {
             let lon = parts.next().unwrap().parse::<f64>().unwrap();
             let lat = parts.next().unwrap().parse::<f64>().unwrap();
             let value = parts.next().unwrap().parse::<f64>().unwrap();
-            expected_points.push(VectorPoint::new_xy(lon, lat, Some(value)));
+            let mut point = VectorPoint::new_xy(lon, lat, Some(value));
+            normalize_ll(&mut point);
+            expected_points.push(point);
         }
+        expected_points.sort_by(|a, b| {
+            if a.y > b.y {
+                return Ordering::Greater;
+            } else if a.y < b.y {
+                return Ordering::Less;
+            } else if a.x > b.x {
+                return Ordering::Greater;
+            } else if a.x < b.x {
+                return Ordering::Less;
+            } else {
+                return Ordering::Equal;
+            }
+        });
 
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests/readers/grib2/fixtures/ref_simple_packing.grib2");
@@ -239,6 +256,286 @@ mod tests {
                 }]
             );
         });
+    }
+
+    #[test]
+    fn test_fetch_gfs_wave_arctic_9km() {
+        smol::block_on(async {
+            let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            path.push("tests/readers/grib2/fixtures/");
+            let path_str: String = path.to_str().unwrap().into();
+            let server = spawn_test_server(&path_str);
+            let grib2_reader = fetch_gfs_data(
+                Grib2GFSSource::Other(format!("{server}/")),
+                Grib2WaveGFSProduct::Arctic9km,
+                Grib2GFSDomain::Wave,
+                "2025".into(),
+                "02".into(),
+                "09".into(),
+                "12".into(),
+                Some("000".into()),
+                Some(vec!["UGRD:surface".into(), "VGRD:surface".into(), "WDIR:surface".into()]),
+            )
+            .await;
+
+            let packet_products: Vec<_> = grib2_reader
+                .packets
+                .borrow()
+                .iter()
+                .map(|p| {
+                    let product_definition = p.product_definition.as_ref().unwrap();
+                    product_definition.values.values().clone()
+                })
+                .collect();
+
+            assert_eq!(
+                packet_products,
+                vec![
+                    TableCategory {
+                        parameter: "Wind Direction (from which blowing)".into(),
+                        units: "°".into(),
+                        abbrev: "WDIR".into()
+                    },
+                    TableCategory {
+                        parameter: "U-Component of Wind".into(),
+                        units: "m s-1".into(),
+                        abbrev: "UGRD".into()
+                    },
+                    TableCategory {
+                        parameter: "V-Component of Wind".into(),
+                        units: "m s-1".into(),
+                        abbrev: "VGRD".into()
+                    }
+                ],
+            );
+
+            let features = grib2_reader.iter().collect::<Vec<_>>();
+            let coordinates = features[0].geometry.multipoint().unwrap();
+            let coordinates: Vec<VectorPoint> = coordinates
+                .iter()
+                .filter(|p| {
+                    if let Some(m) = &p.m {
+                        if m.contains_key("UGRD:surface")
+                            || m.contains_key("VGRD:surface")
+                            || m.contains_key("WDIR:surface")
+                        {
+                            return true;
+                        }
+                    }
+                    false
+                })
+                .cloned()
+                .collect();
+            assert_eq!(coordinates.len(), 127_876);
+            // let first = &coordinates[0];
+            // println!("{first:#?}");
+
+            // TODO: May not be right
+            let bbox = BBox::from_linestring(&coordinates);
+            assert_eq!(
+                bbox,
+                BBox::new(-68.05638466326674, 49.95951268876489, 56.31356792974, 77.98745445479484)
+            );
+        });
+    }
+
+    #[test]
+    fn test_polar_stereo_case() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/CMC_RDPA_APCP-024-0100cutoff_SFC_0_ps10km_2023121806_000.grib2");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let grib2_reader =
+            GRIB2Reader::new(GRIB2ReaderInput::from(BufferReader::from(bytes)), vec![]);
+
+        let packet_products: Vec<_> = grib2_reader
+            .packets
+            .borrow()
+            .iter()
+            .map(|p| {
+                let product_definition = p.product_definition.as_ref().unwrap();
+                product_definition.values.values().clone()
+            })
+            .collect();
+
+        assert_eq!(
+            packet_products,
+            vec![
+                TableCategory {
+                    parameter: "Total Precipitation".into(),
+                    units: "kg m-2".into(),
+                    abbrev: "APCP".into()
+                },
+                TableCategory {
+                    parameter: "Categorical Freezing Rain".into(),
+                    units: "Code table 4.222".into(),
+                    abbrev: "CFRZR".into()
+                }
+            ]
+        );
+
+        let features = grib2_reader.iter().collect::<Vec<_>>();
+        let coordinates = features[0].geometry.multipoint().unwrap();
+        let coordinates: Vec<VectorPoint> = coordinates
+            .iter()
+            .filter(|p| p.m.is_some() && p.m.as_ref().unwrap().len() > 0)
+            .cloned()
+            .collect();
+        assert_eq!(coordinates.len(), 733_298);
+        // let first = &coordinates[0];
+        // println!("{first:#?}");
+        // let second_to_last = &coordinates[coordinates.len() - 2];
+        // println!("{second_to_last:#?}");
+
+        // TODO: May not be right
+        let bbox = BBox::from_linestring(&coordinates);
+        assert_eq!(
+            bbox,
+            BBox::new(-179.99976765517715, 17.342726124319366, 179.9999203939235, 90.0)
+        )
+    }
+
+    #[test]
+    fn test_gdas_gaussian_proj_case() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/gdas.t00z.sfluxgrbf000.grib2");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let grib2_reader =
+            GRIB2Reader::new(GRIB2ReaderInput::from(BufferReader::from(bytes)), vec![]);
+
+        let packet_products: Vec<_> = grib2_reader
+            .packets
+            .borrow()
+            .iter()
+            .map(|p| {
+                let product_definition = p.product_definition.as_ref().unwrap();
+                product_definition.values.values().clone()
+            })
+            .collect();
+
+        assert_eq!(
+            packet_products,
+            vec![TableCategory {
+                parameter: "Geopotential Height".into(),
+                units: "gpm".into(),
+                abbrev: "HGT".into()
+            }]
+        );
+
+        let features = grib2_reader.iter().collect::<Vec<_>>();
+        let coordinates = features[0].geometry.multipoint().unwrap();
+        let coordinates: Vec<VectorPoint> = coordinates
+            .iter()
+            .filter(|p| p.m.is_some() && p.m.as_ref().unwrap().len() > 0)
+            .cloned()
+            .collect();
+        assert_eq!(coordinates.len(), 4_718_592);
+
+        let bbox = BBox::from_linestring(&coordinates);
+        assert_eq!(bbox, BBox::new(-179.999232, -89.91032453466268, 179.88358, 89.91032453466268));
+    }
+
+    #[test]
+    fn test_gdas_mercator_proj_case() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/mercator.grib2");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let grib2_reader =
+            GRIB2Reader::new(GRIB2ReaderInput::from(BufferReader::from(bytes)), vec![]);
+
+        // -new_grid mercator:lad lon0:nx:dx:lonn lat0:ny:dy:latn
+        // wgrib2 gdas.t00z.sfluxgrbf000.grib2 -new_grid_winds earth -new_grid mercator:0 0:300:10000:30 0:300:10000:30 mercator.grib2
+
+        let packet_products: Vec<_> = grib2_reader
+            .packets
+            .borrow()
+            .iter()
+            .map(|p| {
+                let product_definition = p.product_definition.as_ref().unwrap();
+                product_definition.values.values().clone()
+            })
+            .collect();
+
+        assert_eq!(
+            packet_products,
+            vec![TableCategory {
+                parameter: "Geopotential Height".into(),
+                units: "gpm".into(),
+                abbrev: "HGT".into()
+            }]
+        );
+
+        let features = grib2_reader.iter().collect::<Vec<_>>();
+        let coordinates = features[0].geometry.multipoint().unwrap();
+        let coordinates: Vec<VectorPoint> = coordinates
+            .iter()
+            .filter(|p| p.m.is_some() && p.m.as_ref().unwrap().len() > 0)
+            .cloned()
+            .collect();
+        assert_eq!(coordinates.len(), 90_000);
+
+        let bbox = BBox::from_linestring(&coordinates);
+        assert_eq!(bbox, BBox::new(0.0, 0.0, 30.0, 29.999999999999986))
+    }
+
+    #[test]
+    fn test_gdas_rotated_ll_case() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/20260219T00Z_MSC_HRDPS_CAPE_Sfc_RLatLon0.0225_PT000H.grib2");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let grib2_reader =
+            GRIB2Reader::new(GRIB2ReaderInput::from(BufferReader::from(bytes)), vec![]);
+
+        let packet_products: Vec<_> = grib2_reader
+            .packets
+            .borrow()
+            .iter()
+            .map(|p| {
+                let product_definition = p.product_definition.as_ref().unwrap();
+                product_definition.values.values().clone()
+            })
+            .collect();
+
+        assert_eq!(
+            packet_products,
+            vec![TableCategory {
+                parameter: "Convective Available Potential Energy".into(),
+                units: "J kg-1".into(),
+                abbrev: "CAPE".into()
+            }]
+        );
+
+        let features = grib2_reader.iter().collect::<Vec<_>>();
+        let coordinates = features[0].geometry.multipoint().unwrap();
+        let coordinates: Vec<VectorPoint> = coordinates
+            .iter()
+            .filter(|p| p.m.is_some() && p.m.as_ref().unwrap().len() > 0)
+            .cloned()
+            .collect();
+        assert_eq!(coordinates.len(), 3_276_600);
+
+        let bbox = BBox::from_linestring(&coordinates);
+        assert_eq!(
+            bbox,
+            BBox::new(
+                -179.99998699273897,
+                -66.21395977931718,
+                179.99997478972665,
+                66.56854088113894
+            )
+        )
+    }
+
+    #[test]
+    fn test_noaa_lambert_case() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests/readers/grib2/fixtures/ds.critfireo.bin");
+        let bytes = std::fs::read(path.clone()).unwrap();
+        let slice = &bytes[0x83 - 14..];
+        let template3_reader = BufferReader::from(slice);
+        let mut grib2_reader = Grib2Template3::new(30.into(), &template3_reader);
+
+        let grid = grib2_reader.build_grid();
+        assert_eq!(grid[0], VectorPoint::new_xy(-121.550004, 20.190000000000015, None));
     }
 
     // #[test]

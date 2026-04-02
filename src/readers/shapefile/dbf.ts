@@ -19,8 +19,11 @@ export interface DBFHeader {
 export interface DBFRow {
   /** The name of the row */
   name: string;
-  /** The data type of the row */
-  dataType: string;
+  /**
+   * The single-letter code for the field type.
+   * C=string, N=numeric, F=float, Y=currency, L=logical, D=date, I=integer, M=memo, T=datetime, B=double.
+   */
+  dataType: 'C' | 'N' | 'F' | 'Y' | 'L' | 'D' | 'I' | 'M' | 'T' | 'B' | string;
   /** The length of the row */
   len: number;
   /** The decimal places of the row */
@@ -78,10 +81,8 @@ export class DataBaseFile {
     return res;
   }
 
-  /**
-   * Parse the header and store it in the class
-   */
-  #parseHeader() {
+  /** Parse the header and store it in the class */
+  #parseHeader(): void {
     const { reader } = this;
     this.#header = {
       lastUpdated: new Date(reader.getUint8(1) + 1900, reader.getUint8(2), reader.getUint8(3)),

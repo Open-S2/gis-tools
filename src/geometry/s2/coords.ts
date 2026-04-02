@@ -117,8 +117,10 @@ export function faceUVtoXYZ<M extends MValue = Properties>(
       return { x: -1, y: -v, z: -u, m };
     case 4:
       return { x: v, y: -1, z: -u, m };
-    default:
+    case 5:
       return { x: v, y: u, z: -1, m };
+    default:
+      return { x: 1, y: u, z: v, m }; // default back to 0
   }
 }
 
@@ -147,8 +149,10 @@ export function faceUVtoXYZGL<M extends MValue = Properties>(
       return { x: -v, y: -u, z: -1, m };
     case 4:
       return { x: -1, y: -u, z: v, m };
-    default:
+    case 5:
       return { x: u, y: -1, z: v, m };
+    default:
+      return { x: u, y: v, z: 1, m }; // default back to 0
   }
 }
 
@@ -172,8 +176,10 @@ export function faceXYZtoUV(face: Face, xyz: VectorPoint): [u: number, v: number
       return [z / x, y / x];
     case 4:
       return [z / y, -x / y];
-    default:
+    case 5:
       return [-y / z, -x / z];
+    default:
+      return [y / x, z / x]; // default back to 0
   }
 }
 
@@ -227,8 +233,10 @@ export function faceXYZGLtoUV<M extends MValue = Properties>(
       return [y / z, x / z];
     case 4:
       return [y / x, -z / x];
-    default:
+    case 5:
       return [-x / y, -z / y];
+    default:
+      return [x / z, y / z]; // default back to 0
   }
 }
 
@@ -418,7 +426,8 @@ export function getUNorm(face: Face, u: number): VectorPoint {
   if (face === 2) return { x: 1.0, y: 0.0, z: u };
   if (face === 3) return { x: -u, y: 0.0, z: 1.0 };
   if (face === 4) return { x: 0.0, y: -u, z: 1.0 };
-  return { x: 0.0, y: -1, z: -u };
+  if (face === 5) return { x: 0.0, y: -1, z: -u };
+  return { x: u, y: -1.0, z: 0.0 }; // default back to 0
 }
 
 /**
@@ -435,5 +444,6 @@ export function getVNorm(face: Face, v: number): VectorPoint {
   if (face === 2) return { x: 0.0, y: -1.0, z: -v };
   if (face === 3) return { x: v, y: -1.0, z: 0.0 };
   if (face === 4) return { x: 1.0, y: v, z: 0.0 };
-  return { x: 1.0, y: 0.0, z: v };
+  if (face === 5) return { x: 1.0, y: 0.0, z: v };
+  return { x: -v, y: 0.0, z: 1.0 }; // default back to 0
 }

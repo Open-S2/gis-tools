@@ -38,17 +38,17 @@ const BIT_SHIFT: [u64; 10] = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63];
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Buffer {
     buf: Vec<u8>,
-    pos: usize,
+    pos: RefCell<usize>,
 }
 impl From<Vec<u8>> for Buffer {
     fn from(buf: Vec<u8>) -> Buffer {
-        Buffer { buf, pos: 0 }
+        Buffer { buf, pos: 0.into() }
     }
 }
 impl Buffer {
     /// Create a new Buffer instance.
     pub fn new(buf: Vec<u8>) -> Buffer {
-        Buffer { buf, pos: 0 }
+        Buffer { buf, pos: 0.into() }
     }
 
     /// See the contents of the buffer
@@ -58,12 +58,12 @@ impl Buffer {
 
     /// Get the position to read from the buffer next.
     pub fn pos(&self) -> usize {
-        self.pos
+        *self.pos.borrow()
     }
 
     /// Set the position to read from the buffer next.
     pub fn set_pos(&mut self, pos: usize) {
-        self.pos = pos;
+        *self.pos.borrow_mut() = pos;
     }
 
     /// get the length of the bufer
@@ -77,22 +77,23 @@ impl Buffer {
     }
 
     /// return the current u8 under the buffer
-    pub fn get_u8(&mut self) -> u8 {
-        let value = self.get_u8_at(self.pos);
-        self.pos += 1;
+    pub fn get_u8(&self) -> u8 {
+        let value = self.get_u8_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 1;
 
         value
     }
 
     /// return the current u8 at position
-    pub fn get_u8_at(&mut self, pos: usize) -> u8 {
+    pub fn get_u8_at(&self, pos: usize) -> u8 {
         self.buf[pos]
     }
 
     /// set the current u8 under the buffer
     pub fn set_u8(&mut self, value: u8) {
-        self.set_u8_at(self.pos, value);
-        self.pos += 1;
+        let pos = *self.pos.borrow();
+        self.set_u8_at(pos, value);
+        *self.pos.borrow_mut() += 1;
     }
 
     /// set the current u8 at position
@@ -104,22 +105,23 @@ impl Buffer {
     }
 
     /// return the current i8 under the buffer
-    pub fn get_i8(&mut self) -> i8 {
-        let value = self.get_i8_at(self.pos);
-        self.pos += 1;
+    pub fn get_i8(&self) -> i8 {
+        let value = self.get_i8_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 1;
 
         value
     }
 
     /// return the current i8 at position
-    pub fn get_i8_at(&mut self, pos: usize) -> i8 {
+    pub fn get_i8_at(&self, pos: usize) -> i8 {
         self.buf[pos] as i8
     }
 
     /// set the current u8 under the buffer
     pub fn set_i8(&mut self, value: i8) {
-        self.set_i8_at(self.pos, value);
-        self.pos += 1;
+        let pos = *self.pos.borrow();
+        self.set_i8_at(pos, value);
+        *self.pos.borrow_mut() += 1;
     }
 
     /// set the current i8 at position
@@ -131,16 +133,15 @@ impl Buffer {
     }
 
     /// return the current i32 under the buffer
-    pub fn get_i32(&mut self) -> i32 {
-        let value = self.get_i32_at(self.pos);
-        // Update the position
-        self.pos += 4;
+    pub fn get_i32(&self) -> i32 {
+        let value = self.get_i32_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 4;
 
         value
     }
 
     /// return the current i32 at position
-    pub fn get_i32_at(&mut self, pos: usize) -> i32 {
+    pub fn get_i32_at(&self, pos: usize) -> i32 {
         // Borrow the buffer and slice the next 4 bytes
         let bytes = &self.buf[pos..pos + 4];
 
@@ -149,8 +150,9 @@ impl Buffer {
 
     /// set the current i32 under the buffer
     pub fn set_i32(&mut self, value: i32) {
-        self.set_i32_at(self.pos, value);
-        self.pos += 4;
+        let pos = *self.pos.borrow();
+        self.set_i32_at(pos, value);
+        *self.pos.borrow_mut() += 4;
     }
 
     /// set the current i32 at position
@@ -165,16 +167,15 @@ impl Buffer {
     }
 
     /// return the current u16 under the buffer
-    pub fn get_u16(&mut self) -> u16 {
-        let value = self.get_u16_at(self.pos);
-        // Update the position
-        self.pos += 2;
+    pub fn get_u16(&self) -> u16 {
+        let value = self.get_u16_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 2;
 
         value
     }
 
     /// return the current u16 at position
-    pub fn get_u16_at(&mut self, pos: usize) -> u16 {
+    pub fn get_u16_at(&self, pos: usize) -> u16 {
         // Borrow the buffer and slice the next 2 bytes
         let bytes = &self.buf[pos..pos + 2];
 
@@ -183,8 +184,9 @@ impl Buffer {
 
     /// set the current u16 under the buffer
     pub fn set_u16(&mut self, value: u16) {
-        self.set_u16_at(self.pos, value);
-        self.pos += 2;
+        let pos = *self.pos.borrow();
+        self.set_u16_at(pos, value);
+        *self.pos.borrow_mut() += 2;
     }
 
     /// set the current u16 at position
@@ -199,16 +201,15 @@ impl Buffer {
     }
 
     /// return the current i16 under the buffer
-    pub fn get_i16(&mut self) -> i16 {
-        let value = self.get_i16_at(self.pos);
-        // Update the position
-        self.pos += 2;
+    pub fn get_i16(&self) -> i16 {
+        let value = self.get_i16_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 2;
 
         value
     }
 
     /// return the current i16 at position
-    pub fn get_i16_at(&mut self, pos: usize) -> i16 {
+    pub fn get_i16_at(&self, pos: usize) -> i16 {
         // Borrow the buffer and slice the next 2 bytes
         let bytes = &self.buf[pos..pos + 2];
 
@@ -217,8 +218,9 @@ impl Buffer {
 
     /// set the current i16 under the buffer
     pub fn set_i16(&mut self, value: i16) {
-        self.set_i16_at(self.pos, value);
-        self.pos += 2;
+        let pos = *self.pos.borrow();
+        self.set_i16_at(pos, value);
+        *self.pos.borrow_mut() += 2;
     }
 
     /// set the current i16 at position
@@ -233,16 +235,15 @@ impl Buffer {
     }
 
     /// return the current u32 under the buffer
-    pub fn get_u32(&mut self) -> u32 {
-        let value = self.get_u32_at(self.pos);
-        // Update the position
-        self.pos += 4;
+    pub fn get_u32(&self) -> u32 {
+        let value = self.get_u32_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 4;
 
         value
     }
 
     /// return the current u32 at position
-    pub fn get_u32_at(&mut self, pos: usize) -> u32 {
+    pub fn get_u32_at(&self, pos: usize) -> u32 {
         // Borrow the buffer and slice the next 4 bytes
         let bytes = &self.buf[pos..pos + 4];
 
@@ -251,8 +252,9 @@ impl Buffer {
 
     /// set the current u32 under the buffer
     pub fn set_u32(&mut self, value: u32) {
-        self.set_u32_at(self.pos, value);
-        self.pos += 4;
+        let pos = *self.pos.borrow();
+        self.set_u32_at(pos, value);
+        *self.pos.borrow_mut() += 4;
     }
 
     /// set the current u32 at position
@@ -267,21 +269,22 @@ impl Buffer {
     }
 
     /// Return the current f32 at position
-    pub fn get_f32(&mut self) -> f32 {
-        let value = self.get_u32_at(self.pos);
-        self.pos += 4;
+    pub fn get_f32(&self) -> f32 {
+        let value = self.get_u32_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 4;
         f32::from_bits(value)
     }
 
     /// Return the current f32 at position
-    pub fn get_f32_at(&mut self, pos: usize) -> f32 {
+    pub fn get_f32_at(&self, pos: usize) -> f32 {
         let value = self.get_u32_at(pos);
         f32::from_bits(value)
     }
 
     /// Set the current f32 at position
     pub fn set_f32(&mut self, value: f32) {
-        self.set_u32_at(self.pos, value.to_bits());
+        let pos = *self.pos.borrow();
+        self.set_u32_at(pos, value.to_bits());
     }
 
     /// Set the current f32 at position
@@ -290,16 +293,15 @@ impl Buffer {
     }
 
     /// return the current i32 under the buffer
-    pub fn get_i64(&mut self) -> i64 {
-        let value = self.get_i64_at(self.pos);
-        // Update the position
-        self.pos += 8;
+    pub fn get_i64(&self) -> i64 {
+        let value = self.get_i64_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 8;
 
         value
     }
 
     /// return the current i32 at position
-    pub fn get_i64_at(&mut self, pos: usize) -> i64 {
+    pub fn get_i64_at(&self, pos: usize) -> i64 {
         // Borrow the buffer and slice the next 8 bytes
         let bytes = &self.buf[pos..pos + 8];
 
@@ -308,8 +310,9 @@ impl Buffer {
 
     /// set the current i32 under the buffer
     pub fn set_i64(&mut self, value: i64) {
-        self.set_i64_at(self.pos, value);
-        self.pos += 8;
+        let pos = *self.pos.borrow();
+        self.set_i64_at(pos, value);
+        *self.pos.borrow_mut() += 8;
     }
 
     /// set the current i32 at position
@@ -324,16 +327,16 @@ impl Buffer {
     }
 
     /// return the current u64 under the buffer
-    pub fn get_u64(&mut self) -> u64 {
-        let value = self.get_u64_at(self.pos);
-        // Update the position
-        self.pos += 8;
+    pub fn get_u64(&self) -> u64 {
+        let pos = *self.pos.borrow();
+        let value = self.get_u64_at(pos);
+        *self.pos.borrow_mut() += 8;
 
         value
     }
 
     /// return the current u64 at position
-    pub fn get_u64_at(&mut self, pos: usize) -> u64 {
+    pub fn get_u64_at(&self, pos: usize) -> u64 {
         // Borrow the buffer and slice the next 8 bytes
         let bytes = &self.buf[pos..pos + 8];
 
@@ -342,8 +345,9 @@ impl Buffer {
 
     /// set the current u64 under the buffer
     pub fn set_u64(&mut self, value: u64) {
-        self.set_u64_at(self.pos, value);
-        self.pos += 8;
+        let pos = *self.pos.borrow();
+        self.set_u64_at(pos, value);
+        *self.pos.borrow_mut() += 8;
     }
 
     /// set the current u64 at position
@@ -358,14 +362,14 @@ impl Buffer {
     }
 
     /// Return the current f64 at position
-    pub fn get_f64(&mut self) -> f64 {
-        let value = self.get_u64_at(self.pos);
-        self.pos += 8;
+    pub fn get_f64(&self) -> f64 {
+        let value = self.get_u64_at(*self.pos.borrow());
+        *self.pos.borrow_mut() += 8;
         f64::from_bits(value)
     }
 
     /// Return the current f64 at position
-    pub fn get_f64_at(&mut self, pos: usize) -> f64 {
+    pub fn get_f64_at(&self, pos: usize) -> f64 {
         // Borrow the buffer and slice the next 8 bytes
         let bytes = &self.buf[pos..pos + 8];
 
@@ -374,7 +378,8 @@ impl Buffer {
 
     /// Set the current f64 at position
     pub fn set_f64(&mut self, value: f64) {
-        self.set_f64_at(self.pos, value);
+        let pos = *self.pos.borrow();
+        self.set_f64_at(pos, value);
     }
 
     /// Set the current f64 at position
@@ -390,14 +395,14 @@ impl Buffer {
 
     /// Decode a varint from the buffer at the current position.
     pub fn decode_varint(&mut self) -> u64 {
-        if self.pos >= self.buf.len() {
+        if *self.pos.borrow() >= self.buf.len() {
             unreachable!();
         }
         let mut val: u64 = 0;
 
         for (n, shift) in BIT_SHIFT.iter().enumerate().take(MAX_VARINT_LENGTH) {
-            let b = self.buf[self.pos] as u64;
-            self.pos += 1;
+            let b = self.buf[*self.pos.borrow()] as u64;
+            *self.pos.borrow_mut() += 1;
             if n == 0 {
                 if b & 0x80 == 0 {
                     return b;

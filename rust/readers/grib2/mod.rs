@@ -591,6 +591,9 @@ impl GRIB2Reader {
                             if geo.m.is_none() {
                                 geo.m = Some(MValue::new());
                             }
+                            if m_value.is_nan() {
+                                continue;
+                            }
                             geo.m.as_mut().unwrap().insert((&name).into(), (*m_value).into());
                         }
                     }

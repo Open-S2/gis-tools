@@ -1,10 +1,8 @@
 declare const self: DedicatedWorkerGlobalScope;
 
-import { TileStore } from 'gis-tools/dataStructures/tile.js';
-import { fileTypeToReader } from '../index.js';
+import { TileStore, fileTypeToReader } from '../../index.js';
 
-import type { S2CellId } from 'gis-tools/geometry/id.js';
-import type { TileStoreOptions } from 'gis-tools/dataStructures/tile.js';
+import type { S2CellId, TileStoreOptions } from '../../index.js';
 
 /** Initial message sent to the worker */
 export interface InitMessage {

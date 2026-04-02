@@ -2,7 +2,7 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use gistools::geometry::{LonLat, S2CellId, S2Point};
+    use gistools::geometry::{LonLat, S2CellId, S2Point, normalize_ll};
     use s2json::{MValue, VectorPoint};
 
     #[test]
@@ -55,13 +55,47 @@ mod tests {
         assert_eq!(ll, LonLat::new(0.0, 0.0, None));
         let mut ll: LonLat = LonLat::new(0.01745329251994, 0.111111, None);
         ll.normalize();
-        assert_eq!(ll, LonLat::new(0.01745329251991734, 0.111111, None));
+        assert_eq!(ll, LonLat::new(0.017453292519945762, 0.111111, None));
         let mut ll: LonLat = LonLat::new(640.0, 100.0, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(-80.0, 90.0, None));
         let mut ll: LonLat = LonLat::new(-640.0, -100.0, None);
         ll.normalize();
         assert_eq!(ll, LonLat::new(80.0, -90.0, None));
+        let mut ll: LonLat = LonLat::new(-180.0, 0.0, None);
+        ll.normalize();
+        assert_eq!(ll, LonLat::new(180.0, 0.0, None));
+        let mut ll: LonLat = LonLat::new(180.0, 0.0, None);
+        ll.normalize();
+        assert_eq!(ll, LonLat::new(180.0, 0.0, None));
+        let mut ll: LonLat = LonLat::new(-179.99, 0.0, None);
+        ll.normalize();
+        assert_eq!(ll, LonLat::new(-179.99, 0.0, None));
+    }
+
+    #[test]
+    fn normalize_ll_points() {
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(0.0, 0.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(0.0, 0.0, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(0.01745329251994, 0.111111, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(0.017453292519945762, 0.111111, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(640.0, 100.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(-80.0, 90.0, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(-640.0, -100.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(80.0, -90.0, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(-180.0, 0.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(180.0, 0.0, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(180.0, 0.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(180.0, 0.0, None));
+        let mut ll: VectorPoint<MValue> = VectorPoint::new_xy(-179.99, 0.0, None);
+        normalize_ll(&mut ll);
+        assert_eq!(ll, VectorPoint::new_xy(-179.99, 0.0, None));
     }
 
     #[test]

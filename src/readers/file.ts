@@ -1,9 +1,10 @@
 import { OSMFileReader } from './osm/file.js';
 import { promisify } from 'util';
-import { shapefileFromPath } from 'gis-tools/file.js';
-import { ALL_DEFINITIONS, EPSG_CODES } from 'gis-tools/proj4/index.js';
+import { shapefileFromPath } from '../file.js';
 import {
+  ALL_DEFINITIONS,
   CSVReader,
+  EPSG_CODES,
   GPXReader,
   GRIB2Reader,
   GeoTIFFReader,
@@ -16,7 +17,7 @@ import {
   SequenceJSONReader,
   WKTGeometryReader,
   buildGTFSSchedule,
-} from './index.js';
+} from '../index.js';
 import { closeSync, openSync, read, readSync, statSync } from 'fs';
 
 import type { FeatureIterator, Reader } from './index.js';
@@ -34,7 +35,7 @@ const readAsync = promisify(read);
  *
  * ## Usage
  * ```ts
- * import { FileReader } from 'gis-tools/file-ts';
+ * import { FileReader } from 'gis-tools-ts/file-ts';
  *
  * const reader = new FileReader('./BETA2007.gsb');
  *

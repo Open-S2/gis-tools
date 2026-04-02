@@ -1,7 +1,7 @@
-import { Vector } from '../../../src';
+import { Vector } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
-import type { VectorKey } from '../../../src';
+import type { VectorKey } from '../../../src/index.js';
 
 /** Test key */
 interface TestKey extends VectorKey {

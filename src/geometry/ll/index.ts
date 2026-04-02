@@ -56,7 +56,9 @@ export function llToAngles(ll: LonLat): [S1Angle, S1Angle] {
 export function llNormalize<M extends MValue = Properties>(ll: LonLat<M>): LonLat<M> {
   let { x: lon, y: lat } = ll;
   // Normalize longitude using modulo
-  lon = ((((lon + 180) % 360) + 360) % 360) - 180;
+  lon = (lon + 180) % 360;
+  if (lon <= 0) lon += 360;
+  lon -= 180;
   // Clamp latitude between -90 and 90
   lat = Math.max(-90, Math.min(90, lat));
 

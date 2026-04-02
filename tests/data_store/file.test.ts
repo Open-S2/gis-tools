@@ -1,7 +1,7 @@
-import { S2FileStore } from '../../src/file';
+import { S2FileStore } from '../../src/file.js';
 import { expect, test } from 'bun:test';
 
-import { createTempPath, deletePath } from '../../tests/tmp';
+import { createTempPath, deletePath } from '../../tests/tmp.js';
 
 test('S2FileStore', async () => {
   const dir = createTempPath('file_test');

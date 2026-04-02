@@ -1,4 +1,4 @@
-import { Satellite } from '../../src';
+import { Satellite } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('Test "bad" TLE data', async () => {

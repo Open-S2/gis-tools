@@ -1,4 +1,4 @@
-import { KDSpatialIndex } from '../../../src';
+import { KDSpatialIndex } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 // Tools test

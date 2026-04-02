@@ -1,4 +1,4 @@
-import { dsinit } from '../../../src';
+import { dsinit } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('Geopotential Resonance for 12 Hour Orbits', async () => {

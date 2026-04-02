@@ -1,7 +1,13 @@
 import { stat } from 'node:fs/promises';
-import { BufferReader, BufferWriter, Compression, S2TilesReader, S2TilesWriter } from '../../src';
-import { FileReader, FileWriter } from '../../src/file';
-import { createTempPath, deletePath } from '../../tests/tmp';
+import {
+  BufferReader,
+  BufferWriter,
+  Compression,
+  S2TilesReader,
+  S2TilesWriter,
+} from '../../src/index.js';
+import { FileReader, FileWriter } from '../../src/file.js';
+import { createTempPath, deletePath } from '../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 import type { Metadata } from 's2-tilejson';
@@ -29,7 +35,7 @@ test('S2Tiles - Buffer Writer - WM', async () => {
   const bufReader = new BufferReader(bufData.buffer);
   const reader = new S2TilesReader(bufReader);
   const metadata = await reader.getMetadata();
-  expect(bufReader.buffer.byteLength).toEqual(216_417);
+  expect(bufReader.buffer.byteLength).toEqual(230_067);
   expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
   expect(await reader.hasTileWM(0, 0, 0)).toBeTrue();
@@ -69,7 +75,7 @@ test('S2Tiles - File Writer - S2', async () => {
   const reader = new S2TilesReader(new FileReader(`${dir}/file_writer_s2`));
   const metadata = await reader.getMetadata();
 
-  expect((await stat(`${dir}/file_writer_s2`)).size).toEqual(215_594);
+  expect((await stat(`${dir}/file_writer_s2`)).size).toEqual(229_244);
   expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
   expect(await reader.hasTileS2(0, 0, 0, 0)).toBeTrue();

@@ -1,4 +1,4 @@
-import { Cache } from '../../src';
+import { Cache } from '../../src/index.js';
 import { describe, expect, test } from 'bun:test';
 
 describe('dirCache', () => {

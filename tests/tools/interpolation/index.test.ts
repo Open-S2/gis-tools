@@ -1,4 +1,4 @@
-import { defaultGetInterpolateCurrentValue } from '../../../src';
+import { defaultGetInterpolateCurrentValue } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('defaultGetInterpolateCurrentValue', () => {

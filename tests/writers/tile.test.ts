@@ -1,6 +1,6 @@
-import { FileTileWriter } from '../../src/file';
+import { FileTileWriter } from '../../src/file.js';
 import { mkdirSync } from 'fs';
-import { createTempPath, deletePath } from '../../tests/tmp';
+import { createTempPath, deletePath } from '../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 test('writers - Tile File Writer', async () => {

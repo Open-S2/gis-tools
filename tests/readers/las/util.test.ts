@@ -1,4 +1,4 @@
-import { U32I32F32 } from '../../../src/readers/las/util';
+import { U32I32F32 } from '../../../src/readers/las/util.js';
 import { expect, test } from 'bun:test';
 
 test('U32I32F32', () => {

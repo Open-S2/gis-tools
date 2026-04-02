@@ -1,15 +1,15 @@
-import { FileReader } from '../../src/file';
-import { JSONReader, Tile, TileStore, transformPoint } from '../../src';
+import { FileReader } from '../../src/file.js';
+import { JSONReader, Tile, TileStore, transformPoint } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
-import { idChildrenIJ, idFromFace } from '../../src/geometry/id';
+import { idChildrenIJ, idFromFace } from '../../src/geometry/id.js';
 
 import type {
   FeatureCollection,
   VectorFeature,
   VectorLineString,
   VectorPolygon,
-} from '../../src/geometry';
+} from '../../src/geometry/index.js';
 
 const SIMPLIFY_MAXZOOM = 16;
 
@@ -200,11 +200,11 @@ test('TileStore - points', () => {
 
   const store = new TileStore(featureCollection, { projection: 'WG' });
 
-  const faceID = idFromFace(0);
+  const faceID = idFromFace(6);
   const faceTile = store.getTile(faceID);
 
   expect(faceTile).toEqual({
-    face: 0,
+    face: 6,
     zoom: 0,
     i: 0,
     j: 0,
@@ -298,11 +298,11 @@ test('TileStore - points', () => {
     transformed: true,
   } as unknown as Tile);
 
-  const [, child2] = idChildrenIJ(0, 0, 0, 0);
+  const [, child2] = idChildrenIJ(6, 0, 0, 0);
   const childTile = store.getTile(child2);
   expect(childTile).toEqual({
     extent: 1,
-    face: 0,
+    face: 6,
     i: 1,
     j: 0,
     layers: {

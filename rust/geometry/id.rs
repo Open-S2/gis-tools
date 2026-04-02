@@ -207,14 +207,18 @@ impl S2CellId {
 
     /// Construct a leaf cell given its face and (u,v) coordinates.
     pub fn from_face_uv(face: u8, u: f64, v: f64) -> Self {
-        S2CellId::from_face_st(face, UV_TO_ST(u), UV_TO_ST(v))
+        S2CellId::from_face_st(face, UV_TO_ST(u), UV_TO_ST(v), None)
     }
 
     /// Construct a leaf cell given its face and (s,t) coordinates.
-    pub fn from_face_st(face: u8, s: f64, t: f64) -> Self {
+    pub fn from_face_st(face: u8, s: f64, t: f64, level: Option<u8>) -> Self {
         let i: u32 = st_to_ij(s);
         let j: u32 = st_to_ij(t);
-        Self::from_face_ij(face, i, j, None)
+        let mut id = Self::from_face_ij(face, i, j, None);
+        if let Some(level) = level {
+            id = id.parent(Some(level))
+        }
+        id
     }
 
     /// Return a leaf cell given its cube face (range 0..5) and
@@ -429,7 +433,10 @@ impl S2CellId {
     /// Return the immediate child of this cell at the given traversal order
     /// position (in the range 0 to 3). This cell must not be a leaf cell.
     pub fn child(&self, position: u8) -> S2CellId {
-        if !self.is_valid() || self.is_leaf() || position > 3 {
+        // if !self.is_valid() || self.is_leaf() || position > 3 {
+        //     unreachable!();
+        // }
+        if self.is_leaf() || position > 3 {
             unreachable!();
         }
         // To change the level, we need to move the least-significant bit two

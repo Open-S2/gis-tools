@@ -1,12 +1,12 @@
-import { Compression } from '../../../src';
-import { FileReader } from '../../../src/file';
-import { MMapReader } from '../../../src/mmap';
-import { buildServer } from '../../server';
-import { BufferReader, S2PMTilesReader } from '../../../src/readers';
+import { Compression } from '../../../src/index.js';
+import { FileReader } from '../../../src/file.js';
+import { MMapReader } from '../../../src/mmap.js';
+import { buildServer } from '../../server.js';
+import { BufferReader, S2PMTilesReader } from '../../../src/readers/index.js';
 import { describe, expect, test } from 'bun:test';
 
 import type { Metadata } from 's2-tilejson';
-import type { S2Header } from '../../../src';
+import type { S2Header } from '../../../src/index.js';
 
 /** External old metadata spec */
 interface MetaExternal {
@@ -95,7 +95,7 @@ describe('File Reader', () => {
       },
     });
     // TILE
-    const tile = await testFixture1.getTile(0, 0, 0);
+    const tile = await testFixture1.getTileWM(0, 0, 0);
     expect(tile).toBeInstanceOf(Uint8Array);
     expect(new Uint8Array(tile as Uint8Array)).toEqual(
       new Uint8Array([
@@ -163,7 +163,7 @@ describe('File Reader', () => {
       },
     });
     // TILE
-    const tile = await testFixture2.getTile(0, 0, 0);
+    const tile = await testFixture2.getTileWM(0, 0, 0);
     expect(tile).toBeInstanceOf(Uint8Array);
     expect(new Uint8Array(tile as Uint8Array)).toEqual(
       new Uint8Array([
@@ -233,7 +233,7 @@ test('mmap test_fixture_2', async () => {
       },
     });
     // TILE
-    const tile = await testFixture2.getTile(0, 0, 0);
+    const tile = await testFixture2.getTileWM(0, 0, 0);
     expect(tile).toBeInstanceOf(Uint8Array);
     expect(new Uint8Array(tile as Uint8Array)).toEqual(
       new Uint8Array([

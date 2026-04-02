@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { insphere, inspherefast } from '../../../src';
+import { insphere, inspherefast } from '../../../src/index.js';
 
 test('insphere', async () => {
   expect(insphere(1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0) < 0, 'inside');

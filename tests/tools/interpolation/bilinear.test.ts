@@ -1,7 +1,11 @@
-import { bilinearInterpolation, getBilinearPoints, rgbaBilinearInterpolation } from '../../../src';
+import {
+  bilinearInterpolation,
+  getBilinearPoints,
+  rgbaBilinearInterpolation,
+} from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
-import type { Properties, RGBA, VectorPoint } from '../../../src';
+import type { Properties, RGBA, VectorPoint } from '../../../src/index.js';
 
 /** Temp data */
 interface Temperature extends Properties {

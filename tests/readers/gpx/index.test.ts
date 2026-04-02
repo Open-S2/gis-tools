@@ -1,4 +1,4 @@
-import { GPXReader } from '../../../src';
+import { GPXReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('GPXReader - basic', async () => {

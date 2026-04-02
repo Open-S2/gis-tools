@@ -113,28 +113,22 @@ export function* iterZipFolder(raw: Uint8Array): Generator<ZipItem, void, void> 
     const extraFieldsLength = u16(30);
     const commentLength = u16(32);
     const compressedSize = u32(20);
-
     // find local entry location
     const localEntryAt = u32(42);
-
     // read buffers, move at to after entry, and store where we were
     const filename = d.decode(subarrayMove(46, filenameLength));
     // we skip extraFields here
     const comment = d.decode(subarrayMove(extraFieldsLength, commentLength));
     const nextCentralDirectoryEntry = at;
-
     // >> start reading entry
     at = localEntryAt;
-
     // this is the local entry (filename + extra fields) length, which we skip
     const bytes = subarrayMove(30 + u16(26) + u16(28), compressedSize);
 
     yield {
       filename,
       comment,
-      /**
-       * @returns - the decompressed bytes
-       */
+      /** @returns - the decompressed bytes */
       read: async () => {
         return (compressionMethod & 8) > 0
           ? await decompressStream(bytes, 'deflate-raw')
@@ -344,4 +338,127 @@ function decompressLZW(input: ArrayBufferLike): Uint8Array {
     code = getNext(array);
   }
   return new Uint8Array(result);
+}
+
+/** WriteZipItem - Represents an item to be zipped */
+export interface WriteZipItem {
+  /** The filename of the item */
+  name: string;
+  /** The comment of the item */
+  comment: string;
+  /** The bytes of the item */
+  data: Uint8Array;
+}
+
+/**
+ * Zip a collection of files
+ * @param items - The collection of files you want to compress
+ * @returns A compressed folder of items
+ */
+export async function zipFolder(items: WriteZipItem[]): Promise<Uint8Array> {
+  const encoder = new TextEncoder();
+  const chunks: Uint8Array[] = [];
+  let currentOffset = 0;
+
+  // Metadata collection to build the Central Directory later
+  const directoryEntries: Array<{
+    filenameBytes: Uint8Array;
+    commentBytes: Uint8Array;
+    compressedSize: number;
+    uncompressedSize: number;
+    localHeaderOffset: number;
+  }> = [];
+
+  // 1. Write Local File Headers and Data
+  for (const item of items) {
+    const filenameBytes = encoder.encode(item.name);
+    const commentBytes = encoder.encode(item.comment);
+    // Compress data using raw deflate (compressionMethod = 8)
+    const compressedBytes = await compressStream(item.data, 'deflate-raw');
+    const localHeader = new Uint8Array(30 + filenameBytes.length);
+    const view = new DataView(localHeader.buffer);
+
+    view.setUint32(0, 0x04034b50, true); // Local file header signature
+    view.setUint16(4, 20, true); // Version needed to extract (2.0)
+    view.setUint16(6, 0, true); // General purpose bit flag
+    view.setUint16(8, 8, true); // Compression method (8 = Deflate)
+    view.setUint16(10, 0, true); // Last mod file time (omitted for simplicity)
+    view.setUint16(12, 0, true); // Last mod file date
+    view.setUint32(14, 0, true); // CRC-32 (Can be 0 if ignored, or computed)
+    view.setUint32(18, compressedBytes.length, true); // Compressed size
+    view.setUint32(22, item.data.length, true); // Uncompressed size
+    view.setUint16(26, filenameBytes.length, true); // Filename length
+    view.setUint16(28, 0, true); // Extra field length
+
+    localHeader.set(filenameBytes, 30);
+    chunks.push(localHeader, compressedBytes);
+
+    directoryEntries.push({
+      filenameBytes,
+      commentBytes,
+      compressedSize: compressedBytes.length,
+      uncompressedSize: item.data.length,
+      localHeaderOffset: currentOffset,
+    });
+
+    currentOffset += localHeader.length + compressedBytes.length;
+  }
+
+  const centralDirectoryOffset = currentOffset;
+
+  // 2. Write Central Directory Entries
+  for (const entry of directoryEntries) {
+    const cdHeader = new Uint8Array(46 + entry.filenameBytes.length + entry.commentBytes.length);
+    const view = new DataView(cdHeader.buffer);
+
+    view.setUint32(0, 0x02014b50, true); // Central directory file header signature
+    view.setUint16(4, 20, true); // Version made by
+    view.setUint16(6, 20, true); // Version needed to extract
+    view.setUint16(8, 0, true); // General purpose bit flag
+    view.setUint16(10, 8, true); // Compression method
+    view.setUint16(12, 0, true); // Last mod file time
+    view.setUint16(14, 0, true); // Last mod file date
+    view.setUint32(16, 0, true); // CRC-32
+    view.setUint32(20, entry.compressedSize, true);
+    view.setUint32(24, entry.uncompressedSize, true);
+    view.setUint16(28, entry.filenameBytes.length, true);
+    view.setUint16(30, 0, true); // Extra field length
+    view.setUint16(32, entry.commentBytes.length, true);
+    view.setUint16(34, 0, true); // Disk number start
+    view.setUint16(36, 0, true); // Internal file attributes
+    view.setUint32(38, 0, true); // External file attributes
+    view.setUint32(42, entry.localHeaderOffset, true); // Relative offset of local header
+
+    cdHeader.set(entry.filenameBytes, 46);
+    cdHeader.set(entry.commentBytes, 46 + entry.filenameBytes.length);
+    chunks.push(cdHeader);
+    currentOffset += cdHeader.length;
+  }
+
+  const centralDirectorySize = currentOffset - centralDirectoryOffset;
+  // 3. Write End of Central Directory (EOCD)
+  const eocd = new Uint8Array(22);
+  const eocdView = new DataView(eocd.buffer);
+  eocdView.setUint32(0, 0x06054b50, true); // EOCD signature
+  eocdView.setUint16(4, 0, true); // Number of this disk
+  eocdView.setUint16(6, 0, true); // Disk where central directory starts
+  eocdView.setUint16(8, items.length, true); // Number of central directory records on this disk
+  eocdView.setUint16(10, items.length, true); // Total number of central directory records
+  eocdView.setUint32(12, centralDirectorySize, true); // Size of central directory
+  eocdView.setUint32(16, centralDirectoryOffset, true); // Offset of starting central directory, relative to start of archive
+  eocdView.setUint16(20, 0, true); // Comment length
+  chunks.push(eocd);
+
+  return concatChunks(chunks);
+}
+
+function concatChunks(chunks: Uint8Array[]): Uint8Array {
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
 }

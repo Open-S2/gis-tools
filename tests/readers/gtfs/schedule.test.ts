@@ -20,7 +20,7 @@ import {
   parseGTFSTimeframes,
   parseGTFSTransfers,
   parseGTFSTranslations,
-} from '../../../src';
+} from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 // TODO:

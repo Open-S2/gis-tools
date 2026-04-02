@@ -1,6 +1,6 @@
-import { OSMMMapReader } from '../../../src/mmap';
-import { FileReader, OSMFileReader } from '../../../src/file';
-import { OSMReader, TagFilter } from '../../../src';
+import { OSMMMapReader } from '../../../src/mmap.js';
+import { FileReader, OSMFileReader } from '../../../src/file.js';
+import { OSMReader, TagFilter } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('parse basic case', async () => {

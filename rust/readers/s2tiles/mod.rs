@@ -21,7 +21,7 @@ struct Directory {
 const NODE_SIZE: usize = 10; // [offset, length] => [6 bytes, 4 bytes]
 const DIR_SIZE: usize = 1_365 * NODE_SIZE; // (13_650) -> 6 levels, the 6th level has both node and leaf (1+4+16+64+256+1024)*2 => (1365)+1365 => 2_730
 const METADATA_SIZE: usize = 131_072; // 131,072 bytes is 128kB. It is assumed the map metadata AND the S2Tile format metadata is less than 128kB
-const ROOT_DIR_SIZE: usize = DIR_SIZE * 6; // 27_300 * 6 = 163_800
+const ROOT_DIR_SIZE: usize = DIR_SIZE * 7; // 27_300 * 6 = 163_800
 const ROOT_SIZE: usize = METADATA_SIZE + ROOT_DIR_SIZE;
 // assuming all tiles exist for every face from 0->30 the max leafs to reach depth of 30 is 5
 // root: 6sides * 27_300 bytes/dir = (163_800 bytes)
@@ -132,7 +132,7 @@ impl<R: Reader> S2TilesReader<R> {
     /// True if the tile exists in the archive
     pub async fn has_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> bool {
         self.setup().await;
-        self.has_tile_s2(0.into(), zoom, x, y).await
+        self.has_tile_s2(6.into(), zoom, x, y).await
     }
 
     /// Check if an S2 tile exists in the archive
@@ -171,7 +171,7 @@ impl<R: Reader> S2TilesReader<R> {
     /// does not exist in the archive.
     pub async fn get_tile_wm(&mut self, zoom: u8, x: u32, y: u32) -> Option<Vec<u8>> {
         self.setup().await;
-        self.get_tile_s2(0.into(), zoom, x, y).await
+        self.get_tile_s2(6.into(), zoom, x, y).await
     }
 
     /// Get the bytes of the tile at the given (face, zoom, x, y) coordinates
@@ -214,7 +214,7 @@ impl<R: Reader> S2TilesReader<R> {
     /// ## Returns
     /// The offset and length of the tile if it exists
     async fn walk(&mut self, mut dir: Buffer, zoom: u8, x: u32, y: u32) -> Option<Directory> {
-        let mut path = get_s2_tile_path(zoom, x, y);
+        let mut path = get_tile_path(zoom, x, y);
         let mut offset = 0;
         let mut length = 0;
 
@@ -275,8 +275,8 @@ impl<R: Reader> S2TilesReader<R> {
         // fetch the metadata
         let data = self.get_range(0, ROOT_SIZE as u64).await;
         // prep a data view, store in header, build metadata
-        let mut dv = Buffer::new(data.clone());
-        if dv.get_u16_at(0) != 12883 {
+        let dv = Buffer::new(data.clone());
+        if dv.get_u16_at(0) != 12_883 {
             // the first two bytes are S and 2, we validate
             panic!("Bad metadata");
         }
@@ -294,7 +294,7 @@ impl<R: Reader> S2TilesReader<R> {
             decompress_data(&data[10..(10 + (m_l as usize))], self.compression).unwrap();
         self.metadata = Some(serde_json::from_slice(&meta_data).unwrap());
         // create root directories
-        for face in [0, 1, 2, 3, 4, 5] {
+        for face in [0, 1, 2, 3, 4, 5, 6] {
             let start = METADATA_SIZE + (face as usize) * DIR_SIZE;
             self.root_dir.insert(face, Buffer::new(data[start..(start + DIR_SIZE)].to_vec()));
         }
@@ -335,7 +335,7 @@ fn read_uint_48le(buffer: &mut Buffer, offset: Option<usize>) -> u64 {
 ///
 /// ## Returns
 /// The path as a collection of offsets pointing to the tile Node in the directory
-pub fn get_s2_tile_path(mut zoom: u8, mut x: u32, mut y: u32) -> Vec<u64> {
+pub fn get_tile_path(mut zoom: u8, mut x: u32, mut y: u32) -> Vec<u64> {
     let mut path = vec![];
 
     while zoom >= 5 {

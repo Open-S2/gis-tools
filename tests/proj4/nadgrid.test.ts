@@ -1,5 +1,5 @@
-import { MMapReader } from '../../src/mmap';
-import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from '../../src/proj4';
+import { MMapReader } from '../../src/mmap.js';
+import { Transformer, injectAllDefinitions, injectAllEPSGCodes } from '../../src/proj4/index.js';
 import { describe, expect, it, test } from 'bun:test';
 
 describe('nagrid BETA2007.gsb', (): void => {

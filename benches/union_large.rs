@@ -34,7 +34,7 @@ fn setup_data() -> Vec<Vec<Vec<Point>>> {
         }
     }
 
-    let (cleaned_data, _) = clean_polygons(&res, false, false).unwrap();
+    let (cleaned_data, _) = clean_polygons(&res, false, false, false).unwrap();
 
     cleaned_data
 }

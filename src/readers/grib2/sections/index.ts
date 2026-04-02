@@ -125,3 +125,16 @@ export function getSectionNumber(section: Reader): number {
 
   return sectionNumber;
 }
+
+/**
+ * Converts a GRIB2 integer value to a number. Data values are stored as signed 32-bit integers.
+ * So if the first bit is 1, the value is negative and we need to invert it.
+ * @param val - value to evaluate
+ * @returns the fixed value
+ */
+export function readGribInt(val: number): number {
+  if (val === 0xffffffff) return NaN;
+  const sign = (val & 0x80000000) !== 0 ? -1 : 1;
+  const mag = val & 0x7fffffff;
+  return sign * mag;
+}

@@ -42,6 +42,10 @@ impl Clone for FileWriter {
     }
 }
 impl Writer for FileWriter {
+    fn tell(&mut self) -> u64 {
+        self.file.metadata().unwrap().len()
+    }
+
     fn offset(&mut self) -> u64 {
         self.file.stream_position().expect("Seek failed")
     }

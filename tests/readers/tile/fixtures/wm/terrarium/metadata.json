@@ -1,0 +1,17 @@
+{
+  "s2tilejson": "1.0.0",
+  "format": "webp",
+  "name": "Terrain-DEM",
+  "description": "height = (R * 256. + G + B / 256.) - 32768.",
+  "exampleLink": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+  "minzoom": 0,
+  "maxzoom": 4,
+  "scheme": "xyz",
+  "type": "raster",
+  "extension": "png",
+  "encoding": "none",
+  "attributions": {
+    "Terrarium": "https://registry.opendata.aws/terrain-tiles/"
+  },
+  "bounds": [-180, -85, 180, 85]
+}

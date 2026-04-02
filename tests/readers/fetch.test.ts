@@ -1,4 +1,4 @@
-import { FetchReader } from '../../src';
+import { FetchReader } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('FetchReader - ensure 0s', () => {

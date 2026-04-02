@@ -4,9 +4,9 @@ import {
   getRGBAInterpolation,
   nearestInterpolation,
   rgbaNearestInterpolation,
-} from '../../../src';
+} from '../../../src/index.js';
 
-import type { Properties, RGBA, VectorPoint } from '../../../src';
+import type { Properties, RGBA, VectorPoint } from '../../../src/index.js';
 
 /** Temp data */
 interface Temperature extends Properties {

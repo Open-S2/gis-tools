@@ -1,4 +1,4 @@
-import { FileReader } from '../../src/file';
+import { FileReader } from '../../src/file.js';
 import { expect, test } from 'bun:test';
 
 test('FileReader', () => {

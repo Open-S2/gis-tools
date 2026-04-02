@@ -71,7 +71,12 @@ impl Grib2IdentificationSection {
         let ref_time = Date::new_full(year, month, day, hours, minutes, seconds);
 
         if grib_master_tables_version != 2 {
-            panic!("Invalid grib_master_tables_version: {}", grib_master_tables_version);
+            if cfg!(feature = "std") {
+                println!(
+                    "WARNING: Invalid grib_master_tables_version: {}",
+                    grib_master_tables_version
+                );
+            }
         }
 
         Grib2IdentificationSection {

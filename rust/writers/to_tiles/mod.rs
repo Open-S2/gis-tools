@@ -257,7 +257,6 @@ impl<W: TileWriter> TileBuilder<W> {
                     zoom as f64,
                     Some(false),
                     Some(wm::Source::WGS84),
-                    None,
                 );
                 self.meta_builder.add_tile_wm(zoom, x, y, &LonLatBounds::new(w, s, e, n));
             }

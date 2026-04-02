@@ -1,4 +1,4 @@
-import { FlatQueue } from '../../src';
+import { FlatQueue } from '../../src/index.js';
 import { beforeAll, expect, test } from 'bun:test';
 
 const data: number[] = [];

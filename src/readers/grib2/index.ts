@@ -331,11 +331,11 @@ export class GRIB2Reader implements FeatureIterator<Grib2ProductDefinition[]> {
     for (let i = 0; i < this.packets.length; i++) {
       const packet = this.packets[i];
       const name = this.idxs?.[i]?.name ?? String(i);
-      const data = packet.data?.getData();
+      const data = await packet.data?.getData();
       if (data === undefined) continue;
-      for (let i = 0; i < data.length; i++) {
+      for (let i = 0; i < geometry.length; i++) {
         const mValue = data[i];
-        if (mValue === undefined) continue;
+        if (mValue === undefined || isNaN(mValue)) continue;
         const geo = geometry[i];
         if (geo.m === undefined) geo.m = {};
         geo.m[name] = mValue;

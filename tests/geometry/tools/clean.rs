@@ -69,8 +69,8 @@ mod tests {
             fn $name() {
                 let input = get_data($folder.to_string(), None);
                 let output = get_data($folder.to_string(), Some("cleaned".into()));
-                let (cleaned, _) =
-                    clean_polygons(&input, false, false).unwrap_or((vec![], BBox::default()));
+                let (cleaned, _) = clean_polygons(&input, false, false, false)
+                    .unwrap_or((vec![], BBox::default()));
                 // assert_nested_approx(&cleaned, &output, 1e-7);
                 assert_eq!(cleaned, output);
             }

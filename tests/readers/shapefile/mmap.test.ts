@@ -1,4 +1,4 @@
-import { shapefileFromPath } from '../../../src/mmap';
+import { shapefileFromPath } from '../../../src/mmap.js';
 import { expect, test } from 'bun:test';
 
 test('shapefileFromPath', async () => {

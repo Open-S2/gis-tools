@@ -4,7 +4,7 @@
 mod tests {
     use gistools::geometry::{ConvertVectorFeatureWM, FACE_RULE_SET, Rotation, convert};
     use s2json::{
-        BBox3D, FeatureCollection, Features, JSONCollection, MValue, Projection,
+        BBox3D, Face, FeatureCollection, Features, JSONCollection, MValue, Projection,
         S2FeatureCollection, VectorFeature, VectorGeometry, VectorLineStringGeometry, VectorPoint,
         VectorPointGeometry, VectorPolygonGeometry,
     };
@@ -69,7 +69,7 @@ mod tests {
             vec![VectorFeature {
                 _type: "VectorFeature".into(),
                 id: Some(1337),
-                face: 0.into(),
+                face: Face::WM,
                 geometry: VectorGeometry::Point(VectorPointGeometry {
                     _type: "Point".into(),
                     is_3d: false,

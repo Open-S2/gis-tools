@@ -1,4 +1,4 @@
-import { SplayTreeSet } from '../../src';
+import { SplayTreeSet } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('splay tree', () => {

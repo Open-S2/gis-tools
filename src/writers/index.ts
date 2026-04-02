@@ -1,13 +1,18 @@
-import type { Compression } from '../index.js';
-import type { Face, Metadata } from 's2-tilejson';
+import type { Metadata } from 's2-tilejson';
+import type { Compression, Face } from '../index.js';
 
+export * from './csv/index.js';
+export * from './gpx/index.js';
 export * from './json/index.js';
 export * from './pmtiles/index.js';
 export * from './s2tiles/index.js';
+export * from './shapefile/index.js';
 export * from './tiles/index.js';
+export * from './xml/index.js';
 
 /** The defacto interface for all writers. */
 export interface Writer {
+  tell(): number;
   write(data: Uint8Array, offset: number): Promise<void>;
   slice(start: number, end: number): Promise<Uint8Array>;
   append(data: Uint8Array): Promise<void>;
@@ -132,6 +137,19 @@ export class BufferTileWriter implements TemporalTileWriter {
 export class BufferWriter implements Writer {
   #buffer: number[] = [];
   #textEncoder = new TextEncoder();
+
+  /**
+   * Create a new BufferWriter
+   *
+   * @param _name - the name of the file (not used via buffers)
+   * @returns - a new BufferWriter
+   */
+  constructor() {}
+
+  /** @returns - the buffer's length */
+  tell(): number {
+    return this.#buffer.length;
+  }
 
   /**
    * Append data to the buffer

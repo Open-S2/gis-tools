@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
-import { polylabel, polylabels } from '../../src';
+import { polylabel, polylabels } from '../../src/index.js';
 
-import type { Polygon, VectorPolygon } from '../../src/geometry';
+import type { Polygon, VectorPolygon } from '../../src/geometry/index.js';
 
 test('finds pole of inaccessibility for water1 and precision 1', async () => {
   const water1: Polygon = await Bun.file(`${__dirname}/fixtures/water1.json`).json();

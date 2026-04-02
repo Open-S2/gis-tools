@@ -1,6 +1,6 @@
-import { FileReader } from '../../../src/file';
-import { MMapReader } from '../../../src/mmap';
-import { BufferReader, DataBaseFile } from '../../../src';
+import { FileReader } from '../../../src/file.js';
+import { MMapReader } from '../../../src/mmap.js';
+import { BufferReader, DataBaseFile } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('empty dbf', async () => {

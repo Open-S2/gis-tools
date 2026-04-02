@@ -36,8 +36,8 @@ export function parseGrib2Section7(section: Reader, sections: Grib2Sections) {
      * template number given in octets 10-11 of [Section 5](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_sect5.shtml).
      * @returns - the raw parsed data
      */
-    getData(): number[] {
-      return getGrib2Template7(data, sections);
+    async getData(): Promise<number[]> {
+      return await getGrib2Template7(data, sections);
     },
   };
 }

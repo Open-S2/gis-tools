@@ -14,12 +14,12 @@ import {
   capIsEmpty,
   capIsFull,
   capRadius,
-} from '../../../src/geometry/s2/cap';
+} from '../../../src/geometry/s2/cap.js';
 import { expect, test } from 'bun:test';
 
-import { idFromFace, idFromIJ, idToS2Point } from '../../../src/geometry/id';
+import { idFromFace, idFromIJ, idToS2Point } from '../../../src/geometry/id.js';
 
-import type { S2Cap } from '../../../src/geometry/s2/cap';
+import type { S2Cap } from '../../../src/geometry/s2/cap.js';
 
 test('capComplement', () => {
   const cap: S2Cap<{ a: number }> = { center: { x: 1, y: 0, z: 0 }, radius: 1, data: { a: 1 } };

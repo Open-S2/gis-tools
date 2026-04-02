@@ -9,11 +9,11 @@ import {
   xmlIndexOfMatchEnd,
   xmlRemoveComments,
   xmlRemoveTagsByName,
-} from '../../../src/readers/xml/parsing';
+} from '../../../src/readers/xml/parsing.js';
 
 import { beforeAll, expect, test } from 'bun:test';
 
-import type { XMLTag } from '../../../src/readers/xml/parsing';
+import type { XMLTag } from '../../../src/readers/xml/parsing.js';
 
 let iso: string;
 let mrf: string;

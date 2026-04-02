@@ -258,6 +258,13 @@ impl<M: Clone + Default, P: Clone + Default, D: Clone + Default>
         )))
     }
 }
+impl<M: Clone, P: Clone + Default, D: Clone + Default> From<Vec<VectorFeature<M, P, D>>>
+    for JSONCollectionReader<M, P, D>
+{
+    fn from(features: Vec<VectorFeature<M, P, D>>) -> JSONCollectionReader<M, P, D> {
+        JSONCollectionReader { features }
+    }
+}
 impl<M: Clone, P: Clone + Default, D: Clone + Default> From<&mut VectorFeature<M, P, D>>
     for JSONCollectionReader<M, P, D>
 {

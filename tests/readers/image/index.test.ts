@@ -1,4 +1,4 @@
-import { imageDecoderBuffer } from '../../../src';
+import { imageDecoderBuffer } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 /**

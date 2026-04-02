@@ -12,11 +12,11 @@ import {
   setUint64,
   tileIDToZxy,
   zxyToTileID,
-} from '../../../src';
+} from '../../../src/index.js';
 
 import { describe, expect, test } from 'bun:test';
 
-import type { Entry, Header } from '../../../src';
+import type { Entry, Header } from '../../../src/index.js';
 
 test('HEADER_SIZE_BYTES', () => {
   expect(HEADER_SIZE_BYTES).toBe(127);

@@ -11,6 +11,8 @@ pub use file::*;
 
 /// The defacto interface for all writers.
 pub trait Writer {
+    /// Get the length of the writer
+    fn tell(&mut self) -> u64;
     /// Get the current offset of the writer
     fn offset(&mut self) -> u64;
     /// Write data at the specified offset to the writer

@@ -44,12 +44,12 @@ import {
   idToUV,
   idVertexNeighbors,
   isOutOfBoundsWM,
-} from '../../src/geometry/id';
+} from '../../src/geometry/id.js';
 
 import { describe, expect, it } from 'bun:test';
 
 // Helpers
-import { pointFromLonLat } from '../../src/geometry/s2/point';
+import { pointFromLonLat } from '../../src/geometry/s2/point.js';
 
 describe('idBoundsST', () => {
   it('should return the bounds for a given id and level', () => {

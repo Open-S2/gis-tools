@@ -6,7 +6,7 @@ preload = ['./src/util/polyfills/local.ts']
 # root directory
 root = "./tests"
 
-retry = 3
+# retry = 3
 
 # always enable coverage
 # windows tests fails when using coverage

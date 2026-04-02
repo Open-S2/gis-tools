@@ -1,9 +1,14 @@
-import { FileReader } from '../../src/file';
-import { BufferReader, BufferWriter, JSONReader, NewLineDelimitedJSONReader } from '../../src';
+import { FileReader } from '../../src/file.js';
+import {
+  BufferReader,
+  BufferWriter,
+  JSONReader,
+  NewLineDelimitedJSONReader,
+} from '../../src/index.js';
 import { expect, test } from 'bun:test';
-import { toJSON, toJSONLD } from '../../src/writers';
+import { toJSON, toJSONLD } from '../../src/writers/index.js';
 
-import type { VectorFeatures } from '../../src/geometry';
+import type { VectorFeatures } from '../../src/geometry/index.js';
 
 test('toJSON', async () => {
   const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
@@ -82,11 +87,11 @@ test('toJSON - WM & bbox & onFeature', async () => {
   await toJSON(bufWriter, [jsonReader], { projection: 'WG', buildBBox: true, onFeature });
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
-    '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":144.9584,"y":-37.8173},"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":151.2144,"y":-33.8766},"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [0],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
+    '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":144.9584,"y":-37.8173},"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"VectorFeature","properties":{"name":"Redacted"},"geometry":{"type":"Point","is3D":false,"coordinates":{"x":151.2144,"y":-33.8766},"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [6],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
   );
   expect(JSON.parse(string)).toEqual({
     bbox: [144.9584, -37.8173, 151.2144, -33.8766],
-    faces: [0],
+    faces: [6],
     features: [
       {
         geometry: {
@@ -144,11 +149,11 @@ test('toJSON - WM & bbox & onFeature - flat', async () => {
   });
   const string = new TextDecoder().decode(bufWriter.commit());
   expect(string).toEqual(
-    '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[144.9584,-37.8173],"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766],"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [0],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
+    '{\n\t"type": "FeatureCollection",\n\t"features": [\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[144.9584,-37.8173],"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},\n\t\t{"type":"Feature","properties":{"name":"Redacted"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766],"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}\n\t],\n\t"faces": [6],\n\t"bbox": [144.9584,-37.8173,151.2144,-33.8766]\n}',
   );
   expect(JSON.parse(string)).toEqual({
     bbox: [144.9584, -37.8173, 151.2144, -33.8766],
-    faces: [0],
+    faces: [6],
     features: [
       {
         geometry: {

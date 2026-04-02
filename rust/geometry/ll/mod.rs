@@ -4,7 +4,7 @@ use core::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 use libm::{asin, atan2, cos, fmin, sin, sqrt};
-use s2json::{GetM, GetXY, MValue, NewXY, VectorPoint};
+use s2json::{GetM, GetXY, MValue, NewXY, SetXY, VectorPoint};
 
 /// # Longitude-Latitude Point container
 ///
@@ -98,7 +98,11 @@ impl<M: Clone + Default> LonLat<M> {
         let mut lon = self.lon();
         let mut lat = self.lat();
         // Normalize longitude using modulo
-        lon = ((((lon + 180.) % 360.) + 360.) % 360.) - 180.;
+        lon = (lon + 180.) % 360.;
+        if lon <= 0. {
+            lon += 360.;
+        }
+        lon -= 180.;
         // Clamp latitude between -90 and 90
         lat = lat.clamp(-90., 90.);
 
@@ -265,4 +269,20 @@ impl PartialOrd for LonLat {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
+}
+
+/// Normalize the coordinates to the range [-180, 180] and [-90, 90] deg.
+pub fn normalize_ll<P: SetXY + GetXY>(point: &mut P) {
+    let mut lon = point.x();
+    let mut lat = point.y();
+    // Normalize longitude using modulo
+    lon = (lon + 180.) % 360.;
+    if lon <= 0. {
+        lon += 360.;
+    }
+    lon -= 180.;
+    // Clamp latitude between -90 and 90
+    lat = lat.clamp(-90., 90.);
+
+    point.set_xy(lon, lat);
 }

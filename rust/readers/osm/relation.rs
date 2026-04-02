@@ -9,8 +9,8 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{BitCast, ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorLineString,
-    VectorMultiLineString, VectorMultiPolygon, VectorPoint, VectorPolygon,
+    BBox3D, Face, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
+    VectorLineString, VectorMultiLineString, VectorMultiPolygon, VectorPoint, VectorPolygon,
 };
 use serde::{Deserialize, Serialize};
 
@@ -120,7 +120,7 @@ impl IntermediateRelation {
         };
         Some(VectorFeature {
             id: Some(*id),
-            face: 0.into(),
+            face: Face::WM,
             _type: VectorFeatureType::VectorFeature,
             properties: properties.clone(),
             geometry,

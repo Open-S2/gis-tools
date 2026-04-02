@@ -60,6 +60,8 @@ mod tests {
         assert_eq!(id.id, 10376293541461622784);
         let id = S2CellId::from_face(5);
         assert_eq!(id.id, 12682136550675316736);
+        let id = S2CellId::from_face(6);
+        assert_eq!(id.id, 14987979559889010688);
     }
 
     #[test]
@@ -321,7 +323,7 @@ mod tests {
 
     #[test]
     fn from_face_st() {
-        assert_eq!(S2CellId::from_face_st(0, 0., 0.), S2CellId::new(1));
+        assert_eq!(S2CellId::from_face_st(0, 0., 0., None), S2CellId::new(1));
     }
 
     #[test]
@@ -335,6 +337,21 @@ mod tests {
         let child = id.child(0).child(2).child(1).child(2).child(3);
         assert_eq!(id.get_size_ij(), 1073741824);
         assert_eq!(child.get_size_ij(), 33554432);
+    }
+
+    #[test]
+    fn get_from_face_ij() {
+        let id = S2CellId::from_face_ij(0, 0, 0, Some(0));
+        assert_eq!(id, S2CellId::from_face(0));
+
+        let id = S2CellId::from_face_ij(6, 0, 0, Some(0));
+        assert_eq!(u64::from(id), 14987979559889010688);
+        let (face, zoom, i, j) = id.to_face_ij();
+        assert_eq!((face, zoom, i, j), (6, 0, 0, 0));
+
+        let id = S2CellId::from_face_ij(6, 51, 122, None);
+        let (face, zoom, i, j) = id.to_face_ij();
+        assert_eq!((face, zoom, i, j), (6, 30, 51, 122));
     }
 
     #[test]

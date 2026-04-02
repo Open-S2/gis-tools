@@ -1,12 +1,14 @@
 import type {
   ComplexSpectralPackingTemplate,
   Grib2DataRepresentationSection,
+  Grib2Sections,
+  Grib2SphericalHarmonicCoefficients,
   Reader,
 } from '../../../index.js';
 
 /**
- * Unpack a data field that was packed using a simple packing algorithm, using info from the GRIB2
- * Data Representation Template 5.0.
+ * Unpack a data field that was packed using a simple packing
+ * algorithm, using info from the GRIB2 Data Representation Template 5.0.
  * @param reader - The raw data to convert
  * @param drs - The data representation section
  * @returns - The converted data
@@ -22,7 +24,7 @@ export function spectralSimpleUnpacking(
     referenceValue: ref,
     binaryScaleFactor,
   } = dataRepresentation;
-  const dscale = Math.pow(10, decimalScaleFactor);
+  const dscale = Math.pow(10, -decimalScaleFactor);
   const bscale = Math.pow(2, binaryScaleFactor);
 
   const res: number[] = new Array(ndpts);
@@ -40,16 +42,19 @@ export function spectralSimpleUnpacking(
 }
 
 /**
+ * Unpack a spectral data field that was packed using the complex
+ * packing algorithm for spherical harmonic data as defined in the
+ * GRIB2 documention, using info from the GRIB2 Data Representation
+ * [Template 5.51](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-51.shtml).
  * @param reader - The raw data to convert
- * @param drs - The data representation section
+ * @param sections - The GRIB2 sections data
  * @returns - The unpacked values
  */
-export function spectralComplexUnpacking(
-  reader: Reader,
-  drs: Grib2DataRepresentationSection,
-): number[] {
+export function spectralComplexUnpacking(reader: Reader, sections: Grib2Sections): number[] {
+  // https://github.com/NOAA-EMC/NCEPLIBS-g2c/blob/develop/src/specunpack.c
   // igdstmpl[0], igdstmpl[2], igdstmpl[2]
-  const { dataRepresentation, numberOfDataPoints: ndpts } = drs;
+  const { dataRepresentation: drs, gridDefinition: gds } = sections;
+  const ndpts = drs!.numberOfDataPoints;
   const {
     numberOfBits: nbits,
     decimalScaleFactor,
@@ -61,12 +66,10 @@ export function spectralComplexUnpacking(
     Ms,
     Ts,
     P,
-  } = dataRepresentation as ComplexSpectralPackingTemplate;
-  const dscale = Math.pow(10, decimalScaleFactor);
+  } = drs!.dataRepresentation as ComplexSpectralPackingTemplate;
+  const { j: JJ, k: KK, m: MM } = gds!.values as Grib2SphericalHarmonicCoefficients;
+  const dscale = Math.pow(10, -decimalScaleFactor);
   const bscale = Math.pow(2, binaryScaleFactor);
-  const JJ = ref;
-  const KK = decimalScaleFactor;
-  const MM = decimalScaleFactor;
 
   const res: number[] = new Array(ndpts);
 
@@ -121,36 +124,40 @@ export function spectralComplexUnpacking(
  * @returns - The unpacked values
  */
 function gbits(reader: Reader, iskip: number, nbits: number, nskip: number, n: number): number[] {
-  const res: number[] = [];
-  let i: number, tbit: number, bitcnt: number, ibit: number, itmp: number;
-  let nbit: number, index: number;
-  const ones: number[] = [1, 3, 7, 15, 31, 63, 127, 255];
+  const res = new Array(n);
+  let nbit = iskip;
 
-  /* nbit is the start position of the field in bits */
-  nbit = iskip;
-  for (i = 0; i < n; i++) {
-    bitcnt = nbits;
-    index = nbit / 8;
-    ibit = nbit % 8;
-    nbit = nbit + nbits + nskip;
+  for (let i = 0; i < n; i++) {
+    let bitcnt = nbits;
+    let index = Math.floor(nbit / 8);
+    const ibit = nbit % 8;
+    nbit += nbits + nskip;
 
-    /* first byte */
-    tbit = bitcnt < 8 - ibit ? bitcnt : 8 - ibit; // find min
-    itmp = reader.getInt8(index) & ones[7 - ibit];
-    if (tbit !== 8 - ibit) itmp >>= 8 - ibit - tbit;
+    // Use a wider type (number/float) to avoid 32-bit bitwise overflow
+    let itmp = 0;
+
+    // 1. Handle partial first byte
+    const bitsInFirstByte = 8 - ibit;
+    const take = Math.min(bitcnt, bitsInFirstByte);
+    const firstByte = reader.getUint8(index);
+
+    // Mask off the already-read bits and shift right to discard trailing bits
+    itmp = (firstByte & ((1 << bitsInFirstByte) - 1)) >> (bitsInFirstByte - take);
+
+    bitcnt -= take;
     index++;
-    bitcnt = bitcnt - tbit;
 
-    /* now transfer whole bytes */
+    // 2. Handle full bytes
     while (bitcnt >= 8) {
-      itmp = (itmp << 8) | reader.getInt8(index);
-      bitcnt = bitcnt - 8;
+      itmp = itmp * 256 + reader.getUint8(index);
+      bitcnt -= 8;
       index++;
     }
 
-    /* get data from last byte */
+    // 3. Handle partial last byte
     if (bitcnt > 0) {
-      itmp = (itmp << bitcnt) | ((reader.getInt8(index) >> (8 - bitcnt)) & ones[bitcnt - 1]);
+      const lastByte = reader.getUint8(index);
+      itmp = itmp * Math.pow(2, bitcnt) + (lastByte >> (8 - bitcnt));
     }
 
     res[i] = itmp;
@@ -180,8 +187,8 @@ function rdieee(rieee: number[], num: number): number[] {
 
   for (let j = 0; j < num; j++) {
     /*  Extract sign bit, exponent, and mantissa */
-    isign = (rieee[j] & msk1) >> 31;
-    iexp = (rieee[j] & msk2) >> 23;
+    isign = (rieee[j] & msk1) >>> 31;
+    iexp = (rieee[j] & msk2) >>> 23;
     imant = rieee[j] & msk3;
     /*printf("SAGieee= %ld %ld %ld\n",isign,iexp,imant); */
 

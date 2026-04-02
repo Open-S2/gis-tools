@@ -1,5 +1,5 @@
-import { FileReader } from '../../../../src/file';
-import { JpxImage } from '../../../../src';
+import { FileReader } from '../../../../src/file.js';
+import { JpxImage } from '../../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('Basic JPEG2000 case', async () => {

@@ -4,8 +4,8 @@
 //   parseWKTObject,
 //   parseWKTProjection,
 //   splitWKTGeometry,
-// } from '../../../src/readers/wkt';
-import { SVGReader } from '../../../src';
+// } from '../../../src/readers/wkt/index.js';
+import { SVGReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('SVG Reader - paths', async () => {

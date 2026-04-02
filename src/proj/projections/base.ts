@@ -14,7 +14,7 @@ export interface ProjectionParams {
 /** Base class for all projections */
 export class ProjectionBase implements ProjectionTransform {
   shortName = 'longlat';
-  static names: string[] = ['longlat', 'identity'];
+  static names: string[] = ['longlat', 'latlong', 'identity'];
   descr = '';
   params: ProjectionParams = {};
   /** Parent PJ of pipeline steps - undefined if not a pipeline step */
@@ -123,15 +123,6 @@ export class ProjectionBase implements ProjectionTransform {
   /** Flags for input/output coordinate types */
   left = pjIoUnits.PJ_IO_UNITS_WHATEVER;
   right = pjIoUnits.PJ_IO_UNITS_WHATEVER;
-
-  /** These PJs are used for implementing cs2cs style coordinate handling in the 4D API */
-  // TODO:!!!!!!!
-  // PJ *axisswap = nullptr;
-  // PJ *cart = nullptr;
-  // PJ *cart_wgs84 = nullptr;
-  // PJ *helmert = nullptr;
-  // PJ *hgridshift = nullptr;
-  // PJ *vgridshift = nullptr;
 
   /*************************************************************************************
 
@@ -245,10 +236,4 @@ export class ProjectionBase implements ProjectionTransform {
     p.x *= D2R;
     p.y *= D2R;
   }
-
-  // TODO: SUpport other kinds of forward/inverse mutations
-  // PJ_XY (*fwd)(PJ_LP, PJ *) = nullptr;
-  // PJ_LP (*inv)(PJ_XY, PJ *) = nullptr;
-  // PJ_XYZ (*fwd3d)(PJ_LPZ, PJ *) = nullptr;
-  // PJ_LPZ (*inv3d)(PJ_XYZ, PJ *) = nullptr;
 }

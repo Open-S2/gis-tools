@@ -300,7 +300,7 @@ export class TileStore<
     // convert features
     const features = convert(this.projection, data, this.buildBBox, true);
     for (const feature of features) this.#addFeature(feature);
-    for (let face = 0; face < 6; face++) {
+    for (let face = 0; face < 7; face++) {
       const id = idFromFace(face as Face);
       this.#splitTile(id);
     }
@@ -350,7 +350,7 @@ export class TileStore<
     const { faces, tiles, tolerance, maxzoom } = this;
     // Prep Douglas-Peucker simplification by setting t-values.
     buildSqDists(feature.geometry, tolerance, maxzoom);
-    const face = feature.face ?? 0;
+    const face = feature.face ?? 6; // 6 represents the WM face
     const id = idFromFace(face);
     let tile = tiles.get(id);
     if (tile === undefined) {

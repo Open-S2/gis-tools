@@ -32,7 +32,7 @@ fn clean_polygon_test() {
     ]];
 
     for _ in 0..COUNT {
-        clean_polygon(&polygon, false, false).unwrap();
+        clean_polygon(&polygon, false, false, false).unwrap();
     }
 }
 

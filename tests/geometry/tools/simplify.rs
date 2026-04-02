@@ -13,21 +13,51 @@ mod tests {
     #[test]
     fn test_rewind() {
         let mut ring = vec![
-            VectorPoint::<MValue>::new(0., 0., None, None),
-            VectorPoint::new(0., 1., None, None),
-            VectorPoint::new(1., 1., None, None),
-            VectorPoint::new(1., 0., None, None),
+            VectorPoint::from_xy(0., 0.),
+            VectorPoint::from_xy(0., 1.),
+            VectorPoint::from_xy(1., 1.),
+            VectorPoint::from_xy(1., 0.),
+            VectorPoint::from_xy(0., 0.),
         ];
-
         rewind(&mut ring, false);
-
         assert_eq!(
             ring,
             vec![
-                VectorPoint::new(1., 0., None, None),
-                VectorPoint::new(1., 1., None, None),
-                VectorPoint::new(0., 1., None, None),
-                VectorPoint::new(0., 0., None, None),
+                VectorPoint::from_xy(0., 0.),
+                VectorPoint::from_xy(0., 1.),
+                VectorPoint::from_xy(1., 1.),
+                VectorPoint::from_xy(1., 0.),
+                VectorPoint::from_xy(0., 0.),
+            ]
+        );
+
+        let mut ring = vec![
+            VectorPoint::from_xy(0., 0.),
+            VectorPoint::from_xy(1., 0.),
+            VectorPoint::from_xy(1., 1.),
+            VectorPoint::from_xy(0., 1.),
+            VectorPoint::from_xy(0., 0.),
+        ];
+        rewind(&mut ring, true);
+        assert_eq!(
+            ring,
+            vec![
+                VectorPoint::from_xy(0., 0.),
+                VectorPoint::from_xy(1., 0.),
+                VectorPoint::from_xy(1., 1.),
+                VectorPoint::from_xy(0., 1.),
+                VectorPoint::from_xy(0., 0.),
+            ]
+        );
+        rewind(&mut ring, false);
+        assert_eq!(
+            ring,
+            vec![
+                VectorPoint::from_xy(0., 0.),
+                VectorPoint::from_xy(0., 1.),
+                VectorPoint::from_xy(1., 1.),
+                VectorPoint::from_xy(1., 0.),
+                VectorPoint::from_xy(0., 0.),
             ]
         );
     }
@@ -217,9 +247,9 @@ mod tests {
                     ],
                     vec![
                         VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) },
-                        VectorPoint { x: 0.5, y: 0.25, z: None, m: None, t: Some(0.03125) },
-                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
                         VectorPoint { x: 0.75, y: 0.5, z: None, m: None, t: Some(0.03125) },
+                        VectorPoint { x: 0.75, y: 0.25, z: None, m: None, t: Some(0.125) },
+                        VectorPoint { x: 0.5, y: 0.25, z: None, m: None, t: Some(0.03125) },
                         VectorPoint { x: 0.5, y: 0.5, z: None, m: None, t: Some(1.0) }
                     ]
                 ]

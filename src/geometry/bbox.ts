@@ -2,12 +2,30 @@ import type {
   BBOX,
   BBox,
   BBox3D,
+  MValue,
+  VectorFeature,
+  VectorGeometry,
   VectorLineString,
   VectorMultiLineString,
   VectorMultiPolygon,
   VectorPoint,
   VectorPolygon,
 } from './index.js';
+
+/**
+ * Creates a bounding box from a vector geometry
+ * @param geometry - input geometry
+ * @returns - BBox of the geometry
+ */
+export function fromVectorGeometry<M extends MValue = MValue>(geometry: VectorGeometry<M>): BBOX {
+  if (geometry.type === 'Point') return fromPoint(geometry.coordinates);
+  else if (geometry.type === 'MultiPoint' || geometry.type === 'LineString')
+    return fromLineString(geometry.coordinates);
+  else if (geometry.type === 'MultiLineString') return fromMultiLineString(geometry.coordinates);
+  else if (geometry.type === 'Polygon') return fromPolygon(geometry.coordinates);
+  else if (geometry.type === 'MultiPolygon') return fromMultiPolygon(geometry.coordinates);
+  else throw new Error('Invalid geometry type');
+}
 
 /**
  * Creates a bounding box from a point
@@ -193,4 +211,31 @@ export function bboxArea(bbox: BBOX): number {
     res *= bbox[5] - bbox[4];
 
   return res;
+}
+
+/**
+ * Convert the bbox to a feature
+ * @param bbox - the bounding box
+ * @returns the vector feature
+ */
+export function bboxToFeature(bbox: BBOX): VectorFeature {
+  const [left, bottom, right, top] = bbox;
+  const store = { left, bottom, right, top };
+  return {
+    type: 'VectorFeature',
+    properties: { bbox: store },
+    geometry: {
+      type: 'Polygon',
+      is3D: false,
+      coordinates: [
+        [
+          { x: left, y: bottom },
+          { x: right, y: bottom },
+          { x: right, y: top },
+          { x: left, y: top },
+          { x: left, y: bottom },
+        ],
+      ],
+    },
+  };
 }

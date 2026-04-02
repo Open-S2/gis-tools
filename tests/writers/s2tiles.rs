@@ -33,7 +33,7 @@ mod tests {
             s2tiles_writer.commit(Metadata::default(), None);
 
             let buf_data = s2tiles_writer.writer().take();
-            assert_eq!(buf_data.len(), 216_407);
+            assert_eq!(buf_data.len(), 230_057);
             assert!(!buf_data.is_empty());
             let mut reader = S2TilesReader::new(BufferReader::new(buf_data), None);
             let metadata = reader.get_metadata().await;
@@ -73,7 +73,7 @@ mod tests {
 
             let end = s2tiles_writer.writer().len();
             let buf_data = s2tiles_writer.writer().slice(0, end);
-            assert_eq!(buf_data.len(), 215_564);
+            assert_eq!(buf_data.len(), 229_214);
             let mut reader = S2TilesReader::new(BufferReader::new(buf_data), None);
             let metadata = reader.get_metadata().await;
             assert_eq!(metadata, Metadata::default());

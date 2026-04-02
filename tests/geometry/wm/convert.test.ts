@@ -4,11 +4,11 @@ import {
   toS2,
   toUnitScale,
   toVector,
-} from '../../../src/geometry/wm/convert';
+} from '../../../src/geometry/wm/convert/index.js';
 
 import { expect, test } from 'bun:test';
 
-import type { Feature, VectorFeature } from '../../../src/geometry';
+import type { Feature, VectorFeature } from '../../../src/geometry/index.js';
 
 // toUnitScale
 

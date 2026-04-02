@@ -288,7 +288,7 @@ where
         let features: Vec<VectorFeature<M, P, D>> =
             convert(tile_store.projection, &data, Some(true), Some(true));
         features.into_iter().for_each(|feature| tile_store.add_feature(feature));
-        for i in 0..6 {
+        for i in 0..7 {
             tile_store.split_tile(CellId::from_face(i), None, None);
         }
 

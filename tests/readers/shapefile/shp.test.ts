@@ -1,13 +1,13 @@
-import { FileReader } from '../../../src/file';
-import { MMapReader } from '../../../src/mmap';
-import { buildServer } from '../../server';
+import { FileReader } from '../../../src/file.js';
+import { MMapReader } from '../../../src/mmap.js';
+import { buildServer } from '../../server.js';
 import {
   BufferReader,
   DataBaseFile,
   ShapeFileReader,
   shapefileFromGzip,
   shapefileFromURL,
-} from '../../../src';
+} from '../../../src/index.js';
 // import { fromPath } from '../../../src/readers/shapefile/file';
 import { expect, test } from 'bun:test';
 

@@ -1,4 +1,4 @@
-import { BufferTileWriter } from '../../src';
+import { BufferTileWriter } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('writers - BufferTileWriter', async () => {

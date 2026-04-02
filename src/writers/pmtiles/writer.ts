@@ -8,9 +8,9 @@ import {
 } from '../../readers/pmtiles/index.js';
 import { headerToBytes, serializeDir } from './pmtiles.js';
 
+import type { Metadata } from 's2-tilejson';
 import type { Entry, Header, S2Entries, S2Header, TileType } from '../../readers/pmtiles/index.js';
-import type { Face, Metadata } from 's2-tilejson';
-import type { TileWriter, Writer } from '../index.js';
+import type { Face, TileWriter, Writer } from '../../index.js';
 
 /**
  * # S2 PMTiles Writer
@@ -124,6 +124,7 @@ export class S2PMTilesWriter implements TileWriter {
    * @param face - If it exists, then we are storing S2 data
    */
   async writeTile(tileID: number, data: Uint8Array, face?: Face): Promise<void> {
+    if (face === 6) face = 0; // treat WM face as 0 with this spec
     // data = await compress(data, this.compression);
     const length = data.length;
     const tileEntries = face !== undefined ? this.#s2tileEntries[face] : this.#tileEntries;

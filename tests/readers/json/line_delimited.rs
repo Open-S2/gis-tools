@@ -10,7 +10,7 @@ mod tests {
         },
     };
     use s2json::{
-        BBox3D, MValue, MValueCompatible, Properties, VectorBaseGeometry, VectorFeature,
+        BBox3D, Face, MValue, MValueCompatible, Properties, VectorBaseGeometry, VectorFeature,
         VectorFeatureType, VectorGeometry, VectorGeometryType, VectorPoint,
     };
     use serde::{Deserialize, Serialize};
@@ -35,7 +35,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Melbourne".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -65,7 +65,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Canberra".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -95,7 +95,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Sydney".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -134,7 +134,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Melbourne".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -164,7 +164,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Canberra".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -194,7 +194,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Sydney".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -233,7 +233,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Melbourne".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -263,7 +263,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Canberra".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -293,7 +293,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { name: "Sydney".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -343,7 +343,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -367,7 +367,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::LineString(VectorBaseGeometry {
                         _type: VectorGeometryType::LineString,
@@ -396,7 +396,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Polygon(VectorBaseGeometry {
                         _type: VectorGeometryType::Polygon,
@@ -435,7 +435,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -459,7 +459,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::LineString(VectorBaseGeometry {
                         _type: VectorGeometryType::LineString,
@@ -488,7 +488,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Polygon(VectorBaseGeometry {
                         _type: VectorGeometryType::Polygon,
@@ -527,7 +527,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Point(VectorBaseGeometry {
                         _type: VectorGeometryType::Point,
@@ -551,7 +551,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::LineString(VectorBaseGeometry {
                         _type: VectorGeometryType::LineString,
@@ -580,7 +580,7 @@ mod tests {
                 VectorFeature {
                     _type: VectorFeatureType::VectorFeature,
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Test { prop0: "value0".into() },
                     geometry: VectorGeometry::Polygon(VectorBaseGeometry {
                         _type: VectorGeometryType::Polygon,

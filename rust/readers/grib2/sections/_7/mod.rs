@@ -1,3 +1,6 @@
+mod complex_unpacking;
+#[cfg(feature = "std")]
+mod jpeg2000;
 mod tables;
 mod templates;
 

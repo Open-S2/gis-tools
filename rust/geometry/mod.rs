@@ -8,6 +8,8 @@ pub mod predicates;
 pub mod s1;
 /// All S2 tooling
 pub mod s2;
+/// Tile based tools
+pub mod tile;
 /// Common geometry tools
 pub mod tools;
 /// All WM tooling
@@ -18,5 +20,6 @@ pub use ll::*;
 pub use predicates::*;
 pub use s1::*;
 pub use s2::*;
+pub use tile::*;
 pub use tools::*;
 pub use wm::*;

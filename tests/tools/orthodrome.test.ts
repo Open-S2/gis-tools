@@ -1,4 +1,4 @@
-import { Orthodrome } from '../../src';
+import { Orthodrome } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('orthodrome', () => {

@@ -1,3 +1,4 @@
+import { readGribInt } from '../index.js';
 import {
   grib2LookupTable51,
   grib2LookupTable54,
@@ -24,6 +25,8 @@ export function getGrib2Template5(template: number) {
       return grib2Template53;
     case 40:
       return grib2Template540;
+    case 41:
+      return grib2Template541;
     case 50:
       return grib2Template550;
     case 51:
@@ -334,6 +337,68 @@ export function grib2Template540(section: Reader) {
 }
 
 /**
+ * Data Representation Template 5.41
+ *
+ * Grid point data - Portable Network Graphics (PNG) Format
+ *
+ * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-41.shtml)
+ *
+ * NOTES:
+ * - (1) The intent of this template is to scale the grid point data to obtain desired precision,
+ *   if appropriate, and then subtract out reference value from the scaled field as is done using
+ *   Data Representation Template 5.0. After this, the resulting grid point field can be treated as
+ *   an image and is then encoded into the PNG format. To unpack the data field, the PNG stream is
+ *   decoded back into an image, and the original field is obtained from the image data as described
+ *   in regulation 92.9.4, Note (4).
+ * - (2) PNG does not support all bit-depths in an image, so it is necessary to define which depths
+ *   can be used and how they are to be treated. For grayscale images, PNG supports depths of
+ *   1, 2, 4, 8 or 16 bits. Red-Green-Blue (RGB) color images can have depths of 8 or 16 bits with
+ *   an optional alpha sample. Valid values for octet 20 can be:
+ *   - 1, 2, 4, 8, or 16 - treat as a grayscale image
+ *   - 24 - treat as RGB color image (each component having 8 bit depth)
+ *   - 32 - treat as RGB w/alpha sample color image (each component having 8 bit depth)
+ * - (3) The order of the data points should remain as specified in the scanning mode flags
+ *   (Flag Table 3.4) set in the appropriate Grid Definition Template, even though the PNG standard
+ *   specifies that an image is stored starting at the top left corner and scans across each row
+ *   from left to right starting with the top row. Users should set the image width to Ni (or Nx)
+ *   and the height to Nj (or Ny) if bit 3 of the scanning mode flag equals 0 (adjacent points in i
+ *   (x) order), when encoding the "image." If bit 3 of the scanning mode flags equals 1 (adjacent
+ *   points in j (y) order), it may be advantageous to set the image width to Nj (or Ny) and the
+ *   height to Ni (or Nx).
+ * - (4) This template should not be used when the data points are not available on a rectangular
+ *   grid, such as occurs if some data points are bit-mapped out or if section 3 describes a
+ *   quasi-regular grid. If it is necessary to use this template on such a grid, the data field can
+ *   be treated as a one dimensional image where the height is set to 1 and the width is set to the
+ *   total number of data points specified in octets 6-9.
+ * - (5) Negative values of E or D shall be represented according to Regulation 92.1.5.
+ * @param section - The raw section data to parse
+ * @returns - Parsed Data Representation Information
+ */
+export function grib2Template541(section: Reader) {
+  const originalType = section.getUint8(20);
+  let binaryScaleFactor = section.getUint16(15) & 0x7fff;
+  if (section.getUint16(15) >> 15 > 0) binaryScaleFactor *= -1;
+  let decimalScaleFactor = section.getUint16(17) & 0x7fff;
+  if (section.getUint16(17) >> 15 > 0) decimalScaleFactor *= -1;
+
+  return {
+    /** Reference value (R) (IEEE 32-bit floating-point value) */
+    referenceValue: section.getFloat32(11),
+    /** Binary scale factor (E) */
+    binaryScaleFactor,
+    /** Decimal scale factor (D) */
+    decimalScaleFactor,
+    /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
+    numberOfBits: section.getUint8(19),
+    /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
+    originalType: {
+      code: originalType,
+      description: grib2LookupTable51[originalType],
+    },
+  };
+}
+
+/**
  * # Data Representation Template 5.50 - Spectral data - simple packing
  *
  * [Read more...](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-50.shtml)
@@ -362,7 +427,7 @@ export function grib2Template550(section: Reader) {
     decimalScaleFactor,
     /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
     numberOfBits: section.getUint8(19),
-    /** Type of original field values (see Code [Table 5.1](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table5-1.shtml)) */
+    /** Real part of (0.0) coefficient (IEEE 32-bit floating-point value) */
     realPartCoefficientType: section.getFloat32(20),
   };
 }
@@ -400,13 +465,13 @@ export function grib2Template551(section: Reader) {
     /** Number of bits used for each packed value for simple packing, or for each group reference value for complex packing or spatial differencing */
     numberOfBits: section.getUint8(19),
     /** P ― Laplacian scaling factor (expressed in 10^-6 units) */
-    P: section.getFloat32(20),
+    P: readGribInt(section.getUint32(20)),
     /** Js ― pentagonal resolution parameter of the unpacked subset (see Note1) */
-    Js: section.getInt16(24),
+    Js: readGribInt(section.getUint16(24)),
     /** Ks ― pentagonal resolution parameter of the unpacked subset (see Note1) */
-    Ks: section.getInt16(26),
+    Ks: readGribInt(section.getUint16(26)),
     /** Ms ― pentagonal resolution parameter of the unpacked subset (see Note1) */
-    Ms: section.getInt16(28),
+    Ms: readGribInt(section.getUint16(28)),
     /** Ts ― total number of values in the unpacked subset (see Note1) */
     Ts: section.getInt32(30),
     /** Precision of the unpacked subset (see Code Table 5.7) */

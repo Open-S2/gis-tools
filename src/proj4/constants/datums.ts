@@ -1,4 +1,4 @@
-import type { DatumParams } from 'gis-tools/readers/index.js';
+import type { DatumParams } from '../../index.js';
 
 /** Description of a WGS84 datum */
 export interface ToWGS84Datum {

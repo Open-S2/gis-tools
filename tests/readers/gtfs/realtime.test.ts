@@ -1,4 +1,4 @@
-import { GTFSRealtimeReader } from '../../../src';
+import { GTFSRealtimeReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('vehicle position', async () => {

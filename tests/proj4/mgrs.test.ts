@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { mgrsForward, mgrsGetLetterDesignator, mgrsInverse, mgrsToPoint } from '../../src';
+import { mgrsForward, mgrsGetLetterDesignator, mgrsInverse, mgrsToPoint } from '../../src/index.js';
 
 describe('First MGRS set', () => {
   const mgrsStr = '33UXP04';

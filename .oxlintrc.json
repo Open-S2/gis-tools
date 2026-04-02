@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "jsdoc"],
+  "extends": ["./node_modules/@ogs-gmbh/oxlint-presets/jsdoc-recommended.json"],
   "categories": {
     "correctness": "off"
   },

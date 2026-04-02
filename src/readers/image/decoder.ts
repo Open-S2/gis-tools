@@ -15,7 +15,11 @@ export interface DecodeOptions {
  * @returns - the decoded buffer
  */
 export async function imageDecoder(
-  buffer: ArrayBufferLike | Uint8Array | Buffer,
+  buffer:
+    | ArrayBufferLike
+    | Uint8Array<ArrayBufferLike>
+    | Uint8ClampedArray<ArrayBufferLike>
+    | Buffer<ArrayBufferLike>,
   options?: DecodeOptions,
 ): Promise<ImageData> {
   const blob = new Blob([buffer as ArrayBuffer]); // e.g. { type: 'image/png' }

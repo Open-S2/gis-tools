@@ -1,4 +1,4 @@
-import { invjday } from '../../src';
+import { invjday } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('invjday', () => {

@@ -1,4 +1,4 @@
-import '../../../src/util/polyfills/image';
+import '../../../src/util/polyfills/image.js';
 import { expect, test } from 'bun:test';
 
 import sharp from 'sharp';

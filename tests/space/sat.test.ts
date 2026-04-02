@@ -1,6 +1,8 @@
-import { Classification, Satellite, convertCelestrak } from '../../src';
+import { Satellite, convertCelestrak } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 import { propagate, sgp4, twoline2satrec } from 'satellite.js';
+
+import type { Classification } from '../../src/index.js';
 
 test('Parse 3 line TLE', () => {
   const tle = `0 VANGUARD 1
@@ -332,7 +334,7 @@ test('Check data/feb17.tle.txt matches satellite.js', async () => {
     const satProp = sat.propagate(date);
     if ('error' in satProp) continue;
     const satrecProp = propagate(satrec, date);
-    expect(satProp.position).toEqual(satrecProp.position);
-    expect(satProp.velocity).toEqual(satrecProp.velocity);
+    expect(satProp.position).toEqual(satrecProp!.position);
+    expect(satProp.velocity).toEqual(satrecProp!.velocity);
   }
 });

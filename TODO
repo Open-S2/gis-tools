@@ -17,14 +17,29 @@
 
 [ ] - translations [BCP-47 language code] [ISO 639-1 language code]
 
-[ ] - GRIB2 WAVES parsing is incomplete
-
 [ ] - PointCluster doesn't work for Typescript version IFF using filesystem because "visited" isn't updated
 
 [ ] - Typescript externalSort needs to be updated to match Rusts (value offset needs to be a u64)
 
 [ ] - In Typescript, fix point_index to work the same as rust (it fixed Projection WG)
 
-[ ] - expand pointGrid store to mutate the points to polygons and lines (like raster/vector hillshade or contour-lines / elevation-lines) [Use my hull algo]
-[ ] - - Isobands (marching squares / contour-lines)
-[ ] - - hillshade
+---
+
+[ ] - RUST + TS: s2TilesFrom(geometry) tests
+
+---
+
+[ ] - Builder for time series that takes input collection of data and builds a time series tileset
+
+---
+
+Planet calculations (position relative to place on earth and time)
+
+---
+
+Writers
+
+- [ ] SVG
+- [ ] XML
+
+- [ ] LAS

@@ -64,7 +64,7 @@ mod tests {
 
         // validate
         let writer_str: String = String::from_utf8_lossy(&writer.take()).into();
-        let expected = r#"{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Melbourne"},"geometry":{"type":"Point","coordinates":[144.9584,-37.8173],"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},{"type":"Feature","properties":{"name":"Canberra"},"geometry":{"type":"Point","coordinates":[149.1009,-35.3039],"bbox":[149.1009,-35.3039,149.1009,-35.3039]}},{"type":"Feature","properties":{"name":"Sydney"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766],"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}],"faces":[0],"bbox":"[144.9584,-37.8173,151.2144,-33.8766,1.7976931348623157e+308,-1.7976931348623157e+308]"}"#;
+        let expected = r#"{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Melbourne"},"geometry":{"type":"Point","coordinates":[144.9584,-37.8173],"bbox":[144.9584,-37.8173,144.9584,-37.8173]}},{"type":"Feature","properties":{"name":"Canberra"},"geometry":{"type":"Point","coordinates":[149.1009,-35.3039],"bbox":[149.1009,-35.3039,149.1009,-35.3039]}},{"type":"Feature","properties":{"name":"Sydney"},"geometry":{"type":"Point","coordinates":[151.2144,-33.8766],"bbox":[151.2144,-33.8766,151.2144,-33.8766]}}],"faces":[6],"bbox":"[144.9584,-37.8173,151.2144,-33.8766,1.7976931348623157e+308,-1.7976931348623157e+308]"}"#;
         assert_eq!(remove_newlines_and_tabs(&writer_str), remove_newlines_and_tabs(expected));
     }
 
@@ -83,7 +83,7 @@ mod tests {
         let mut writer = BufferWriter::default();
 
         // write
-        to_jsonld(&mut writer, vec![&reader], None);
+        to_jsonld(&mut writer, vec![&reader], None, None);
 
         // validate
         let writer_str: String = String::from_utf8_lossy(&writer.take()).into();
@@ -114,6 +114,7 @@ mod tests {
                 geojson: Some(true),
                 ..Default::default()
             }),
+            None,
         );
 
         // validate

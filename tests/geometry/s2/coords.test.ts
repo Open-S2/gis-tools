@@ -25,7 +25,7 @@ import {
   tileXYFromSTZoom,
   tileXYFromUVZoom,
   xyzToLonLat,
-} from '../../../src/geometry/s2/coords';
+} from '../../../src/geometry/s2/coords.js';
 import { describe, expect, it } from 'bun:test';
 
 describe('IJtoST', () => {

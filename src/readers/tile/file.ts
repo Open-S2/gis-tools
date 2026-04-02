@@ -9,16 +9,12 @@ import {
   pxToTile,
   tileXYFromSTZoom,
 } from '../../index.js';
+import { buildTileGridWM, mergeTileGridWM } from './grid.js';
 import { readFile, readdir, stat } from 'fs/promises';
 
 import type {
   ElevationConverter,
   ElevationPoint,
-  S2TileMetadata,
-  TileMetadata,
-  TileReader,
-} from './index.js';
-import type {
   Face,
   FeatureIterator,
   MValue,
@@ -26,7 +22,12 @@ import type {
   RGBA,
   S2Feature,
   S2PMTilesReader,
+  S2TileID,
+  S2TilesReader,
+  TileID,
+  TileReader,
   VectorFeature,
+  WMTileID,
 } from '../../index.js';
 import type { Metadata, Metadatas } from 's2-tilejson';
 
@@ -77,9 +78,7 @@ export class RasterTilesFileReader<
   T extends MValue = RGBA | ElevationPoint,
   P extends Properties = T,
 >
-  implements
-    FeatureIterator<S2TileMetadata | TileMetadata, T, P>,
-    TileReader<S2TileMetadata | TileMetadata, T, P>
+  implements FeatureIterator<TileID, T, P>, TileReader<TileID, T, P>
 {
   metadata?: Metadata;
   /**
@@ -88,7 +87,7 @@ export class RasterTilesFileReader<
    * @param converter - the elevation converter
    */
   constructor(
-    readonly input: string | S2PMTilesReader,
+    readonly input: string | S2PMTilesReader | S2TilesReader,
     readonly threshold = -1,
     readonly converter?: ElevationConverter,
   ) {}
@@ -121,7 +120,7 @@ export class RasterTilesFileReader<
     const data =
       typeof this.input === 'string'
         ? await readFile(`${this.input}/${zoom}/${x}/${y}.${extension}`)
-        : await this.input.getTile(zoom, x, y);
+        : await this.input.getTileWM(zoom, x, y);
     if (data === undefined) return undefined;
     const imageData = await imageDecoder(data, { modulo: 256 });
     return new RasterTileReader<T, P>(zoom, x, y, imageData, isTMS, this.converter);
@@ -164,7 +163,7 @@ export class RasterTilesFileReader<
       const stats = await stat(`${this.input}/${zoom}/${x}/${y}.${extension}`);
       return stats.isFile();
     } else {
-      return await this.input.hasTile(zoom, x, y);
+      return await this.input.hasTileWM(zoom, x, y);
     }
   }
 
@@ -184,6 +183,54 @@ export class RasterTilesFileReader<
     } else {
       return await this.input.hasTileS2(face, zoom, x, y);
     }
+  }
+
+  /**
+   * Grab the tile at the given zoom-x-y coordinates.
+   *
+   * This function adds the ability to pull from surrounding images and add them as padding
+   *
+   * This function is also useful for just expanding the zoom level up. So if the image is 256x256,
+   * you can use this function to get a 512x512 image
+   * @param zoom - the zoom level of the tile
+   * @param x - the x coordinate of the tile
+   * @param y - the y coordinate of the tile
+   * @param padding - the amount of padding to add to each side of the tile
+   * @param size - the size of each tile width and height.
+   * @param wantedSize - the size of the rendered center tile. For example if you want a 512x512 tile, but the source is 256x256, you can set this to 512.
+   * @returns - the tile
+   */
+  async getTileWithPaddingWM(
+    zoom: number,
+    x: number,
+    y: number,
+    padding: number,
+    size = 512,
+    wantedSize = size,
+  ): Promise<RasterTileReader<T> | undefined> {
+    const { scheme } = await this.getMetadata();
+    const isTMS = scheme === 'tms';
+    // Setup a grid
+    const grid = buildTileGridWM({ zoom, x, y }, padding, size, wantedSize, isTMS);
+    // track the tiles we've already fetched so we don't keep fetching
+    const fetchMap = new Map<string, ImageData>();
+    for (const tileGuide of grid) {
+      const { zoom, x, y } = tileGuide.tile;
+      const key = `${zoom}/${x}/${y}`;
+      const image = fetchMap.get(key);
+      if (image !== undefined) {
+        tileGuide.image = image;
+        continue;
+      }
+      const tile = await this.getTileWM(zoom, x, y);
+      if (tile === undefined) continue;
+      fetchMap.set(key, tile.image);
+      tileGuide.image = tile.image;
+    }
+    // Now merge the images into a single image
+    const merged: ImageData = mergeTileGridWM(grid, wantedSize, padding);
+
+    return new RasterTileReader<T>(zoom, x, y, merged, isTMS, this.converter);
   }
 
   /**
@@ -270,12 +317,35 @@ export class RasterTilesFileReader<
   }
 
   /**
+   * Iterate over all the tiles in the tileset and yield their positions
+   * @returns - an iterator over all the tiles in the tileset
+   * @yields - the metadata of each tile
+   */
+  async *iterate(): AsyncGenerator<TileID> {
+    // iterate down from min zoom. Upon reaching maxzoom store all pixels
+    const { scheme, maxzoom } = await this.getMetadata();
+    const zoom = this.threshold >= 0 ? this.threshold : maxzoom;
+    const isS2 = scheme === 'fzxy' || scheme === 'tfzxy';
+    for (const face of (isS2 ? [0, 1, 2, 3, 4, 5] : [0]) as Face[]) {
+      const xPath = isS2 ? `${this.input}/${face}/${zoom}` : `${this.input}/${zoom}`;
+      for (const x of await readdir(xPath)) {
+        const yPath = `${xPath}/${x}`;
+        const xNumber = Number(x);
+        for (const y of await readdir(yPath)) {
+          const yNumber = Number(y.split('.')[0]);
+          yield isS2 ? { face, zoom, x: xNumber, y: yNumber } : { zoom, x: xNumber, y: yNumber };
+        }
+      }
+    }
+  }
+
+  /**
    * Iterate over all tiles in the archive
-   * @yields {S2Feature<S2TileMetadata, T, P> | VectorFeature<TileMetadata, T, P>} the each of the
+   * @yields {S2Feature<S2TileID, T, P> | VectorFeature<WMTileID, T, P>} the each of the
    * tile's pixel RGBA data as lon-lat or S2 s-t coordinates with the RGBA as m-values
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<
-    S2Feature<S2TileMetadata, T, P> | VectorFeature<TileMetadata, T, P>
+    S2Feature<S2TileID, T, P> | VectorFeature<WMTileID, T, P>
   > {
     // iterate down from min zoom. Upon reaching maxzoom store all pixels
     const { scheme, maxzoom } = await this.getMetadata();

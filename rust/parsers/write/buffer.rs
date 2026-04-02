@@ -21,6 +21,9 @@ impl BufferWriter {
     }
 }
 impl Writer for BufferWriter {
+    fn tell(&mut self) -> u64 {
+        self.buffer.len() as u64
+    }
     fn offset(&mut self) -> u64 {
         self.buffer.len() as u64
     }

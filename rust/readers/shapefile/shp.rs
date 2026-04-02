@@ -6,8 +6,8 @@ use crate::{
 use alloc::{vec, vec::Vec};
 use core::marker::PhantomData;
 use s2json::{
-    BBox3D, MValue, MValueCompatible, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
-    VectorGeometryType, VectorLineString, VectorMultiLineString, VectorMultiPoint,
+    BBox3D, Face, MValue, MValueCompatible, Properties, VectorFeature, VectorFeatureType,
+    VectorGeometry, VectorGeometryType, VectorLineString, VectorMultiLineString, VectorMultiPoint,
     VectorMultiPointGeometry, VectorPoint, VectorPointGeometry,
 };
 
@@ -176,7 +176,7 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         Some(VectorFeature {
             id: Some(id),
             _type: VectorFeatureType::VectorFeature,
-            face: 0.into(),
+            face: Face::WM,
             properties,
             geometry: geometry.unwrap(),
             metadata: None,

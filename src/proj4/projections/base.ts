@@ -64,7 +64,7 @@ export interface ProjectionParams {
 export class ProjectionBase implements ProjectionTransform {
   name = 'longlat';
   projName?: string;
-  static names: string[] = ['longlat', 'identity'];
+  static names: string[] = ['longlat', 'latlong', 'identity'];
   datumCode = 'none';
   datumType = PJD_NODATUM;
   datumParams: DatumParams = [0, 0, 0, 0, 0, 0, 0];

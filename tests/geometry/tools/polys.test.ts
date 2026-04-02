@@ -9,7 +9,7 @@ import {
   polygonsArea,
   polygonsIntersections,
   toVector,
-} from '../../../src';
+} from '../../../src/index.js';
 import { describe, expect, test } from 'bun:test';
 
 import type {
@@ -459,7 +459,7 @@ describe('cleanPolygon', () => {
       ],
     ];
 
-    const cleaned = cleanPolygon(polygonFeature);
+    const cleaned = cleanPolygon(polygonFeature, undefined, undefined, false);
     expect(cleaned).toEqual({
       bbox: [0, 0, 2, 2],
       coordinates: [
@@ -644,7 +644,7 @@ describe('cleanPolygons', () => {
       ],
     ];
 
-    const cleaned = cleanPolygon(polygonFeature, true);
+    const cleaned = cleanPolygon(polygonFeature, true, undefined, false);
     expect(cleaned).toEqual({
       bbox: [0, 0, 2, 2],
       coordinates: [

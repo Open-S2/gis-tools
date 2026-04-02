@@ -9,7 +9,7 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorPoint,
+    BBox3D, Face, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorPoint,
 };
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +35,7 @@ impl IntermediateNode {
         let bbox = if add_bbox { Some(BBox3D::from_point(&coordinates)) } else { None };
         VectorFeature {
             id: Some(self.id),
-            face: 0.into(),
+            face: Face::WM,
             _type: VectorFeatureType::VectorFeature,
             properties: self.properties.clone(),
             geometry: VectorGeometry::new_point(coordinates, bbox),

@@ -1,4 +1,4 @@
-import { cleanPolygons, convert, polygonsUnion, vectorToFlat } from '../../../src';
+import { cleanPolygons, convert, polygonsUnion, vectorToFlat } from '../../../src/index.js';
 import { describe, expect, test } from 'bun:test';
 
 import type {

@@ -29,9 +29,9 @@ import {
   pointToS2CellID,
   pointToST,
   pointToUV,
-} from '../../../src/geometry/s2/point';
+} from '../../../src/geometry/s2/point.js';
 
-import type { VectorPoint } from '../../../src/geometry';
+import type { VectorPoint } from '../../../src/geometry/index.js';
 
 describe('pointAddScalar', (): void => {
   it('should add 1 to each component of an XYZ point', (): void => {

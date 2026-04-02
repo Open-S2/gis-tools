@@ -21,14 +21,14 @@ pub struct DBFHeader {
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct DBFRow {
     /// The name of the row
-    name: String,
+    pub name: String,
     /// The data type of the row
-    data_type: char,
+    pub data_type: char,
     /// The length of the row
-    len: u64,
+    pub len: u64,
     /// The decimal places of the row
     #[allow(dead_code)]
-    decimal: u64,
+    pub decimal: u64,
 }
 
 /// # Database File

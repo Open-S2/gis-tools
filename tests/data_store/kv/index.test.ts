@@ -1,4 +1,4 @@
-import { KV } from '../../../src';
+import { KV } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('KV - local', async () => {

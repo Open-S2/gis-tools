@@ -1,4 +1,4 @@
-import { MultiMap } from '../../../src';
+import { MultiMap } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('MultiMap', async () => {

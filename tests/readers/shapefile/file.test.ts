@@ -1,5 +1,5 @@
-import { LambertConformalConic } from '../../../src';
-import { shapefileFromPath } from '../../../src/file';
+import { LambertConformalConic } from '../../../src/index.js';
+import { shapefileFromPath } from '../../../src/file.js';
 import { expect, test } from 'bun:test';
 
 test('shapefileFromPath', async () => {

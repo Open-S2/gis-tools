@@ -153,9 +153,9 @@ mod tests {
             },
         );
 
-        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
-        assert_eq!(face_0_tile.len(), 1);
-        let default_layer = face_0_tile.layers.get("default").unwrap();
+        let face_wm_tile = tile_store.get_tile(S2CellId::from_face(6)).unwrap();
+        assert_eq!(face_wm_tile.len(), 1);
+        let default_layer = face_wm_tile.layers.get("default").unwrap();
         assert_eq!(default_layer.features.len(), 4);
 
         assert_eq!(
@@ -164,7 +164,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: MValue::from([("a".into(), 1_u64.into())]),
                     geometry: VectorGeometry::Point(VectorPointGeometry {
                         _type: "Point".into(),
@@ -195,7 +195,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: MValue::from([("b".into(), 2_u64.into())]),
                     geometry: VectorGeometry::Point(VectorPointGeometry {
                         _type: "Point".into(),
@@ -232,7 +232,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: MValue::from([("c".into(), 3_u64.into())]),
                     geometry: VectorGeometry::MultiPoint(VectorMultiPointGeometry {
                         _type: "MultiPoint".into(),
@@ -278,7 +278,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: MValue::from([("d".into(), 4_u64.into())]),
                     geometry: VectorGeometry::MultiPoint(VectorMultiPointGeometry {
                         _type: "MultiPoint".into(),
@@ -324,7 +324,7 @@ mod tests {
             ]
         );
 
-        let children = face_0_tile.id.children(None);
+        let children = face_wm_tile.id.children(None);
 
         let zero_child = children[0];
         let zero_child_tile = tile_store.get_tile(zero_child).unwrap();
@@ -481,9 +481,9 @@ mod tests {
             TileStoreOptions { projection: Some(Projection::WG), ..Default::default() },
         );
 
-        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
-        assert_eq!(face_0_tile.len(), 1);
-        let default_layer = face_0_tile.layers.get("default").unwrap();
+        let face_wm_tile = tile_store.get_tile(S2CellId::from_face(6)).unwrap();
+        assert_eq!(face_wm_tile.len(), 1);
+        let default_layer = face_wm_tile.layers.get("default").unwrap();
         assert_eq!(default_layer.features.len(), 2);
 
         // [], []], offset: None, bbox: None, vec_bbox: Some(BBox3D { left: 0.8570480773242899, bottom: 0.3240121995384903, right: 0.9616044260522347, top: 0.7712879476591746, near: -1.0, far: 8.0 }), indices: None, tessellation: None }), metadata: None }]
@@ -494,7 +494,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::LineString(VectorLineStringGeometry {
                         _type: "LineString".into(),
@@ -554,7 +554,7 @@ mod tests {
                 VectorFeature {
                     _type: "VectorFeature".into(),
                     id: None,
-                    face: 0.into(),
+                    face: Face::WM,
                     properties: Map::default(),
                     geometry: VectorGeometry::MultiLineString(VectorMultiLineStringGeometry {
                         _type: "MultiLineString".into(),
@@ -673,9 +673,9 @@ mod tests {
             TileStoreOptions { projection: Some(Projection::WG), ..Default::default() },
         );
 
-        let face_0_tile = tile_store.get_tile(S2CellId::from_face(0)).unwrap();
-        assert_eq!(face_0_tile.len(), 1);
-        let default_layer = face_0_tile.layers.get("default").unwrap();
+        let face_wm_tile = tile_store.get_tile(S2CellId::from_face(6)).unwrap();
+        assert_eq!(face_wm_tile.len(), 1);
+        let default_layer = face_wm_tile.layers.get("default").unwrap();
         assert_eq!(default_layer.features.len(), 1);
 
         assert_eq!(
@@ -683,7 +683,7 @@ mod tests {
             vec![VectorFeature {
                 _type: "VectorFeature".into(),
                 id: None,
-                face: 0.into(),
+                face: Face::WM,
                 properties: Map::default(),
                 geometry: VectorGeometry::MultiPolygon(VectorMultiPolygonGeometry {
                     _type: "MultiPolygon".into(),

@@ -4,6 +4,7 @@ import { grib2LookupTable31 } from './tables.js';
 import type { Reader } from '../../../index.js';
 
 export * from './tables.js';
+export * from './templates.js';
 
 /** The output of `parseGrib2Section3` */
 export type GridDefinitionSection = ReturnType<typeof parseGrib2Section3>;

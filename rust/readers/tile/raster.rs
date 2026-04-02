@@ -1,13 +1,15 @@
 use super::{
-    GetRasterTileValue, S2TileMetadata, TileFetcher, TileMetadata, TileReader, WMTileMetadata,
+    GetRasterTileValue, TileFetcher, TileID, TileReader,
+    grid::{build_tile_grid_wm, merge_tile_grid_wm},
 };
 use crate::{
     geometry::{
-        S2Point, Source, ll_to_px, merc_to_ll, px_to_tile, tile_xy_from_st_zoom, xyz_to_bbox,
+        GetTileID, S2Point, S2TileID, Source, WMTileID, ll_to_px, merc_to_ll, px_to_tile,
+        tile_xy_from_st_zoom, xyz_to_bbox,
     },
-    parsers::FeatureReader,
+    parsers::{FeatureReader, ImageData},
 };
-use alloc::{format, string::String, vec, vec::Vec};
+use alloc::{format, rc::Rc, string::String, vec, vec::Vec};
 use core::marker::PhantomData;
 use image::RgbaImage;
 use libm::{floor, pow};
@@ -17,6 +19,7 @@ use s2json::{
     VectorMultiPoint, VectorPoint,
 };
 use std::{
+    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -39,6 +42,7 @@ use std::{
 /// - [`RasterTileFetcher::has_tile_s2`]: Check if it is S2 tile
 /// - [`RasterTileFetcher::get_tile_wm`]: Get an WM tile
 /// - [`RasterTileFetcher::get_tile_s2`]: Get an S2 tile
+/// - [`RasterTileFetcher::get_tile_with_padding_wm`]: Get an WM tile with pixel padding (added from adjacent tiles if applicable & available)
 /// - [`RasterTileFetcher::iter`]: Iterate over the tiles
 ///
 /// ```rust
@@ -63,6 +67,76 @@ pub struct RasterTileFetcher<D: Clone + Default + GetRasterTileValue> {
     threshold: Option<u8>,
     metadata: Metadata,
     phantom: PhantomData<D>,
+}
+impl<D: Clone + Default + GetRasterTileValue> RasterTileFetcher<D> {
+    /// Grab the tile at the given zoom-x-y coordinates.
+    ///
+    /// This function adds the ability to pull from surrounding images and add them as padding
+    ///
+    /// This function is also useful for just expanding the zoom level up. So if the image is 256x256,
+    /// you can use this function to get a 512x512 image
+    ///
+    /// ## Parameters
+    /// - `zoom`: the zoom level of the tile
+    /// - `x`: the x coordinate of the tile
+    /// - `y`: the y coordinate of the tile
+    /// - `padding`: the amount of padding to add to each side of the tile
+    /// - `size`: the size of each tile width and height.
+    /// - `wanted_size`: the size of the rendered center tile. For example if you want a 512x512 tile, but the source is 256x256, you can set this to 512.
+    ///
+    /// ## Returns
+    /// The tile with the added padding
+    pub fn get_tile_with_padding_wm(
+        &self,
+        zoom: u8,
+        x: u32,
+        y: u32,
+        padding: usize,
+        size: Option<usize>,
+        wanted_size: Option<usize>,
+    ) -> Option<RasterTileReader<D>> {
+        let size = size.unwrap_or(512);
+        let wanted_size = wanted_size.unwrap_or(size);
+        let metadata = self.get_metadata();
+        let Metadata { scheme, .. } = metadata;
+        let is_tms = *scheme == Scheme::Tms;
+        let tile: TileID = (WMTileID { zoom, x, y }).into();
+        // Setup a grid
+        let mut grid = build_tile_grid_wm(&tile, padding, size, wanted_size, is_tms);
+        if grid.is_empty() {
+            return None;
+        }
+        // track the tiles we've already fetched so we don't keep fetching
+        let mut fetch_map = BTreeMap::<TileID, Rc<ImageData>>::new();
+        for tile_guide in grid.iter_mut() {
+            // if the tile has already been fetched, skip
+            if tile_guide.image.is_some() {
+                continue;
+            }
+            // if we have the tile in the cache, use it
+            if let Some(image) = fetch_map.get(&tile_guide.tile) {
+                tile_guide.image = Some(image.clone());
+                continue;
+            }
+            // last case: fetch the tile
+            let tile =
+                self.get_tile_wm(tile_guide.tile.zoom(), tile_guide.tile.x(), tile_guide.tile.y());
+            let Some(tile_image) = &tile.image else { continue };
+            let image: Rc<ImageData> = Rc::new(tile_image.into());
+            fetch_map.insert(tile_guide.tile, image.clone());
+            tile_guide.image = Some(image);
+        }
+        // Now merge the images into a single image
+        let merged = merge_tile_grid_wm(&grid, wanted_size, padding);
+
+        Some(RasterTileReader::<D> {
+            metadata: tile,
+            image: Some((&merged).into()),
+            is_s2: self.is_s2(),
+            tms_style: is_tms,
+            _phantom: PhantomData,
+        })
+    }
 }
 impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader<D>>
     for RasterTileFetcher<D>
@@ -116,6 +190,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader
         let (tile_x, tile_y) = px_to_tile(&Point(x, y), Some(tile_size));
         // get the tile
         let tile = self.get_tile_wm(zoom, tile_x as u32, tile_y as u32);
+        let Some(tile_image) = &tile.image else { return None };
         // get the pixel
         let local_x = modulo(x, tile_size_f64);
         let local_y = modulo(y, tile_size_f64);
@@ -123,7 +198,7 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader
         // If TMS style, invert the y position
         let pixel_y =
             if tile.tms_style { floor(tile_size_f64 - 1.0 - local_y) } else { floor(local_y) };
-        let pixel = tile.image.get_pixel(pixel_x as u32, pixel_y as u32);
+        let pixel = tile_image.get_pixel(pixel_x as u32, pixel_y as u32);
 
         Some(D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3])))
     }
@@ -138,18 +213,17 @@ impl<D: Clone + Default + GetRasterTileValue> TileFetcher<D, D, RasterTileReader
         let (tile_x, tile_y) = tile_xy_from_st_zoom(s, t, zoom);
         // get the tile
         let tile = self.get_tile_s2(face.into(), zoom, tile_x as u32, tile_y as u32);
+        let Some(tile_image) = &tile.image else { return None };
         // get the pixel
         let zoom_size = tile_size_f64 * pow(2., zoom_f64);
         let pixel_x = floor(modulo(zoom_size * s, tile_size_f64));
         let pixel_y = floor(modulo(zoom_size * t, tile_size_f64));
-        let pixel = tile.image.get_pixel(pixel_x as u32, pixel_y as u32);
+        let pixel = tile_image.get_pixel(pixel_x as u32, pixel_y as u32);
 
         Some(D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3])))
     }
 }
-impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, D, D>
-    for RasterTileFetcher<D>
-{
+impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileID, D, D> for RasterTileFetcher<D> {
     type FeatureIterator<'a>
         = RasterIterator<'a, D>
     where
@@ -197,7 +271,7 @@ impl<D: Clone + Default + GetRasterTileValue> FeatureReader<TileMetadata, D, D>
     }
 }
 
-/// Iterator for the S2 Raster Tile Fetcher
+/// Iterator for the S2/WM Raster Tile Fetcher
 #[derive(Debug)]
 pub struct RasterIterator<'a, D: Clone + Default + GetRasterTileValue> {
     container: &'a RasterTileFetcher<D>,
@@ -209,7 +283,7 @@ pub struct RasterIterator<'a, D: Clone + Default + GetRasterTileValue> {
     index: u64,
 }
 impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D> {
-    type Item = VectorFeature<TileMetadata, D, D>;
+    type Item = VectorFeature<TileID, D, D>;
     fn next(&mut self) -> Option<Self::Item> {
         let is_s2 = self.container.is_s2();
         while let Some((face, zoom, x, y)) = self.stack.pop() {
@@ -245,13 +319,62 @@ impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterIterator<'_, D>
     }
 }
 
+/// Iterator for the S2/WM Raster Tile Fetcher
+#[derive(Debug)]
+pub struct RasterMetadataIterator<'a, D: Clone + Default + GetRasterTileValue> {
+    container: &'a RasterTileFetcher<D>,
+    stack: Vec<(Face, u8, u32, u32)>,
+    minzoom: u8,
+    threshold: u8,
+    pool_size: u64,
+    thread_id: u64,
+    index: u64,
+}
+impl<D: Clone + Default + GetRasterTileValue> Iterator for RasterMetadataIterator<'_, D> {
+    type Item = TileID;
+    fn next(&mut self) -> Option<Self::Item> {
+        let is_s2 = self.container.is_s2();
+        while let Some((face, zoom, x, y)) = self.stack.pop() {
+            // check the tile exists
+            let has_tile = if is_s2 {
+                self.container.has_tile_s2(face, zoom, x, y)
+            } else {
+                self.container.has_tile_wm(zoom, x, y)
+            };
+            // add next zoom if max zoom not reached yet
+            if zoom < self.minzoom || (zoom != self.threshold && has_tile) {
+                self.stack.extend(vec![
+                    (face, zoom + 1, x * 2, y * 2),
+                    (face, zoom + 1, x * 2 + 1, y * 2),
+                    (face, zoom + 1, x * 2, y * 2 + 1),
+                    (face, zoom + 1, x * 2 + 1, y * 2 + 1),
+                ]);
+            }
+            // if tile exists, return the metadata for it
+            if has_tile {
+                let idx = self.index;
+                self.index += 1;
+                if self.pool_size > 1 && idx % self.pool_size != self.thread_id {
+                    continue; // skip, belongs to another thread
+                }
+                return Some(if is_s2 {
+                    (S2TileID { face, zoom, x, y }).into()
+                } else {
+                    WMTileID { zoom, x, y }.into()
+                });
+            }
+        }
+        None
+    }
+}
+
 /// Raster Tile Reader
 #[derive(Debug)]
 pub struct RasterTileReader<D: Clone + Default + GetRasterTileValue> {
     /// Tile Metadata
-    pub metadata: TileMetadata,
+    pub metadata: TileID,
     /// Tile Image
-    pub image: RgbaImage,
+    pub image: Option<RgbaImage>,
     /// If the tile is S2 or WM
     pub is_s2: bool,
     /// Tile's scheme is TMS
@@ -275,11 +398,15 @@ impl<D: Clone + Default + GetRasterTileValue> TileReader<D, D> for RasterTileRea
         } else {
             path.join(format!("{zoom}/{x}/{y}.{extension}"))
         };
-        let image = image::open(&tile_path).unwrap().to_rgba8();
-        let metadata = if is_s2 {
-            TileMetadata::S2(S2TileMetadata { face, zoom, x, y })
+        let image = if !tile_path.exists() {
+            None
         } else {
-            TileMetadata::WM(super::WMTileMetadata { zoom, x, y })
+            Some(image::open(&tile_path).unwrap().to_rgba8())
+        };
+        let metadata = if is_s2 {
+            (S2TileID { face, zoom, x, y }).into()
+        } else {
+            (WMTileID { zoom, x, y }).into()
         };
 
         RasterTileReader {
@@ -291,17 +418,18 @@ impl<D: Clone + Default + GetRasterTileValue> TileReader<D, D> for RasterTileRea
         }
     }
 
-    fn build_feature(&self) -> VectorFeature<TileMetadata, D, D> {
+    fn build_feature(&self) -> VectorFeature<TileID, D, D> {
         match &self.metadata {
-            TileMetadata::S2(s2) => self.build_feature_s2(s2),
-            TileMetadata::WM(wm) => self.build_feature_wm(wm),
+            TileID::S2(s2) => self.build_feature_s2(s2),
+            TileID::WM(wm) => self.build_feature_wm(wm),
         }
     }
 }
 impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
-    fn build_feature_s2(&self, metadata: &S2TileMetadata) -> VectorFeature<TileMetadata, D, D> {
-        let S2TileMetadata { x, y, zoom, face } = metadata;
-        let tile_size = self.image.width() as usize;
+    fn build_feature_s2(&self, metadata: &S2TileID) -> VectorFeature<TileID, D, D> {
+        let S2TileID { x, y, zoom, face } = metadata;
+        let image = self.image.as_ref().unwrap();
+        let tile_size = image.width() as usize;
         let mut bbox = BBox3D::default();
         // Get the bounding box of the tile in lon-lat
         let BBox { left: min_s, bottom: min_t, right: max_s, top: max_t } =
@@ -314,7 +442,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
             let y = min_s + ((py as f64) + 0.5) * t_step; // Center of the row
             for px in 0..tile_size {
                 let x = min_t + ((px as f64) + 0.5) * s_step; // Center of the column
-                let pixel = self.image.get_pixel(px as u32, py as u32);
+                let pixel = image.get_pixel(px as u32, py as u32);
                 let m_value =
                     D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3]));
 
@@ -333,9 +461,10 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
         }
     }
 
-    fn build_feature_wm(&self, metadata: &WMTileMetadata) -> VectorFeature<TileMetadata, D, D> {
-        let WMTileMetadata { x, y, zoom } = metadata;
-        let tile_size = self.image.width() as usize;
+    fn build_feature_wm(&self, metadata: &WMTileID) -> VectorFeature<TileID, D, D> {
+        let WMTileID { x, y, zoom } = metadata;
+        let image = self.image.as_ref().unwrap();
+        let tile_size = image.width() as usize;
         let mut bbox = BBox3D::default();
         // Get the bounding box of the tile in lon-lat
         let (west, south, east, north) = xyz_to_bbox(
@@ -344,7 +473,6 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
             *zoom as f64,
             Some(self.tms_style),
             Some(Source::Google),
-            Some(tile_size as u64),
         );
         let x_step = (east - west) / (tile_size as f64);
         let y_step = (north - south) / (tile_size as f64);
@@ -357,7 +485,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
                 let px_f64 = px as f64;
                 let x_pos = west + (px_f64 + 0.5) * x_step; // Center of the column
                 let (lon, lat) = merc_to_ll(&(x_pos, y_pos));
-                let pixel = self.image.get_pixel(px as u32, py as u32);
+                let pixel = image.get_pixel(px as u32, py as u32);
                 let m_value =
                     D::get_raster_tile_value(pixel.0[0], pixel.0[1], pixel.0[2], Some(pixel.0[3]));
 

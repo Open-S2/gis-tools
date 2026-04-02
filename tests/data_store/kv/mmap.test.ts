@@ -1,5 +1,5 @@
-import { MMapKV } from '../../../src/mmap';
-import { createTempPath, deletePath } from '../../../tests/tmp';
+import { MMapKV } from '../../../src/mmap.js';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 test('KV - MMap', async () => {

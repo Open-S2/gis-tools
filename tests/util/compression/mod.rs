@@ -8,8 +8,8 @@ mod tests {
 
     use alloc::vec;
     use gistools::util::{
-        CompressError, CompressionFormat, FFlateError, compress_data, decompress_data,
-        iter_zip_folder,
+        CompressError, CompressionFormat, FFlateError, WriteZipItem, compress_data,
+        decompress_data, iter_zip_folder, zip_folder,
     };
     use std::{fs, path::PathBuf};
 
@@ -240,5 +240,87 @@ mod tests {
                 "trips.txt"
             ]
         );
+    }
+
+    #[test]
+    fn test_zip_and_unzip_basic_text_files() -> Result<(), CompressError> {
+        // 1. Arrange: Setup some dummy data to compress
+        let files_to_zip = vec![
+            WriteZipItem {
+                filename: String::from("hello.txt"),
+                comment: Some(String::from("Greet the world")),
+                bytes: b"Hello World! This is a simple text payload.".to_vec(),
+            },
+            WriteZipItem {
+                filename: String::from("nested/folder/log.csv"),
+                comment: Some(String::from("Some metrics data")),
+                bytes: b"id,value\n1,100\n2,200\n3,300".to_vec(),
+            },
+        ];
+
+        // 2. Act: Encode the files into a single ZIP binary
+        let zip_buffer = zip_folder(files_to_zip.clone())?;
+
+        // Verify we actually generated something substantial
+        assert!(!zip_buffer.is_empty(), "Zip buffer should not be empty");
+
+        // 3. Act: Pass the generated binary straight into your decoder
+        // (Assuming your Rust decoder replicates iter_zip_folder)
+        let mut extracted_files = Vec::new();
+
+        for item in iter_zip_folder(&zip_buffer)? {
+            extracted_files.push((
+                item.filename,
+                item.comment,
+                (item.read)()?, // Resolves data payload decompression
+            ));
+        }
+
+        // 4. Assert: Validate everything came out exactly how it went in
+        assert_eq!(extracted_files.len(), files_to_zip.len());
+
+        // File 1 Assertions
+        assert_eq!(extracted_files[0].0, files_to_zip[0].filename);
+        assert_eq!(extracted_files[0].1, files_to_zip[0].comment.clone().unwrap_or_default());
+        assert_eq!(extracted_files[0].2, files_to_zip[0].bytes);
+
+        // File 2 Assertions
+        assert_eq!(extracted_files[1].0, files_to_zip[1].filename);
+        assert_eq!(extracted_files[1].1, files_to_zip[1].comment.clone().unwrap_or_default());
+        assert_eq!(extracted_files[1].2, files_to_zip[1].bytes);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_handle_empty_files_properly_without_breaking_pointers() -> Result<(), CompressError> {
+        // 1. Arrange
+        let empty_file = vec![WriteZipItem {
+            filename: String::from("empty.txt"),
+            comment: Some(String::from("Nothing to see here")),
+            bytes: Vec::new(),
+        }];
+
+        // 2. Act
+        let zip_buffer = zip_folder(empty_file.clone())?;
+
+        // 3. Act & Assert via Iterator pattern
+        let zip_folder = iter_zip_folder(&zip_buffer)?;
+        let mut iterator = zip_folder.iter();
+
+        if let Some(item) = iterator.next() {
+            assert_eq!(item.filename, "empty.txt");
+            assert_eq!(item.comment, String::from("Nothing to see here"));
+
+            let data = (item.read)()?;
+            assert_eq!(data.len(), 0);
+        } else {
+            panic!("Expected at least one zip item in iterator");
+        }
+
+        // Ensure the iterator has concluded and no extra ghost pointers exist
+        assert!(iterator.next().is_none(), "Iterator should be exhausted");
+
+        Ok(())
     }
 }

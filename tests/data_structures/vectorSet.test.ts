@@ -1,4 +1,4 @@
-import { VectorSet } from '../../src';
+import { VectorSet } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('vector set', () => {

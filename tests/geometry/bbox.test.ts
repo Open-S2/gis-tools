@@ -1,6 +1,7 @@
 import {
   bboxArea,
   bboxOverlap,
+  bboxToFeature,
   clipBBox,
   fromLineString,
   fromMultiLineString,
@@ -9,10 +10,10 @@ import {
   fromPolygon,
   mergeBBoxes,
   pointOverlap,
-} from '../../src/geometry/bbox';
+} from '../../src/geometry/bbox.js';
 import { describe, expect, it, test } from 'bun:test';
 
-import type { BBox, BBox3D } from '../../src/geometry';
+import type { BBox, BBox3D } from '../../src/geometry/index.js';
 
 describe('pointOverlap', () => {
   it('check if point is within bbox', () => {
@@ -138,4 +139,27 @@ test('bboxArea', () => {
     const res4 = bboxArea([-10, -10, 0, 0, -1, -1]);
     expect(res4).toEqual(0);
   }
+});
+
+test('bboxToFeature', () => {
+  const res = bboxToFeature([0, 0, 10, 10]);
+  expect(res).toEqual({
+    type: 'VectorFeature',
+    properties: {
+      bbox: { left: 0, bottom: 0, right: 10, top: 10 },
+    },
+    geometry: {
+      type: 'Polygon',
+      is3D: false,
+      coordinates: [
+        [
+          { x: 0, y: 0 },
+          { x: 10, y: 0 },
+          { x: 10, y: 10 },
+          { x: 0, y: 10 },
+          { x: 0, y: 0 },
+        ],
+      ],
+    },
+  });
 });

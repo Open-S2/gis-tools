@@ -6,7 +6,7 @@ import {
   llNormalize,
   llToAngles,
   llToS2Point,
-} from '../../../src/geometry/ll';
+} from '../../../src/geometry/ll/index.js';
 
 test('llFromS2Point', () => {
   expect(llFromS2Point({ x: 0, y: 0, z: 0 })).toEqual({ x: 0, y: 0 });
@@ -25,11 +25,13 @@ test('llGetDistance', () => {
 test('llNormalize', () => {
   expect(llNormalize({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
   expect(llNormalize({ x: 0.01745329251994, y: 0.111111 })).toEqual({
-    x: 0.01745329251991734,
+    x: 0.017453292519945762,
     y: 0.111111,
   });
   expect(llNormalize({ x: 640, y: 100 })).toEqual({ x: -80, y: 90 });
   expect(llNormalize({ x: -640, y: -100 })).toEqual({ x: 80, y: -90 });
+  expect(llNormalize({ x: -180, y: 0 })).toEqual({ x: 180, y: 0 });
+  expect(llNormalize({ x: -0, y: 0 })).toEqual({ x: 0, y: 0 });
 });
 
 test('llToAngles', () => {

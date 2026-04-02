@@ -24,12 +24,12 @@ struct Directory {
 const NODE_SIZE: usize = 10; // [offset, length] => [6 bytes, 4 bytes]
 const DIR_SIZE: usize = 1_365 * NODE_SIZE; // (13_650) -> 6 levels, the 6th level has both node and leaf (1+4+16+64+256+1024)*2 => (1365)+1365 => 2_730
 const METADATA_SIZE: usize = 131_072; // 131,072 bytes is 128kB. It is assumed the map metadata AND the S2Tile format metadata is less than 128kB
-const ROOT_DIR_SIZE: usize = DIR_SIZE * 6; // 27_300 * 6 = 163_800
+const ROOT_DIR_SIZE: usize = DIR_SIZE * 7; // 27_300 * 6 = 163_800
 const ROOT_SIZE: usize = METADATA_SIZE + ROOT_DIR_SIZE;
 // assuming all tiles exist for every face from 0->30 the max leafs to reach depth of 30 is 5
-// root: 6sides * 27_300bytes/dir = (163_800 bytes)
-// all leafs at 6: 1024 * 6sides * 27_300bytes/dir (0.167731 GB)
-// al leafs at 12: 524_288 * 6sides * 27_300bytes/dir (85.8783744 GB) - obviously most of this is water
+// root: 7sides * 27_300bytes/dir = (191_100 bytes)
+// all leafs at 6 (only S2): 1024 * 6sides * 27_300bytes/dir (0.167731 GB)
+// al leafs at 12 (only S2): 524_288 * 6sides * 27_300bytes/dir (85.8783744 GB) - obviously most of this is water
 
 /// # S2 Tiles Writer
 ///
@@ -90,7 +90,7 @@ pub struct S2TilesWriter<W: Writer> {
 }
 impl<W: Writer> TileWriter for S2TilesWriter<W> {
     fn write_tile_wm(&mut self, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
-        self.put_tile_fzxy(0.into(), zoom, x, y, data);
+        self.put_tile_fzxy(6.into(), zoom, x, y, data);
     }
     fn write_tile_s2(&mut self, face: Face, zoom: u8, x: u32, y: u32, data: Vec<u8>) {
         self.put_tile_fzxy(face, zoom, x, y, data);

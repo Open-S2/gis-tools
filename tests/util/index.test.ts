@@ -1,4 +1,4 @@
-import { Compression, base64ToArrayBuffer, encodingToCompression } from '../../src/util';
+import { Compression, base64ToArrayBuffer, encodingToCompression } from '../../src/util/index.js';
 import { expect, test } from 'bun:test';
 
 test('base64ToArrayBuffer', () => {

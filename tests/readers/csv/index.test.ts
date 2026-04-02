@@ -1,5 +1,5 @@
-import { FileReader } from '../../../src/file';
-import { BufferReader, CSVReader } from '../../../src';
+import { FileReader } from '../../../src/file.js';
+import { BufferReader, CSVReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('CSVReader - basic', async () => {

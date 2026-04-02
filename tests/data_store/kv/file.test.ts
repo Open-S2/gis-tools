@@ -1,5 +1,5 @@
-import { FileKV } from '../../../src/file';
-import { createTempPath, deletePath } from '../../../tests/tmp';
+import { FileKV } from '../../../src/file.js';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
 test('KV - File', async () => {

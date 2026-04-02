@@ -1,4 +1,4 @@
-import { buildSqDists, simplify } from '../../../src';
+import { buildSqDists, rewind, simplify } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
 import type {
@@ -6,9 +6,28 @@ import type {
   VectorMultiLineStringGeometry,
   VectorMultiPolygonGeometry,
   VectorPolygonGeometry,
-} from '../../../src/geometry';
+} from '../../../src/geometry/index.js';
 
 const SIMPLIFY_MAXZOOM = 16;
+
+test('rewind', () => {
+  const lineString = [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: 1, y: 1 },
+    { x: 0, y: 1 },
+    { x: 0, y: 0 },
+  ];
+  rewind(lineString, false);
+
+  expect(lineString).toEqual([
+    { x: 0, y: 0 },
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 1, y: 0 },
+    { x: 0, y: 0 },
+  ]);
+});
 
 test('LineString', () => {
   const lineString: VectorLineStringGeometry = {

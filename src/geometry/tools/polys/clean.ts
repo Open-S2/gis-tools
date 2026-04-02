@@ -31,6 +31,7 @@ import type {
  * @param polygons - the collection of polygon as either a VectorFeature, VectorMultiPolygonGeometry, or raw VectorMultiPolygon
  * @param removeCollinearPoints - if true, remove superfluous points
  * @param cleanWGS84 - if true, clean WGS84 points to be in bounds
+ * @param removeZeroArea - if true, remove polygons with zero area
  * @returns - the cleaned polygon
  */
 export function cleanPolygons<
@@ -44,6 +45,7 @@ export function cleanPolygons<
     | VectorFeatures<M, D, P, VectorMultiPolygonGeometry<D>>,
   removeCollinearPoints = false,
   cleanWGS84 = false,
+  removeZeroArea = true,
 ): VectorMultiPolygonGeometry<D> | undefined {
   const vectorPolygons: VectorMultiPolygon<D> =
     'geometry' in polygons
@@ -54,7 +56,12 @@ export function cleanPolygons<
 
   const res: VectorMultiPolygonGeometry<D> = { type: 'MultiPolygon', coordinates: [], is3D: false };
   for (const vectorPoly in vectorPolygons) {
-    const cleaned = cleanPolygon(vectorPolygons[vectorPoly], removeCollinearPoints, cleanWGS84);
+    const cleaned = cleanPolygon(
+      vectorPolygons[vectorPoly],
+      removeCollinearPoints,
+      cleanWGS84,
+      removeZeroArea,
+    );
     if (cleaned !== undefined) {
       if (cleaned.bbox !== undefined) res.bbox = mergeBBoxes(res.bbox, cleaned.bbox);
       res.coordinates.push(...cleaned.coordinates);
@@ -77,6 +84,7 @@ export function cleanPolygons<
  * @param polygon - the polygon as either a VectorFeature, VectorPolygonGeometry, or raw VectorPolygon
  * @param removeCollinearPoints - if true, remove superfluous points
  * @param cleanWGS84 - if true, clean WGS84 points to be in bounds
+ * @param removeZeroArea - if true, remove zero area polygons
  * @returns - the cleaned polygon
  */
 export function cleanPolygon<
@@ -90,6 +98,7 @@ export function cleanPolygon<
     | VectorFeatures<M, D, P, VectorPolygonGeometry<D>>,
   removeCollinearPoints = false,
   cleanWGS84 = false,
+  removeZeroArea = true,
 ): VectorMultiPolygonGeometry<D> | undefined {
   const vectorPolygon: VectorPolygon<D> =
     'geometry' in polygon
@@ -135,6 +144,11 @@ export function cleanPolygon<
   for (let i = 0; i < res.length; i++) {
     const ring = res[i];
     const area = polygonRingArea(ring, 1);
+    // 0 area rings are removed
+    if (removeZeroArea && area === 0) {
+      if (i === 0) return;
+      continue;
+    }
     // flip the ring if outer-ring and area is negative OR inner-ring and area is positive
     if (i === 0 ? area < 0 : area > 0) res[i] = ring.reverse();
   }

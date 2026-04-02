@@ -1,4 +1,4 @@
-import '../../../src/util/polyfills/dataview';
+import '../../../src/util/polyfills/dataview.js';
 import { expect, test } from 'bun:test';
 
 test('dataview', () => {

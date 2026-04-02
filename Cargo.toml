@@ -55,7 +55,8 @@ serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
 brotli = { version = "8", optional = true }
-image = { version = "0.25", optional = true, features = ["jpeg", "tiff"] }
+image = { version = "0.25", optional = true, features = ["jpeg", "tiff", "png"] }
+openjpeg-sys = { version = "1", optional = true }
 # Optional std/wasm fetch dependency
 surf = { version = "2", default-features = false }
 # CLI dependency
@@ -80,7 +81,7 @@ tan = [] # Feature for tangential projection
 linear = [] # Feature for linear projection
 nightly = [] # Nightly system for improving coverage accuracy reporting
 # Conditional std feature enabling quadratic or other projection features
-std = ["memmap2", "flate2", "brotli", "image", "surf/h1-client"]
+std = ["memmap2", "flate2", "brotli", "image", "surf/h1-client", "openjpeg-sys"]
 # Conditional wasm feature for browser tools like fetching
 wasm = ["surf/wasm-client"]
 

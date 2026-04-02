@@ -1,8 +1,8 @@
-import { FileReader } from '../../../src/file';
-import { NetCDFReader } from '../../../src/readers/netcdf';
+import { FileReader } from '../../../src/file.js';
+import { NetCDFReader } from '../../../src/readers/netcdf/index.js';
 import { expect, test } from 'bun:test';
 
-import type { CDFValue, CDFVariable } from '../../../src/readers/netcdf';
+import type { CDFValue, CDFVariable } from '../../../src/readers/netcdf/index.js';
 
 test('Throws on non NetCDF file', () => {
   expect(() => {

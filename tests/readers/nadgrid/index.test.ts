@@ -1,7 +1,7 @@
-import { NadGridReader } from '../../../src';
+import { NadGridReader } from '../../../src/index.js';
 import { expect, test } from 'bun:test';
 
-import type { VectorPoint } from '../../../src';
+import type { VectorPoint } from '../../../src/index.js';
 
 test('NadGridReader', async () => {
   const grid = new NadGridReader(

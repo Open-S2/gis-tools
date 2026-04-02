@@ -1,7 +1,7 @@
-import { toWM } from '../../../src/geometry/s2/convert';
+import { toWM } from '../../../src/geometry/s2/convert.js';
 import { describe, expect, it } from 'bun:test';
 
-import type { S2Feature } from '../../../src/geometry';
+import type { S2Feature } from '../../../src/geometry/index.js';
 
 describe('toWM', () => {
   it('should convert an S2Feature Point to a GeoJSON Feature', () => {

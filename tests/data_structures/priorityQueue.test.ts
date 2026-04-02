@@ -1,7 +1,7 @@
-import { PriorityQueue } from '../../src';
+import { PriorityQueue } from '../../src/index.js';
 import { beforeAll, expect, test } from 'bun:test';
 
-import type { PriorityCompare } from '../../src';
+import type { PriorityCompare } from '../../src/index.js';
 
 const data: number[] = [];
 let sorted: number[] = [];

@@ -1,6 +1,6 @@
-import { decompressSync } from '../../../src/util/polyfills/fflate';
+import { decompressSync } from '../../../src/util/polyfills/fflate.js';
 import { afterAll, beforeAll, expect, test } from 'bun:test';
-import { decompressStream, iterZipFolder } from '../../../src';
+import { decompressStream, iterZipFolder } from '../../../src/index.js';
 
 import zlib from 'zlib';
 
@@ -25,7 +25,7 @@ import zlib from 'zlib';
 
 // inject polyfill for this test case
 beforeAll(async () => {
-  await import('../../../src/util/polyfills/decompression');
+  await import('../../../src/util/polyfills/decompression.js');
 });
 
 // fix the polyfilling when im done

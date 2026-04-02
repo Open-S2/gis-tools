@@ -1,5 +1,7 @@
 #![cfg_attr(feature = "nightly", coverage(off))]
 
+use libm::pow;
+
 /// # Table 3.0 - Source of Grid Definition
 ///
 /// **Details**:
@@ -326,6 +328,82 @@ pub enum Grib2Table3_2 {
     EarthWgs84CorrectedGeomagnetic = 10,
     SunSphericalRadius695990000 = 11,
     Missing = 255,
+}
+impl Grib2Table3_2 {
+    /// Get the radius of the Earth in meters
+    ///
+    /// ## Returns the `(radius, major axis, minor axis)`
+    pub fn earth_radius(
+        &self,
+        radius_scale_factor: f64,
+        radius_scale_value: f64,
+        major_axis_scale_factor: f64,
+        major_axis_scale_value: f64,
+        minor_axis_scale_factor: f64,
+        minor_axis_scale_value: f64,
+    ) -> f64 {
+        let (radius_major, radius_minor) = self.axes(
+            radius_scale_factor,
+            radius_scale_value,
+            major_axis_scale_factor,
+            major_axis_scale_value,
+            minor_axis_scale_factor,
+            minor_axis_scale_value,
+        );
+        let radius = 0.5 * (radius_major + radius_minor);
+
+        if radius < 6300000.0 || radius > 6400000.0 {
+            // default is WGS84
+            6_367_444.6225
+        } else {
+            radius
+        }
+    }
+
+    /// Calculates the semi-major (a) and semi-minor (b) axes of the Earth
+    ///
+    /// ## Returns
+    /// The semi-major and semi-minor axes `(a, b)`
+    pub fn axes(
+        &self,
+        radius_scale_factor: f64,
+        radius_scale_value: f64,
+        major_axis_scale_factor: f64,
+        major_axis_scale_value: f64,
+        minor_axis_scale_factor: f64,
+        minor_axis_scale_value: f64,
+    ) -> (f64, f64) {
+        // https://github.com/NOAA-EMC/wgrib2/blob/d1cef8f4551caf28a5fa339234384eb4894cb6f2/src/Earth.c#L169
+        // Helper to convert GRIB2 scale factor/value to a real number
+        let calc = |factor: f64, value: f64| value * pow(10., -factor);
+
+        match self {
+            Self::EarthSphericalRadius6367470 => (6367470.0, 6367470.0),
+            Self::EarthSphericalRadiusSpecifiedByProducer => {
+                let r = calc(radius_scale_factor, radius_scale_value);
+                (r, r)
+            }
+            Self::EarthOblateSpheroidIau1965 => (6378160.0, 6356775.0),
+            Self::EarthOblateSpheroidMajorMinorAxesSpecifiedByProducerKm => {
+                // Code 3 specifies values in km, convert to meters
+                let a = calc(major_axis_scale_factor, major_axis_scale_value) * 1_000.;
+                let b = calc(minor_axis_scale_factor, minor_axis_scale_value) * 1_000.;
+                (a, b)
+            }
+            Self::EarthOblateSpheroidIagGrs80 => (6378137.0, 6356752.14),
+            Self::EarthRepresentedByWgs84 => (6378137.0, 6356752.245),
+            Self::EarthSphericalRadius6371229 => (6371229.0, 6371229.0),
+            Self::EarthOblateSpheroidMajorMinorAxesSpecifiedByProducerM => {
+                let a = calc(major_axis_scale_factor, major_axis_scale_value);
+                let b = calc(minor_axis_scale_factor, minor_axis_scale_value);
+                (a, b)
+            }
+            Self::EarthSphericalRadius6371200Wgs84Datum => (6371200.0, 6371200.0),
+            Self::EarthOsgb1936Datum => (6377563.396, 6356256.909),
+            // Fallback to a standard spherical radius if unknown/missing
+            _ => (6378137.0, 6356752.245),
+        }
+    }
 }
 impl From<u8> for Grib2Table3_2 {
     fn from(val: u8) -> Self {

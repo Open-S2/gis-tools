@@ -6,15 +6,15 @@ import {
   convertMapboxElevationData,
   decompressStream,
   toTiles,
-} from '../../src';
-import { FileReader, RasterTilesFileReader } from '../../src/file';
+} from '../../src/index.js';
+import { FileReader, RasterTilesFileReader } from '../../src/file.js';
 import { expect, test } from 'bun:test';
 
 import { DrawType } from 's2-tilejson';
 
 import sharp from 'sharp';
 
-import type { ElevationPoint, RGBA, VectorPoint } from '../../src';
+import type { ElevationPoint, RGBA, VectorPoint } from '../../src/index.js';
 
 const testFunc = process.env.FAST_TESTS_ONLY !== undefined ? test.skip : test;
 
@@ -175,7 +175,7 @@ test.skip('toTiles - Raster WM', async () => {
     encoding: 'none',
     extension: 'raw',
     faces: [0],
-    s2bounds: { '0': {}, '1': {}, '2': {}, '3': {}, '4': {}, '5': {} },
+    s2bounds: { '0': {}, '1': {}, '2': {}, '3': {}, '4': {}, '5': {}, '6': {} },
     layers: {
       sat: {
         drawTypes: [DrawType.Raster],
@@ -189,7 +189,7 @@ test.skip('toTiles - Raster WM', async () => {
     name: 'Satellite Data',
     s2tilejson: '1.0.0',
     scheme: 'xyz',
-    tilestats: { '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, total: 5 },
+    tilestats: { '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, total: 5 },
     type: 'raster',
     vector_layers: [
       {
@@ -291,6 +291,7 @@ testFunc(
         '5': {
           '0': [0, 0, 0, 0],
         },
+        '6': {},
       },
       layers: {
         elev: {
@@ -305,7 +306,7 @@ testFunc(
       name: 'Elevation Data',
       s2tilejson: '1.0.0',
       scheme: 'fzxy',
-      tilestats: { '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, total: 6 },
+      tilestats: { '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 0, total: 6 },
       type: 'vector',
       vector_layers: [
         {

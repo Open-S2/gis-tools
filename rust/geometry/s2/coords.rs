@@ -299,7 +299,8 @@ pub fn face_uv_to_xyz<P: NewXYZ>(face: u8, u: f64, v: f64) -> P {
         2 => P::new_xyz(-u, -v, 1.0),
         3 => P::new_xyz(-1.0, -v, -u),
         4 => P::new_xyz(v, -1.0, -u),
-        _ => P::new_xyz(v, u, -1.0),
+        5 => P::new_xyz(v, u, -1.0),
+        _ => P::new_xyz(1.0, u, v), // default back to 0
     }
 }
 
@@ -312,7 +313,8 @@ pub fn face_uv_to_xyz_gl<P: NewXYZ>(face: u8, u: f64, v: f64) -> P {
         2 => P::new_xyz(-v, 1.0, -u),
         3 => P::new_xyz(-v, -u, -1.0),
         4 => P::new_xyz(-1.0, -u, v),
-        _ => P::new_xyz(u, -1.0, v),
+        5 => P::new_xyz(u, -1.0, v),
+        _ => P::new_xyz(u, v, 1.0), // default back to 0
     }
 }
 
@@ -330,7 +332,8 @@ pub fn valid_face_xyz_to_uv(face: u8, p: &S2Point) -> (f64, f64) {
         2 => (-p.x / p.z, -p.y / p.z),
         3 => (p.z / p.x, p.y / p.x),
         4 => (p.z / p.y, -p.x / p.y),
-        _ => (-p.y / p.z, -p.x / p.z),
+        5 => (-p.y / p.z, -p.x / p.z),
+        _ => (p.y / p.x, p.z / p.x), // default back to 0
     }
 }
 
@@ -400,7 +403,8 @@ pub fn face_xyz_to_uvw<P: NewXYZ + GetXYZ>(face: u8, p: &P) -> P {
         2 => P::new_xyz(-x, -y, z),
         3 => P::new_xyz(-z, -y, -x),
         4 => P::new_xyz(-z, x, -y),
-        _ => P::new_xyz(y, x, -z),
+        5 => P::new_xyz(y, x, -z),
+        _ => P::new_xyz(y, z, x), // default back to 0
     }
 }
 
@@ -415,7 +419,8 @@ pub fn get_u_norm<P: NewXYZ>(face: u8, u: f64) -> P {
         2 => P::new_xyz(1.0, 0.0, u),
         3 => P::new_xyz(-u, 0.0, 1.0),
         4 => P::new_xyz(0.0, -u, 1.0),
-        _ => P::new_xyz(0.0, -1., -u),
+        5 => P::new_xyz(0.0, -1., -u),
+        _ => P::new_xyz(u, -1.0, 0.0), // default back to 0
     }
 }
 
@@ -429,7 +434,8 @@ pub fn get_v_norm<P: NewXYZ>(face: u8, v: f64) -> P {
         2 => P::new_xyz(0.0, -1.0, -v),
         3 => P::new_xyz(v, -1.0, 0.0),
         4 => P::new_xyz(1.0, v, 0.0),
-        _ => P::new_xyz(1.0, 0.0, v),
+        5 => P::new_xyz(1.0, 0.0, v),
+        _ => P::new_xyz(-v, 0.0, 1.0), // default back to 0
     }
 }
 

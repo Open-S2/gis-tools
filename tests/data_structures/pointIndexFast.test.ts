@@ -1,11 +1,11 @@
-import { FileReader } from '../../src/file';
-import { JSONReader, PointIndexFast, sphericalDistance } from '../../src';
+import { FileReader } from '../../src/file.js';
+import { JSONReader, PointIndexFast, sphericalDistance } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 // HELPER TOOLS
 import cities from 'all-the-cities';
-import { pointFromLonLat } from '../../src/geometry/s2/point';
-import { chordAngFromS2Points, chordAngToMeters } from '../../src/geometry/s1/chordAngle';
+import { pointFromLonLat } from '../../src/geometry/s2/point.js';
+import { chordAngFromS2Points, chordAngToMeters } from '../../src/geometry/s1/chordAngle.js';
 
 test('point index fast', () => {
   const pointIndex = new PointIndexFast<{ a: number }>();

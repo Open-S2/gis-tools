@@ -107,7 +107,7 @@ pub struct GPXMetadata {
     /// Copyright and license information
     pub copyright: Option<GPXCopyright>,
     /// URLs associated with the GPX file
-    pub link: Option<GPXLink>,
+    pub link: Option<Vec<GPXLink>>,
     /// Creation timestamp in ISO 8601 format
     pub time: Option<String>,
     /// Keywords for classification
@@ -131,8 +131,13 @@ impl GPXMetadata {
             .map(|tag| GPXPerson::new(XMLTagItem::XMLTag(tag)));
         let copyright = xml_find_tag_by_name(&inner, "copyright", None)
             .map(|tag| GPXCopyright::new(XMLTagItem::XMLTag(tag)));
-        let link = xml_find_tag_by_name(&inner, "link", None)
-            .map(|tag| GPXLink::new(XMLTagItem::XMLTag(tag)));
+        // let link = xml_find_tag_by_name(&inner, "link", None)
+        //     .map(|tag| GPXLink::new(XMLTagItem::XMLTag(tag)));
+        let links: Vec<GPXLink> = xml_find_tags_by_name(&inner, "link", None)
+            .into_iter()
+            .map(|tag| GPXLink::new(XMLTagItem::XMLTag(tag)))
+            .collect();
+        let link = if links.is_empty() { None } else { Some(links) };
         let time = xml_find_tag_by_name(&inner, "time", None).and_then(|tag| tag.inner);
         let keywords = xml_find_tag_by_name(&inner, "keywords", None).and_then(|tag| tag.inner);
         let bounds = xml_find_tag_by_name(&inner, "bounds", None)

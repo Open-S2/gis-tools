@@ -16,11 +16,19 @@
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "oxc.fmt.configPath": ".oxfmtrc.json",
-  "oxc.tsConfigPath": "tsconfig.eslint.json",
   "[javascript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
-  }
+  },
+  "editor.tokenColorCustomizations": {
+    "comments": "",
+    "textMateRules": []
+  },
+  "oxc.fixKind": "safe_fix",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "never"
+  },
+  "oxc.enable.oxlint": true
 }

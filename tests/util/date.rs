@@ -22,6 +22,38 @@ mod tests {
     }
 
     #[test]
+    fn test_now() {
+        #[cfg(feature = "std")]
+        {
+            // In std environment, now() should return a valid current date.
+            // We can check that it's a realistic year (e.g., at or past 2026).
+            let current_date = Date::now();
+            assert!(
+                current_date.year >= 2026,
+                "Expected current year to be at least 2026, got {}",
+                current_date.year
+            );
+            assert!(current_date.month >= 1 && current_date.month <= 12);
+            assert!(current_date.day >= 1 && current_date.day <= 31);
+            assert!(current_date.hour < 24);
+            assert!(current_date.minute < 60);
+            assert!(current_date.second < 60);
+        }
+
+        #[cfg(not(feature = "std"))]
+        {
+            // In no_std environment, now() safely defaults to Unix Epoch (1970-01-01)
+            let static_date = Date::now();
+            assert_eq!(static_date.year, 1970);
+            assert_eq!(static_date.month, 1);
+            assert_eq!(static_date.day, 1);
+            assert_eq!(static_date.hour, 0);
+            assert_eq!(static_date.minute, 0);
+            assert_eq!(static_date.second, 0);
+        }
+    }
+
+    #[test]
     fn test_from_str_milliseconds() {
         // Epoch (0 ms since 1970-01-01T00:00:00Z)
         let d = Date::from("0");

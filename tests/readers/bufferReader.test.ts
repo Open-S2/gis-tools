@@ -1,4 +1,4 @@
-import { BufferReader } from '../../src';
+import { BufferReader } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('Buffer', async () => {

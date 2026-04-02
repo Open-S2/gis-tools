@@ -1,8 +1,8 @@
-import { MMapVector } from '../../../src/mmap';
-import { createTempPath, deletePath } from '../../../tests/tmp';
+import { MMapVector } from '../../../src/mmap.js';
+import { createTempPath, deletePath } from '../../../tests/tmp.js';
 import { expect, test } from 'bun:test';
 
-import type { VectorKey } from '../../../src/dataStore/vector';
+import type { VectorKey } from '../../../src/dataStore/vector/index.js';
 
 /** Test key */
 interface TestKey extends VectorKey {

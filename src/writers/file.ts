@@ -8,11 +8,17 @@ import type { Writer } from './index.js';
 /** The File writer is to be used by bun/node/deno on the local filesystem. */
 export class FileWriter implements Writer {
   #stream: Writable;
+  #size = 0;
   #textEncoder = new TextEncoder();
 
   /** @param file - the location of the PMTiles data in the FS */
   constructor(readonly file: string) {
     this.#stream = createWriteStream(file, { flags: 'a+' }); // Open with append mode and create stream
+  }
+
+  /** @returns The current length of the file */
+  tell(): number {
+    return this.#size;
   }
 
   /**
@@ -25,6 +31,7 @@ export class FileWriter implements Writer {
     try {
       await fd.write(data, 0, data.length, offset); // Write at the specified offset
     } finally {
+      this.#size += data.length;
       await fd.close(); // Close the file after writing
     }
   }
@@ -38,7 +45,10 @@ export class FileWriter implements Writer {
     return await new Promise((resolve, reject) => {
       this.#stream.write(data, (err) => {
         if (err instanceof Error) reject(err);
-        else resolve();
+        else {
+          this.#size += data.length;
+          resolve();
+        }
       });
     });
   }
@@ -57,6 +67,7 @@ export class FileWriter implements Writer {
    */
   appendSync(data: Uint8Array): void {
     this.#stream.write(data); // Write data synchronously
+    this.#size += data.length;
   }
 
   /**

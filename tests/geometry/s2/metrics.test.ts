@@ -14,7 +14,7 @@ import {
   K_MIN_DIAG,
   K_MIN_EDGE,
   K_MIN_WIDTH,
-} from '../../../src/geometry/s2/metrics';
+} from '../../../src/geometry/s2/metrics.js';
 import { describe, expect, it } from 'bun:test';
 
 // ANGLE SPAN

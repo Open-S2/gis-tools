@@ -33,7 +33,7 @@ import {
   srat,
   tanh,
   tsfnz,
-} from '../../src/proj4/common';
+} from '../../src/proj4/common.js';
 import { expect, test } from 'bun:test';
 
 test('acosh', () => {

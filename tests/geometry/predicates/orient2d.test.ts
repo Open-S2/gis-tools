@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { orient2d, orient2dfast } from '../../../src';
+import { orient2d, orient2dfast } from '../../../src/index.js';
 
 // @ts-expect-error - we dont care
 import robustOrientation from 'robust-orientation';

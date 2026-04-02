@@ -1,12 +1,17 @@
-import { JpxImage } from '../../../image/index.js';
-import { complexUnpacking, spectralComplexUnpacking, spectralSimpleUnpacking } from './index.js';
+import {
+  JpxImage,
+  complexUnpacking,
+  imageDecoder,
+  spectralComplexUnpacking,
+  spectralSimpleUnpacking,
+} from '../../../index.js';
 
 import type { Grib2BitMapSection } from '../6/index.js';
 import type { Grib2DataRepresentationSection } from '../5/index.js';
 import type { Grib2Sections } from '../index.js';
 import type { Reader } from '../../../index.js';
 
-// TODO: spectrals are not implemented correctly yet.
+// TODO: spectrals MAY not be implemented correctly yet.
 // TODO: case 41: case 40010: PNG
 // TODO: case 42: AEC https://github.com/NOAA-EMC/NCEPLIBS-g2c/blob/develop/src/aecunpack.c
 
@@ -16,7 +21,10 @@ import type { Reader } from '../../../index.js';
  * @param sections - The sections of the GRIB2 message that have been parsed so far
  * @returns Converted data
  */
-export function getGrib2Template7(reader: Reader, sections: Grib2Sections): number[] {
+export async function getGrib2Template7(
+  reader: Reader,
+  sections: Grib2Sections,
+): Promise<number[]> {
   const drs = sections.dataRepresentation;
   if (drs === undefined) throw new Error('Data Representation Section is not defined');
   const { dataRepresentationTemplate } = drs;
@@ -33,10 +41,20 @@ export function getGrib2Template7(reader: Reader, sections: Grib2Sections): numb
       if (bms === undefined) throw new Error('Bit Map Section is not defined');
       return jpeg2000Unpacking(reader, drs, bms);
     }
-    case 50:
-      return spectralSimpleUnpacking(reader, drs);
+    case 41:
+    case 40010:
+      return await pngUnpacking(reader, drs);
+    case 50: {
+      // 1. Unpack the "simple" part (indices 1 to ndpts-1)
+      const unpackedData = spectralSimpleUnpacking(reader, drs);
+      // 2. The first value (index 0) is often stored as a raw IEEE float in the DRS
+      // In DRS 5.0/5.50, the referenceValue is that IEEE float.
+      unpackedData.unshift(drs.dataRepresentation.referenceValue);
+
+      return unpackedData;
+    }
     case 51:
-      return spectralComplexUnpacking(reader, drs);
+      return spectralComplexUnpacking(reader, sections);
     default:
       throw new Error(`Template 7.${dataRepresentationTemplate} not defined`);
   }
@@ -97,12 +115,10 @@ export function jpeg2000Unpacking(
   bms: Grib2BitMapSection,
 ): number[] {
   const jpx = new JpxImage(reader);
-
   if (jpx.componentsCount !== 1)
     throw new Error('JPEG Decoder: Only single component is supported');
   if (jpx.tiles.length !== 1) throw new Error('JPEG Decoder: Only single tile is supported');
-  if (jpx.tiles[0].height !== 1)
-    throw new Error('JPEG Decoder: Only single row (1xN) is supported');
+  const pixels = jpx.tiles[0].items;
 
   const { bitMap: bitBuffer, bitMapIndicator } = bms;
   const { numberOfDataPoints, dataRepresentation } = drs;
@@ -119,25 +135,70 @@ export function jpeg2000Unpacking(
     return result;
   }
 
+  let dataIndex = 0;
   // A bit map applies to this product
   if (bitMapIndicator.code === 0 && bitBuffer !== null) {
     const bitMapData = new Uint8Array(bitBuffer.buffer, bitBuffer.byteOffset, bitBuffer.byteLength);
+
     for (let i = 0; i < numberOfDataPoints; i++) {
-      // Apply bit map to the data.
-      // Length of data values is often smaller than the bit map itself. Bitmap is used to
-      // indicate which data values are present, 1 bit meaning is present, 0 bit meaning is missing, -1 meaning undefined.
-      // [Read more](https://confluence.ecmwf.int/display/UDOC/What+is+the+GRIB+bitmap+-+ecCodes+GRIB+FAQ)
-      const byte = bitMapData[Math.floor(i / 8)];
-      if ((byte & (1 << (i % 8))) !== 0) {
-        result.push((referenceValue + jpx.tiles[0].items[i] * EE) / DD);
+      // GRIB2 Bitmaps are MSB (Most Significant Bit) first
+      const byte = bitMapData[i >> 3];
+      const bitIsSet = (byte & (0x80 >> (i % 8))) !== 0;
+
+      if (bitIsSet) {
+        // Pull from the next available JPEG pixel
+        const rawValue = pixels[dataIndex++];
+        result.push((referenceValue + rawValue * EE) / DD);
       } else {
-        result.push(Number.NEGATIVE_INFINITY);
+        // Set to NaN so the value is ignored upstream
+        result.push(NaN);
       }
     }
   } else {
-    // Do not use `.map` on Uint8Array, as it clamps the values to 0-255
-    for (const byte of jpx.tiles[0].items) result.push((referenceValue + byte * EE) / DD);
+    // No bitmap: 1:1 mapping
+    for (const rawValue of pixels) {
+      result.push((referenceValue + rawValue * EE) / DD);
+    }
   }
 
+  while (result.length < numberOfDataPoints) result.push(NaN);
+
   return result;
+}
+
+export async function pngUnpacking(
+  reader: Reader,
+  drs: Grib2DataRepresentationSection,
+): Promise<number[]> {
+  const { numberOfBits, decimalScaleFactor, referenceValue, binaryScaleFactor } =
+    drs.dataRepresentation;
+
+  const DD = Math.pow(10, decimalScaleFactor);
+  const EE = Math.pow(2, binaryScaleFactor);
+  const imageData = new Uint8Array(reader.slice().buffer);
+  const decoded = (await imageDecoder(imageData)).data;
+  const pixels = new Uint8Array(decoded.buffer);
+
+  const totalBits = pixels.length * 8;
+  const count = Math.floor(totalBits / numberOfBits);
+  const values: number[] = [];
+
+  let bitPos = 0;
+
+  for (let i = 0; i < count; i++) {
+    let acc = 0;
+
+    for (let b = 0; b < numberOfBits; b++) {
+      const byteIndex = Math.floor(bitPos / 8);
+      const bitOffset = 7 - (bitPos % 8);
+      const bit = (pixels[byteIndex] >> bitOffset) & 1;
+
+      acc = (acc << 1) | bit;
+      bitPos++;
+    }
+
+    values.push((referenceValue + acc * EE) / DD);
+  }
+
+  return values;
 }

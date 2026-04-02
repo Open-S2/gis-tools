@@ -1,7 +1,7 @@
-import { initl } from '../../../src/space';
+import { initl } from '../../../src/space/index.js';
 import { expect, test } from 'bun:test';
 
-import type { OperationMode } from '../../../src';
+import type { OperationMode } from '../../../src/index.js';
 
 test('Legacy Sidereal Time Calculations', () => {
   const options = {

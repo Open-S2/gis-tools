@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { nextDown, nextUp } from '../../src';
+import { nextDown, nextUp } from '../../src/index.js';
 
 describe('nextUp', () => {
   it('should return the next float', () => {

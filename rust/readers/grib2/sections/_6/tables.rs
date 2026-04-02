@@ -38,6 +38,16 @@ impl From<u8> for Grib2Table6_0 {
         }
     }
 }
+impl From<Grib2Table6_0> for u8 {
+    fn from(val: Grib2Table6_0) -> Self {
+        match val {
+            Grib2Table6_0::BitmapSpecifiedInThisSection => 0,
+            Grib2Table6_0::BitmapPredeterminedByCenter(v) => v,
+            Grib2Table6_0::BitmapPreviouslyDefined => 254,
+            Grib2Table6_0::BitmapDoesNotApply => 255,
+        }
+    }
+}
 impl core::fmt::Display for Grib2Table6_0 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let desc = match self {

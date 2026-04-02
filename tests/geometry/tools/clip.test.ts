@@ -1,6 +1,6 @@
-import { Tile } from '../../../src/dataStructures';
-import { idFromFace } from '../../../src/geometry/id';
-import { clipLine, clipPoint, splitTile } from '../../../src/geometry/tools/clip';
+import { Tile } from '../../../src/dataStructures/index.js';
+import { idFromFace } from '../../../src/geometry/id.js';
+import { clipLine, clipPoint, splitTile } from '../../../src/geometry/tools/clip.js';
 import { describe, expect, it, test } from 'bun:test';
 
 import type {
@@ -8,7 +8,7 @@ import type {
   VectorFeature,
   VectorLineString,
   VectorPointGeometry,
-} from '../../../src/geometry';
+} from '../../../src/geometry/index.js';
 
 test('clipPoint', () => {
   const point: VectorPointGeometry = {

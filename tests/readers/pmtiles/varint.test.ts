@@ -1,5 +1,5 @@
-import { readVarint } from '../../../src/readers/pmtiles';
-import { writeVarint } from '../../../src/writers/pmtiles';
+import { readVarint } from '../../../src/readers/pmtiles/index.js';
+import { writeVarint } from '../../../src/writers/pmtiles/index.js';
 import { describe, expect, test } from 'bun:test';
 
 describe('varint', () => {
