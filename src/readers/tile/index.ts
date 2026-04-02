@@ -305,7 +305,6 @@ export class RasterTilesReader<T extends MValue = RGBA | ElevationPoint>
 
   /**
    * Get the value of the given longitude and latitude
-   * @param face - the Open S2 projection face
    * @param zoom - the zoom level
    * @param lon - the longitude
    * @param lat - the latitude

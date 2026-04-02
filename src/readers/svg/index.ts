@@ -1,7 +1,7 @@
-import { equalPoints, xmlFindTagsByName, xmlGetAttribute } from 'gis-tools-ts';
+import { equalPoints, xmlFindTagsByName, xmlGetAttribute } from '../../index.js';
 
 import type { BBox, MValue, Properties, VectorFeature, VectorPoint } from 's2json-spec';
-import type { FeatureIterator, XMLTag } from 'gis-tools-ts';
+import type { FeatureIterator, XMLTag } from '../../index.js';
 
 export interface SVGProperties extends Properties {
   stroke?: string;
