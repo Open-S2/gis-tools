@@ -4,7 +4,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('KV - MMap', async () => {
-  const dir = tmp.dirSync({ prefix: 'data_store_kv_mmap', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'data_store_kv_mmap',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const store = new MMapKV<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);

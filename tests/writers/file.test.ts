@@ -4,7 +4,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('writers - File', async () => {
-  const dir = tmp.dirSync({ prefix: 'writers_file_test', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'writers_file_test',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const writer = new FileWriter(`${dir.name}.txt`);
   await writer.appendString('test');
   writer.appendStringSync('test2');

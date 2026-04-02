@@ -11,7 +11,7 @@ interface TestKey extends VectorKey {
 }
 
 test('FileVector', async () => {
-  const dir = tmp.dirSync({ prefix: 'vector_file', unsafeCleanup: true });
+  const dir = tmp.dirSync({ prefix: 'vector_file', template: 'test-XXXXXX', unsafeCleanup: true });
   const store = new FileVector<TestKey>(dir.name);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: 0n });

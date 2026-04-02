@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('S2MMapStore', async () => {
-  const dir = tmp.dirSync({ prefix: 'mmap_test', unsafeCleanup: true });
+  const dir = tmp.dirSync({ prefix: 'mmap_test', template: 'test-XXXXXX', unsafeCleanup: true });
   const store = new S2MMapStore<{ a: number }>(`${dir.name}/testA`);
   expect(store.length).toBe(0);
   store.set(0, { a: 1 });

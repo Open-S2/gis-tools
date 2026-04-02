@@ -5,7 +5,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('sort - single threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'external_sort_single_1', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'external_sort_single_1',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const name = `${dir.name}/sort-single-threaded`;
   const store = new S2FileStore<{ a: number }>(name);
 
@@ -36,7 +40,11 @@ test('sort - single threaded', async () => {
 });
 
 test('sort multi-file - single threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'external_sort_single_2', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'external_sort_single_2',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
 
   const storeA = new S2FileStore<{ a: number }>(`${dir.name}/a`);
   storeA.set(0, { a: 1 });
@@ -79,7 +87,11 @@ test('sort multi-file - single threaded', async () => {
 });
 
 test('sort - multi threaded', async () => {
-  const dir = tmp.dirSync({ prefix: 'externalSort_single_3', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'externalSort_single_3',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const name = `${dir.name}/sort-multi-threaded`;
   const store = new S2MMapStore<{ a: number }>(name);
 

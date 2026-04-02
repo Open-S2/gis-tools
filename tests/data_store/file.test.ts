@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('S2FileStore', async () => {
-  const dir = tmp.dirSync({ prefix: 'file_test', unsafeCleanup: true });
+  const dir = tmp.dirSync({ prefix: 'file_test', template: 'test-XXXXXX', unsafeCleanup: true });
   const store = new S2FileStore<{ a: number }>(dir.name);
   expect(store.length).toEqual(0);
   store.set(0, { a: 1 });

@@ -7,7 +7,11 @@ import cities from 'all-the-cities';
 import tmp from 'tmp';
 
 test('KDTree - MMAP', (): void => {
-  const dir = tmp.dirSync({ prefix: 'kdtree_mmap_file_test', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'kdtree_mmap_file_test',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const store = new KDMMapSpatialIndex<{ a: number }>(64, dir.name);
   expect(store.length).toBe(0);
   store.push({ x: 0, y: 1, m: { a: 1 } });

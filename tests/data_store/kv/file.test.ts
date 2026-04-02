@@ -4,7 +4,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('KV - File', async () => {
-  const dir = tmp.dirSync({ prefix: 'data_store_kv_file', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'data_store_kv_file',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const store = new FileKV<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);

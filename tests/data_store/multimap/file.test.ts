@@ -4,7 +4,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('FileMultiMap', async () => {
-  const dir = tmp.dirSync({ prefix: 'data_store_multimap_file', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'data_store_multimap_file',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const store = new FileMultiMap<number>(dir.name);
   expect(store.length).toBe(0);
   store.set(0, 1);

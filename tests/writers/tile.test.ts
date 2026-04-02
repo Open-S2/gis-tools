@@ -4,7 +4,11 @@ import { expect, test } from 'bun:test';
 import tmp from 'tmp';
 
 test('writers - Tile File Writer', async () => {
-  const dir = tmp.dirSync({ prefix: 'writers_tile_file_test', unsafeCleanup: true });
+  const dir = tmp.dirSync({
+    prefix: 'writers_tile_file_test',
+    template: 'test-XXXXXX',
+    unsafeCleanup: true,
+  });
   const textEncoder = new TextEncoder();
   const writer = new FileTileWriter(`${dir.name}`, 'png');
 

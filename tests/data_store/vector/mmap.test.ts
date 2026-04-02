@@ -11,7 +11,7 @@ interface TestKey extends VectorKey {
 }
 
 test('MMapVector', async () => {
-  const dir = tmp.dirSync({ prefix: 'vector_mmap', unsafeCleanup: true });
+  const dir = tmp.dirSync({ prefix: 'vector_mmap', template: 'test-XXXXXX', unsafeCleanup: true });
   const store = new MMapVector<TestKey>(dir.name);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: 0n });
