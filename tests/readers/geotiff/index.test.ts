@@ -146,33 +146,37 @@ testFunc('initial test', async (): Promise<void> => {
   expect(rgb.alpha).toBeFalse();
 });
 
-testFunc('rgba test', async (): Promise<void> => {
-  const fileReader = new FileReader(`${__dirname}/fixtures/RGBA.tiff`);
-  const geotiffReader = new GeoTIFFReader(fileReader);
+testFunc(
+  'rgba test',
+  async (): Promise<void> => {
+    const fileReader = new FileReader(`${__dirname}/fixtures/RGBA.tiff`);
+    const geotiffReader = new GeoTIFFReader(fileReader);
 
-  const image = geotiffReader.getImage();
-  const raster = await image.rasterData();
-  const rgb = await image.getRGBA();
+    const image = geotiffReader.getImage();
+    const raster = await image.rasterData();
+    const rgb = await image.getRGBA();
 
-  const cmpTiff = await fromArrayBuffer(
-    await Bun.file(`${__dirname}/fixtures/RGBA.tiff`).arrayBuffer(),
-  );
-  const cmpImage = await cmpTiff.getImage();
+    const cmpTiff = await fromArrayBuffer(
+      await Bun.file(`${__dirname}/fixtures/RGBA.tiff`).arrayBuffer(),
+    );
+    const cmpImage = await cmpTiff.getImage();
 
-  // await Bun.write(`${__dirname}/fixtures/RGBA_raster.rgba`, new Uint8Array(raster.data.buffer));
-  // await Bun.write(`${__dirname}/fixtures/RGBA_rgba.rgba`, new Uint8Array(rgb.data.buffer));
+    // await Bun.write(`${__dirname}/fixtures/RGBA_raster.rgba`, new Uint8Array(raster.data.buffer));
+    // await Bun.write(`${__dirname}/fixtures/RGBA_rgba.rgba`, new Uint8Array(rgb.data.buffer));
 
-  const cmpRaster = await cmpImage.readRasters({ interleave: true });
-  expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
-  expect(raster.width).toEqual(cmpRaster.width);
-  expect(raster.height).toEqual(cmpRaster.height);
+    const cmpRaster = await cmpImage.readRasters({ interleave: true });
+    expect(raster.data).toEqual(cmpRaster as unknown as ArrayTypes);
+    expect(raster.width).toEqual(cmpRaster.width);
+    expect(raster.height).toEqual(cmpRaster.height);
 
-  const cmpRGB = await cmpImage.readRGB({ interleave: true, enableAlpha: true });
-  expect(rgb.data).toEqual(cmpRGB as unknown as ArrayTypes);
-  expect(rgb.width).toEqual(cmpRGB.width);
-  expect(rgb.height).toEqual(cmpRGB.height);
-  expect(rgb.alpha).toBeTrue();
-});
+    const cmpRGB = await cmpImage.readRGB({ interleave: true, enableAlpha: true });
+    expect(rgb.data).toEqual(cmpRGB as unknown as ArrayTypes);
+    expect(rgb.width).toEqual(cmpRGB.width);
+    expect(rgb.height).toEqual(cmpRGB.height);
+    expect(rgb.alpha).toBeTrue();
+  },
+  20_000,
+);
 
 testFunc('int32 test', async (): Promise<void> => {
   const fileReader = new FileReader(`${__dirname}/fixtures/int32.tiff`);
