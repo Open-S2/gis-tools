@@ -1,3 +1,4 @@
+import { finished } from 'stream/promises';
 import { mergeSortedChunks } from './mergeSortedChunks.js';
 import { sortChunk } from './sortChunk.js';
 import { availableParallelism, tmpdir } from 'os';
@@ -166,4 +167,5 @@ async function mergeValues(output: string, sizes: FileSize[]): Promise<void> {
   }
 
   writeStream.end(); // Close the write stream
+  await finished(writeStream);
 }

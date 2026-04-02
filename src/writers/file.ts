@@ -1,4 +1,5 @@
 import { createWriteStream } from 'fs';
+import { finished } from 'stream/promises';
 import { open } from 'fs/promises';
 
 import type { Writable } from 'stream'; // Needed for type annotation if desired
@@ -85,7 +86,8 @@ export class FileWriter implements Writer {
   }
 
   /** Close the file */
-  close(): void {
+  async close(): Promise<void> {
     this.#stream.end();
+    await finished(this.#stream);
   }
 }
