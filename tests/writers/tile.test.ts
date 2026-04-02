@@ -1,16 +1,13 @@
 import { FileTileWriter } from '../../src/file';
+import { mkdirSync } from 'fs';
+import { createTempPath, deletePath } from '../../tests/tmp';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
-
 test('writers - Tile File Writer', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'writers_tile_file_test',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
+  const dir = createTempPath('writers_tile_file_test');
   const textEncoder = new TextEncoder();
-  const writer = new FileTileWriter(`${dir.name}`, 'png');
+  mkdirSync(`${dir}/tile_file_writer`, { recursive: true });
+  const writer = new FileTileWriter(`${dir}/tile_file_writer`, 'png');
 
   const testDate = new Date('2025-01-01T12:00:00Z');
   const testDateStr = testDate.toISOString();
@@ -25,15 +22,18 @@ test('writers - Tile File Writer', async () => {
   // @ts-expect-error - invalid interface its ok
   await writer.commit({ test: 'a', test2: 2 });
 
-  const wmTile = await Bun.file(`${dir.name}/0/0/0.png`).text();
+  const wmTile = await Bun.file(`${dir}/tile_file_writer/0/0/0.png`).text();
   expect(wmTile).toEqual('test');
-  const s2Tile = await Bun.file(`${dir.name}/1/1/1/1.png`).text();
+  const s2Tile = await Bun.file(`${dir}/tile_file_writer/1/1/1/1.png`).text();
   expect(s2Tile).toEqual('test2');
-  const wmTimeTile = await Bun.file(`${dir.name}/${testDateStr}/5/3/7.png`).text();
+  const wmTimeTile = await Bun.file(`${dir}/tile_file_writer/${testDateStr}/5/3/7.png`).text();
   expect(wmTimeTile).toEqual('test3');
-  const s2TimeTile = await Bun.file(`${dir.name}/${testDateStr2}/4/10/10001/22.png`).text();
+  const s2TimeTile = await Bun.file(
+    `${dir}/tile_file_writer/${testDateStr2}/4/10/10001/22.png`,
+  ).text();
   expect(s2TimeTile).toEqual('test4');
-  const metadata = await Bun.file(`${dir.name}/metadata.json`).json();
+  const metadata = await Bun.file(`${dir}/tile_file_writer/metadata.json`).json();
   expect(metadata).toEqual({ test: 'a', test2: 2 });
-  dir.removeCallback();
+
+  deletePath(dir);
 });

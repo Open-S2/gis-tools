@@ -1,15 +1,10 @@
 import { MMapKV } from '../../../src/mmap';
+import { createTempPath, deletePath } from '../../../tests/tmp';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
-
 test('KV - MMap', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'data_store_kv_mmap',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
-  const store = new MMapKV<number>(dir.name);
+  const dir = createTempPath('data_store_kv_mmap');
+  const store = new MMapKV<number>(`${dir}/test_kv_mmap.kv`);
   expect(store.length).toBe(0);
   store.set(0, 1);
   expect(store.length).toBe(1);
@@ -26,5 +21,6 @@ test('KV - MMap', async () => {
   expect(values).toStrictEqual([1, 2, 4, 3]);
   expect(values2).toStrictEqual([1, 2, 4, 3]);
   store.close();
-  dir.removeCallback();
+
+  deletePath(dir);
 });

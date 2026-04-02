@@ -1,8 +1,8 @@
-import tmp from 'tmp';
+import { stat } from 'node:fs/promises';
 import { BufferReader, BufferWriter, Compression, S2TilesReader, S2TilesWriter } from '../../src';
 import { FileReader, FileWriter } from '../../src/file';
+import { createTempPath, deletePath } from '../../tests/tmp';
 import { expect, test } from 'bun:test';
-import { stat, unlink } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
 
@@ -46,8 +46,8 @@ test('S2Tiles - Buffer Writer - WM', async () => {
 });
 
 test('S2Tiles - File Writer - S2', async () => {
-  const tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
-  const fileWriter = new FileWriter(tmpFile1);
+  const dir = createTempPath('S2');
+  const fileWriter = new FileWriter(`${dir}/file_writer_s2`);
   const writer = new S2TilesWriter(fileWriter, 8, Compression.None);
   // setup data
   const txtEncoder = new TextEncoder();
@@ -66,10 +66,10 @@ test('S2Tiles - File Writer - S2', async () => {
   await writer.commit({ metadata: true } as unknown as Metadata);
   fileWriter.close();
 
-  const reader = new S2TilesReader(new FileReader(tmpFile1));
+  const reader = new S2TilesReader(new FileReader(`${dir}/file_writer_s2`));
   const metadata = await reader.getMetadata();
 
-  expect((await stat(tmpFile1)).size).toEqual(215_594);
+  expect((await stat(`${dir}/file_writer_s2`)).size).toEqual(215_594);
   expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
   expect(await reader.hasTileS2(0, 0, 0, 0)).toBeTrue();
@@ -92,15 +92,19 @@ test('S2Tiles - File Writer - S2', async () => {
   expect(tile6).toEqual(uint8_2);
 
   expect(await reader.hasTileS2(1, 1, 1, 1)).toBeFalse();
-  // cleanup tmpFile1
-  await unlink(tmpFile1);
+
+  deletePath(dir);
 });
 
 testFunc(
   'S2Tiles - File Writer - WM Large',
   async () => {
-    const tmpFile2 = tmp.tmpNameSync({ prefix: 'S2-big-2' });
-    const writer = new S2TilesWriter(new FileWriter(tmpFile2), 8, Compression.None);
+    const dir = createTempPath('S2-big-2');
+    const writer = new S2TilesWriter(
+      new FileWriter(`${dir}/file_writer_wm_large`),
+      8,
+      Compression.None,
+    );
     // write lots of tiles
     for (let zoom = 0; zoom < 8; zoom++) {
       const size = 1 << zoom;
@@ -116,7 +120,7 @@ testFunc(
     // finish
     await writer.commit({ metadata: true } as unknown as Metadata);
 
-    const reader = new S2TilesReader(new FileReader(tmpFile2));
+    const reader = new S2TilesReader(new FileReader(`${dir}/file_writer_wm_large`));
     const metadata = await reader.getMetadata();
     expect(metadata).toEqual({ metadata: true } as unknown as Metadata);
 
@@ -134,7 +138,7 @@ testFunc(
     const uint8_2 = new Uint8Array(buf2.buffer, buf2.byteOffset, buf2.byteLength);
     expect(tile2).toEqual(uint8_2);
     // cleanup tmpFile2
-    await unlink(tmpFile2);
+    deletePath(dir);
   },
   { timeout: 10_000 },
 );

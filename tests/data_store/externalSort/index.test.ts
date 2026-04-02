@@ -2,15 +2,11 @@ import { S2FileStore } from '../../../src/file';
 import { S2MMapStore, externalSort } from '../../../src/mmap';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
+import { createTempPath, deletePath } from '../../../tests/tmp';
 
 test('sort - single threaded', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'external_sort_single_1',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
-  const name = `${dir.name}/sort-single-threaded`;
+  const dir = createTempPath('external_sort_single_1');
+  const name = `${dir}/sort-single-threaded`;
   const store = new S2FileStore<{ a: number }>(name);
 
   store.set(0, { a: 1 });
@@ -36,38 +32,34 @@ test('sort - single threaded', async () => {
     { key: 5_005n, value: { a: 3 } },
   ]);
 
-  dir.removeCallback();
+  deletePath(dir);
 });
 
 test('sort multi-file - single threaded', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'external_sort_single_2',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
+  const dir = createTempPath('external_sort_single_2');
 
-  const storeA = new S2FileStore<{ a: number }>(`${dir.name}/a`);
+  const storeA = new S2FileStore<{ a: number }>(`${dir}/a`);
   storeA.set(0, { a: 1 });
   storeA.set(1, { a: 2 });
   storeA.set(22, { a: 6 });
   storeA.close();
 
-  const storeB = new S2FileStore<{ a: number }>(`${dir.name}/b`);
+  const storeB = new S2FileStore<{ a: number }>(`${dir}/b`);
   storeB.set(5_005, { a: 3 });
   storeB.set(22, { a: 4 });
   storeB.set(22, { a: 5 });
   storeB.close();
 
-  const storeC = new S2FileStore<{ a: number }>(`${dir.name}/c`);
+  const storeC = new S2FileStore<{ a: number }>(`${dir}/c`);
   storeC.set(9807, { a: 7 });
   storeC.set(456, { a: 8 });
   storeC.set(55, { a: 9 });
   storeC.set(12, { a: 10 });
   storeC.close();
 
-  await externalSort([`${dir.name}/a`, `${dir.name}/b`, `${dir.name}/c`], `${dir.name}/a`);
+  await externalSort([`${dir}/a`, `${dir}/b`, `${dir}/c`], `${dir}/a`);
 
-  const storeSorted = new S2FileStore<{ a: number }>(`${dir.name}/a`, { isSorted: true });
+  const storeSorted = new S2FileStore<{ a: number }>(`${dir}/a`, { isSorted: true });
   const data = await Array.fromAsync(storeSorted.entries());
 
   expect(data).toStrictEqual([
@@ -83,16 +75,12 @@ test('sort multi-file - single threaded', async () => {
     { key: 9_807n, value: { a: 7 } },
   ]);
 
-  dir.removeCallback();
+  deletePath(dir);
 });
 
 test('sort - multi threaded', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'externalSort_single_3',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
-  const name = `${dir.name}/sort-multi-threaded`;
+  const dir = createTempPath('externalSort_single_3');
+  const name = `${dir}/sort-multi-threaded`;
   const store = new S2MMapStore<{ a: number }>(name);
 
   store.set(0, { a: 1 });
@@ -160,5 +148,5 @@ test('sort - multi threaded', async () => {
     ].sort((a, b) => a.value.a - b.value.a),
   );
 
-  dir.removeCallback();
+  deletePath(dir);
 });

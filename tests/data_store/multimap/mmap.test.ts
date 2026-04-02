@@ -1,15 +1,10 @@
 import { MMapMultiMap } from '../../../src/mmap';
+import { createTempPath, deletePath } from '../../../tests/tmp';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
-
 test('MMapMultiMap', async () => {
-  const dir = tmp.dirSync({
-    prefix: 'data_store_multimap_mmap',
-    template: 'test-XXXXXX',
-    unsafeCleanup: true,
-  });
-  const store = new MMapMultiMap<number>(dir.name);
+  const dir = createTempPath('data_store_multimap_mmap');
+  const store = new MMapMultiMap<number>(`${dir}/test_mmap_multimap.mmap`);
   expect(store.length).toBe(0);
   store.set(0, 1);
   expect(store.length).toBe(1);
@@ -32,5 +27,5 @@ test('MMapMultiMap', async () => {
   ]);
 
   store.close();
-  dir.removeCallback();
+  deletePath(dir);
 });

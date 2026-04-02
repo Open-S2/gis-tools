@@ -1,11 +1,11 @@
 import { S2FileStore } from '../../src/file';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
+import { createTempPath, deletePath } from '../../tests/tmp';
 
 test('S2FileStore', async () => {
-  const dir = tmp.dirSync({ prefix: 'file_test', template: 'test-XXXXXX', unsafeCleanup: true });
-  const store = new S2FileStore<{ a: number }>(dir.name);
+  const dir = createTempPath('file_test');
+  const store = new S2FileStore<{ a: number }>(`${dir}/test`);
   expect(store.length).toEqual(0);
   store.set(0, { a: 1 });
   expect(store.length).toEqual(1);
@@ -24,7 +24,7 @@ test('S2FileStore', async () => {
   ]);
 
   store.close(true);
-  dir.removeCallback();
+  deletePath(dir);
 });
 
 test('S2FileStore - valuesAreIndex', async () => {

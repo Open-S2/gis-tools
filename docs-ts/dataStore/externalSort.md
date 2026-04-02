@@ -35,7 +35,7 @@ import { S2MMapStore, externalSort } from '../../../src/mmap';
 // Lets create a temp folder
 import tmp from 'tmp';
 tmp.setGracefulCleanup();
-const dir = tmp.dirSync({ prefix: 'external_sort_single', unsafeCleanup: true });
+const dir = tmp.dirSync({ prefix: 'external_sort_single' });
 
 // let's use a mmap store for convenience and track the name of the file
 const name = `${dir.name}/sort-multi-threaded`;

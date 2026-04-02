@@ -1,7 +1,6 @@
 import { FileVector } from '../../../src/file';
+import { createTempPath, deletePath } from '../../../tests/tmp';
 import { expect, test } from 'bun:test';
-
-import tmp from 'tmp';
 
 import type { VectorKey } from '../../../src/dataStore/vector';
 
@@ -11,8 +10,8 @@ interface TestKey extends VectorKey {
 }
 
 test('FileVector', async () => {
-  const dir = tmp.dirSync({ prefix: 'vector_file', template: 'test-XXXXXX', unsafeCleanup: true });
-  const store = new FileVector<TestKey>(dir.name);
+  const dir = createTempPath('vector_file');
+  const store = new FileVector<TestKey>(`${dir}/test_file_vector.vector`);
   expect(store.length).toBe(0);
   store.push({ a: 1, cell: 0n });
   expect(store.length).toBe(1);
@@ -47,5 +46,5 @@ test('FileVector', async () => {
   ]);
 
   store.close();
-  dir.removeCallback();
+  deletePath(dir);
 });

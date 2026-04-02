@@ -1,4 +1,4 @@
-import tmp from 'tmp';
+import { stat } from 'node:fs/promises';
 import {
   BufferReader,
   BufferWriter,
@@ -7,9 +7,8 @@ import {
   TileType,
 } from '../../../src';
 import { FileReader, FileWriter } from '../../../src/file';
+import { createTempPath, deletePath } from '../../../tests/tmp';
 import { expect, test } from 'bun:test';
-
-import { stat, unlink } from 'node:fs/promises';
 
 import type { Metadata } from 's2-tilejson';
 import type { S2Header } from '../../../src';
@@ -71,8 +70,8 @@ test('S2PMTiles - File Writer - WM', async () => {
 });
 
 test('S2PMTiles - File Writer - S2', async () => {
-  const tmpFile1 = tmp.tmpNameSync({ prefix: 'S2' });
-  const writer = new S2PMTilesWriter(new FileWriter(tmpFile1), TileType.Pbf);
+  const dir = createTempPath('S2');
+  const writer = new S2PMTilesWriter(new FileWriter(`${dir}/s2_test.pmtiles`), TileType.Pbf);
   // setup data
   const txtEncoder = new TextEncoder();
   const str = 'hello world';
@@ -89,11 +88,11 @@ test('S2PMTiles - File Writer - S2', async () => {
   // finish
   await writer.commit({ metadata: true } as unknown as Metadata);
 
-  const reader = new S2PMTilesReader(new FileReader(tmpFile1));
+  const reader = new S2PMTilesReader(new FileReader(`${dir}/s2_test.pmtiles`));
   const metadata = await reader.getMetadata();
   const header = await reader.getHeader();
 
-  expect((await stat(tmpFile1)).size).toEqual(98_376);
+  expect((await stat(`${dir}/s2_test.pmtiles`)).size).toEqual(98_376);
   expect(header).toEqual({
     clustered: true,
     internalCompression: 2,
@@ -154,15 +153,14 @@ test('S2PMTiles - File Writer - S2', async () => {
   const tile6 = await reader.getTileS2(2, 8, 1, 1);
   expect(tile6).toEqual(uint8_2);
 
-  // cleanup tmpFile1
-  await unlink(tmpFile1);
+  deletePath(dir);
 });
 
 testFunc(
   'S2PMTiles - File Writer - WM Large',
   async () => {
-    const tmpFile2 = tmp.tmpNameSync({ prefix: 'S2-big-2' });
-    const writer = new S2PMTilesWriter(new FileWriter(tmpFile2), TileType.Pbf);
+    const dir = createTempPath('S2-big-2');
+    const writer = new S2PMTilesWriter(new FileWriter(`${dir}/wm_large.pmtiles`), TileType.Pbf);
     // write lots of tiles
     for (let zoom = 0; zoom < 8; zoom++) {
       const size = 1 << zoom;
@@ -178,7 +176,7 @@ testFunc(
     // finish
     await writer.commit({ metadata: true } as unknown as Metadata);
 
-    const reader = new S2PMTilesReader(new FileReader(tmpFile2));
+    const reader = new S2PMTilesReader(new FileReader(`${dir}/wm_large.pmtiles`));
     // const header = await reader.getHeader();
     // expect((await stat(tmpFile2)).size).toEqual(736_752);
     // expect(header).toEqual({
@@ -211,8 +209,7 @@ testFunc(
     const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
     expect(tile).toEqual(uint8);
 
-    // cleanup
-    await unlink(tmpFile2);
+    deletePath(dir);
   },
   { timeout: 10_000 },
 );

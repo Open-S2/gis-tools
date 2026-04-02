@@ -2,16 +2,14 @@ import { Database } from 'bun:sqlite';
 import { S2FileStore } from '../src/dataStore/file';
 import { S2MMapStore } from '../src/dataStore/mmap';
 // import { open } from 'lmdb';
-import tmp from 'tmp';
+import { createTempPath, deletePath } from '../tests/tmp';
 
-tmp.setGracefulCleanup();
-
-const dir = tmp.dirSync({ prefix: 'store_benchmarks' });
+const dir = createTempPath('store_benchmarks');
 const TEST_SIZE = 1_000_000;
 
 /// ----------------------------------------------
 
-const mmapStore = new S2MMapStore<{ a: number }>(`${dir.name}/mmap`);
+const mmapStore = new S2MMapStore<{ a: number }>(`${dir}/mmap`);
 
 const mmapAddStart = Bun.nanoseconds();
 for (let i = 0; i < TEST_SIZE; i++) {
@@ -41,7 +39,7 @@ console.info('mmap total time: ', mmapAddSeconds + mmapSortSeconds + mmapQuerySe
 
 /// ----------------------------------------------
 
-const fileStore = new S2FileStore<{ a: number }>(`${dir.name}/file`);
+const fileStore = new S2FileStore<{ a: number }>(`${dir}/file`);
 
 const fileAddStart = Bun.nanoseconds();
 for (let i = 0; i < TEST_SIZE; i++) {
@@ -96,7 +94,7 @@ fileStore.close();
 
 /// ----------------------------------------------
 
-const db = new Database(`${dir.name}/sqlite.db`);
+const db = new Database(`${dir}/sqlite.db`);
 db.exec(`
   CREATE TABLE IF NOT EXISTS data (
     id BIGINT NOT NULL,
@@ -147,3 +145,5 @@ function getRandomInt(a: number, b: number): number {
   const max = Math.floor(b);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+deletePath(dir);

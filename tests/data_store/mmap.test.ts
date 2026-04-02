@@ -1,11 +1,11 @@
 import { S2MMapStore } from '../../src/mmap';
 import { expect, test } from 'bun:test';
 
-import tmp from 'tmp';
+import { createTempPath, deletePath } from '../../tests/tmp';
 
 test('S2MMapStore', async () => {
-  const dir = tmp.dirSync({ prefix: 'mmap_test', template: 'test-XXXXXX', unsafeCleanup: true });
-  const store = new S2MMapStore<{ a: number }>(`${dir.name}/testA`);
+  const dir = createTempPath('mmap_test');
+  const store = new S2MMapStore<{ a: number }>(`${dir}/testA`);
   expect(store.length).toBe(0);
   store.set(0, { a: 1 });
   expect(store.length).toBe(1);
@@ -24,7 +24,7 @@ test('S2MMapStore', async () => {
   ]);
 
   store.close(true);
-  dir.removeCallback();
+  deletePath(dir);
 });
 
 test('S2MMapStore - valuesAreIndex', async () => {
