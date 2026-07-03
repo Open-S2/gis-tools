@@ -717,7 +717,11 @@ test('GRIB2 - gdas gaussian case', async () => {
   expect([minLon, maxLon]).toEqual([-179.999232, 179.88358]);
   expect([minLat, maxLat]).toEqual([-89.91032453466268, 89.91032453466268]);
 
-  const expectedRaw = await Bun.file(`${__dirname}/fixtures/gdas.t00z.sfluxgrbf000.csv`).text();
+  const compressedBuffer = await Bun.file(
+    `${__dirname}/fixtures/gdas.t00z.sfluxgrbf000.csv.gz`,
+  ).arrayBuffer();
+  const decompressedUint8 = Bun.gunzipSync(new Uint8Array(compressedBuffer));
+  const expectedRaw = new TextDecoder().decode(decompressedUint8);
   const expected: VectorPoint<{ Value?: number }>[] = [];
   const expectedLines = expectedRaw.split('\n');
   for (const line of expectedLines.slice(1)) {
