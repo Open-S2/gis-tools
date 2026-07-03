@@ -1,1 +1,1 @@
-export { CSVReader } from '../../../src';
+export { CSVReader } from '../../../src/index.js';

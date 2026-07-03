@@ -1,1 +1,1 @@
-export { lanczosInterpolation, rgbaLanczosInterpolation } from 'gis-tools-ts';
+export { lanczosInterpolation, rgbaLanczosInterpolation } from '../../../src/index.js';

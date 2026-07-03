@@ -1,1 +1,1 @@
-export * from '../../../src/readers/tile';
+export * from '../../../src/readers/tile/index.js';

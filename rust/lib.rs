@@ -213,6 +213,7 @@
 //! - [`crate::writers::to_gpx`]: Given a writer and an array of readers, write the input features to the writer as GPX data
 //! - [`crate::writers::to_json`]: Given a writer and an array of readers, write the input features to the writer as a JSON object
 //! - [`crate::writers::to_jsonld`]: Given a writer and an array of readers, write the input features to the writer as JSON-LD
+//! - [`crate::writers::to_shp`]: Given a writer and an array of readers, write the input features to the writer as a Shapefile
 //! - [`crate::writers::PMTilesWriter`]: The File reader is to be used by the local filesystem.
 //! - [`crate::writers::S2TilesWriter`]: An S2 Tile Writer to store tile and metadata in a cloud optimized format.
 //! - [`crate::writers::FileTileWriter`]: A Folder-File tile writer

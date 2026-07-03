@@ -138,14 +138,6 @@ export class BufferWriter implements Writer {
   #buffer: number[] = [];
   #textEncoder = new TextEncoder();
 
-  /**
-   * Create a new BufferWriter
-   *
-   * @param _name - the name of the file (not used via buffers)
-   * @returns - a new BufferWriter
-   */
-  constructor() {}
-
   /** @returns - the buffer's length */
   tell(): number {
     return this.#buffer.length;

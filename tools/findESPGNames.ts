@@ -6,8 +6,10 @@
 // EXTRACT: into ./tools/
 // RUN: bun build:epsg
 
+import { parseWKTObject } from '../src/index.js';
 import { readdirSync } from 'fs';
-import { WKTObject, parseWKTObject } from '../src';
+
+import type { WKTObject } from '../src/index.js';
 
 const folder = 'EPSG-v12_007-WKT';
 

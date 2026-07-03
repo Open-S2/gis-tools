@@ -1,1 +1,1 @@
-export { OSMReader } from '../../../src';
+export { OSMReader } from '../../../src/index.js';

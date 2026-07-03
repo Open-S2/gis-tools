@@ -1,1 +1,1 @@
-export { averageInterpolation, rgbaAverageInterpolation } from 'gis-tools-ts';
+export { averageInterpolation, rgbaAverageInterpolation } from '../../../src/index.js';

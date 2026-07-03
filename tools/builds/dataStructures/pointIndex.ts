@@ -1,1 +1,1 @@
-export { PointIndex } from '../../../src';
+export { PointIndex } from '../../../src/index.js';

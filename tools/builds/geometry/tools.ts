@@ -1,1 +1,1 @@
-export * from '../../../src/geometry/tools';
+export * from '../../../src/geometry/tools/index.js';

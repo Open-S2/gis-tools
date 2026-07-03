@@ -1,1 +1,1 @@
-export { Cache } from '../../../src';
+export { Cache } from '../../../src/index.js';

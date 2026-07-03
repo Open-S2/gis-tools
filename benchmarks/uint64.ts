@@ -1,6 +1,6 @@
-import { Uint64Cell } from '../src/wasm/uint64';
-import { idFromS2Point } from '../src/geometry';
-import { pointFromLonLat } from '../src/geometry/s2/point';
+import { Uint64Cell } from '../src/wasm/uint64.js';
+import { idFromS2Point } from '../src/geometry/index.js';
+import { pointFromLonLat } from '../src/geometry/s2/point.js';
 // // import { fromS2Point } from '../src/geometry/idBig';
 
 const SIZE = 10_000_000;

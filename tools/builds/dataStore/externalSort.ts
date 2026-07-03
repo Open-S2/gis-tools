@@ -1,1 +1,1 @@
-export { externalSort } from '../../../src/file';
+export { externalSort } from '../../../src/file.js';

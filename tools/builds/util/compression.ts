@@ -1,1 +1,1 @@
-export * from '../../../src/util/compression';
+export * from '../../../src/util/compression.js';

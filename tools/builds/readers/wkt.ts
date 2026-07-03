@@ -4,4 +4,4 @@ export {
   parseWKTGeometry,
   parseWKTObject,
   parseWKTProjection,
-} from '../../../src';
+} from '../../../src/index.js';

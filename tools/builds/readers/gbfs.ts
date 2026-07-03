@@ -1,1 +1,1 @@
-export { buildGBFSReader } from '../../../src';
+export { buildGBFSReader } from '../../../src/index.js';

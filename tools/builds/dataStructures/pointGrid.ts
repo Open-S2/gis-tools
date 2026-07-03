@@ -1,1 +1,1 @@
-export { PointGrid } from '../../../src';
+export { PointGrid } from '../../../src/index.js';

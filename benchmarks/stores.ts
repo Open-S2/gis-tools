@@ -1,8 +1,8 @@
 import { Database } from 'bun:sqlite';
-import { S2FileStore } from '../src/dataStore/file';
-import { S2MMapStore } from '../src/dataStore/mmap';
+import { S2FileStore } from '../src/dataStore/file.js';
+import { S2MMapStore } from '../src/dataStore/mmap.js';
 // import { open } from 'lmdb';
-import { createTempPath, deletePath } from '../tests/tmp';
+import { createTempPath, deletePath } from '../tests/tmp.js';
 
 const dir = createTempPath('store_benchmarks');
 const TEST_SIZE = 1_000_000;

@@ -1,1 +1,1 @@
-export { polylabel } from '../../../src';
+export { polylabel } from '../../../src/index.js';

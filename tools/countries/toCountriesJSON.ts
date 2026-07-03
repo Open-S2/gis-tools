@@ -1,10 +1,10 @@
 // import { FileReader } from '../../src/file';
 // import { OSMReader, TagFilter } from '../../src';
-import { OSMFileReader } from '../../src/file';
-import { TagFilter } from '../../src';
+import { OSMFileReader } from '../../src/file.js';
+import { TagFilter } from '../../src/index.js';
 
-import type { Country } from '../../src/constants/countries';
-import type { VectorPoint } from '../../src';
+import type { Country } from '../../src/constants/countries.js';
+import type { VectorPoint } from '../../src/index.js';
 
 const tagFilter = new TagFilter();
 tagFilter.addFilter('Relation', 'admin_level', '2');

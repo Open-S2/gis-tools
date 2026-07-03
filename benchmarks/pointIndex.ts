@@ -1,6 +1,6 @@
 import KDBush from 'kdbush';
-import { pointFromLonLat } from '../src/geometry/s2/point';
-import { PointIndex, PointIndexFast } from '../src';
+import { pointFromLonLat } from '../src/geometry/s2/point.js';
+import { PointIndex, PointIndexFast } from '../src/index.js';
 
 const TOTAL_SIZE = 1_000_000;
 

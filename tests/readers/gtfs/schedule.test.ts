@@ -636,11 +636,11 @@ test('attributions', async () => {
 
 test('pathways', async () => {
   const pathways = parseGTFSPathways(await Bun.file(`${__dirname}/fixtures/pathways.csv`).text());
+  // @ts-expect-error - enums can be ignored for testing
   expect(pathways).toEqual({
     escalatorA: {
       fromStopId: '96',
       id: 'escalatorA',
-      // @ts-expect-error - enums can be ignored for testing
       isBidirectional: 4,
       length: undefined,
       maxSlope: undefined,
@@ -655,7 +655,6 @@ test('pathways', async () => {
     stairsA: {
       fromStopId: '90',
       id: 'stairsA',
-      // @ts-expect-error - enums can be ignored for testing
       isBidirectional: 2,
       length: undefined,
       maxSlope: undefined,

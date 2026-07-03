@@ -1,1 +1,1 @@
-export { TileWriter } from '../../../src';
+export type { TileWriter } from '../../../src/index.js';

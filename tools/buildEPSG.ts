@@ -6,7 +6,7 @@
 // EXTRACT: into ./tools/
 // RUN: `bun build:epsg` to generate ./src/proj/projections/epsg.ts
 
-import { parseWKTProjection } from '../src';
+import { parseWKTProjection } from '../src/index.js';
 import { appendFileSync, existsSync, readdirSync, unlinkSync } from 'fs';
 
 const folder = 'EPSG-v12_007-WKT';

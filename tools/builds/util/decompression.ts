@@ -1,1 +1,1 @@
-import '../../../src/util/polyfills/decompression';
+import '../../../src/util/polyfills/decompression.js';

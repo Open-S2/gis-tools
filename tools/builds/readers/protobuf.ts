@@ -1,1 +1,1 @@
-export { PbfReader } from '../../../src';
+export { PbfReader } from '../../../src/index.js';

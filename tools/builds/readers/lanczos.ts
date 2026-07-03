@@ -1,1 +1,1 @@
-export { lanczos } from '../../../src';
+export { lanczos } from '../../../src/index.js';

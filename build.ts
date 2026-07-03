@@ -1,4 +1,4 @@
-import WgslPlugin from './config/wgsl-loader/bun';
+import WgslPlugin from './config/wgsl-loader/bun.js';
 
 // first convert the wasm file to base64
 // const dataS2Cell = await Bun.file('./zig-out/bin/optimized-s2cell.wasm').arrayBuffer();

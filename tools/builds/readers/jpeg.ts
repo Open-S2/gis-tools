@@ -1,1 +1,1 @@
-export { jpegDecoder } from '../../../src';
+export { jpegDecoder } from '../../../src/index.js';

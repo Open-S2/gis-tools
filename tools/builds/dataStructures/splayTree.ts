@@ -1,1 +1,1 @@
-export { SplayTreeSet } from '../../../src';
+export { SplayTreeSet } from '../../../src/index.js';

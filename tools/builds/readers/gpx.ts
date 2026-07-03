@@ -1,1 +1,1 @@
-export { GPXReader } from '../../../src';
+export { GPXReader } from '../../../src/index.js';

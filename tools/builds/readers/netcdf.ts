@@ -1,1 +1,1 @@
-export { NetCDFReader } from '../../../src';
+export { NetCDFReader } from '../../../src/index.js';

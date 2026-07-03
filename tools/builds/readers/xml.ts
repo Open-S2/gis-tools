@@ -1,1 +1,1 @@
-export * from '../../../src/readers/xml';
+export * from '../../../src/readers/xml/index.js';

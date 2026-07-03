@@ -1,1 +1,1 @@
-export { MultiMap } from '../../../src';
+export { MultiMap } from '../../../src/index.js';

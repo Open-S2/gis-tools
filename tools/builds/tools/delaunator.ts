@@ -1,1 +1,1 @@
-export { Delaunator } from '../../../src';
+export { Delaunator } from '../../../src/index.js';

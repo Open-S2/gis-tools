@@ -1,1 +1,1 @@
-export { ShapeFileReader } from '../../../src';
+export { ShapeFileReader } from '../../../src/index.js';

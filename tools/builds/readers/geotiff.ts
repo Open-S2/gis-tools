@@ -1,1 +1,1 @@
-export { GeoTIFFReader } from '../../../src';
+export { GeoTIFFReader } from '../../../src/index.js';

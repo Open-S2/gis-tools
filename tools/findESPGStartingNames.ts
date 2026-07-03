@@ -1,7 +1,9 @@
 // Not perfect, just experimenting to see roughly what kind of keywords are most common to start
 
+import { parseWKTObject } from '../src/index.js';
 import { readdirSync } from 'fs';
-import { WKTObject, parseWKTObject } from '../src';
+
+import type { WKTObject } from '../src/index.js';
 
 const folder = 'EPSG-v12_007-WKT';
 

@@ -1,1 +1,1 @@
-export * from '../../../src/space/planets';
+export * from '../../../src/space/planets/index.js';

@@ -1,1 +1,1 @@
-export { nearestInterpolation, rgbaNearestInterpolation } from 'gis-tools-ts';
+export { nearestInterpolation, rgbaNearestInterpolation } from '../../../src/index.js';

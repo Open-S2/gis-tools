@@ -1,1 +1,1 @@
-export { JpxImage } from '../../../src';
+export { JpxImage } from '../../../src/index.js';

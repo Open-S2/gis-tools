@@ -1,1 +1,1 @@
-export { idwInterpolation, rgbaIDWInterpolation } from 'gis-tools-ts';
+export { idwInterpolation, rgbaIDWInterpolation } from '../../../src/index.js';

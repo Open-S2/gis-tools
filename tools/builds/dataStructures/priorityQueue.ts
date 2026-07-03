@@ -1,1 +1,1 @@
-export { PriorityQueue } from '../../../src';
+export { PriorityQueue } from '../../../src/index.js';

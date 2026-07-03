@@ -1,1 +1,1 @@
-export * from '../../../src/geometry/predicates';
+export * from '../../../src/geometry/predicates/index.js';

@@ -588,7 +588,6 @@ export function grib2Template320(section: Reader) {
     gridUnits: 'meters',
     /**
      * Convert this section into grid data
-     * @param transformer - projection transformer
      * @returns - grid data
      */
     buildGrid: function (): VectorPoint<Record<string, number>>[] {
@@ -765,7 +764,6 @@ export function grib2Template330(section: Reader) {
     gridUnits: 'meters',
     /**
      * Convert this section into grid data
-     * @param transformer - projection transformer
      * @returns - grid data
      */
     buildGrid: function (): VectorPoint<Record<string, number>>[] {
@@ -949,7 +947,6 @@ export function grib2Template340(section: Reader) {
     gridUnits: 'meters',
     /**
      * Convert this section into grid data
-     * @param transformer - projection transformer
      * @returns - grid data
      */
     buildGrid: function (): VectorPoint<Record<string, number>>[] {
@@ -1022,7 +1019,6 @@ export function grib2Template350(section: Reader) {
     },
     /**
      * Convert this section into grid data
-     * @param transformer - projection transformer
      * @returns - grid data
      */
     buildGrid: function (): VectorPoint<Record<string, number>>[] {

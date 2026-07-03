@@ -1,1 +1,1 @@
-export { toJSON, toJSONLD } from '../../../src';
+export { toJSON, toJSONLD } from '../../../src/index.js';

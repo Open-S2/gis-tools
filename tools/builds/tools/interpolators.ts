@@ -1,1 +1,1 @@
-export * from '../../../src/tools/interpolation';
+export * from '../../../src/tools/interpolation/index.js';

@@ -1,1 +1,1 @@
-export { Tile } from '../../../src';
+export { Tile } from '../../../src/index.js';

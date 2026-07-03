@@ -1,1 +1,1 @@
-export { KDSpatialIndex } from '../../../src';
+export { KDSpatialIndex } from '../../../src/index.js';

@@ -1,1 +1,1 @@
-export * from '../../../src/proj4/mgrs';
+export * from '../../../src/proj4/mgrs.js';

@@ -1,1 +1,1 @@
-export { Vector } from '../../../src';
+export { Vector } from '../../../src/index.js';

@@ -1,1 +1,1 @@
-export { PointIndexFast } from '../../../src';
+export { PointIndexFast } from '../../../src/index.js';

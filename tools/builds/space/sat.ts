@@ -1,1 +1,1 @@
-export { Satellite } from '../../../src';
+export { Satellite } from '../../../src/index.js';

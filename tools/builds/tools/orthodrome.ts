@@ -1,1 +1,1 @@
-export { Orthodrome } from '../../../src';
+export { Orthodrome } from '../../../src/index.js';

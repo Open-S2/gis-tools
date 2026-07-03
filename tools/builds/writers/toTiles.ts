@@ -1,1 +1,1 @@
-export { toTiles } from '../../../src';
+export { toTiles } from '../../../src/index.js';

@@ -1,1 +1,1 @@
-import '../../../src/util/polyfills/dataview';
+import '../../../src/util/polyfills/dataview.js';

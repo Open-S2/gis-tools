@@ -1,1 +1,1 @@
-export { PointCluster } from '../../../src';
+export { PointCluster } from '../../../src/index.js';

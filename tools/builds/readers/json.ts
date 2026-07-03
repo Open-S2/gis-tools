@@ -3,4 +3,4 @@ export {
   NewLineDelimitedJSONReader,
   SequenceJSONReader,
   JSONReader,
-} from '../../../src';
+} from '../../../src/index.js';

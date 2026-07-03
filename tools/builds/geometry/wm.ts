@@ -1,1 +1,1 @@
-export * from '../../../src/geometry/wm';
+export * from '../../../src/geometry/wm/index.js';

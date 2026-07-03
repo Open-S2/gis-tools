@@ -1,1 +1,1 @@
-export { GRIB2Reader } from '../../../src';
+export { GRIB2Reader } from '../../../src/index.js';

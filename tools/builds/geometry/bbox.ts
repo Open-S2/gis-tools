@@ -1,1 +1,1 @@
-export * from '../../../src/geometry/bbox';
+export * from '../../../src/geometry/bbox.js';

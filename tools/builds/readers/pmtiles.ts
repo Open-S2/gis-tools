@@ -1,1 +1,1 @@
-export { S2PMTilesReader } from '../../../src';
+export { S2PMTilesReader } from '../../../src/index.js';

@@ -1,1 +1,1 @@
-export { LASZipReader } from '../../../src';
+export { LASZipReader } from '../../../src/index.js';

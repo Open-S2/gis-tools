@@ -1,1 +1,1 @@
-export { LASReader } from '../../../src';
+export { LASReader } from '../../../src/index.js';

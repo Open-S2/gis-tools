@@ -1,1 +1,1 @@
-export { Transformer, Mercator } from '../../../src';
+export { Transformer, Mercator } from '../../../src/index.js';
