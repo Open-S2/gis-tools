@@ -39,11 +39,15 @@ jobs:
           sudo apt-get install -y lcov
           cargo install grcov
 
+      - name: Update dependencies
+        run: cargo +nightly update
+
       - name: Build Rust project
         run: cargo +nightly build --workspace --features nightly
         env:
           RUSTUP_TOOLCHAIN: nightly
           RUSTFLAGS: '-Z unstable-options'
+          RUSTC_BOOTSTRAP: 1
 
       - name: Run Rust tests with coverage
         run: |
@@ -54,6 +58,7 @@ jobs:
           grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*/.cargo/*" --ignore "/*/target/*" -o ./coverage/rust-lcov.info
         env:
           RUSTUP_TOOLCHAIN: nightly
+          RUSTC_BOOTSTRAP: 1
 
       # Merge LCOV reports
 
