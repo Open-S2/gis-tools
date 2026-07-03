@@ -40,13 +40,13 @@ jobs:
 
       - name: Build Rust project
         run: cargo build --workspace --features nightly
-
-      # Rust tests
+        env:
+          RUSTFLAGS: '-Z unstable-options'
 
       - name: Run Rust tests with coverage
         run: |
           export CARGO_INCREMENTAL=0
-          export RUSTFLAGS='-Cinstrument-coverage'
+          export RUSTFLAGS='-Cinstrument-coverage -Z unstable-options'
           export LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw'
           cargo test --workspace --features nightly
           grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*/.cargo/*" --ignore "/*/target/*" -o ./coverage/rust-lcov.info
