@@ -7,8 +7,6 @@ jobs:
     name: Coveralls Upload
     runs-on: ubuntu-latest
 
-    # setup
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,25 +27,19 @@ jobs:
       # setup rust
 
       - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
-          override: true
+          components: rustfmt, clippy
 
-      - name: Install Clippy
-        run: rustup component add clippy
-
-      - name: Install llvm-tools-preview
-        run: rustup component add llvm-tools-preview
-
-      - name: Install grcov
+      - name: Install coverage tools
         run: |
-          sudo apt-get install lcov
+          rustup component add llvm-tools-preview
+          sudo apt-get update
+          sudo apt-get install -y lcov
           cargo install grcov
 
       - name: Build Rust project
         run: cargo build --workspace --features nightly
-        shell: bash
 
       # Rust tests
 
@@ -58,7 +50,6 @@ jobs:
           export LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw'
           cargo test --workspace --features nightly
           grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*/.cargo/*" --ignore "/*/target/*" -o ./coverage/rust-lcov.info
-        shell: bash
 
       # Merge LCOV reports
 
@@ -74,9 +65,8 @@ jobs:
       # upload to Coveralls
 
       - name: Upload coverage to Coveralls
-        run: |
-          if [ -f ./coverage/lcov.info ]; then
-            bun run coveralls < ./coverage/lcov.info
-          fi
+        uses: coverallsapp/github-action@v2
+        with:
+          files: ./coverage/lcov.info
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
