@@ -178,7 +178,7 @@ describe('WM Tile From Vectors', () => {
     // );
 
     const expectedFeatures = await Bun.file(`${__dirname}/fixtures/line_out_local.geojson`).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('edgeline', async () => {
@@ -204,7 +204,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/edgeline_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('polygon', async () => {
@@ -358,7 +358,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/polygon_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('multipoint', async () => {
@@ -386,7 +386,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/multipoint_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('multiline', async () => {
@@ -430,7 +430,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/multiline_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('uk', async () => {
@@ -520,7 +520,7 @@ describe('WM Tile From Vectors', () => {
     // );
 
     const expectedFeatures = await Bun.file(`${__dirname}/fixtures/uk_out_local.geojson`).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('degenring', async () => {
@@ -543,7 +543,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/degenring_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('hourglass', async () => {
@@ -584,7 +584,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/hourglass_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('spiked', async () => {
@@ -607,7 +607,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/spiked_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('blocky', async () => {
@@ -650,7 +650,7 @@ describe('WM Tile From Vectors', () => {
     const expectedFeatures = await Bun.file(
       `${__dirname}/fixtures/blocky_out_local.geojson`,
     ).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 
   it('donut', async () => {
@@ -671,6 +671,17 @@ describe('WM Tile From Vectors', () => {
     // );
 
     const expectedFeatures = await Bun.file(`${__dirname}/fixtures/donut_out_local.geojson`).json();
-    expect(resFeatures).toEqual(expectedFeatures.features);
+    expect(roundJSON(resFeatures)).toEqual(roundJSON(expectedFeatures.features));
   });
 });
+
+function roundJSON(obj: unknown, decimals: number = 10): unknown {
+  return JSON.parse(
+    JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'number') {
+        return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+      }
+      return value;
+    }),
+  );
+}

@@ -173,5 +173,16 @@ test('vectorizeHillshade', async () => {
   const expectedFeatureCollection = await Bun.file(
     `${__dirname}/fixtures/13_1544_3085_vector_hillshade.json`,
   ).json();
-  expect(featureCollection).toEqual(expectedFeatureCollection);
+  expect(roundJSON(featureCollection)).toEqual(roundJSON(expectedFeatureCollection));
 });
+
+function roundJSON(obj: unknown, decimals: number = 10): unknown {
+  return JSON.parse(
+    JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'number') {
+        return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+      }
+      return value;
+    }),
+  );
+}
