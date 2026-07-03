@@ -280,10 +280,7 @@ where
             return queue;
         }
         let max_depth = K_MAX_EDGE.get_closest_level(self.radius.to_angle().radians) as u8;
-        loop {
-            let Some(cell) = queue.pop() else {
-                break;
-            };
+        while let Some(cell) = queue.pop() {
             let vertex_count = self.contains_s2_cell_vertex_count(cell);
             let max_level = cell.level() >= max_depth;
             if vertex_count == 4 || (vertex_count > 0 && max_level) {

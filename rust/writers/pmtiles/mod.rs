@@ -28,7 +28,7 @@ impl OptimizedDirectory {
         directory: &mut PMDirectory,
         target_root_length: usize,
     ) -> OptimizedDirectory {
-        directory.entries.sort_by(|a, b| a.tile_id.cmp(&b.tile_id));
+        directory.entries.sort_by_key(|a| a.tile_id);
         let test_bytes = directory.serialize();
         if test_bytes.len() < target_root_length {
             OptimizedDirectory { root_bytes: test_bytes, leaves_bytes: Vec::new(), num_leaves: 0 }

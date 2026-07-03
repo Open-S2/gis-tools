@@ -223,7 +223,7 @@ impl<R: Reader> S2TilesReader<R> {
             // grab position
             let node_pos = path.remove(0) as usize * NODE_SIZE;
             // set
-            offset = read_uint_48le(&mut dir, Some(node_pos as usize));
+            offset = read_uint_48le(&mut dir, Some(node_pos));
             length = dir.get_u32_at(node_pos + 6);
             if length == 0 {
                 return None;

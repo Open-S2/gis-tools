@@ -2823,7 +2823,7 @@ impl CoordinateSystem {
         self.subtype.to_projection_transform(proj_transform);
         if !self.axis.is_empty() {
             let mut axiss = self.axis.clone();
-            axiss.sort_by(|a, b| a.order.cmp(&b.order));
+            axiss.sort_by_key(|a| a.order);
             let axis: Vec<AxisDirection> = axiss.iter().map(|a| a.direction).collect();
             let mut axis_converter = AxisSwapConverter::new(Rc::new(RefCell::new(Proj::default())));
             axis_converter.swap = axis.into();

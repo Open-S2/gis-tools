@@ -143,8 +143,7 @@ pub fn build_contours(
     }
 
     let mut feature_collection = FeatureCollection::new(None);
-    feature_collection.features =
-        features.into_iter().map(|f| Features::VectorFeature(f)).collect();
+    feature_collection.features = features.into_iter().map(Features::VectorFeature).collect();
     feature_collection
 }
 
@@ -165,7 +164,7 @@ pub fn build_isobands(
     let isorings = build_isorings(values, threshold, width, height, padding, tolerance);
     // Store rings in the correct groups. Skip rings with zero area.
     for ring in isorings {
-        let area = (&ring).area(Some(1.));
+        let area = ring.area(Some(1.));
         if area == 0. {
             continue;
         } else if area > 0. {
@@ -211,7 +210,7 @@ pub fn build_isorings(
     // Special case for the first row (y = -1, t2 = t3 = 0).
     let mut x: isize = -1;
     let mut y: isize = -1;
-    t1 = above(values.get(0).cloned(), threshold);
+    t1 = above(values.first().cloned(), threshold);
     MS_LUT[t1 << 1].iter().for_each(|p| {
         stitch(p, width, x, y, &mut frag_by_start, &mut frag_by_end, &mut res);
     });
@@ -225,7 +224,7 @@ pub fn build_isorings(
             stitch(p, width, x, y, &mut frag_by_start, &mut frag_by_end, &mut res);
         });
     }
-    MS_LUT[t1 << 0].iter().for_each(|p| {
+    MS_LUT[t1].iter().for_each(|p| {
         stitch(p, width, x, y, &mut frag_by_start, &mut frag_by_end, &mut res);
     });
 
@@ -277,8 +276,7 @@ pub fn build_isorings(
         stitch(p, width, x, y, &mut frag_by_start, &mut frag_by_end, &mut res);
     });
 
-    for i in 0..res.len() {
-        let ring = &mut res[i];
+    for ring in &mut res {
         // reverse the ring
         ring.reverse();
         // smooth the edges
@@ -292,7 +290,7 @@ pub fn build_isorings(
             // Prep Douglas-Peucker simplification by setting t-values.
             build_sq_dist(ring, 0, ring.len() - 1, tolerance * tolerance);
             // Apply Douglas-Peucker
-            res[i] = simplify_line(ring, tolerance, false, false);
+            *ring = simplify_line(ring, tolerance, false, false);
         }
     }
 

@@ -39,7 +39,8 @@ pub fn build_tile_grid_wm(
     wanted_size: usize,
     is_tms: bool,
 ) -> Vec<TileGridGuide> {
-    if wanted_size % size != 0 {
+    // if wanted_size % size != 0 {
+    if !wanted_size.is_multiple_of(size) {
         panic!("wanted_size must be a multiple of size");
     }
 
@@ -133,7 +134,7 @@ pub fn build_tile_grid_wm(
                 dest_offsets: (h_dest_x, padding + i * size),
                 src_offsets: (h_src_x, 0),
                 write_size: (h_write_w, size),
-                tile: (WMTileID { zoom: z_hi as u8, x: h_x as u32, y: current_y as u32 }).into(),
+                tile: (WMTileID { zoom: z_hi as u8, x: h_x, y: current_y as u32 }).into(),
                 clamp: None,
                 image: None,
             });
@@ -141,7 +142,8 @@ pub fn build_tile_grid_wm(
 
         // Vertical: Padding Up
         let mut remaining_top = padding as isize;
-        let mut current_y_top = (if is_tms { y_hi_origin } else { y_hi_origin }) as isize;
+        // let mut current_y_top = (if is_tms { y_hi_origin } else { y_hi_origin }) as isize;
+        let mut current_y_top = y_hi_origin as isize;
         let mut current_offset_top = padding as isize;
         while remaining_top > 0 {
             let write_height = isize::min(remaining_top, size as isize);
@@ -167,8 +169,7 @@ pub fn build_tile_grid_wm(
                     h_write_w,
                     (if is_oob { remaining_top } else { write_height }) as usize,
                 ),
-                tile: (WMTileID { zoom: z_hi as u8, x: h_x as u32, y: current_y_top as u32 })
-                    .into(),
+                tile: (WMTileID { zoom: z_hi as u8, x: h_x, y: current_y_top as u32 }).into(),
                 clamp: Some(is_oob),
                 image: None,
             });
@@ -203,8 +204,7 @@ pub fn build_tile_grid_wm(
                     h_write_w,
                     (if is_oob { remaining_bottom } else { write_height }) as usize,
                 ),
-                tile: (WMTileID { zoom: z_hi as u8, x: h_x as u32, y: current_y_bottom as u32 })
-                    .into(),
+                tile: (WMTileID { zoom: z_hi as u8, x: h_x, y: current_y_bottom as u32 }).into(),
                 clamp: Some(is_oob),
                 image: None,
             });

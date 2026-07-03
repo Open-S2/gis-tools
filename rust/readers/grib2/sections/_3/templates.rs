@@ -7,10 +7,7 @@ use crate::{
         Grib2Table3_4Bit2, Grib2Table3_5, Grib2Table3_5Bit1,
     },
 };
-use core::f64::{
-    EPSILON,
-    consts::{FRAC_PI_2, FRAC_PI_4, PI},
-};
+use core::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 use libm::{asin, atan, atan2, cos, fabs, log, pow, sin, sqrt, tan};
 use s2json::{VectorMultiPoint, VectorPoint};
 
@@ -202,13 +199,13 @@ impl EquatorialTemplate {
             ny: section.uint32_be(Some(34)),
             basic_angle,
             subdivisions,
-            lat1: read_grib_int(section.int32_be(Some(46))) as f64 * ratio,
-            lon1: read_grib_int(section.int32_be(Some(50))) as f64 * ratio,
+            lat1: read_grib_int(section.int32_be(Some(46))) * ratio,
+            lon1: read_grib_int(section.int32_be(Some(50))) * ratio,
             resolution: resolution_code.into(),
-            lat2: read_grib_int(section.int32_be(Some(55))) as f64 * ratio,
-            lon2: read_grib_int(section.int32_be(Some(59))) as f64 * ratio,
-            dx: read_grib_int(section.int32_be(Some(63))) as f64 * ratio,
-            dy: read_grib_int(section.int32_be(Some(67))) as f64 * ratio,
+            lat2: read_grib_int(section.int32_be(Some(55))) * ratio,
+            lon2: read_grib_int(section.int32_be(Some(59))) * ratio,
+            dx: read_grib_int(section.int32_be(Some(63))) * ratio,
+            dy: read_grib_int(section.int32_be(Some(67))) * ratio,
             scan_mode: scan_mode_code.into(),
             grid_units: Grib2GridUnits::Degrees,
         }
@@ -263,10 +260,10 @@ impl EquatorialTemplate {
 ///   - (a) The geographic latitude in degrees of the southern pole of the coordinate system,06 for example.
 ///   - (b) The geographic longitude in degrees of the southern pole of the coordinate system,λp for example.
 ///   - (c) The angle of rotation in degrees about the new polar axis (measured clockwise when looking
-///         from the southern to the northern pole) of the coordinate system, assuming the new axis to
-///         have been obtained by first rotating the sphere through λp degrees about the geographic
-///         polar axis and then rotating through (90 + 0p) degrees so that the southern pole moved along
-///         the (previously rotated) Greenwich meridian.
+///     from the southern to the northern pole) of the coordinate system, assuming the new axis to
+///     have been obtained by first rotating the sphere through λp degrees about the geographic
+///     polar axis and then rotating through (90 + 0p) degrees so that the southern pole moved along
+///     the (previously rotated) Greenwich meridian.
 ///
 /// - A quasi-regular grid is only defined for appropriate grid scanning modes. Either rows or columns,
 ///   but not both simultaneously, may have variable numbers of points or variable spacing. The first
@@ -354,17 +351,17 @@ impl RotatedLonLatTemplate {
             ny: section.uint32_be(Some(34)),
             basic_angle,
             subdivisions,
-            lat1: read_grib_int(section.int32_be(Some(46))) as f64 * ratio,
-            lon1: read_grib_int(section.int32_be(Some(50))) as f64 * ratio,
+            lat1: read_grib_int(section.int32_be(Some(46))) * ratio,
+            lon1: read_grib_int(section.int32_be(Some(50))) * ratio,
             resolution: resolution_code.into(),
-            lat2: read_grib_int(section.int32_be(Some(55))) as f64 * ratio,
-            lon2: read_grib_int(section.int32_be(Some(59))) as f64 * ratio,
-            dx: read_grib_int(section.int32_be(Some(63))) as f64 * ratio,
-            dy: read_grib_int(section.int32_be(Some(67))) as f64 * ratio,
+            lat2: read_grib_int(section.int32_be(Some(55))) * ratio,
+            lon2: read_grib_int(section.int32_be(Some(59))) * ratio,
+            dx: read_grib_int(section.int32_be(Some(63))) * ratio,
+            dy: read_grib_int(section.int32_be(Some(67))) * ratio,
             scan_mode: scan_mode_code.into(),
-            lat_sp: read_grib_int(section.int32_be(Some(72))) as f64 * ratio,
-            lon_sp: read_grib_int(section.int32_be(Some(76))) as f64 * ratio,
-            rot_angle: read_grib_int(section.int32_be(Some(80))) as f64 * ratio,
+            lat_sp: read_grib_int(section.int32_be(Some(72))) * ratio,
+            lon_sp: read_grib_int(section.int32_be(Some(76))) * ratio,
+            rot_angle: read_grib_int(section.int32_be(Some(80))) * ratio,
             grid_units: Grib2GridUnits::Degrees,
         }
     }
@@ -947,11 +944,11 @@ impl LambertConformalTemplate {
 
         for j in 0..ny {
             let j = j as f64;
-            let y = starty + (j as f64 * j_step);
+            let y = starty + (j * j_step);
             for i in 0..nx {
                 let i = i as f64;
                 // Interpolate longitude and latitude
-                let x = startx + (i as f64 * i_step);
+                let x = startx + (i * i_step);
                 let tmp = rhoref - y;
                 let theta = atan(x / tmp);
                 let rho = sqrt(x * x + tmp * tmp);
@@ -981,17 +978,17 @@ impl LambertConformalTemplate {
 ///
 /// ## Notes
 /// - Basic angle of the initial production domain and subdivisions of this basic angle are provided
-/// to manage cases where the recommended unit of 10-6 degrees is not applicable to describe the
-/// extreme longitudes and latitudes, and direction increments. For these last six descriptors, unit
-/// is equal to the ratio of the equivalent to respective values of 1 and 106 (10-6 degrees unit).
-/// -  The number of parallels between a pole and the equator is used to establish the variable
-/// (Gaussian) spacing of the parallels; this value must always be given.
+///   to manage cases where the recommended unit of 10-6 degrees is not applicable to describe the
+///   extreme longitudes and latitudes, and direction increments. For these last six descriptors, unit
+///   is equal to the ratio of the equivalent to respective values of 1 and 106 (10-6 degrees unit).
+/// - The number of parallels between a pole and the equator is used to establish the variable
+///   (Gaussian) spacing of the parallels; this value must always be given.
 /// - A scaled value of radius of spherical Earth, or major or minor axis of oblate spheriod Earth
-/// is derived from applying appropriate scale factor to the value expressed in metres.
+///   is derived from applying appropriate scale factor to the value expressed in metres.
 /// - A quasi-regular grid is only defined for appropriate grid scanning modes. Either rows or
-/// columns, but not both simultaneously, may have variable numbers of points. The first point in
-/// each row(column) shall be positioned at the meridian (parallel) indicated by Octets 47-54. The
-/// grid points shall be evenly spaced in latitude (longitude).
+///   columns, but not both simultaneously, may have variable numbers of points. The first point in
+///   each row(column) shall be positioned at the meridian (parallel) indicated by Octets 47-54. The
+///   grid points shall be evenly spaced in latitude (longitude).
 /// - It is recommended to use unsigned direction increments.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GaussianTemplate {
@@ -1106,12 +1103,11 @@ impl GaussianTemplate {
             -fabs(dx)
         };
 
-        for j in 0..ny {
-            let lat = all_lats[j];
+        for lat in all_lats.iter().take(ny) {
             for i in 0..nx {
                 let lon = lon1 + (i as f64) * d_lon;
 
-                let mut point = VectorPoint::new_xy(lon, lat, None);
+                let mut point = VectorPoint::new_xy(lon, *lat, None);
                 normalize_ll(&mut point);
                 res.push(point);
             }
@@ -1159,7 +1155,7 @@ fn generate_gaussian_lats(n: usize) -> Vec<f64> {
             let dx = p / fpx;
             x -= dx;
 
-            if fabs(dx) < EPSILON {
+            if fabs(dx) < f64::EPSILON {
                 break;
             }
         }

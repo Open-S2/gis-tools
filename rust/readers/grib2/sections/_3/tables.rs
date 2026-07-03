@@ -352,9 +352,9 @@ impl Grib2Table3_2 {
         );
         let radius = 0.5 * (radius_major + radius_minor);
 
-        if radius < 6300000.0 || radius > 6400000.0 {
+        if !(6300000.0..=6400000.0).contains(&radius) {
             // default is WGS84
-            6_367_444.6225
+            6_367_444.622_5
         } else {
             radius
         }

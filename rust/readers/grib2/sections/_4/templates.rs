@@ -554,7 +554,7 @@ pub fn calculate_forecast_time(ref_time: &Date, offset: i64, unit_of_time: &Grib
             if cfg!(feature = "std") {
                 println!("WARNING: Unable to calculate forecast time for unit: {}", unit_of_time);
             }
-            ref_time.clone()
+            *ref_time
         }
     }
 }

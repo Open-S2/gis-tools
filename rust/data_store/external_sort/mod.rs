@@ -165,7 +165,7 @@ fn merge_values(output: &str, sizes: Vec<FileSize>) {
         return;
     }
     let mut sorted_sizes = sizes.clone(); // Clone if you need to keep original order
-    sorted_sizes.sort_by(|a, b| a.value_offset.cmp(&b.value_offset));
+    sorted_sizes.sort_by_key(|a| a.value_offset);
 
     let values: Vec<String> = sorted_sizes
         .into_iter() // Now consume the sorted vector

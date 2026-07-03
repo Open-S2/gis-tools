@@ -137,7 +137,7 @@ pub fn build_terrain_mesh(
             cy = my;
         }
         let k = i * 4;
-        coords[k + 0] = ax;
+        coords[k] = ax;
         coords[k + 1] = ay;
         coords[k + 2] = bx;
         coords[k + 3] = by;
@@ -148,7 +148,7 @@ pub fn build_terrain_mesh(
     // iterate over all possible triangles, starting from the smallest level
     for i in (0..num_triangles).rev() {
         let k = i * 4;
-        let ax = coords[k + 0];
+        let ax = coords[k];
         let ay = coords[k + 1];
         let bx = coords[k + 2];
         let by = coords[k + 3];
@@ -254,6 +254,7 @@ pub fn build_terrain_mesh(
     TerrainMesh { grid_size, terrain, vertices, triangles }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn count_elements(
     ax: isize,
     ay: isize,
@@ -328,6 +329,7 @@ fn count_elements(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn process_triangle(
     ax: isize,
     ay: isize,

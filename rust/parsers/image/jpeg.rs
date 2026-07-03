@@ -1405,13 +1405,12 @@ fn decode_ac_successive(
                     decode_scan.successive_ac_state = 0;
                 }
             }
-            4 => {
+            4
                 // eob
-                if component.blocks[block_row][block_col][z] != 0 {
+                if component.blocks[block_row][block_col][z] != 0 => {
                     component.blocks[block_row][block_col][z] +=
                         (read_bit(decode_scan) << decode_scan.successive) as i32 * direction;
                 }
-            }
             _ => {}
         }
         k += 1;

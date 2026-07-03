@@ -33,7 +33,7 @@ mod tests {
         }
         let mut feature_collection: FeatureCollection<(), Properties, MValue> = FeatureCollection {
             _type: FeatureCollectionType::FeatureCollection,
-            features: features.into_iter().map(|f| Features::VectorFeature(f)).collect(),
+            features: features.into_iter().map(Features::VectorFeature).collect(),
             bbox: None,
             attributions: None,
         };

@@ -14,6 +14,15 @@ use s2json::{
 };
 use serde::Serialize;
 
+/// User defined function to convert a [`VectorFeature`] to a [`GPXWaypoint`]
+pub type OnFeatureWaypoint<M, P, D> = fn(feature: &VectorFeature<M, P, D>) -> Option<GPXWaypoint>;
+
+/// User defined function to convert a [`VectorFeature`] to a [`GPXRoute`]
+pub type OnFeatureRoute<M, P, D> = fn(feature: &VectorFeature<M, P, D>) -> Option<GPXRoute>;
+
+/// User defined function to convert a [`VectorFeature`] to a [`GPXTrack`]
+pub type OnFeatureTrack<M, P, D> = fn(feature: &VectorFeature<M, P, D>) -> Option<GPXTrack>;
+
 /// User defined options on how to store the features
 pub struct ToGPXOptions<M: Clone, P: MValueCompatible, D: MValueCompatible> {
     /// Name of the GPX file
@@ -21,11 +30,11 @@ pub struct ToGPXOptions<M: Clone, P: MValueCompatible, D: MValueCompatible> {
     /// User defined metadata
     pub metadata: Option<GPXMetadata>,
     /// On a feature, determine if it should be written as a [`GPXWaypoint`].
-    pub on_feature_waypoint: Option<fn(feature: &VectorFeature<M, P, D>) -> Option<GPXWaypoint>>,
+    pub on_feature_waypoint: Option<OnFeatureWaypoint<M, P, D>>,
     /// On a feature, determine if it should be written as a [`GPXRoute`].
-    pub on_feature_route: Option<fn(feature: &VectorFeature<M, P, D>) -> Option<GPXRoute>>,
+    pub on_feature_route: Option<OnFeatureRoute<M, P, D>>,
     /// On a feature, determine if it should be written as a [`GPXTrack`].
-    pub on_feature_rrack: Option<fn(feature: &VectorFeature<M, P, D>) -> Option<GPXTrack>>,
+    pub on_feature_track: Option<OnFeatureTrack<M, P, D>>,
 }
 impl<M: Clone, P: MValueCompatible, D: MValueCompatible> Default for ToGPXOptions<M, P, D> {
     fn default() -> Self {
@@ -34,7 +43,7 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> Default for ToGPXOption
             metadata: None,
             on_feature_waypoint: None,
             on_feature_route: None,
-            on_feature_rrack: None,
+            on_feature_track: None,
         }
     }
 }
@@ -101,7 +110,7 @@ pub fn to_gpx<
     let name = opts.name.clone().unwrap_or("GIS Tools Output Data".into());
     let feature_waypoint = opts.on_feature_waypoint.unwrap_or(on_feature_waypoint);
     let feature_route = opts.on_feature_route.unwrap_or(on_feature_route);
-    let feature_track = opts.on_feature_rrack.unwrap_or(on_feature_track);
+    let feature_track = opts.on_feature_track.unwrap_or(on_feature_track);
 
     let mut waypoints: Vec<String> = vec![];
     let mut routes: Vec<String> = vec![];
@@ -131,9 +140,9 @@ pub fn to_gpx<
 
     let metadata = write_metadata(opts.metadata.unwrap_or(setup_metadata(name, bbox)));
     let mut inner_content: Vec<String> = vec![metadata];
-    inner_content.extend(waypoints.into_iter());
-    inner_content.extend(routes.into_iter());
-    inner_content.extend(tracks.into_iter());
+    inner_content.extend(waypoints);
+    inner_content.extend(routes);
+    inner_content.extend(tracks);
     let output = format!(
         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n{}",
         build_xml_element(
@@ -190,7 +199,7 @@ fn encode_point<P: MValueCompatible, D: MValueCompatible>(
     GPXWaypoint {
         lon: *lon,
         lat: *lat,
-        ele: ele.clone(),
+        ele: *ele,
         name,
         time,
         magvar,
@@ -306,32 +315,28 @@ fn write_waypoint(waypoint: GPXWaypoint, tag_name: Option<String>) -> String {
 
     let mut inner: Vec<String> = vec![];
     if let Some(name) = name {
-        inner.push(build_xml_element("name", &BTreeMap::new(), &vec![name]));
+        inner.push(build_xml_element("name", &BTreeMap::new(), &[name]));
     }
     if let Some(ele) = ele {
-        inner.push(build_xml_element("ele", &BTreeMap::new(), &vec![ele.to_string()]));
+        inner.push(build_xml_element("ele", &BTreeMap::new(), &[ele.to_string()]));
     }
     if let Some(time) = time {
-        inner.push(build_xml_element("time", &BTreeMap::new(), &vec![time]));
+        inner.push(build_xml_element("time", &BTreeMap::new(), &[time]));
     }
     if let Some(magvar) = magvar {
-        inner.push(build_xml_element("magvar", &BTreeMap::new(), &vec![magvar.to_string()]));
+        inner.push(build_xml_element("magvar", &BTreeMap::new(), &[magvar.to_string()]));
     }
     if let Some(geoidheight) = geoidheight {
-        inner.push(build_xml_element(
-            "geoidheight",
-            &BTreeMap::new(),
-            &vec![geoidheight.to_string()],
-        ));
+        inner.push(build_xml_element("geoidheight", &BTreeMap::new(), &[geoidheight.to_string()]));
     }
     if let Some(cmt) = cmt {
-        inner.push(build_xml_element("cmt", &BTreeMap::new(), &vec![cmt]));
+        inner.push(build_xml_element("cmt", &BTreeMap::new(), &[cmt]));
     }
     if let Some(desc) = desc {
-        inner.push(build_xml_element("desc", &BTreeMap::new(), &vec![desc]));
+        inner.push(build_xml_element("desc", &BTreeMap::new(), &[desc]));
     }
     if let Some(src) = src {
-        inner.push(build_xml_element("src", &BTreeMap::new(), &vec![src]));
+        inner.push(build_xml_element("src", &BTreeMap::new(), &[src]));
     }
     if let Some(link) = link {
         for l in link {
@@ -339,35 +344,35 @@ fn write_waypoint(waypoint: GPXWaypoint, tag_name: Option<String>) -> String {
         }
     }
     if let Some(sym) = sym {
-        inner.push(build_xml_element("sym", &BTreeMap::new(), &vec![sym]));
+        inner.push(build_xml_element("sym", &BTreeMap::new(), &[sym]));
     }
     if let Some(r#type) = r#type {
-        inner.push(build_xml_element("type", &BTreeMap::new(), &vec![r#type]));
+        inner.push(build_xml_element("type", &BTreeMap::new(), &[r#type]));
     }
     if let Some(fix) = fix {
-        inner.push(build_xml_element("fix", &BTreeMap::new(), &vec![fix.to_string()]));
+        inner.push(build_xml_element("fix", &BTreeMap::new(), &[fix.to_string()]));
     }
     if let Some(sat) = sat {
-        inner.push(build_xml_element("sat", &BTreeMap::new(), &vec![sat.to_string()]));
+        inner.push(build_xml_element("sat", &BTreeMap::new(), &[sat.to_string()]));
     }
     if let Some(hdop) = hdop {
-        inner.push(build_xml_element("hdop", &BTreeMap::new(), &vec![hdop.to_string()]));
+        inner.push(build_xml_element("hdop", &BTreeMap::new(), &[hdop.to_string()]));
     }
     if let Some(vdop) = vdop {
-        inner.push(build_xml_element("vdop", &BTreeMap::new(), &vec![vdop.to_string()]));
+        inner.push(build_xml_element("vdop", &BTreeMap::new(), &[vdop.to_string()]));
     }
     if let Some(pdop) = pdop {
-        inner.push(build_xml_element("pdop", &BTreeMap::new(), &vec![pdop.to_string()]));
+        inner.push(build_xml_element("pdop", &BTreeMap::new(), &[pdop.to_string()]));
     }
     if let Some(ageofdgpsdata) = ageofdgpsdata {
         inner.push(build_xml_element(
             "ageofdgpsdata",
             &BTreeMap::new(),
-            &vec![ageofdgpsdata.to_string()],
+            &[ageofdgpsdata.to_string()],
         ));
     }
     if let Some(dgpsid) = dgpsid {
-        inner.push(build_xml_element("dgpsid", &BTreeMap::new(), &vec![dgpsid.to_string()]));
+        inner.push(build_xml_element("dgpsid", &BTreeMap::new(), &[dgpsid.to_string()]));
     }
     build_xml_element(
         &tag_name,
@@ -382,16 +387,16 @@ fn write_route(route: GPXRoute) -> String {
     let mut inner: Vec<String> = vec![];
 
     if let Some(name) = name {
-        inner.push(build_xml_element("name", &BTreeMap::new(), &vec![name]));
+        inner.push(build_xml_element("name", &BTreeMap::new(), &[name]));
     }
     if let Some(cmt) = cmt {
-        inner.push(build_xml_element("cmt", &BTreeMap::new(), &vec![cmt]));
+        inner.push(build_xml_element("cmt", &BTreeMap::new(), &[cmt]));
     }
     if let Some(desc) = desc {
-        inner.push(build_xml_element("desc", &BTreeMap::new(), &vec![desc]));
+        inner.push(build_xml_element("desc", &BTreeMap::new(), &[desc]));
     }
     if let Some(src) = src {
-        inner.push(build_xml_element("src", &BTreeMap::new(), &vec![src]));
+        inner.push(build_xml_element("src", &BTreeMap::new(), &[src]));
     }
     if let Some(link) = link {
         for l in link {
@@ -399,10 +404,10 @@ fn write_route(route: GPXRoute) -> String {
         }
     }
     if let Some(number) = number {
-        inner.push(build_xml_element("number", &BTreeMap::new(), &vec![number.to_string()]));
+        inner.push(build_xml_element("number", &BTreeMap::new(), &[number.to_string()]));
     }
     if let Some(r#type) = r#type {
-        inner.push(build_xml_element("type", &BTreeMap::new(), &vec![r#type]));
+        inner.push(build_xml_element("type", &BTreeMap::new(), &[r#type]));
     }
     if let Some(rtept) = rtept {
         for w in rtept {
@@ -419,16 +424,16 @@ fn write_track(track: GPXTrack) -> String {
     let mut inner = vec![];
 
     if let Some(name) = name {
-        inner.push(build_xml_element("name", &BTreeMap::new(), &vec![name]));
+        inner.push(build_xml_element("name", &BTreeMap::new(), &[name]));
     }
     if let Some(cmt) = cmt {
-        inner.push(build_xml_element("cmt", &BTreeMap::new(), &vec![cmt]));
+        inner.push(build_xml_element("cmt", &BTreeMap::new(), &[cmt]));
     }
     if let Some(desc) = desc {
-        inner.push(build_xml_element("desc", &BTreeMap::new(), &vec![desc]));
+        inner.push(build_xml_element("desc", &BTreeMap::new(), &[desc]));
     }
     if let Some(src) = src {
-        inner.push(build_xml_element("src", &BTreeMap::new(), &vec![src]));
+        inner.push(build_xml_element("src", &BTreeMap::new(), &[src]));
     }
     if let Some(link) = link {
         for l in link {
@@ -436,10 +441,10 @@ fn write_track(track: GPXTrack) -> String {
         }
     }
     if let Some(number) = number {
-        inner.push(build_xml_element("number", &BTreeMap::new(), &vec![number.to_string()]));
+        inner.push(build_xml_element("number", &BTreeMap::new(), &[number.to_string()]));
     }
     if let Some(r#type) = r#type {
-        inner.push(build_xml_element("type", &BTreeMap::new(), &vec![r#type]));
+        inner.push(build_xml_element("type", &BTreeMap::new(), &[r#type]));
     }
     if let Some(trkseg) = trkseg {
         let mut trkpts: Vec<String> = vec![];
@@ -461,10 +466,10 @@ fn write_metadata(metadata: GPXMetadata) -> String {
 
     let mut inner = vec![];
     if let Some(name) = name {
-        inner.push(build_xml_element("name", &BTreeMap::new(), &vec![name]));
+        inner.push(build_xml_element("name", &BTreeMap::new(), &[name]));
     }
     if let Some(desc) = desc {
-        inner.push(build_xml_element("desc", &BTreeMap::new(), &vec![desc]));
+        inner.push(build_xml_element("desc", &BTreeMap::new(), &[desc]));
     }
     if let Some(link) = link {
         for l in link {
@@ -472,10 +477,10 @@ fn write_metadata(metadata: GPXMetadata) -> String {
         }
     }
     if let Some(time) = time {
-        inner.push(build_xml_element("time", &BTreeMap::new(), &vec![time]));
+        inner.push(build_xml_element("time", &BTreeMap::new(), &[time]));
     }
     if let Some(keywords) = keywords {
-        inner.push(build_xml_element("keywords", &BTreeMap::new(), &vec![keywords]));
+        inner.push(build_xml_element("keywords", &BTreeMap::new(), &[keywords]));
     }
     if let Some(author) = author {
         inner.push(write_person(&author));
@@ -494,12 +499,12 @@ fn write_copyright(copyright: &GPXCopyright) -> String {
     let GPXCopyright { author, year, license } = copyright;
 
     let mut inner = vec![];
-    inner.push(build_xml_element("author", &BTreeMap::new(), &vec![author.clone()]));
+    inner.push(build_xml_element("author", &BTreeMap::new(), alloc::slice::from_ref(author)));
     if let Some(year) = year {
-        inner.push(build_xml_element("year", &BTreeMap::new(), &vec![year.clone()]));
+        inner.push(build_xml_element("year", &BTreeMap::new(), alloc::slice::from_ref(year)));
     }
     if let Some(license) = license {
-        inner.push(build_xml_element("license", &BTreeMap::new(), &vec![license.clone()]));
+        inner.push(build_xml_element("license", &BTreeMap::new(), alloc::slice::from_ref(license)));
     }
 
     build_xml_element("copyright", &BTreeMap::new(), &inner)
@@ -510,7 +515,7 @@ fn write_person(person: &GPXPerson) -> String {
 
     let mut inner = vec![];
     if let Some(name) = name {
-        inner.push(build_xml_element("name", &BTreeMap::new(), &vec![name.clone()]));
+        inner.push(build_xml_element("name", &BTreeMap::new(), alloc::slice::from_ref(name)));
     }
     if let Some(email) = email {
         inner.push(build_xml_element(
@@ -519,7 +524,7 @@ fn write_person(person: &GPXPerson) -> String {
                 ("id".into(), email.id.clone()),
                 ("domain".into(), email.domain.clone()),
             ]),
-            &vec![],
+            &[],
         ));
     }
     if let Some(link) = link {
@@ -539,7 +544,7 @@ fn write_bounds(bounds: &GPXBounds) -> String {
             ("maxlon".into(), maxlon.to_string()),
             ("maxlat".into(), maxlat.to_string()),
         ]),
-        &vec![],
+        &[],
     )
 }
 
@@ -548,10 +553,10 @@ fn write_link(link: GPXLink) -> String {
 
     let mut inner = vec![];
     if let Some(text) = text {
-        inner.push(build_xml_element("text", &BTreeMap::new(), &vec![text]));
+        inner.push(build_xml_element("text", &BTreeMap::new(), &[text]));
     }
     if let Some(r#type) = r#type {
-        inner.push(build_xml_element("type", &BTreeMap::new(), &vec![r#type]));
+        inner.push(build_xml_element("type", &BTreeMap::new(), &[r#type]));
     }
 
     build_xml_element("link", &BTreeMap::from([("href".into(), href)]), &inner)
@@ -560,7 +565,7 @@ fn write_link(link: GPXLink) -> String {
 fn get_link(map: &MValue) -> Option<Vec<GPXLink>> {
     map.get("link").and_then(|v| v.to_vec()).map(|l_values| {
         l_values
-            .into_iter()
+            .iter()
             .filter_map(|l| {
                 let nested_l = l.to_nested()?;
                 // fallback to default string if internal conversions yield None
@@ -575,7 +580,7 @@ fn get_link(map: &MValue) -> Option<Vec<GPXLink>> {
 }
 
 fn get_string(map: &MValue, key: &str) -> Option<String> {
-    map.get(key).and_then(|v| v.to_prim()).map(|s| s.to_string()).flatten()
+    map.get(key).and_then(|v| v.to_prim()).and_then(|s| s.to_string())
 }
 
 fn get_usize(map: &MValue, key: &str) -> Option<usize> {

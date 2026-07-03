@@ -133,7 +133,7 @@ impl GTFSShape {
         }
         // iterate through each and sort by shape_pt_sequence
         for shapes in res.values_mut() {
-            shapes.sort_by(|a, b| a.shape_pt_sequence.cmp(&b.shape_pt_sequence));
+            shapes.sort_by_key(|a| a.shape_pt_sequence);
         }
         res
     }

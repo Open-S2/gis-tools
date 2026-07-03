@@ -455,7 +455,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
         VectorFeature {
             _type: VectorFeatureType::S2Feature,
             face: *face,
-            metadata: Some(self.metadata.clone()),
+            metadata: Some(self.metadata),
             geometry: VectorGeometry::new_multipoint(coordinates, Some(bbox)),
             ..Default::default()
         }
@@ -497,7 +497,7 @@ impl<D: Clone + Default + GetRasterTileValue> RasterTileReader<D> {
 
         VectorFeature {
             _type: VectorFeatureType::VectorFeature,
-            metadata: Some(self.metadata.clone()),
+            metadata: Some(self.metadata),
             geometry: VectorGeometry::new_multipoint(coordinates, Some(bbox)),
             ..Default::default()
         }

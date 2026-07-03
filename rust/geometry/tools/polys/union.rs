@@ -127,7 +127,7 @@ fn build_paths_from_chunks<P: FullXY>(
             }
         }
         // filter foundPaths if they have the same id as the previous
-        found_paths.sort_by(|a, b| a.borrow().id.cmp(&b.borrow().id));
+        found_paths.sort_by_key(|a| a.borrow().id);
         found_paths = found_paths
             .iter()
             .enumerate()

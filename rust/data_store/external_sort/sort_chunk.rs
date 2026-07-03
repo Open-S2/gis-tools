@@ -34,7 +34,7 @@ fn _sort_chunk(input: &str, output: &str, start: u64, end: u64, value_offset: u6
     let mut input_buffer = Buffer::new(input_bytes);
     // sort the chunk
     let mut keys = buffer_to_keys(&mut input_buffer);
-    keys.sort_by(|a, b| a.id.cmp(&b.id));
+    keys.sort_by_key(|a| a.id);
     // update keys to correct offset
     for key in keys.iter_mut() {
         key.offset += value_offset;

@@ -14,6 +14,9 @@ use s2json::{
 };
 use serde::{Deserialize, Serialize};
 
+/// # Type alias for coordinate to pixel conversion
+pub type CoordsToPx<P> = fn(&P, f64, Option<bool>, Option<u64>) -> P;
+
 /// # Trait for getting a tile's metadata attributes
 pub trait GetTileID: Debug + Sized + Clone + Eq + Ord {
     /// Create a new Tile ID
@@ -386,21 +389,21 @@ impl GetTileID for WMTileID {
         let max_grid = (1 << zoom) - 1;
         let mut neighbors = BTreeSet::<WMTileID>::new();
         // wrap X tiles
-        if x + 1 <= max_grid {
+        if x < max_grid {
             neighbors.insert(WMTileID::new(zoom, x + 1, y));
         } else {
             neighbors.insert(WMTileID::new(zoom, 0, y));
         }
-        if (x as i32) - 1 >= 0 {
+        if (x as i32) > 0 {
             neighbors.insert(WMTileID::new(zoom, x - 1, y));
         } else {
             neighbors.insert(WMTileID::new(zoom, max_grid, y));
         }
         // vertical Y has a max and min
-        if y + 1 <= max_grid {
+        if y < max_grid {
             neighbors.insert(WMTileID::new(zoom, x, y + 1));
         }
-        if (y as i32) - 1 >= 0 {
+        if (y as i32) > 0 {
             neighbors.insert(WMTileID::new(zoom, x, y - 1));
         }
 
@@ -713,7 +716,7 @@ fn poly_cover<P: GetXY + NewXY>(
     tile_map: &mut BTreeSet<WMTileID>,
     poly: &[Vec<P>],
     zoom: u8,
-    coord_to_px: Option<fn(&P, f64, Option<bool>, Option<u64>) -> P>,
+    coord_to_px: Option<CoordsToPx<P>>,
 ) {
     let mut intersections: Vec<(u32, u32)> = vec![];
 
@@ -775,7 +778,7 @@ fn line_cover<P: GetXY + NewXY>(
     coords: &[P],
     zoom: u8,
     ring: &mut Vec<(u32, u32)>,
-    coord_to_px: Option<fn(&P, f64, Option<bool>, Option<u64>) -> P>,
+    coord_to_px: Option<CoordsToPx<P>>,
 ) {
     let coord_to_px = coord_to_px.unwrap_or(ll_to_px);
     let mut prev_x = None;

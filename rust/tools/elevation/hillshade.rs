@@ -72,6 +72,7 @@ pub struct HillshadeResult {
 ///
 /// ## Returns
 /// An image/array of grayscale values
+#[allow(clippy::too_many_arguments)]
 pub fn vectorize_hillshade(
     image_data: &Buffer,
     tile: TileID,
@@ -99,7 +100,7 @@ pub fn vectorize_hillshade(
         weights,
         Some(true),
     );
-    let hillshade: Vec<f64> = hillshade.iter().map(|x| *x as f64).collect();
+    let hillshade: Vec<f64> = hillshade.to_vec();
     let hillshade_invert: Vec<f64> = hillshade.iter().map(|x| 255. - x).collect();
     let thresholds = thresholds.unwrap_or(BTreeMap::from([
         (220, "dark".into()),
@@ -124,8 +125,7 @@ pub fn vectorize_hillshade(
     }
 
     let mut feature_collection = FeatureCollection::new(None);
-    feature_collection.features =
-        features.into_iter().map(|f| Features::VectorFeature(f)).collect();
+    feature_collection.features = features.into_iter().map(Features::VectorFeature).collect();
     feature_collection
 }
 
@@ -174,6 +174,7 @@ pub fn vectorize_hillshade(
 ///
 /// ## Returns
 /// An image/array of grayscale values
+#[allow(clippy::too_many_arguments)]
 pub fn generate_hillshade(
     image_data: &Buffer,
     tile: TileID,

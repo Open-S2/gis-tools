@@ -182,7 +182,7 @@ pub fn to_dbf<
     // 4. Transform and stream specific entity attribute rows
     for iterator in iterators {
         for feature in iterator.iter() {
-            let mut record_buffer = vec![0x20; bytes_per_record as usize];
+            let mut record_buffer = vec![0x20; bytes_per_record];
             let props: MValue = feature.properties.clone().into();
             let mut offset = 0;
 
@@ -228,50 +228,48 @@ pub fn to_dbf<
                 //         }
                 let mut string_payload = String::new();
 
-                if let Some(value) = props.get(&field.name).and_then(|v| v.to_prim()) {
-                    if !value.is_null() {
-                        if field.data_type == 'N' {
-                            if let Some(num_value) = value.to_f64() {
-                                // Formatting with custom precision
-                                string_payload =
-                                    format!("{:.1$}", num_value, field.decimal as usize);
-                            }
-                            // Left-pad with spaces
-                            let width = field.len as usize;
-                            if string_payload.len() < width {
-                                let padding = " ".repeat(width - string_payload.len());
-                                string_payload = format!("{}{}", padding, string_payload);
-                            }
-                            string_payload.truncate(width);
-                        } else if field.data_type == 'L' {
-                            let val_str = value.to_string().unwrap_or_default().to_lowercase();
-                            let is_true = val_str == "true" || val_str == "t" || val_str == "y";
-                            string_payload =
-                                if is_true { "T".to_string() } else { "F".to_string() };
-                        } else if field.data_type == 'D' {
-                            // Convert the property into your custom Date type
-                            if let Some(val_str) = value.to_string() {
-                                let date = Date::from(val_str.as_str());
-                                string_payload = format!("{}", date); // Uses your Display implementation
-                            }
-
-                            // Field width tracking and slicing
-                            let width = field.len as usize;
-                            if string_payload.len() < width {
-                                let padding = " ".repeat(width - string_payload.len());
-                                string_payload = format!("{}{}", padding, string_payload);
-                            }
-                            string_payload.truncate(width);
-                        } else {
-                            // Standard alphanumeric string processing
-                            string_payload = value.to_string().unwrap_or_default();
-                            let width = field.len as usize;
-                            if string_payload.len() < width {
-                                let padding = " ".repeat(width - string_payload.len());
-                                string_payload = format!("{}{}", string_payload, padding); // Right padded
-                            }
-                            string_payload.truncate(width);
+                if let Some(value) = props.get(&field.name).and_then(|v| v.to_prim())
+                    && !value.is_null()
+                {
+                    if field.data_type == 'N' {
+                        if let Some(num_value) = value.to_f64() {
+                            // Formatting with custom precision
+                            string_payload = format!("{:.1$}", num_value, field.decimal as usize);
                         }
+                        // Left-pad with spaces
+                        let width = field.len as usize;
+                        if string_payload.len() < width {
+                            let padding = " ".repeat(width - string_payload.len());
+                            string_payload = format!("{}{}", padding, string_payload);
+                        }
+                        string_payload.truncate(width);
+                    } else if field.data_type == 'L' {
+                        let val_str = value.to_string().unwrap_or_default().to_lowercase();
+                        let is_true = val_str == "true" || val_str == "t" || val_str == "y";
+                        string_payload = if is_true { "T".to_string() } else { "F".to_string() };
+                    } else if field.data_type == 'D' {
+                        // Convert the property into your custom Date type
+                        if let Some(val_str) = value.to_string() {
+                            let date = Date::from(val_str.as_str());
+                            string_payload = format!("{}", date); // Uses your Display implementation
+                        }
+
+                        // Field width tracking and slicing
+                        let width = field.len as usize;
+                        if string_payload.len() < width {
+                            let padding = " ".repeat(width - string_payload.len());
+                            string_payload = format!("{}{}", padding, string_payload);
+                        }
+                        string_payload.truncate(width);
+                    } else {
+                        // Standard alphanumeric string processing
+                        string_payload = value.to_string().unwrap_or_default();
+                        let width = field.len as usize;
+                        if string_payload.len() < width {
+                            let padding = " ".repeat(width - string_payload.len());
+                            string_payload = format!("{}{}", string_payload, padding); // Right padded
+                        }
+                        string_payload.truncate(width);
                     }
                 }
 

@@ -1,10 +1,9 @@
-use core::f64;
-
 use crate::{
     geometry::convert,
     parsers::{FeatureReader, Writer},
     writers::{OnFeature, to_dbf},
 };
+use alloc::slice;
 use s2json::{
     BBox3D, JSONCollection, MValue, MValueCompatible, Projection, VectorFeature, VectorGeometry,
     VectorGeometryType, VectorLineString, VectorMultiPoint, VectorPoint, VectorPolygonGeometry,
@@ -207,7 +206,7 @@ fn write_shp<
     on_feature: Option<OnFeature<M, P, D>>,
     m_value: Option<fn(m: Option<MValue>) -> Option<f64>>,
 ) {
-    let on_feature = on_feature.unwrap_or(|feature| Some(feature));
+    let on_feature = on_feature.unwrap_or(Some);
     let mut global_bbox = BBox3D::new(
         f64::INFINITY,
         f64::INFINITY,
@@ -220,7 +219,7 @@ fn write_shp<
     let mut determined_type: Option<SHPShapeType> = None;
 
     shp_writer.append(&[0; 100]);
-    if let Some(shx_writer) = shx_writer.as_deref_mut() {
+    if let Some(shx_writer) = shx_writer.as_mut() {
         shx_writer.append(&[0; 100]);
     }
 
@@ -246,7 +245,7 @@ fn write_shp<
                                 properties: user_feature.properties.clone(),
                                 geometry: VectorGeometry::Polygon(VectorPolygonGeometry::<D> {
                                     _type: VectorGeometryType::Polygon,
-                                    bbox: mp.bbox.clone(),
+                                    bbox: mp.bbox,
                                     coordinates: polygon.clone(),
                                     is_3d: m_value.is_some(),
                                     ..Default::default()
@@ -285,7 +284,7 @@ fn write_shp<
     // lastly store the file header
     let r#type = determined_type.unwrap_or(SHPShapeType::NULL) as i32;
     write_file_header(shp_writer, r#type, global_bbox);
-    if let Some(shx_writer) = shx_writer.as_deref_mut() {
+    if let Some(shx_writer) = shx_writer {
         write_file_header(shx_writer, r#type, global_bbox);
     }
 }
@@ -352,20 +351,24 @@ fn write_feature<
         VectorGeometry::LineString(l) => {
             if has_m {
                 write_line_strings_m(
-                    &[l.coordinates.clone()],
+                    slice::from_ref(&l.coordinates),
                     l.bbox.unwrap_or_default(),
                     m_value.unwrap(),
                     None,
                 )
             } else if l.is_3d {
                 write_line_strings_z(
-                    &[l.coordinates.clone()],
+                    slice::from_ref(&l.coordinates),
                     l.bbox.unwrap_or_default(),
                     m_value,
                     None,
                 )
             } else {
-                write_line_strings(&[l.coordinates.clone()], l.bbox.unwrap_or_default(), None)
+                write_line_strings(
+                    slice::from_ref(&l.coordinates),
+                    l.bbox.unwrap_or_default(),
+                    None,
+                )
             }
         }
         VectorGeometry::MultiLineString(ml) => {
@@ -889,10 +892,10 @@ fn write_line_strings_z<M: MValueCompatible>(
 
     let mut offset = 44;
     let mut part_index_accumulator: i32 = 0;
-    for i in 0..total_parts {
+    for line in lines.iter() {
         view[offset..offset + 4].copy_from_slice(&part_index_accumulator.to_le_bytes());
         offset += 4;
-        part_index_accumulator += lines[i].len() as i32;
+        part_index_accumulator += line.len() as i32;
     }
 
     // 1. Write complete X/Y Block

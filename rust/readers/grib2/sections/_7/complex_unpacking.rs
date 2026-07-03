@@ -8,59 +8,59 @@ use libm::pow;
 ///
 /// ## Contents
 /// - **6-xx**: NG group reference values (X1 in the decoding formula), each of which is encoded using
-/// the number of bits specified in octet 20 of data representation template 5.0. Bits set to zero shall
-/// be appended as necessary to ensure this sequence of numbers ends on an octet boundary
+///   the number of bits specified in octet 20 of data representation template 5.0. Bits set to zero shall
+///   be appended as necessary to ensure this sequence of numbers ends on an octet boundary
 /// - **[xx+1]-yy**: NG group widths, each of which is encoded using the number of bits specified in
-/// octet 37 of data representation template 5.2. Bits set to zero shall be appended as necessary to
-/// ensure this sequence of numbers ends on an octet boundary
+///   octet 37 of data representation template 5.2. Bits set to zero shall be appended as necessary to
+///   ensure this sequence of numbers ends on an octet boundary
 /// - **[yy+1]-zz**: NG scaled group lengths, each of which is encoded using the number of bits
-/// specified in octet 47 of data representation template 5.2. Bits set to zero shall be appended as
-/// necessary to ensure this sequence of numbers ends on an octet boundary (see Note 5)
+///   specified in octet 47 of data representation template 5.2. Bits set to zero shall be appended as
+///   necessary to ensure this sequence of numbers ends on an octet boundary (see Note 5)
 /// - **[zz+1]-nn**: Packed vaules (X2 in the decoding formula), where each value is a deviation from
-/// its respective group reference value
+///   its respective group reference value
 ///
 /// ## Notes
 /// - (1) Group descriptors mentioned above may not be physically present; if associated field width is 0.
 /// - (2) Group lengths have no meaning for row by row packing; for consistency, associated field width
-///  should then be encoded as 0. So no specific test for row case is mandatory at decoding software level
-///  to handle endcoding/decoding of group descriptors.
+///   should then be encoded as 0. So no specific test for row case is mandatory at decoding software level
+///   to handle endcoding/decoding of group descriptors.
 /// - (3) Scaled group lengths, if present, are encoded for each group. But the true last group length
-///  (unscaled) should be taken from data representation template.
+///   (unscaled) should be taken from data representation template.
 /// - (4) For groups with a constant value, associated field width is 0, and no incremental data are
-///  physically present.
+///   physically present.
 /// - (5) The essence of the complex packing method is to subdivide a field of values into NG groups,
-/// where the values in each group have similar sizes. In this procedure, it is necessary to retain
-/// enough information to recover the group lengths upon decoding. The NG group lengths for any given
-/// field can be described by Ln = ref + Kn x len_inc, n = 1, NG, where ref is given by octets 38 - 41
-/// and len_inc by octet 42. The NG values of K (the scaled group lengths) are stored in the data section,
-/// each with the number of bits specified by octet 47. Since the last group is a special case which
-/// may not be able to be specified by this relationship, the length of the last group is stored in
-/// octets 43-46.
+///   where the values in each group have similar sizes. In this procedure, it is necessary to retain
+///   enough information to recover the group lengths upon decoding. The NG group lengths for any given
+///   field can be described by Ln = ref + Kn x len_inc, n = 1, NG, where ref is given by octets 38 - 41
+///   and len_inc by octet 42. The NG values of K (the scaled group lengths) are stored in the data section,
+///   each with the number of bits specified by octet 47. Since the last group is a special case which
+///   may not be able to be specified by this relationship, the length of the last group is stored in
+///   octets 43-46.
 ///
 /// # Data Template 7.3 - Grid Point Data - Complex Packing and Spatial Differencing
 ///
 /// ## Contents
 /// - **6-ww**: First value(s) of original (undifferenced) scale values, followed by the overall
-/// minimum of the differences. The number of values stored is 1 greater than the oerder of
-/// differentiation, and the field width is described at octet 49 of data representation template
-/// 5.3 (see Note 1)
+///   minimum of the differences. The number of values stored is 1 greater than the oerder of
+///   differentiation, and the field width is described at octet 49 of data representation template
+///   5.3 (see Note 1)
 /// - **[ww+1]-xx**: NG group difference values, (X1 in the decoding formula), each of which is
-/// encoded using the number of bits specified in octet 20 of data representation template 5.0. Bits
-/// set to zero shall be appended where necessary to ensure this sequence of numbers ends on an octet
-/// boundary
+///   encoded using the number of bits specified in octet 20 of data representation template 5.0. Bits
+///   set to zero shall be appended where necessary to ensure this sequence of numbers ends on an octet
+///   boundary
 /// - **[xx+1]-nn**: Packed vaules (X2 in the decoding formula), where each value is a deviation from
-/// its respective group reference value
+///   its respective group reference value
 ///
 /// ## Notes
 /// - (1) Referring to the notation in Note 1 of data representation template 5.3, at order 1, the
-/// values stored in octet 6-ww are g1 and gmin. At order 2, the values stored are h1, h2 and hmin.
+///   values stored in octet 6-ww are g1 and gmin. At order 2, the values stored are h1, h2 and hmin.
 /// - (2) Extra descriptors related to spatial differencing are added before the splitting descriptors,
-/// to refect the separation between the two approaches. It enables to share software parts between cases
-/// with and without spatial differencing.
+///   to refect the separation between the two approaches. It enables to share software parts between cases
+///   with and without spatial differencing.
 /// - (3) The position of overall minimum after initial data values is a choice that enables less
-/// software management.
+///   software management.
 /// - (4) Overall minimum will be negative in most cases. First bit should indicate the sign:0 if
-/// positive, 1 if negative.
+///   positive, 1 if negative.
 ///
 /// ## Parameters
 /// - `reader`: Binary data reader positioned at the start of the data section.
@@ -191,20 +191,20 @@ pub fn complex_unpacking(reader: &BufferReader, sections: &Grib2Sections) -> Vec
     let ref_val = reference_value * factor10;
     if number_of_groups == 0 {
         if bit_map_code == 255 {
-            for i in 0..num_points {
-                res[i] = ref_val;
+            for res_item in res.iter_mut().take(num_points) {
+                *res_item = ref_val;
             }
             return res;
         } else if bit_map_code == 0 || bit_map_code == 254 {
             let mut mask_index = 0;
             let mut mask = 0;
             let bit_map_ref = bit_map.as_ref().expect("Expected a bitmap");
-            for i in 0..num_points {
+            for (i, res_item) in res.iter_mut().enumerate().take(num_points) {
                 if (i & 7) == 0 {
                     mask = bit_map_ref.uint8(Some(mask_index as u64));
                     mask_index += 1;
                 }
-                res[i] = if (mask & 128) != 0 { ref_val } else { 0. };
+                *res_item = if (mask & 128) != 0 { ref_val } else { 0. };
                 mask <<= 1;
             }
             return res;
@@ -256,7 +256,7 @@ pub fn complex_unpacking(reader: &BufferReader, sections: &Grib2Sections) -> Vec
         number_of_groups,
         None,
     );
-    reader_cursor += ((number_of_bits * number_of_groups + 7) / 8) as u64;
+    reader_cursor += (number_of_groups * number_of_bits).div_ceil(8) as u64;
     // read the group widths
     rd_bitstream(
         reader,
@@ -267,9 +267,9 @@ pub fn complex_unpacking(reader: &BufferReader, sections: &Grib2Sections) -> Vec
         number_of_groups,
         None,
     );
-    reader_cursor += ((number_of_groups * (group_widths_bits as usize) + 7) / 8) as u64;
-    for i in 0..number_of_groups {
-        group_widths[i] += reference_for_group_widths as i32;
+    reader_cursor += (number_of_groups * (group_widths_bits as usize)).div_ceil(8) as u64;
+    for group_width in group_widths.iter_mut().take(number_of_groups) {
+        *group_width += reference_for_group_widths as i32;
     }
     // read the group lengths if ctable_5_4 == 1
     if group_splitting_method == 1 {
@@ -282,13 +282,13 @@ pub fn complex_unpacking(reader: &BufferReader, sections: &Grib2Sections) -> Vec
             number_of_groups - 1,
             None,
         );
-        for i in 0..number_of_groups - 1 {
-            group_lengths[i] = group_lengths[i] * (group_length_factor as i32)
-                + (reference_for_group_lengths as i32);
+        for group_length in group_lengths.iter_mut().take(number_of_groups - 1) {
+            *group_length =
+                *group_length * (group_length_factor as i32) + (reference_for_group_lengths as i32);
         }
         group_lengths[number_of_groups - 1] = true_length_of_last_group as i32;
     }
-    reader_cursor += ((number_of_groups * (n_bits_group_len as usize) + 7) / 8) as u64;
+    reader_cursor += (number_of_groups * (n_bits_group_len as usize)).div_ceil(8) as u64;
 
     // compute group_location, group_c_location, group_offset, n_bytes, n_bits
     for i in 0..number_of_groups {
@@ -325,7 +325,7 @@ pub fn complex_unpacking(reader: &BufferReader, sections: &Grib2Sections) -> Vec
     // read group data
     for i in 0..number_of_groups {
         group_c_location[i] += (group_offset[i] / 8) as u32;
-        group_offset[i] = group_offset[i] % 8;
+        group_offset[i] %= 8;
         // We want to access udata at group_location[i] offset
         rd_bitstream(
             reader,
@@ -578,7 +578,7 @@ fn rd_bitstream(
     if n_bits > 31 {
         panic!("rd_bitstream: n_bits too large ({n_bits}).");
     }
-    if offset < 0 || offset > 7 {
+    if !(0..=7).contains(&offset) {
         panic!("rd_bitstream: illegal offset {offset}.");
     }
 
