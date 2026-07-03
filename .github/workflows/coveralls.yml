@@ -40,8 +40,9 @@ jobs:
           cargo install grcov
 
       - name: Build Rust project
-        run: cargo build --workspace --features nightly
+        run: cargo +nightly build --workspace --features nightly
         env:
+          RUSTUP_TOOLCHAIN: nightly
           RUSTFLAGS: '-Z unstable-options'
 
       - name: Run Rust tests with coverage
@@ -49,8 +50,10 @@ jobs:
           export CARGO_INCREMENTAL=0
           export RUSTFLAGS='-Cinstrument-coverage -Z unstable-options'
           export LLVM_PROFILE_FILE='cargo-test-%p-%m.profraw'
-          cargo test --workspace --features nightly
+          cargo +nightly test --workspace --features nightly
           grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*/.cargo/*" --ignore "/*/target/*" -o ./coverage/rust-lcov.info
+        env:
+          RUSTUP_TOOLCHAIN: nightly
 
       # Merge LCOV reports
 
