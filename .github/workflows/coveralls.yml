@@ -26,7 +26,7 @@ jobs:
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: nightly-2026-04-30
           components: rustfmt, clippy, llvm-tools-preview
 
       # Automatically restores and saves the compiled grcov binary between CI runs
@@ -48,7 +48,6 @@ jobs:
         run: cargo build --workspace --features nightly
         env:
           RUSTFLAGS: '-Z unstable-options'
-          RUSTC_BOOTSTRAP: 1
 
       - name: Run Rust tests with coverage
         run: |
@@ -57,7 +56,6 @@ jobs:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: '-Cinstrument-coverage -Z unstable-options'
           LLVM_PROFILE_FILE: 'cargo-test-%p-%m.profraw'
-          RUSTC_BOOTSTRAP: 1
 
       # Merge LCOV reports
       - name: Merge Bun and Rust LCOV reports
