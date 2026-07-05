@@ -42,7 +42,7 @@ Notable features of GIS-Tools are:
 - 🌱 A large list of projections can be converted to/from one of the above 3 via Transformers.
 - 📦 Build Vector Tiles, Raster Tiles, and Gridded Data Tiles. Vector supports 3 output formats (Mapbox Vector Tile, Open S2 Tiles, and Flat Open S2 Tiles).
 - ✅ Most data structures support all projections, but primarily focus the big 3 states above. Also handle large data sets through working with the filesystem and mmap buffers.
-- 📖 Contains **24** native GIS readers. The list of readers are: CSV, SVG, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, Shapefiles, raster and vector tiles, WKT, and XML.
+- 📖 Contains **25** native GIS readers. The list of readers are: CSV, SVG, GBFS, GeoTIFF, GPX, GRIB2, GTFS, JPEG and JPEG2000, (Geo|S2)JSON, LineDelimted GeoJSON, GeoJSON Text Sequences, LAS, LAZ, NadGrids, NetCDF, OSM, (S2)PMTiles, S2Tiles, Shapefiles, raster and vector tiles, WKT, and XML.
 - 🦺 Secure code where the only external dependency is [sharp](https://github.com/lovell/sharp) for local image processing, otherwise all code is written internally by Open S2 in Typescript. Rust requires a little more: [libm](https://github.com/rust-lang/libm), [half](https://docs.rs/half/latest/half/), [regex](https://github.com/rust-lang/regex), [serde](https://github.com/serde-rs/serde), [serde_json](https://github.com/serde-rs/json), and some optional std/wasm [memmap2](https://github.com/RazrFalcon/memmap2-rs), [image](https://github.com/image-rs/image), [flate2](https://github.com/rust-lang/flate2-rs) and [surf](https://github.com/http-rs/surf).
 - 🧲 Full suite of tools for points, lines, polygons, greater-circle-arcs, predicates, and more.
 - 🌌 Space specific tools for planets and satellite orbits.
@@ -117,6 +117,7 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 | [osm]        |    ![OSM Badge][osmBadge]    |                                 OpenStreetMap PBF data reader |
 | [pmtiles]    |    ![PMT Badge][pmtBadge]    |                                      (S2)PMTiles data reader. |
 | [protobuf]   |  ![Proto Badge][protoBadge]  |                                  Protobuf data reader/writer. |
+| [s2tiles]    |    ![S2T Badge][s2tBadge]    |                                          S2Tiles data reader. |
 | [shapefile]  |  ![Shape Badge][shapeBadge]  |   Shapefile data reader supporting DBF and projections (PRJ). |
 | [tileReader] |     ![TR Badge][trBadge]     |          Tile data reader, usually from a local input folder. |
 | [wkt]        |    ![wkt Badge][wktBadge]    |                                  Well Known Text data reader. |
@@ -156,6 +157,8 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 [pmtBadge]: /assets/badges/pmtilesReader-gzip-cover.svg
 [protobuf]: /docs-ts/readers/protobuf.md
 [protoBadge]: /assets/badges/protobuf-gzip-cover.svg
+[s2tiles]: /docs-ts/readers/s2tiles.md
+[s2tBadge]: /assets/badges/s2tiles-gzip-cover.svg
 [shapefile]: /docs-ts/readers/shapefile.md
 [shapeBadge]: /assets/badges/shapefile-gzip-cover.svg
 [tileReader]: /docs-ts/readers/tile.md
@@ -167,15 +170,27 @@ Most readers are parsers that take `ReaderInputs` as an input. This is to ensure
 
 ### Writers
 
-| Module          |             Size              |            <img width="550" height="0"> Description |
-| :-------------- | :---------------------------: | --------------------------------------------------: |
-| [pmtilesWriter] |   ![PMTW Badge][pmtwBadge]    |                             Write (S2)PMTiles data. |
-| [tileWriter]    |     ![TW Badge][twBadge]      | Write (S2)Tiles data. Supports time series as well. |
-| [toJSON]        | ![To JSON Badge][toJSONBadge] |                    Convert any Reader to JSON data. |
-| [toTiles]       |   ![FT Badge][toTilesBadge]   |   Convert any Reader to vector and/or raster tiles. |
+| Module          |             Size              |                    <img width="550" height="0"> Description |
+| :-------------- | :---------------------------: | ----------------------------------------------------------: |
+| [csvWriter]     |   ![CSVW Badge][csvwBadge]    |                             Convert any Reader to CSV data. |
+| [gpxWriter]     |   ![GPXW Badge][gpxwBadge]    |                             Convert any Reader to GPX data. |
+| [pmtilesWriter] |   ![PMTW Badge][pmtwBadge]    |                                     Write (S2)PMTiles data. |
+| [s2tilesWriter] |   ![S2TW Badge][s2twBadge]    |                                         Write S2Tiles data. |
+| [shapefile]     |  ![Shape Badge][shapeBadge]   | Shapefile data reader supporting DBF and projections (PRJ). |
+| [tileWriter]    |     ![TW Badge][twBadge]      |         Write (S2)Tiles data. Supports time series as well. |
+| [toJSON]        | ![To JSON Badge][toJSONBadge] |                            Convert any Reader to JSON data. |
+| [toTiles]       |   ![FT Badge][toTilesBadge]   |           Convert any Reader to vector and/or raster tiles. |
 
+[csvWriter]: /docs-ts/writers/csv.md
+[csvwBadge]: /assets/badges/csvWriter-gzip-cover.svg
+[gpxWriter]: /docs-ts/writers/gpx.md
+[gpxwBadge]: /assets/badges/gpxWriter-gzip-cover.svg
 [pmtilesWriter]: /docs-ts/writers/pmtiles.md
 [pmtwBadge]: /assets/badges/pmtilesWriter-gzip-cover.svg
+[s2tilesWriter]: /docs-ts/writers/s2tiles.md
+[s2twBadge]: /assets/badges/s2tilesWriter-gzip-cover.svg
+[shapefile]: /docs-ts/writers/shapefile.md
+[shapeBadge]: /assets/badges/shapefileWriter-gzip-cover.svg
 [tileWriter]: /docs-ts/writers/tile.md
 [twBadge]: /assets/badges/tileWriter-gzip-cover.svg
 [toJSON]: /docs-ts/writers/toJSON.md

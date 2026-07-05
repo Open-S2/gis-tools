@@ -114,6 +114,25 @@
 //! - [`crate::readers::RasterTileFetcher`]: Read an entire archive of raster tiles, where the max zoom data is iterated upon
 //! - [`crate::readers::WKTGeometryReader`]: Parse a collection of WKT geometries from a string
 //!
+//! ### Writers
+//!
+//! Writers are tools for writing to certain formats, build tiles, etc.
+//!
+//! All writer tools use the [`crate::parsers::Writer`] trait to write data to. Some of the writers
+//! have another level of indirection for writing tiles and use both/either the [`crate::writers::TileWriter`]
+//! and [`crate::writers::TemporalTileWriter`] traits.
+//!
+//! - [`crate::writers::to_csv`]: Given a writer and an array of readers, write the input features to the writer as a CSV data
+//! - [`crate::writers::to_gpx`]: Given a writer and an array of readers, write the input features to the writer as GPX data
+//! - [`crate::writers::to_json`]: Given a writer and an array of readers, write the input features to the writer as a JSON object
+//! - [`crate::writers::to_jsonld`]: Given a writer and an array of readers, write the input features to the writer as JSON-LD
+//! - [`crate::writers::to_shp`]: Given a writer and an array of readers, write the input features to the writer as a Shapefile
+//! - [`crate::writers::PMTilesWriter`]: The File reader is to be used by the local filesystem.
+//! - [`crate::writers::S2TilesWriter`]: An S2 Tile Writer to store tile and metadata in a cloud optimized format.
+//! - [`crate::writers::FileTileWriter`]: A Folder-File tile writer
+//! - [`crate::writers::LocalTileWriter`]: A Local Memory Tile Write Store
+//! - [`crate::writers::TileBuilder`]: Create vector tiles, raster tiles, or gridded tiles.
+//!
 //! ### Tools
 //!
 //! #### Elevation Tools
@@ -200,25 +219,6 @@
 //! - [`crate::util::idw_interpolation`]: Given a reference of data, interpolate a point using inverse distance weighting
 //! - [`crate::util::lanczos_interpolation`]: Perform interpolation using the Lanczos filter. This method uses a kernel-based approach to weigh contributions from nearby points, providing a balance between smoothing and sharpness.
 //! - [`crate::util::nearest_interpolation`]: Finds the nearest point in the reference data to the given point and returns its value.
-//!
-//! ### Writers
-//!
-//! Writers are tools for writing to certain formats, build tiles, etc.
-//!
-//! All writer tools use the [`crate::parsers::Writer`] trait to write data to. Some of the writers
-//! have another level of indirection for writing tiles and use both/either the [`crate::writers::TileWriter`]
-//! and [`crate::writers::TemporalTileWriter`] traits.
-//!
-//! - [`crate::writers::to_csv`]: Given a writer and an array of readers, write the input features to the writer as a CSV data
-//! - [`crate::writers::to_gpx`]: Given a writer and an array of readers, write the input features to the writer as GPX data
-//! - [`crate::writers::to_json`]: Given a writer and an array of readers, write the input features to the writer as a JSON object
-//! - [`crate::writers::to_jsonld`]: Given a writer and an array of readers, write the input features to the writer as JSON-LD
-//! - [`crate::writers::to_shp`]: Given a writer and an array of readers, write the input features to the writer as a Shapefile
-//! - [`crate::writers::PMTilesWriter`]: The File reader is to be used by the local filesystem.
-//! - [`crate::writers::S2TilesWriter`]: An S2 Tile Writer to store tile and metadata in a cloud optimized format.
-//! - [`crate::writers::FileTileWriter`]: A Folder-File tile writer
-//! - [`crate::writers::LocalTileWriter`]: A Local Memory Tile Write Store
-//! - [`crate::writers::TileBuilder`]: Create vector tiles, raster tiles, or gridded tiles.
 //!
 //! ### Geometry
 //!

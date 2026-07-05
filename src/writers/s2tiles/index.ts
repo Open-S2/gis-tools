@@ -1,3 +1,4 @@
+import { getTilePath } from '../../index.js';
 import { Compression, compressStream } from '../../util/index.js';
 
 import type { Metadata } from 's2-tilejson';
@@ -211,7 +212,7 @@ export class S2TilesWriter implements TileWriter {
     let cursor: number = METADATA_SIZE + DIR_SIZE * face;
     let leaf: number;
     let depth = 0;
-    const path = getPath(zoom, x, y);
+    const path = getTilePath(zoom, x, y);
 
     while (path.length !== 0) {
       // grab movement
@@ -319,31 +320,6 @@ function _buildDirSize(depth: number, maxzoom: number): number {
   } while (remainder-- !== 0);
 
   return dirSize * NODE_SIZE;
-}
-
-/**
- * Get the path to a tile
- * @param zoom - the zoom
- * @param x - the x
- * @param y - the y
- * @returns - The path as a collection of offsets pointing to the tile Node in the directory
- */
-function getPath(zoom: number, x: number, y: number): number[] {
-  const { max, pow } = Math;
-  const path: Array<[number, number, number]> = [];
-  while (zoom >= 5) {
-    path.push([5, x & 31, y & 31]);
-    x >>= 5;
-    y >>= 5;
-    zoom = max(zoom - 5, 0);
-  }
-  path.push([zoom, x, y]);
-  return path.map(([zoom, x, y]) => {
-    let val = 0;
-    val += y * (1 << zoom) + x;
-    while (zoom-- !== 0) val += pow(1 << zoom, 2);
-    return val;
-  });
 }
 
 /**

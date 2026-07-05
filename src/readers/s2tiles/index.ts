@@ -9,7 +9,7 @@ import type { Face, Reader, ReaderInputs } from '../../index.js';
  * Offset: 6 bytes
  * Length: 4 bytes
  */
-type Directory = [offset: number, length: number];
+type Node = [offset: number, length: number];
 
 const NODE_SIZE = 10; // [offset, length] => [6 bytes, 4 bytes]
 const DIR_SIZE = 1_365 * NODE_SIZE; // (13_650) -> 6 levels, the 6th level has both node and leaf (1+4+16+64+256+1024)*2 => (1365)+1365 => 2_730
@@ -204,7 +204,7 @@ export class S2TilesReader {
    * @param y - the y coordinate of the tile
    * @returns - the offset and length of the tile if it exists
    */
-  async #walk(dir: DataView, zoom: number, x: number, y: number): Promise<undefined | Directory> {
+  async #walk(dir: DataView, zoom: number, x: number, y: number): Promise<undefined | Node> {
     const { maxzoom } = this;
     const path = getTilePath(zoom, x, y);
     let offset = 0;

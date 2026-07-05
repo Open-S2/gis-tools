@@ -7,7 +7,7 @@ await mkdir(`${__dirname}/../build_bundle_tmp`, { recursive: true });
 
 await build({
   bundle: true,
-  platform: 'browser', // Treat Node.js built-in modules as external
+  platform: 'node', // Treat Node.js built-in modules as external
   external: ['os', 'path', 'fs', 'node:zlib', 'util', 'node:*', 'child_process', 'sharp'], // Exclude built-in and other unwanted modules
   format: 'esm', // ESM output format
   treeShaking: true, // Ensure unused code is removed
@@ -61,6 +61,7 @@ await build({
     `${__dirname}/builds/readers/osm.ts`,
     `${__dirname}/builds/readers/pmtiles.ts`,
     `${__dirname}/builds/readers/protobuf.ts`,
+    `${__dirname}/builds/readers/s2tiles.ts`,
     `${__dirname}/builds/readers/shapefile.ts`,
     `${__dirname}/builds/readers/tileReader.ts`,
     `${__dirname}/builds/readers/wkt.ts`,
@@ -82,7 +83,11 @@ await build({
     `${__dirname}/builds/util/decompression.ts`,
     `${__dirname}/builds/util/polyfills.ts`,
     // WRITERS
+    `${__dirname}/builds/writers/csvWriter.ts`,
+    `${__dirname}/builds/writers/gpxWriter.ts`,
     `${__dirname}/builds/writers/pmtilesWriter.ts`,
+    `${__dirname}/builds/writers/s2tilesWriter.ts`,
+    `${__dirname}/builds/writers/shapefileWriter.ts`,
     `${__dirname}/builds/writers/tileWriter.ts`,
     `${__dirname}/builds/writers/toJSON.ts`,
     `${__dirname}/builds/writers/toTiles.ts`,
