@@ -1,4 +1,4 @@
-import { convert, fromVectorGeometry, mergeBBoxes, toDBF } from '../../index.js';
+import { convert, fromPolygon, fromVectorGeometry, mergeBBoxes, toDBF } from '../../index.js';
 
 import type {
   BBOX,
@@ -136,7 +136,7 @@ async function writeSHP(
           for (const polygon of userFeature.geometry.coordinates) {
             const polyFeature: VectorFeatures = {
               ...userFeature,
-              geometry: { coordinates: polygon, type: 'Polygon', is3D },
+              geometry: { coordinates: polygon, type: 'Polygon', is3D, bbox: fromPolygon(polygon) },
             };
             await writeFeature(polyFeature, shpWriter, index, shpWriter.tell(), shxWriter, mValue);
             index++;
@@ -212,9 +212,9 @@ async function writeFeature(
         : writeLineStrings(coords, bbox!);
   } else if (type === 'Polygon') {
     data = is3D
-      ? writeLineStringsZ(coords, bbox!, mValue, 13)
+      ? writeLineStringsZ(coords, bbox!, mValue, 15)
       : hasM
-        ? writeLineStringsM(coords, bbox!, mValue, 15)
+        ? writeLineStringsM(coords, bbox!, mValue, 25)
         : writeLineStrings(coords, bbox!, 5);
   } else {
     data = writeNull();
@@ -567,9 +567,7 @@ function writeMultiPointZ(
   // 1. Calculate dynamic buffer allocation
   let bufferSize = 40 + numPoints * 16; // Header (40) + XY Array (N * 16)
   bufferSize += 16 + numPoints * 8; // Z Range (16) + Z Array (N * 8)
-  if (hasM) {
-    bufferSize += 16 + numPoints * 8; // M Range (16) + M Array (N * 8)
-  }
+  if (hasM) bufferSize += 16 + numPoints * 8; // M Range (16) + M Array (N * 8)
 
   const view = new DataView(new ArrayBuffer(bufferSize));
 

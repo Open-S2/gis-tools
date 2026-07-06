@@ -4,7 +4,10 @@ use crate::{
     util::Date,
 };
 use alloc::collections::BTreeMap;
-use s2json::{MValue, MValueCompatible, PrimitiveValue};
+use s2json::{
+    MValue, MValueCompatible, PrimitiveValue, VectorFeature, VectorGeometry, VectorGeometryType,
+    VectorPolygonGeometry,
+};
 
 /// DBF File Version
 #[repr(u8)]
@@ -44,38 +47,45 @@ pub fn to_dbf_meta<
 
     for iterator in iterators {
         for feature in iterator.iter() {
-            feature_count += 1;
-            let props: MValue = feature.properties.clone().into();
-            for (key, value) in props.iter() {
-                if let Some(value) = value.to_prim() {
-                    if value.is_null() {
-                        continue;
-                    }
-                    let normalized_key =
-                        if key.len() <= 10 { key.clone() } else { key[..10].to_string() };
-                    let data_type = get_type(value);
-                    // Initialize configuration parameters for this column if missing
-                    if !schema_map.contains_key(&normalized_key) {
-                        schema_map.insert(
-                            normalized_key.clone(),
-                            DBFRow { name: normalized_key.clone(), data_type, len: 0, decimal: 0 },
-                        );
-                    }
+            for feature in build_features(feature) {
+                feature_count += 1;
+                let props: MValue = feature.properties.clone().into();
+                for (key, value) in props.iter() {
+                    if let Some(value) = value.to_prim() {
+                        if value.is_null() {
+                            continue;
+                        }
+                        let normalized_key =
+                            if key.len() <= 10 { key.clone() } else { key[..10].to_string() };
+                        let data_type = get_type(value);
+                        // Initialize configuration parameters for this column if missing
+                        if !schema_map.contains_key(&normalized_key) {
+                            schema_map.insert(
+                                normalized_key.clone(),
+                                DBFRow {
+                                    name: normalized_key.clone(),
+                                    data_type,
+                                    len: 0,
+                                    decimal: 0,
+                                },
+                            );
+                        }
 
-                    let current_meta = schema_map.get_mut(&normalized_key).unwrap();
-                    // Handle type widening if a column shifts from Boolean/Numeric up to String
-                    if current_meta.data_type != data_type && current_meta.data_type != 'C' {
-                        current_meta.data_type = 'C';
-                    }
-                    // Calculate formatting geometry constraints for the current specific value
-                    if current_meta.data_type == 'N' {
-                        let (total_length, decimal_places) = get_numeric_constraints(value);
-                        current_meta.decimal = u64::max(current_meta.decimal, decimal_places);
-                        current_meta.len = u64::max(current_meta.len, total_length);
-                    } else {
-                        // Handle length constraints for strings or fallback characters
-                        let string_len = value.to_string().unwrap_or_default().len() as u64;
-                        current_meta.len = u64::max(current_meta.len, string_len);
+                        let current_meta = schema_map.get_mut(&normalized_key).unwrap();
+                        // Handle type widening if a column shifts from Boolean/Numeric up to String
+                        if current_meta.data_type != data_type && current_meta.data_type != 'C' {
+                            current_meta.data_type = 'C';
+                        }
+                        // Calculate formatting geometry constraints for the current specific value
+                        if current_meta.data_type == 'N' {
+                            let (total_length, decimal_places) = get_numeric_constraints(value);
+                            current_meta.decimal = u64::max(current_meta.decimal, decimal_places);
+                            current_meta.len = u64::max(current_meta.len, total_length);
+                        } else {
+                            // Handle length constraints for strings or fallback characters
+                            let string_len = value.to_string().unwrap_or_default().len() as u64;
+                            current_meta.len = u64::max(current_meta.len, string_len);
+                        }
                     }
                 }
             }
@@ -182,113 +192,82 @@ pub fn to_dbf<
     // 4. Transform and stream specific entity attribute rows
     for iterator in iterators {
         for feature in iterator.iter() {
-            let mut record_buffer = vec![0x20; bytes_per_record];
-            let props: MValue = feature.properties.clone().into();
-            let mut offset = 0;
+            for feature in build_features(feature) {
+                let mut record_buffer = vec![0x20; bytes_per_record];
+                let props: MValue = feature.properties.clone().into();
+                let mut offset = 0;
 
-            // Write deletion indicator token: 0x20 represents an active valid entity row
-            record_buffer[offset] = 0x20;
-            offset += 1;
+                // Write deletion indicator token: 0x20 represents an active valid entity row
+                record_buffer[offset] = 0x20;
+                offset += 1;
 
-            //       for (const field of meta) {
-            for field in &meta {
-                //         const rawValue = row[field.name];
-                //         let stringPayload = rawValue === null || rawValue === undefined ? '' : String(rawValue);
-                //         if (field.data_type === 'N') {
-                //           // Numbers must align exactly with your custom precision metrics
-                //           const numValue = Number(rawValue);
-                //           if (!isNaN(numValue)) {
-                //             stringPayload = numValue.toFixed(field.decimal);
-                //           }
-                //           // Left-pad with empty space characters matching dBase standard formatting expectations
-                //           stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
-                //         } else if (field.data_type === 'L') {
-                //           // Enforce valid Boolean indicators: 'T' or 'F'
-                //           const lower = stringPayload.toLowerCase();
-                //           const isTrue = rawValue === true || ['true', 't', 'y'].includes(lower);
-                //           stringPayload = isTrue ? 'T' : 'F';
-                //         } else if (field.data_type === 'D') {
-                //           // Dates require strict YYYYMMDD string format representations
-                //           if (rawValue instanceof Date) {
-                //             const y = rawValue.getFullYear();
-                //             const m = String(rawValue.getMonth() + 1).padStart(2, '0');
-                //             const d = String(rawValue.getDate()).padStart(2, '0');
-                //             stringPayload = `${y}${m}${d}`;
-                //           }
-                //           stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
-                //         } else {
-                //           // Standard alphanumeric string processing (Right-padded with spacing characters)
-                //           stringPayload = stringPayload.padEnd(field.len, ' ').slice(0, field.len);
-                //         }
+                for field in &meta {
+                    let mut string_payload = String::new();
 
-                //         // Safe continuous allocation block layout injection via TextEncoder
-                //         const encodedFieldBytes = textEncoder.encode(stringPayload);
-                //         for (let b = 0; b < field.len; b++) {
-                //           recordBuffer[offset++] = b < encodedFieldBytes.length ? encodedFieldBytes[b] : 0x20;
-                //         }
-                let mut string_payload = String::new();
+                    if let Some(value) = props.get(&field.name).and_then(|v| v.to_prim())
+                        && !value.is_null()
+                    {
+                        if field.data_type == 'N' {
+                            if let Some(num_value) = value.to_f64() {
+                                // Formatting with custom precision
+                                string_payload =
+                                    format!("{:.1$}", num_value, field.decimal as usize);
+                            }
+                            // Left-pad with spaces
+                            let width = field.len as usize;
+                            if string_payload.len() < width {
+                                let padding = " ".repeat(width - string_payload.len());
+                                string_payload = format!("{}{}", padding, string_payload);
+                            }
+                            string_payload.truncate(width);
+                        } else if field.data_type == 'L' {
+                            let val_str = value.to_string().unwrap_or_default().to_lowercase();
+                            let is_true = val_str == "true" || val_str == "t" || val_str == "y";
+                            string_payload =
+                                if is_true { "T".to_string() } else { "F".to_string() };
+                        } else if field.data_type == 'D' {
+                            // Convert the property into your custom Date type
+                            if let Some(val_str) = value.to_string() {
+                                let date = Date::from(val_str.as_str());
+                                string_payload = format!("{}", date); // Uses your Display implementation
+                            }
 
-                if let Some(value) = props.get(&field.name).and_then(|v| v.to_prim())
-                    && !value.is_null()
-                {
-                    if field.data_type == 'N' {
-                        if let Some(num_value) = value.to_f64() {
-                            // Formatting with custom precision
-                            string_payload = format!("{:.1$}", num_value, field.decimal as usize);
+                            // Field width tracking and slicing
+                            let width = field.len as usize;
+                            if string_payload.len() < width {
+                                let padding = " ".repeat(width - string_payload.len());
+                                string_payload = format!("{}{}", padding, string_payload);
+                            }
+                            string_payload.truncate(width);
+                        } else {
+                            // Standard alphanumeric string processing
+                            string_payload = value.to_string().unwrap_or_default();
+                            let width = field.len as usize;
+                            if string_payload.len() < width {
+                                let padding = " ".repeat(width - string_payload.len());
+                                string_payload = format!("{}{}", string_payload, padding); // Right padded
+                            }
+                            string_payload.truncate(width);
                         }
-                        // Left-pad with spaces
-                        let width = field.len as usize;
-                        if string_payload.len() < width {
-                            let padding = " ".repeat(width - string_payload.len());
-                            string_payload = format!("{}{}", padding, string_payload);
-                        }
-                        string_payload.truncate(width);
-                    } else if field.data_type == 'L' {
-                        let val_str = value.to_string().unwrap_or_default().to_lowercase();
-                        let is_true = val_str == "true" || val_str == "t" || val_str == "y";
-                        string_payload = if is_true { "T".to_string() } else { "F".to_string() };
-                    } else if field.data_type == 'D' {
-                        // Convert the property into your custom Date type
-                        if let Some(val_str) = value.to_string() {
-                            let date = Date::from(val_str.as_str());
-                            string_payload = format!("{}", date); // Uses your Display implementation
-                        }
+                    }
 
-                        // Field width tracking and slicing
-                        let width = field.len as usize;
-                        if string_payload.len() < width {
-                            let padding = " ".repeat(width - string_payload.len());
-                            string_payload = format!("{}{}", padding, string_payload);
-                        }
-                        string_payload.truncate(width);
-                    } else {
-                        // Standard alphanumeric string processing
-                        string_payload = value.to_string().unwrap_or_default();
-                        let width = field.len as usize;
-                        if string_payload.len() < width {
-                            let padding = " ".repeat(width - string_payload.len());
-                            string_payload = format!("{}{}", string_payload, padding); // Right padded
-                        }
-                        string_payload.truncate(width);
+                    // If nothing was generated (null/missing value), pad entirely with spaces
+                    if string_payload.is_empty() {
+                        string_payload = " ".repeat(field.len as usize);
+                    }
+
+                    // Inject encoded field bytes into allocation block
+                    let encoded_bytes = string_payload.as_bytes();
+                    let field_width = field.len as usize;
+                    for b in 0..field_width {
+                        record_buffer[offset] =
+                            if b < encoded_bytes.len() { encoded_bytes[b] } else { 0x20 };
+                        offset += 1;
                     }
                 }
-
-                // If nothing was generated (null/missing value), pad entirely with spaces
-                if string_payload.is_empty() {
-                    string_payload = " ".repeat(field.len as usize);
-                }
-
-                // Inject encoded field bytes into allocation block
-                let encoded_bytes = string_payload.as_bytes();
-                let field_width = field.len as usize;
-                for b in 0..field_width {
-                    record_buffer[offset] =
-                        if b < encoded_bytes.len() { encoded_bytes[b] } else { 0x20 };
-                    offset += 1;
-                }
+                // Stream out the record buffer sequence directly to disk or memory stream instantly
+                writer.append(&record_buffer);
             }
-            // Stream out the record buffer sequence directly to disk or memory stream instantly
-            writer.append(&record_buffer);
         }
     }
 
@@ -371,4 +350,35 @@ fn get_size(value: char) -> u8 {
         'B' => 8,
         _ => 18,
     }
+}
+
+fn build_features<M: Clone, P: MValueCompatible, D: MValueCompatible>(
+    feature: VectorFeature<M, P, D>,
+) -> Vec<VectorFeature<M, P, D>> {
+    let mut features = vec![];
+
+    match &feature.geometry {
+        VectorGeometry::MultiPolygon(mp) => {
+            let polygons = &mp.coordinates;
+            for polygon in polygons.iter() {
+                let poly_feature: VectorFeature<M, P, D> = VectorFeature {
+                    _type: feature._type.clone(),
+                    properties: feature.properties.clone(),
+                    geometry: VectorGeometry::Polygon(VectorPolygonGeometry::<D> {
+                        _type: VectorGeometryType::Polygon,
+                        coordinates: polygon.clone(),
+                        is_3d: mp.is_3d,
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
+                features.push(poly_feature);
+            }
+        }
+        _ => {
+            features.push(feature.clone());
+        }
+    }
+
+    features
 }

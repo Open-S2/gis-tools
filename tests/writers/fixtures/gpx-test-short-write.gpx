@@ -2,6 +2,16 @@
 <gpx version="1.1" creator="GIS_TOOLS">
 	<metadata>
 		<name>GIS Tools Output Data</name>
+		<author>
+			<name>GIS_TOOLS</name>
+			<email id="craiggles" domain="opens2.com" />
+			<link href="https://opens2.com" />
+		</author>
+		<copyright>
+			<author>GIS_TOOLS</author>
+			<year>2026</year>
+			<license>MIT</license>
+		</copyright>
 		<bounds minlon="47.2278526991611" minlat="-1.5521714646550901" maxlon="47.25563886739697" maxlat="-1.5037400726690622" />
 	</metadata>
 	<wpt lat="47.253146555709" lon="-1.5153741828293">

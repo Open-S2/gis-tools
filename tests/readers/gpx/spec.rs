@@ -176,8 +176,8 @@ mod tests {
     #[test]
     fn test_gpx_copyright_new() {
         let xml_tag = XMLTagItem::XMLTag(XMLTag {
-            outer: r#"<copyright><author>John Doe</author><year>2023</year><license>https://example.com/license</license></copyright>"#.into(),
-            inner: Some(r#"<author>John Doe</author><year>2023</year><license>https://example.com/license</license>"#.into()),
+            outer: r#"<copyright author="John Doe"><year>2023</year><license>https://example.com/license</license></copyright>"#.into(),
+            inner: Some(r#"<year>2023</year><license>https://example.com/license</license>"#.into()),
             start: 0,
             end: 112,
         });
@@ -202,8 +202,8 @@ mod tests {
         assert_eq!(copyright_missing.license, None);
 
         let xml_tag_partial = XMLTagItem::XMLTag(XMLTag {
-            outer: r#"<copyright><author>John Doe</author></copyright>"#.into(),
-            inner: Some(r#"<author>John Doe</author>"#.into()),
+            outer: r#"<copyright author="John Doe"/></copyright>"#.into(),
+            inner: Some(r#""#.into()),
             start: 0,
             end: 42,
         });

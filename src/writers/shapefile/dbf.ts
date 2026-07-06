@@ -1,4 +1,4 @@
-import type { DBFRow, FeatureIterator, Writer } from '../../index.js';
+import type { DBFRow, FeatureIterator, VectorFeatures, Writer } from '../../index.js';
 
 export type DBFFileVersion =
   | 0x03 // dBase III without memo file
@@ -21,30 +21,32 @@ export async function toDBFMeta(
 
   for (const iterator of iterators) {
     for await (const feature of iterator) {
-      featureCount++;
-      for (const [key, value] of Object.entries(feature.properties)) {
-        if (value === undefined || value === null) continue;
-        const normalizedKey = key.slice(0, 10);
-        const dataType = getType(value);
-        // Initialize configuration parameters for this column if missing
-        if (!schemaMap.has(normalizedKey)) {
-          schemaMap.set(normalizedKey, { name: normalizedKey, dataType, len: 0, decimal: 0 });
-        }
+      for (const { properties } of buildFeatures(feature)) {
+        featureCount++;
+        for (const [key, value] of Object.entries(properties)) {
+          if (value === undefined || value === null) continue;
+          const normalizedKey = key.slice(0, 10);
+          const dataType = getType(value);
+          // Initialize configuration parameters for this column if missing
+          if (!schemaMap.has(normalizedKey)) {
+            schemaMap.set(normalizedKey, { name: normalizedKey, dataType, len: 0, decimal: 0 });
+          }
 
-        const currentMeta = schemaMap.get(normalizedKey)!;
-        // Handle type widening if a column shifts from Boolean/Numeric up to String
-        if (currentMeta.dataType !== dataType && currentMeta.dataType !== 'C') {
-          currentMeta.dataType = 'C';
-        }
-        // Calculate formatting geometry constraints for the current specific value
-        if (currentMeta.dataType === 'N') {
-          const { totalLength, decimalPlaces } = getNumericConstraints(value);
-          currentMeta.decimal = Math.max(currentMeta.decimal, decimalPlaces);
-          currentMeta.len = Math.max(currentMeta.len, totalLength);
-        } else {
-          // Handle length constraints for strings or fallback characters
-          const stringLen = String(value).length;
-          currentMeta.len = Math.max(currentMeta.len, stringLen);
+          const currentMeta = schemaMap.get(normalizedKey)!;
+          // Handle type widening if a column shifts from Boolean/Numeric up to String
+          if (currentMeta.dataType !== dataType && currentMeta.dataType !== 'C') {
+            currentMeta.dataType = 'C';
+          }
+          // Calculate formatting geometry constraints for the current specific value
+          if (currentMeta.dataType === 'N') {
+            const { totalLength, decimalPlaces } = getNumericConstraints(value);
+            currentMeta.decimal = Math.max(currentMeta.decimal, decimalPlaces);
+            currentMeta.len = Math.max(currentMeta.len, totalLength);
+          } else {
+            // Handle length constraints for strings or fallback characters
+            const stringLen = String(value).length;
+            currentMeta.len = Math.max(currentMeta.len, stringLen);
+          }
         }
       }
     }
@@ -139,52 +141,52 @@ export async function toDBF(writer: Writer, iterators: FeatureIterator[]): Promi
   const recordBuffer = new Uint8Array(bytesPerRecord);
   for (const iterator of iterators) {
     for await (const feature of iterator) {
-      recordBuffer.fill(0x20);
+      for (const { properties: row } of buildFeatures(feature)) {
+        recordBuffer.fill(0x20);
+        let offset = 0;
 
-      const row = feature.properties;
-      let offset = 0;
+        // Write deletion indicator token: 0x20 represents an active valid entity row
+        recordBuffer[offset++] = 0x20;
 
-      // Write deletion indicator token: 0x20 represents an active valid entity row
-      recordBuffer[offset++] = 0x20;
-
-      for (const field of meta) {
-        const rawValue = row[field.name];
-        let stringPayload = rawValue === null || rawValue === undefined ? '' : String(rawValue);
-        if (field.dataType === 'N') {
-          // Numbers must align exactly with your custom precision metrics
-          const numValue = Number(rawValue);
-          if (!isNaN(numValue)) {
-            stringPayload = numValue.toFixed(field.decimal);
+        for (const field of meta) {
+          const rawValue = row[field.name];
+          let stringPayload = rawValue === null || rawValue === undefined ? '' : String(rawValue);
+          if (field.dataType === 'N') {
+            // Numbers must align exactly with your custom precision metrics
+            const numValue = Number(rawValue);
+            if (!isNaN(numValue)) {
+              stringPayload = numValue.toFixed(field.decimal);
+            }
+            // Left-pad with empty space characters matching dBase standard formatting expectations
+            stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
+          } else if (field.dataType === 'L') {
+            // Enforce valid Boolean indicators: 'T' or 'F'
+            const lower = stringPayload.toLowerCase();
+            const isTrue = rawValue === true || ['true', 't', 'y'].includes(lower);
+            stringPayload = isTrue ? 'T' : 'F';
+          } else if (field.dataType === 'D') {
+            // Dates require strict YYYYMMDD string format representations
+            if (rawValue instanceof Date) {
+              const y = rawValue.getFullYear();
+              const m = String(rawValue.getMonth() + 1).padStart(2, '0');
+              const d = String(rawValue.getDate()).padStart(2, '0');
+              stringPayload = `${y}${m}${d}`;
+            }
+            stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
+          } else {
+            // Standard alphanumeric string processing (Right-padded with spacing characters)
+            stringPayload = stringPayload.padEnd(field.len, ' ').slice(0, field.len);
           }
-          // Left-pad with empty space characters matching dBase standard formatting expectations
-          stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
-        } else if (field.dataType === 'L') {
-          // Enforce valid Boolean indicators: 'T' or 'F'
-          const lower = stringPayload.toLowerCase();
-          const isTrue = rawValue === true || ['true', 't', 'y'].includes(lower);
-          stringPayload = isTrue ? 'T' : 'F';
-        } else if (field.dataType === 'D') {
-          // Dates require strict YYYYMMDD string format representations
-          if (rawValue instanceof Date) {
-            const y = rawValue.getFullYear();
-            const m = String(rawValue.getMonth() + 1).padStart(2, '0');
-            const d = String(rawValue.getDate()).padStart(2, '0');
-            stringPayload = `${y}${m}${d}`;
-          }
-          stringPayload = stringPayload.padStart(field.len, ' ').slice(0, field.len);
-        } else {
-          // Standard alphanumeric string processing (Right-padded with spacing characters)
-          stringPayload = stringPayload.padEnd(field.len, ' ').slice(0, field.len);
-        }
 
-        // Safe continuous allocation block layout injection via TextEncoder
-        const encodedFieldBytes = textEncoder.encode(stringPayload);
-        for (let b = 0; b < field.len; b++) {
-          recordBuffer[offset++] = b < encodedFieldBytes.length ? encodedFieldBytes[b] : 0x20;
+          // Safe continuous allocation block layout injection via TextEncoder
+          const encodedFieldBytes = textEncoder.encode(stringPayload);
+          for (let b = 0; b < field.len; b++) {
+            recordBuffer[offset++] = b < encodedFieldBytes.length ? encodedFieldBytes[b] : 0x20;
+          }
         }
+        // Stream out the record buffer sequence directly to disk or memory stream instantly
+        await writer.append(recordBuffer);
       }
-      // Stream out the record buffer sequence directly to disk or memory stream instantly
-      await writer.append(recordBuffer);
     }
   }
 
@@ -246,4 +248,22 @@ function getType(value: unknown): string {
 function getSize(value: string): number {
   const defaults: Record<string, number> = { C: 254, L: 1, D: 8, B: 8 };
   return defaults[value] ?? 18;
+}
+
+function buildFeatures(feature: VectorFeatures): VectorFeatures[] {
+  // If the feature is multipolygon, we iterate multiple times for number of polys
+  const features = [];
+  if (feature.geometry.type === 'MultiPolygon') {
+    for (const polygon of feature.geometry.coordinates) {
+      const polyFeature: VectorFeatures = {
+        ...feature,
+        geometry: { coordinates: polygon, type: 'Polygon', is3D: feature.geometry.is3D },
+      };
+      features.push(polyFeature);
+    }
+  } else {
+    features.push(feature);
+  }
+
+  return features;
 }

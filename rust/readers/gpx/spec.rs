@@ -546,14 +546,12 @@ pub struct GPXCopyright {
 impl GPXCopyright {
     /// Creates a new GPXCopyright from an XMLTagItem
     pub fn new(copyright_xml: XMLTagItem) -> Self {
+        let author = xml_get_attribute(&copyright_xml, "author").unwrap_or_default();
+
         let inner = match copyright_xml {
             XMLTagItem::XMLTag(tag) => tag.inner.unwrap_or_default(),
             XMLTagItem::String(s) => s,
         };
-
-        let author = xml_find_tag_by_name(&inner, "author", None)
-            .and_then(|tag| tag.inner)
-            .unwrap_or_default();
         let year = xml_find_tag_by_name(&inner, "year", None).and_then(|tag| tag.inner);
         let license = xml_find_tag_by_name(&inner, "license", None).and_then(|tag| tag.inner);
 

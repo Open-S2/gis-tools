@@ -23,7 +23,11 @@ test('GPXReader - basic', async () => {
       minlat: 49.12965660728301,
       minlon: -1.5521714646550901,
     },
-    copyright: undefined,
+    copyright: {
+      author: 'Jane Doe',
+      license: 'https://creativecommons.org/licenses/by/4.0/',
+      year: '2026',
+    },
     desc: 'A full featured gpx demo file',
     link: [
       {

@@ -2,8 +2,8 @@ use crate::{
     geometry::convert,
     parsers::{FeatureReader, Writer},
     readers::{
-        GPXBounds, GPXCopyright, GPXFixType, GPXLink, GPXMetadata, GPXPerson, GPXRoute, GPXTrack,
-        GPXTrackSegment, GPXWaypoint,
+        GPXBounds, GPXCopyright, GPXEmail, GPXFixType, GPXLink, GPXMetadata, GPXPerson, GPXRoute,
+        GPXTrack, GPXTrackSegment, GPXWaypoint,
     },
     writers::build_xml_element,
 };
@@ -280,9 +280,17 @@ fn setup_metadata(name: String, bounds: BBox3D) -> GPXMetadata {
         name: Some(name),
         bounds: Some(GPXBounds { minlat, minlon, maxlat, maxlon }),
         desc: None,
-        author: None,
+        author: Some(GPXPerson {
+            name: Some("GIS_TOOLS".into()),
+            email: Some(GPXEmail { id: "craiggles".into(), domain: "opens2.com".into() }),
+            link: Some(GPXLink { href: "https://opens2.com".into(), text: None, r#type: None }),
+        }),
         link: None,
-        copyright: None,
+        copyright: Some(GPXCopyright {
+            author: "GIS_TOOLS".into(),
+            year: Some("2026".into()),
+            license: Some("MIT".into()),
+        }),
         keywords: None,
         time: None,
     }

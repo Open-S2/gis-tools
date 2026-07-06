@@ -245,9 +245,9 @@ fn write_shp<
                                 properties: user_feature.properties.clone(),
                                 geometry: VectorGeometry::Polygon(VectorPolygonGeometry::<D> {
                                     _type: VectorGeometryType::Polygon,
-                                    bbox: mp.bbox,
+                                    bbox: Some(BBox3D::from_polygon(polygon)),
                                     coordinates: polygon.clone(),
-                                    is_3d: m_value.is_some(),
+                                    is_3d: mp.is_3d,
                                     ..Default::default()
                                 }),
                                 ..Default::default()
@@ -331,36 +331,36 @@ fn write_feature<
 
     let data = match &feature.geometry {
         VectorGeometry::Point(p) => {
-            if has_m {
-                write_point_m(&p.coordinates, m_value.unwrap())
-            } else if p.is_3d {
+            if p.is_3d {
                 write_point_z(&p.coordinates, m_value)
+            } else if has_m {
+                write_point_m(&p.coordinates, m_value.unwrap())
             } else {
                 write_point(&p.coordinates)
             }
         }
         VectorGeometry::MultiPoint(mp) => {
-            if has_m {
-                write_multi_point_m(&mp.coordinates, mp.bbox.unwrap_or_default(), m_value.unwrap())
-            } else if mp.is_3d {
+            if mp.is_3d {
                 write_multi_point_z(&mp.coordinates, mp.bbox.unwrap_or_default(), m_value)
+            } else if has_m {
+                write_multi_point_m(&mp.coordinates, mp.bbox.unwrap_or_default(), m_value.unwrap())
             } else {
                 write_multi_point(&mp.coordinates, mp.bbox.unwrap_or_default())
             }
         }
         VectorGeometry::LineString(l) => {
-            if has_m {
-                write_line_strings_m(
-                    slice::from_ref(&l.coordinates),
-                    l.bbox.unwrap_or_default(),
-                    m_value.unwrap(),
-                    None,
-                )
-            } else if l.is_3d {
+            if l.is_3d {
                 write_line_strings_z(
                     slice::from_ref(&l.coordinates),
                     l.bbox.unwrap_or_default(),
                     m_value,
+                    None,
+                )
+            } else if has_m {
+                write_line_strings_m(
+                    slice::from_ref(&l.coordinates),
+                    l.bbox.unwrap_or_default(),
+                    m_value.unwrap(),
                     None,
                 )
             } else {
@@ -372,39 +372,39 @@ fn write_feature<
             }
         }
         VectorGeometry::MultiLineString(ml) => {
-            if has_m {
+            if ml.is_3d {
+                write_line_strings_z(&ml.coordinates, ml.bbox.unwrap_or_default(), m_value, None)
+            } else if has_m {
                 write_line_strings_m(
                     &ml.coordinates,
                     ml.bbox.unwrap_or_default(),
                     m_value.unwrap(),
                     None,
                 )
-            } else if ml.is_3d {
-                write_line_strings_z(&ml.coordinates, ml.bbox.unwrap_or_default(), m_value, None)
             } else {
                 write_line_strings(&ml.coordinates, ml.bbox.unwrap_or_default(), None)
             }
         }
         VectorGeometry::Polygon(p) => {
-            if has_m {
-                write_line_strings_m(
-                    &p.coordinates,
-                    p.bbox.unwrap_or_default(),
-                    m_value.unwrap(),
-                    Some(SHPShapeType::POLYLINEM),
-                )
-            } else if p.is_3d {
+            if p.is_3d {
                 write_line_strings_z(
                     &p.coordinates,
                     p.bbox.unwrap_or_default(),
                     m_value,
-                    Some(SHPShapeType::POLYLINEZ),
+                    Some(SHPShapeType::POLYGONZ),
+                )
+            } else if has_m {
+                write_line_strings_m(
+                    &p.coordinates,
+                    p.bbox.unwrap_or_default(),
+                    m_value.unwrap(),
+                    Some(SHPShapeType::POLYGONM),
                 )
             } else {
                 write_line_strings(
                     &p.coordinates,
                     p.bbox.unwrap_or_default(),
-                    Some(SHPShapeType::POLYLINE),
+                    Some(SHPShapeType::POLYGON),
                 )
             }
         }
@@ -536,7 +536,7 @@ fn write_point_m<M: MValueCompatible>(
     point: &VectorPoint<M>,
     m_value: fn(m: Option<MValue>) -> Option<f64>,
 ) -> Vec<u8> {
-    let mut view = Vec::with_capacity(28);
+    let mut view = vec![0; 28];
 
     view[0..4].copy_from_slice(&(SHPShapeType::POINTM as i32).to_le_bytes()); // Type 21 (POINTM)
     view[4..12].copy_from_slice(&point.x.to_le_bytes()); // X
@@ -576,7 +576,7 @@ fn write_multi_point_m<M: MValueCompatible>(
     view[12..20].copy_from_slice(&bbox.bottom.to_le_bytes()); // ymin
     view[20..28].copy_from_slice(&bbox.right.to_le_bytes()); // xmax
     view[28..36].copy_from_slice(&bbox.top.to_le_bytes()); // ymax
-    view[36..40].copy_from_slice(&num_points.to_le_bytes()); // NumPoints
+    view[36..40].copy_from_slice(&(num_points as i32).to_le_bytes()); // NumPoints
 
     // 2. Phase A: Stream all X, Y coordinates sequentially
     let mut offset = 40;

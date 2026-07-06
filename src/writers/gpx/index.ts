@@ -220,7 +220,20 @@ function onFeatureTrack(feature: VectorFeatures): GPXTrack | undefined {
 
 function setupMetadata(name: string, bounds: BBOX): GPXMetadata {
   const [minlat, minlon, maxlat, maxlon] = bounds;
-  return { name, bounds: { minlat, minlon, maxlat, maxlon } };
+  return {
+    name,
+    bounds: { minlat, minlon, maxlat, maxlon },
+    author: {
+      name: 'GIS_TOOLS',
+      email: { id: 'craiggles', domain: 'opens2.com' },
+      link: { href: 'https://opens2.com' },
+    },
+    copyright: {
+      author: 'GIS_TOOLS',
+      year: String(new Date().getFullYear()),
+      license: 'MIT',
+    },
+  };
 }
 
 function writeWaypoint(waypoint: GPXWaypoint, tagName = 'wpt'): string {

@@ -518,7 +518,7 @@ export class GPXReader implements FeatureIterator<
   #parseCopyright(copyright: XMLTag | undefined): GPXCopyright | undefined {
     if (copyright === undefined) return;
     return {
-      author: xmlFindTagByName(copyright.inner ?? '', 'author')?.inner ?? '',
+      author: xmlGetAttribute(copyright.outer ?? '', 'author') ?? '',
       year: xmlFindTagByName(copyright.inner ?? '', 'year')?.inner ?? '',
       license: xmlFindTagByName(copyright.inner ?? '', 'license')?.inner ?? '',
     };

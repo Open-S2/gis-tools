@@ -200,19 +200,42 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
 
     fn parse_geometry(&self, _type: i32, data: &[u8]) -> Option<VectorGeometry<MValue>> {
         let reader: BufferReader = data.into();
-        let is_3d = _type == 11 || _type == 13 || _type == 15 || _type == 18;
-        if _type == 1 || _type == 11 {
+
+        // ESRI Type flags:
+        let is_3d = (11..=18).contains(&_type);
+        let has_m = (21..=28).contains(&_type) || is_3d;
+
+        if _type == 1 || _type == 11 || _type == 21 {
+            let m_offset = if _type == 21 {
+                Some(16)
+            } else if is_3d && data.len() >= 32 {
+                Some(24)
+            } else {
+                None
+            };
+
             Some(VectorGeometry::Point(VectorPointGeometry {
                 _type: VectorGeometryType::Point,
                 is_3d,
-                coordinates: self.parse_point(&reader, 0, if is_3d { Some(16) } else { None }),
+                coordinates: self.parse_point(
+                    &reader,
+                    0,
+                    if is_3d { Some(16) } else { None },
+                    m_offset,
+                ),
                 ..Default::default()
             }))
-        } else if _type == 8 || _type == 18 {
-            self.parse_multi_point(&reader, is_3d)
-        } else if _type == 3 || _type == 5 || _type == 13 || _type == 15 {
-            let is_poly = _type == 5 || _type == 15;
-            self.parse_multi_line(&reader, is_poly, is_3d)
+        } else if _type == 8 || _type == 18 || _type == 28 {
+            self.parse_multi_point(&reader, is_3d, has_m)
+        } else if _type == 3
+            || _type == 5
+            || _type == 13
+            || _type == 15
+            || _type == 23
+            || _type == 25
+        {
+            let is_poly = _type == 5 || _type == 15 || _type == 25;
+            self.parse_multi_line(&reader, is_poly, is_3d, has_m)
         } else {
             panic!("invalid shape type: {}", _type);
         }
@@ -224,13 +247,21 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         data: &BufferReader,
         offset: u64,
         offset_3d: Option<u64>,
+        offset_m: Option<u64>,
     ) -> VectorPoint<MValue> {
-        let mut z: Option<f64> = None;
-        if let Some(offset) = offset_3d {
-            z = Some(data.f64_le(Some(offset)));
-        }
+        let z = offset_3d.map(|off| data.f64_le(Some(off)));
+
+        let m_value = offset_m.map(|off| data.f64_le(Some(off)));
+        let m = match m_value {
+            Some(m_val) if m_val != f64::MIN => {
+                Some(MValue::from([("value".into(), m_val.into())]))
+            }
+            _ => None,
+        };
+
         let mut point =
-            VectorPoint::new(data.f64_le(Some(offset)), data.f64_le(Some(offset + 8)), z, None);
+            VectorPoint::new(data.f64_le(Some(offset)), data.f64_le(Some(offset + 8)), z, m);
+
         if let Some(transformer) = &self.transform {
             point = transformer.forward(&point);
         }
@@ -242,32 +273,54 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         &self,
         data: &BufferReader,
         is_3d: bool,
+        has_m: bool,
     ) -> Option<VectorGeometry<MValue>> {
         let num_points = data.int32_le(Some(32)) as u64;
         if num_points == 0 {
             return None;
         }
-        let mut offset = 0;
+
+        let mut offset = 36;
         let mut z_offset = 36 + 16 * num_points;
-        // grab the min-max
-        let mins = self.parse_point(data, offset, None);
-        let maxs = self.parse_point(data, offset + 16, None);
-        offset += 36;
+
+        // Grab the min-max bounds
+        let mins = self.parse_point(data, 0, None, None);
+        let maxs = self.parse_point(data, 16, None, None);
         let mut bbox = BBox3D::new(mins.x, mins.y, maxs.x, maxs.y, 0., 0.);
+
         if is_3d {
             bbox.near = data.f64_le(Some(z_offset));
             bbox.far = data.f64_le(Some(z_offset + 8));
             z_offset += 16;
         }
 
+        // M array block starts cleanly past the XY array and any Z Range/Z Array blocks
+        let mut m_offset = 36 + 16 * num_points + if is_3d { 16 + 8 * num_points } else { 0 };
+
+        // Safe guard to check if the optional M block actually exists in this record buffer
+        // Assuming data has a .len() method returning total byte length
+        let holds_m = has_m && m_offset + 16 + 8 * num_points <= data.len();
+        if holds_m {
+            m_offset += 16; // Skip past the 16-byte M Range [minM, maxM] block
+        }
+
         let mut coordinates: VectorMultiPoint<MValue> = vec![];
         let mut index = 0;
         while index < num_points {
-            let point = self.parse_point(data, offset, if is_3d { Some(z_offset) } else { None });
+            let point = self.parse_point(
+                data,
+                offset,
+                if is_3d { Some(z_offset) } else { None },
+                if holds_m { Some(m_offset) } else { None },
+            );
+
             offset += 16;
             if is_3d {
                 z_offset += 8;
-                bbox.extend_from_point(&point); // shapefiles often don't store the bbox z-values
+                bbox.extend_from_point(&point);
+            }
+            if holds_m {
+                m_offset += 8;
             }
             coordinates.push(point);
             index += 1;
@@ -297,48 +350,69 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
         data: &BufferReader,
         is_poly: bool,
         is_3d: bool,
+        has_m: bool,
     ) -> Option<VectorGeometry<MValue>> {
-        let num_parts = data.int32_le(Some(32)) as u64; // The number of rings in the polygon.
-        let num_points = data.int32_le(Some(36)) as u64; // the total number of points in the polygon.
+        let num_parts = data.int32_le(Some(32)) as u64; // The number of rings/parts
+        let num_points = data.int32_le(Some(36)) as u64; // The total number of points
         if num_points == 0 || num_parts == 0 {
             return None;
         }
-        let mut offset = 0;
-        let mut z_offset = 40 + 4 * num_parts + 16 * num_points;
-        // grab the min-max
-        let mins = self.parse_point(data, offset, None);
-        let maxs = self.parse_point(data, offset + 16, None);
+
+        // Restore original working offsets
+        let mut offset = 40 + 4 * num_parts; // Points array starts exactly after the parts directory
+        let mut z_offset = offset + 16 * num_points; // Z block starts after all XY points
+
+        // Grab the min-max bounds
+        let mins = self.parse_point(data, 0, None, None);
+        let maxs = self.parse_point(data, 16, None, None);
         let mut bbox = BBox3D::new(mins.x, mins.y, maxs.x, maxs.y, 0., 0.);
-        offset += 40;
+
         if is_3d {
             bbox.near = data.f64_le(Some(z_offset));
             bbox.far = data.f64_le(Some(z_offset + 8));
-            z_offset += 16;
+            z_offset += 16; // Skip past the 16-byte Z Range block
         }
 
-        // build parts
+        // Compute the exact trailing M block offset
+        let mut m_offset =
+            40 + 4 * num_parts + 16 * num_points + if is_3d { 16 + 8 * num_points } else { 0 };
+
+        // Safe guard to verify the optional M block actually exists in this record buffer
+        let holds_m = has_m && m_offset + 16 + 8 * num_points <= data.len();
+        if holds_m {
+            m_offset += 16; // Skip past the 16-byte M Range [minM, maxM] block
+        }
+
+        // Parse the parts directory correctly starting at byte 40
         let mut parts: Vec<u64> = vec![];
         let mut done = 0;
         while done < num_parts {
-            parts.push(data.int32_le(Some(offset)) as u64);
-            offset += 4;
+            parts.push(data.int32_le(Some(40 + done * 4)) as u64);
             done += 1;
         }
 
-        // build coordinates
+        // Build coordinates
         let mut index = 0;
         let mut coordinates: VectorMultiLineString<MValue> = vec![];
         for i in 0..num_parts {
             let part_end = parts.get(i as usize + 1).unwrap_or(&num_points);
-            // build a line for part
             let mut line: VectorLineString<MValue> = vec![];
+
             while index < *part_end {
-                let point =
-                    self.parse_point(data, offset, if is_3d { Some(z_offset) } else { None });
+                let point = self.parse_point(
+                    data,
+                    offset,
+                    if is_3d { Some(z_offset) } else { None },
+                    if holds_m { Some(m_offset) } else { None },
+                );
+
                 offset += 16;
                 if is_3d {
                     z_offset += 8;
-                    bbox.extend_from_point(&point); // shapefiles often don't store the bbox z-values
+                    bbox.extend_from_point(&point);
+                }
+                if holds_m {
+                    m_offset += 8;
                 }
                 line.push(point);
                 index += 1;
@@ -346,17 +420,12 @@ impl<T: Reader, P: MValueCompatible> ShapeFileReader<T, P> {
             coordinates.push(line);
         }
 
-        if !is_poly {
-            if num_parts == 1 {
-                Some(VectorGeometry::new_linestring(
-                    core::mem::take(&mut coordinates[0]),
-                    Some(bbox),
-                ))
-            } else {
-                Some(VectorGeometry::new_multilinestring(coordinates, Some(bbox)))
-            }
-        } else {
+        if !is_poly && num_parts == 1 {
+            Some(VectorGeometry::new_linestring(core::mem::take(&mut coordinates[0]), Some(bbox)))
+        } else if is_poly {
             Some(VectorGeometry::new_polygon(coordinates, Some(bbox)))
+        } else {
+            Some(VectorGeometry::new_multilinestring(coordinates, Some(bbox)))
         }
     }
 }

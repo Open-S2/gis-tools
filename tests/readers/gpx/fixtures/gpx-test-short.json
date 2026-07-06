@@ -16,6 +16,11 @@
           "type": "Web"
         }
       },
+      "copyright": {
+        "author": "Jane Doe",
+        "year": "2026",
+        "license": "https://creativecommons.org/licenses/by/4.0/"
+      },
       "link": [
         {
           "href": "http://example.com",
@@ -69,6 +74,11 @@
           "type": "Web"
         }
       },
+      "copyright": {
+        "author": "Jane Doe",
+        "year": "2026",
+        "license": "https://creativecommons.org/licenses/by/4.0/"
+      },
       "link": [
         {
           "href": "http://example.com",
@@ -120,6 +130,11 @@
           "text": "Author website",
           "type": "Web"
         }
+      },
+      "copyright": {
+        "author": "Jane Doe",
+        "year": "2026",
+        "license": "https://creativecommons.org/licenses/by/4.0/"
       },
       "link": [
         {
@@ -1408,6 +1423,11 @@
           "text": "Author website",
           "type": "Web"
         }
+      },
+      "copyright": {
+        "author": "Jane Doe",
+        "year": "2026",
+        "license": "https://creativecommons.org/licenses/by/4.0/"
       },
       "link": [
         {
