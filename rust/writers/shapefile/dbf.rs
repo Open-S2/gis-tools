@@ -116,20 +116,32 @@ pub fn to_dbf_meta<
 /// Given a writer and an array of iterators, write the input features property data into a DBF file
 ///
 /// ## Usage
-/// ```ts
-/// import { to_dbf, JSONReader } from 'gis-tools-ts';
-/// import { FileReader, FileWriter } from 'gis-tools-ts/file';
-/// // or use mmap reader if using bun
-/// // import { MMapReader } from 'gis-tools-ts/mmap';
-/// // or use a BufferWriter if you are using a browser
-/// // import { BufferWriter } from 'gis-tools-ts';
 ///
-/// const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
-/// const jsonReader = new JSONReader(fileReader);
-/// const bufWriter = new FileWriter(`${__dirname}/fixtures/points.dbf`);
+/// Refer to the [`crate::parsers::FileWriter`] for writing to a file instead of a buffer
 ///
-/// // store to singular output
-/// await to_dbf(bufWriter, [jsonReader]);
+/// ```rust
+/// use gistools::{readers::JSONReader, parsers::{BufferWriter, FileReader}, writers::to_dbf};
+/// use s2json::{MValue, MValueCompatible, Projection};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
+///
+/// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+/// #[serde(default)]
+/// struct Props {
+///     name: String,
+/// }
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/writers/fixtures/points.geojson");
+///
+/// let reader: JSONReader<FileReader, (), Props, MValue> = JSONReader::new(FileReader::from(path));
+/// let mut writer = BufferWriter::default();
+///
+/// // write
+/// to_dbf(
+///     &mut writer,
+///     vec![&reader],
+/// );
 /// ```
 ///
 /// ## Parameters

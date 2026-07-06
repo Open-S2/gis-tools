@@ -20,9 +20,30 @@ Implements the [FeatureIterator](https://open-s2.github.io/gis-tools/interfaces/
 
 ## Usage
 
-Be sure to checkout the [Reader](reader.md) page for more knowledge on how to input data into the S2PMTilesReader.
+Be sure to checkout the [Reader](reader.md) page for more knowledge on how to input data into the S2TilesReader.
 
-TODO
+```ts
+import { S2TilesReader } from 'gis-tools-ts';
+import { FileReader } from 'gis-tools-ts/file';
+// or use the MMapReader if using Bun:
+// import { MMapReader } from 'gis-tools-ts/mmap';
+
+const reader = new S2TilesReader(new FileReader('./data.s2tiles'));
+
+// pull out the header
+const header = reader.getHeader();
+
+// get the metadata
+const metadata = await reader.getMetadata();
+
+// S2 specific functions
+const hasTile = await reader.hasTileS2(0, 0, 0, 0);
+const tile = await reader.getTileS2(0, 0, 0, 0);
+
+// WM functions
+const hasTile = await reader.hasTileWM(0, 0, 0);
+const tile = await reader.getTileWM(0, 0, 0);
+```
 
 ## Polyfills
 

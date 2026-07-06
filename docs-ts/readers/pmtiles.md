@@ -41,8 +41,8 @@ const hasTile = await reader.hasTileS2(0, 0, 0, 0);
 const tile = await reader.getTileS2(0, 0, 0, 0);
 
 // WM functions
-const hasTile = await reader.hasTile(0, 0, 0);
-const tile = await reader.getTile(0, 0, 0);
+const hasTile = await reader.hasTileWM(0, 0, 0);
+const tile = await reader.getTileWM(0, 0, 0);
 ```
 
 ## Polyfills

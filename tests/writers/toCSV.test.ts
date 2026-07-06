@@ -1,6 +1,5 @@
 import { FileReader } from '../../src/file.js';
-import { toCSV } from '../../src/writers/index.js';
-import { BufferWriter, JSONReader } from '../../src/index.js';
+import { BufferWriter, JSONReader, toCSV } from '../../src/index.js';
 import { expect, test } from 'bun:test';
 
 test('toCSV', async () => {

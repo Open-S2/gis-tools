@@ -10,18 +10,39 @@
 
 ## Description
 
-TODO
+Given a writer and an array of iterators, write the input features to the writer as a CSV data
 
 ## Usage
 
 ### Browser Compatible
 
-TODO
+```ts
+import { BufferWriter, BufferJSONReader, toCSV } from 'gis-tools-ts';
+
+// Given a FeatureCollection object, setup the reader.
+const jsonReader = new BufferJSONReader({ ... });
+// setup a buffer output
+const bufWriter = new BufferWriter();
+
+// write as CSV data to the writer. In thi case, we include the `name` property from each feature.
+await toCSV(bufWriter, [jsonReader], { properties: ['name'] });
+
+// for fun let's get the string output
+const csvString = new TextDecoder().decode(bufWriter.commit());
+```
 
 ### Node/Deno/Bun using the filesystem
 
-TODO
+Instead of the BufferWriter, you can utilize the FileWriter and FileReader
 
-## Useful links
+```ts
+import { JSONReader } from 'gis-tools-ts';
+import { FileReader, FileWriter } from 'gis-tools-ts/file';
 
-TODO
+// setup file reading input
+const jsonReader = new JSONReader(new FileReader(`./points.geojson`));
+// setup file output
+const fileWriter = new FileWriter('./output.csv');
+
+// SAME AS ABOVE
+```

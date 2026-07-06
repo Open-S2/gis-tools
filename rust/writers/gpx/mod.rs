@@ -24,6 +24,7 @@ pub type OnFeatureRoute<M, P, D> = fn(feature: &VectorFeature<M, P, D>) -> Optio
 pub type OnFeatureTrack<M, P, D> = fn(feature: &VectorFeature<M, P, D>) -> Option<GPXTrack>;
 
 /// User defined options on how to store the features
+#[derive(Debug)]
 pub struct ToGPXOptions<M: Clone, P: MValueCompatible, D: MValueCompatible> {
     /// Name of the GPX file
     pub name: Option<String>,
@@ -73,18 +74,32 @@ impl<M: Clone, P: MValueCompatible, D: MValueCompatible> Default for ToGPXOption
 /// Check [`GPXTrack`]. The variables ported are `name`, `cmt`, `desc`, `src`, `link`, `number`,
 /// `type`, `trkseg`. These variables are optional and should be stored in the properties of the feature.
 ///
-/// ```ts
-/// import { toGPX, JSONReader } from 'gis-tools-ts';
-/// import { FileReader, FileWriter } from 'gis-tools-ts/file';
-/// // or use mmap reader if using bun
-/// // import { MMapReader } from 'gis-tools-ts/mmap';
+/// Refer to the [`crate::parsers::FileWriter`] for writing to a file instead of a buffer
 ///
-/// const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
-/// const jsonReader = new JSONReader(fileReader);
-/// const bufWriter = new FileWriter(`${__dirname}/fixtures/points.gpx`);
+/// ```rust
+/// use gistools::{readers::JSONReader, parsers::{BufferWriter, FileReader}, writers::{to_gpx, ToGPXOptions}};
+/// use s2json::{MValue, MValueCompatible, Projection};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
 ///
-/// // store to singular output
-/// await toGPX(bufWriter, [jsonReader]);
+/// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+/// #[serde(default)]
+/// struct Props {
+///     name: String,
+/// }
+///
+/// let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// path = path.join("tests/writers/fixtures/points.geojson");
+///
+/// let reader: JSONReader<FileReader, (), Props, MValue> = JSONReader::new(FileReader::from(path));
+/// let mut writer = BufferWriter::default();
+///
+/// // write
+/// to_gpx(
+///     &mut writer,
+///     vec![&reader],
+///     Some(ToGPXOptions::default()),
+/// );
 /// ```
 ///
 /// ## Links

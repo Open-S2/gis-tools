@@ -115,6 +115,7 @@ impl SHPShapeType {
 /// ## Usage
 ///
 /// #### Write to files
+///
 /// ```ts
 /// import { to_shp, JSONReader } from 'gis-tools-ts';
 /// import { FileReader, FileWriter } from 'gis-tools-ts/file';
