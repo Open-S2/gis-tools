@@ -1,4 +1,5 @@
 import {
+  GTFSPathway,
   buildGTFSSchedule,
   parseGTFSAreas,
   parseGTFSAttributions,
@@ -636,7 +637,6 @@ test('attributions', async () => {
 
 test('pathways', async () => {
   const pathways = parseGTFSPathways(await Bun.file(`${__dirname}/fixtures/pathways.csv`).text());
-  // @ts-expect-error - enums can be ignored for testing
   expect(pathways).toEqual({
     escalatorA: {
       fromStopId: '96',
@@ -666,7 +666,8 @@ test('pathways', async () => {
       toStopId: '95',
       traversalTime: undefined,
     },
-  });
+  } as unknown as Record<string, GTFSPathway>);
+  /* oxlint-enable typescript(TS2578) */
 });
 
 test('build schedule', async () => {
