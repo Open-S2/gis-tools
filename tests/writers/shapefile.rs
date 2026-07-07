@@ -2593,4 +2593,86 @@ mod tests {
         // Matching TS expectation: multipolygons can explode out to separate polygon segments
         assert_eq!(features.len(), 4);
     }
+
+    // just writing this to setup docs
+    // #[test]
+    // fn test_shp_write_test() {
+    //     // read in data
+    //     #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+    //     #[serde(default)]
+    //     struct Props {
+    //         name: String,
+    //     }
+    //     let cargo_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    //     let path = cargo_path.join("tests/writers/fixtures/points.geojson");
+    //     let reader: JSONReader<FileReader, (), Props, MValue> =
+    //         JSONReader::new(FileReader::from(path));
+
+    //     // setup writers
+    //     let shp_path = cargo_path.join("tests/writers/fixtures/points.shp");
+    //     let mut shp_writer = FileWriter::new(shp_path).unwrap();
+    //     let dbf_path = cargo_path.join("tests/writers/fixtures/points.dbf");
+    //     let mut dbf_writer = FileWriter::new(dbf_path).unwrap();
+    //     let shx_path = cargo_path.join("tests/writers/fixtures/points.shx");
+    //     let mut shx_writer = FileWriter::new(shx_path).unwrap();
+    //     let prj_path = cargo_path.join("tests/writers/fixtures/points.prj");
+    //     let mut prj_writer = FileWriter::new(prj_path).unwrap();
+
+    //     // write to files
+    //     to_shp(
+    //         &mut shp_writer,
+    //         vec![&reader],
+    //         Some(&mut dbf_writer),
+    //         Some(&mut shx_writer),
+    //         Some(&mut prj_writer),
+    //         None,
+    //         None,
+    //     );
+
+    //     // const shpFile = await Bun.file(`${__dirname}/fixtures/points.shp`).arrayBuffer();
+    //     // const dbfFile = await Bun.file(`${__dirname}/fixtures/points.dbf`).arrayBuffer();
+    //     // const shxFile = await Bun.file(`${__dirname}/fixtures/points.shx`).arrayBuffer();
+    //     // const prjFile = await Bun.file(`${__dirname}/fixtures/points.prj`).arrayBuffer();
+    //     //
+    //     // const zippedData = await zipFolder([
+    //     //   { name: 'points.shp', comment: 'shapefile data', data: shpFile },
+    //     //   { name: 'points.dbf', comment: 'properties data', data: dbfFile },
+    //     //   { name: 'points.shx', comment: 'index data', data: shxFile },
+    //     //   { name: 'points.prj', comment: 'projection', data: prjFile },
+    //     // ]);
+
+    //     let cargo_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    //     let shp_path = cargo_path.join("tests/writers/fixtures/points.shp");
+    //     let dbf_path = cargo_path.join("tests/writers/fixtures/points.dbf");
+    //     let shx_path = cargo_path.join("tests/writers/fixtures/points.shx");
+    //     let prj_path = cargo_path.join("tests/writers/fixtures/points.prj");
+    //     let shp_file = std::fs::read(shp_path).unwrap();
+    //     let dbf_file = std::fs::read(dbf_path).unwrap();
+    //     let shx_file = std::fs::read(shx_path).unwrap();
+    //     let prj_file = std::fs::read(prj_path).unwrap();
+
+    //     let zipped_data = zip_folder(vec![
+    //         WriteZipItem {
+    //             filename: "points.shp".into(),
+    //             comment: Some("shapefile data".into()),
+    //             bytes: shp_file,
+    //         },
+    //         WriteZipItem {
+    //             filename: "points.dbf".into(),
+    //             comment: Some("properties data".into()),
+    //             bytes: dbf_file,
+    //         },
+    //         WriteZipItem {
+    //             filename: "points.shx".into(),
+    //             comment: Some("index data".into()),
+    //             bytes: shx_file,
+    //         },
+    //         WriteZipItem {
+    //             filename: "points.prj".into(),
+    //             comment: Some("projection".into()),
+    //             bytes: prj_file,
+    //         },
+    //     ])
+    //     .unwrap();
+    // }
 }

@@ -121,7 +121,7 @@ pub fn to_dbf_meta<
 ///
 /// ```rust
 /// use gistools::{readers::JSONReader, parsers::{BufferWriter, FileReader}, writers::to_dbf};
-/// use s2json::{MValue, MValueCompatible, Projection};
+/// use s2json::{MValue, MValueCompatible};
 /// use serde::{Deserialize, Serialize};
 /// use std::path::PathBuf;
 ///

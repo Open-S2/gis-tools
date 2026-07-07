@@ -116,40 +116,84 @@ impl SHPShapeType {
 ///
 /// #### Write to files
 ///
-/// ```ts
-/// import { to_shp, JSONReader } from 'gis-tools-ts';
-/// import { FileReader, FileWriter } from 'gis-tools-ts/file';
-/// // or use mmap reader if using bun
-/// // import { MMapReader } from 'gis-tools-ts/mmap';
-/// // or use a BufferWriter if you are using a browser
-/// // import { BufferWriter } from 'gis-tools-ts';
+/// ```rust,ignore
+/// use gistools::{readers::JSONReader, parsers::{FileWriter, FileReader}, writers::to_shp};
+/// use s2json::{MValue, MValueCompatible};
+/// use serde::{Deserialize, Serialize};
+/// use std::path::PathBuf;
 ///
-/// const fileReader = new FileReader(`${__dirname}/fixtures/points.geojson`);
-/// const jsonReader = new JSONReader(fileReader);
-/// const shp_writer = new FileWriter(`${__dirname}/fixtures/points.shp`);
-/// const dbf_writer = new FileWriter(`${__dirname}/fixtures/points.dbf`);
-/// const shx_writer = new FileWriter(`${__dirname}/fixtures/points.shx`);
-/// const prj_writer = new FileWriter(`${__dirname}/fixtures/points.prj`);
+/// // read in data
+/// #[derive(Debug, Default, Clone, MValueCompatible, PartialEq, Serialize, Deserialize)]
+/// #[serde(default)]
+/// struct Props {
+///     name: String,
+/// }
+/// let cargo_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// let path = cargo_path.join("tests/writers/fixtures/points.geojson");
+/// let reader: JSONReader<FileReader, (), Props, MValue> =
+///     JSONReader::new(FileReader::from(path));
 ///
-/// // store to outputs
-/// await to_shp(shp_writer, [jsonReader], dbf_writer, shx_writer, prj_writer);
+/// // setup writers
+/// let shp_path = cargo_path.join("tests/writers/fixtures/points.shp");
+/// let mut shp_writer = FileWriter::new(shp_path).unwrap();
+/// let dbf_path = cargo_path.join("tests/writers/fixtures/points.dbf");
+/// let mut dbf_writer = FileWriter::new(dbf_path).unwrap();
+/// let shx_path = cargo_path.join("tests/writers/fixtures/points.shx");
+/// let mut shx_writer = FileWriter::new(shx_path).unwrap();
+/// let prj_path = cargo_path.join("tests/writers/fixtures/points.prj");
+/// let mut prj_writer = FileWriter::new(prj_path).unwrap();
+
+/// // write to files
+/// to_shp(
+///     &mut shp_writer,
+///     vec![&reader],
+///     Some(&mut dbf_writer),
+///     Some(&mut shx_writer),
+///     Some(&mut prj_writer),
+///     None,
+///     None,
+/// );
 /// ```
 ///
 /// #### Zip the files
-/// ```ts
-/// import { zipFolder } from 'gis-tools-ts';
 ///
-/// const shpFile = await Bun.file(`${__dirname}/fixtures/points.shp`).arrayBuffer();
-/// const dbfFile = await Bun.file(`${__dirname}/fixtures/points.dbf`).arrayBuffer();
-/// const shxFile = await Bun.file(`${__dirname}/fixtures/points.shx`).arrayBuffer();
-/// const prjFile = await Bun.file(`${__dirname}/fixtures/points.prj`).arrayBuffer();
+/// ```rust,ignore
+/// use gistools::util::{zip_folder, WriteZipItem};
+/// use std::{path::PathBuf, fs::read};
 ///
-/// const zippedData = await zipFolder([
-///   { name: 'points.shp', comment: 'shapefile data', data: shpFile },
-///   { name: 'points.dbf', comment: 'properties data', data: dbfFile },
-///   { name: 'points.shx', comment: 'index data', data: shxFile },
-///   { name: 'points.prj', comment: 'projection', data: prjFile },
-/// ]);
+/// let cargo_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+/// let shp_path = cargo_path.join("tests/writers/fixtures/points.shp");
+/// let dbf_path = cargo_path.join("tests/writers/fixtures/points.dbf");
+/// let shx_path = cargo_path.join("tests/writers/fixtures/points.shx");
+/// let prj_path = cargo_path.join("tests/writers/fixtures/points.prj");
+/// let shp_file = read(shp_path).unwrap();
+/// let dbf_file = read(dbf_path).unwrap();
+/// let shx_file = read(shx_path).unwrap();
+/// let prj_file = read(prj_path).unwrap();
+///
+/// let zipped_data = zip_folder(vec![
+///    WriteZipItem {
+///        filename: "points.shp".into(),
+///        comment: Some("shapefile data".into()),
+///        bytes: shp_file,
+///    },
+///    WriteZipItem {
+///        filename: "points.dbf".into(),
+///        comment: Some("properties data".into()),
+///        bytes: dbf_file,
+///    },
+///    WriteZipItem {
+///        filename: "points.shx".into(),
+///        comment: Some("index data".into()),
+///        bytes: shx_file,
+///    },
+///    WriteZipItem {
+///        filename: "points.prj".into(),
+///        comment: Some("projection".into()),
+///        bytes: prj_file,
+///    },
+/// ])
+/// .unwrap();
 /// ```
 ///
 /// ## Links
