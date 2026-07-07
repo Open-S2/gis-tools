@@ -142,7 +142,7 @@ impl SHPShapeType {
 /// let mut shx_writer = FileWriter::new(shx_path).unwrap();
 /// let prj_path = cargo_path.join("tests/writers/fixtures/points.prj");
 /// let mut prj_writer = FileWriter::new(prj_path).unwrap();
-
+///
 /// // write to files
 /// to_shp(
 ///     &mut shp_writer,
