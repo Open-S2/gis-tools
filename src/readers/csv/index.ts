@@ -175,13 +175,13 @@ export function parseCSVAsRecord<T = Record<string, string>>(
     const line = rawLine.trim();
     if (line.length === 0) continue;
 
-    const record: Record<string, string | null> = {};
+    const record: Record<string, string | undefined> = {};
     const values = parseCSVLine(line, delimiter);
 
     const limit = Math.min(values.length, header.length);
     for (let i = 0; i < limit; i++) {
       const value = values[i];
-      record[header[i]] = value === undefined || value.trim().length === 0 ? null : value;
+      record[header[i]] = value === undefined || value.trim().length === 0 ? undefined : value;
     }
 
     res.push(record as T);
