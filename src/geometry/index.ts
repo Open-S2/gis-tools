@@ -9,4 +9,4 @@ export * from './id.js';
 export * from './tile.js';
 export * from './util.js';
 
-export * from 's2json-spec';
+export type * from 's2json-spec';
