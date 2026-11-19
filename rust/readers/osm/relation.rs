@@ -9,8 +9,9 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{BitCast, ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, Face, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
-    VectorLineString, VectorMultiLineString, VectorMultiPolygon, VectorPoint, VectorPolygon,
+    BBox3D, Face, MValue, PointOrPoint3D, Properties, VectorFeature, VectorFeatureType,
+    VectorGeometry, VectorLineString, VectorMultiLineString, VectorMultiPolygon, VectorPoint,
+    VectorPolygon,
 };
 use serde::{Deserialize, Serialize};
 
@@ -53,7 +54,7 @@ pub struct IntermediateRelation {
 }
 impl IntermediateRelation {
     /// Convert the node to a vector feature
-    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<MValue>>, _W: KVStore<u64, WayNodes>>(
+    pub fn to_vector_feature<_N: KVStore<u64, PointOrPoint3D>, _W: KVStore<u64, WayNodes>>(
         &self,
         node_geometry: &_N,
         way_geometry: &_W,
@@ -71,7 +72,7 @@ impl IntermediateRelation {
         for IntermediateNodeMember { role, node_id, .. } in &i_nodes {
             let n = node_geometry.get(*node_id);
             if let Some(n) = n {
-                nodes.push(NodeMember { id: *node_id, role: role.into(), node: n.clone() });
+                nodes.push(NodeMember { id: *node_id, role: role.into(), node: n.into() });
             }
         }
         let i_ways: Vec<IntermediateWayMember> = members
@@ -91,7 +92,7 @@ impl IntermediateRelation {
                         if add_bbox {
                             bbox.extend_from_point(n);
                         }
-                        mapped_w.push(n.clone());
+                        mapped_w.push(n.into());
                     }
                 }
                 ways.push(WayMember { id: *way_id, role: role.into(), way: mapped_w });
@@ -259,7 +260,7 @@ impl Relation {
 impl OSMFilterable for Relation {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<MValue>>,
+        _N: KVStore<u64, PointOrPoint3D>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,

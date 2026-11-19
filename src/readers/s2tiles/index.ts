@@ -120,7 +120,7 @@ export class S2TilesReader {
       throw new Error(`Failed to extrapolate ${this.path} metadata`);
     }
     const meta_data = await decompress(data.slice(10, 10 + mL), this.compression);
-    this.metadata = JSON.parse(this.decoder.decode(meta_data)) as Metadata;
+    this.metadata = JSON.parse(this.decoder.decode(meta_data, { stream: true })) as Metadata;
     // create root directories
     for (const face of [0, 1, 2, 3, 4, 5, 6])
       this.#rootDir[face] = new DataView(data.buffer, METADATA_SIZE + face * DIR_SIZE, DIR_SIZE);

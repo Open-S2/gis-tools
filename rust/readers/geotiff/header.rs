@@ -275,10 +275,8 @@ impl GeoTIFFHeaderReader {
         let num_keys = self.read_offset(offset + 4, reader);
         let value_offset = self.read_offset(offset + (if self.big_tiff { 12 } else { 8 }), reader);
         let raw_geokeys = reader.slice(Some(value_offset), Some(value_offset + num_keys * 2));
-        let raw_geokeys: Vec<u16> = raw_geokeys
-            .chunks_exact(2)
-            .map(|chunk| u16::from_le_bytes(chunk.try_into().unwrap()))
-            .collect();
+        let raw_geokeys: Vec<u16> =
+            raw_geokeys.as_chunks::<2>().0.iter().map(|chunk| u16::from_le_bytes(*chunk)).collect();
         let geo_key_directory = parse_geotiff_raw_geokeys(&raw_geokeys, file_dir);
         // Validate that there is a GTModelType GeoKey in the GeoKey Directory
         if !geo_key_directory.has(GeoKeyDirectoryKeys::GTModelTypeGeoKey as u16) {

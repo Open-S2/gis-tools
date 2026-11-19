@@ -30,7 +30,7 @@ use node::IntermediateNode;
 use pbf::{Field, Protobuf, Type};
 use primitive::{OSMMetadata, PrimitiveBlock};
 use relation::IntermediateRelation;
-use s2json::{MValue, Properties, VectorFeature, VectorPoint};
+use s2json::{MValue, PointOrPoint3D, Properties, VectorFeature};
 use way::{IntermediateWay, WayNodes};
 
 // TODO: Add threads for reading the blocks
@@ -75,7 +75,7 @@ impl Default for OSMReaderOptions {
 #[cfg(feature = "std")]
 pub type OSMFileReader<T> = OSMReader<
     T,
-    FileKV<u64, VectorPoint<MValue>>,
+    FileKV<u64, PointOrPoint3D>,
     FileKV<u64, IntermediateNode>,
     FileKV<u64, WayNodes>,
     FileKV<u64, IntermediateWay>,
@@ -86,7 +86,7 @@ pub type OSMFileReader<T> = OSMReader<
 pub type OSMFileReaderIter<'a, T> = OsmReaderIter<
     'a,
     T,
-    FileKV<u64, VectorPoint<MValue>>,
+    FileKV<u64, PointOrPoint3D>,
     FileKV<u64, IntermediateNode>,
     FileKV<u64, WayNodes>,
     FileKV<u64, IntermediateWay>,
@@ -98,7 +98,7 @@ pub type OSMFileReaderIter<'a, T> = OsmReaderIter<
 /// See [`OSMReader`] for full documentation.
 pub type OSMLocalReader<T> = OSMReader<
     T,
-    KV<u64, VectorPoint<MValue>>,
+    KV<u64, PointOrPoint3D>,
     KV<u64, IntermediateNode>,
     KV<u64, WayNodes>,
     KV<u64, IntermediateWay>,
@@ -108,7 +108,7 @@ pub type OSMLocalReader<T> = OSMReader<
 pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
     'a,
     T,
-    KV<u64, VectorPoint<MValue>>,
+    KV<u64, PointOrPoint3D>,
     KV<u64, IntermediateNode>,
     KV<u64, WayNodes>,
     KV<u64, IntermediateWay>,
@@ -118,6 +118,7 @@ pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
 /// # OSM Reader
 ///
 /// ## Description
+///
 /// Parses OSM PBF files
 ///
 /// Implements the [`FeatureReader`] trait
@@ -157,7 +158,7 @@ pub type OSMLocalReaderIter<'a, T> = OsmReaderIter<
 #[derive(Debug, Clone)]
 pub struct OSMReader<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>> = KV<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D> = KV<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode> = KV<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes> = KV<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay> = KV<u64, IntermediateWay>,
@@ -198,7 +199,7 @@ pub struct OSMReader<
 }
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -416,7 +417,7 @@ impl<
 pub struct OsmReaderIter<
     'a,
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -430,7 +431,7 @@ pub struct OsmReaderIter<
 impl<
     'a,
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -444,7 +445,7 @@ impl<
 
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,
@@ -470,7 +471,7 @@ impl<
 }
 impl<
     T: Reader,
-    _N: KVStore<u64, VectorPoint<MValue>>,
+    _N: KVStore<u64, PointOrPoint3D>,
     N: KVStore<u64, IntermediateNode>,
     _W: KVStore<u64, WayNodes>,
     W: KVStore<u64, IntermediateWay>,

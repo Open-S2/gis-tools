@@ -740,28 +740,20 @@ impl S2CellId {
         // determine which quadrant of this->parent(level) this cell lies in.
         let halfsize = size_ij(level + 1) as i32;
         let size = halfsize << 1;
-        let isame;
-        let jsame;
-        let ioffset;
-        let joffset;
 
         let i = i as i32;
         let j = j as i32;
 
-        if (i & halfsize) != 0 {
-            ioffset = size;
-            isame = i + size < K_MAX_SIZE as i32;
+        let (ioffset, isame) = if (i & halfsize) != 0 {
+            (size, i + size < K_MAX_SIZE as i32)
         } else {
-            ioffset = -(size);
-            isame = i - size >= 0;
-        }
-        if (j & halfsize) != 0 {
-            joffset = size;
-            jsame = j + size < K_MAX_SIZE as i32;
+            (-(size), i - size >= 0)
+        };
+        let (joffset, jsame) = if (j & halfsize) != 0 {
+            (size, j + size < K_MAX_SIZE as i32)
         } else {
-            joffset = -size;
-            jsame = j - size >= 0;
-        }
+            (-size, j - size >= 0)
+        };
 
         let i_new: i32 = i + ioffset;
         let j_new: i32 = j + joffset;

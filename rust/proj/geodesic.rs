@@ -1110,7 +1110,6 @@ pub fn geod_geninverse_int(
           /* From Lambda12: sin(alp1) * cos(bet1) = sin(alp0) */
           salp0 = salp1 * cbet1;
         let calp0 = hypot(calp1, salp1 * sbet1); /* calp0 > 0 */
-        let alp12;
         if calp0 != 0. && salp0 != 0. {
             // From Lambda12: tan(bet) = tan(sig) * cos(alp)
             let mut ssig1 = sbet1;
@@ -1138,7 +1137,7 @@ pub fn geod_geninverse_int(
             comg12 = cos(omg12);
         }
 
-        if !meridian &&
+        let alp12 = if !meridian &&
             /* omg12 < 3/4 * pi */
             comg12 > FRAC_1_SQRT_2 &&     /* Long difference not too big */
             sbet2 - sbet1 < 1.75
@@ -1150,11 +1149,10 @@ pub fn geod_geninverse_int(
             let domg12 = 1. + comg12;
             let dbet1 = 1. + cbet1;
             let dbet2 = 1. + cbet2;
-            alp12 = 2.
-                * atan2(
-                    somg12 * (sbet1 * dbet2 + sbet2 * dbet1),
-                    domg12 * (sbet1 * sbet2 + dbet1 * dbet2),
-                );
+            2. * atan2(
+                somg12 * (sbet1 * dbet2 + sbet2 * dbet1),
+                domg12 * (sbet1 * sbet2 + dbet1 * dbet2),
+            )
         } else {
             /* alp12 = alp2 - alp1, used in atan2 so no need to normalize */
             let mut salp12 = salp2 * calp1 - calp2 * salp1;
@@ -1167,8 +1165,8 @@ pub fn geod_geninverse_int(
                 salp12 = TINY * calp1;
                 calp12 = -1.;
             }
-            alp12 = atan2(salp12, calp12);
-        }
+            atan2(salp12, calp12)
+        };
         _s12 += g.c2 * alp12;
         _s12 *= swapp * lonsign * latsign;
         // Convert -0 to 0
@@ -1430,12 +1428,9 @@ pub fn geod_genposition(
 
     if (outmask & GeodFlags::GeodLongUnroll as u32) != 0 {
         let b42 = sin_cos_series(false, ssig2, csig2, &l.c4a, N_C4);
-        let salp12;
-        let calp12;
-        if l.calp0 == 0. || l.salp0 == 0. {
+        let (salp12, calp12) = if l.calp0 == 0. || l.salp0 == 0. {
             // alp12 = alp2 - alp1, used in atan2 so no need to normalize
-            salp12 = salp2 * l.calp1 - calp2 * l.salp1;
-            calp12 = calp2 * l.calp1 + salp2 * l.salp1;
+            (salp2 * l.calp1 - calp2 * l.salp1, calp2 * l.calp1 + salp2 * l.salp1)
         } else {
             /* tan(alp) = tan(alp0) * sec(sig)
              * tan(alp2-alp1) = (tan(alp2) -tan(alp1)) / (tan(alp2)*tan(alp1)+1)
@@ -1445,15 +1440,17 @@ pub fn geod_genposition(
              * else
              *   csig1 - csig2 = csig1 * (1 - csig12) + ssig12 * ssig1
              * No need to normalize */
-            salp12 = l.calp0
-                * l.salp0
-                * (if csig12 <= 0. {
-                    l.csig1 * (1. - csig12) + ssig12 * l.ssig1
-                } else {
-                    ssig12 * (l.csig1 * ssig12 / (1. + csig12) + l.ssig1)
-                });
-            calp12 = sq(l.salp0) + sq(l.calp0) * l.csig1 * csig2;
-        }
+            (
+                l.calp0
+                    * l.salp0
+                    * (if csig12 <= 0. {
+                        l.csig1 * (1. - csig12) + ssig12 * l.ssig1
+                    } else {
+                        ssig12 * (l.csig1 * ssig12 / (1. + csig12) + l.ssig1)
+                    }),
+                sq(l.salp0) + sq(l.calp0) * l.csig1 * csig2,
+            )
+        };
         _s12 = l.c2 * atan2(salp12, calp12) + l.a4 * (b42 - l.b41);
     }
 

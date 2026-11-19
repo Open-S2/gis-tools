@@ -277,7 +277,9 @@ export class BufferReader extends DataView<ArrayBufferLike> implements Reader {
     const { textDecoder } = this;
     const data = this.slice(byteOffset, byteOffset + byteLength).buffer;
     this.cursor = byteOffset + byteLength;
-    const out = textDecoder.decode(data as ArrayBuffer, { stream: true }) + textDecoder.decode();
+    const out =
+      textDecoder.decode(data as ArrayBuffer, { stream: true }) +
+      textDecoder.decode(undefined, { stream: true });
     // oxlint-disable-next-line no-control-regex
     return out.replace(/\0/g, '');
   }

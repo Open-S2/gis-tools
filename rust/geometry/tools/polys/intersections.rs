@@ -226,8 +226,8 @@ pub fn polygons_intersections_lookup<P: FullXY>(
     }
 
     // finally clean the intersections before return
-    for (_, polys) in ring_intersect_lookup.iter_mut() {
-        for (_, intersections) in polys.iter_mut() {
+    for polys in ring_intersect_lookup.values_mut() {
+        for intersections in polys.values_mut() {
             *intersections = clean_intersections(intersections);
         }
     }

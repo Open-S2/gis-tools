@@ -3,6 +3,7 @@ use super::U64;
 #[cfg(feature = "std")]
 pub mod file;
 use alloc::collections::btree_map::BTreeMap;
+use core::ops::DerefMut;
 use s2json::Properties;
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -18,8 +19,14 @@ pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Proper
     fn is_empty(&self) -> bool;
     /// Get a value from the store
     fn get(&self, key: K) -> Option<&V>;
+    /// A mutable guard
+    type MutGuard<'a>: DerefMut<Target = V>
+    where
+        Self: 'a;
     /// Get a mutable value from the store
-    fn get_mut(&mut self, key: K) -> Option<&mut V>;
+    fn get_mut(&mut self, key: K) -> Option<Self::MutGuard<'_>>
+    where
+        V: Copy;
     /// Set a value in the store
     fn set(&mut self, key: K, value: V);
     /// Check if a key exists
@@ -33,7 +40,7 @@ pub trait KVStore<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Proper
     fn iter_mut<'a>(&'a mut self) -> impl Iterator<Item = (&'a K, &'a mut V)>
     where
         K: 'a,
-        V: 'a;
+        V: 'a + Copy;
     /// Cleanup the store
     fn cleanup(&mut self) {}
 }
@@ -44,6 +51,11 @@ pub struct KV<K: U64 = u64, V: Serialize + DeserializeOwned + Clone = Properties
     store: BTreeMap<K, V>,
 }
 impl<K: U64, V: Serialize + DeserializeOwned + Clone> KVStore<K, V> for KV<K, V> {
+    type MutGuard<'a>
+        = &'a mut V
+    where
+        Self: 'a;
+
     fn new(_name: Option<&str>) -> Self {
         KV { store: BTreeMap::new() }
     }
@@ -56,7 +68,7 @@ impl<K: U64, V: Serialize + DeserializeOwned + Clone> KVStore<K, V> for KV<K, V>
     fn get(&self, key: K) -> Option<&V> {
         self.store.get(&key)
     }
-    fn get_mut(&mut self, key: K) -> Option<&mut V> {
+    fn get_mut(&mut self, key: K) -> Option<Self::MutGuard<'_>> {
         self.store.get_mut(&key)
     }
     fn set(&mut self, key: K, value: V) {

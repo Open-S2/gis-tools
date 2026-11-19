@@ -265,7 +265,7 @@ export async function buildGTFSSchedule(gzipData: ArrayBufferLike): Promise<GTFS
 
   for (const item of iterZipFolder(new Uint8Array(gzipData))) {
     const { filename } = item;
-    const chunk = new TextDecoder('utf8').decode(await item.read());
+    const chunk = new TextDecoder('utf8').decode(await item.read(), { stream: true });
     pieces.push({ filename, data: chunk });
   }
 

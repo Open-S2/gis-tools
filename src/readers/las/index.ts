@@ -336,7 +336,7 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
     // OGC COORDINATE SYSTEM WKT:
     const wktCoordSystemData = variableLengthRecords[2112]?.data;
     if (wktMathOGC === undefined && wktCoordSystemData === undefined) return;
-    const wktCoordSystem = this.#decoder.decode(wktMathOGC ?? wktCoordSystemData);
+    const wktCoordSystem = this.#decoder.decode(wktMathOGC ?? wktCoordSystemData, { stream: true });
     this.transformer.setSource(wktCoordSystem);
 
     return wktCoordSystem;
@@ -372,7 +372,7 @@ export class LASReader implements FeatureIterator<undefined, LASFormat, Properti
     // GeoAsciiParamsTag
     const asciiRecord = variableLengthRecords[34737]?.data;
     const GeoAsciiParams =
-      asciiRecord !== undefined ? this.#decoder.decode(asciiRecord) : undefined;
+      asciiRecord !== undefined ? this.#decoder.decode(asciiRecord, { stream: true }) : undefined;
     const gkd = parseGeotiffRawGeoKeys(rawGeoKeys, {
       GeoKeyDirectory: this.GeoKeyDirectory,
       GeoDoubleParams,

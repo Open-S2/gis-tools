@@ -163,16 +163,12 @@ pub fn geodetic<P: TransformCoordinates>(proj: &Proj, coords: &mut P) {
     let b_div_a = 1. - proj.f; // = proj.b / proj.a
     let p_div_a_b_div_a = p_div_a * b_div_a;
     let norm = sqrt(z_div_a * z_div_a + p_div_a_b_div_a * p_div_a_b_div_a);
-    let c;
-    let s;
-    if norm != 0. {
+    let (c, s) = if norm != 0. {
         let inv_norm = 1.0 / norm;
-        c = p_div_a_b_div_a * inv_norm;
-        s = z_div_a * inv_norm;
+        (p_div_a_b_div_a * inv_norm, z_div_a * inv_norm)
     } else {
-        c = 1.;
-        s = 0.;
-    }
+        (1., 0.)
+    };
 
     let y_phi = z_div_a + proj.e2s * b_div_a * s * s * s;
     let x_phi = p_div_a - proj.es * c * c * c;

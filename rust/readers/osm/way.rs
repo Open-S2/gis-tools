@@ -9,8 +9,8 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{vec, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, Face, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry,
-    VectorLineString, VectorPoint,
+    BBox3D, Face, MValue, PointOrPoint3D, Properties, VectorFeature, VectorFeatureType,
+    VectorGeometry, VectorLineString,
 };
 use serde::{Deserialize, Serialize};
 
@@ -33,7 +33,7 @@ pub struct IntermediateWay {
 }
 impl IntermediateWay {
     /// Convert the node to a vector feature
-    pub fn to_vector_feature<_N: KVStore<u64, VectorPoint<MValue>>>(
+    pub fn to_vector_feature<_N: KVStore<u64, PointOrPoint3D>>(
         &self,
         node_geometry: &_N,
         add_bbox: bool,
@@ -48,7 +48,7 @@ impl IntermediateWay {
                 if add_bbox {
                     bbox.extend_from_point(node)
                 }
-                vector_line.push(node.clone());
+                vector_line.push(node.into());
             }
         }
         // build geometry
@@ -99,7 +99,7 @@ impl Way {
     /// Checks if the way is an area based on it's key-value pairs
     pub fn is_area<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<MValue>>,
+        _N: KVStore<u64, PointOrPoint3D>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -109,14 +109,10 @@ impl Way {
         pb: &PrimitiveBlock,
         reader: &mut OSMReader<T, _N, N, _W, W, R>,
     ) -> bool {
-        if (reader.upgrade_ways_to_areas
+        (reader.upgrade_ways_to_areas
             && self.refs.len() >= 4
             && self.refs[0] == self.refs[self.refs.len() - 1])
             || self.has_key_value(pb, "area", Some("yes"))
-        {
-            return true;
-        }
-        false
     }
 
     /// Checks if the way has a key-value pair (value optional)
@@ -140,9 +136,8 @@ impl Way {
     pub fn node_refs(&self) -> WayNodes {
         let mut res = vec![];
         let mut _ref = 0;
-        // for (let i = 0; i < this.#refs.length; i++) {
-        for i in 0..self.refs.len() {
-            _ref += self.refs[i];
+        for cur_ref in self.refs.iter().take(self.refs.len()) {
+            _ref += cur_ref;
             res.push(_ref as u64);
         }
         res
@@ -154,7 +149,7 @@ impl Way {
     /// The way as an intermediate vector feature
     pub fn to_intermediate_feature<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<MValue>>,
+        _N: KVStore<u64, PointOrPoint3D>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -182,7 +177,7 @@ impl Way {
 impl OSMFilterable for Way {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<MValue>>,
+        _N: KVStore<u64, PointOrPoint3D>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,

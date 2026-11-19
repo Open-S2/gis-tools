@@ -6,7 +6,7 @@ edition = "2024"
 authors = ["Craig O'Connor <oconnorct1@gmail.com>"]
 description = "A collection of geospatial tools primarily designed for WGS84, Web Mercator, and S2."
 documentation = "https://docs.rs/gis-tools"
-homepage = "https://github.com/Open-S2/gis-tools"
+# homepage = "https://github.com/Open-S2/gis-tools"
 repository = "https://github.com/Open-S2/gis-tools"
 readme = "README.md"
 categories = ["no-std", "algorithms"]
@@ -54,7 +54,7 @@ serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 # rayon = { version = "1", optional = true }
 memmap2 = { version = "0.9", optional = true }
 flate2 = { version = "1", optional = true }
-brotli = { version = "8", optional = true }
+brotli = { version = "9", optional = true }
 image = { version = "0.25", optional = true, features = ["jpeg", "tiff", "png"] }
 openjpeg-sys = { version = "1", optional = true }
 # Optional std/wasm fetch dependency
@@ -86,11 +86,7 @@ std = ["memmap2", "flate2", "brotli", "image", "surf/h1-client", "openjpeg-sys"]
 wasm = ["surf/wasm-client"]
 
 [[bench]]
-name = "s2_cells"
-harness = false
-
-[[bench]]
-name = "delaunator"
+name = "clean"
 harness = false
 
 [[bench]]
@@ -98,15 +94,23 @@ name = "dekink"
 harness = false
 
 [[bench]]
-name = "clean"
+name = "delaunator"
 harness = false
 
 [[bench]]
-name = "union"
+name = "s2_cells"
+harness = false
+
+[[bench]]
+name = "stores"
 harness = false
 
 [[bench]]
 name = "union_large"
+harness = false
+
+[[bench]]
+name = "union"
 harness = false
 
 [profile.bench]

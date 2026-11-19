@@ -107,7 +107,9 @@ export class S2PMTilesReader {
       header.jsonMetadataOffset + header.jsonMetadataLength,
     );
     this.#metadata = JSON.parse(
-      this.#decoder.decode(await decompress(jsonMetadata, header.internalCompression)),
+      this.#decoder.decode(await decompress(jsonMetadata, header.internalCompression), {
+        stream: true,
+      }),
     );
 
     // root directory data

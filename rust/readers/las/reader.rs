@@ -321,7 +321,9 @@ pub fn build_geo_key_directory(
     }
     let raw_geo_keys: Vec<u16> = geokey_record
         .unwrap()
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
         .collect();
     // GeoDoubleParamsTag (34736)

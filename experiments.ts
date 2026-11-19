@@ -495,24 +495,24 @@
 //   JSON.stringify(res),
 // );
 
-import { vectorToFlat } from './src/index.js';
+// import { vectorToFlat } from './src/index.js';
 
-import { shapefileFromPath } from './src/file.js';
+// import { shapefileFromPath } from './src/file.js';
 
-const shapefile = await shapefileFromPath(
-  `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`,
-);
+// const shapefile = await shapefileFromPath(
+//   `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/ne_10m_bathymetry_I_2000.shp`,
+// );
 
-const featureCollection = await shapefile.getFeatureCollection();
-for (const feature of featureCollection.features) {
-  feature.type = 'Feature';
-  feature.geometry = vectorToFlat(feature.geometry);
-}
+// const featureCollection = await shapefile.getFeatureCollection();
+// for (const feature of featureCollection.features) {
+//   feature.type = 'Feature';
+//   feature.geometry = vectorToFlat(feature.geometry);
+// }
 
-await Bun.write(
-  `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`,
-  JSON.stringify(featureCollection, null, 2),
-);
+// await Bun.write(
+//   `${__dirname}/tests/geometry/tools/fixtures/bathymetry_2000/args.geojson`,
+//   JSON.stringify(featureCollection, null, 2),
+// );
 
 // import { type VectorPoint, type MValue, type Properties, equalPoints, orient2dVector, intersectionOfSegmentsRobust } from './src/index.js';
 
@@ -610,3 +610,59 @@ await Bun.write(
 // function invertAngle(angle: number): number {
 //   return angle >= 0 ? angle - Math.PI : angle + Math.PI;
 // }
+
+import {
+  BufferReader,
+  CSVReader,
+  NewLineDelimitedJSONReader,
+  parseCSVAsRecord,
+} from './src/index.js';
+
+const show = (s: string): string => JSON.stringify(s).replaceAll('\uFFFD', '\\uFFFD');
+
+// 1. Multi-byte UTF-8 character across 65,536-byte chunk boundary (CSVReader)
+let csv = 'lon,lat,name\n';
+const names = [];
+for (let i = 0; i < 4000; i++) {
+  const n = '日本語' + i;
+  names.push(n);
+  csv += `${i % 180},${i % 90},${n}\n`;
+}
+let row = 0;
+for await (const f of new CSVReader(new BufferReader(new TextEncoder().encode(csv).buffer))) {
+  if (f.properties.name !== names[row]) {
+    console.log('CSV row', row, show(f.properties.name), 'expected', show(names[row]));
+  }
+  row++;
+}
+
+// 2. Same 65,536-byte chunk boundary split in NewLineDelimitedJSONReader
+const line = `{"type":"Feature","properties":{"name":"a"},"geometry":{"type":"Point","coordinates":[0,0]}}\n`;
+let ndjson = line.repeat(700);
+const head = `{"type":"Feature","properties":{"p":"`;
+const mid = `","name":"`;
+const pad = 'x'.repeat(65535 - Buffer.byteLength(ndjson + head + mid));
+ndjson += `${head}${pad}${mid}日本語"},"geometry":{"type":"Point","coordinates":[1,2]}}\n`;
+let last;
+for await (const f of new NewLineDelimitedJSONReader(
+  new BufferReader(new TextEncoder().encode(ndjson).buffer),
+)) {
+  last = f.properties.name;
+}
+console.log('NDJSON name:', show(last), 'expected', show('日本語'));
+
+// 3. Quoted CSV fields (vs parseCSVAsRecord in the same module) and short rows
+const quoted = `lon,lat,name\n-77.0369,38.9072,"Washington, D.C."\n1,2,"he said ""hi"""\n`;
+for await (const f of new CSVReader(new BufferReader(new TextEncoder().encode(quoted).buffer))) {
+  console.log('CSVReader:', JSON.stringify(f.properties.name));
+}
+console.log('parseCSVAsRecord:', JSON.stringify(parseCSVAsRecord(quoted).map((r) => r.name)));
+
+try {
+  for await (const f of new CSVReader(
+    new BufferReader(new TextEncoder().encode('lon,lat,name\n1,2\n').buffer),
+  )) {
+  }
+} catch (e) {
+  console.log('Short row:', e.name + ': ' + e.message);
+}

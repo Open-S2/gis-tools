@@ -137,10 +137,6 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::OutFileType;
-    use assert_cmd::Command;
-    use predicates::prelude::*;
-    use std::path::PathBuf;
-    use tempfile::NamedTempFile;
 
     #[test]
     fn test_cli_out_file_type() {
@@ -161,73 +157,5 @@ mod tests {
 
         let test = OutFileType::S2jsonLd;
         assert_eq!(test.to_string(), "s2json-ld");
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn test_convert_geojson_to_json() {
-        // Path to input fixture
-        let mut input = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input.push("tests/readers/json/fixtures/points.geojson");
-
-        // Create temporary output file
-        let output = NamedTempFile::new().expect("Failed to create temporary file");
-        let output_path = output.path();
-
-        // Run CLI: gis-tools convert
-        let mut cmd = Command::cargo_bin("gis-tools").unwrap();
-        cmd.args([
-            "convert",
-            "-i",
-            input.to_str().unwrap(),
-            "-o",
-            output_path.to_str().unwrap(),
-            "-f",
-            "geojson",
-            "-O",
-            "json",
-            "-v",
-        ]);
-
-        cmd.assert().success().stdout(predicate::str::contains("Converting inputs"));
-
-        // Check output file was written
-        let contents = std::fs::read_to_string(output_path).expect("Output not written");
-        assert!(contents.contains("{"));
-        assert!(contents.contains("features"));
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn test_convert_geojson_to_geojsonld() {
-        // Path to input fixture
-        let mut input = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        input.push("tests/readers/json/fixtures/points.geojson");
-
-        // Create temporary output file
-        let output = NamedTempFile::new().expect("Failed to create temporary file");
-        let output_path = output.path();
-
-        // Run CLI: gis-tools convert
-        let mut cmd = Command::cargo_bin("gis-tools").unwrap();
-        cmd.args([
-            "convert",
-            "-i",
-            input.to_str().unwrap(),
-            "-o",
-            output_path.to_str().unwrap(),
-            "-f",
-            "geojson",
-            "-O",
-            "geojson-ld",
-            "-v",
-        ]);
-
-        cmd.assert().success().stdout(predicate::str::contains("Converting inputs"));
-
-        // Check output file was written
-        let contents = std::fs::read_to_string(output_path).expect("Output not written");
-        assert!(contents.contains("Feature"), "Expected JSON-LD context in output");
-        // assert!(contents.contains("FeatureCollection"));
     }
 }

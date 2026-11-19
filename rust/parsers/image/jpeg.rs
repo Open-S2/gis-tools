@@ -558,16 +558,14 @@ impl JpegStreamReader {
                     let mut table_data: Vec<i32> = vec![0; 64];
                     if quantization_table_spec >> 4 == 0 {
                         // 8 bit values
-                        for j in 0..64 {
-                            let z = self.dct_zig_zag[j] as usize;
-                            table_data[z] = data[reader.offset] as i32;
+                        for z in self.dct_zig_zag.iter().take(64) {
+                            table_data[*z as usize] = data[reader.offset] as i32;
                             reader.offset += 1;
                         }
                     } else if quantization_table_spec >> 4 == 1 {
                       // 16 bit
-                      for j in 0..64 {
-                        let z = self.dct_zig_zag[j] as usize;
-                        table_data[z] = reader.read_u16() as i32;
+                      for z in self.dct_zig_zag.iter().take(64) {
+                        table_data[*z as usize] = reader.read_u16() as i32;
                       }
                     } else {
                       panic!("DQT: invalid table spec");
@@ -886,24 +884,25 @@ impl JpegStreamReader {
                     let component2_line = &component2.lines[y * component2.scale_y * scale_y];
                     let component3_line = &component3.lines[y * component3.scale_y * scale_y];
                     for x in 0..width {
-                        let _r;
-                        let _g;
-                        let _b;
-                        if !color_transform {
-                            _r = component1_line[x * component1.scale_x * scale_x];
-                            _g = component2_line[x * component2.scale_x * scale_x];
-                            _b = component3_line[x * component3.scale_x * scale_x];
+                        let (_r, _g, _b) = if !color_transform {
+                            (
+                                component1_line[x * component1.scale_x * scale_x],
+                                component2_line[x * component2.scale_x * scale_x],
+                                component3_line[x * component3.scale_x * scale_x],
+                            )
                         } else {
                             let _y = component1_line[x * component1.scale_x * scale_x] as f64;
                             let _cb = component2_line[x * component2.scale_x * scale_x] as f64;
                             let _cr: f64 = component3_line[x * component3.scale_x * scale_x] as f64;
 
-                            _r = clamp_to_8bit(_y + 1.402 * (_cr - 128.)) as u8;
-                            _g = clamp_to_8bit(
-                                _y - 0.3441363 * (_cb - 128.) - 0.71413636 * (_cr - 128.),
-                            ) as u8;
-                            _b = clamp_to_8bit(_y + 1.772 * (_cb - 128.)) as u8;
-                        }
+                            (
+                                clamp_to_8bit(_y + 1.402 * (_cr - 128.)) as u8,
+                                clamp_to_8bit(
+                                    _y - 0.3441363 * (_cb - 128.) - 0.71413636 * (_cr - 128.),
+                                ) as u8,
+                                clamp_to_8bit(_y + 1.772 * (_cb - 128.)) as u8,
+                            )
+                        };
 
                         data[offset] = _r;
                         offset += 1;

@@ -5,12 +5,12 @@ mod tests {
     extern crate alloc;
 
     use alloc::{vec, vec::Vec};
-    use gistools::data_store::{KV, KVStore, kv::file::FileKV};
+    use gistools::data_store::{FileKV, KV, KVStore};
     use serde::{Deserialize, Serialize};
 
     #[test]
     fn test_kv() {
-        #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+        #[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, PartialEq)]
         struct TestKey {
             a: f64,
         }
@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn test_file_kv() {
-        #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+        #[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, PartialEq)]
         struct TestKey {
             a: f64,
         }

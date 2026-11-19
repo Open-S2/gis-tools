@@ -236,8 +236,8 @@ impl LASHeader {
         // set new numPointsByReturn if header includes
         if header.header_size > 251 {
             let mut cur_offset = 251;
-            for i in 0..15 {
-                header.num_points_by_return_ll[i] = reader.uint64_le(Some(cur_offset));
+            for num_point in &mut header.num_points_by_return_ll {
+                *num_point = reader.uint64_le(Some(cur_offset));
                 cur_offset += 8;
             }
         }

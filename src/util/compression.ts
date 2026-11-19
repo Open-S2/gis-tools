@@ -116,9 +116,9 @@ export function* iterZipFolder(raw: Uint8Array): Generator<ZipItem, void, void> 
     // find local entry location
     const localEntryAt = u32(42);
     // read buffers, move at to after entry, and store where we were
-    const filename = d.decode(subarrayMove(46, filenameLength));
+    const filename = d.decode(subarrayMove(46, filenameLength), { stream: true });
     // we skip extraFields here
-    const comment = d.decode(subarrayMove(extraFieldsLength, commentLength));
+    const comment = d.decode(subarrayMove(extraFieldsLength, commentLength), { stream: true });
     const nextCentralDirectoryEntry = at;
     // >> start reading entry
     at = localEntryAt;

@@ -1,6 +1,5 @@
 use crate::geometry::{incirclefast, orient2d};
 use alloc::{vec, vec::Vec};
-use core::f64;
 use libm::{ceil, fabs, floor, sqrt};
 use s2json::GetXY;
 

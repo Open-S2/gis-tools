@@ -1,3 +1,4 @@
+use super::{U64, external_sort};
 use crate::parsers::{FileReader, FileWriter, MMapReader, StdReader, Writer};
 use core::marker::PhantomData;
 use s2json::Properties;
@@ -12,19 +13,17 @@ use std::{
     vec::Vec,
 };
 
-use super::{U64, external_sort};
-
 /// Options to create a S2BaseStore
 #[derive(Debug, Default)]
 pub struct FileOptions {
     /// If true, then the data is already sorted and get calls can be immediately returned
-    is_sorted: Option<bool>,
+    pub is_sorted: Option<bool>,
     /// The maximum heap size in bytes for each grouping of data.
-    max_heap: Option<usize>,
+    pub max_heap: Option<usize>,
     /// The number of threads to use for sorting
-    thread_count: Option<usize>,
+    pub thread_count: Option<usize>,
     /// If desired, a temporary directory to use
-    tmp_dir: Option<String>,
+    pub tmp_dir: Option<String>,
 }
 
 /// The state of the store
@@ -68,9 +67,10 @@ pub struct S2BaseStore<
     value_file: FileState<R>,
     _phantom: PhantomData<(K, V)>,
 }
-impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> Default for S2BaseStore<R, K, V> {
-    fn default() -> Self {
-        S2BaseStore {
+impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> S2BaseStore<R, K, V> {
+    /// Builds a new File based KV
+    pub fn new(file_name: Option<&str>, options: Option<FileOptions>) -> Self {
+        let mut file = S2BaseStore {
             tmp_dir: String::new(),
             file_name: String::new(),
             size: 0,
@@ -81,13 +81,7 @@ impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> Default for S2BaseSt
             key_file: FileState::Empty,
             value_file: FileState::Empty,
             _phantom: PhantomData,
-        }
-    }
-}
-impl<R: StdReader, K: U64, V: Serialize + DeserializeOwned> S2BaseStore<R, K, V> {
-    /// Builds a new File based KV
-    pub fn new(file_name: Option<&str>, options: Option<FileOptions>) -> Self {
-        let mut file = Self::default();
+        };
         let options = options.unwrap_or_default();
         file.tmp_dir = options.tmp_dir.clone().unwrap_or_else(|| build_tmp_dir(None));
         file.file_name = file_name

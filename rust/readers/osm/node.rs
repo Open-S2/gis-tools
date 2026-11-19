@@ -9,7 +9,8 @@ use crate::{data_store::kv::KVStore, parsers::Reader};
 use alloc::{string::String, vec, vec::Vec};
 use pbf::{ProtoRead, Protobuf};
 use s2json::{
-    BBox3D, Face, MValue, Properties, VectorFeature, VectorFeatureType, VectorGeometry, VectorPoint,
+    BBox3D, Face, MValue, PointOrPoint3D, Properties, VectorFeature, VectorFeatureType,
+    VectorGeometry,
 };
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +20,7 @@ pub struct IntermediateNode {
     /// The node id
     pub id: u64,
     /// The nodes longitude
-    pub point: VectorPoint<MValue>,
+    pub point: PointOrPoint3D,
     /// The key-value pairs of the node
     pub properties: Properties,
     /// The node metadata
@@ -31,7 +32,7 @@ impl IntermediateNode {
         &self,
         add_bbox: bool,
     ) -> VectorFeature<OSMMetadata, Properties, MValue> {
-        let coordinates = self.point.clone();
+        let coordinates = (&self.point).into();
         let bbox = if add_bbox { Some(BBox3D::from_point(&coordinates)) } else { None };
         VectorFeature {
             id: Some(self.id),
@@ -69,7 +70,7 @@ pub struct Node {
 impl OSMFilterable for Node {
     fn is_filterable<
         T: Reader,
-        _N: KVStore<u64, VectorPoint<MValue>>,
+        _N: KVStore<u64, PointOrPoint3D>,
         N: KVStore<u64, IntermediateNode>,
         _W: KVStore<u64, WayNodes>,
         W: KVStore<u64, IntermediateWay>,
@@ -115,10 +116,10 @@ impl Node {
     }
 
     /// Gain access to the nodes geometry
-    pub fn to_vector_geometry(&self, pb: &PrimitiveBlock) -> VectorPoint<MValue> {
+    pub fn to_vector_geometry(&self, pb: &PrimitiveBlock) -> PointOrPoint3D {
         let (lon, lat) = self.get_lon_lat(pb);
         let z = get_elevation(&self.properties(pb));
-        VectorPoint::new(lon, lat, z, None)
+        PointOrPoint3D(lon, lat, z)
     }
 
     /// Converts the way to an intermediate vector feature (way's nodes have not been parsed)

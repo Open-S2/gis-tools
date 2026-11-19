@@ -1375,7 +1375,7 @@ pub enum AxisDirection {
 }
 impl From<String> for AxisDirection {
     fn from(s: String) -> Self {
-        serde_json::from_str(&format!("\"{}\"", &s))
+        serde_json::from_str(&format!("\"{}\"", s))
             .or_else(|_| serde_json::from_str(&format!("\"{}\"", to_camel_case(&s))))
             .unwrap_or_else(|_| {
                 // try a few cases otherwise default

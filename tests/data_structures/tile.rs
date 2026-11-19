@@ -2,7 +2,6 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use core::f64;
     use gistools::{
         data_structures::{HasLayer, Tile, TileStore, TileStoreOptions, TransformVectorGeometry},
         geometry::S2CellId,

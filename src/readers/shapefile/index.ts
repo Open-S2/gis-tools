@@ -41,7 +41,7 @@ export async function shapefileFromGzip(
   let shpData: Uint8Array | undefined = undefined;
   for (const item of iterZipFolder(new Uint8Array(input))) {
     if (item.filename.endsWith('cpg')) {
-      encoding = new TextDecoder('utf8').decode(await item.read());
+      encoding = new TextDecoder('utf8').decode(await item.read(), { stream: true });
     } else if (item.filename.endsWith('dbf')) {
       const data = await item.read();
       dbfReader = new DataBaseFile(new BufferReader(data.buffer), encoding);
@@ -53,7 +53,7 @@ export async function shapefileFromGzip(
       if (defs !== undefined) for (const def of defs) transform.insertDefinition(def);
       if (epsgCodes !== undefined)
         for (const [key, value] of Object.entries(epsgCodes)) transform.insertEPSGCode(key, value);
-      transform.setSource(new TextDecoder('utf8').decode(data));
+      transform.setSource(new TextDecoder('utf8').decode(data, { stream: true }));
     }
   }
   if (shpData === undefined) throw new Error('Shapefile not found');

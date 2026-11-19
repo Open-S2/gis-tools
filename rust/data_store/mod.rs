@@ -15,8 +15,16 @@ use crate::geometry::S2CellId;
 use core::cmp::Ord;
 #[cfg(feature = "std")]
 pub use external_sort::*;
+#[cfg(feature = "std")]
+pub use kv::file::*;
 pub use kv::*;
+// #[cfg(feature = "std")]
+// pub use multimap::file::*;
 pub use multimap::*;
+// #[cfg(feature = "std")]
+// pub use vector::file::*;
+#[cfg(feature = "std")]
+pub use file::*;
 pub use vector::*;
 
 /// U64 is a type that can be converted to and from u64

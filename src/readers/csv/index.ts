@@ -116,7 +116,7 @@ export class CSVReader<
    * @returns - a GeoJSON Vector Feature
    */
   #parseLine(line: string): VectorFeature<M, D, P> {
-    const values = line.split(this.#delimiter).map((v) => v.trim());
+    const values = parseCSVLine(line, this.#delimiter);
 
     let is3D = false;
     const properties: Properties = {};
@@ -125,7 +125,7 @@ export class CSVReader<
     for (let i = 0; i < this.#fields.length; i++) {
       const field = this.#fields[i];
       const value = values[i];
-      if (field.length === 0 || value.length === 0) continue;
+      if (field.length === 0 || value === undefined || value.trim().length === 0) continue;
 
       if (field === this.#lonKey) coordinates.x = parseFloat(value);
       else if (field === this.#latKey) coordinates.y = parseFloat(value);
@@ -148,33 +148,40 @@ export class CSVReader<
     };
   }
 
-  /** @param line - the fields in the first line split by the delimiter */
   #parseFirstLine(line: string): void {
-    this.#fields = line.split(this.#delimiter).map((v) => v.trim());
+    this.#fields = parseCSVLine(line, this.#delimiter);
   }
 }
 
 /**
  * Parse CSV data into a record
  * @param source - the source of the CSV data
- * @returns - an object with key-value pairs whose keys and values are both strings
+ * @param delimiter - the delimiter to use (defaults to ',')
+ * @param lineDelimiter - the line delimiter to use (defaults to '\n')
+ * @returns - an array of records parsed from the CSV rows
  */
-export function parseCSVAsRecord<T = Record<string, string>>(source: string): T[] {
+export function parseCSVAsRecord<T = Record<string, string>>(
+  source: string,
+  delimiter = ',',
+  lineDelimiter = '\n',
+): T[] {
   const res: T[] = [];
-  const lines = source.split('\n');
-  const header = parseCSVLine(lines[0]);
+  const lines = source.split(lineDelimiter);
+  if (lines.length === 0) return res;
+
+  const header = parseCSVLine(lines[0], delimiter);
 
   for (const rawLine of lines.slice(1)) {
     const line = rawLine.trim();
     if (line.length === 0) continue;
 
-    const record: Record<string, string> = {};
-    const values = parseCSVLine(line);
+    const record: Record<string, string | null> = {};
+    const values = parseCSVLine(line, delimiter);
 
-    for (let i = 0; i < header.length; i++) {
+    const limit = Math.min(values.length, header.length);
+    for (let i = 0; i < limit; i++) {
       const value = values[i];
-      if (value === '' || value === ' ') continue;
-      record[header[i]] = values[i] ?? '';
+      record[header[i]] = value === undefined || value.trim().length === 0 ? null : value;
     }
 
     res.push(record as T);
@@ -185,9 +192,10 @@ export function parseCSVAsRecord<T = Record<string, string>>(source: string): T[
 
 /**
  * @param line - a line of a CSV file
+ * @param delimiter - the delimiter to use
  * @returns - the values split by the delimiter
  */
-function parseCSVLine(line: string): string[] {
+function parseCSVLine(line: string, delimiter = ','): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -211,8 +219,8 @@ function parseCSVLine(line: string): string[] {
         inQuotes = false;
       }
     }
-    // Split by commas only if not inside quotes
-    else if (ch === ',' && !inQuotes) {
+    // Split by delimiter only if not inside quotes
+    else if (ch === delimiter && !inQuotes) {
       result.push(current.trim());
       current = '';
     } else {
@@ -221,7 +229,7 @@ function parseCSVLine(line: string): string[] {
   }
 
   // Push the final field
-  if (current !== undefined) result.push(current.trim());
+  result.push(current.trim());
 
   return result;
 }

@@ -2,7 +2,6 @@
 // #[coverage(off)]
 #[cfg_attr(feature = "nightly", coverage(off))]
 mod tests {
-    use core::f64;
     use gistools::geometry::convert_geometry_to_vector;
     use s2json::{
         BBox3D, Geometry, LineString3DGeometry, LineStringGeometry, MValue,

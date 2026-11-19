@@ -23,6 +23,11 @@ impl<K: U64, V: Serialize + DeserializeOwned + Clone> FileKV<K, V> {
     }
 }
 impl<K: U64, V: Serialize + DeserializeOwned + Clone> KVStore<K, V> for FileKV<K, V> {
+    type MutGuard<'a>
+        = KVMutGuard<'a, K, V>
+    where
+        Self: 'a;
+
     fn new(file_name: Option<&str>) -> FileKV<K, V> {
         FileKV { store: S2FileStore::new(file_name, None).into(), tmp_val: None.into() }
     }
@@ -45,18 +50,15 @@ impl<K: U64, V: Serialize + DeserializeOwned + Clone> KVStore<K, V> for FileKV<K
         }
         None
     }
-    fn get_mut(&mut self, key: K) -> Option<&mut V> {
-        let mut store = self.store.borrow_mut();
-        if let Some(vec) = store.get(key, Some(1)) {
-            if vec.1.is_empty() {
-                return None;
-            }
-            self.tmp_val.borrow_mut().replace(vec.1[0].clone());
-            if let Some(val_ref) = self.tmp_val.borrow_mut().as_mut() {
-                return Some(unsafe { &mut *(val_ref as *mut V) });
-            }
+    fn get_mut(&mut self, key: K) -> Option<Self::MutGuard<'_>>
+    where
+        V: Copy,
+    {
+        if let Some(value) = self.get(key) {
+            Some(KVMutGuard { kv_store: self, key, value: Some(*value), dirty: false })
+        } else {
+            None
         }
-        None
     }
     fn set(&mut self, key: K, value: V) {
         self.store.borrow_mut().set(key, value);
@@ -142,13 +144,31 @@ impl<'a, K: U64, V: Serialize + DeserializeOwned + Clone> Iterator
     }
 }
 
-// struct DroppableV<V: Clone> {
-//     value: V,
-//     callback: Box<dyn FnOnce(V)>,
-// }
-
-// impl<V: Clone> Drop for DroppableV<V> {
-//     fn drop(&mut self) {
-//         (self.callback)(self.value.clone());
-//     }
-// }
+/// A mutable reference to a key-value pair inside the KVStore
+pub struct KVMutGuard<'a, K: U64, V: Serialize + DeserializeOwned + Clone> {
+    kv_store: &'a FileKV<K, V>,
+    key: K,
+    value: Option<V>,
+    dirty: bool,
+}
+impl<'a, K: U64, V: Serialize + DeserializeOwned + Clone> Deref for KVMutGuard<'a, K, V> {
+    type Target = V;
+    fn deref(&self) -> &Self::Target {
+        self.value.as_ref().unwrap()
+    }
+}
+impl<'a, K: U64, V: Serialize + DeserializeOwned + Clone> DerefMut for KVMutGuard<'a, K, V> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.dirty = true;
+        self.value.as_mut().unwrap()
+    }
+}
+impl<'a, K: U64, V: Serialize + DeserializeOwned + Clone> Drop for KVMutGuard<'a, K, V> {
+    fn drop(&mut self) {
+        if self.dirty
+            && let Some(val) = self.value.take()
+        {
+            self.kv_store.store.borrow_mut().set(self.key, val);
+        }
+    }
+}

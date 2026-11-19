@@ -5,11 +5,12 @@ import { S2MMapStore } from '../src/dataStore/mmap.js';
 import { createTempPath, deletePath } from '../tests/tmp.js';
 
 const dir = createTempPath('store_benchmarks');
-const TEST_SIZE = 1_000_000;
+// const TEST_SIZE = 1_000_000;
+const TEST_SIZE = 100_000;
 
 /// ----------------------------------------------
 
-const mmapStore = new S2MMapStore<{ a: number }>(`${dir}/mmap`);
+const mmapStore = new S2MMapStore<{ a: number }>(`${dir}/mmap`, { threadCount: 6 });
 
 const mmapAddStart = Bun.nanoseconds();
 for (let i = 0; i < TEST_SIZE; i++) {
@@ -39,7 +40,7 @@ console.info('mmap total time: ', mmapAddSeconds + mmapSortSeconds + mmapQuerySe
 
 /// ----------------------------------------------
 
-const fileStore = new S2FileStore<{ a: number }>(`${dir}/file`);
+const fileStore = new S2FileStore<{ a: number }>(`${dir}/file`, { threadCount: 6 });
 
 const fileAddStart = Bun.nanoseconds();
 for (let i = 0; i < TEST_SIZE; i++) {

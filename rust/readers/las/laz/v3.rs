@@ -602,8 +602,8 @@ impl<T: Reader> LAZPoint14v3Reader<T> {
         // first create all entropy models and integer decompressors (if needed)
         if self.contexts[context].m_changed_values[0].is_none() {
             // for the channel_returns_XY layer
-            for i in 0..8 {
-                self.contexts[context].m_changed_values[i] = Some(ArithmeticModel::new(128, false));
+            for c in self.contexts[context].m_changed_values.iter_mut() {
+                *c = Some(ArithmeticModel::new(128, false));
             }
             self.contexts[context].m_scanner_channel = Some(ArithmeticModel::new(3, false));
             for i in 0..16 {
@@ -675,8 +675,8 @@ impl<T: Reader> LAZPoint14v3Reader<T> {
         }
 
         // for the channel_returns_XY layer
-        for i in 0..8 {
-            self.contexts[context].m_changed_values[i].as_mut().unwrap().init(None);
+        for c in self.contexts[context].m_changed_values.iter_mut() {
+            c.as_mut().unwrap().init(None);
         }
         self.contexts[context].m_scanner_channel.as_mut().unwrap().init(None);
         for i in 0..16 {
@@ -692,8 +692,8 @@ impl<T: Reader> LAZPoint14v3Reader<T> {
         }
         // for the Z layer
         self.contexts[context].ic_z.as_mut().unwrap().init_decompressor();
-        for i in 0..8 {
-            self.contexts[context].last_z[i] = item.z;
+        for c in self.contexts[context].last_z.iter_mut() {
+            *c = item.z;
         }
         // for the classification layer, flags layer, and user_data layer
         for i in 0..64 {
@@ -704,9 +704,10 @@ impl<T: Reader> LAZPoint14v3Reader<T> {
 
         // for the intensity layer
         self.contexts[context].ic_intensity.as_mut().unwrap().init_decompressor();
-        for i in 0..8 {
-            self.contexts[context].last_intensity[i] = item.intensity;
+        for c in self.contexts[context].last_intensity.iter_mut() {
+            *c = item.intensity;
         }
+
         // for the scan_angle layer
         self.contexts[context].ic_scan_angle.as_mut().unwrap().init_decompressor();
         // for the point_source_id layer
@@ -974,8 +975,8 @@ impl<T: Reader> ItemReader for LAZPoint14v3Reader<T> {
         }
 
         // mark the four scanner channel contexts as unused
-        for c in 0..4 {
-            self.contexts[c].unused = true;
+        for c in &mut self.contexts {
+            c.unused = true;
         }
         // set scanner channel as current context
         self.current_context = point.scanner_channel as u32;
@@ -1374,8 +1375,8 @@ impl<T: Reader> LAZrgb14v3Reader<T> {
         };
         rgb_reader.requested_rgb = decompress_selective & LASZIP_DECOMPRESS_SELECTIVE_RGB != 0;
         // mark the four scanner channel contexts as uninitialized
-        for c in 0..4 {
-            rgb_reader.contexts[c].m_byte_used = None;
+        for rr in rgb_reader.contexts.iter_mut() {
+            rr.m_byte_used = None;
         }
         rgb_reader
     }
@@ -1436,8 +1437,8 @@ impl<T: Reader> ItemReader for LAZrgb14v3Reader<T> {
                 self.changed_rgb = false;
             }
             // mark the four scanner channel contexts as unused
-            for c in 0..4 {
-                self.contexts[c].unused = true;
+            for c in &mut self.contexts {
+                c.unused = true;
             }
             // set scanner channel as current context
             self.current_context = *context; // all other items use context set by POINT14 reader
@@ -1601,9 +1602,9 @@ impl<T: Reader> LAZrgbNir14v3Reader<T> {
         rgbn_reader.requested_rgb = (decompress_selective & LASZIP_DECOMPRESS_SELECTIVE_RGB) != 0;
         rgbn_reader.requested_nir = (decompress_selective & LASZIP_DECOMPRESS_SELECTIVE_NIR) != 0;
         // mark the four scanner channel contexts as uninitialized
-        for c in 0..4 {
-            rgbn_reader.contexts[c].m_rgb_bytes_used = None;
-            rgbn_reader.contexts[c].m_nir_bytes_used = None;
+        for rr in &mut rgbn_reader.contexts {
+            rr.m_rgb_bytes_used = None;
+            rr.m_nir_bytes_used = None;
         }
 
         rgbn_reader
@@ -1720,8 +1721,8 @@ impl<T: Reader> ItemReader for LAZrgbNir14v3Reader<T> {
             }
         }
         // mark the four scanner channel contexts as unused
-        for c in 0..4 {
-            self.contexts[c].unused = true;
+        for c in &mut self.contexts {
+            c.unused = true;
         }
         // set scanner channel as current context
         self.current_context = *context; // all other items use context set by POINT14 reader
@@ -1917,8 +1918,8 @@ impl<T: Reader> LAZwavepacket14v3Reader<T> {
         wavepacket_reader.requested_wavepacket =
             (decompress_selective & LASZIP_DECOMPRESS_SELECTIVE_WAVEPACKET) != 0;
         // mark the four scanner channel contexts as uninitialized
-        for c in 0..4 {
-            wavepacket_reader.contexts[c].m_packet_index = None;
+        for wr in &mut wavepacket_reader.contexts {
+            wr.m_packet_index = None;
         }
         wavepacket_reader
     }
@@ -2017,8 +2018,8 @@ impl<T: Reader> ItemReader for LAZwavepacket14v3Reader<T> {
                 self.changed_wavepacket = false;
             }
             // mark the four scanner channel contexts as unused
-            for c in 0..4 {
-                self.contexts[c].unused = true;
+            for c in &mut self.contexts {
+                c.unused = true;
             }
             // set scanner channel as current context
             self.current_context = *context; // all other items use context set by POINT14 reader
@@ -2186,8 +2187,8 @@ impl<T: Reader> LAZbyte14v3Reader<T> {
         }
 
         // mark the four scanner channel contexts as uninitialized
-        for c in 0..4 {
-            byte_reader.contexts[c].m_bytes = vec![];
+        for c in byte_reader.contexts.iter_mut() {
+            c.m_bytes = vec![];
         }
         byte_reader.current_context = 0;
 
@@ -2269,8 +2270,8 @@ impl<T: Reader> ItemReader for LAZbyte14v3Reader<T> {
                 }
             }
             // mark the four scanner channel contexts as unused
-            for c in 0..4 {
-                self.contexts[c].unused = true;
+            for c in &mut self.contexts {
+                c.unused = true;
             }
             // set scanner channel as current context
             self.current_context = *context; // all other items use context set by POINT14 reader

@@ -355,15 +355,14 @@ pub fn omerc_e_forward<P: TransformCoordinates>(omerc: &OmercData, proj: &Proj, 
 
 /// Oblique Mercator Ellipsoidal inverse project
 pub fn omerc_e_inverse<P: TransformCoordinates>(omerc: &OmercData, proj: &Proj, p: &mut P) {
-    let u;
-    let v;
-    if omerc.no_rot {
-        v = p.y();
-        u = p.x();
+    let (v, u) = if omerc.no_rot {
+        (p.y(), p.x())
     } else {
-        v = p.x() * omerc.cosrot - p.y() * omerc.sinrot;
-        u = p.y() * omerc.cosrot + p.x() * omerc.sinrot + omerc.u_0;
-    }
+        (
+            p.x() * omerc.cosrot - p.y() * omerc.sinrot,
+            p.y() * omerc.cosrot + p.x() * omerc.sinrot + omerc.u_0,
+        )
+    };
     let q_p = exp(-omerc.br_a * v);
     if q_p == 0. {
         panic!("Coordinate outside projection domain");
